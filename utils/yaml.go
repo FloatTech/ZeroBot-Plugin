@@ -32,7 +32,6 @@ func DefaultConfig() *YamlConfig {
 
 func Load(p string) *YamlConfig {
 	if !PathExists(p) {
-		CreatePath(p)
 		DefaultConfig().Save(p)
 	}
 	c := YamlConfig{}
