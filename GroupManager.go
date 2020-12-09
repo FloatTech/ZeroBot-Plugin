@@ -26,12 +26,12 @@ func main() {
 func init() {
 	fmt.Println(`
 ====================[GroupManager]====================
-* Mirai + ZeroBot + Golang
+* OneBot + ZeroBot + Golang
 * Copyright © 2018-2020 Kanri, All Rights Reserved
 * Project: https://github.com/Yiwen-Chan/GroupManager
 =======================================================
 `)
-	Conf = utils.Load("./data/config.yml")
+	Conf = utils.Load("./GroupManager.yml")
 	m.Conf = Conf
 	fmt.Println("[GroupManager] 有需要请按 GitHub 项目上描述的方法修改配置文件")
 }

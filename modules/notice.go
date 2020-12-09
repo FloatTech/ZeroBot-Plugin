@@ -17,7 +17,7 @@ func (notice) GetPluginInfo() zero.PluginInfo { // 返回插件信息
 		Author:     "kanri",
 		PluginName: "notice",
 		Version:    "0.0.1",
-		Details:    "设置群名片群头衔",
+		Details:    "进群退群提醒 戳一戳",
 	}
 }
 
