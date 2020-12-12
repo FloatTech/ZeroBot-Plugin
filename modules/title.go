@@ -45,7 +45,7 @@ func (title) Start() { // 插件主体
 	setSelfTitle := zero.OnRegex("^申请头衔(.*)", zero.OnlyGroup).
 		Handle(
 			func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
-				zero.SetGroupSpecialTitle(event.GroupID, event.UserID, GetStr(state, 2))
+				zero.SetGroupSpecialTitle(event.GroupID, event.UserID, GetStr(state, 1))
 				zero.Send(event, "嗯！不错的头衔呢~")
 				return zero.SuccessResponse
 			},
