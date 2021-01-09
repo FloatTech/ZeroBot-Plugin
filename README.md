@@ -84,7 +84,7 @@ GroupManager部分设置(GroupManager\config.json)
 	"ws_config": {
 		"enabled": true,
 		"host": "127.0.0.1",
-		"port": 2333
+		"port": 8080
 	},
 ...
 ```
