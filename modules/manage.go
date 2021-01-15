@@ -20,7 +20,7 @@ func (manage) GetPluginInfo() zero.PluginInfo { // 返回插件信息
 }
 
 func (manage) Start() { // 插件主体
-	promoteManager := zero.OnRegex("^升为管理.*?(\\d+)", zero.OnlyGroup, zero.AdminPermission).
+	promoteManager := zero.OnRegex("^升为管理.*?(\\d+)", zero.OnlyGroup, zero.SuperUserPermission).
 		Handle(
 			func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 				zero.SetGroupAdmin(event.GroupID, GetInt(state, 1), true)
@@ -32,7 +32,7 @@ func (manage) Start() { // 插件主体
 	promoteManager.Priority = 20
 	promoteManager.Block = true
 
-	cancleManager := zero.OnRegex("^取消管理.*?(\\d+)", zero.OnlyGroup, zero.AdminPermission).
+	cancleManager := zero.OnRegex("^取消管理.*?(\\d+)", zero.OnlyGroup, zero.SuperUserPermission).
 		Handle(
 			func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 				zero.SetGroupAdmin(event.GroupID, GetInt(state, 1), false)
