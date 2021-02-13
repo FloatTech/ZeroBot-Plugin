@@ -1,8 +1,8 @@
-module gm
+module bot
 
-go 1.14
+go 1.15
 
 require (
-	github.com/wdvxdr1123/ZeroBot v0.0.0-20201209121757-2a04edb62bac
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	github.com/wdvxdr1123/ZeroBot v0.0.0-20210212165900-0c6c4d79b40e
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
