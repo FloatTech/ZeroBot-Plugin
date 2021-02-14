@@ -1,28 +1,28 @@
-package groupmanager
+package manager
 
 import (
-	"bot/groupmanager/utils"
+	"bot/manager/utils"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 func init() {
-	zero.RegisterPlugin(groupManager{}) // 注册插件
+	zero.RegisterPlugin(manager{}) // 注册插件
 }
 
-type groupManager struct{} // pixivSearch 搜索P站插图
+type manager struct{} // pixivSearch 搜索P站插图
 
-func (_ groupManager) GetPluginInfo() zero.PluginInfo { // 返回插件信息
+func (_ manager) GetPluginInfo() zero.PluginInfo { // 返回插件信息
 	return zero.PluginInfo{
 		Author:     "kanri",
-		PluginName: "GroupManager",
+		PluginName: "Manager",
 		Version:    "0.0.1",
 		Details:    "群管",
 	}
 }
 
-func (_ groupManager) Start() { // 插件主体
+func (_ manager) Start() { // 插件主体
 	// TODO 菜单
 	zero.OnFullMatch("群管系统").SetBlock(true).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
@@ -82,7 +82,7 @@ func (_ groupManager) Start() { // 插件主体
 	// TODO 踢出群聊
 	zero.OnRegex(`^踢出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
-			zero.SetGroupAdmin(
+			zero.SetGroupKick(
 				event.GroupID,
 				utils.Str2Int(state["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
@@ -229,16 +229,16 @@ func (_ groupManager) Start() { // 插件主体
 			return zero.SuccessResponse
 		})
 	// TODO 戳一戳
-	zero.OnNotice().SetBlock(true).SetPriority(40).
+	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
-			if event.NoticeType == "notify" {
+			if event.NoticeType == "notify" && event.SubType == "poke" && event.RawEvent.Get("target_id").Int() == utils.Str2Int(zero.BotConfig.SelfID) {
 				time.Sleep(time.Second * 1)
 				zero.Send(event, "请不要戳我 >_<")
 			}
 			return zero.SuccessResponse
 		})
 	// TODO 入群欢迎
-	zero.OnNotice().SetBlock(true).SetPriority(40).
+	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 			if event.NoticeType == "group_increase" {
 				zero.Send(event, "欢迎~")
@@ -246,7 +246,7 @@ func (_ groupManager) Start() { // 插件主体
 			return zero.SuccessResponse
 		})
 	// TODO 退群提醒
-	zero.OnNotice().SetBlock(true).SetPriority(40).
+	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 			if event.NoticeType == "group_increase" {
 				zero.Send(event, "有人跑路了~")
