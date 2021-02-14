@@ -7,7 +7,9 @@ import (
 	easy "github.com/t-tomalak/logrus-easy-formatter"
 	zero "github.com/wdvxdr1123/ZeroBot"
 
-	_ "bot/groupmanager"
+	_ "bot/manager"
+	_ "bot/music"
+	_ "bot/setutime"
 )
 
 func init() {
@@ -20,11 +22,11 @@ func init() {
 
 func main() {
 	fmt.Printf(`
-====================[GroupManager]====================
+====================[ZeroBot-Plugin]====================
 * OneBot + ZeroBot + Golang
 * Copyright © 2018-2020 Kanri, All Rights Reserved
-* Project: https://github.com/Yiwen-Chan/GroupManager
-=======================================================
+* Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin
+========================================================
 `)
 	zero.Run(zero.Option{
 		Host:          "127.0.0.1",
