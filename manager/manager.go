@@ -248,7 +248,7 @@ func (_ manager) Start() { // 插件主体
 	// TODO 退群提醒
 	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
-			if event.NoticeType == "group_increase" {
+			if event.NoticeType == "group_decrease" {
 				zero.Send(event, "有人跑路了~")
 			}
 			return zero.SuccessResponse
