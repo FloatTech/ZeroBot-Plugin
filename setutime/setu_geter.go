@@ -3,11 +3,15 @@ package setutime
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	utils "bot/setutime/utils"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 )
+
+var limit = rate.NewManager(time.Minute*1, 5)
 
 type setuGet struct{} // setuGet 来份色图
 
@@ -66,6 +70,10 @@ type scenery struct {
 func (_ setuGet) Start() { // 插件主体
 	zero.OnFullMatchGroup([]string{"来份涩图", "setu", "来份色图"}).SetBlock(true).SetPriority(20).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
+			if limit.Load(event.UserID).Acquire() == false {
+				zero.Send(event, "请稍后重试0x0...")
+				return zero.FinishResponse
+			}
 			var (
 				type_  = "setu"
 				illust = &setu{}
@@ -110,6 +118,10 @@ func (_ setuGet) Start() { // 插件主体
 		})
 	zero.OnFullMatchGroup([]string{"二次元", "ecy", "来份二次元"}).SetBlock(true).SetPriority(20).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
+			if limit.Load(event.UserID).Acquire() == false {
+				zero.Send(event, "请稍后重试0x0...")
+				return zero.FinishResponse
+			}
 			var (
 				type_  = "ecy"
 				illust = &ecy{}
@@ -154,6 +166,10 @@ func (_ setuGet) Start() { // 插件主体
 		})
 	zero.OnFullMatchGroup([]string{"风景", "来份风景"}).SetBlock(true).SetPriority(20).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
+			if limit.Load(event.UserID).Acquire() == false {
+				zero.Send(event, "请稍后重试0x0...")
+				return zero.FinishResponse
+			}
 			var (
 				type_  = "scenery"
 				illust = &scenery{}
