@@ -29,7 +29,7 @@ func (_ manager) Start() { // 插件主体
 			zero.Send(event, `====群管====
 - 禁言@QQ 1
 - 解除禁言 @QQ
-- 我要自闭 1分钟
+- 我要自闭 1
 - 开启全员禁言
 - 解除全员禁言
 - 升为管理@QQ
@@ -128,9 +128,19 @@ func (_ manager) Start() { // 插件主体
 			return zero.SuccessResponse
 		})
 	// TODO 禁言
-	zero.OnRegex(`^禁言.*?(\d+).*?\s(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^禁言.*?(\d+).*?\s(\d+)(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 			duration := utils.Str2Int(state["regex_matched"].([]string)[2])
+			switch state["regex_matched"].([]string)[3] {
+			case "分钟":
+				//
+			case "小时":
+				duration = duration * 60
+			case "天":
+				duration = duration * 60 * 24
+			default:
+				//
+			}
 			if duration >= 43200 {
 				duration = 43199 // qq禁言最大时长为一个月
 			}
@@ -154,7 +164,7 @@ func (_ manager) Start() { // 插件主体
 			return zero.SuccessResponse
 		})
 	// TODO 自闭禁言
-	zero.OnRegex(`^我要自闭.*?(\d+)(.*?)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^我要自闭.*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 			duration := utils.Str2Int(state["regex_matched"].([]string)[2])
 			switch state["regex_matched"].([]string)[2] {
@@ -165,8 +175,7 @@ func (_ manager) Start() { // 插件主体
 			case "天":
 				duration = duration * 60 * 24
 			default:
-				zero.Send(event, "格式错误~")
-				return zero.SuccessResponse
+				//
 			}
 			if duration >= 43200 {
 				duration = 43199 // qq禁言最大时长为一个月
