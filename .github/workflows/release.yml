@@ -4,7 +4,7 @@ on:
 
 jobs:
   releases-matrix:
-    name: Build GroupManager 🚀
+    name: Build ZeroBot-Plugin 🚀
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,10 +23,10 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF:10}" >> $GITHUB_ENV
       - uses: pcrbot/go-release-action@master
         env:
-          CGO_ENABLED: 0
+          CGO_ENABLED: 1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goversion: "https://golang.org/dl/go1.15.3.linux-amd64.tar.gz"
-          ldflags: -w -s -X "github.com/Yiwen-Chan/GroupManager/gm.Version=${{ env.RELEASE_VERSION }}"
+          ldflags: -w -s -X "github.com/Yiwen-Chan/ZeroBot-Plugin/gm.Version=${{ env.RELEASE_VERSION }}"

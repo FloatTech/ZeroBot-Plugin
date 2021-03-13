@@ -117,8 +117,8 @@ func (_ manager) Start() { // 插件主体
 			zero.Send(event, "全员自闭开始~")
 			return zero.SuccessResponse
 		})
-	// TODO 解除全体禁言
-	zero.OnRegex(`^解除全体禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	// TODO 解除全员禁言
+	zero.OnRegex(`^解除全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 			zero.SetGroupWholeBan(
 				event.GroupID,
@@ -166,7 +166,7 @@ func (_ manager) Start() { // 插件主体
 	// TODO 自闭禁言
 	zero.OnRegex(`^我要自闭.*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
-			duration := utils.Str2Int(state["regex_matched"].([]string)[2])
+			duration := utils.Str2Int(state["regex_matched"].([]string)[1])
 			switch state["regex_matched"].([]string)[2] {
 			case "分钟":
 				//
@@ -183,7 +183,7 @@ func (_ manager) Start() { // 插件主体
 			zero.SetGroupBan(
 				event.GroupID,
 				event.UserID,
-				utils.Str2Int(state["regex_matched"].([]string)[1])*60, // 要自闭的时间（分钟）
+				duration*60, // 要自闭的时间（分钟）
 			)
 			zero.Send(event, "那我就不手下留情了~")
 			return zero.SuccessResponse
@@ -221,8 +221,8 @@ func (_ manager) Start() { // 插件主体
 		Handle(func(matcher *zero.Matcher, event zero.Event, state zero.State) zero.Response {
 			zero.SetGroupSpecialTitle(
 				event.GroupID,
-				utils.Str2Int(state["regex_matched"].([]string)[1]), // 被修改群头衔的人
-				state["regex_matched"].([]string)[2],                // 修改成的群头衔
+				event.UserID,                         // 被修改群头衔的人
+				state["regex_matched"].([]string)[1], // 修改成的群头衔
 			)
 			zero.Send(
 				event,

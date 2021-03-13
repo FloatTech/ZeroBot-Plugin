@@ -34,7 +34,7 @@ func main() {
 		AccessToken:   "",
 		NickName:      []string{"椛椛"},
 		CommandPrefix: "/",
-		SuperUsers:    []string{"825111790"},
+		SuperUsers:    []string{"825111790", "213864964"},
 	})
 	select {}
 }
