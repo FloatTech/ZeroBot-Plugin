@@ -1,12 +1,9 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
-
-	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 // Str2Int string --> int64
@@ -73,8 +70,4 @@ func Min(a, b int) int {
 	case a < b:
 		return a
 	}
-}
-
-func SendError(event zero.Event, err error) {
-	zero.Send(event, fmt.Sprintf("ERROR: %v", err))
 }
