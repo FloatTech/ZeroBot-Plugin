@@ -12,8 +12,8 @@ env:
 
 jobs:
   my-job:
-    name: Build ZeroBot-Plugin 🚀
-    runs-on: ubuntu-latest
+    name: Build ZeroBot-Plugin-windows 🚀
+    runs-on: windows-latest
     steps:
 
     - name: Set up Go
@@ -35,14 +35,14 @@ jobs:
     - name: Tidy Go modules
       run: go mod tidy
       
-    - name: Build windows
-      run: export GOOS=windows; export GOARCH=amd64; export CGO_ENABLED=1; go build -ldflags="-s -w  -extldflags '-static'" -o artifacts/ZeroBot-Plugin-linux
+    - name: Build
+      run: go build -o artifacts/ZeroBot-Plugin-windows.exe
     
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
         # Artifact name
-        name: ZeroBot-Plugin
+        name: ZeroBot-Plugin-windows.exe
         # A file, directory or wildcard pattern that describes what to upload
         path: ./artifacts
     
