@@ -1,11 +1,8 @@
-name: Compile ZeroBot-Plugin
+name: Compile ZeroBot-Plugin-linux
 on:
   push:
     branches: 
       - master
-  release:
-    types: 
-      - created
 
 env:
   GITHUB_TOKEN: ${{ github.token }}
@@ -36,25 +33,10 @@ jobs:
       run: go mod tidy
       
     - name: Build
-      run: go build -o artifacts/ZeroBot-Plugin-linux
+      run: go build -ldflags="-s -w" -o artifacts/ZeroBot-Plugin-linux
     
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
-        # Artifact name
         name: ZeroBot-Plugin-linux
-        # A file, directory or wildcard pattern that describes what to upload
         path: ./artifacts
-    
-    - name: Gets latest created release info
-      id: latest_release_info
-      uses: jossef/action-latest-release-info@v1.1.0
-
-    - name: Upload asset to github release page
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.latest_release_info.outputs.upload_url }} 
-        asset_path: ./artifacts/ZeroBot-Plugin-linux
-        asset_name: ZeroBot-Plugin-linux
-        asset_content_type: application/zip
