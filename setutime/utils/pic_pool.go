@@ -1,128 +1,78 @@
 package utils
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 	"sync"
-
-	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
-var (
-	CACHEPATH   string // 图片缓存路径
-	CACHE_GROUP int64  // 图片缓存群，用于上传图片到tx服务器
-)
-
-// PicsCache 图片缓冲池
-type PicsCache struct {
-	Lock     sync.Mutex
-	Max      int
-	ECY      []string
-	IECY     []Illust
-	SETU     []string
-	ISETU    []Illust
-	SCENERY  []string
-	ISCENERY []Illust
+// PoolsCache 图片缓冲池
+type PoolsCache struct {
+	Lock  sync.Mutex
+	Max   int
+	Path  string
+	Group int64
+	Pool  map[string][]*Illust
 }
 
-// Len 返回当前缓冲池的图片数量
-func (this *Illust) Len(type_ string, pool *PicsCache) (length int) {
-	switch type_ {
-	case "ecy":
-		return len(pool.ECY)
-	case "setu":
-		return len(pool.SETU)
-	case "scenery":
-		return len(pool.SCENERY)
+// NewPoolsCache 返回一个缓冲池对象
+func NewPoolsCache() *PoolsCache {
+	return &PoolsCache{
+		Max:   10,
+		Path:  "./data/SetuTime/cache/",
+		Group: 1048452984,
+		Pool:  map[string][]*Illust{},
 	}
-	return 0
 }
 
-// Add 添加图片到缓冲池，返回错误
-func (this Illust) Add(type_ string, pool *PicsCache) (err error) {
-	// TODO 下载图片
-	path, err := this.PixivPicDown(CACHEPATH)
-	if err != nil {
-		return err
-	}
-	hash := PicHash(path)
-	// TODO 发送到缓存群以上传tx服务器
-	if id := zero.SendGroupMessage(CACHE_GROUP, "[CQ:image,file=file:///"+path+"]"); id == 0 {
-		return errors.New("send failed")
-	}
-	// TODO 把hash和插图信息添加到缓冲池
-	pool.Lock.Lock()
-	defer pool.Lock.Unlock()
-	switch type_ {
-	case "ecy":
-		pool.ECY = append(pool.ECY, hash)
-		pool.IECY = append(pool.IECY, this)
-	case "setu":
-		pool.SETU = append(pool.SETU, hash)
-		pool.ISETU = append(pool.ISETU, this)
-	case "scenery":
-		pool.SCENERY = append(pool.SCENERY, hash)
-		pool.ISCENERY = append(pool.ISCENERY, this)
-	}
+// Size 返回缓冲池指定类型的现有大小
+func (p *PoolsCache) Size(type_ string) int {
+	return len(p.Pool[type_])
+}
+
+// IsFull 返回缓冲池指定类型是否已满
+func (p *PoolsCache) IsFull(type_ string) bool {
+	return len(p.Pool[type_]) >= p.Max
+}
+
+// Push 向缓冲池插入一张图片，返回错误
+func (p *PoolsCache) Push(type_ string, illust *Illust) (err error) {
+	p.Lock.Lock()
+	defer p.Lock.Unlock()
+	p.Pool[type_] = append(p.Pool[type_], illust)
 	return nil
 }
 
-// Get 从缓冲池里取出一张，返回hash，illust值中Pid和UserName会被改变
-func (this *Illust) Get(type_ string, pool *PicsCache) (hash string) {
-	pool.Lock.Lock()
-	defer pool.Lock.Unlock()
-	switch type_ {
-	case "ecy":
-		if len(pool.ECY) > 0 {
-			hash := pool.ECY[0]
-			this.Pid = pool.IECY[0].Pid
-			this.Title = pool.IECY[0].Title
-			this.UserName = pool.IECY[0].UserName
-			pool.ECY = pool.ECY[1:]
-			pool.IECY = pool.IECY[1:]
-			return hash
-		}
-	case "setu":
-		if len(pool.SETU) > 0 {
-			hash := pool.SETU[0]
-			this.Pid = pool.ISETU[0].Pid
-			this.Title = pool.ISETU[0].Title
-			this.UserName = pool.ISETU[0].UserName
-			pool.SETU = pool.SETU[1:]
-			pool.ISETU = pool.ISETU[1:]
-			return hash
-		}
-	case "scenery":
-		if len(pool.SCENERY) > 0 {
-			hash := pool.SCENERY[0]
-			this.Pid = pool.ISCENERY[0].Pid
-			this.Title = pool.ISCENERY[0].Title
-			this.UserName = pool.ISCENERY[0].UserName
-			pool.SCENERY = pool.SCENERY[1:]
-			pool.ISCENERY = pool.ISCENERY[1:]
-			return hash
-		}
-	default:
-		//
+// Push 在缓冲池拿出一张图片，返回错误
+func (p *PoolsCache) Pop(type_ string) (illust *Illust) {
+	p.Lock.Lock()
+	defer p.Lock.Unlock()
+	if p.Size(type_) == 0 {
+		return
 	}
-	return ""
+	illust = p.Pool[type_][0]
+	p.Pool[type_] = p.Pool[type_][1:]
+	return
 }
 
-func GetCQcodePicLink(text string) (url string) {
-	text = strings.ReplaceAll(text, "{", "")
-	text = strings.ReplaceAll(text, "{", "")
-	text = strings.ReplaceAll(text, "-", "")
-	if index := strings.Index(text, "."); index != -1 {
-		if hash := text[:index]; len(hash) == 32 {
-			return fmt.Sprintf("http://gchat.qpic.cn/gchatpic_new//--%s/0", hash)
-		}
+// Push 在缓冲池拿出一张图片，返回指定格式CQ码
+func (p *PoolsCache) GetOnePic(type_ string, form string) string {
+	var (
+		illust = p.Pop(type_)
+		file   = fmt.Sprintf("%s%d.jpg", p.Path, illust.Pid)
+	)
+	switch form {
+	case "XML":
+		return illust.BigPic(file)
+	case "DETAIL":
+		return illust.DetailPic(file)
+	default:
+		return illust.NormalPic(file)
 	}
-	return ""
 }
 
 // BigPic 返回一张XML大图CQ码
-func (this *Illust) BigPic(hash string) string {
+func (i *Illust) BigPic(file string) string {
+	var hash = PicHash(file)
 	return fmt.Sprintf(`[CQ:xml,data=<?xml version='1.0' 
 encoding='UTF-8' standalone='yes' ?><msg serviceID="5" 
 templateID="12345" action="" brief="不够涩！" 
@@ -135,29 +85,29 @@ action="" appid="-1" /></msg>]`,
 		hash,
 		hash,
 		hash,
-		this.Title,
-		this.Pid,
-		this.UserName,
+		i.Title,
+		i.Pid,
+		i.UserName,
 	)
 }
 
 // NormalPic 返回一张普通图CQ码
-func (this *Illust) NormalPic() string {
-	return fmt.Sprintf(`[CQ:image,file=file:///%s%d.jpg]`, CACHEPATH, this.Pid)
+func (i *Illust) NormalPic(file string) string {
+	return fmt.Sprintf(`[CQ:image,file=file:///%s]`, file)
 }
 
 // DetailPic 返回一张带详细信息的图片CQ码
-func (this *Illust) DetailPic() string {
+func (i *Illust) DetailPic(file string) string {
 	return fmt.Sprintf(`[SetuTime] %s 标题：%s 
 插画ID：%d 
 画师：%s 
 画师ID：%d 
 直链：https://pixivel.moe/detail?id=%d`,
-		this.NormalPic(),
-		this.Title,
-		this.Pid,
-		this.UserName,
-		this.UserId,
-		this.Pid,
+		i.NormalPic(file),
+		i.Title,
+		i.Pid,
+		i.UserName,
+		i.UserId,
+		i.Pid,
 	)
 }

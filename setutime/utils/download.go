@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-
-	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 // urlCache 缓存并返回缓存路径
@@ -26,7 +24,6 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	if PathExists(savePath) && FileSize(savePath) > 10240 {
 		return savePath, nil
 	}
-	zero.SendGroupMessage(CACHE_GROUP, "正在下载"+url)
 	// TODO 模拟QQ客户端请求
 	client := &http.Client{}
 	reqest, _ := http.NewRequest("GET", url, nil)
@@ -51,6 +48,7 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	return savePath, err
 }
 
+// PicHash 返回图片的 md5 值
 func PicHash(path string) string {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
