@@ -103,7 +103,6 @@ func init() { // 插件主体
 				type_  = ctx.State["regex_matched"].([]string)[1]
 				id     = utils.Str2Int(ctx.State["regex_matched"].([]string)[2])
 				illust = &utils.Illust{}
-				file   = fmt.Sprintf("%s%d.jpg", PoolsCache.Path, illust.Pid)
 			)
 			ctx.Send("少女祈祷中......")
 			// TODO 查询P站插图信息
@@ -117,6 +116,7 @@ func init() { // 插件主体
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
+			file := fmt.Sprintf("%s%d.jpg", PoolsCache.Path, illust.Pid)
 			if id := ctx.Send(illust.DetailPic(file)); id == 0 {
 				ctx.Send(fmt.Sprintf("ERROR: %v", "可能被风控，发送失败"))
 				return
