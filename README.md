@@ -12,6 +12,8 @@
 - 点歌
 - TODO...
 
+### 使用方法
+
 本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
 | 项目地址 | 平台 | 核心作者 | 备注 |
 | --- | --- | --- | --- |
@@ -21,7 +23,6 @@
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
-### 使用方法
 #### 本地编译
 1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
 2. 下载安装 [TDM-GCC](https://github.com/jmeubank/tdm-gcc/releases)，并添加到环境变量
