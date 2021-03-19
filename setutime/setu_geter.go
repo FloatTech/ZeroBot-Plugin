@@ -50,14 +50,12 @@ func init() { // 插件主体
 				ctx.Send("请稍后重试0x0...")
 				return
 			}
-			var (
-				type_  = ctx.State["regex_matched"].([]string)[1]
-				illust = &utils.Illust{}
-			)
+			var type_ = ctx.State["regex_matched"].([]string)[1]
 			// TODO 补充池子
 			go func() {
 				times := utils.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
 				for i := 0; i < times; i++ {
+					illust := &utils.Illust{}
 					// 查询出一张图片
 					if err := DB.Select(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
 						ctx.Send(fmt.Sprintf("ERROR: %v", err))
