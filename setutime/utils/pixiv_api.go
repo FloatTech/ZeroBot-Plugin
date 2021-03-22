@@ -30,12 +30,12 @@ func (this *Illust) IllustInfo(id int64) (err error) {
 	api := fmt.Sprintf("https://pixiv.net/ajax/illust/%d", id)
 	transport := http.Transport{
 		DisableKeepAlives: true,
-		// TODO 绕过sni审查
+		// 绕过sni审查
 		TLSClientConfig: &tls.Config{
 			ServerName:         "-",
 			InsecureSkipVerify: true,
 		},
-		// TODO 更改dns
+		// 更改dns
 		Dial: func(network, addr string) (net.Conn, error) {
 			return net.Dial("tcp", "210.140.131.223:443")
 		},
@@ -44,7 +44,7 @@ func (this *Illust) IllustInfo(id int64) (err error) {
 		Transport: &transport,
 	}
 
-	// TODO 网络请求
+	// 网络请求
 	req, err := http.NewRequest("GET", api, nil)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (this *Illust) IllustInfo(id int64) (err error) {
 	}
 	json := gjson.ParseBytes(body).Get("body")
 
-	// TODO 如果有"R-18"tag则判断为R-18（暂时）
+	// 如果有"R-18"tag则判断为R-18（暂时）
 	var ageLimit = "all-age"
 	for _, tag := range json.Get("tags.tags.#.tag").Array() {
 		if tag.Str == "R-18" {
@@ -75,12 +75,12 @@ func (this *Illust) IllustInfo(id int64) (err error) {
 			break
 		}
 	}
-	// TODO 解决json返回带html格式
+	// 解决json返回带html格式
 	var caption = strings.ReplaceAll(json.Get("illustComment").Str, "<br />", "\n")
 	if index := strings.Index(caption, "<"); index != -1 {
 		caption = caption[:index]
 	}
-	// TODO 解析返回插画信息
+	// 解析返回插画信息
 	this.Pid = json.Get("illustId").Int()
 	this.Title = json.Get("illustTitle").Str
 	this.Caption = caption

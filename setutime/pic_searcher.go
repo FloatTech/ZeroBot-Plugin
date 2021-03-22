@@ -8,38 +8,38 @@ import (
 )
 
 func init() { // 插件主体
-	// TODO 根据PID搜图
+	// 根据PID搜图
 	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
 			id := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
 			ctx.Send("少女祈祷中......")
-			// TODO 获取P站插图信息
+			// 获取P站插图信息
 			illust := &utils.Illust{}
 			if err := illust.IllustInfo(id); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
-			// TODO 下载P站插图
+			// 下载P站插图
 			if _, err := illust.PixivPicDown(CACHEPATH); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
-			// TODO 发送搜索结果
+			// 发送搜索结果
 			ctx.Send(illust.DetailPic)
 			return
 		})
-	// TODO 通过回复以图搜图
+	// 通过回复以图搜图
 	zero.OnRegex(`\[CQ:reply,id=(.*?)\](.*)搜索图片`).SetBlock(true).SetPriority(32).
 		Handle(func(ctx *zero.Ctx) {
 			var pics []string // 图片搜索池子
-			// TODO 获取回复的上文图片链接
+			// 获取回复的上文图片链接
 			id := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
 			for _, elem := range ctx.GetMessage(id).Elements {
 				if elem.Type == "image" {
 					pics = append(pics, elem.Data["url"])
 				}
 			}
-			// TODO 没有收到图片则向用户索取
+			// 没有收到图片则向用户索取
 			if len(pics) == 0 {
 				ctx.Send("请发送多张图片！")
 				next := ctx.FutureEvent("message", ctx.CheckSession())
@@ -64,7 +64,7 @@ func init() { // 插件主体
 				ctx.Send("没有收到图片，搜图结束......")
 				return
 			}
-			// TODO 开始搜索图片
+			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
 			for _, pic := range pics {
 				if text, err := utils.SauceNaoSearch(pic); err == nil {
@@ -82,17 +82,17 @@ func init() { // 插件主体
 			}
 			return
 		})
-	// TODO 通过命令以图搜图
+	// 通过命令以图搜图
 	zero.OnKeywordGroup([]string{"以图识图", "以图搜图", "搜索图片"}).SetBlock(true).SetPriority(33).
 		Handle(func(ctx *zero.Ctx) {
 			var pics []string // 图片搜索池子
-			// TODO 获取信息中图片链接
+			// 获取信息中图片链接
 			for _, elem := range ctx.Event.Message {
 				if elem.Type == "image" {
 					pics = append(pics, elem.Data["url"])
 				}
 			}
-			// TODO 没有收到图片则向用户索取
+			// 没有收到图片则向用户索取
 			if len(pics) == 0 {
 				ctx.Send("请发送多张图片！")
 				next := ctx.FutureEvent("message", zero.CheckUser(ctx.Event.UserID))
@@ -117,7 +117,7 @@ func init() { // 插件主体
 				ctx.Send("没有收到图片，搜图结束......")
 				return
 			}
-			// TODO 开始搜索图片
+			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
 			for _, pic := range pics {
 				if text, err := utils.SauceNaoSearch(pic); err == nil {

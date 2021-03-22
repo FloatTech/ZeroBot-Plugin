@@ -51,7 +51,7 @@ func init() { // 插件主体
 				return
 			}
 			var type_ = ctx.State["regex_matched"].([]string)[1]
-			// TODO 补充池子
+			// 补充池子
 			go func() {
 				times := utils.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
 				for i := 0; i < times; i++ {
@@ -88,7 +88,7 @@ func init() { // 插件主体
 					return
 				}
 			}
-			// TODO 从缓冲池里抽一张
+			// 从缓冲池里抽一张
 			if id := ctx.Send(PoolsCache.GetOnePic(type_, FORM)); id == 0 {
 				ctx.Send(fmt.Sprintf("ERROR: %v", errors.New("可能被风控了")))
 			}
@@ -103,13 +103,13 @@ func init() { // 插件主体
 				illust = &utils.Illust{}
 			)
 			ctx.Send("少女祈祷中......")
-			// TODO 查询P站插图信息
+			// 查询P站插图信息
 
 			if err := illust.IllustInfo(id); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
-			// TODO 下载插画
+			// 下载插画
 			if _, err := illust.PixivPicDown(PoolsCache.Path); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
@@ -119,7 +119,7 @@ func init() { // 插件主体
 				ctx.Send(fmt.Sprintf("ERROR: %v", "可能被风控，发送失败"))
 				return
 			}
-			// TODO 添加插画到对应的数据库table
+			// 添加插画到对应的数据库table
 			if err := DB.Insert(type_, illust); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
@@ -134,7 +134,7 @@ func init() { // 插件主体
 				type_ = ctx.State["regex_matched"].([]string)[1]
 				id    = utils.Str2Int(ctx.State["regex_matched"].([]string)[2])
 			)
-			// TODO 查询数据库
+			// 查询数据库
 			if err := DB.Delete(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
@@ -143,7 +143,7 @@ func init() { // 插件主体
 			return
 		})
 
-	// TODO 查询数据库涩图数量
+	// 查询数据库涩图数量
 	zero.OnFullMatchGroup([]string{"setu -s", "setu --status"}).SetBlock(true).SetPriority(23).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
@@ -160,14 +160,14 @@ func init() { // 插件主体
 			ctx.Send(strings.Join(state, ""))
 			return
 		})
-	// TODO 开xml模式
+	// 开xml模式
 	zero.OnFullMatchGroup([]string{"setu -x", "setu --xml"}).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			FORM = "XML"
 			ctx.Send("[SetuTime] XML->ON")
 			return
 		})
-	// TODO 关xml模式
+	// 关xml模式
 	zero.OnFullMatchGroup([]string{"setu -p", "setu --pic"}).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			FORM = "PIC"

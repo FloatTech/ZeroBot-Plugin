@@ -18,13 +18,13 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	url = strings.ReplaceAll(url, "img-original", "img-master")
 	url = strings.ReplaceAll(url, "_p0", "_p0_master1200")
 	url = strings.ReplaceAll(url, ".png", ".jpg")
-	// TODO 文件名为url的hash值
+	// 文件名为url的hash值
 	savePath = path + Int2Str(pid) + ".jpg"
-	// TODO 文件存在或文件大小大于10kb
+	// 文件存在或文件大小大于10kb
 	if PathExists(savePath) && FileSize(savePath) > 10240 {
 		return savePath, nil
 	}
-	// TODO 模拟QQ客户端请求
+	// 模拟QQ客户端请求
 	client := &http.Client{}
 	reqest, _ := http.NewRequest("GET", url, nil)
 	reqest.Header.Add("User-Agent", "QQ/8.2.0.1296 CFNetwork/1126")
@@ -39,7 +39,7 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 		return "", errors.New(fmt.Sprintf("Download failed, code %d", code))
 	}
 	defer resp.Body.Close()
-	// TODO 写入文件
+	// 写入文件
 	data, _ := ioutil.ReadAll(resp.Body)
 	f, _ := os.OpenFile(savePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	defer f.Close()
