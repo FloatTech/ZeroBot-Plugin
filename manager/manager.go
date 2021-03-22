@@ -2,13 +2,14 @@ package manager
 
 import (
 	"bot/manager/utils"
+	"strings"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 func init() { // 插件主体
-	// TODO 菜单
+	// 菜单
 	zero.OnFullMatch("群管系统").SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send(`====群管====
@@ -26,7 +27,7 @@ func init() { // 插件主体
 - 私聊转发 0000 XXX`)
 			return
 		})
-	// TODO 升为管理
+	// 升为管理
 	zero.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupAdmin(
@@ -42,7 +43,7 @@ func init() { // 插件主体
 			ctx.Send(nickname + " 升为了管理~")
 			return
 		})
-	// TODO 取消管理
+	// 取消管理
 	zero.OnRegex(`^取消管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupAdmin(
@@ -58,7 +59,7 @@ func init() { // 插件主体
 			ctx.Send("残念~ " + nickname + " 暂时失去了管理员的资格")
 			return
 		})
-	// TODO 踢出群聊
+	// 踢出群聊
 	zero.OnRegex(`^踢出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupKick(
@@ -74,7 +75,7 @@ func init() { // 插件主体
 			ctx.Send("残念~ " + nickname + " 被放逐")
 			return
 		})
-	// TODO 退出群聊
+	// 退出群聊
 	zero.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupLeave(
@@ -83,7 +84,7 @@ func init() { // 插件主体
 			)
 			return
 		})
-	// TODO 开启全体禁言
+	// 开启全体禁言
 	zero.OnRegex(`^开启全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupWholeBan(
@@ -93,7 +94,7 @@ func init() { // 插件主体
 			ctx.Send("全员自闭开始~")
 			return
 		})
-	// TODO 解除全员禁言
+	// 解除全员禁言
 	zero.OnRegex(`^解除全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupWholeBan(
@@ -103,7 +104,7 @@ func init() { // 插件主体
 			ctx.Send("全员自闭结束~")
 			return
 		})
-	// TODO 禁言
+	// 禁言
 	zero.OnRegex(`^禁言.*?(\d+).*?\s(\d+)(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			duration := utils.Str2Int(ctx.State["regex_matched"].([]string)[2])
@@ -128,7 +129,7 @@ func init() { // 插件主体
 			ctx.Send("小黑屋收留成功~")
 			return
 		})
-	// TODO 解除禁言
+	// 解除禁言
 	zero.OnRegex(`^解除禁言.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupBan(
@@ -139,7 +140,7 @@ func init() { // 插件主体
 			ctx.Send("小黑屋释放成功~")
 			return
 		})
-	// TODO 自闭禁言
+	// 自闭禁言
 	zero.OnRegex(`^我要自闭.*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			duration := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
@@ -164,7 +165,7 @@ func init() { // 插件主体
 			ctx.Send("那我就不手下留情了~")
 			return
 		})
-	// TODO 修改名片
+	// 修改名片
 	zero.OnRegex(`^修改名片.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupCard(
@@ -175,7 +176,7 @@ func init() { // 插件主体
 			ctx.Send("嗯！已经修改了")
 			return
 		})
-	// TODO 修改头衔
+	// 修改头衔
 	zero.OnRegex(`^修改头衔.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupSpecialTitle(
@@ -186,7 +187,7 @@ func init() { // 插件主体
 			ctx.Send("嗯！已经修改了")
 			return
 		})
-	// TODO 申请头衔
+	// 申请头衔
 	zero.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupSpecialTitle(
@@ -197,27 +198,35 @@ func init() { // 插件主体
 			ctx.Send("嗯！不错的头衔呢~")
 			return
 		})
-	// TODO 群聊转发
+	// 群聊转发
 	zero.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
+			// 对CQ码进行反转义
+			content := ctx.State["regex_matched"].([]string)[2]
+			content = strings.ReplaceAll(content, "&#91;", "[")
+			content = strings.ReplaceAll(content, "&#93;", "]")
 			ctx.SendGroupMessage(
 				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 需要发送的群
-				ctx.State["regex_matched"].([]string)[2],                // 需要发送的信息
+				content, // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
 			return
 		})
-	// TODO 私聊转发
+	// 私聊转发
 	zero.OnRegex(`^私聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
+			// 对CQ码进行反转义
+			content := ctx.State["regex_matched"].([]string)[2]
+			content = strings.ReplaceAll(content, "&#91;", "[")
+			content = strings.ReplaceAll(content, "&#93;", "]")
 			ctx.SendPrivateMessage(
 				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 需要发送的人的qq
-				ctx.State["regex_matched"].([]string)[2],                // 需要发送的信息
+				content, // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
 			return
 		})
-	// TODO 戳一戳
+	// 戳一戳
 	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "notify" && ctx.Event.SubType == "poke" && ctx.Event.RawEvent.Get("target_id").Int() == utils.Str2Int(zero.BotConfig.SelfID) {
@@ -226,7 +235,7 @@ func init() { // 插件主体
 			}
 			return
 		})
-	// TODO 入群欢迎
+	// 入群欢迎
 	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_increase" {
@@ -234,7 +243,7 @@ func init() { // 插件主体
 			}
 			return
 		})
-	// TODO 退群提醒
+	// 退群提醒
 	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {

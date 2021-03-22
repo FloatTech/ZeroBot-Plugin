@@ -27,7 +27,7 @@ func SauceNaoSearch(pic string) (text string, err error) {
 		Transport: &transport,
 	}
 
-	// TODO 包装请求参数
+	// 包装请求参数
 	data := url.Values{}
 	data.Set("url", pic)         // 图片链接
 	data.Set("api_key", apiKey)  // api_key
@@ -36,7 +36,7 @@ func SauceNaoSearch(pic string) (text string, err error) {
 	data.Set("output_type", "2") // 返回JSON格式数据
 	fromData := strings.NewReader(data.Encode())
 
-	// TODO 网络请求
+	// 网络请求
 	req, err := http.NewRequest("POST", api, fromData)
 	if err != nil {
 		return "", err
@@ -65,7 +65,7 @@ func SauceNaoSearch(pic string) (text string, err error) {
 	if content.Get("results.0.header.similarity").Float() < minSimilarity {
 		return "", errors.New("SauceNAO not found")
 	}
-	// TODO 正常发送
+	// 正常发送
 	return fmt.Sprintf(
 		`[SetuTime] 我有把握是这个！[CQ:image,file=%s]相似度：%s%%
 标题：%s
