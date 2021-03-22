@@ -10,7 +10,7 @@ import (
 
 func init() { // 插件主体
 	// TODO 根据PID搜图
-	zero.OnRegex(`点歌(.*)`).SetBlock(true).SetPriority(50).
+	zero.OnRegex(`^点歌(.*)$`).SetBlock(true).SetPriority(50).
 		Handle(func(ctx *zero.Ctx) {
 			music, err := utils.CloudMusic(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {

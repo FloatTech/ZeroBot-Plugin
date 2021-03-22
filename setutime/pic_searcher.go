@@ -9,7 +9,7 @@ import (
 
 func init() { // 插件主体
 	// TODO 根据PID搜图
-	zero.OnRegex(`搜图(\d+)`).SetBlock(true).SetPriority(30).
+	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
 			id := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
 			ctx.Send("少女祈祷中......")

@@ -44,7 +44,7 @@ func init() {
 }
 
 func init() { // 插件主体
-	zero.OnRegex(`来份(.*)`, FirstValueInList(PoolList)).SetBlock(true).SetPriority(20).
+	zero.OnRegex(`^来份(.*)$`, FirstValueInList(PoolList)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			if limit.Load(ctx.Event.UserID).Acquire() == false {
 				ctx.Send("请稍后重试0x0...")
@@ -95,7 +95,7 @@ func init() { // 插件主体
 			return
 		})
 
-	zero.OnRegex(`添加(.*?)(\d+)`, FirstValueInList(PoolList), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
+	zero.OnRegex(`^添加(.*?)(\d+)$`, FirstValueInList(PoolList), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_  = ctx.State["regex_matched"].([]string)[1]
@@ -128,7 +128,7 @@ func init() { // 插件主体
 			return
 		})
 
-	zero.OnRegex(`删除(.*?)(\d+)`, FirstValueInList(PoolList), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
+	zero.OnRegex(`^删除(.*?)(\d+)$`, FirstValueInList(PoolList), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
@@ -144,7 +144,7 @@ func init() { // 插件主体
 		})
 
 	// TODO 查询数据库涩图数量
-	zero.OnFullMatchGroup([]string{"setu -s", "setu --status"}, zero.SuperUserPermission).SetBlock(true).SetPriority(23).
+	zero.OnFullMatchGroup([]string{"setu -s", "setu --status"}).SetBlock(true).SetPriority(23).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
 			for i := range PoolList {
@@ -161,14 +161,14 @@ func init() { // 插件主体
 			return
 		})
 	// TODO 开xml模式
-	zero.OnFullMatchGroup([]string{"setu -x", "setu --xml"}, zero.AdminPermission).SetBlock(true).SetPriority(24).
+	zero.OnFullMatchGroup([]string{"setu -x", "setu --xml"}).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			FORM = "XML"
 			ctx.Send("[SetuTime] XML->ON")
 			return
 		})
 	// TODO 关xml模式
-	zero.OnFullMatchGroup([]string{"setu -p", "setu --pic"}, zero.AdminPermission).SetBlock(true).SetPriority(24).
+	zero.OnFullMatchGroup([]string{"setu -p", "setu --pic"}).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			FORM = "PIC"
 			ctx.Send("[SetuTime] XML->OFF")
