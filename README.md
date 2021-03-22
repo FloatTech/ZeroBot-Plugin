@@ -2,9 +2,12 @@
 
 # ZeroBot-Plugin
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Yiwen-Chan/ZeroBot-Plugin)](https://goreportcard.com/report/github.com/github.com/Yiwen-Chan/ZeroBot-Plugin)
 ![Badge](https://img.shields.io/badge/OneBot-v11-black)
+![Badge](https://img.shields.io/badge/ZeroBot-v1.0.1-black)
 [![License](https://img.shields.io/github/license/Yiwen-Chan/ZeroBot-Plugin.svg)](https://raw.githubusercontent.com/Yiwen-Chan/ZeroBot-Plugin/master/LICENSE)
 [![反馈群](https://img.shields.io/badge/反馈群-1048452984-green.svg)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
+
 
 ### 功能
 - 群管
