@@ -202,7 +202,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendGroupMessage(
 				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 需要发送的群
-				ctx.State["regex_matched"].([]string)[1],                // 需要发送的信息
+				ctx.State["regex_matched"].([]string)[2],                // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
 			return
@@ -212,7 +212,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendPrivateMessage(
 				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 需要发送的人的qq
-				ctx.State["regex_matched"].([]string)[1],                // 需要发送的信息
+				ctx.State["regex_matched"].([]string)[2],                // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
 			return
