@@ -178,7 +178,7 @@ func (db *Sqlite) Num(table string) (num int, err error) {
 func tags(objptr interface{}) []string {
 	var tags []string
 	elem := reflect.ValueOf(objptr).Elem()
-	// TODO 判断第一个元素是否为匿名字段
+	// 判断第一个元素是否为匿名字段
 	if elem.Type().Field(0).Anonymous {
 		elem = elem.Field(0)
 	}
@@ -192,7 +192,7 @@ func tags(objptr interface{}) []string {
 func kinds(objptr interface{}) []string {
 	var kinds []string
 	elem := reflect.ValueOf(objptr).Elem()
-	// TODO 判断第一个元素是否为匿名字段
+	// 判断第一个元素是否为匿名字段
 	if elem.Type().Field(0).Anonymous {
 		elem = elem.Field(0)
 	}
@@ -213,7 +213,7 @@ func kinds(objptr interface{}) []string {
 func values(objptr interface{}) []interface{} {
 	var values []interface{}
 	elem := reflect.ValueOf(objptr).Elem()
-	// TODO 判断第一个元素是否为匿名字段
+	// 判断第一个元素是否为匿名字段
 	if elem.Type().Field(0).Anonymous {
 		elem = elem.Field(0)
 	}
@@ -234,7 +234,7 @@ func values(objptr interface{}) []interface{} {
 func addrs(objptr interface{}) []interface{} {
 	var addrs []interface{}
 	elem := reflect.ValueOf(objptr).Elem()
-	// TODO 判断第一个元素是否为匿名字段
+	// 判断第一个元素是否为匿名字段
 	if elem.Type().Field(0).Anonymous {
 		elem = elem.Field(0)
 	}
