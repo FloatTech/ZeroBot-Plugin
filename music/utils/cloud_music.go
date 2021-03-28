@@ -16,7 +16,7 @@ func CloudMusic(name string) (music CQMusic, err error) {
 
 	client := &http.Client{}
 
-	// TODO 包装请求参数
+	// 包装请求参数
 	data := url.Values{}
 	data.Set("offset", "0")
 	data.Set("total", "true")
@@ -25,7 +25,7 @@ func CloudMusic(name string) (music CQMusic, err error) {
 	data.Set("s", name)
 	fromData := strings.NewReader(data.Encode())
 
-	// TODO 网络请求
+	// 网络请求
 	req, err := http.NewRequest("POST", api, fromData)
 	if err != nil {
 		return music, err
