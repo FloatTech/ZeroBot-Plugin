@@ -8,8 +8,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 
+	_ "bot/github"
 	_ "bot/manager"
 	_ "bot/music"
+	_ "bot/run"
 	setutime "bot/setutime"
 )
 
