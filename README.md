@@ -1,14 +1,20 @@
-<img src="https://socialify.git.ci/Yiwen-Chan/ZeroBot-Plugin/image?forks=1&issues=1&language=1&owner=1&pulls=1&stargazers=1&theme=Light" alt="ZeroBot-Plugin" width="640" height="320" />
+<div align="center">
+  <img src=".github/yaya.jpg" width = "150" height = "150" alt="OneBot-YaYa"><br>
+  <h2>ZeroBot-Plugin</h2>
+  ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
-# ZeroBot-Plugin
+[![YAYA](https://img.shields.io/badge/OneBot-YaYa-green.svg?style=social&logo=appveyor)](https://github.com/Yiwen-Chan/OneBot-YaYa)
+[![GOCQ](https://img.shields.io/badge/OneBot-MiraiGo-green.svg?style=social&logo=appveyor)](https://github.com/Mrs4s/go-cqhttp)
+[![OICQ](https://img.shields.io/badge/OneBot-OICQ-green.svg?style=social&logo=appveyor)](https://github.com/takayama-lily/node-onebot)
+[![MIRAI](https://img.shields.io/badge/OneBot-Mirai-green.svg?style=social&logo=appveyor)](https://github.com/yyuueexxiinngg/onebot-kotlin)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Yiwen-Chan/ZeroBot-Plugin)](https://goreportcard.com/report/github.com/github.com/Yiwen-Chan/ZeroBot-Plugin)
-![Badge](https://img.shields.io/badge/OneBot-v11-black)
-![Badge](https://img.shields.io/badge/ZeroBot-v1.0.1-black)
-[![License](https://img.shields.io/github/license/Yiwen-Chan/ZeroBot-Plugin.svg)](https://raw.githubusercontent.com/Yiwen-Chan/ZeroBot-Plugin/master/LICENSE)
-[![反馈群](https://img.shields.io/badge/反馈群-1048452984-green.svg)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Yiwen-Chan/ZeroBot-Plugin?style=flat-square&logo=go)](https://goreportcard.com/report/github.com/github.com/Yiwen-Chan/ZeroBot-Plugin)
+[![Badge](https://img.shields.io/badge/onebot-v11-black?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF/mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHRpZmY6T3JpZW50YXRpb249IjEiIHhtcDpDcmVhdGVEYXRlPSIyMDIxLTAzLTMxVDIzOjQxOjQ2KzA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMS0wNC0wMVQwMDo0Nzo1MyswODowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMS0wNC0wMVQwMDo0Nzo1MyswODowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozNjhhYWJjMy01OGExLTc1NGUtODE1NS1mODdjM2RjZTEwZDYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzAxZDJjMWQtMzFiMS0wMzQ1LWJiMzMtNTNkZGM1OTA2YTU1IiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NzAxZDJjMWQtMzFiMS0wMzQ1LWJiMzMtNTNkZGM1OTA2YTU1Ij4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NzAxZDJjMWQtMzFiMS0wMzQ1LWJiMzMtNTNkZGM1OTA2YTU1IiBzdEV2dDp3aGVuPSIyMDIxLTA0LTAxVDAwOjQ2OjU4KzA4OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDozNjhhYWJjMy01OGExLTc1NGUtODE1NS1mODdjM2RjZTEwZDYiIHN0RXZ0OndoZW49IjIwMjEtMDQtMDFUMDA6NDc6NTMrMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+0b8KkwAAAidJREFUKJFlUr9rU2EUPS9fXmtIQJe6dHQQsWhLhyo6KIhu+gc4KII4CF0UOjg4ORT/AlFKKRQMdOg/IRiRFGnaJlBKERprfLXv5aV9P+53v+OShBQP3OHCPZd7zzkeSYyCJJxzN1R1T1XnjDF/AXwZGxvDf4MjdZfkd5IMgmAliqJPzjkmSbJ1fHz8UESGs6OkZ+wjiqJftVptodFoXBORPZLM85wHBwcLWZadIU6RZJqmrFarr1ZXV7Gzs4MgCGCtxenp6XNVZZZlPDw8vKOqQ2KdJMMwfL28vIxms4k8z4fXqCqyLHvaf6EdxzE8klcBNMIw/HNycnJxcnISAF7keZ6KSItkUqlUfvSX7KrqpU6nc68AYA4A6vX6+vz8PNI0RRRFN621l7Msm3LOnRvRcs33fVhrZwsAfAAwxvTSNEW73UalUnlbKpWa4+Pjfq/XeyIi8DwPnuclAFAqlYpF59xWoVDA9PT0/aWlJZTLZRhjzsdxHBeLxbKqXhjx+gFJbG5u7sI55znnfltr2el0bltrQRKNRgNJkmDQq+pMXxzZ3t6ugCSstY9IUkTSXq83KyJQ1VFVr5OMSXJ/f//l0EfnHKy1H0hSVZkkyUoYhre63e4VVV0ZBGNjY2P96OjobHKccxCRN9ZakmSz2awGQfCZJOM4Zr1ef7+4uIhBcoqDrz3PgzHmnYh8FJHHxpivvu/PdLvdbyKy1mq1fk5MTEBVAQD/ALTu+OKfsSMLAAAAAElFTkSuQmCC)](https://github.com/howmanybots/onebot)
+[![Badge](https://img.shields.io/badge/zerobot-v1.0.1-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
+[![License](https://img.shields.io/github/license/Yiwen-Chan/OneBot-YaYa.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/Yiwen-Chan/ZeroBot-Plugin/master/LICENSE)
+[![qq group](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
 
-
+</div>
 ### 功能
 - 群管
     - [x] 禁言[@xxx][分钟]
