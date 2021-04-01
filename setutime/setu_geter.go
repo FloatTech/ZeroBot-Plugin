@@ -6,8 +6,7 @@ import (
 	"strings"
 	"time"
 
-	utils "bot/setutime/utils"
-
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 )

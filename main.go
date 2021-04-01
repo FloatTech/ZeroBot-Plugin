@@ -8,11 +8,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 
-	_ "bot/github"
-	_ "bot/manager"
-	_ "bot/music"
-	_ "bot/run"
-	setutime "bot/setutime"
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"
+	setutime "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"
 )
 
 func init() {

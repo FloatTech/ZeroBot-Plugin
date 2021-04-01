@@ -1,10 +1,10 @@
 package manager
 
 import (
-	"bot/manager/utils"
 	"strings"
 	"time"
 
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/manager/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
@@ -23,6 +23,8 @@ func init() { // 插件主体
 - 修改名片@QQ XXX
 - 修改头衔@QQ XXX
 - 申请头衔 XXX
+- 踢出群聊@QQ
+- 退出群聊 1234
 - 群聊转发 1234 XXX
 - 私聊转发 0000 XXX`)
 			return
@@ -250,5 +252,13 @@ func init() { // 插件主体
 				ctx.Send("有人跑路了~")
 			}
 			return
+		})
+	// 运行 CQ 码
+	zero.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(0).
+		Handle(func(ctx *zero.Ctx) {
+			var cmd = ctx.State["regex_matched"].([]string)[1]
+			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
+			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
+			ctx.Send(cmd)
 		})
 }

@@ -1,9 +1,9 @@
 package setutime
 
 import (
-	utils "bot/setutime/utils"
 	"fmt"
 
+	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 

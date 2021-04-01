@@ -1,4 +1,4 @@
-module bot
+module github.com/Yiwen-Chan/ZeroBot-Plugin
 
 go 1.15
 
