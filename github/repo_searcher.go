@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -13,7 +14,12 @@ import (
 func init() { // 插件主体
 	zero.OnRegex(`>G\s(.*)`).SetBlock(true).SetPriority(0).
 		Handle(func(ctx *zero.Ctx) {
-			link := "https://api.github.com/search/repositories?q=" + ctx.State["regex_matched"].([]string)[1]
+			api, _ := url.Parse("https://api.github.com/search/repositories")
+			params := url.Values{}
+			params.Set("q", ctx.State["regex_matched"].([]string)[1])
+			api.RawQuery = params.Encode()
+			link := api.String()
+
 			client := &http.Client{}
 
 			req, err := http.NewRequest("GET", link, nil)
