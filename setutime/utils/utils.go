@@ -8,8 +8,8 @@ import (
 
 // Str2Int string --> int64
 func Str2Int(str string) int64 {
-	val, _ := strconv.ParseInt(str, 10, 64)
-	return val
+	val, _ := strconv.Atoi(str)
+	return int64(val)
 }
 
 // Int2Str int64 --> string
