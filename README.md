@@ -15,6 +15,8 @@
 [![qq group](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
 
 </div>
+
+
 ### 功能
 - 群管
     - [x] 禁言[@xxx][分钟]
