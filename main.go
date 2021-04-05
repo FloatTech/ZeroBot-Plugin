@@ -8,6 +8,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/chat"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"
