@@ -2,9 +2,11 @@ package utils
 
 import (
 	"crypto/md5"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -14,7 +16,6 @@ import (
 func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	url := this.ImageUrls
 	pid := this.Pid
-	url = strings.ReplaceAll(url, "i.pximg.net", "i.pixiv.cat")
 	url = strings.ReplaceAll(url, "img-original", "img-master")
 	url = strings.ReplaceAll(url, "_p0", "_p0_master1200")
 	url = strings.ReplaceAll(url, ".png", ".jpg")
@@ -24,11 +25,26 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	if PathExists(savePath) && FileSize(savePath) > 10240 {
 		return savePath, nil
 	}
+
 	// 模拟QQ客户端请求
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http.Transport{
+			DisableKeepAlives: true,
+			// 绕过sni审查
+			TLSClientConfig: &tls.Config{
+				ServerName:         "-",
+				InsecureSkipVerify: true,
+			},
+			// 更改dns
+			Dial: func(network, addr string) (net.Conn, error) {
+				return net.Dial("tcp", "210.140.92.140:443")
+			},
+		},
+	}
 	reqest, _ := http.NewRequest("GET", url, nil)
-	reqest.Header.Add("User-Agent", "QQ/8.2.0.1296 CFNetwork/1126")
-	reqest.Header.Add("Net-Type", "Wifi")
+	reqest.Header.Set("Referer", "https://www.pixiv.net/")
+	reqest.Header.Set("Host", "i.pximg.net")
+	reqest.Header.Set("User-Agent", "QQ/8.2.0.1296 CFNetwork/1126")
 
 	resp, err := client.Do(reqest)
 	if err != nil {
