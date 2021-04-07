@@ -2,7 +2,6 @@ package manager
 
 import (
 	"strings"
-	"time"
 
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/manager/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -226,15 +225,6 @@ func init() { // 插件主体
 				content, // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
-			return
-		})
-	// 戳一戳
-	zero.OnNotice().SetBlock(false).SetPriority(40).
-		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.NoticeType == "notify" && ctx.Event.SubType == "poke" && ctx.Event.RawEvent.Get("target_id").Int() == utils.Str2Int(zero.BotConfig.SelfID) {
-				time.Sleep(time.Second * 1)
-				ctx.Send("请不要戳我 >_<")
-			}
 			return
 		})
 	// 入群欢迎
