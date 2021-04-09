@@ -5,32 +5,32 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/tidwall/gjson"
+	zero "github.com/wdvxdr1123/ZeroBot"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 func init()  {
-	zero.OnCommand("点歌").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(QQMusic(ctx.State["args"].(string)))
+	zero.OnRegex("^酷我点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
+		ctx.Send(KuWo(ctx.State["regex_matched"].([]string)[1]))
 		return
 	})
 
-	zero.OnCommand("酷我点歌").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(KuWo(ctx.State["args"].(string)))
+	zero.OnRegex("^酷狗点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
+		ctx.Send(KuGou(ctx.State["regex_matched"].([]string)[1]))
 		return
 	})
 
-	zero.OnCommand("酷狗点歌").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(KuGou(ctx.State["args"].(string)))
+	zero.OnRegex("^网易点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
+		ctx.Send(WyCloud(ctx.State["regex_matched"].([]string)[1]))
 		return
 	})
 
-	zero.OnCommand("网易点歌").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(WyCloud(ctx.State["args"].(string)))
+	zero.OnRegex("^点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
+		ctx.Send(QQMusic(ctx.State["regex_matched"].([]string)[1]))
 		return
 	})
 }
