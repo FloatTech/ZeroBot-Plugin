@@ -12,7 +12,7 @@ import (
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"
-	setutime "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"
+	//_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"
 )
 
 func init() {
@@ -21,9 +21,6 @@ func init() {
 		LogFormat:       "[zero][%time%][%lvl%]: %msg% \n",
 	})
 	log.SetLevel(log.DebugLevel)
-
-	setutime.CACHEGROUP = 868047498                       // 涩图缓冲群，必须修改
-	setutime.PoolList = []string{"涩图", "二次元", "风景", "车万"} // 涩图类型，可以不修改
 }
 
 func main() {
