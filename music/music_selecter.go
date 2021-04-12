@@ -12,31 +12,30 @@ import (
 
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+var limit = rate.NewManager(time.Minute*3, 5)
+
 func init() {
-	zero.OnRegex("^酷我点歌(.+?)$").SetBlock(true).FirstPriority().
+	zero.OnRegex("^(.{0,2})点歌(.{1,25})$").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(kuwo(ctx.State["regex_matched"].([]string)[1]))
-			return
-		})
-
-	zero.OnRegex("^酷狗点歌(.+?)$").SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(kugou(ctx.State["regex_matched"].([]string)[1]))
-			return
-		})
-
-	zero.OnRegex("^网易点歌(.+?)$").SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[1]))
-			return
-		})
-
-	zero.OnRegex("^点歌(.+?)$").SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[1]))
+			if !limit.Load(ctx.Event.UserID).Acquire() {
+				ctx.Send("请稍后重试0x0...")
+				return
+			}
+			// switch 平台
+			switch ctx.State["regex_matched"].([]string)[1] {
+			case "酷我":
+				ctx.SendChain(kuwo(ctx.State["regex_matched"].([]string)[2]))
+			case "酷狗":
+				ctx.SendChain(kugou(ctx.State["regex_matched"].([]string)[2]))
+			case "网易":
+				ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[2]))
+			default: // 默认 QQ音乐
+				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
+			}
 			return
 		})
 }

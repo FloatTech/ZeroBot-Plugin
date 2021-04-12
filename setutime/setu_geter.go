@@ -45,7 +45,7 @@ func init() {
 func init() { // 插件主体
 	zero.OnRegex(`^来份(.*)$`, FirstValueInList(PoolList)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
-			if limit.Load(ctx.Event.UserID).Acquire() == false {
+			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.Send("请稍后重试0x0...")
 				return
 			}

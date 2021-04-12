@@ -35,7 +35,7 @@ func main() {
 ========================================================
 `)
 	zero.Run(zero.Config{
-		NickName:      []string{"bot"},
+		NickName:      []string{"椛椛"},
 		CommandPrefix: "/",
 		SuperUsers:    []string{"825111790", "213864964"}, // 必须修改，否则无权限
 		Driver: []zero.Driver{

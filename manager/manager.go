@@ -1,20 +1,20 @@
 package manager
 
 import (
+	"strconv"
 	"strings"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/manager/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 func init() { // 插件主体
 	// 菜单
-	zero.OnFullMatch("群管系统").SetBlock(true).SetPriority(40).
+	zero.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send(`====群管====
-- 禁言@QQ 1
+- 禁言@QQ 1分钟
 - 解除禁言 @QQ
-- 我要自闭 1
+- 我要自闭 1分钟
 - 开启全员禁言
 - 解除全员禁言
 - 升为管理@QQ
@@ -33,12 +33,12 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupAdmin(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被升为管理的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被升为管理的人的qq
 				true,
 			)
 			nickname := ctx.GetGroupMemberInfo( // 被升为管理的人的昵称
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被升为管理的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被升为管理的人的qq
 				false,
 			).Get("nickname").Str
 			ctx.Send(nickname + " 升为了管理~")
@@ -49,12 +49,12 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupAdmin(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被取消管理的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被取消管理的人的qq
 				false,
 			)
 			nickname := ctx.GetGroupMemberInfo( // 被取消管理的人的昵称
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被取消管理的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被取消管理的人的qq
 				false,
 			).Get("nickname").Str
 			ctx.Send("残念~ " + nickname + " 暂时失去了管理员的资格")
@@ -65,12 +65,12 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupKick(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
 			)
 			nickname := ctx.GetGroupMemberInfo( // 被踢出群聊的人的昵称
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
 			).Get("nickname").Str
 			ctx.Send("残念~ " + nickname + " 被放逐")
@@ -80,7 +80,7 @@ func init() { // 插件主体
 	zero.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupLeave(
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 要退出的群的群号
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 要退出的群的群号
 				true,
 			)
 			return
@@ -108,7 +108,7 @@ func init() { // 插件主体
 	// 禁言
 	zero.OnRegex(`^禁言.*?(\d+).*?\s(\d+)(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			duration := utils.Str2Int(ctx.State["regex_matched"].([]string)[2])
+			duration := strToInt(ctx.State["regex_matched"].([]string)[2])
 			switch ctx.State["regex_matched"].([]string)[3] {
 			case "分钟":
 				//
@@ -124,7 +124,7 @@ func init() { // 插件主体
 			}
 			ctx.SetGroupBan(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 要禁言的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 要禁言的人的qq
 				duration*60, // 要禁言的时间（分钟）
 			)
 			ctx.Send("小黑屋收留成功~")
@@ -135,7 +135,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupBan(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 要解除禁言的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 要解除禁言的人的qq
 				0,
 			)
 			ctx.Send("小黑屋释放成功~")
@@ -144,7 +144,7 @@ func init() { // 插件主体
 	// 自闭禁言
 	zero.OnRegex(`^我要自闭.*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			duration := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
+			duration := strToInt(ctx.State["regex_matched"].([]string)[1])
 			switch ctx.State["regex_matched"].([]string)[2] {
 			case "分钟":
 				//
@@ -171,8 +171,8 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupCard(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被修改群名片的人
-				ctx.State["regex_matched"].([]string)[2],                // 修改成的群名片
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被修改群名片的人
+				ctx.State["regex_matched"].([]string)[2],           // 修改成的群名片
 			)
 			ctx.Send("嗯！已经修改了")
 			return
@@ -182,8 +182,8 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 被修改群头衔的人
-				ctx.State["regex_matched"].([]string)[2],                // 修改成的群头衔
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 被修改群头衔的人
+				ctx.State["regex_matched"].([]string)[2],           // 修改成的群头衔
 			)
 			ctx.Send("嗯！已经修改了")
 			return
@@ -207,7 +207,7 @@ func init() { // 插件主体
 			content = strings.ReplaceAll(content, "&#91;", "[")
 			content = strings.ReplaceAll(content, "&#93;", "]")
 			ctx.SendGroupMessage(
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 需要发送的群
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 需要发送的群
 				content, // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
@@ -221,7 +221,7 @@ func init() { // 插件主体
 			content = strings.ReplaceAll(content, "&#91;", "[")
 			content = strings.ReplaceAll(content, "&#93;", "]")
 			ctx.SendPrivateMessage(
-				utils.Str2Int(ctx.State["regex_matched"].([]string)[1]), // 需要发送的人的qq
+				strToInt(ctx.State["regex_matched"].([]string)[1]), // 需要发送的人的qq
 				content, // 需要发送的信息
 			)
 			ctx.Send("📧 --> " + ctx.State["regex_matched"].([]string)[1])
@@ -251,4 +251,9 @@ func init() { // 插件主体
 			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
 			ctx.Send(cmd)
 		})
+}
+
+func strToInt(str string) int64 {
+	val, _ := strconv.ParseInt(str, 10, 64)
+	return val
 }
