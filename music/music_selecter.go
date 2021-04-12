@@ -18,27 +18,28 @@ import (
 func init() {
 	zero.OnRegex("^酷我点歌(.+?)$").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.Send(kuwo(ctx.State["regex_matched"].([]string)[1]))
+			ctx.SendChain(kuwo(ctx.State["regex_matched"].([]string)[1]))
 			return
 		})
 
-	zero.OnRegex("^酷狗点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(kugou(ctx.State["regex_matched"].([]string)[1]))
-		return
-	})
+	zero.OnRegex("^酷狗点歌(.+?)$").SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(kugou(ctx.State["regex_matched"].([]string)[1]))
+			return
+		})
 
-	zero.OnRegex("^网易点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(cloud163(ctx.State["regex_matched"].([]string)[1]))
-		return
-	})
+	zero.OnRegex("^网易点歌(.+?)$").SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[1]))
+			return
+		})
 
-	zero.OnRegex("^点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(qqmusic(ctx.State["regex_matched"].([]string)[1]))
-		return
-	})
+	zero.OnRegex("^点歌(.+?)$").SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[1]))
+			return
+		})
 }
-
-//-----------------------------------------------------------------------
 
 // kuwo 返回酷我音乐卡片
 func kuwo(keyword string) message.MessageSegment {
@@ -192,8 +193,6 @@ func qqmusic(keyword string) message.MessageSegment {
 		info.Get("songname").Str,
 	).Add("content", info.Get("singer.0.name").Str).Add("image", image)
 }
-
-//-----------------------------------------------------------------------
 
 // find 返回 pre 到 suf 之间的文本
 func find(pre string, suf string, str string) string {
