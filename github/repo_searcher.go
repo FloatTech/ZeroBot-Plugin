@@ -12,11 +12,12 @@ import (
 )
 
 func init() { // 插件主体
-	zero.OnRegex(`>G\s(.*)`).SetBlock(true).SetPriority(0).
+	zero.OnRegex(`>G\s(.*)`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			api, _ := url.Parse("https://api.github.com/search/repositories")
-			params := url.Values{}
-			params.Set("q", ctx.State["regex_matched"].([]string)[1])
+			params := url.Values{
+				"q": []string{ctx.State["regex_matched"].([]string)[1]},
+			}
 			api.RawQuery = params.Encode()
 			link := api.String()
 

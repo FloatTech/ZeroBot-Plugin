@@ -28,12 +28,12 @@ func init() {
 	})
 
 	zero.OnRegex("^网易点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(WyCloud(ctx.State["regex_matched"].([]string)[1]))
+		ctx.Send(cloud163(ctx.State["regex_matched"].([]string)[1]))
 		return
 	})
 
 	zero.OnRegex("^点歌(.+?)$").SetBlock(true).SetPriority(50).Handle(func(ctx *zero.Ctx) {
-		ctx.Send(QQMusic(ctx.State["regex_matched"].([]string)[1]))
+		ctx.Send(qqmusic(ctx.State["regex_matched"].([]string)[1]))
 		return
 	})
 }
@@ -80,7 +80,7 @@ func kuwo(keyword string) message.MessageSegment {
 // kugou 返回酷狗音乐卡片
 func kugou(keyword string) message.MessageSegment {
 	stamp := time.Now().UnixNano() / 1e6
-	hash := GetMd5(
+	hash := md5str(
 		fmt.Sprintf(
 			"NVPh5oo715z5DIWAeQlhMDsWXXQV4hwtbitrate=0callback=callback123clienttime=%dclientver=2000dfid=-inputtype=0iscorrection=1isfuzzy=0keyword=%smid=%dpage=1pagesize=30platform=WebFilterprivilege_filter=0srcappid=2919tag=emuserid=-1uuid=%dNVPh5oo715z5DIWAeQlhMDsWXXQV4hwt",
 			stamp, keyword, stamp, stamp,
@@ -131,82 +131,91 @@ func kugou(keyword string) message.MessageSegment {
 	).Add("content", audio.Get("author_name").Str).Add("image", audio.Get("img").Str)
 }
 
-func WyCloud(KeyWord string) string {
-	res := NetPost(
-		"http://music.163.com/api/search/pc",
-		map[string]string{"offset": "0", "total": "true", "limit": "9", "type": "1", "s": KeyWord},
-		map[string]string{
-			"Content-Type": "application/x-www-form-urlencoded",
-			"User-Agent":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
-		},
-	)
-	info := gjson.ParseBytes(res).Get("result.songs.0")
-	return fmt.Sprintf(
-		"[CQ:music,type=custom,url=%s,audio=%s,title=%s,content=%s,image=%s]",
+// cloud163 返回网易云音乐卡片
+func cloud163(keyword string) message.MessageSegment {
+	headers := http.Header{
+		"Content-Type": []string{"application/x-www-form-urlencoded"},
+		"User-Agent":   []string{"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"},
+	}
+	data := url.Values{
+		"offset": []string{"0"},
+		"total":  []string{"true"},
+		"limit":  []string{"9"},
+		"type":   []string{"1"},
+		"s":      []string{keyword},
+	}
+	// 搜索音乐信息 第一首歌
+	info := gjson.ParseBytes(netPost("http://music.163.com/api/search/pc", data, headers)).Get("result.songs.0")
+	// 返回音乐卡片
+	return message.CustomMusic(
 		fmt.Sprintf("http://y.music.163.com/m/song?id=%d", info.Get("id").Int()),
 		fmt.Sprintf("http://music.163.com/song/media/outer/url?id=%d.mp3", info.Get("id").Int()),
 		info.Get("name").Str,
-		info.Get("artists.0.name").Str,
-		info.Get("album.blurPicUrl").Str,
-	)
+	).Add("content", info.Get("artists.0.name").Str).Add("image", info.Get("album.blurPicUrl").Str)
 }
 
-func QQMusic(KeyWord string) string {
-	params := `https://u.y.qq.com/cgi-bin/musicu.fcg?data=%7B%22req%22%3A+%7B%22module%22%3A+%22CDN.SrfCdnDispatchServer%22%2C+%22method%22%3A+%22GetCdnDispatch%22%2C+%22param%22%3A+%7B%22guid%22%3A+%223982823384%22%2C+%22calltype%22%3A+0%2C+%22userip%22%3A+%22%22%7D%7D%2C+%22req_0%22%3A+%7B%22module%22%3A+%22vkey.GetVkeyServer%22%2C+%22method%22%3A+%22CgiGetVkey%22%2C+%22param%22%3A+%7B%22guid%22%3A+%223982823384%22%2C+%22songmid%22%3A+%5B%22{}%22%5D%2C+%22songtype%22%3A+%5B0%5D%2C+%22uin%22%3A+%220%22%2C+%22loginflag%22%3A+1%2C+%22platform%22%3A+%2220%22%7D%7D%2C+%22comm%22%3A+%7B%22uin%22%3A+0%2C+%22format%22%3A+%22json%22%2C+%22ct%22%3A+24%2C+%22cv%22%3A+0%7D%7D`
-	res := NetGet(
-		"https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w="+KeyWord,
-		map[string]string{"User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"},
-	)
+// qqmusic 返回QQ音乐卡片
+func qqmusic(keyword string) message.MessageSegment {
+	// 搜索音乐信息 第一首歌
+	h1 := http.Header{
+		"User-Agent": []string{"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"},
+	}
+	search, _ := url.Parse("https://c.y.qq.com/soso/fcgi-bin/client_search_cp")
+	search.RawQuery = url.Values{
+		"w": []string{keyword},
+	}.Encode()
+	res := netGet(search.String(), h1)
 	info := gjson.ParseBytes(res[9 : len(res)-1]).Get("data.song.list.0")
-	return fmt.Sprintf(
-		"[CQ:music,type=custom,url=%s,audio=%s,title=%s,content=%s,image=%s]",
+	// 获得音乐直链
+	h2 := http.Header{
+		"User-Agent": []string{"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"},
+		"referer":    []string{"http://y.qq.com"},
+	}
+	music, _ := url.Parse("https://u.y.qq.com/cgi-bin/musicu.fcg")
+	music.RawQuery = url.Values{
+		"data": []string{`{"req": {"module": "CDN.SrfCdnDispatchServer", "method": "GetCdnDispatch", "param": {"guid": "3982823384", "calltype": 0, "userip": ""}}, "req_0": {"module": "vkey.GetVkeyServer", "method": "CgiGetVkey", "param": {"guid": "3982823384", "songmid": ["` + info.Get("songmid").Str + `"], "songtype": [0], "uin": "0", "loginflag": 1, "platform": "20"}}, "comm": {"uin": 0, "format": "json", "ct": 24, "cv": 0}}`},
+	}.Encode()
+	audio := gjson.ParseBytes(netGet(music.String(), h2))
+	// 获得音乐封面
+	image := "https://y.gtimg.cn/music/photo_new" +
+		find(
+			"src=\"//y.gtimg.cn/music/photo_new",
+			"?max_age",
+			string(
+				netGet("https://y.qq.com/n/yqq/song/"+info.Get("songmid").Str+".html", nil),
+			),
+		)
+	// 返回音乐卡片
+	return message.CustomMusic(
 		"https://y.qq.com/n/yqq/song/"+info.Get("songmid").Str+".html",
-		"https://isure.stream.qqmusic.qq.com/"+gjson.ParseBytes(
-			NetGet(
-				strings.Replace(params, "{}", info.Get("songmid").Str, -1),
-				map[string]string{
-					"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
-					"referer":    "http://y.qq.com",
-				})).Get("req_0.data.midurlinfo.0.purl").Str,
+		"https://isure.stream.qqmusic.qq.com/"+audio.Get("req_0.data.midurlinfo.0.purl").Str,
 		info.Get("songname").Str,
-		info.Get("singer.0.name").Str,
-		"https://y.gtimg.cn/music/photo_new"+StrMidGet("//y.gtimg.cn/music/photo_new", "?max_age", string(NetGet("https://y.qq.com/n/yqq/song/"+info.Get("songmid").Str+".html", map[string]string{}))),
-	)
+	).Add("content", info.Get("singer.0.name").Str).Add("image", image)
 }
 
 //-----------------------------------------------------------------------
 
-func StrMidGet(pre string, suf string, str string) string {
+// find 返回 pre 到 suf 之间的文本
+func find(pre string, suf string, str string) string {
 	n := strings.Index(str, pre)
 	if n == -1 {
 		n = 0
 	} else {
 		n = n + len(pre)
 	}
-	str = string([]byte(str)[n:])
+	str = str[n:]
 	m := strings.Index(str, suf)
 	if m == -1 {
 		m = len(str)
 	}
-	return string([]byte(str)[:m])
+	return str[:m]
 }
 
-func GetMd5(s string) string {
+// md5str 返回字符串 MD5
+func md5str(s string) string {
 	h := md5.New()
 	h.Write([]byte(s))
 	result := strings.ToUpper(hex.EncodeToString(h.Sum(nil)))
-	return result
-}
-
-func NetGet(get_url string, headers map[string]string) []byte {
-	client := &http.Client{}
-	request, _ := http.NewRequest("GET", get_url, nil)
-	for key, value := range headers {
-		request.Header.Add(key, value)
-	}
-	res, _ := client.Do(request)
-	defer res.Body.Close()
-	result, _ := ioutil.ReadAll(res.Body)
 	return result
 }
 
@@ -215,23 +224,24 @@ func netGet(get_url string, header http.Header) []byte {
 	client := &http.Client{}
 	request, _ := http.NewRequest("GET", get_url, nil)
 	request.Header = header
-	res, _ := client.Do(request)
+	res, err := client.Do(request)
+	if err != nil {
+		return nil
+	}
 	defer res.Body.Close()
 	result, _ := ioutil.ReadAll(res.Body)
 	return result
 }
 
-func NetPost(post_url string, data map[string]string, headers map[string]string) []byte {
+// netPost 返回请求数据
+func netPost(post_url string, data url.Values, header http.Header) []byte {
 	client := &http.Client{}
-	param := url.Values{}
-	for key, value := range data {
-		param.Set(key, value)
+	request, _ := http.NewRequest("POST", post_url, strings.NewReader(data.Encode()))
+	request.Header = header
+	res, err := client.Do(request)
+	if err != nil {
+		return nil
 	}
-	request, _ := http.NewRequest("POST", post_url, strings.NewReader(param.Encode()))
-	for key, value := range headers {
-		request.Header.Add(key, value)
-	}
-	res, _ := client.Do(request)
 	defer res.Body.Close()
 	result, _ := ioutil.ReadAll(res.Body)
 	return result
