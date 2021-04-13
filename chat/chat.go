@@ -32,7 +32,7 @@ func init() { // 插件主体
 			}else {
 				ctx.Send("你想让"+nickname+"学些什么呀？")
 			}
-			return
+			return 
 		}
 
 		if strings.Index(text,nickname+"请忘掉 ")==0{
