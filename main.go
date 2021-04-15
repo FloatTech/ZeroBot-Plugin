@@ -27,7 +27,7 @@ func main() {
 	fmt.Printf(`
 ====================[ZeroBot-Plugin]====================
 * OneBot + ZeroBot + Golang
-* Copyright © 2018-2020 Kanri, All Rights Reserved
+* Copyright © 2020-2021 Kanri, All Rights Reserved
 * Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin
 ========================================================
 `)
