@@ -50,9 +50,8 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(resp.StatusCode)
-	if code := resp.StatusCode; code != 200 {
-		return "", errors.New(fmt.Sprintf("Download failed, code %d", code))
+	if resp.StatusCode != 200 {
+		return "", errors.New(fmt.Sprintf("Download failed, code %d", resp.StatusCode))
 	}
 	defer resp.Body.Close()
 	// 写入文件
