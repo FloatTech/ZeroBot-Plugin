@@ -25,14 +25,16 @@ type QA struct {
 
 var (
 	BotPath   = botPath()
-	ImagePath = "data\\chat\\image\\"
+	BotQQ     = "0"
+	ImagePath = "data/chat/image/"
 
-	Char      = map[int64]string{}
-	CharIndex = map[string]int64{"椛椛": 0, "ATRI": 1}
+	Char      = map[int64]string{}                   // 群对应角色
+	CharIndex = map[string]int64{"椛椛": 0, "ATRI": 1} // 角色对应编号
 
-	QACharPool  = &QA{Data: map[int64]map[string]string{}, Path: BotPath + "data\\chat\\char.json"}
-	QAGroupPool = &QA{Data: map[int64]map[string]string{}, Path: BotPath + "data\\chat\\group.json"}
-	QAUserPool  = &QA{Data: map[int64]map[string]string{}, Path: BotPath + "data\\chat\\user.json"}
+	// 角色问、有人问、我问 对象
+	QACharPool  = &QA{Data: map[int64]map[string]string{}, Path: BotPath + "data/chat/char.json"}
+	QAGroupPool = &QA{Data: map[int64]map[string]string{}, Path: BotPath + "data/chat/group.json"}
+	QAUserPool  = &QA{Data: map[int64]map[string]string{}, Path: BotPath + "data/chat/user.json"}
 )
 
 func init() {
@@ -48,32 +50,52 @@ func init() {
 			Char[ctx.Event.GroupID] = ctx.State["regex_matched"].([]string)[1]
 			ctx.SendChain(message.Text("已经切换了哦~"))
 		})
-	zero.OnRegex(`(.{1,2})问(.*)你答(.*)`, QAMatch(), QAPermission()).SetBlock(true).FirstPriority().
+	zero.OnRegex(`(.{1,2})问(.*)你答\s?\s?([\s\S]*)`, QAMatch(), QAPermission()).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			question := ctx.State["regex_matched"].([]string)[2]
 			answer := ctx.State["regex_matched"].([]string)[3]
 			// 根据匹配使用不同池子对象
 			pool := ctx.State["qa_pool"].(*QA)
 			user := ctx.State["qa_user"].(int64)
+			// 重组艾特
+			q := message.ParseMessageFromString(question)
+			for i := range q {
+				if q[i].Type == "at" && q[i].Data["qq"] == fmt.Sprint(ctx.Event.SelfID) {
+					q[i].Data["qq"] = "BOT_QQ"
+				}
+			}
+			question = q.CQString()
+
+			// 对 CQ码 的 "[" 进行正则转义
+			question = strings.ReplaceAll(question, "[", "\\[")
+			question = strings.ReplaceAll(question, "]", "\\]")
+			question = message.UnescapeCQCodeText(question)
+
+			// 判断 question 是否符合正则表达式
+			_, err := regexp.Compile("^" + question + "$")
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			// 保存图片，重组图片信息
 			r := message.ParseMessageFromString(answer)
 			for i := range r {
-				if r[i].Type != "image" {
-					continue
-				}
-				if filename, err := down(r[i].Data["url"], BotPath+ImagePath); err == nil {
-					r[i].Data["file"] = "file:///BOTPATH\\" + ImagePath + filename
-					delete(r[i].Data, "url")
-				} else { // 下载图片发生错误
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+				if r[i].Type == "image" {
+					if filename, err := down(r[i].Data["url"], BotPath+ImagePath); err == nil {
+						r[i].Data["file"] = "file:///BOT_PATH/" + ImagePath + filename
+						delete(r[i].Data, "url")
+					} else { // 下载图片发生错误
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
 				}
 			}
 			answer = r.CQString()
+
 			// 如果是BOT主人，则可以CQ码注入
-			if zero.AdminPermission(ctx) {
-				answer = strings.ReplaceAll(answer, "&#91;", "[")
-				answer = strings.ReplaceAll(answer, "&#93;", "]")
+			// 不存在CQ码也需要转义
+			if !strings.Contains(answer, "CQ") || zero.SuperUserPermission(ctx) {
+				answer = message.UnescapeCQCodeText(answer)
 			}
 			// 添加到池子
 			pool.add(user, question, answer)
@@ -85,6 +107,17 @@ func init() {
 			// 根据匹配使用不同池子对象
 			pool := ctx.State["qa_pool"].(*QA)
 			user := ctx.State["qa_user"].(int64)
+			if !strings.Contains(question, "CQ") || zero.AdminPermission(ctx) {
+				question = message.UnescapeCQCodeText(question)
+			}
+			// 重组艾特
+			q := message.ParseMessageFromString(question)
+			for i := range q {
+				if q[i].Type == "at" && q[i].Data["qq"] == fmt.Sprint(ctx.Event.SelfID) {
+					q[i].Data["qq"] = "BOT_QQ"
+				}
+			}
+			question = q.CQString()
 			if answer := pool.del(user, question); answer != "" {
 				ctx.SendChain(message.Text("我不会再回答[", answer, "]了"))
 			} else {
@@ -97,7 +130,7 @@ func init() {
 			r := []string{}
 			switch ctx.State["regex_matched"].([]string)[1] {
 			case "角色":
-				char := zero.BotConfig.NickName[0]
+				char := "椛椛"
 				if Char[ctx.Event.GroupID] != "" {
 					char = Char[ctx.Event.GroupID]
 				}
@@ -124,7 +157,8 @@ func init() {
 		})
 	zero.OnMessage().SetBlock(false).SetPriority(9999).
 		Handle(func(ctx *zero.Ctx) {
-			m := ctx.Event.RawEvent.Get("message").Str
+			BotQQ = fmt.Sprint(ctx.Event.SelfID)
+			m := message.UnescapeCQCodeText(ctx.Event.RawEvent.Get("message").Str)
 			// 角色问
 			if answer := QACharPool.get(CharIndex[Char[ctx.Event.GroupID]], m); answer != "" {
 				ctx.Send(answer)
@@ -132,7 +166,7 @@ func init() {
 			}
 			// 有人问
 			if answer := QAGroupPool.get(ctx.Event.GroupID, m); answer != "" {
-				ctx.Send(strings.ReplaceAll(answer, "BOTPATH", BotPath))
+				ctx.Send(answer)
 				return
 			}
 			// 我问
@@ -146,12 +180,12 @@ func init() {
 
 func botPath() string {
 	dir, _ := os.Getwd()
-	return dir + "\\"
+	return dir + "/"
 }
 
 func (qa *QA) load() {
 	path := qa.Path
-	idx := strings.LastIndex(qa.Path, "\\")
+	idx := strings.LastIndex(qa.Path, "/")
 	if idx != -1 {
 		path = path[:idx]
 	}
@@ -172,7 +206,7 @@ func (qa *QA) load() {
 
 func (qa *QA) save() {
 	path := qa.Path
-	idx := strings.LastIndex(qa.Path, "\\")
+	idx := strings.LastIndex(qa.Path, "/")
 	if idx != -1 {
 		path = path[:idx]
 	}
@@ -207,6 +241,8 @@ func (qa *QA) del(user int64, question string) (answer string) {
 
 func (qa *QA) get(user int64, msg string) (answer string) {
 	for question, answer := range qa.Data[user] {
+		// 替换BOT
+		question = strings.ReplaceAll(question, "BOT_QQ", BotQQ)
 		r := regexp.MustCompile("^" + question + "$")
 		if r.MatchString(msg) {
 			match := r.FindStringSubmatch(msg)
@@ -217,9 +253,11 @@ func (qa *QA) get(user int64, msg string) (answer string) {
 				}
 				answer = strings.ReplaceAll(answer, fmt.Sprintf("$%d", i), p)
 			}
+			// 替换图片路径
+			answer = strings.ReplaceAll(answer, "BOT_PATH", BotPath)
 			// 随机回复
-			if strings.Contains(answer, "*") {
-				s := strings.Split(answer, "*")
+			if strings.Contains(answer, "|") {
+				s := strings.Split(answer, "|")
 				return s[rand.Intn(len(s))]
 			}
 			return answer
@@ -260,7 +298,7 @@ func down(url, path string) (filename string, err error) {
 	if err != nil && !os.IsExist(err) {
 		os.MkdirAll(path, 0644)
 	}
-	f, err := os.OpenFile(path+"\\"+filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	f, err := os.OpenFile(path+"/"+filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		return "", err
 	}
