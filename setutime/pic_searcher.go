@@ -2,9 +2,13 @@ package setutime
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
 
 	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() { // 插件主体
@@ -28,111 +32,97 @@ func init() { // 插件主体
 			ctx.Send(illust.DetailPic)
 			return
 		})
-	// 通过回复以图搜图
-	zero.OnRegex(`\[CQ:reply,id=(.*?)\](.*)搜索图片`).SetBlock(true).SetPriority(32).
+	// 以图搜图
+	zero.OnMessage(FullMatchText("以图搜图", "搜索图片", "以图识图"), MustHasPicture()).SetBlock(true).SetPriority(999).
 		Handle(func(ctx *zero.Ctx) {
-			var pics []string // 图片搜索池子
-			// 获取回复的上文图片链接
-			id := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
-			for _, elem := range ctx.GetMessage(id).Elements {
-				if elem.Type == "image" {
-					pics = append(pics, elem.Data["url"])
-				}
-			}
-			// 没有收到图片则向用户索取
-			if len(pics) == 0 {
-				ctx.Send("请发送多张图片！")
-				next := ctx.FutureEvent("message", ctx.CheckSession())
-				recv, cancel := next.Repeat()
-				for e := range recv { // 循环获取channel发来的信息
-					if len(e.Message) == 1 && e.Message[0].Type == "text" {
-						cancel() // 如果是纯文本则退出索取
-						break
-					}
-					for _, elem := range e.Message {
-						if elem.Type == "image" { // 将信息中的图片添加到搜索池子
-							pics = append(pics, elem.Data["url"])
-						}
-					}
-					if len(pics) >= 5 {
-						cancel() // 如果是图片数量大于等于5则退出索取
-						break
-					}
-				}
-			}
-			if len(pics) == 0 {
-				ctx.Send("没有收到图片，搜图结束......")
-				return
-			}
 			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
-			for _, pic := range pics {
-				if text, err := utils.SauceNaoSearch(pic); err == nil {
-					ctx.Send(text) // 返回SauceNAO的结果
+			for _, pic := range ctx.State["image_url"].([]string) {
+				fmt.Println(pic)
+				if m, err := utils.SauceNaoSearch(pic); err == nil {
+					ctx.SendChain(m...) // 返回SauceNAO的结果
 					continue
 				} else {
-					ctx.Send(fmt.Sprintf("ERROR: %v", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 				}
-				if text, err := utils.Ascii2dSearch(pic); err == nil {
-					ctx.Send(text) // 返回Ascii2d的结果
+				if m, err := utils.Ascii2dSearch(pic); err == nil {
+					ctx.SendChain(m...) // 返回Ascii2d的结果
 					continue
 				} else {
-					ctx.Send(fmt.Sprintf("ERROR: %v", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 				}
 			}
 			return
 		})
-	// 通过命令以图搜图
-	zero.OnKeywordGroup([]string{"以图识图", "以图搜图", "搜索图片"}).SetBlock(true).SetPriority(33).
-		Handle(func(ctx *zero.Ctx) {
-			var pics []string // 图片搜索池子
-			// 获取信息中图片链接
-			for _, elem := range ctx.Event.Message {
-				if elem.Type == "image" {
-					pics = append(pics, elem.Data["url"])
-				}
-			}
-			// 没有收到图片则向用户索取
-			if len(pics) == 0 {
-				ctx.Send("请发送多张图片！")
-				next := ctx.FutureEvent("message", zero.CheckUser(ctx.Event.UserID))
-				recv, cancel := next.Repeat()
-				for e := range recv { // 循环获取channel发来的信息
-					if len(e.Message) == 1 && e.Message[0].Type == "text" {
-						cancel() // 如果是纯文本则退出索取
-						break
-					}
-					for _, elem := range e.Message {
-						if elem.Type == "image" { // 将信息中的图片添加到搜索池子
-							pics = append(pics, elem.Data["url"])
-						}
-					}
-					if len(pics) >= 5 {
-						cancel() // 如果是图片数量大于等于5则退出索取
-						break
+}
+
+// FullMatchText 如果信息中文本完全匹配则返回 true
+func FullMatchText(src ...string) zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		msg := ctx.Event.Message
+		for _, elem := range msg {
+			if elem.Type == "text" {
+				text := elem.Data["text"]
+				text = strings.ReplaceAll(text, " ", "")
+				text = strings.ReplaceAll(text, "\r", "")
+				text = strings.ReplaceAll(text, "\n", "")
+				for _, s := range src {
+					if text == s {
+						return true
 					}
 				}
 			}
-			if len(pics) == 0 {
-				ctx.Send("没有收到图片，搜图结束......")
-				return
+		}
+		return false
+	}
+}
+
+// HasPicture 消息含有图片返回 true
+func HasPicture() zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		msg := ctx.Event.Message
+		url := []string{}
+		// 如果是回复信息则将信息替换成被回复的那条
+		if msg[0].Type == "reply" {
+			id, _ := strconv.Atoi(msg[0].Data["id"])
+			msg = ctx.GetMessage(int64(id)).Elements
+		}
+		// 遍历信息中所有图片
+		for _, elem := range msg {
+			if elem.Type == "image" {
+				url = append(url, elem.Data["url"])
 			}
-			// 开始搜索图片
-			ctx.Send("少女祈祷中......")
-			for _, pic := range pics {
-				if text, err := utils.SauceNaoSearch(pic); err == nil {
-					ctx.Send(text) // 返回SauceNAO的结果
-					continue
-				} else {
-					ctx.Send(fmt.Sprintf("ERROR: %v", err))
-				}
-				if text, err := utils.Ascii2dSearch(pic); err == nil {
-					ctx.Send(text) // 返回Ascii2d的结果
-					continue
-				} else {
-					ctx.Send(fmt.Sprintf("ERROR: %v", err))
-				}
+		}
+		// 如果有图片就返回true
+		if len(url) > 0 {
+			ctx.State["image_url"] = url
+			return true
+		}
+		return false
+	}
+}
+
+// MustHasPicture 消息不存在图片阻塞60秒至有图片，超时返回 false
+func MustHasPicture() zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		if HasPicture()(ctx) {
+			return true
+		}
+		// 没有图片就索取
+		ctx.Send("请发送一张图片")
+		next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), HasPicture())
+		recv, cancel := next.Repeat()
+		select {
+		case e := <-recv:
+			cancel()
+			newCtx := &zero.Ctx{Event: e, State: zero.State{}}
+			if HasPicture()(newCtx) {
+				ctx.State["image_url"] = newCtx.State["image_url"]
+				return true
 			}
-			return
-		})
+			return false
+		case <-time.After(time.Second * 60):
+			return false
+		}
+	}
 }
