@@ -14,6 +14,7 @@ import (
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode"
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"
 	//_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"
 )
 
