@@ -1,4 +1,4 @@
-package program
+package runcode
 
 import (
 	"encoding/json"
@@ -12,21 +12,61 @@ import (
 )
 
 func init()  {
+	runAllow := true
 	runTypes := map[string][2]string{
+		"Py2": {"0","py"},
+		"Ruby": {"1","rb"},
+		"PHP": {"3","php"},
 		"Go": {"6","go"},
 		"C": {"7","c"},
 		"C++": {"7","cpp"},
 		"Java": {"8","java"},
+		"Rust": {"9","rs"},
 		"C#": {"10","cs"},
+		"Perl": {"14","pl"},
 		"Python": {"15","py3"},
+		"Swift": {"16","swift"},
 		"Lua": {"17","lua"},
 	}
 
 	zero.OnCommand("runList").Handle(func(ctx *zero.Ctx) {
-		ctx.Send("Run 语种<<<\n代码块\n>>>\n支持语种: Go || Python || Java || C/C++ || C# || Lua")
+		ctx.Send(`[使用说明]
+Run 语种<<<
+代码块
+>>>
+[支持语种]
+Go || Python || Java || C/C++ || C# || Lua
+Rust || PHP || Perl || Ruby || Swift || Py2`)
+	})
+
+	zero.OnCommand("runOpen").Handle(func(ctx *zero.Ctx) {
+		if ctx.Event.UserID == 213864964{
+			runAllow = true
+			ctx.Send(fmt.Sprintf(
+				"[CQ:at,qq=%d]在线运行代码功能已启用",
+				ctx.Event.UserID,
+			))
+		}
+	})
+
+	zero.OnCommand("runClose").Handle(func(ctx *zero.Ctx) {
+		if ctx.Event.UserID == 213864964{
+			runAllow = false
+			ctx.Send(fmt.Sprintf(
+				"[CQ:at,qq=%d]在线运行代码功能已禁用",
+				ctx.Event.UserID,
+			))
+		}
 	})
 
 	zero.OnRegex("(?is:Run (.+?)<<<(.+?)>>>)").Handle(func(ctx *zero.Ctx) {
+		if runAllow==false{
+			ctx.Send(fmt.Sprintf(
+				"[CQ:at,qq=%d]在线运行代码功能已被禁用",
+				ctx.Event.UserID,
+				))
+			return
+		}
 		getType := ctx.State["regex_matched"].([]string)[1]
 		if runType,exist:=runTypes[getType];exist{
 			println("正在尝试执行",getType,"代码块")
