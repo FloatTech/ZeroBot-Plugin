@@ -143,7 +143,7 @@ func init() { // 插件主体
 		})
 
 	// 查询数据库涩图数量
-	zero.OnFullMatchGroup([]string{"setu -s", "setu --status"}).SetBlock(true).SetPriority(23).
+	zero.OnFullMatchGroup([]string{"setu -s", "setu --status", ">setu status"}).SetBlock(true).SetPriority(23).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
 			for i := range PoolList {
@@ -160,14 +160,14 @@ func init() { // 插件主体
 			return
 		})
 	// 开xml模式
-	zero.OnFullMatchGroup([]string{"setu -x", "setu --xml"}).SetBlock(true).SetPriority(24).
+	zero.OnFullMatchGroup([]string{"setu -x", "setu --xml", ">setu xml"}).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			FORM = "XML"
 			ctx.Send("[SetuTime] XML->ON")
 			return
 		})
 	// 关xml模式
-	zero.OnFullMatchGroup([]string{"setu -p", "setu --pic"}).SetBlock(true).SetPriority(24).
+	zero.OnFullMatchGroup([]string{"setu -p", "setu --pic", ">setu pic"}).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			FORM = "PIC"
 			ctx.Send("[SetuTime] XML->OFF")
