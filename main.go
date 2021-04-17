@@ -7,6 +7,7 @@ import (
 	easy "github.com/t-tomalak/logrus-easy-formatter"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
+	"github.com/wdvxdr1123/ZeroBot/message"
 
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/chat"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"
@@ -25,13 +26,12 @@ func init() {
 }
 
 func main() {
-	fmt.Printf(`
-====================[ZeroBot-Plugin]====================
+	var declare = `====================[ZeroBot-Plugin]====================
 * OneBot + ZeroBot + Golang
-* Copyright © 2020-2021 Kanri, All Rights Reserved
+* Copyright © 2021 Kanri, DawnNights, All Rights Reserved
 * Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin
-========================================================
-`)
+========================================================`
+	fmt.Println(declare) // 启动打印
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛"},
 		CommandPrefix: "/",
@@ -40,5 +40,12 @@ func main() {
 			driver.NewWebSocketClient("127.0.0.1", "6700", ""),
 		},
 	})
+	// 帮助
+	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单", "帮助"}, zero.OnlyToMe).SetBlock(true).SetPriority(999).
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(
+				message.Text(declare),
+			)
+		})
 	select {}
 }

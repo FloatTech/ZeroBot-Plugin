@@ -18,7 +18,7 @@
 
 
 ### 功能
-- 群管
+- 群管 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
     - [x] 我要自闭 [分钟]
@@ -38,15 +38,26 @@
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
     - [x] run[xxx]
-- 涩图
-    - [x] 来份[涩图/二次元/风景]
-    - [x] 添加[涩图/二次元/风景][P站图片ID]
-    - [x] 删除[涩图/二次元/风景][P站图片ID]
-    - [x] setu -s
-    - [x] setu -x
-    - [x] setu -p
-- 点歌
+- 涩图 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"`
+    - [x] 搜索图片[P站图片ID]
+    - [x] 搜索图片[图片]
+    - [x] 来份[涩图/二次元/风景/车万]
+    - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
+    - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
+    - [x] >setu status
+    - [x] >setu xml
+    - [x] >setu pic
+- 点歌 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"`
     - [x] 点歌[xxx]
+    - [x] 网易点歌[xxx]
+    - [x] 酷我点歌[xxx]
+    - [x] 酷狗点歌[xxx]
+- GitHub仓库搜索 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"`
+    - [x] >github [xxx] 
+- 在线代码运行 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode"`
+    - [x] >runcode help
+    - [x] >runcode [on/off]
+    - [x] >runcode [language] [code block] 
 - TODO...
 
 ### 使用方法
