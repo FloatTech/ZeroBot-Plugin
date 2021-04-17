@@ -14,7 +14,7 @@ import (
 )
 
 func init() { // 插件主体
-	zero.OnRegex(`>G\s(.*)`).SetBlock(true).FirstPriority().
+	zero.OnRegex(`^>github\s(.*)$`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 发送请求
 			header := http.Header{
