@@ -1,4 +1,4 @@
-package runcode
+package program
 
 import (
 	"encoding/json"
@@ -13,6 +13,21 @@ import (
 
 func init()  {
 	runAllow := true
+	runTemplates := map[string]string{
+		"Py2": "print 'Hello World!'",
+		"Ruby": "puts \"Hello World!\";",
+		"PHP": "<?php\n\techo 'Hello World!';\n?>",
+		"Go": "package main\n\nimport \"fmt\"\n\nfunc main() {\n   fmt.Println(\"Hello, World!\")\n}",
+		"C": "#include <stdio.h>\n\nint main()\n{\n   printf(\"Hello, World! \n\");\n   return 0;\n}",
+		"C++": "#include <iostream>\nusing namespace std;\n\nint main()\n{\n   cout << \"Hello World\";\n   return 0;\n}",
+		"Java": "public class HelloWorld {\n    public static void main(String []args) {\n       System.out.println(\"Hello World!\");\n    }\n}",
+		"Rust": "fn main() {\n    println!(\"Hello World!\");\n}",
+		"C#": "using System;\nnamespace HelloWorldApplication\n{\n   class HelloWorld\n   {\n      static void Main(string[] args)\n      {\n         Console.WriteLine(\"Hello World!\");\n      }\n   }\n}",
+		"Perl": "print \"Hello, World!\n\";",
+		"Python": "print(\"Hello, World!\")",
+		"Swift": "var myString = \"Hello, World!\"\nprint(myString)",
+		"Lua": "var myString = \"Hello, World!\"\nprint(myString)",
+	}
 	runTypes := map[string][2]string{
 		"Py2": {"0","py"},
 		"Ruby": {"1","rb"},
@@ -36,7 +51,8 @@ Run 语种<<<
 >>>
 [支持语种]
 Go || Python || Java || C/C++ || C# || Lua
-Rust || PHP || Perl || Ruby || Swift || Py2`)
+Rust || PHP || Perl || Ruby || Swift || Py2
+PS: 使用(runTemplate 语种)查看该语种模板`)
 	})
 
 	zero.OnCommand("runOpen").Handle(func(ctx *zero.Ctx) {
@@ -57,6 +73,25 @@ Rust || PHP || Perl || Ruby || Swift || Py2`)
 				ctx.Event.UserID,
 			))
 		}
+	})
+
+	zero.OnRegex("^runTemplate (.+?)$").Handle(func(ctx *zero.Ctx) {
+		getType := ctx.State["regex_matched"].([]string)[1]
+		if runTemplate,exist:=runTemplates[getType];exist{
+			ctx.Send(fmt.Sprintf(
+				"[CQ:at,qq=%d]%s template<<<\n%s\n>>>",
+				ctx.Event.UserID,
+				getType,
+				runTemplate,
+				))
+		}else {
+			ctx.Send(fmt.Sprintf(
+				"[CQ:at,qq=%d]没有找到%s语言的模板",
+				ctx.Event.UserID,
+				getType,
+			))
+		}
+
 	})
 
 	zero.OnRegex("(?is:Run (.+?)<<<(.+?)>>>)").Handle(func(ctx *zero.Ctx) {
