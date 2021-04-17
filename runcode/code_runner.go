@@ -15,6 +15,43 @@ import (
 
 func init() {
 	RunAllow := true
+
+	templates := map[string]string{
+		"py2":		"print 'Hello World!'",
+		"ruby":		"puts \"Hello World!\";",
+		"rb": 		"puts \"Hello World!\";",
+		"php": 		"<?php\n\techo 'Hello World!';\n?>",
+		"javascript": "console.log(\"Hello World!\");",
+		"js":         "console.log(\"Hello World!\");",
+		"node.js":    "console.log(\"Hello World!\");",
+		"scala":	 "object Main {\n  def main(args:Array[String])\n  {\n    println(\"Hello World!\")\n  }\n\t\t\n}",
+		"go": 		"package main\n\nimport \"fmt\"\n\nfunc main() {\n   fmt.Println(\"Hello, World!\")\n}",
+		"c": 		"#include <stdio.h>\n\nint main()\n{\n   printf(\"Hello, World! \n\");\n   return 0;\n}",
+		"c++": 		"#include <iostream>\nusing namespace std;\n\nint main()\n{\n   cout << \"Hello World\";\n   return 0;\n}",
+		"cpp": 		"#include <iostream>\nusing namespace std;\n\nint main()\n{\n   cout << \"Hello World\";\n   return 0;\n}",
+		"java": 		"public class HelloWorld {\n    public static void main(String []args) {\n       System.out.println(\"Hello World!\");\n    }\n}",
+		"rust": 		"fn main() {\n    println!(\"Hello World!\");\n}",
+		"rs": 		"fn main() {\n    println!(\"Hello World!\");\n}",
+		"c#": 		"using System;\nnamespace HelloWorldApplication\n{\n   class HelloWorld\n   {\n      static void Main(string[] args)\n      {\n         Console.WriteLine(\"Hello World!\");\n      }\n   }\n}",
+		"cs": 		"using System;\nnamespace HelloWorldApplication\n{\n   class HelloWorld\n   {\n      static void Main(string[] args)\n      {\n         Console.WriteLine(\"Hello World!\");\n      }\n   }\n}",
+		"csharp": 	"using System;\nnamespace HelloWorldApplication\n{\n   class HelloWorld\n   {\n      static void Main(string[] args)\n      {\n         Console.WriteLine(\"Hello World!\");\n      }\n   }\n}",
+		"shell":      "echo 'Hello World!'",
+		"bash":       "echo 'Hello World!'",
+		"erlang":     "% escript will ignore the first line\n\nmain(_) ->\n    io:format(\"Hello World!~n\").",
+		"perl": 	"print \"Hello, World!\n\";",
+		"python": 	"print(\"Hello, World!\")",
+		"py": 		"print(\"Hello, World!\")",
+		"swift": 	"var myString = \"Hello, World!\"\nprint(myString)",
+		"lua": 		"var myString = \"Hello, World!\"\nprint(myString)",
+		"pascal":     "runcode Hello;\nbegin\n  writeln ('Hello, world!')\nend.",
+		"kotlin":     "fun main(args : Array<String>){\n    println(\"Hello World!\")\n}",
+		"kt":         "fun main(args : Array<String>){\n    println(\"Hello World!\")\n}",
+		"r":          "myString <- \"Hello, World!\"\nprint ( myString)",
+		"vb":         "Module Module1\n\n    Sub Main()\n        Console.WriteLine(\"Hello World!\")\n    End Sub\n\nEnd Module",
+		"typescript": "const hello : string = \"Hello World!\"\nconsole.log(hello)",
+		"ts":         "const hello : string = \"Hello World!\"\nconsole.log(hello)",
+	}
+
 	table := map[string][2]string{
 		"py2":        {"0", "py"},
 		"ruby":       {"1", "rb"},
@@ -56,6 +93,8 @@ func init() {
 			ctx.SendChain(message.Text(
 				"使用说明: ", "\n",
 				">runcode [language] [code block]", "\n",
+				"模板查看: ", "\n",
+				">runcode [language] help", "\n",
 				"支持语种: ", "\n",
 				"Go || Python || C/C++ || C# || Java || Lua ", "\n",
 				"JavaScript || TypeScript || PHP || Shell ", "\n",
@@ -63,6 +102,7 @@ func init() {
 				"R || VB || Py2 || Perl || Pascal || Scala ", "\n",
 			))
 		})
+
 	zero.OnFullMatch(">runcode on", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			RunAllow = true
@@ -104,6 +144,15 @@ func init() {
 				// 执行运行
 				block := ctx.State["regex_matched"].([]string)[2]
 				block = message.UnescapeCQCodeText(block)
+				if block == "help"{
+					//输出模板
+					ctx.SendChain(
+						message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
+						message.Text(templates[language]),
+					)
+					return
+				}
+
 				if output, err := runCode(block, runType); err != nil {
 					// 运行失败
 					ctx.SendChain(
