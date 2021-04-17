@@ -52,6 +52,10 @@
     - [x] 网易点歌[xxx]
     - [x] 酷我点歌[xxx]
     - [x] 酷狗点歌[xxx]
+- shindan `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"`
+    - [x] 今天是什么少女[@xxx] 
+    - [x] 异世界转生[@xxx] 
+    - [x] 卖萌[@xxx] 
 - GitHub仓库搜索 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"`
     - [x] >github [xxx] 
 - 在线代码运行 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode"`
