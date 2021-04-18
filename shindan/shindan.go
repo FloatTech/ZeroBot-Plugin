@@ -2,6 +2,7 @@ package shindan
 
 import (
 	"bytes"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -49,9 +50,6 @@ func HasTableKey(table map[string]string) func(ctx *zero.Ctx) bool {
 		for key := range table {
 			if strings.HasPrefix(msg, key) {
 				temp := strings.TrimPrefix(msg, key)
-				if temp == "" {
-					return false
-				}
 				ctx.State["key"] = key
 				ctx.State["trim_key"] = temp
 				return true
@@ -61,30 +59,34 @@ func HasTableKey(table map[string]string) func(ctx *zero.Ctx) bool {
 	}
 }
 
-// GetName 如果 rule：HasTableKey 中 ctx.State["trim_key "] 是艾特
+// GetName 获取名字
+// 如果 ctx.State["trim_key"] 为空
+// 则 ctx.State["name"] 为发送者的 名片 昵称 群头衔
+// 如果 rule：HasTableKey 中 ctx.State["trim_key "] 是艾特
 // 则 ctx.State["name"] 为 被艾特的人的 名片 昵称 群头衔
 // 否则 ctx.State["name"] 为 ctx.State["trim_key "]
 func GetName() func(ctx *zero.Ctx) bool {
 	return func(ctx *zero.Ctx) bool {
 		name := ctx.State["trim_key"].(string)
 		arr := message.ParseMessageFromString(name)
-		for i := range arr {
-			if arr[i].Type == "at" {
-				qq, _ := strconv.ParseInt(arr[i].Data["qq"], 10, 64)
-				info := ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false)
-				if card := info.Get("card").Str; card != "" {
-					name = card
-					break
-				}
-				if nick := info.Get("nickname").Str; nick != "" {
-					name = nick
-					break
-				}
-				if title := info.Get("title").Str; title != "" {
-					name = title
-					break
-				}
-			}
+		var qq int64 = 0
+		switch {
+		case name == "":
+			qq = ctx.Event.UserID
+		case arr[0].Type == "at":
+			qq, _ = strconv.ParseInt(arr[0].Data["qq"], 10, 64)
+		default:
+			return false
+		}
+		// 获取名字
+		info := ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false)
+		switch {
+		case info.Get("nickname").Str != "":
+			name = info.Get("nickname").Str
+		case info.Get("card").Str != "":
+			name = info.Get("card").Str
+		case info.Get("title").Str != "":
+			name = info.Get("title").Str
 		}
 		temp := []rune(name)
 		if len(temp) > 10 {
@@ -99,6 +101,10 @@ func GetName() func(ctx *zero.Ctx) bool {
 
 func shindanmaker(id, name string) (string, error) {
 	url := "https://shindanmaker.com/" + id
+	// 使每一天的结果都不同
+	now := time.Now()
+	seed := fmt.Sprintf("%d%d%d", now.Year(), now.Month(), now.Day())
+	name = name + seed
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	_ = writer.WriteField("_token", "2HgIQ1okTbr1SZ5EXDQWvFXQEBoerVRK8CSW0xro")
@@ -130,5 +136,5 @@ func shindanmaker(id, name string) (string, error) {
 			output = append(output, "\n")
 		}
 	}
-	return strings.Join(output, ""), nil
+	return strings.ReplaceAll(strings.Join(output, ""), seed, ""), nil
 }
