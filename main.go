@@ -27,12 +27,14 @@ func init() {
 }
 
 func main() {
-	var declare = `====================[ZeroBot-Plugin]====================
+	fmt.Print(`
+====================[ZeroBot-Plugin]====================
 * OneBot + ZeroBot + Golang
+* Version 1.0.0 - 2021-04-18 21:52:10.261947 +0800 CST
 * Copyright © 2021 Kanri, DawnNights, All Rights Reserved
 * Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin
-========================================================`
-	fmt.Println(declare) // 启动打印
+========================================================
+`) // 启动打印
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛"},
 		CommandPrefix: "/",
@@ -42,11 +44,15 @@ func main() {
 		},
 	})
 	// 帮助
-	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单", "帮助"}, zero.OnlyToMe).SetBlock(true).SetPriority(999).
+	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单", "帮助"}, zero.OnlyToMe).SetBlock(true).SetPriority(999).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(
-				message.Text(declare),
-			)
+			ctx.SendChain(message.Text(
+				"* OneBot + ZeroBot + Golang ", "\n",
+				"* Version 1.0.0 - 2021-04-18 21:52:10.261947 +0800 CST", "\n",
+				"* Copyright © 2021 Kanri, DawnNights, All Rights Reserved ", "\n",
+				"* Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin",
+			))
 		})
+
 	select {}
 }
