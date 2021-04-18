@@ -10,8 +10,11 @@ import (
 
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
+
+var limit = rate.NewManager(time.Minute*3, 5)
 
 func init() {
 	RunAllow := true
@@ -123,6 +126,10 @@ func init() {
 
 	zero.OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).SecondPriority().
 		Handle(func(ctx *zero.Ctx) {
+			if !limit.Load(ctx.Event.UserID).Acquire() {
+				ctx.Send("请稍后重试0x0...")
+				return
+			}
 			language := ctx.State["regex_matched"].([]string)[1]
 			language = strings.ToLower(language)
 			if runType, exist := table[language]; !exist {
@@ -217,5 +224,33 @@ func runCode(code string, runType [2]string) (string, error) {
 		return "", fmt.Errorf(e)
 	}
 	output := content.Get("output").Str
-	return output[:len(output)-1], nil
+	for strings.HasSuffix(output, "\n") {
+		output = output[:len(output)-1]
+	}
+	temp := []rune(output)
+	isCut := false
+	if strings.Count(output, "\n") > 30 {
+		count := 0
+		for i, r := range temp {
+			if r == 10 {
+				count++
+				fmt.Println(i)
+			}
+			if count > 30 {
+				temp = temp[:i]
+				break
+			}
+		}
+		isCut = true
+	}
+	if len(temp) > 1000 {
+		// 超长截断
+		temp = temp[:1000]
+		isCut = true
+	}
+	if isCut {
+		output = string(temp)
+		output += "\n............\n............"
+	}
+	return output, nil
 }
