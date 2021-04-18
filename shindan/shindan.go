@@ -75,8 +75,6 @@ func GetName() func(ctx *zero.Ctx) bool {
 			qq = ctx.Event.UserID
 		case arr[0].Type == "at":
 			qq, _ = strconv.ParseInt(arr[0].Data["qq"], 10, 64)
-		default:
-			return false
 		}
 		// 获取名字
 		info := ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false)
@@ -89,9 +87,9 @@ func GetName() func(ctx *zero.Ctx) bool {
 			name = info.Get("title").Str
 		}
 		temp := []rune(name)
-		if len(temp) > 10 {
+		if len(temp) > 20 {
 			// 防止超长名字
-			temp = temp[:10]
+			temp = temp[:20]
 		}
 		name = string(temp)
 		ctx.State["name"] = name
