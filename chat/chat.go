@@ -1,9 +1,8 @@
 package chat
 
 import (
-	"io/ioutil"
 	"math/rand"
-	"os"
+	"strconv"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -46,18 +45,59 @@ func init() { // 插件主体
 			}
 			return
 		})
-}
+	// 群空调
+	var AirConditTemp = map[int64]int{}
+	var AirConditSwitch = map[int64]bool{}
+	zero.OnFullMatch("空调开").SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			AirConditSwitch[ctx.Event.GroupID] = true
+			ctx.SendChain(message.Text("☀哔~"))
+		})
+	zero.OnFullMatch("空调关").SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			AirConditSwitch[ctx.Event.GroupID] = false
+			delete(AirConditTemp, ctx.Event.GroupID)
+			ctx.SendChain(message.Text("💤哔~"))
+		})
+	zero.OnRegex(`设置温度(\d+)`).SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			if _, exist := AirConditTemp[ctx.Event.GroupID]; !exist {
+				AirConditTemp[ctx.Event.GroupID] = 26
+			}
+			if AirConditSwitch[ctx.Event.GroupID] {
+				temp := ctx.State["regex_matched"].([]string)[1]
+				AirConditTemp[ctx.Event.GroupID], _ = strconv.Atoi(temp)
+				ctx.SendChain(message.Text(
+					"☀风速中", "\n",
+					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
+				))
+				return
+			} else {
+				ctx.SendChain(message.Text(
+					"💤", "\n",
+					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
+				))
+				return
+			}
 
-func FileRead(path string) []byte {
-	//读取文件数据
-	file, _ := os.Open(path)
-	defer file.Close()
-	data, _ := ioutil.ReadAll(file)
-	return data
-}
-
-func FileWrite(path string, content []byte) int {
-	//写入文件数据
-	ioutil.WriteFile(path, content, 0644)
-	return len(content)
+		})
+	zero.OnFullMatch(`群温度`).SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			if _, exist := AirConditTemp[ctx.Event.GroupID]; !exist {
+				AirConditTemp[ctx.Event.GroupID] = 26
+			}
+			if AirConditSwitch[ctx.Event.GroupID] {
+				ctx.SendChain(message.Text(
+					"☀风速中", "\n",
+					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
+				))
+				return
+			} else {
+				ctx.SendChain(message.Text(
+					"💤", "\n",
+					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
+				))
+				return
+			}
+		})
 }
