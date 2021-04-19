@@ -12,19 +12,30 @@ import (
 )
 
 var (
-	PRIO = -1
-	RES  = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/atri/"
+	PRIO   = -1
+	RES    = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/atri/"
+	ENABLE = true
 )
 
 func init() { // 插件主体
-	zero.OnKeywordGroup([]string{"萝卜子"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatch("醒醒", zero.AdminPermission).SetBlock(true).SetPriority(PRIO - 1).
+		Handle(func(ctx *zero.Ctx) {
+			ENABLE = true
+			ctx.SendChain(randText("嗯呜呜……夏生先生……？"))
+		})
+	zero.OnFullMatch("睡吧", zero.AdminPermission).SetBlock(true).SetPriority(PRIO - 1).
+		Handle(func(ctx *zero.Ctx) {
+			ENABLE = false
+			ctx.SendChain(randText("Zzz……Zzz……"))
+		})
+	zero.OnKeywordGroup([]string{"萝卜子"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
 			}
-			ctx.SendChain(message.Text("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
+			ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
 		})
-	zero.OnKeywordGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
+	zero.OnKeywordGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, AtriSwitch(), zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -33,7 +44,7 @@ func init() { // 插件主体
 				ctx.SendChain(randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.jpg"))
 			}
 		})
-	zero.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
+	zero.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, AtriSwitch(), zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -42,7 +53,7 @@ func init() { // 插件主体
 				ctx.SendChain(randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatchGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
@@ -81,7 +92,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"中午好", "午安"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatchGroup([]string{"中午好", "午安"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
@@ -94,7 +105,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
@@ -136,7 +147,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
+	zero.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, AtriSwitch(), zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -159,7 +170,7 @@ func init() { // 插件主体
 				"呣......我的高性能，毫无遗憾地施展出来了......",
 			))
 		})
-	zero.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
+	zero.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, AtriSwitch(), zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -176,7 +187,7 @@ func init() { // 插件主体
 			))
 		})
 
-	zero.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -185,7 +196,7 @@ func init() { // 插件主体
 				ctx.SendChain(randImage("YES.jpg", "NO.jpg"))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"啊这"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatchGroup([]string{"啊这"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -194,14 +205,14 @@ func init() { // 插件主体
 				ctx.SendChain(randImage("AZ.jpg", "AZ1.jpg"))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"我好了"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatchGroup([]string{"我好了"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
 			}
 			ctx.SendChain(randText("不许好！", "憋回去！"))
 		})
-	zero.OnFullMatchGroup([]string{"？", "?", "¿"}).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatchGroup([]string{"？", "?", "¿"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			if now := time.Now().Hour(); now < 6 {
 				return
@@ -223,4 +234,11 @@ func randText(text ...string) message.MessageSegment {
 func randImage(file ...string) message.MessageSegment {
 	length := len(file)
 	return message.Image(RES + file[rand.Intn(length)])
+}
+
+// AtriSwitch 控制 ATRI 的开关
+func AtriSwitch() zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		return ENABLE
+	}
 }
