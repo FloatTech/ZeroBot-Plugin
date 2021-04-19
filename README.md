@@ -18,6 +18,13 @@
 
 
 ### 功能
+- 聊天 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/chat"`
+    - [x] [BOT名字]
+    - [x] [戳一戳BOT]
+    - [x] 空调开
+    - [x] 空调关
+    - [x] 群温度
+    - [x] 设置温度[正整数]
 - 群管 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
