@@ -9,6 +9,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/driver"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/atri"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/chat"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"
@@ -30,7 +31,7 @@ func main() {
 	fmt.Print(`
 ====================[ZeroBot-Plugin]====================
 * OneBot + ZeroBot + Golang
-* Version 1.0.0 - 2021-04-18 21:52:10.261947 +0800 CST
+* Version 1.0.1 - 2021-04-20 02:38:38.4181345 +0800 CST
 * Copyright © 2021 Kanri, DawnNights, All Rights Reserved
 * Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin
 ========================================================
@@ -48,7 +49,7 @@ func main() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
 				"* OneBot + ZeroBot + Golang ", "\n",
-				"* Version 1.0.0 - 2021-04-18 21:52:10.261947 +0800 CST", "\n",
+				"* Version 1.0.1 - 2021-04-20 02:38:38.4181345 +0800 CST", "\n",
 				"* Copyright © 2021 Kanri, DawnNights, All Rights Reserved ", "\n",
 				"* Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin",
 			))
