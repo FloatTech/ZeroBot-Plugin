@@ -25,6 +25,11 @@
     - [x] 空调关
     - [x] 群温度
     - [x] 设置温度[正整数]
+- 椛椛 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/huahua"`
+    - [x] 具体指令看代码
+- ATRI `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/atri"`
+    - [x] 具体指令看代码
+    - 注：本插件基于 [ATRI](https://github.com/Kyomotoi/ATRI) ，为 Golang 移植版
 - 群管 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
@@ -84,7 +89,7 @@
 
 #### 本地编译
 1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
-2. 下载安装 [TDM-GCC](https://github.com/jmeubank/tdm-gcc/releases)，并添加到环境变量
+2. 下载安装 [TDM-GCC](https://github.com/jmeubank/tdm-gcc/releases) 或 MinGW，并添加到环境变量
 3. [clone](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip) 本项目，本地解压
 4. 编辑 main.go 文件，内容按需修改
 5. 双击点击 build.bat 文件
