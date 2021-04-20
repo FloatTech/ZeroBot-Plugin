@@ -51,7 +51,7 @@ func init() { // 插件主体
 	zero.OnFullMatch("空调开").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			AirConditSwitch[ctx.Event.GroupID] = true
-			ctx.SendChain(message.Text("☀哔~"))
+			ctx.SendChain(message.Text("❄️哔~"))
 		})
 	zero.OnFullMatch("空调关").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
@@ -68,7 +68,7 @@ func init() { // 插件主体
 				temp := ctx.State["regex_matched"].([]string)[1]
 				AirConditTemp[ctx.Event.GroupID], _ = strconv.Atoi(temp)
 				ctx.SendChain(message.Text(
-					"☀风速中", "\n",
+					"❄️风速中", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
 				return
@@ -88,7 +88,7 @@ func init() { // 插件主体
 			}
 			if AirConditSwitch[ctx.Event.GroupID] {
 				ctx.SendChain(message.Text(
-					"☀风速中", "\n",
+					"❄️风速中", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
 				return

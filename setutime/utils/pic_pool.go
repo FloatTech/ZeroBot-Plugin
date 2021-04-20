@@ -98,7 +98,8 @@ func (i *Illust) NormalPic(file string) string {
 
 // DetailPic 返回一张带详细信息的图片CQ码
 func (i *Illust) DetailPic(file string) string {
-	return fmt.Sprintf(`[SetuTime] %s 标题：%s 
+	return fmt.Sprintf(`[SetuTime] %s 
+标题：%s 
 插画ID：%d 
 画师：%s 
 画师ID：%d 
