@@ -88,14 +88,15 @@
 3. [clone](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip) 本项目，本地解压
 4. 编辑 main.go 文件，内容按需修改
 5. 双击点击 build.bat 文件
-6. 运行框架，并同时运行本插件
+6. 运行Onebot框架，并同时运行本插件
 
 #### 利用 Actions 在线编译 (推荐)
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
 3. 编辑 main.go 文件，内容按需修改，返回仓库
 4. 点击 Actions 按钮，等待编译完成，在 Actions 里下载编译好的文件
-5. 运行框架，并同时运行本插件
+5. 运行Onebot框架，并同时运行本插件
+6. 啾咪~
 
 ### 特别感谢
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
