@@ -202,7 +202,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	}
 	// 发送请求
 	client := &http.Client{
-		Timeout: time.Duration(6 * time.Second),
+		Timeout: time.Duration(15 * time.Second),
 	}
 	request, _ := http.NewRequest("POST", api, strings.NewReader(val.Encode()))
 	request.Header = header
@@ -221,36 +221,38 @@ func runCode(code string, runType [2]string) (string, error) {
 	// 结果处理
 	content := gjson.ParseBytes(res)
 	if e := content.Get("errors").Str; e != "\n\n" {
-		return "", fmt.Errorf(e)
+		return "", fmt.Errorf(cutTooLong(clearNewLineSuffix(e)))
 	}
 	output := content.Get("output").Str
-	for strings.HasSuffix(output, "\n") {
-		output = output[:len(output)-1]
+
+	return cutTooLong(clearNewLineSuffix(output)), nil
+}
+
+// 清除末尾多余的换行符
+func clearNewLineSuffix(text string) string {
+	for strings.HasSuffix(text, "\n") {
+		text = text[:len(text)-1]
 	}
-	temp := []rune(output)
-	isCut := false
-	if strings.Count(output, "\n") > 30 {
-		count := 0
-		for i, r := range temp {
-			if r == 10 {
-				count++
-				fmt.Println(i)
-			}
-			if count > 30 {
-				temp = temp[:i]
-				break
-			}
+	return text
+}
+
+// 截断过程文本
+func cutTooLong(text string) string {
+	temp := []rune(text)
+	count := 0
+	for i := range temp {
+		switch {
+		case temp[i] == 13 && i < len(temp)-1 && temp[i+1] == 10:
+			// 匹配 \r\n 跳过，等 \n 自己加
+		case temp[i] == 10:
+			count++
+		case temp[i] == 13:
+			count++
 		}
-		isCut = true
+		if count > 30 || i > 1000 {
+			temp = append(temp[:i-1], []rune("\n............\n............")...)
+			break
+		}
 	}
-	if len(temp) > 1000 {
-		// 超长截断
-		temp = temp[:1000]
-		isCut = true
-	}
-	if isCut {
-		output = string(temp)
-		output += "\n............\n............"
-	}
-	return output, nil
+	return string(temp)
 }
