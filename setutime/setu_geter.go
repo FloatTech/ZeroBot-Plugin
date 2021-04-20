@@ -66,10 +66,7 @@ func init() { // 插件主体
 						ctx.Send(fmt.Sprintf("ERROR: %v", err))
 						continue
 					}
-					if id := ctx.SendGroupMessage(PoolsCache.Group, illust.NormalPic(file)); id == 0 {
-						ctx.Send(fmt.Sprintf("ERROR: %v", "发送到缓存群失败，请确认缓存群群号"))
-						continue
-					}
+					ctx.SendGroupMessage(PoolsCache.Group, illust.NormalPic(file))
 					// 向缓冲池添加一张图片
 					if err := PoolsCache.Push(type_, illust); err != nil {
 						ctx.Send(fmt.Sprintf("ERROR: %v", err))
