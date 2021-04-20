@@ -19,7 +19,7 @@ var (
 	DBPATH   = DATAPATH + "SetuTime.db"   // 数据库路径
 
 	CACHEPATH        = DATAPATH + "cache/"               // 缓冲图片路径
-	CACHEGROUP int64 = 868047498                         // 缓冲图片群，不修改无法缓存
+	CACHEGROUP int64 = 0                                 // 缓冲图片群，为0即可
 	PoolList         = []string{"涩图", "二次元", "风景", "车万"} // 可自定义
 
 	DB         = utils.Sqlite{DBPath: DBPATH} // 新建涩图数据库对象
