@@ -227,7 +227,7 @@ func randImage(file ...string) message.MessageSegment {
 
 func randRecord(file ...string) message.MessageSegment {
 	length := len(file)
-	return message.Image(RES + file[rand.Intn(length)])
+	return message.Record(RES + file[rand.Intn(length)])
 }
 
 // AtriSwitch 控制 ATRI 的开关
