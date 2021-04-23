@@ -87,20 +87,20 @@
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
-#### 本地编译
+#### 本地运行
 1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
 2. 下载安装 [TDM-GCC](https://github.com/jmeubank/tdm-gcc/releases) 或 MinGW，并添加到环境变量
 3. [clone](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip) 本项目，本地解压
 4. 编辑 main.go 文件，内容按需修改
-5. 双击点击 build.bat 文件
-6. 运行Onebot框架，并同时运行本插件
+5. 双击 build.bat 文件 或 直接双击 run.bat 文件
+6. 运行 OneBot 框架，并同时运行本插件
 
 #### 利用 Actions 在线编译 (推荐)
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
-3. 编辑 main.go 文件，内容按需修改，返回仓库
+3. 编辑 main.go 文件，内容按需修改，提交修改后 Actions 自动执行
 4. 点击 Actions 按钮，等待编译完成，在 Actions 里下载编译好的文件
-5. 运行Onebot框架，并同时运行本插件
+5. 运行 OneBot 框架，并同时运行本插件
 6. 啾咪~
 
 ### 特别感谢
