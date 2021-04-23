@@ -28,9 +28,14 @@ func init() { // 插件主体
 			ENABLE = false
 			ctx.SendChain(randText("Zzz……Zzz……"))
 		})
-	zero.OnKeywordGroup([]string{"萝卜子"}, AtriSwitch(), AtriSleep()).SetBlock(true).SetPriority(PRIO).
+	zero.OnFullMatch("萝卜子", AtriSwitch(), AtriSleep()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
+			switch rand.Intn(2) {
+			case 0:
+				ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
+			case 1:
+				ctx.SendChain(randRecord("RocketPunch.amr"))
+			}
 		})
 	zero.OnKeywordGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, AtriSwitch(), AtriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
@@ -216,6 +221,11 @@ func randText(text ...string) message.MessageSegment {
 }
 
 func randImage(file ...string) message.MessageSegment {
+	length := len(file)
+	return message.Image(RES + file[rand.Intn(length)])
+}
+
+func randRecord(file ...string) message.MessageSegment {
 	length := len(file)
 	return message.Image(RES + file[rand.Intn(length)])
 }
