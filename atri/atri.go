@@ -240,7 +240,7 @@ func AtriSwitch() zero.Rule {
 // AtriSleep 凌晨0点到6点，ATRI 在睡觉，不回应任何请求
 func AtriSleep() zero.Rule {
 	return func(ctx *zero.Ctx) bool {
-		if now := time.Now().Hour(); now < 6 {
+		if now := time.Now().Hour(); now >= 1 && now < 6 {
 			return false
 		}
 		return true
