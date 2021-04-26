@@ -252,7 +252,7 @@ func init() { // 插件主体
 			var cmd = ctx.State["regex_matched"].([]string)[1]
 			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
 			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
-			ctx.SendChain(message.Text(cmd))
+			ctx.Send(cmd)
 		})
 }
 
