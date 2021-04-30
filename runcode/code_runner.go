@@ -236,7 +236,7 @@ func clearNewLineSuffix(text string) string {
 	return text
 }
 
-// 截断过程文本
+// 截断过长文本
 func cutTooLong(text string) string {
 	temp := []rune(text)
 	count := 0
