@@ -70,6 +70,7 @@
     - [x] 卖萌[@xxx] 
 - GitHub仓库搜索 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"`
     - [x] >github [xxx] 
+    - [x] >github -p [xxx] 
 - 在线代码运行 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode"`
     - [x] >runcode help
     - [x] >runcode [on/off]
