@@ -14,7 +14,7 @@ import (
 )
 
 func init() { // 插件主体
-	zero.OnRegex(`^>github\s(.*)$`).SetBlock(true).FirstPriority().
+	zero.OnRegex(`^>github\s(-.{1,10} )?(.*)$`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 发送请求
 			header := http.Header{
@@ -22,7 +22,7 @@ func init() { // 插件主体
 			}
 			api, _ := url.Parse("https://api.github.com/search/repositories")
 			api.RawQuery = url.Values{
-				"q": []string{ctx.State["regex_matched"].([]string)[1]},
+				"q": []string{ctx.State["regex_matched"].([]string)[2]},
 			}.Encode()
 			body, err := netGet(api.String(), header)
 			if err != nil {
@@ -36,8 +36,13 @@ func init() { // 插件主体
 			}
 			repo := info.Get("items.0")
 			// 发送结果
-			ctx.SendChain(
-				message.Text(
+			switch ctx.State["regex_matched"].([]string)[1] {
+			case "-pic ": // 图片模式
+				ctx.SendChain(message.Image(
+					"https://opengraph.githubassets.com/0/"+repo.Get("full_name").Str,
+				).Add("cache", 0))
+			default:
+				ctx.SendChain(message.Text(
 					repo.Get("full_name").Str, "\n",
 					"Description: ",
 					repo.Get("description").Str, "\n",
@@ -51,8 +56,8 @@ func init() { // 插件主体
 					repo.Get("pushed_at").Str, "\n",
 					"Jump: ",
 					repo.Get("html_url").Str, "\n",
-				),
-			)
+				))
+			}
 		})
 }
 
