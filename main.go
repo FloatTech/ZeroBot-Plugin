@@ -39,7 +39,7 @@ func main() {
 	fmt.Print(`
 ====================[ZeroBot-Plugin]====================
 * OneBot + ZeroBot + Golang
-* Version 1.0.2 - 2021-04-23 00:06:06.6531353 +0800 CST
+* Version 1.0.3 - 2021-05-02 18:50:40.5489203 +0800 CST
 * Copyright © 2021 Kanri, DawnNights, All Rights Reserved
 * Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin
 ========================================================
@@ -57,11 +57,10 @@ func main() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
 				"* OneBot + ZeroBot + Golang ", "\n",
-				"* Version 1.0.2 - 2021-04-23 00:06:06.6531353 +0800 CST", "\n",
+				"* Version 1.0.3 - 2021-05-02 18:50:40.5489203 +0800 CST", "\n",
 				"* Copyright © 2021 Kanri, DawnNights, All Rights Reserved ", "\n",
 				"* Project: https://github.com/Yiwen-Chan/ZeroBot-Plugin",
 			))
 		})
-
 	select {}
 }

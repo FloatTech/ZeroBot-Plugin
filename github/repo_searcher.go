@@ -37,7 +37,7 @@ func init() { // 插件主体
 			repo := info.Get("items.0")
 			// 发送结果
 			switch ctx.State["regex_matched"].([]string)[1] {
-			case "-pic ": // 图片模式
+			case "-p ": // 图片模式
 				ctx.SendChain(message.Image(
 					"https://opengraph.githubassets.com/0/"+repo.Get("full_name").Str,
 				).Add("cache", 0))
