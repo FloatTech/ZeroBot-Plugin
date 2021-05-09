@@ -3,6 +3,7 @@ package manager
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 
@@ -20,8 +21,13 @@ type TimeStamp struct {
 	minute int8
 }
 
+//记录每个定时器以便取消
+var timers = make(map[string]*TimeStamp)
+
 func timer(ts TimeStamp, onTimeReached func()) {
-	fmt.Printf("注册计时器: %d月%d日%d周%d:%d触发\n", ts.month, ts.day, ts.week, ts.hour, ts.minute)
+	key := getTimerInfo(&ts)
+	fmt.Printf("注册计时器: %s\n", key)
+	timers[key] = &ts
 	judgeHM := func() {
 		if ts.hour < 0 || ts.hour == int8(time.Now().Hour()) {
 			if ts.minute < 0 || ts.minute == int8(time.Now().Minute()) {
@@ -41,6 +47,55 @@ func timer(ts TimeStamp, onTimeReached func()) {
 		}
 		time.Sleep(time.Minute)
 	}
+}
+
+//获得标准化定时字符串
+func getTimerInfo(ts *TimeStamp) string {
+	return fmt.Sprintf("%d月%d日%d周%d:%d", ts.month, ts.day, ts.week, ts.hour, ts.minute)
+}
+
+//获得填充好的ts
+func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
+	monthStr := []rune(dateStrs[1])
+	dayWeekStr := []rune(dateStrs[2])
+	hourStr := []rune(dateStrs[3])
+	minuteStr := []rune(dateStrs[4])
+
+	var ts TimeStamp
+	ts.month = chineseNum2Int(monthStr)
+	lenOfDW := len(dayWeekStr)
+	if lenOfDW == 4 { //包括末尾的"日"
+		dayWeekStr = []rune{dayWeekStr[0], dayWeekStr[2]} //去除中间的十
+		ts.day = chineseNum2Int(dayWeekStr)
+	} else if dayWeekStr[lenOfDW-1] == rune('日') { //xx日
+		dayWeekStr = dayWeekStr[:lenOfDW-1]
+		ts.day = chineseNum2Int(dayWeekStr)
+	} else if dayWeekStr[0] == rune('每') { //每周
+		ts.week = -1
+	} else { //周x
+		ts.week = chineseNum2Int(dayWeekStr[1:])
+	}
+	if len(hourStr) == 3 {
+		hourStr = []rune{hourStr[0], hourStr[2]} //去除中间的十
+	}
+	ts.hour = chineseNum2Int(hourStr)
+	if len(minuteStr) == 3 {
+		minuteStr = []rune{minuteStr[0], minuteStr[2]} //去除中间的十
+	}
+	ts.minute = chineseNum2Int(minuteStr)
+	if !matchDateOnly {
+		urlStr := dateStrs[5]
+		if urlStr != "" { //是图片url
+			ts.url = urlStr[3:] //utf-8下用为3字节
+			if !strings.HasPrefix(ts.url, "http") {
+				ts.url = "illeagal"
+				return ts
+			}
+		}
+		ts.alert = dateStrs[6]
+		ts.enable = true
+	}
+	return ts
 }
 
 //汉字数字转int，仅支持-10～99，最多两位数，其中"每"解释为-1，"每两"为-2，以此类推
