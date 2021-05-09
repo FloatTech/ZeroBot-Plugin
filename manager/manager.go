@@ -250,9 +250,11 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := getFilledTimeStamp(dateStrs, true)
-			t, ok := timers[getTimerInfo(&ts)]
+			ti := getTimerInfo(&ts)
+			t, ok := timers[ti]
 			if ok {
 				t.enable = false
+				delete(timers, ti) //避免重复取消
 				ctx.Send("取消成功~")
 			} else {
 				ctx.Send("没有这个定时器哦~")
