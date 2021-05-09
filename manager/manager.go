@@ -231,45 +231,10 @@ func init() { // 插件主体
 			return
 		})
 	// 定时提醒
-	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			monthStr := []rune(dateStrs[1])
-			dayWeekStr := []rune(dateStrs[2])
-			hourStr := []rune(dateStrs[3])
-			minuteStr := []rune(dateStrs[4])
-			urlStr := dateStrs[5]
-			var ts TimeStamp
-			ts.month = chineseNum2Int(monthStr)
-			lenOfDW := len(dayWeekStr)
-			if lenOfDW == 4 { //包括末尾的"日"
-				dayWeekStr = []rune{dayWeekStr[0], dayWeekStr[2]} //去除中间的十
-				ts.day = chineseNum2Int(dayWeekStr)
-			} else if dayWeekStr[lenOfDW-1] == rune('日') { //xx日
-				dayWeekStr = dayWeekStr[:lenOfDW-1]
-				ts.day = chineseNum2Int(dayWeekStr)
-			} else if dayWeekStr[0] == rune('每') { //每周
-				ts.week = -1
-			} else { //周x
-				ts.week = chineseNum2Int(dayWeekStr[1:])
-			}
-			if len(hourStr) == 3 {
-				hourStr = []rune{hourStr[0], hourStr[2]} //去除中间的十
-			}
-			ts.hour = chineseNum2Int(hourStr)
-			if len(minuteStr) == 3 {
-				minuteStr = []rune{minuteStr[0], minuteStr[2]} //去除中间的十
-			}
-			ts.minute = chineseNum2Int(minuteStr)
-			if urlStr != "" { //是图片url
-				ts.url = urlStr[3:] //utf-8下用为3字节
-				if !strings.HasPrefix(ts.url, "http") {
-					ctx.Send("图片url非法")
-					return
-				}
-			}
-			ts.alert = dateStrs[6]
-			ts.enable = true
+			ts := getFilledTimeStamp(dateStrs, false)
 			go timer(ts, func() {
 				if ts.url == "" {
 					ctx.SendChain(AtAll(), message.Text(ts.alert))
@@ -277,6 +242,21 @@ func init() { // 插件主体
 					ctx.SendChain(AtAll(), message.Text(ts.alert), ImageNoCache(ts.url))
 				}
 			})
+			ctx.Send("记住了~")
+			return
+		})
+	// 取消定时
+	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := getFilledTimeStamp(dateStrs, true)
+			t, ok := timers[getTimerInfo(&ts)]
+			if ok {
+				t.enable = false
+				ctx.Send("取消成功~")
+			} else {
+				ctx.Send("没有这个定时器哦~")
+			}
 			return
 		})
 	// 入群欢迎
