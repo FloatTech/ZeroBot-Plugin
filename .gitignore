@@ -1,3 +1,4 @@
 data/chat/*
 data/SetuTime/cache/*
 main.exe
+.DS_Store
