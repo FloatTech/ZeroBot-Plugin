@@ -151,13 +151,17 @@ func chineseNum2Int(rs []rune) int8 {
 
 //处理单个字符的映射0~10
 func chineseChar2Int(c rune) int {
-	match := []rune("零一二三四五六七八九十")
-	for i, m := range match {
-		if c == m {
-			return i
+	if c == rune('日') || c == rune('天') { //周日/周天
+		return 7
+	} else {
+		match := []rune("零一二三四五六七八九十")
+		for i, m := range match {
+			if c == m {
+				return i
+			}
 		}
+		return 0
 	}
-	return 0
 }
 
 //@全体成员
