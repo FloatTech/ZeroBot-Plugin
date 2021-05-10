@@ -230,6 +230,37 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 			return
 		})
+	// 定时提醒
+	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := getFilledTimeStamp(dateStrs, false)
+			go timer(ts, func() {
+				if ts.url == "" {
+					ctx.SendChain(AtAll(), message.Text(ts.alert))
+				} else {
+					ctx.SendChain(AtAll(), message.Text(ts.alert), ImageNoCache(ts.url))
+				}
+			})
+			ctx.Send("记住了~")
+			return
+		})
+	// 取消定时
+	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := getFilledTimeStamp(dateStrs, true)
+			ti := getTimerInfo(&ts)
+			t, ok := timers[ti]
+			if ok {
+				t.enable = false
+				delete(timers, ti) //避免重复取消
+				ctx.Send("取消成功~")
+			} else {
+				ctx.Send("没有这个定时器哦~")
+			}
+			return
+		})
 	// 入群欢迎
 	zero.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
