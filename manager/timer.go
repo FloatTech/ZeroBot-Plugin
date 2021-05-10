@@ -63,32 +63,54 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 
 	var ts TimeStamp
 	ts.month = chineseNum2Int(monthStr)
+	if (ts.month != -1 && ts.month <= 0) || ts.month > 12 { //月份非法
+		return ts
+	}
 	lenOfDW := len(dayWeekStr)
 	if lenOfDW == 4 { //包括末尾的"日"
 		dayWeekStr = []rune{dayWeekStr[0], dayWeekStr[2]} //去除中间的十
 		ts.day = chineseNum2Int(dayWeekStr)
+		if (ts.day != -1 && ts.day <= 0) || ts.day > 31 { //日期非法
+			return ts
+		}
 	} else if dayWeekStr[lenOfDW-1] == rune('日') { //xx日
 		dayWeekStr = dayWeekStr[:lenOfDW-1]
 		ts.day = chineseNum2Int(dayWeekStr)
+		if (ts.day != -1 && ts.day <= 0) || ts.day > 31 { //日期非法
+			return ts
+		}
 	} else if dayWeekStr[0] == rune('每') { //每周
 		ts.week = -1
 	} else { //周x
 		ts.week = chineseNum2Int(dayWeekStr[1:])
+		if ts.week == 7 { //周天是0
+			ts.week = 0
+		}
+		if ts.week < 0 || ts.week > 6 { //星期非法
+			ts.week = -11
+			return ts
+		}
 	}
 	if len(hourStr) == 3 {
 		hourStr = []rune{hourStr[0], hourStr[2]} //去除中间的十
 	}
 	ts.hour = chineseNum2Int(hourStr)
+	if ts.hour < -1 || ts.hour > 23 { //小时非法
+		return ts
+	}
 	if len(minuteStr) == 3 {
 		minuteStr = []rune{minuteStr[0], minuteStr[2]} //去除中间的十
 	}
 	ts.minute = chineseNum2Int(minuteStr)
+	if ts.minute < -1 || ts.minute > 59 { //分钟非法
+		return ts
+	}
 	if !matchDateOnly {
 		urlStr := dateStrs[5]
 		if urlStr != "" { //是图片url
 			ts.url = urlStr[3:] //utf-8下用为3字节
 			if !strings.HasPrefix(ts.url, "http") {
-				ts.url = "illeagal"
+				ts.url = "illegal"
 				return ts
 			}
 		}
@@ -129,13 +151,17 @@ func chineseNum2Int(rs []rune) int8 {
 
 //处理单个字符的映射0~10
 func chineseChar2Int(c rune) int {
-	match := []rune("零一二三四五六七八九十")
-	for i, m := range match {
-		if c == m {
-			return i
+	if c == rune('日') || c == rune('天') { //周日/周天
+		return 7
+	} else {
+		match := []rune("零一二三四五六七八九十")
+		for i, m := range match {
+			if c == m {
+				return i
+			}
 		}
+		return 0
 	}
-	return 0
 }
 
 //@全体成员
