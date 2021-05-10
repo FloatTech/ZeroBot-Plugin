@@ -235,14 +235,18 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := getFilledTimeStamp(dateStrs, false)
-			go timer(ts, func() {
-				if ts.url == "" {
-					ctx.SendChain(AtAll(), message.Text(ts.alert))
-				} else {
-					ctx.SendChain(AtAll(), message.Text(ts.alert), ImageNoCache(ts.url))
-				}
-			})
-			ctx.Send("记住了~")
+			if ts.enable {
+				go timer(ts, func() {
+					if ts.url == "" {
+						ctx.SendChain(AtAll(), message.Text(ts.alert))
+					} else {
+						ctx.SendChain(AtAll(), message.Text(ts.alert), ImageNoCache(ts.url))
+					}
+				})
+				ctx.Send("记住了~")
+			} else {
+				ctx.Send("参数非法!")
+			}
 			return
 		})
 	// 取消定时
