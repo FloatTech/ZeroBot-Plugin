@@ -26,7 +26,11 @@ var timers = make(map[string]*TimeStamp)
 
 func timer(ts TimeStamp, onTimeReached func()) {
 	key := getTimerInfo(&ts)
-	fmt.Printf("注册计时器: %s\n", key)
+	fmt.Printf("[群管]注册计时器: %s\n", key)
+	t, ok := timers[key]
+	if ok { //避免重复注册定时器
+		t.enable = false
+	}
 	timers[key] = &ts
 	judgeHM := func() {
 		if ts.hour < 0 || ts.hour == int8(time.Now().Hour()) {
@@ -64,6 +68,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 	var ts TimeStamp
 	ts.month = chineseNum2Int(monthStr)
 	if (ts.month != -1 && ts.month <= 0) || ts.month > 12 { //月份非法
+		fmt.Println("[群管]月份非法！")
 		return ts
 	}
 	lenOfDW := len(dayWeekStr)
@@ -71,12 +76,14 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 		dayWeekStr = []rune{dayWeekStr[0], dayWeekStr[2]} //去除中间的十
 		ts.day = chineseNum2Int(dayWeekStr)
 		if (ts.day != -1 && ts.day <= 0) || ts.day > 31 { //日期非法
+			fmt.Println("[群管]日期非法1！")
 			return ts
 		}
 	} else if dayWeekStr[lenOfDW-1] == rune('日') { //xx日
 		dayWeekStr = dayWeekStr[:lenOfDW-1]
 		ts.day = chineseNum2Int(dayWeekStr)
 		if (ts.day != -1 && ts.day <= 0) || ts.day > 31 { //日期非法
+			fmt.Println("[群管]日期非法2！")
 			return ts
 		}
 	} else if dayWeekStr[0] == rune('每') { //每周
@@ -88,6 +95,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 		}
 		if ts.week < 0 || ts.week > 6 { //星期非法
 			ts.week = -11
+			fmt.Println("[群管]星期非法！")
 			return ts
 		}
 	}
@@ -96,6 +104,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 	}
 	ts.hour = chineseNum2Int(hourStr)
 	if ts.hour < -1 || ts.hour > 23 { //小时非法
+		fmt.Println("[群管]小时非法！")
 		return ts
 	}
 	if len(minuteStr) == 3 {
@@ -103,14 +112,17 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 	}
 	ts.minute = chineseNum2Int(minuteStr)
 	if ts.minute < -1 || ts.minute > 59 { //分钟非法
+		fmt.Println("[群管]分钟非法！")
 		return ts
 	}
 	if !matchDateOnly {
 		urlStr := dateStrs[5]
 		if urlStr != "" { //是图片url
 			ts.url = urlStr[3:] //utf-8下用为3字节
+			fmt.Println("[群管]" + ts.url)
 			if !strings.HasPrefix(ts.url, "http") {
 				ts.url = "illegal"
+				fmt.Println("[群管]url非法！")
 				return ts
 			}
 		}
