@@ -79,7 +79,6 @@ func init() { // 插件主体
 				))
 				return
 			}
-
 		})
 	zero.OnFullMatch(`群温度`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
