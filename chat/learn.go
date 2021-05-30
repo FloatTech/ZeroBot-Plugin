@@ -175,7 +175,6 @@ func init() {
 				return
 			}
 		})
-
 }
 
 func botPath() string {

@@ -1,0 +1,24 @@
+name: Lint
+
+on: [push]
+
+jobs:
+  golangci:
+    name: lint_golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2.5.2
+        with:
+          version: latest
+
+      - name: Commit back
+        continue-on-error: true
+        run: |
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          git commit -m "🎨 改进代码样式"
+          git push
