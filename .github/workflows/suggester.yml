@@ -1,0 +1,20 @@
+name: Suggester
+
+on: [pull_request]
+
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2.5.2
+        with:
+          version: latest
+
+      - name: Suggester
+        uses: reviewdog/action-suggester@v1.0.1
+        with:
+          tool_name: golangci-lint

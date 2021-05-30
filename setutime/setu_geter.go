@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 )
 
 var limit = rate.NewManager(time.Minute*1, 5)
