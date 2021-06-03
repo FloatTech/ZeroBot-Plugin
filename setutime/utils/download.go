@@ -37,7 +37,7 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 			},
 			// 更改dns
 			Dial: func(network, addr string) (net.Conn, error) {
-				return net.Dial("tcp", "210.140.92.140:443")
+				return net.Dial("tcp", "210.140.92.142:443")
 			},
 		},
 	}
