@@ -39,7 +39,7 @@ func CreatePath(path string) {
 		//
 	}
 	if !PathExists(path) {
-		err := os.MkdirAll(path, 0644)
+		err := os.MkdirAll(path, 0755)
 		if err != nil {
 			panic(err)
 		}
