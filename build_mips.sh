@@ -1,5 +1,4 @@
 go version
-mips-linux-musl-gcc -v
 go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GO111MODULE=auto
 go mod tidy
