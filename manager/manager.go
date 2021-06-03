@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/msgext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -238,9 +239,9 @@ func init() { // 插件主体
 			if ts.enable {
 				go timer(ts, func() {
 					if ts.url == "" {
-						ctx.SendChain(AtAll(), message.Text(ts.alert))
+						ctx.SendChain(msgext.AtAll(), message.Text(ts.alert))
 					} else {
-						ctx.SendChain(AtAll(), message.Text(ts.alert), ImageNoCache(ts.url))
+						ctx.SendChain(msgext.AtAll(), message.Text(ts.alert), msgext.ImageNoCache(ts.url))
 					}
 				})
 				ctx.Send("记住了~")
