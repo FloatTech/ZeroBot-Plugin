@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/msgext"
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
