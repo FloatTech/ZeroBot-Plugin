@@ -1,4 +1,4 @@
-package setutime
+package picsearcher
 
 import (
 	"fmt"
@@ -9,17 +9,24 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/pixiv"
+	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher/utils"
+)
+
+var (
+	BOTPATH   = pixiv.PathExecute()        // 当前bot运行目录
+	DATAPATH  = BOTPATH + "data/SetuTime/" // 数据目录
+	CACHEPATH = DATAPATH + "cache/"        // 缓冲图片路径
 )
 
 func init() { // 插件主体
 	// 根据PID搜图
 	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
-			id := utils.Str2Int(ctx.State["regex_matched"].([]string)[1])
+			id := pixiv.Str2Int(ctx.State["regex_matched"].([]string)[1])
 			ctx.Send("少女祈祷中......")
 			// 获取P站插图信息
-			illust := &utils.Illust{}
+			illust := &pixiv.Illust{}
 			if err := illust.IllustInfo(id); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
