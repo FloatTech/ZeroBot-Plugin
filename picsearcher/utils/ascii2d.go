@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/pixiv"
 	xpath "github.com/antchfx/htmlquery"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -71,12 +72,12 @@ func Ascii2dSearch(pic string) (message.Message, error) {
 	if link == "" || index == -1 {
 		return nil, fmt.Errorf("Ascii2d not found")
 	}
-	var id = Str2Int(link[index+1:])
+	var id = pixiv.Str2Int(link[index+1:])
 	if id == 0 {
 		return nil, fmt.Errorf("convert to pid error")
 	}
 	// 根据PID查询插图信息
-	var illust = &Illust{}
+	var illust = &pixiv.Illust{}
 	if err := illust.IllustInfo(id); err != nil {
 		return nil, err
 	}
