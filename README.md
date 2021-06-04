@@ -55,14 +55,18 @@
     - [ ] 警告[@xxx]
     - [x] run[xxx]
 - 涩图 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"`
-    - [x] 搜索图片[P站图片ID]
-    - [x] 搜索图片[图片]
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] >setu status
     - [x] >setu xml
     - [x] >setu pic
+- 搜图 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher"`
+    - [x] 以图搜图|搜索图片|以图识图[图片]
+    - [x] 搜图[P站图片ID]
+- 简易随机图片(调用url) `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"`
+    - [x] 随机图片
+    - [x] 设置随机图片网址[url]
 - 点歌 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
