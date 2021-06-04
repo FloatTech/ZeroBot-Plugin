@@ -23,10 +23,11 @@ import (
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode" // 在线运行代码
 
 	// 娱乐类
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"    // 点歌
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"  //简易随机图片
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime" // 涩图
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"  // 测定
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"       // 点歌
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher" // 搜图
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"     //简易随机图片
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"    // 涩图
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"     // 测定
 )
 
 func init() {
