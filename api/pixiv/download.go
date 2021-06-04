@@ -71,3 +71,20 @@ func PicHash(path string) string {
 	}
 	return strings.ToUpper(fmt.Sprintf("%x", md5.Sum(data)))
 }
+
+// urlCache 缓存并返回缓存路径
+func (this *Illust) RmPic(path string) (err error) {
+	url := this.ImageUrls
+	pid := this.Pid
+	url = strings.ReplaceAll(url, "img-original", "img-master")
+	url = strings.ReplaceAll(url, "_p0", "_p0_master1200")
+	url = strings.ReplaceAll(url, ".png", ".jpg")
+	// 文件名为url的hash值
+	savePath := path + Int2Str(pid) + ".jpg"
+	// 文件存在或文件大小大于10kb
+	if PathExists(savePath) {
+		return os.Remove(savePath)
+	} else {
+		return nil
+	}
+}

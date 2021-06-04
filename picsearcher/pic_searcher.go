@@ -13,13 +13,10 @@ import (
 	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher/utils"
 )
 
-var (
-	BOTPATH   = pixiv.PathExecute()        // 当前bot运行目录
-	DATAPATH  = BOTPATH + "data/SetuTime/" // 数据目录
-	CACHEPATH = DATAPATH + "cache/"        // 缓冲图片路径
-)
+var CACHEPATH = "/tmp/picsch/" // 缓冲图片路径
 
 func init() { // 插件主体
+	pixiv.CreatePath(CACHEPATH)
 	// 根据PID搜图
 	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
@@ -32,12 +29,14 @@ func init() { // 插件主体
 				return
 			}
 			// 下载P站插图
-			if _, err := illust.PixivPicDown(CACHEPATH); err != nil {
+			savePath, err := illust.PixivPicDown(CACHEPATH)
+			if err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
 			// 发送搜索结果
-			ctx.Send(illust.DetailPic)
+			ctx.Send(illust.DetailPic(savePath))
+			illust.RmPic(CACHEPATH)
 			return
 		})
 	// 以图搜图

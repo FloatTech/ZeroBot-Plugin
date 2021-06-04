@@ -26,8 +26,9 @@ import (
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"       // 点歌
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher" // 搜图
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"     //简易随机图片
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"    // 涩图
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"     // 测定
+
+	//_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"    // 涩图
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan" // 测定
 )
 
 func init() {
@@ -52,7 +53,7 @@ func main() {
 		CommandPrefix: "/",
 		SuperUsers:    os.Args[1:], // 必须修改，否则无权限
 		Driver: []zero.Driver{
-			driver.NewWebSocketClient("127.0.0.1", "6700", ""),
+			driver.NewWebSocketClient("192.168.8.1", "6700", ""),
 		},
 	})
 	// 帮助
