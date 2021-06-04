@@ -1,4 +1,4 @@
-package utils
+package pixiv
 
 import (
 	"crypto/tls"
@@ -91,4 +91,47 @@ func (this *Illust) IllustInfo(id int64) (err error) {
 	this.UserId = json.Get("userId").Int()
 	this.UserName = json.Get("userName").Str
 	return nil
+}
+
+// BigPic 返回一张XML大图CQ码
+func (i *Illust) BigPic(file string) string {
+	var hash = PicHash(file)
+	return fmt.Sprintf(`[CQ:xml,data=<?xml version='1.0' 
+encoding='UTF-8' standalone='yes' ?><msg serviceID="5" 
+templateID="12345" action="" brief="不够涩！" 
+sourceMsgId="0" url="" flag="0" adverSign="0" multiMsgFlag="0">
+<item layout="0" advertiser_id="0" aid="0"><image uuid="%s.jpg" md5="%s" 
+GroupFiledid="2235033681" filesize="81322" local_path="%s.jpg" 
+minWidth="200" minHeight="200" maxWidth="500" maxHeight="1000" />
+</item><source name="%s⭐(id:%d author:%s)" icon="" 
+action="" appid="-1" /></msg>]`,
+		hash,
+		hash,
+		hash,
+		i.Title,
+		i.Pid,
+		i.UserName,
+	)
+}
+
+// NormalPic 返回一张普通图CQ码
+func (i *Illust) NormalPic(file string) string {
+	return fmt.Sprintf(`[CQ:image,file=file:///%s]`, file)
+}
+
+// DetailPic 返回一张带详细信息的图片CQ码
+func (i *Illust) DetailPic(file string) string {
+	return fmt.Sprintf(`[SetuTime] %s 
+标题：%s 
+插画ID：%d 
+画师：%s 
+画师ID：%d 
+直链：https://pixivel.moe/detail?id=%d`,
+		i.NormalPic(file),
+		i.Title,
+		i.Pid,
+		i.UserName,
+		i.UserId,
+		i.Pid,
+	)
 }

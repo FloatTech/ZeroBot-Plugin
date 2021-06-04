@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 	easy "github.com/t-tomalak/logrus-easy-formatter"
@@ -22,9 +23,11 @@ import (
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode" // 在线运行代码
 
 	// 娱乐类
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"    // 点歌
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime" // 涩图
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"  // 测定
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"       // 点歌
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher" // 搜图
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"     //简易随机图片
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"    // 涩图
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"     // 测定
 )
 
 func init() {
@@ -47,7 +50,7 @@ func main() {
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 		CommandPrefix: "/",
-		SuperUsers:    []string{"825111790", "213864964"}, // 必须修改，否则无权限
+		SuperUsers:    os.Args[1:], // 必须修改，否则无权限
 		Driver: []zero.Driver{
 			driver.NewWebSocketClient("127.0.0.1", "6700", ""),
 		},

@@ -9,13 +9,14 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/pixiv"
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 )
 
 var limit = rate.NewManager(time.Minute*1, 5)
 
 var (
-	BOTPATH  = utils.PathExecute()        // 当前bot运行目录
+	BOTPATH  = pixiv.PathExecute()        // 当前bot运行目录
 	DATAPATH = BOTPATH + "data/SetuTime/" // 数据目录
 	DBPATH   = DATAPATH + "SetuTime.db"   // 数据库路径
 
@@ -33,11 +34,11 @@ func init() {
 	PoolsCache.Group = CACHEGROUP // 图片缓冲群
 	PoolsCache.Path = CACHEPATH   // 缓冲图片路径
 
-	utils.CreatePath(DBPATH)
-	utils.CreatePath(CACHEPATH)
+	pixiv.CreatePath(DBPATH)
+	pixiv.CreatePath(CACHEPATH)
 
 	for i := range PoolList {
-		if err := DB.Create(PoolList[i], &utils.Illust{}); err != nil {
+		if err := DB.Create(PoolList[i], &pixiv.Illust{}); err != nil {
 			panic(err)
 		}
 	}
@@ -53,9 +54,9 @@ func init() { // 插件主体
 			var type_ = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := utils.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
+				times := pixiv.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
 				for i := 0; i < times; i++ {
-					illust := &utils.Illust{}
+					illust := &pixiv.Illust{}
 					// 查询出一张图片
 					if err := DB.Select(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
 						ctx.Send(fmt.Sprintf("ERROR: %v", err))
@@ -96,8 +97,8 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_  = ctx.State["regex_matched"].([]string)[1]
-				id     = utils.Str2Int(ctx.State["regex_matched"].([]string)[2])
-				illust = &utils.Illust{}
+				id     = pixiv.Str2Int(ctx.State["regex_matched"].([]string)[2])
+				illust = &pixiv.Illust{}
 			)
 			ctx.Send("少女祈祷中......")
 			// 查询P站插图信息
@@ -129,7 +130,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
-				id    = utils.Str2Int(ctx.State["regex_matched"].([]string)[2])
+				id    = pixiv.Str2Int(ctx.State["regex_matched"].([]string)[2])
 			)
 			// 查询数据库
 			if err := DB.Delete(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {

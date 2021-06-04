@@ -119,6 +119,9 @@ func shindanmaker(id, name string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
+	if resp.ContentLength <= 0 {
+		return "出错啦", nil
+	}
 	// 解析XPATH
 	doc, err := xpath.Parse(resp.Body)
 	if err != nil {
