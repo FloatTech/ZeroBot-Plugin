@@ -236,12 +236,12 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := getFilledTimeStamp(dateStrs, false)
-			if ts.enable {
+			if ts.Enable {
 				go timer(ts, func() {
-					if ts.url == "" {
-						ctx.SendChain(msgext.AtAll(), message.Text(ts.alert))
+					if ts.Url == "" {
+						ctx.SendChain(msgext.AtAll(), message.Text(ts.Alert))
 					} else {
-						ctx.SendChain(msgext.AtAll(), message.Text(ts.alert), msgext.ImageNoCache(ts.url))
+						ctx.SendChain(msgext.AtAll(), message.Text(ts.Alert), msgext.ImageNoCache(ts.Url))
 					}
 				})
 				ctx.Send("记住了~")
@@ -258,7 +258,7 @@ func init() { // 插件主体
 			ti := getTimerInfo(&ts)
 			t, ok := timers[ti]
 			if ok {
-				t.enable = false
+				t.Enable = false
 				delete(timers, ti) //避免重复取消
 				ctx.Send("取消成功~")
 			} else {

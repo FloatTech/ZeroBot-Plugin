@@ -27,8 +27,8 @@ import (
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher" // 搜图
 	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"     //简易随机图片
 
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime" // 涩图
-	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"  // 测定
+	//_ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime" // 涩图
+	_ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan" // 测定
 )
 
 func init() {
