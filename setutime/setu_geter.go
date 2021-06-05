@@ -10,13 +10,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/pixiv"
+	apiutils "github.com/Yiwen-Chan/ZeroBot-Plugin/api/utils"
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
 )
 
 var limit = rate.NewManager(time.Minute*1, 5)
 
 var (
-	BOTPATH  = pixiv.PathExecute()        // 当前bot运行目录
+	BOTPATH  = apiutils.PathExecute()     // 当前bot运行目录
 	DATAPATH = BOTPATH + "data/SetuTime/" // 数据目录
 	DBPATH   = DATAPATH + "SetuTime.db"   // 数据库路径
 
@@ -34,8 +35,8 @@ func init() {
 	PoolsCache.Group = CACHEGROUP // 图片缓冲群
 	PoolsCache.Path = CACHEPATH   // 缓冲图片路径
 
-	pixiv.CreatePath(DBPATH)
-	pixiv.CreatePath(CACHEPATH)
+	apiutils.CreatePath(DBPATH)
+	apiutils.CreatePath(CACHEPATH)
 
 	for i := range PoolList {
 		if err := DB.Create(PoolList[i], &pixiv.Illust{}); err != nil {
@@ -54,7 +55,7 @@ func init() { // 插件主体
 			var type_ = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := pixiv.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
+				times := apiutils.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
@@ -97,7 +98,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_  = ctx.State["regex_matched"].([]string)[1]
-				id     = pixiv.Str2Int(ctx.State["regex_matched"].([]string)[2])
+				id     = apiutils.Str2Int(ctx.State["regex_matched"].([]string)[2])
 				illust = &pixiv.Illust{}
 			)
 			ctx.Send("少女祈祷中......")
@@ -130,7 +131,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
-				id    = pixiv.Str2Int(ctx.State["regex_matched"].([]string)[2])
+				id    = apiutils.Str2Int(ctx.State["regex_matched"].([]string)[2])
 			)
 			// 查询数据库
 			if err := DB.Delete(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {

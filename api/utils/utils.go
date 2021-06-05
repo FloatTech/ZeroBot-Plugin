@@ -1,4 +1,4 @@
-package pixiv
+package utils
 
 import (
 	"os"
