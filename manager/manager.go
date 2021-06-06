@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/timer"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -235,15 +235,10 @@ func init() { // 插件主体
 	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := getFilledTimeStamp(dateStrs, false)
+			ts := timer.GetFilledTimeStamp(dateStrs, false)
+			ts.Grpid = uint64(ctx.Event.GroupID)
 			if ts.Enable {
-				go timer(ts, func() {
-					if ts.Url == "" {
-						ctx.SendChain(msgext.AtAll(), message.Text(ts.Alert))
-					} else {
-						ctx.SendChain(msgext.AtAll(), message.Text(ts.Alert), msgext.ImageNoCache(ts.Url))
-					}
-				})
+				go timer.RegisterTimer(ts, true)
 				ctx.Send("记住了~")
 			} else {
 				ctx.Send("参数非法!")
@@ -254,12 +249,13 @@ func init() { // 插件主体
 	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := getFilledTimeStamp(dateStrs, true)
-			ti := getTimerInfo(&ts)
-			t, ok := timers[ti]
+			ts := timer.GetFilledTimeStamp(dateStrs, true)
+			ti := timer.GetTimerInfo(ts)
+			t, ok := (*timer.Timers)[ti]
 			if ok {
 				t.Enable = false
-				delete(timers, ti) //避免重复取消
+				delete(*timer.Timers, ti) //避免重复取消
+				timer.SaveTimers()
 				ctx.Send("取消成功~")
 			} else {
 				ctx.Send("没有这个定时器哦~")

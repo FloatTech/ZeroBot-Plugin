@@ -1,23 +1,29 @@
-package manager
+package timer
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
-	tm "github.com/Yiwen-Chan/ZeroBot-Plugin/api/timer"
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/utils"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-type TimeStamp = tm.Timer
+type (
+	TimeStamp = Timer
+	Ctx       = zero.Ctx
+)
 
 var (
 	//记录每个定时器以便取消
-	timersmap tm.TimersMap
-	timers    = timersmap.Timers
+	timersmap TimersMap
+	Timers    *(map[string]*Timer)
 	//定时器存储位置
 	BOTPATH  = utils.PathExecute()       // 当前bot运行目录
 	DATAPATH = BOTPATH + "data/manager/" // 数据目录
@@ -25,32 +31,49 @@ var (
 )
 
 func init() {
-	utils.CreatePath(DATAPATH)
+	go func() {
+		time.Sleep(time.Second)
+		utils.CreatePath(DATAPATH)
+		loadTimers()
+		Timers = &timersmap.Timers
+	}()
 }
 
-func timer(ts TimeStamp, onTimeReached func()) {
-	key := getTimerInfo(&ts)
-	fmt.Printf("[群管]注册计时器: %s\n", key)
-	t, ok := timers[key]
-	if ok { //避免重复注册定时器
-		t.Enable = false
-	}
-	timers[key] = &ts
-	saveTimers()
-	judgeHM := func() {
-		if ts.Hour < 0 || ts.Hour == int32(time.Now().Hour()) {
-			if ts.Minute < 0 || ts.Minute == int32(time.Now().Minute()) {
-				onTimeReached()
-			}
+func judgeHM(ts *TimeStamp) {
+	if ts.Hour < 0 || ts.Hour == int32(time.Now().Hour()) {
+		if ts.Minute < 0 || ts.Minute == int32(time.Now().Minute()) {
+			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+				ctx.Event = new(zero.Event)
+				ctx.Event.GroupID = int64(ts.Grpid)
+				if ts.Url == "" {
+					ctx.SendChain(msgext.AtAll(), message.Text(ts.Alert))
+				} else {
+					ctx.SendChain(msgext.AtAll(), message.Text(ts.Alert), msgext.ImageNoCache(ts.Url))
+				}
+				return false
+			})
 		}
 	}
+}
+
+func RegisterTimer(ts *TimeStamp, save bool) {
+	key := GetTimerInfo(ts)
+	t, ok := (*Timers)[key]
+	if t != ts && ok { //避免重复注册定时器
+		t.Enable = false
+	}
+	(*Timers)[key] = ts
+	if save {
+		SaveTimers()
+	}
+	fmt.Printf("[群管]注册计时器[%t]%s\n", ts.Enable, key)
 	for ts.Enable {
 		if ts.Month < 0 || ts.Month == int32(time.Now().Month()) {
 			if ts.Day < 0 || ts.Day == int32(time.Now().Day()) {
-				judgeHM()
+				judgeHM(ts)
 			} else if ts.Day == 0 {
 				if ts.Week < 0 || ts.Week == int32(time.Now().Weekday()) {
-					judgeHM()
+					judgeHM(ts)
 				}
 			}
 		}
@@ -58,7 +81,7 @@ func timer(ts TimeStamp, onTimeReached func()) {
 	}
 }
 
-func saveTimers() error {
+func SaveTimers() error {
 	data, err := timersmap.Marshal()
 	if err != nil {
 		return err
@@ -76,13 +99,32 @@ func saveTimers() error {
 	}
 }
 
+func loadTimers() {
+	if utils.PathExists(PBFILE) {
+		f, err := os.Open(PBFILE)
+		if err == nil {
+			data, err1 := io.ReadAll(f)
+			if err1 == nil {
+				if len(data) > 0 {
+					timersmap.Unmarshal(data)
+					for _, t := range timersmap.Timers {
+						go RegisterTimer(t, false)
+					}
+					return
+				}
+			}
+		}
+	}
+	timersmap.Timers = make(map[string]*Timer)
+}
+
 //获得标准化定时字符串
-func getTimerInfo(ts *TimeStamp) string {
+func GetTimerInfo(ts *TimeStamp) string {
 	return fmt.Sprintf("%d月%d日%d周%d:%d", ts.Month, ts.Day, ts.Week, ts.Hour, ts.Minute)
 }
 
 //获得填充好的ts
-func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
+func GetFilledTimeStamp(dateStrs []string, matchDateOnly bool) *TimeStamp {
 	monthStr := []rune(dateStrs[1])
 	dayWeekStr := []rune(dateStrs[2])
 	hourStr := []rune(dateStrs[3])
@@ -92,7 +134,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 	ts.Month = chineseNum2Int(monthStr)
 	if (ts.Month != -1 && ts.Month <= 0) || ts.Month > 12 { //月份非法
 		fmt.Println("[群管]月份非法！")
-		return ts
+		return &ts
 	}
 	lenOfDW := len(dayWeekStr)
 	if lenOfDW == 4 { //包括末尾的"日"
@@ -100,14 +142,14 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 		ts.Day = chineseNum2Int(dayWeekStr)
 		if (ts.Day != -1 && ts.Day <= 0) || ts.Day > 31 { //日期非法
 			fmt.Println("[群管]日期非法1！")
-			return ts
+			return &ts
 		}
 	} else if dayWeekStr[lenOfDW-1] == rune('日') { //xx日
 		dayWeekStr = dayWeekStr[:lenOfDW-1]
 		ts.Day = chineseNum2Int(dayWeekStr)
 		if (ts.Day != -1 && ts.Day <= 0) || ts.Day > 31 { //日期非法
 			fmt.Println("[群管]日期非法2！")
-			return ts
+			return &ts
 		}
 	} else if dayWeekStr[0] == rune('每') { //每周
 		ts.Week = -1
@@ -119,7 +161,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 		if ts.Week < 0 || ts.Week > 6 { //星期非法
 			ts.Week = -11
 			fmt.Println("[群管]星期非法！")
-			return ts
+			return &ts
 		}
 	}
 	if len(hourStr) == 3 {
@@ -128,7 +170,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 	ts.Hour = chineseNum2Int(hourStr)
 	if ts.Hour < -1 || ts.Hour > 23 { //小时非法
 		fmt.Println("[群管]小时非法！")
-		return ts
+		return &ts
 	}
 	if len(minuteStr) == 3 {
 		minuteStr = []rune{minuteStr[0], minuteStr[2]} //去除中间的十
@@ -136,7 +178,7 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 	ts.Minute = chineseNum2Int(minuteStr)
 	if ts.Minute < -1 || ts.Minute > 59 { //分钟非法
 		fmt.Println("[群管]分钟非法！")
-		return ts
+		return &ts
 	}
 	if !matchDateOnly {
 		urlStr := dateStrs[5]
@@ -146,13 +188,13 @@ func getFilledTimeStamp(dateStrs []string, matchDateOnly bool) TimeStamp {
 			if !strings.HasPrefix(ts.Url, "http") {
 				ts.Url = "illegal"
 				fmt.Println("[群管]url非法！")
-				return ts
+				return &ts
 			}
 		}
 		ts.Alert = dateStrs[6]
 		ts.Enable = true
 	}
-	return ts
+	return &ts
 }
 
 //汉字数字转int，仅支持-10～99，最多两位数，其中"每"解释为-1，"每两"为-2，以此类推

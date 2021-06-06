@@ -10,6 +10,7 @@ message Timer {
     sint32 week = 6;
     sint32 hour = 7;
     sint32 minute = 8;
+    uint64 grpid = 9;
 }
 
 message TimersMap {

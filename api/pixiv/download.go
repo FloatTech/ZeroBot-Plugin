@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/utils"
 )
 
 // urlCache 缓存并返回缓存路径
@@ -20,9 +22,9 @@ func (this *Illust) PixivPicDown(path string) (savePath string, err error) {
 	url = strings.ReplaceAll(url, "_p0", "_p0_master1200")
 	url = strings.ReplaceAll(url, ".png", ".jpg")
 	// 文件名为url的hash值
-	savePath = path + Int2Str(pid) + ".jpg"
+	savePath = path + utils.Int2Str(pid) + ".jpg"
 	// 文件存在或文件大小大于10kb
-	if PathExists(savePath) && FileSize(savePath) > 10240 {
+	if utils.PathExists(savePath) && utils.FileSize(savePath) > 10240 {
 		return savePath, nil
 	}
 
@@ -80,9 +82,9 @@ func (this *Illust) RmPic(path string) (err error) {
 	url = strings.ReplaceAll(url, "_p0", "_p0_master1200")
 	url = strings.ReplaceAll(url, ".png", ".jpg")
 	// 文件名为url的hash值
-	savePath := path + Int2Str(pid) + ".jpg"
+	savePath := path + utils.Int2Str(pid) + ".jpg"
 	// 文件存在或文件大小大于10kb
-	if PathExists(savePath) {
+	if utils.PathExists(savePath) {
 		return os.Remove(savePath)
 	} else {
 		return nil
