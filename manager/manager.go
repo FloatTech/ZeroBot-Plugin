@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/timer"
+	timer "github.com/fumiama/ZeroBot-Plugin-Timer"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )

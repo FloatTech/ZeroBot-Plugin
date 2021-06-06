@@ -5,8 +5,9 @@ go 1.15
 require (
 	github.com/antchfx/htmlquery v1.2.3
 	github.com/antchfx/xpath v1.2.0 // indirect
+	github.com/fumiama/ZeroBot-Plugin-Timer v0.0.0-20210606064339-d55b94d71eee
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/mattn/go-sqlite3 v1.14.7
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/sirupsen/logrus v1.8.1
