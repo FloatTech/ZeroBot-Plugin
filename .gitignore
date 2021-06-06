@@ -1,4 +1,5 @@
-data/chat/*
-data/SetuTime/cache/*
+data/chat
+data/SetuTime/cache
+data/manager
 main.exe
 .DS_Store

@@ -53,7 +53,7 @@ func main() {
 		CommandPrefix: "/",
 		SuperUsers:    os.Args[1:], // 必须修改，否则无权限
 		Driver: []zero.Driver{
-			driver.NewWebSocketClient("127.0.0.1", "6700", ""),
+			driver.NewWebSocketClient("ws://127.0.0.1:6700/", ""),
 		},
 	})
 	// 帮助

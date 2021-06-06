@@ -10,17 +10,18 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/pixiv"
+	apiutils "github.com/Yiwen-Chan/ZeroBot-Plugin/api/utils"
 	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher/utils"
 )
 
 var CACHEPATH = "/tmp/picsch/" // 缓冲图片路径
 
 func init() { // 插件主体
-	pixiv.CreatePath(CACHEPATH)
+	apiutils.CreatePath(CACHEPATH)
 	// 根据PID搜图
 	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
-			id := pixiv.Str2Int(ctx.State["regex_matched"].([]string)[1])
+			id := apiutils.Str2Int(ctx.State["regex_matched"].([]string)[1])
 			ctx.Send("少女祈祷中......")
 			// 获取P站插图信息
 			illust := &pixiv.Illust{}
