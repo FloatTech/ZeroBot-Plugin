@@ -2,6 +2,7 @@ package picsearcher
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,9 +15,16 @@ import (
 	utils "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher/utils"
 )
 
-var CACHEPATH = "/tmp/picsch/" // 缓冲图片路径
+var (
+	CACHEPATH = os.TempDir() // 缓冲图片路径
+)
 
 func init() { // 插件主体
+	if strings.Contains(CACHEPATH, "\\") {
+		CACHEPATH += "\\picsch\\"
+	} else {
+		CACHEPATH += "/picsch/"
+	}
 	apiutils.CreatePath(CACHEPATH)
 	// 根据PID搜图
 	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).SetPriority(30).
@@ -38,7 +46,6 @@ func init() { // 插件主体
 			// 发送搜索结果
 			ctx.Send(illust.DetailPic(savePath))
 			illust.RmPic(CACHEPATH)
-			return
 		})
 	// 以图搜图
 	zero.OnMessage(FullMatchText("以图搜图", "搜索图片", "以图识图"), MustHasPicture()).SetBlock(true).SetPriority(999).
@@ -60,7 +67,6 @@ func init() { // 插件主体
 					ctx.SendChain(message.Text("ERROR: ", err))
 				}
 			}
-			return
 		})
 }
 
