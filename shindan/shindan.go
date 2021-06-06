@@ -1,7 +1,11 @@
+/*
+基于 https://shindanmaker.com 的测定小功能
+*/
 package shindan
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -19,6 +23,7 @@ var limit = rate.NewManager(time.Minute*5, 5)
 
 func init() {
 	table := map[string]string{
+		// 可自行添加，前面为指令名，后面为网页ID
 		"异世界转生":   "587874",
 		"卖萌":      "360578",
 		"今天是什么少女": "162207",
@@ -32,8 +37,6 @@ func init() {
 
 			type_ := ctx.State["key"].(string)
 			name := ctx.State["name"].(string)
-
-			//ctx.SendChain(message.Text("少女祈祷中......"))
 
 			text, err := shindanmaker(table[type_], name)
 			if err != nil {
@@ -62,9 +65,9 @@ func HasTableKey(table map[string]string) func(ctx *zero.Ctx) bool {
 // GetName 获取名字
 // 如果 ctx.State["trim_key"] 为空
 // 则 ctx.State["name"] 为发送者的 名片 昵称 群头衔
-// 如果 rule：HasTableKey 中 ctx.State["trim_key "] 是艾特
+// 如果 rule：HasTableKey 中 ctx.State["trim_key"] 是艾特
 // 则 ctx.State["name"] 为 被艾特的人的 名片 昵称 群头衔
-// 否则 ctx.State["name"] 为 ctx.State["trim_key "]
+// 否则 ctx.State["name"] 为 ctx.State["trim_key"]
 func GetName() func(ctx *zero.Ctx) bool {
 	return func(ctx *zero.Ctx) bool {
 		name := ctx.State["trim_key"].(string)
@@ -97,31 +100,31 @@ func GetName() func(ctx *zero.Ctx) bool {
 	}
 }
 
+// shindanmaker 返回网页 shindanmaker.com 测定结果
 func shindanmaker(id, name string) (string, error) {
 	url := "https://shindanmaker.com/" + id
-	// 使每一天的结果都不同
+	// seed 使每一天的结果都不同
 	now := time.Now()
 	seed := fmt.Sprintf("%d%d%d", now.Year(), now.Month(), now.Day())
 	name = name + seed
+
+	// 组装参数
+	client := &http.Client{}
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
-	_ = writer.WriteField("_token", "2HgIQ1okTbr1SZ5EXDQWvFXQEBoerVRK8CSW0xro")
+	_ = writer.WriteField("_token", "D6Rn2BTOTMht2FBKNhpwOWqymZuoifLNt31RqlLj")
 	_ = writer.WriteField("name", name)
 	_ = writer.WriteField("hiddenName", "名無しのV")
 	_ = writer.Close()
-
-	client := &http.Client{}
+	// 发送请求
 	req, _ := http.NewRequest("POST", url, payload)
-	req.Header.Add("Cookie", "_session=8gvUXS6oVG3hZ1vBf2QlOVGquMh0UwJEuBwHIjNf; _ga=GA1.2.531883706.1618563450; _gid=GA1.2.622904960.1618563450; trc_cookie_storage=taboola%2520global%253Auser-id%3D09ef6d7e-ddb2-4a3f-ac71-b75801d11fef-tuct7602eee; dui=eyJpdiI6ImJ0MThXNTFoZ1hVOXNWZXZFeTRDdlE9PSIsInZhbHVlIjoibUF3em14ZzhXbVJsL1k5b284Tzh5QUhHa0VSYWtYZjF3KzZNRkxtRmVIMHBUbnJ1M0JwNTEzaWhWTzZTT1NGcGVxdFhGaG11Y052a3hyUUZVZDRtNFc0ZndiRnVTSHJFL1hzak43QzNhYVd6cEFEZVJxZVNNNytpNHhQbnF0TGpmbXNNdFlUNjFwNVNubnVJbkN5NHNRPT0iLCJtYWMiOiIzOTNmNmU2NmM3ZmNlMWU5OTA1ZDFlZTJlYTRiZThlZDViMzEwN2VmN2Y0NDEyZjNkYmM5ZGJhNTllMGU1ZjE3In0%3D; XSRF-TOKEN=eyJpdiI6Ikw0eTU4eFFtSytCL3VySlpuSG1UaVE9PSIsInZhbHVlIjoiL3h5WVkvSDdEaWZVdGY1M1hmalpYUDM2Y0IzSlFIL3BFTUd6MXczekFpZWlDcHVxTk5TSVF1SzhhVm53T1dYbUd5dS8vL1FjMm9yYVlGOGJReTI4c2JoV0tnNURhMHhBODBrQ1RxYkhnQ1ZsSXoxMmlUNVNrQ241cnlFKzQzWDciLCJtYWMiOiI0NDhiMzI3NzNmOGJjNmM1ZDk1ZjYwMTFmYzk4YjQ5ZDQ3OWY0MGY1YTkwNGIyY2U5YzhiMTQ1ZGQyNDhiM2NjIn0%3D; name=eyJpdiI6IjBrTVE0RFl4Nm9kTVVMb2EvYVNPQmc9PSIsInZhbHVlIjoiV3o0b1R3azhKZDZaOE1udkFrVis1L0xsdHJoZXZsKzlkRk9DR3FTQU9XalU4c0kyc3M2ckdTMjVYSjFjT0RPeSIsIm1hYyI6IjI2ZDMzZjM0YThhNzUwOGU2NGYxNGJmZTk3YjI3ZDU4YzBmMjJkMTZkMDQyOTE2NTczODA4NzA1NDQ2OTIzMGUifQ%3D%3D; dsr=eyJpdiI6IlZPQnhVM3RWVkU5VDcxd3dmRWVBU1E9PSIsInZhbHVlIjoiREFsOEZoUHozaHBxbTJDS1V2OVR3djZtNU5TQkEreW5GTHhYaWRRbG5WeENDdXJsOG9RVDNKclgyQkJpdEZnNkFqMTQwcmJSTlBoenBxZDVSanQ5TFE9PSIsIm1hYyI6ImNiNjdjOTFmYjYzOTAwMTc3MDdhNzBhMDhhMTQ0M2Q0ODM1YzIwMDJhNmQ4MWVmZTJjZDFiMmYyM2IxYTNmNjIifQ%3D%3D; __gads=ID=b597940057bf81ba:T=1618572481:S=ALNI_MasEvf_XV_9a4OWpVPI2UNR4vOswQ; XSRF-TOKEN=eyJpdiI6InQ0MkcvTGJjZVNabnI1MUV6K1Y4b1E9PSIsInZhbHVlIjoiR2hOZ0FiTDVBM1ZPYUMzbEJGRUJiWVIyNWlHN0VRUVc1NStYMjMrWmVWRHE0R1ZQSDZXMkhWTHFYU21MczRkSDJUZnBWT1hzWnl2VEVRbXhOdzdWNEErRGM0eUYyOEdIWVBrekQ4TkdLRlcwSzVKOWJtMmJSZkVUTUVNZmprNnEiLCJtYWMiOiI5ZDc3ZDEwNjQ3NTVhMTFiYTg5YTNiM2JiNTc3NjYyYWQ1MjY2ZmE0MmMwNGQyM2I4MjRmY2I2MmEzOWRlYzdkIn0%3D; name=eyJpdiI6ImFDRTNheSsra09GYnVvWVJieDRxSWc9PSIsInZhbHVlIjoicEZpdEtqMVNOZitPRS8wdlJqVVdiZGpkdkFKek5JYlNoM3E5b2wzakxJLzdPZmJBeTBkeTRQcGZtM0pFWEtqLyIsIm1hYyI6IjBiNDA0MDI1ZjU1ZDNmNDIzODE5OWFmNjZhNDA3MTU5OWY1MzI5YTI3ZTg5YzU3YWVjZDJmNGNmZmNkZWQwZDcifQ%3D%3D; _session=8gvUXS6oVG3hZ1vBf2QlOVGquMh0UwJEuBwHIjNf")
+	req.Header.Add("Cookie", "_ga=GA1.2.531883706.1618563450; trc_cookie_storage=taboola%20global%3Auser-id=09ef6d7e-ddb2-4a3f-ac71-b75801d11fef-tuct7602eee; dui=eyJpdiI6ImJ0MThXNTFoZ1hVOXNWZXZFeTRDdlE9PSIsInZhbHVlIjoibUF3em14ZzhXbVJsL1k5b284Tzh5QUhHa0VSYWtYZjF3KzZNRkxtRmVIMHBUbnJ1M0JwNTEzaWhWTzZTT1NGcGVxdFhGaG11Y052a3hyUUZVZDRtNFc0ZndiRnVTSHJFL1hzak43QzNhYVd6cEFEZVJxZVNNNytpNHhQbnF0TGpmbXNNdFlUNjFwNVNubnVJbkN5NHNRPT0iLCJtYWMiOiIzOTNmNmU2NmM3ZmNlMWU5OTA1ZDFlZTJlYTRiZThlZDViMzEwN2VmN2Y0NDEyZjNkYmM5ZGJhNTllMGU1ZjE3In0=; _session=XAj6V877yp1DE8Cb405837ySa0t6fYHM21R2HZ8Z; _gid=GA1.2.2089711003.1622961890; _gat_UA-19089743-2=1; _gat_UA-19089743-3=1; __gads=ID=b597940057bf81ba:T=1622961888:S=ALNI_MY9F-63AstFh3E3tS-DTVh08KgjJg; dsr=eyJpdiI6IlhBWTRYdk14SysyNms5VVpoMFUzMFE9PSIsInZhbHVlIjoiZUl2S2ZSL3M5a2RwT253MlpoQnJPb1NJQjZ1RUJLOWtTWnFXeWpvOG9XUnAwSGw4MGMyVDVIZjJiN0VSSUd6Vkt0V0wreEpEb3d6M2ZDZE51UzJDTGc9PSIsIm1hYyI6IjRkZjU5MjJhMTVhZjQwOGY4MjRhYzhiMjJkMzg0YTFhNzQ1YWVkODZmYjEyMjA5ODliNDdkZGQzMzVkOTdjNGIifQ==; name=eyJpdiI6Ilp0TWxIeG1scW80VWlyTFJQUG4yZWc9PSIsInZhbHVlIjoiL1NqMnJyKzhtdW1hUnFBYjhvUVhVeW9EVWdMSjdjSklvdUsrRk5Id0lrOHdtcjVDU010QkovQjAxYkZZT2Q3TSIsIm1hYyI6IjU4ZDc4NGQzNTMyMzJlZjk0YjZmNjBiMjkzNTAyYTQ0ZDg4NGNkZjhmMDY2ODk2YjdkOTdkZTY3MDlmYzdhYjkifQ==; XSRF-TOKEN=eyJpdiI6IjJrRzRiZTVYcldiL09XSURJTDJQYVE9PSIsInZhbHVlIjoicC8yVzV0cnFQQ2RXOG0xeDdUNTc1V2RmYlJIWnNiTjJ5UVFHMGlTOUhPT3VOOWtZbFFLS0d4QUxDTjdYTEdrYWdvbUJ5Y24wOVpmZjNVdTdtUUNkNmMrVDk0U3RoT0NsZmxZVWIveTh3QU9PT25aLzd1UndpUWVvTlZ2Tjd2c3IiLCJtYWMiOiIyYjdlNjFhYTAzYTIyZTdjMDIwNTZkNjIwMDJlMTI3MTZkNzhjYzdkMzIyNjdmNzFmYzI1ZmE5NzczZTVmZWVjIn0=")
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	if resp.ContentLength <= 0 {
-		return "出错啦", nil
-	}
 	// 解析XPATH
 	doc, err := xpath.Parse(resp.Body)
 	if err != nil {
@@ -129,6 +132,9 @@ func shindanmaker(id, name string) (string, error) {
 	}
 	// 取出每个返回的结果
 	list := xpath.Find(doc, `//*[@id="shindanResult"]`)
+	if len(list) == 0 {
+		return "", errors.New("无法查找到结果，可能 token 失效，请提交 issue")
+	}
 	var output = []string{}
 	for child := list[0].FirstChild; child != nil; child = child.NextSibling {
 		if text := xpath.InnerText(child); text != "" {
