@@ -269,8 +269,11 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				list := ctx.GetGroupMemberList(ctx.Event.GroupID)
-				path := fmt.Sprint(rand.Intn(int(list.Get("#").Int()))) + ".card"
-				random_card := list.Get(path).String()
+				rand_index := fmt.Sprint(rand.Intn(int(list.Get("#").Int())))
+				random_card := list.Get(rand_index + ".card").String()
+				if random_card == "" {
+					random_card = list.Get(rand_index + ".nickname").String()
+				}
 				ctx.Send(random_card + "，就是你啦!")
 			}
 		})
