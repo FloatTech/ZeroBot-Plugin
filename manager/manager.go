@@ -1,6 +1,8 @@
 package manager
 
 import (
+	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 
@@ -260,6 +262,15 @@ func init() { // 插件主体
 			} else {
 				ctx.Send("没有这个定时器哦~")
 			}
+			return
+		})
+	// 随机点名
+	zero.OnFullMatchGroup([]string{"翻牌"}, zero.AdminPermission).SetBlock(true).SetPriority(24).
+		Handle(func(ctx *zero.Ctx) {
+			list := ctx.GetGroupMemberList(ctx.Event.GroupID)
+			path := fmt.Sprint(rand.Intn(int(list.Get("#").Int()))) + ".user_id"
+			random_user_id := list.Get(path).Int()
+			ctx.SendChain(message.At(random_user_id), message.Text("就是你啦!"))
 			return
 		})
 	// 入群欢迎
