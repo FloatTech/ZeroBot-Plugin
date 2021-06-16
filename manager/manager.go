@@ -265,13 +265,14 @@ func init() { // 插件主体
 			return
 		})
 	// 随机点名
-	zero.OnFullMatchGroup([]string{"翻牌"}, zero.AdminPermission).SetBlock(true).SetPriority(24).
+	zero.OnFullMatchGroup([]string{"翻牌"}).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			list := ctx.GetGroupMemberList(ctx.Event.GroupID)
-			path := fmt.Sprint(rand.Intn(int(list.Get("#").Int()))) + ".user_id"
-			random_user_id := list.Get(path).Int()
-			ctx.SendChain(message.At(random_user_id), message.Text("就是你啦!"))
-			return
+			if ctx.Event.GroupID > 0 {
+				list := ctx.GetGroupMemberList(ctx.Event.GroupID)
+				path := fmt.Sprint(rand.Intn(int(list.Get("#").Int()))) + ".card"
+				random_card := list.Get(path).String()
+				ctx.Send(random_card + "，就是你啦!")
+			}
 		})
 	// 入群欢迎
 	zero.OnNotice().SetBlock(false).SetPriority(40).
