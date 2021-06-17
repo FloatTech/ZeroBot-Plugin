@@ -112,7 +112,9 @@ func init() { // 插件主体
 					ctx.Send("请稍后再试哦")
 				} else {
 					BLOCK_REQUEST = true
-					ctx.Send(msgext.ImageNoCache(RANDOM_API_URL))
+					last_message_id := ctx.Send(msgext.ImageNoCache(RANDOM_API_URL))
+					last_group_id := ctx.Event.GroupID
+					msgofgrp[last_group_id] = last_message_id
 					BLOCK_REQUEST = false
 				}
 			}
