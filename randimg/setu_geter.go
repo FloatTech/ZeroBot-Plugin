@@ -36,6 +36,16 @@ func init() { // 插件主体
 			}
 			return
 		})
+	zero.OnRegex(`^设置评价图片网址(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(20).
+		Handle(func(ctx *zero.Ctx) {
+			url := ctx.State["regex_matched"].([]string)[1]
+			if !strings.HasPrefix(url, "http") {
+				ctx.Send("URL非法!")
+			} else {
+				CLASSIFY_RANDOM_API_URL = url + RANDOM_API_URL
+			}
+			return
+		})
 	// 有保护的随机图片
 	if CLASSIFY_RANDOM_API_URL != "" {
 		zero.OnFullMatch("评价图片").SetBlock(true).SetPriority(24).
