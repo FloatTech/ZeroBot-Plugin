@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -21,10 +20,8 @@ var (
 	BLOCK_REQUEST           = false
 	CACHE_IMG_FILE          = "/tmp/setugt"
 	CACHE_URI               = "file:///" + CACHE_IMG_FILE
-	last_message_id         int64
-	last_dhash              string
-	last_visit              = 0
-	last_group_id           int64
+	msgofgrp                = make(map[int64]int64)
+	dhashofmsg              = make(map[int64]string)
 )
 
 func init() { // 插件主体
@@ -42,10 +39,9 @@ func init() { // 插件主体
 	zero.OnFullMatch("随机图片").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
-				if BLOCK_REQUEST && time.Now().Unix()-last_message_id < 30 {
+				if BLOCK_REQUEST {
 					ctx.Send("请稍后再试哦")
 				} else {
-					last_message_id = time.Now().Unix()
 					BLOCK_REQUEST = true
 					if CLASSIFY_RANDOM_API_URL != "" {
 						resp, err := http.Get(CLASSIFY_RANDOM_API_URL)
@@ -72,9 +68,10 @@ func init() { // 插件主体
 										}
 									}
 								} else {
-									last_message_id = ctx.Send(msgext.ImageNoCache(CACHE_URI))
-									last_dhash = dhash
-									last_group_id = ctx.Event.GroupID
+									last_message_id := ctx.Send(msgext.ImageNoCache(CACHE_URI))
+									last_group_id := ctx.Event.GroupID
+									msgofgrp[last_group_id] = last_message_id
+									dhashofmsg[last_message_id] = dhash
 									if class > 2 {
 										ctx.Send("我好啦！")
 									}
@@ -91,22 +88,23 @@ func init() { // 插件主体
 		})
 	zero.OnFullMatch("不许好").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if last_message_id != 0 && last_group_id == ctx.Event.GroupID {
-				ctx.DeleteMessage(last_message_id)
-				last_message_id = 0
-				vote(5)
-			}
+			vote(ctx, 5)
 		})
 	zero.OnFullMatch("太涩了").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if last_message_id != 0 && last_group_id == ctx.Event.GroupID {
-				ctx.DeleteMessage(last_message_id)
-				last_message_id = 0
-				vote(6)
-			}
+			vote(ctx, 6)
 		})
 }
 
-func vote(class int) {
-	http.Get(fmt.Sprintf(VOTE_API_URL, last_dhash, class))
+func vote(ctx *zero.Ctx, class int) {
+	msg, ok := msgofgrp[ctx.Event.GroupID]
+	if ok {
+		ctx.DeleteMessage(msg)
+		delete(msgofgrp, ctx.Event.GroupID)
+		dhash, ok2 := dhashofmsg[msg]
+		if ok2 {
+			http.Get(fmt.Sprintf(VOTE_API_URL, dhash, class))
+			delete(dhashofmsg, msg)
+		}
+	}
 }
