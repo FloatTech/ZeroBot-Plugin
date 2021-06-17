@@ -24,6 +24,7 @@ var (
 	last_message_id         int64
 	last_dhash              string
 	last_visit              = 0
+	last_group_id           int64
 )
 
 func init() { // 插件主体
@@ -73,6 +74,7 @@ func init() { // 插件主体
 								} else {
 									last_message_id = ctx.Send(msgext.ImageNoCache(CACHE_URI))
 									last_dhash = dhash
+									last_group_id = ctx.Event.GroupID
 									if class > 2 {
 										ctx.Send("我好啦！")
 									}
@@ -89,7 +91,7 @@ func init() { // 插件主体
 		})
 	zero.OnFullMatch("不许好").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if last_message_id != 0 {
+			if last_message_id != 0 && last_group_id == ctx.Event.GroupID {
 				ctx.DeleteMessage(last_message_id)
 				last_message_id = 0
 				vote(5)
@@ -97,7 +99,7 @@ func init() { // 插件主体
 		})
 	zero.OnFullMatch("太涩了").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if last_message_id != 0 {
+			if last_message_id != 0 && last_group_id == ctx.Event.GroupID {
 				ctx.DeleteMessage(last_message_id)
 				last_message_id = 0
 				vote(6)
