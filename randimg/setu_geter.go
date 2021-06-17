@@ -17,6 +17,7 @@ var (
 	RANDOM_API_URL          = "https://api.pixivweb.com/anime18r.php?return=img"
 	CLASSIFY_RANDOM_API_URL = "http://saki.fumiama.top:62002/dice?url=" + RANDOM_API_URL
 	VOTE_API_URL            = "http://saki.fumiama.top/vote?uuid=零号&img=%s&class=%d"
+	BLOCK_REQUEST_CLASS     = false
 	BLOCK_REQUEST           = false
 	CACHE_IMG_FILE          = "/tmp/setugt"
 	CACHE_URI               = "file:///" + CACHE_IMG_FILE
@@ -35,15 +36,15 @@ func init() { // 插件主体
 			}
 			return
 		})
-	// 随机图片
-	zero.OnFullMatch("随机图片").SetBlock(true).SetPriority(24).
-		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				if BLOCK_REQUEST {
-					ctx.Send("请稍后再试哦")
-				} else {
-					BLOCK_REQUEST = true
-					if CLASSIFY_RANDOM_API_URL != "" {
+	// 有保护的随机图片
+	if CLASSIFY_RANDOM_API_URL != "" {
+		zero.OnFullMatch("评价图片").SetBlock(true).SetPriority(24).
+			Handle(func(ctx *zero.Ctx) {
+				if ctx.Event.GroupID > 0 {
+					if BLOCK_REQUEST_CLASS {
+						ctx.Send("请稍后再试哦")
+					} else {
+						BLOCK_REQUEST_CLASS = true
 						resp, err := http.Get(CLASSIFY_RANDOM_API_URL)
 						if err != nil {
 							ctx.Send(fmt.Sprintf("ERROR: %v", err))
@@ -78,14 +79,13 @@ func init() { // 插件主体
 								}
 							}
 						}
-					} else {
-						ctx.Send(msgext.ImageNoCache(RANDOM_API_URL))
+						BLOCK_REQUEST_CLASS = false
 					}
-					BLOCK_REQUEST = false
 				}
-			}
-			return
-		})
+				return
+			})
+	}
+
 	zero.OnFullMatch("不许好").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			vote(ctx, 5)
@@ -93,6 +93,20 @@ func init() { // 插件主体
 	zero.OnFullMatch("太涩了").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			vote(ctx, 6)
+		})
+	// 	直接随机图片
+	zero.OnFullMatch("随机图片").SetBlock(true).SetPriority(24).
+		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.GroupID > 0 {
+				if BLOCK_REQUEST {
+					ctx.Send("请稍后再试哦")
+				} else {
+					BLOCK_REQUEST = true
+					ctx.Send(msgext.ImageNoCache(RANDOM_API_URL))
+					BLOCK_REQUEST = false
+				}
+			}
+			return
 		})
 }
 
