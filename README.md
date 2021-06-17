@@ -68,6 +68,7 @@
 - 简易随机图片(调用url) `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"`
     - [x] 随机图片
     - [x] 设置随机图片网址[url]
+    - [x] 太涩了（撤回最近发的图）
 - 点歌 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
