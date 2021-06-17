@@ -15,7 +15,7 @@ import (
 
 var (
 	RANDOM_API_URL          = "https://api.pixivweb.com/anime18r.php?return=img"
-	CLASSIFY_RANDOM_API_URL = "http://saki.fumiama.top:62002/dice?url=" + RANDOM_API_URL
+	CLASSIFY_RANDOM_API_URL = "http://127.0.0.1:62002/dice?url=" + RANDOM_API_URL
 	VOTE_API_URL            = "http://saki.fumiama.top/vote?uuid=零号&img=%s&class=%d"
 	BLOCK_REQUEST_CLASS     = false
 	BLOCK_REQUEST           = false
