@@ -49,6 +49,7 @@
     - [x] 在[月份]月[每周or周几]的[小时]点[分钟]分时(用[url])提醒大家[消息]
     - [x] 取消在[月份]月[日期]日的[小时]点[分钟]分的提醒
     - [x] 取消在[月份]月[每周or周几]的[小时]点[分钟]分的提醒
+    - [x] 翻牌
     - [ ] 同意入群请求
     - [ ] 同意好友请求
     - [ ] 撤回[@xxx] [xxx]
@@ -67,6 +68,7 @@
 - 简易随机图片(调用url) `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"`
     - [x] 随机图片
     - [x] 设置随机图片网址[url]
+    - [x] 太涩了（撤回最近发的图）
 - 点歌 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
