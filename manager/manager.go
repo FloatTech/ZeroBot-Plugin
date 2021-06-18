@@ -1,8 +1,11 @@
 package manager
 
 import (
+	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	timer "github.com/fumiama/ZeroBot-Plugin-Timer"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -261,6 +264,20 @@ func init() { // 插件主体
 				ctx.Send("没有这个定时器哦~")
 			}
 			return
+		})
+	// 随机点名
+	zero.OnFullMatchGroup([]string{"翻牌"}).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.GroupID > 0 {
+				list := ctx.GetGroupMemberList(ctx.Event.GroupID)
+				rand.Seed(time.Now().UnixNano())
+				rand_index := fmt.Sprint(rand.Intn(int(list.Get("#").Int())))
+				random_card := list.Get(rand_index + ".card").String()
+				if random_card == "" {
+					random_card = list.Get(rand_index + ".nickname").String()
+				}
+				ctx.Send(random_card + "，就是你啦!")
+			}
 		})
 	// 入群欢迎
 	zero.OnNotice().SetBlock(false).SetPriority(40).
