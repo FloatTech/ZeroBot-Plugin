@@ -1,140 +1,147 @@
 package setutime
 
 import (
-	"errors"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/pixiv"
-	apiutils "github.com/Yiwen-Chan/ZeroBot-Plugin/api/utils"
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/setutime/utils"
+	"github.com/FloatTech/AnimeAPI/pixiv"
 )
 
-var limit = rate.NewManager(time.Minute*1, 5)
+// Pools 图片缓冲池
+type Pool struct {
+	Lock  sync.Mutex
+	DB    *Sqlite
+	Path  string
+	Group int64
+	List  []string
+	Max   int
+	Pool  map[string][]*pixiv.Illust
+	Form  int64
+}
 
-var (
-	BOTPATH  = apiutils.PathExecute()     // 当前bot运行目录
-	DATAPATH = BOTPATH + "data/SetuTime/" // 数据目录
-	DBPATH   = DATAPATH + "SetuTime.db"   // 数据库路径
-
-	CACHEPATH        = DATAPATH + "cache/"               // 缓冲图片路径
-	CACHEGROUP int64 = 0                                 // 缓冲图片群，为0即可
-	PoolList         = []string{"涩图", "二次元", "风景", "车万"} // 可自定义
-
-	DB         = utils.Sqlite{DBPath: DBPATH} // 新建涩图数据库对象
-	PoolsCache = utils.NewPoolsCache()        // 新建一个缓冲池对象
-
-	FORM = "PIC" // 默认 PIC 格式
-)
-
-func init() {
-	PoolsCache.Group = CACHEGROUP // 图片缓冲群
-	PoolsCache.Path = CACHEPATH   // 缓冲图片路径
-
-	apiutils.CreatePath(DBPATH)
-	apiutils.CreatePath(CACHEPATH)
-
-	for i := range PoolList {
-		if err := DB.Create(PoolList[i], &pixiv.Illust{}); err != nil {
+// NewPoolsCache 返回一个缓冲池对象
+func NewPools() *Pool {
+	cache := &Pool{
+		DB:    &Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+		Path:  "data/SetuTime/cache/",
+		Group: 0,
+		List:  []string{"涩图", "二次元", "风景", "车万"}, // 可以自己加类别，得自己加图片进数据库
+		Max:   10,
+		Pool:  map[string][]*pixiv.Illust{},
+		Form:  0,
+	}
+	err := os.MkdirAll(cache.Path, 0644)
+	if err != nil {
+		panic(err)
+	}
+	for i := range cache.List {
+		if err := cache.DB.Create(cache.List[i], &pixiv.Illust{}); err != nil {
 			panic(err)
 		}
 	}
+	return cache
 }
 
+var (
+	POOL  = NewPools()
+	limit = rate.NewManager(time.Minute*1, 5)
+)
+
 func init() { // 插件主体
-	zero.OnRegex(`^来份(.*)$`, FirstValueInList(PoolList)).SetBlock(true).SetPriority(20).
+	zero.OnRegex(`^来份(.*)$`, FirstValueInList(POOL.List)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.Send("请稍后重试0x0...")
+				ctx.SendChain(message.Text("少女祈祷中......"))
 				return
 			}
 			var type_ = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := apiutils.Min(PoolsCache.Max-PoolsCache.Size(type_), 2)
+				times := Min(POOL.Max-POOL.Size(type_), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
-					if err := DB.Select(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
-						ctx.Send(fmt.Sprintf("ERROR: %v", err))
+					if err := POOL.DB.Select(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					ctx.SendGroupMessage(PoolsCache.Group, "正在下载"+illust.ImageUrls)
-					file, err := illust.PixivPicDown(PoolsCache.Path)
+					// 下载图片
+					file, err := download(illust, POOL.Path)
 					if err != nil {
-						ctx.Send(fmt.Sprintf("ERROR: %v", err))
+						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					ctx.SendGroupMessage(PoolsCache.Group, illust.NormalPic(file))
+					ctx.SendGroupMessage(POOL.Group, []message.MessageSegment{message.Image(file)})
 					// 向缓冲池添加一张图片
-					if err := PoolsCache.Push(type_, illust); err != nil {
-						ctx.Send(fmt.Sprintf("ERROR: %v", err))
-						continue
-					}
+					POOL.Push(type_, illust)
+
 					time.Sleep(time.Second * 1)
 				}
 			}()
 			// 如果没有缓存，阻塞5秒
-			if PoolsCache.Size(type_) == 0 {
-				ctx.Send("[SetuTime] 正在填充弹药......")
+			if POOL.Size(type_) == 0 {
+				ctx.SendChain(message.Text("INFO: 正在填充弹药......"))
 				<-time.After(time.Second * 5)
-				if PoolsCache.Size(type_) == 0 {
-					ctx.Send("[SetuTime] 等待填充，请稍后再试......")
+				if POOL.Size(type_) == 0 {
+					ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 					return
 				}
 			}
 			// 从缓冲池里抽一张
-			if id := ctx.Send(PoolsCache.GetOnePic(type_, FORM)); id == 0 {
-				ctx.Send(fmt.Sprintf("ERROR: %v", errors.New("可能被风控了")))
+			if id := ctx.SendChain(message.Image(file(POOL.Pop(type_)))); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			return
 		})
 
-	zero.OnRegex(`^添加(.*?)(\d+)$`, FirstValueInList(PoolList), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
+	zero.OnRegex(`^添加(.*?)(\d+)$`, FirstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
 		Handle(func(ctx *zero.Ctx) {
 			var (
-				type_  = ctx.State["regex_matched"].([]string)[1]
-				id     = apiutils.Str2Int(ctx.State["regex_matched"].([]string)[2])
-				illust = &pixiv.Illust{}
+				type_ = ctx.State["regex_matched"].([]string)[1]
+				id, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
-			ctx.Send("少女祈祷中......")
+			ctx.SendChain(message.Text("少女祈祷中......"))
 			// 查询P站插图信息
-
-			if err := illust.IllustInfo(id); err != nil {
-				ctx.Send(fmt.Sprintf("ERROR: %v", err))
+			illust, err := pixiv.Works(id)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 下载插画
-			if _, err := illust.PixivPicDown(PoolsCache.Path); err != nil {
-				ctx.Send(fmt.Sprintf("ERROR: %v", err))
+			if _, err := download(illust, POOL.Path); err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			file := fmt.Sprintf("%s%d.jpg", PoolsCache.Path, illust.Pid)
-			if id := ctx.Send(illust.DetailPic(file)); id == 0 {
-				ctx.Send(fmt.Sprintf("ERROR: %v", "可能被风控，发送失败"))
+			// 发送到发送者
+			if id := ctx.SendChain(message.Image(file(illust))); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控，发送失败"))
 				return
 			}
 			// 添加插画到对应的数据库table
-			if err := DB.Insert(type_, illust); err != nil {
-				ctx.Send(fmt.Sprintf("ERROR: %v", err))
+			if err := POOL.DB.Insert(type_, illust); err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.Send("添加成功")
 			return
 		})
 
-	zero.OnRegex(`^删除(.*?)(\d+)$`, FirstValueInList(PoolList), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
+	zero.OnRegex(`^删除(.*?)(\d+)$`, FirstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
-				id    = apiutils.Str2Int(ctx.State["regex_matched"].([]string)[2])
+				id, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
 			// 查询数据库
-			if err := DB.Delete(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
+			if err := POOL.DB.Delete(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
@@ -143,34 +150,20 @@ func init() { // 插件主体
 		})
 
 	// 查询数据库涩图数量
-	zero.OnFullMatchGroup([]string{"setu -s", "setu --status", ">setu status"}).SetBlock(true).SetPriority(23).
+	zero.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).SetPriority(23).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
-			for i := range PoolList {
-				num, err := DB.Num(PoolList[i])
+			for i := range POOL.List {
+				num, err := POOL.DB.Num(POOL.List[i])
 				if err != nil {
 					num = 0
 				}
 				state = append(state, "\n")
-				state = append(state, PoolList[i])
+				state = append(state, POOL.List[i])
 				state = append(state, ": ")
 				state = append(state, fmt.Sprintf("%d", num))
 			}
 			ctx.Send(strings.Join(state, ""))
-			return
-		})
-	// 开xml模式
-	zero.OnFullMatchGroup([]string{"setu -x", "setu --xml", ">setu xml"}).SetBlock(true).SetPriority(24).
-		Handle(func(ctx *zero.Ctx) {
-			FORM = "XML"
-			ctx.Send("[SetuTime] XML->ON")
-			return
-		})
-	// 关xml模式
-	zero.OnFullMatchGroup([]string{"setu -p", "setu --pic", ">setu pic"}).SetBlock(true).SetPriority(24).
-		Handle(func(ctx *zero.Ctx) {
-			FORM = "PIC"
-			ctx.Send("[SetuTime] XML->OFF")
 			return
 		})
 }
@@ -186,4 +179,81 @@ func FirstValueInList(list []string) zero.Rule {
 		}
 		return false
 	}
+}
+
+// Min 返回两数最小值
+func Min(a, b int) int {
+	switch {
+	default:
+		return a
+	case a > b:
+		return b
+	case a < b:
+		return a
+	}
+}
+
+// Size 返回缓冲池指定类型的现有大小
+func (p *Pool) Size(type_ string) int {
+	return len(p.Pool[type_])
+}
+
+// IsFull 返回缓冲池指定类型是否已满
+func (p *Pool) IsFull(type_ string) bool {
+	return len(p.Pool[type_]) >= p.Max
+}
+
+// Push 向缓冲池插入一张图片
+func (p *Pool) Push(type_ string, illust *pixiv.Illust) {
+	p.Lock.Lock()
+	defer p.Lock.Unlock()
+	p.Pool[type_] = append(p.Pool[type_], illust)
+}
+
+// Push 在缓冲池拿出一张图片
+func (p *Pool) Pop(type_ string) (illust *pixiv.Illust) {
+	p.Lock.Lock()
+	defer p.Lock.Unlock()
+	if p.Size(type_) == 0 {
+		return
+	}
+	illust = p.Pool[type_][0]
+	p.Pool[type_] = p.Pool[type_][1:]
+	return
+}
+
+func file(i *pixiv.Illust) string {
+	filename := fmt.Sprint(i.Pid)
+	pwd, _ := os.Getwd()
+	filepath := pwd + `\` + POOL.Path + filename
+	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
+		return `file:///` + filepath + ".jpg"
+	}
+	if _, err := os.Stat(filepath + ".png"); err == nil || os.IsExist(err) {
+		return `file:///` + filepath + ".png"
+	}
+	if _, err := os.Stat(filepath + ".gif"); err == nil || os.IsExist(err) {
+		return `file:///` + filepath + ".gif"
+	}
+	return ""
+}
+
+func download(i *pixiv.Illust, filedir string) (string, error) {
+	filename := fmt.Sprint(i.Pid)
+	filepath := filedir + filename
+	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
+		return filepath + ".jpg", nil
+	}
+	if _, err := os.Stat(filepath + ".png"); err == nil || os.IsExist(err) {
+		return filepath + ".png", nil
+	}
+	if _, err := os.Stat(filepath + ".gif"); err == nil || os.IsExist(err) {
+		return filepath + ".gif", nil
+	}
+	// 下载最大分辨率为 1200 的图片
+	link := i.ImageUrls
+	link = strings.ReplaceAll(link, "img-original", "img-master")
+	link = strings.ReplaceAll(link, "_p0", "_p0_master1200")
+	// 下载
+	return pixiv.Download(link, filedir, filename)
 }

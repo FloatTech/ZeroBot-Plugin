@@ -1,4 +1,4 @@
-package utils
+package setutime
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // Sqlite 数据库对象
@@ -20,7 +20,7 @@ type Sqlite struct {
 // 返回错误
 func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
 	if db.DB == nil {
-		database, err := sql.Open("sqlite3", db.DBPath)
+		database, err := sql.Open("sqlite", db.DBPath)
 		if err != nil {
 			return err
 		}

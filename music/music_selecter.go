@@ -1,3 +1,6 @@
+/*
+QQ音乐、网易云、酷狗、酷我 点歌
+*/
 package music
 
 import (

@@ -1,13 +1,11 @@
-package randimg
+package setutime
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/classify"
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/context"
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
@@ -30,7 +28,7 @@ func init() { // 插件主体
 	zero.OnFullMatch("随机图片").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
-				classify.Classify(ctx, RANDOM_API_URL, false)
+				Classify(ctx, RANDOM_API_URL, false)
 			}
 			return
 		})
@@ -42,9 +40,9 @@ func init() { // 插件主体
 					ctx.Send("请稍后再试哦")
 				} else {
 					BLOCK_REQUEST = true
-					last_message_id := ctx.Send(msgext.ImageNoCache(RANDOM_API_URL))
+					last_message_id := ctx.SendChain(message.Image(RANDOM_API_URL).Add("no_cache", "0"))
 					last_group_id := ctx.Event.GroupID
-					classify.MsgofGrp[last_group_id] = last_message_id
+					MsgofGrp[last_group_id] = last_message_id
 					BLOCK_REQUEST = false
 				}
 			}
@@ -53,21 +51,21 @@ func init() { // 插件主体
 	// 撤回最后的随机图片
 	zero.OnFullMatch("不许好").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			classify.Vote(ctx, 5)
+			Vote(ctx, 5)
 		})
 	// 撤回最后的随机图片
 	zero.OnFullMatch("太涩了").SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			classify.Vote(ctx, 6)
+			Vote(ctx, 6)
 		})
 	// 上传一张图进行评价
-	zero.OnFullMatch("评价图片", context.MustHasPicture()).SetBlock(true).SetPriority(24).
+	zero.OnFullMatch("评价图片", MustHasPicture()).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				ctx.Send("少女祈祷中......")
 				for _, pic := range ctx.State["image_url"].([]string) {
 					fmt.Println(pic)
-					classify.Classify(ctx, pic, true)
+					Classify(ctx, pic, true)
 				}
 			}
 			return
