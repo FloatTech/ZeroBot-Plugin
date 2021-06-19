@@ -12,11 +12,7 @@ import (
 
 var (
 	RANDOM_API_URL = "https://api.pixivweb.com/anime18r.php?return=img"
-
-	BLOCK_REQUEST = false
-
-	msgofgrp   = make(map[int64]int64)
-	dhashofmsg = make(map[int64]string)
+	BLOCK_REQUEST  = false
 )
 
 func init() { // 插件主体
@@ -48,7 +44,7 @@ func init() { // 插件主体
 					BLOCK_REQUEST = true
 					last_message_id := ctx.Send(msgext.ImageNoCache(RANDOM_API_URL))
 					last_group_id := ctx.Event.GroupID
-					msgofgrp[last_group_id] = last_message_id
+					classify.MsgofGrp[last_group_id] = last_message_id
 					BLOCK_REQUEST = false
 				}
 			}
