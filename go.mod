@@ -3,7 +3,7 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.16
 
 require (
-	github.com/FloatTech/AnimeAPI v0.0.0-20210619082314-946db9a31a27
+	github.com/FloatTech/AnimeAPI v0.0.0-20210619112022-a8fdd4fefc07
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

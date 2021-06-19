@@ -1,5 +1,7 @@
 github.com/FloatTech/AnimeAPI v0.0.0-20210619082314-946db9a31a27 h1:/KNwMUtZWOzQUZ6UhK3XlkLErH+233dmb6NmJw5UMi8=
 github.com/FloatTech/AnimeAPI v0.0.0-20210619082314-946db9a31a27/go.mod h1:GYrQD70HvBzry1XiZ1tHFNOsOqRkR+ao4XGYZqV4I9c=
+github.com/FloatTech/AnimeAPI v0.0.0-20210619112022-a8fdd4fefc07 h1:7fBPLLoZysaa9PI9ApgzyVMrMLMWBam273YgKwy7Ddg=
+github.com/FloatTech/AnimeAPI v0.0.0-20210619112022-a8fdd4fefc07/go.mod h1:GYrQD70HvBzry1XiZ1tHFNOsOqRkR+ao4XGYZqV4I9c=
 github.com/antchfx/htmlquery v1.2.3 h1:sP3NFDneHx2stfNXCKbhHFo8XgNjCACnU/4AO5gWz6M=
 github.com/antchfx/htmlquery v1.2.3/go.mod h1:B0ABL+F5irhhMWg54ymEZinzMSi0Kt3I2if0BLYa3V0=
 github.com/antchfx/xpath v1.1.6/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNYhvtNk=
