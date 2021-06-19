@@ -1,4 +1,4 @@
-package classify
+package setutime
 
 import (
 	"fmt"
@@ -8,10 +8,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
-	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -88,7 +88,7 @@ func replyClass(ctx *zero.Ctx, dhash string, class int, noimg bool) {
 	} else {
 		var last_message_id int64
 		if !noimg {
-			last_message_id = ctx.Send(msgext.ImageNoCache(CACHE_URI))
+			last_message_id = ctx.SendChain(message.Image(CACHE_URI).Add("no_cache", "0"))
 			last_group_id := ctx.Event.GroupID
 			MsgofGrp[last_group_id] = last_message_id
 			dhashofmsg[last_message_id] = dhash
