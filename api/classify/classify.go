@@ -14,53 +14,47 @@ import (
 )
 
 var (
-	BLOCK_REQUEST_CLASS = false
-	CACHE_IMG_FILE      = "/tmp/setugt"
-	CACHE_URI           = "file:///" + CACHE_IMG_FILE
-	VOTE_API_URL        = "http://saki.fumiama.top/vote?uuid=零号&img=%s&class=%d"
-	CLASSIFY_HEAD       = "http://saki.fumiama.top:62002/dice?url="
-	msgofgrp            = make(map[int64]int64)
-	dhashofmsg          = make(map[int64]string)
+	CACHE_IMG_FILE = "/tmp/setugt"
+	CACHE_URI      = "file:///" + CACHE_IMG_FILE
+	VOTE_API_URL   = "http://saki.fumiama.top/vote?uuid=零号&img=%s&class=%d"
+	CLASSIFY_HEAD  = "http://saki.fumiama.top:62002/dice?url="
+	msgofgrp       = make(map[int64]int64)
+	dhashofmsg     = make(map[int64]string)
 )
 
 func Classify(ctx *zero.Ctx, targeturl string, noimg bool) {
-	if BLOCK_REQUEST_CLASS {
-		ctx.Send("请稍后再试哦")
+
+	get_url := CLASSIFY_HEAD + url.QueryEscape(targeturl)
+	if noimg {
+		get_url += "&noimg=true"
+	}
+	resp, err := http.Get(get_url)
+	if err != nil {
+		ctx.Send(fmt.Sprintf("ERROR: %v", err))
 	} else {
-		BLOCK_REQUEST_CLASS = true
-		get_url := CLASSIFY_HEAD + url.QueryEscape(targeturl)
 		if noimg {
-			get_url += "&noimg=true"
-		}
-		resp, err := http.Get(get_url)
-		if err != nil {
-			ctx.Send(fmt.Sprintf("ERROR: %v", err))
-		} else {
-			if noimg {
-				data, err1 := ioutil.ReadAll(resp.Body)
-				if err1 == nil {
-					dhash := gjson.GetBytes(data, "img").String()
-					class := int(gjson.GetBytes(data, "class").Int())
-					replyClass(ctx, dhash, class, noimg)
-				} else {
-					ctx.Send(fmt.Sprintf("ERROR: %v", err1))
-				}
-			} else {
-				class, err1 := strconv.Atoi(resp.Header.Get("Class"))
-				dhash := resp.Header.Get("DHash")
-				if err1 != nil {
-					ctx.Send(fmt.Sprintf("ERROR: %v", err1))
-				}
-				defer resp.Body.Close()
-				// 写入文件
-				data, _ := ioutil.ReadAll(resp.Body)
-				f, _ := os.OpenFile(CACHE_IMG_FILE, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-				defer f.Close()
-				f.Write(data)
+			data, err1 := ioutil.ReadAll(resp.Body)
+			if err1 == nil {
+				dhash := gjson.GetBytes(data, "img").String()
+				class := int(gjson.GetBytes(data, "class").Int())
 				replyClass(ctx, dhash, class, noimg)
+			} else {
+				ctx.Send(fmt.Sprintf("ERROR: %v", err1))
 			}
+		} else {
+			class, err1 := strconv.Atoi(resp.Header.Get("Class"))
+			dhash := resp.Header.Get("DHash")
+			if err1 != nil {
+				ctx.Send(fmt.Sprintf("ERROR: %v", err1))
+			}
+			defer resp.Body.Close()
+			// 写入文件
+			data, _ := ioutil.ReadAll(resp.Body)
+			f, _ := os.OpenFile(CACHE_IMG_FILE, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+			defer f.Close()
+			f.Write(data)
+			replyClass(ctx, dhash, class, noimg)
 		}
-		BLOCK_REQUEST_CLASS = false
 	}
 }
 
