@@ -67,8 +67,10 @@
     - [x] 搜图[P站图片ID]
 - 简易随机图片(调用url) `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"`
     - [x] 随机图片
+    - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
     - [x] 太涩了（撤回最近发的图）
+    - [x] 评价图片：发送一张图片进行评分
 - 点歌 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]

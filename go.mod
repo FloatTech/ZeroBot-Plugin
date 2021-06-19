@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/antchfx/htmlquery v1.2.3
-	github.com/fumiama/ZeroBot-Plugin-Timer v0.0.0-20210609110318-3c8ef99e3c6c
+	github.com/fumiama/ZeroBot-Plugin-Timer v0.0.0-20210616151841-d047372a50c2
 	github.com/mattn/go-sqlite3 v1.14.7
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
