@@ -11,6 +11,7 @@ import (
 	"github.com/Yiwen-Chan/ZeroBot-Plugin/api/msgext"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
@@ -18,12 +19,11 @@ var (
 	CACHE_URI      = "file:///" + CACHE_IMG_FILE
 	VOTE_API_URL   = "http://saki.fumiama.top/vote?uuid=零号&img=%s&class=%d"
 	CLASSIFY_HEAD  = "http://saki.fumiama.top:62002/dice?url="
-	msgofgrp       = make(map[int64]int64)
+	MsgofGrp       = make(map[int64]int64)
 	dhashofmsg     = make(map[int64]string)
 )
 
 func Classify(ctx *zero.Ctx, targeturl string, noimg bool) {
-
 	get_url := CLASSIFY_HEAD + url.QueryEscape(targeturl)
 	if noimg {
 		get_url += "&noimg=true"
@@ -59,10 +59,10 @@ func Classify(ctx *zero.Ctx, targeturl string, noimg bool) {
 }
 
 func Vote(ctx *zero.Ctx, class int) {
-	msg, ok := msgofgrp[ctx.Event.GroupID]
+	msg, ok := MsgofGrp[ctx.Event.GroupID]
 	if ok {
 		ctx.DeleteMessage(msg)
-		delete(msgofgrp, ctx.Event.GroupID)
+		delete(MsgofGrp, ctx.Event.GroupID)
 		dhash, ok2 := dhashofmsg[msg]
 		if ok2 {
 			http.Get(fmt.Sprintf(VOTE_API_URL, dhash, class))
@@ -79,30 +79,33 @@ func replyClass(ctx *zero.Ctx, dhash string, class int, noimg bool) {
 		case 6:
 			ctx.Send("[6]太涩啦，🐛了！")
 		}
-		if dhash != "" {
+		if dhash != "" && !noimg {
 			b14, err3 := url.QueryUnescape(dhash)
 			if err3 == nil {
 				ctx.Send("给你点提示哦：" + b14)
 			}
 		}
 	} else {
+		var last_message_id int64
 		if !noimg {
-			last_message_id := ctx.Send(msgext.ImageNoCache(CACHE_URI))
+			last_message_id = ctx.Send(msgext.ImageNoCache(CACHE_URI))
 			last_group_id := ctx.Event.GroupID
-			msgofgrp[last_group_id] = last_message_id
+			MsgofGrp[last_group_id] = last_message_id
 			dhashofmsg[last_message_id] = dhash
+		} else {
+			last_message_id = ctx.Event.MessageID
 		}
 		switch class {
 		case 0:
-			ctx.Send("[0]一堆像素点")
+			ctx.SendChain(message.Reply(last_message_id), message.Text("[0]一堆像素点"))
 		case 1:
-			ctx.Send("[1]普通")
+			ctx.SendChain(message.Reply(last_message_id), message.Text("[1]普通"))
 		case 2:
-			ctx.Send("[2]有点意思")
+			ctx.SendChain(message.Reply(last_message_id), message.Text("[2]有点意思"))
 		case 3:
-			ctx.Send("[3]不错")
+			ctx.SendChain(message.Reply(last_message_id), message.Text("[3]不错"))
 		case 4:
-			ctx.Send("[4]我好啦！")
+			ctx.SendChain(message.Reply(last_message_id), message.Text("[4]我好啦！"))
 		}
 	}
 }
