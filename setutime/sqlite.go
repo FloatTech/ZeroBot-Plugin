@@ -62,8 +62,8 @@ func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
 	tags, _ := rows.Columns()
+	rows.Close()
 	var (
 		values = values(objptr)
 		top    = len(tags) - 1
