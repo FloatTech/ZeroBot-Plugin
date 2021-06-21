@@ -10,27 +10,25 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Yiwen-Chan/ZeroBot-Plugin?style=flat-square&logo=go)](https://goreportcard.com/report/github.com/github.com/Yiwen-Chan/ZeroBot-Plugin)
 [![Badge](https://img.shields.io/badge/onebot-v11-black?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAxQTFRF////29vbr6+vAAAAk1hCcwAAAAR0Uk5T////AEAqqfQAAAKcSURBVHja7NrbctswDATQXfD//zlpO7FlmwAWIOnOtNaTM5JwDMa8E+PNFz7g3waJ24fviyDPgfhz8fHP39cBcBL9KoJbQUxjA2iYqHL3FAnvzhL4GtVNUcoSZe6eSHizBcK5LL7dBr2AUZlev1ARRHCljzRALIEog6H3U6bCIyqIZdAT0eBuJYaGiJaHSjmkYIZd+qSGWAQnIaz2OArVnX6vrItQvbhZJtVGB5qX9wKqCMkb9W7aexfCO/rwQRBzsDIsYx4AOz0nhAtWu7bqkEQBO0Pr+Ftjt5fFCUEbm0Sbgdu8WSgJ5NgH2iu46R/o1UcBXJsFusWF/QUaz3RwJMEgngfaGGdSxJkE/Yg4lOBryBiMwvAhZrVMUUvwqU7F05b5WLaUIN4M4hRocQQRnEedgsn7TZB3UCpRrIJwQfqvGwsg18EnI2uSVNC8t+0QmMXogvbPg/xk+Mnw/6kW/rraUlvqgmFreAA09xW5t0AFlHrQZ3CsgvZm0FbHNKyBmheBKIF2cCA8A600aHPmFtRB1XvMsJAiza7LpPog0UJwccKdzw8rdf8MyN2ePYF896LC5hTzdZqxb6VNXInaupARLDNBWgI8spq4T0Qb5H4vWfPmHo8OyB1ito+AysNNz0oglj1U955sjUN9d41LnrX2D/u7eRwxyOaOpfyevCWbTgDEoilsOnu7zsKhjRCsnD/QzhdkYLBLXjiK4f3UWmcx2M7PO21CKVTH84638NTplt6JIQH0ZwCNuiWAfvuLhdrcOYPVO9eW3A67l7hZtgaY9GZo9AFc6cryjoeFBIWeU+npnk/nLE0OxCHL1eQsc1IciehjpJv5mqCsjeopaH6r15/MrxNnVhu7tmcslay2gO2Z1QfcfX0JMACG41/u0RrI9QAAAABJRU5ErkJggg==)](https://github.com/howmanybots/onebot)
-[![Badge](https://img.shields.io/badge/zerobot-v1.1.2-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
-[![License](https://img.shields.io/github/license/Yiwen-Chan/OneBot-YaYa.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/Yiwen-Chan/ZeroBot-Plugin/master/LICENSE)
+[![Badge](https://img.shields.io/badge/zerobot-v1.2.1-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
+[![License](https://img.shields.io/github/license/Yiwen-Chan/OneBot-YaYa.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
 [![qq group](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
 
 </div>
 
 
 ### 功能
-- 聊天 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/chat"`
+- 聊天 `import _ "github.com/FloatTech/ZeroBot-Plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
     - [x] 空调开
     - [x] 空调关
     - [x] 群温度
     - [x] 设置温度[正整数]
-- 椛椛 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/huahua"`
-    - [x] 具体指令看代码
-- ATRI `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/atri"`
+- ATRI `import _ "github.com/FloatTech/ZeroBot-Plugin/atri"`
     - [x] 具体指令看代码
     - 注：本插件基于 [ATRI](https://github.com/Kyomotoi/ATRI) ，为 Golang 移植版
-- 群管 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/manager"`
+- 群管 `import _ "github.com/FloatTech/ZeroBot-Plugin/manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
     - [x] 我要自闭 [分钟]
@@ -55,35 +53,35 @@
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
     - [x] run[xxx]
-- 涩图 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/setutime"`
+- 涩图 `import _ "github.com/FloatTech/ZeroBot-Plugin/setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] >setu status
     - [x] >setu xml
     - [x] >setu pic
-- 搜图 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/picsearcher"`
+- 搜图 `import _ "github.com/FloatTech/ZeroBot-Plugin/picsearcher"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
-- 简易随机图片(调用url) `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg"`
+- 简易随机图片(调用url) `import _ "github.com/FloatTech/ZeroBot-Plugin/randimg"`
     - [x] 随机图片
     - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
     - [x] 太涩了（撤回最近发的图）
     - [x] 评价图片：发送一张图片进行评分
-- 点歌 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/music"`
+- 点歌 `import _ "github.com/FloatTech/ZeroBot-Plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
     - [x] 酷我点歌[xxx]
     - [x] 酷狗点歌[xxx]
-- shindan `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/shindan"`
+- shindan `import _ "github.com/FloatTech/ZeroBot-Plugin/shindan"`
     - [x] 今天是什么少女[@xxx] 
     - [x] 异世界转生[@xxx] 
     - [x] 卖萌[@xxx] 
-- GitHub仓库搜索 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/github"`
+- GitHub仓库搜索 `import _ "github.com/FloatTech/ZeroBot-Plugin/github"`
     - [x] >github [xxx] 
     - [x] >github -p [xxx] 
-- 在线代码运行 `import _ "github.com/Yiwen-Chan/ZeroBot-Plugin/runcode"`
+- 在线代码运行 `import _ "github.com/FloatTech/ZeroBot-Plugin/runcode"`
     - [x] >runcode help
     - [x] >runcode [on/off]
     - [x] >runcode [language] [code block] 
@@ -102,11 +100,10 @@
 
 #### 本地运行
 1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
-2. 下载安装 [TDM-GCC](https://github.com/jmeubank/tdm-gcc/releases) 或 MinGW，并添加到环境变量
-3. [clone](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip) 本项目，本地解压
-4. 编辑 main.go 文件，内容按需修改
-5. 双击 build.bat 文件 或 直接双击 run.bat 文件
-6. 运行 OneBot 框架，并同时运行本插件
+2. [clone](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip) 本项目，本地解压
+3. 编辑 main.go 文件，内容按需修改
+4. 双击 build.bat 文件 或 直接双击 run.bat 文件
+5. 运行 OneBot 框架，并同时运行本插件
 
 #### 利用 Actions 在线编译 (推荐)
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
