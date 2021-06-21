@@ -16,7 +16,7 @@ import (
 
 	// 娱乐类
 	_ "github.com/FloatTech/ZeroBot-Plugin/music" // 点歌
-	//_ "github.com/Yiwen-Chan/ZeroBot-Plugin/randimg" //简易随机图片
+	//_ "github.com/FloatTech/ZeroBot-ACGImage" //简易随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/setutime" // 涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/shindan"  // 测定
 
