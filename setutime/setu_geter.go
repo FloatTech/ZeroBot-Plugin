@@ -253,6 +253,7 @@ func download(i *pixiv.Illust, filedir string) (string, error) {
 	link := i.ImageUrls
 	link = strings.ReplaceAll(link, "img-original", "img-master")
 	link = strings.ReplaceAll(link, "_p0", "_p0_master1200")
+	link = strings.ReplaceAll(link, ".png", ".jpg")
 	// 下载
 	return pixiv.Download(link, filedir, filename)
 }
