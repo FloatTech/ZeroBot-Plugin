@@ -74,12 +74,11 @@ func init() { // 插件主体
 						continue
 					}
 					// 下载图片
-					file, err := download(illust, POOL.Path)
-					if err != nil {
+					if _, err := download(illust, POOL.Path); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					ctx.SendGroupMessage(POOL.Group, []message.MessageSegment{message.Image(file)})
+					ctx.SendGroupMessage(POOL.Group, []message.MessageSegment{message.Image(file(illust))})
 					// 向缓冲池添加一张图片
 					POOL.Push(type_, illust)
 
@@ -225,7 +224,7 @@ func (p *Pool) Pop(type_ string) (illust *pixiv.Illust) {
 func file(i *pixiv.Illust) string {
 	filename := fmt.Sprint(i.Pid)
 	pwd, _ := os.Getwd()
-	filepath := pwd + `\` + POOL.Path + filename
+	filepath := pwd + `/` + POOL.Path + filename
 	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
 		return `file:///` + filepath + ".jpg"
 	}
