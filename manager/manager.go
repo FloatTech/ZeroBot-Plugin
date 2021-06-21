@@ -9,6 +9,8 @@ import (
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
 )
 
 func init() { // 插件主体
@@ -233,39 +235,39 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 			return
 		})
-	/*
-		// 定时提醒
-		zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
-			Handle(func(ctx *zero.Ctx) {
-				dateStrs := ctx.State["regex_matched"].([]string)
-				ts := timer.GetFilledTimeStamp(dateStrs, false)
-				ts.Grpid = uint64(ctx.Event.GroupID)
-				if ts.Enable {
-					go timer.RegisterTimer(ts, true)
-					ctx.Send("记住了~")
-				} else {
-					ctx.Send("参数非法!")
-				}
-				return
-			})
-		// 取消定时
-		zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
-			Handle(func(ctx *zero.Ctx) {
-				dateStrs := ctx.State["regex_matched"].([]string)
-				ts := timer.GetFilledTimeStamp(dateStrs, true)
-				ti := timer.GetTimerInfo(ts)
-				t, ok := (*timer.Timers)[ti]
-				if ok {
-					t.Enable = false
-					delete(*timer.Timers, ti) //避免重复取消
-					timer.SaveTimers()
-					ctx.Send("取消成功~")
-				} else {
-					ctx.Send("没有这个定时器哦~")
-				}
-				return
-			})
-	*/
+
+	// 定时提醒
+	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := timer.GetFilledTimeStamp(dateStrs, false)
+			ts.Grpid = uint64(ctx.Event.GroupID)
+			if ts.Enable {
+				go timer.RegisterTimer(ts, true)
+				ctx.Send("记住了~")
+			} else {
+				ctx.Send("参数非法!")
+			}
+			return
+		})
+	// 取消定时
+	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := timer.GetFilledTimeStamp(dateStrs, true)
+			ti := timer.GetTimerInfo(ts)
+			t, ok := (*timer.Timers)[ti]
+			if ok {
+				t.Enable = false
+				delete(*timer.Timers, ti) //避免重复取消
+				timer.SaveTimers()
+				ctx.Send("取消成功~")
+			} else {
+				ctx.Send("没有这个定时器哦~")
+			}
+			return
+		})
+
 	// 随机点名
 	zero.OnFullMatchGroup([]string{"翻牌"}).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
