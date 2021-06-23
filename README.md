@@ -58,8 +58,6 @@
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] >setu status
-    - [x] >setu xml
-    - [x] >setu pic
 - 搜图 `import _ "github.com/FloatTech/ZeroBot-Plugin/picsearcher"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
