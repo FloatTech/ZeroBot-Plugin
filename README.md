@@ -55,6 +55,7 @@
     - [x] run[xxx]
 - 涩图 `import _ "github.com/FloatTech/ZeroBot-Plugin/setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
+    - [x] 来张萝莉：从lolicon获取一张r18或者非r18的涩图 
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] >setu status
@@ -79,6 +80,15 @@
 - GitHub仓库搜索 `import _ "github.com/FloatTech/ZeroBot-Plugin/github"`
     - [x] >github [xxx] 
     - [x] >github -p [xxx] 
+- 在线代码运行 `import _ "github.com/FloatTech/ZeroBot-Plugin/runcode"`
+    - [x] >runcode help
+    - [x] >runcode [on/off]
+    - [x] >runcode [language] [code block] 
+- 关注bilibili的DD功能 `import _ "github.com/FloatTech/ZeroBot-Plugin/fensi"`
+    - [x] /查 uid： 通过uid查询成分（与关注了2000uvp小号的共同关注）
+    - [x] /查 name： 通过名字查询成分（与关注了2000uvp小号的共同关注）
+    - [x] /粉丝 name：查询粉丝实时数据（例：/粉丝 嘉然）
+    - [x] /搜索 name：通过名字查询用户uid
 - 在线代码运行 `import _ "github.com/FloatTech/ZeroBot-Plugin/runcode"`
     - [x] >runcode help
     - [x] >runcode [on/off]
