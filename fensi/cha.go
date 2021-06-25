@@ -105,5 +105,3 @@ func follow(uid string) string {
 	}
 	return string(body)
 }
-
-
