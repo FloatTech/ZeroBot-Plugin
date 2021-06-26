@@ -35,7 +35,7 @@ func init() {
 	// 随机发送一篇上面的小作文
 	zero.OnFullMatch("/小作文").
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(RandText(txt1,txt2,txt3,txt4,txt5,txt6,txt7,txt8,txt9,txt11,txt12,txt13,txt14,txt15,txt16,txt17,txt18,txt19,txt20,txt21,txt22))
+			ctx.SendChain(Randtt(txt1,txt2,txt3,txt4,txt5,txt6,txt7,txt8,txt9,txt11,txt12,txt13,txt14,txt15,txt16,txt17,txt18,txt19,txt20,txt21,txt22))
 	})
 
 	// 逆天
@@ -54,7 +54,7 @@ func init() {
 	})
 }
 
-func RandText(text ...[]string) message.MessageSegment {
+func Randtt(text ...[]string) message.MessageSegment {
 	length := len(text)
 	rand.Seed(time.Now().UnixNano())
 	return message.Text(text[rand.Intn(length)])
