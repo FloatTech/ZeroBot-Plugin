@@ -1,9 +1,8 @@
 package bing
 
 import (
+	"github.com/FloatTech/ZeroBot-Plugin/utils"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
-	"math/rand"
 	"time"
 )
 
@@ -36,7 +35,7 @@ func init() {
 	// 随机发送一篇上面的小作文
 	zero.OnFullMatch("/小作文").
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(RandText(txt1,txt2,txt3,txt4,txt5,txt6,txt7,txt8,txt9,txt11,txt12,txt13,txt14,txt15,txt16,txt17,txt18,txt19,txt20,txt21,txt22))
+			ctx.SendChain(utils.RandText(txt1,txt2,txt3,txt4,txt5,txt6,txt7,txt8,txt9,txt11,txt12,txt13,txt14,txt15,txt16,txt17,txt18,txt19,txt20,txt21,txt22))
 	})
 
 	// 逆天
@@ -49,19 +48,8 @@ func init() {
 	zero.OnFullMatch("随机函数测试", zero.OnlyToMe, zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
 			for i:=1; i<1000; i++ {
-				ctx.Send(Suiji())
+				ctx.Send(utils.Suiji())
 				time.Sleep(300 * time.Millisecond)
 			}
 	})
-}
-
-func RandText(text ...[]string) message.MessageSegment {
-	length := len(text)
-	rand.Seed(time.Now().UnixNano())
-	return message.Text(text[rand.Intn(length)])
-}
-
-func Suiji() int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(30)
 }
