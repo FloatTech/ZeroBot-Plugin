@@ -79,7 +79,7 @@
 - 搜图 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
-- 简易随机图片(调用url) `暂时失效`
+- 简易随机图片(调用url) `github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image`
     - [x] 随机图片
     - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
