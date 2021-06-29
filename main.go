@@ -21,7 +21,8 @@ import (
 	//_ "github.com/FloatTech/ZeroBot-ACGImage" //简易随机图片
 
 	// 嘉然相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana" // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"    // 嘉心糖发病
 
 	// 二次元图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"  // lolicon 随机图片
