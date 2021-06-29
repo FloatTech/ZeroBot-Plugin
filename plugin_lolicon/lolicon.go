@@ -27,22 +27,22 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				min := func(a, b int) int {
-					if a > b {
+					if a < b {
 						return a
 					} else {
 						return b
 					}
 				}
-				for i := 0; i < min(10-cap(QUEUE), 2); i++ {
+				for i := 0; i < min(cap(QUEUE)-len(QUEUE), 2); i++ {
 					resp, err := http.Get(API)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 					}
-					defer resp.Body.Close()
 					if resp.StatusCode != http.StatusOK {
 						ctx.SendChain(message.Text("ERROR: code ", resp.StatusCode))
 					}
 					data, _ := ioutil.ReadAll(resp.Body)
+					resp.Body.Close()
 					json := gjson.ParseBytes(data)
 					if e := json.Get("error").Str; e != "" {
 						ctx.SendChain(message.Text("ERROR: ", e))
