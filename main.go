@@ -19,6 +19,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan" // 测定
 
 	//_ "github.com/FloatTech/ZeroBot-ACGImage" //简易随机图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_AIfalse" // AIfalse插件
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息

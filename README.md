@@ -90,6 +90,10 @@
 - 嘉然 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] @BOT 小作文
     - [x] @BOT 发大病
+- AIfalse `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_AIfalse"`
+    - [x] 查询计算机当前活跃度 [身体检查]
+    - [ ] 简易语音
+    - [ ] 爬图合成 [@xxx]
 - TODO...
 
 ### 使用方法
