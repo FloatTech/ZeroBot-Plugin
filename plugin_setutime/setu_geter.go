@@ -1,4 +1,4 @@
-package setutime
+package plugin_setutime
 
 import (
 	"fmt"

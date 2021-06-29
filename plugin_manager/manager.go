@@ -1,4 +1,4 @@
-package manager
+package plugin_manager
 
 import (
 	"fmt"

@@ -13,7 +13,7 @@ import (
 
 var (
 	PRIO   = -1
-	RES    = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/atri/"
+	RES    = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/plugin_atri/"
 	ENABLE = true
 )
 

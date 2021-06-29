@@ -1,7 +1,7 @@
 /*
 基于 https://tool.runoob.com 的在线运行代码
 */
-package runcode
+package plugin_runcode
 
 import (
 	"fmt"
