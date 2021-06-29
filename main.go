@@ -6,19 +6,27 @@ import (
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 	// 词库类
-	_ "github.com/FloatTech/ZeroBot-Plugin/atri" // ATRI词库
-	_ "github.com/FloatTech/ZeroBot-Plugin/chat" // 基础词库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri" // ATRI词库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat" // 基础词库
 
 	// 实用类
-	_ "github.com/FloatTech/ZeroBot-Plugin/github"  // 搜索GitHub仓库
-	_ "github.com/FloatTech/ZeroBot-Plugin/manager" // 群管
-	_ "github.com/FloatTech/ZeroBot-Plugin/runcode" // 在线运行代码
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"  // 搜索GitHub仓库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager" // 群管
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode" // 在线运行代码
 
 	// 娱乐类
-	_ "github.com/FloatTech/ZeroBot-Plugin/music" // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"   // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan" // 测定
+
 	//_ "github.com/FloatTech/ZeroBot-ACGImage" //简易随机图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/setutime" // 涩图
-	_ "github.com/FloatTech/ZeroBot-Plugin/shindan"  // 测定
+
+	// 嘉然相关
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana" // 嘉心糖发病
+
+	// 二次元图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"  // lolicon 随机图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao" // 以图搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime" // 来份涩图
 
 	// 以下为内置依赖，勿动
 	zero "github.com/wdvxdr1123/ZeroBot"
