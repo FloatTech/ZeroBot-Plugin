@@ -1,7 +1,6 @@
 package setutime
 
 import (
-	"fmt"
 	"strings"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -58,16 +57,18 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			Vote(ctx, 6)
 		})
-	// 上传一张图进行评价
-	zero.OnFullMatch("评价图片", MustHasPicture()).SetBlock(true).SetPriority(24).
-		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				ctx.Send("少女祈祷中......")
-				for _, pic := range ctx.State["image_url"].([]string) {
-					fmt.Println(pic)
-					Classify(ctx, pic, true)
+	/*
+		// 上传一张图进行评价
+		zero.OnFullMatch("评价图片", MustHasPicture()).SetBlock(true).SetPriority(24).
+			Handle(func(ctx *zero.Ctx) {
+				if ctx.Event.GroupID > 0 {
+					ctx.Send("少女祈祷中......")
+					for _, pic := range ctx.State["image_url"].([]string) {
+						fmt.Println(pic)
+						Classify(ctx, pic, true)
+					}
 				}
-			}
-			return
-		})
+				return
+			})
+	*/
 }

@@ -18,17 +18,17 @@
 
 
 ### 功能
-- 聊天 `import _ "github.com/FloatTech/ZeroBot-Plugin/chat"`
+- 聊天 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
     - [x] 空调开
     - [x] 空调关
     - [x] 群温度
     - [x] 设置温度[正整数]
-- ATRI `import _ "github.com/FloatTech/ZeroBot-Plugin/atri"`
+- ATRI `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"`
     - [x] 具体指令看代码
     - 注：本插件基于 [ATRI](https://github.com/Kyomotoi/ATRI) ，为 Golang 移植版
-- 群管 `import _ "github.com/FloatTech/ZeroBot-Plugin/manager"`
+- 群管 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
     - [x] 我要自闭 [分钟]
@@ -53,46 +53,46 @@
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
     - [x] run[xxx]
-- 涩图 `import _ "github.com/FloatTech/ZeroBot-Plugin/setutime"`
+- GitHub仓库搜索 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"`
+    - [x] >github [xxx] 
+    - [x] >github -p [xxx] 
+- 在线代码运行 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
+    - [x] >runcode help
+    - [x] >runcode [on/off]
+    - [x] >runcode [language] [code block] 
+- 点歌 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"`
+    - [x] 点歌[xxx]
+    - [x] 网易点歌[xxx]
+    - [x] 酷我点歌[xxx]
+    - [x] 酷狗点歌[xxx]
+- shindan `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"`
+    - [x] 今天是什么少女[@xxx] 
+    - [x] 异世界转生[@xxx] 
+    - [x] 卖萌[@xxx] 
+- 涩图 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
-    - [x] 来张萝莉：从lolicon获取一张r18或者非r18的涩图 
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] >setu status
-- 搜图 `import _ "github.com/FloatTech/ZeroBot-Plugin/picsearcher"`
+- lolicon `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"`
+    - [x] 来份萝莉
+- 搜图 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
-- 简易随机图片(调用url) `import _ "github.com/FloatTech/ZeroBot-Plugin/randimg"`
+- 简易随机图片(调用url) `暂时失效`
     - [x] 随机图片
     - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
     - [x] 太涩了（撤回最近发的图）
     - [x] 评价图片：发送一张图片进行评分
-- 点歌 `import _ "github.com/FloatTech/ZeroBot-Plugin/music"`
-    - [x] 点歌[xxx]
-    - [x] 网易点歌[xxx]
-    - [x] 酷我点歌[xxx]
-    - [x] 酷狗点歌[xxx]
-- shindan `import _ "github.com/FloatTech/ZeroBot-Plugin/shindan"`
-    - [x] 今天是什么少女[@xxx] 
-    - [x] 异世界转生[@xxx] 
-    - [x] 卖萌[@xxx] 
-- GitHub仓库搜索 `import _ "github.com/FloatTech/ZeroBot-Plugin/github"`
-    - [x] >github [xxx] 
-    - [x] >github -p [xxx] 
-- 在线代码运行 `import _ "github.com/FloatTech/ZeroBot-Plugin/runcode"`
-    - [x] >runcode help
-    - [x] >runcode [on/off]
-    - [x] >runcode [language] [code block] 
-- 关注bilibili的DD功能 `import _ "github.com/FloatTech/ZeroBot-Plugin/fensi"`
+- 关注bilibili的DD功能 `暂时失效`
     - [x] /查 uid： 通过uid查询成分（与关注了2000uvp小号的共同关注）
     - [x] /查 name： 通过名字查询成分（与关注了2000uvp小号的共同关注）
     - [x] /粉丝 name：查询粉丝实时数据（例：/粉丝 嘉然）
     - [x] /搜索 name：通过名字查询用户uid
-- 在线代码运行 `import _ "github.com/FloatTech/ZeroBot-Plugin/runcode"`
-    - [x] >runcode help
-    - [x] >runcode [on/off]
-    - [x] >runcode [language] [code block] 
+- 嘉然 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
+    - [x] @BOT 小作文
+    - [x] @BOT 发大病
 - TODO...
 
 ### 使用方法

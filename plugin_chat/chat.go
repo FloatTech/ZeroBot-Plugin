@@ -1,4 +1,7 @@
-package chat
+/*
+对话插件 example
+*/
+package plugin_chat
 
 import (
 	"math/rand"
