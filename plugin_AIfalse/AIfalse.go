@@ -1,4 +1,4 @@
-package ASfalse
+package AIfalse
 
 import (
 	"math/rand"
