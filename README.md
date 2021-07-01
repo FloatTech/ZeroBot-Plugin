@@ -79,20 +79,21 @@
 - 搜图 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
-- 简易随机图片(调用url) `暂时失效`
+- 简易随机图片(调用url) `github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image`
     - [x] 随机图片
     - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
     - [x] 太涩了（撤回最近发的图）
     - [x] 评价图片：发送一张图片进行评分
-- 关注bilibili的DD功能 `暂时失效`
-    - [x] /查 uid： 通过uid查询成分（与关注了2000uvp小号的共同关注）
-    - [x] /查 name： 通过名字查询成分（与关注了2000uvp小号的共同关注）
-    - [x] /粉丝 name：查询粉丝实时数据（例：/粉丝 嘉然）
-    - [x] /搜索 name：通过名字查询用户uid
+- bilibili `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
+    - [x] >bili info [名字]
 - 嘉然 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] @BOT 小作文
     - [x] @BOT 发大病
+- AIfalse `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_AIfalse"`
+    - [x] 查询计算机当前活跃度 [身体检查]
+    - [ ] 简易语音
+    - [ ] 爬图合成 [@xxx]
 - TODO...
 
 ### 使用方法
