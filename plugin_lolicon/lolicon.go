@@ -37,15 +37,18 @@ func init() {
 					resp, err := http.Get(API)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
+						continue
 					}
 					if resp.StatusCode != http.StatusOK {
 						ctx.SendChain(message.Text("ERROR: code ", resp.StatusCode))
+						continue
 					}
 					data, _ := ioutil.ReadAll(resp.Body)
 					resp.Body.Close()
 					json := gjson.ParseBytes(data)
 					if e := json.Get("error").Str; e != "" {
 						ctx.SendChain(message.Text("ERROR: ", e))
+						continue
 					}
 					url := json.Get("data.0.urls.original").Str
 					ctx.SendGroupMessage(0, message.Image(url))
