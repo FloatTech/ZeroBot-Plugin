@@ -1,4 +1,4 @@
-package fensi
+package plugin_diana
 
 import (
 	"github.com/robfig/cron"
@@ -14,10 +14,10 @@ func init() {
 	})
 }
 
-// 定时任务每天凌晨0点执行一次
+// 定时任务每天晚上最后2分钟执行一次
 func FansDaily(groupID int64) {
 	c := cron.New()
-	c.AddFunc("0 0 0 * * ?", func() { fansData(groupID) })
+	c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
 	c.Start()
 }
 
@@ -26,7 +26,7 @@ func fansData(groupID int64) {
 	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 		var (
 			diana  = fensiapi("672328094")
-			ava	   = fensiapi("672346917")
+			ava    = fensiapi("672346917")
 			eileen = fensiapi("672342685")
 			bella  = fensiapi("672353429")
 			carol  = fensiapi("351609538")
@@ -34,7 +34,7 @@ func fansData(groupID int64) {
 		ctx.SendGroupMessage(
 			groupID,
 			message.Text(
-				dataStamp(), "    Asoul全团粉丝日报如下", "\n\n",
+				time.Now().Format("2006-01-02"), "    Asoul全团粉丝日报如下", "\n\n",
 				"uid: ", diana.Mid, "\n",
 				"名字: ", diana.Uname, "\n",
 				"当前粉丝数: ", diana.Follower, "\n",
