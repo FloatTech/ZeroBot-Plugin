@@ -1,6 +1,5 @@
 package plugin_bilibili
 
-
 import (
 	"fmt"
 	"io/ioutil"
