@@ -1,4 +1,5 @@
-package fensi
+package plugin_bilibili
+
 
 import (
 	"fmt"
