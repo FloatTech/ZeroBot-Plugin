@@ -1,4 +1,4 @@
-package fensi
+package plugin_bilibili
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	zero.OnRegex(`^>bili info\s?(.{1,25})$`).
+	zero.OnRegex(`^>vup info\s?(.{1,25})$`).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			res, err := uid(keyword)
