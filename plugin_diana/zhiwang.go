@@ -12,17 +12,6 @@ import (
 	"strings"
 )
 
-// json解析的结构体声明
-type zhiwang struct {
-	Code int `json:"code"`
-	Data struct {
-		EndTime   int             `json:"end_time"`
-		Rate      float64         `json:"rate"`
-		Related   [][]interface{} `json:"related"`
-		StartTime int             `json:"start_time"`
-	} `json:"data"`
-	Message string `json:"message"`
-}
 
 // 小作文查重: 回复要查的消息 查重
 func init() {
@@ -33,17 +22,17 @@ func init() {
 				id, _ := strconv.Atoi(msg[0].Data["id"])
 				msg := ctx.GetMessage(int64(id)).Elements[0].Data["text"]
 				zhiwangjson := zhiwangapi(msg)
-				// 判断api是否能调通
+
 				if zhiwangjson.Code != 0 {
 					ctx.Send("api返回错误")
 					return
 				}
-				// 判断json数据里Related标签是否有数据
+
 				if len(zhiwangjson.Data.Related) == 0 {
 					ctx.Send("枝网没搜到，查重率为0%，我的评价是：一眼真")
 					return
 				}
-				// 把interface转为map方便提取其中数据
+
 				related := zhiwangjson.Data.Related[0][1].(map[string]interface{})
 				ctx.SendChain(message.Text(
 					"枝网文本复制检测报告(简洁)", "\n",
@@ -67,8 +56,8 @@ func init() {
 // 发起api请求并把返回body交由json库解析
 func zhiwangapi(Text string) *zhiwang {
 
-	url := "https://asoulcnki.asia/v1/api/checksdsadas"
-	post := "{\"text\":\"" + Text + "\"}"
+	url := "https://asoulcnki.asia/v1/api/check"
+	post := "{\n\"text\":\"" + Text + "\"\n}"
 	var jsonStr = []byte(post)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
@@ -88,7 +77,6 @@ func zhiwangapi(Text string) *zhiwang {
 	return result
 }
 
-// 照帮理酱的关键字匹配函数
 func FullMatchText(src ...string) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
 		msg := ctx.Event.Message
