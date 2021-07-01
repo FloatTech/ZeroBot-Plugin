@@ -6,6 +6,18 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+type follower struct {
+	Mid         int    `json:"mid"`
+	Uname       string `json:"uname"`
+	Video       int    `json:"video"`
+	Roomid      int    `json:"roomid"`
+	Rise        int    `json:"rise"`
+	Follower    int    `json:"follower"`
+	GuardNum    int    `json:"guardNum"`
+	AreaRank    int    `json:"areaRank"`
+}
+
+
 // 开启日报推送
 func init() {
 	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
@@ -87,4 +99,20 @@ func fansData(groupID int64) {
 				))
 		return true
 	})
+}
+
+// 请求api
+func fensiapi(uid string) *follower {
+
+	url := "https://api.vtbs.moe/v1/detail/" + uid
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	result := &follower{}
+	if err := json.NewDecoder(resp.Body).Decode(result); err != nil {
+		panic(err)
+	}
+	return result
 }
