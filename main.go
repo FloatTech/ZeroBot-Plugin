@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
@@ -40,6 +41,13 @@ import (
 	easy "github.com/t-tomalak/logrus-easy-formatter"
 )
 
+var content = []string{
+	"* OneBot + ZeroBot + Golang ",
+	"* Version 1.0.4 - 2021-07-02 19:14:58.581489207 +0800 CST",
+	"* Copyright © 2020 - 2021  Kanri, DawnNights, Fumiama ",
+	"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
+}
+
 func init() {
 	log.SetFormatter(&easy.Formatter{
 		TimestampFormat: "2006-01-02 15:04:05",
@@ -49,34 +57,35 @@ func init() {
 }
 
 func main() {
-	fmt.Print(`
-====================[ZeroBot-Plugin]====================
-* OneBot + ZeroBot + Golang
-* Version 1.0.3 - 2021-05-02 18:50:40.5489203 +0800 CST
-* Copyright © 2021 Kanri, DawnNights, Fumiama
-* Project: https://github.com/FloatTech/ZeroBot-Plugin
-========================================================
-`) // 启动打印
+	fmt.Print(
+		"====================[ZeroBot-Plugin]====================",
+		"\n", strings.Join(content, "\n"), "\n",
+		"========================================================",
+	) // 启动打印
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 		CommandPrefix: "/",
-		SuperUsers:    os.Args[1:], // 必须修改，否则无权限
+
+		// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
+		// []string{}：通过代码写死的方式添加主人账号
+		// os.Args[1:]：通过命令行参数的方式添加主人账号
+		SuperUsers: append([]string{"12345678", "87654321"}, os.Args[1:]...),
+
 		Driver: []zero.Driver{
 			&driver.WSClient{
+				// OneBot 正向WS 默认使用 6700 端口
 				Url:         "ws://127.0.0.1:6700",
 				AccessToken: "",
 			},
 		},
 	})
+
 	// 帮助
 	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单", "帮助"}, zero.OnlyToMe).SetBlock(true).SetPriority(999).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
-				"* OneBot + ZeroBot + Golang ", "\n",
-				"* Version 1.0.3 - 2021-05-02 18:50:40.5489203 +0800 CST", "\n",
-				"* Copyright © 2021 Kanri, DawnNights, Fumiama ", "\n",
-				"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
-			))
+			ctx.SendChain(
+				message.Text(strings.Join(content, "\n")),
+			)
 		})
 	select {}
 }
