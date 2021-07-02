@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
@@ -19,8 +20,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"    // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"  // 测定
 
-	//_ "github.com/FloatTech/ZeroBot-ACGImage" //简易随机图片
-
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"    // 嘉心糖发病
@@ -28,7 +27,7 @@ import (
 	// 二次元图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder" // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"      // lolicon 随机图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image"   // 随机图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image"   // 随机图片与点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"     // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
@@ -61,7 +60,7 @@ func main() {
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 		CommandPrefix: "/",
-		SuperUsers:    []string{"213864964"}, // 必须修改，否则无权限
+		SuperUsers:    os.Args[1:], // 必须修改，否则无权限
 		Driver: []zero.Driver{
 			&driver.WSClient{
 				Url:         "ws://127.0.0.1:6700",
