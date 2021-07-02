@@ -38,7 +38,7 @@ func NewPools() *Pool {
 		Pool:  map[string][]*pixiv.Illust{},
 		Form:  0,
 	}
-	err := os.MkdirAll(cache.Path, 0644)
+	err := os.MkdirAll(cache.Path, 0755)
 	if err != nil {
 		panic(err)
 	}
