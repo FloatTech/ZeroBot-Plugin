@@ -1,29 +1,31 @@
-package plugin_diana
+package plugin_bilibili
 
 import (
+	"encoding/json"
 	"github.com/robfig/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"net/http"
+	"time"
 )
 
 type follower struct {
-	Mid         int    `json:"mid"`
-	Uname       string `json:"uname"`
-	Video       int    `json:"video"`
-	Roomid      int    `json:"roomid"`
-	Rise        int    `json:"rise"`
-	Follower    int    `json:"follower"`
-	GuardNum    int    `json:"guardNum"`
-	AreaRank    int    `json:"areaRank"`
+	Mid      int    `json:"mid"`
+	Uname    string `json:"uname"`
+	Video    int    `json:"video"`
+	Roomid   int    `json:"roomid"`
+	Rise     int    `json:"rise"`
+	Follower int    `json:"follower"`
+	GuardNum int    `json:"guardNum"`
+	AreaRank int    `json:"areaRank"`
 }
-
 
 // 开启日报推送
 func init() {
 	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
 			FansDaily(130591566) //群号传进去给下面发信息的函数
-	})
+		})
 }
 
 // 定时任务每天晚上最后2分钟执行一次
@@ -96,7 +98,7 @@ func fansData(groupID int64) {
 				"舰队: ", carol.GuardNum, "\n",
 				"直播总排名: ", carol.AreaRank, "\n",
 				"数据来源: ", "https://vtbs.moe/detail/", "351609538",
-				))
+			))
 		return true
 	})
 }

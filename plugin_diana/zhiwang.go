@@ -6,12 +6,23 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"math"
 	"strconv"
+	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"net/http"
 	"strings"
 )
 
+type zhiwang struct {
+	Code int `json:"code"`
+	Data struct {
+		EndTime   int             `json:"end_time"`
+		Rate      float64         `json:"rate"`
+		Related   [][]interface{} `json:"related"`
+		StartTime int             `json:"start_time"`
+	} `json:"data"`
+	Message string `json:"message"`
+}
 
 // 小作文查重: 回复要查的消息 查重
 func init() {
@@ -36,21 +47,21 @@ func init() {
 				related := zhiwangjson.Data.Related[0][1].(map[string]interface{})
 				ctx.SendChain(message.Text(
 					"枝网文本复制检测报告(简洁)", "\n",
-					"查重时间: ", timecurrent(), "\n",
-					"总文字复制比: ", math.Floor(zhiwangjson.Data.Rate * 100), "%", "\n",
+					"查重时间: ", time.Now().Format("2006-01-02 15:04:05"), "\n",
+					"总文字复制比: ", math.Floor(zhiwangjson.Data.Rate*100), "%", "\n",
 					"相似小作文:", "\n",
-					related["content"].(string)[:102] + ".....", "\n",
+					related["content"].(string)[:102]+".....", "\n",
 					"获赞数", related["like_num"], "\n",
 					zhiwangjson.Data.Related[0][2].(string), "\n",
 					"作者: ", related["m_name"], "\n",
-					"发表时间: ", timestamp(related["ctime"].(float64)), "\n",
+					"发表时间: ", time.Unix(int64(related["ctime"].(float64)), 0).Format("2006-01-02 15:04:05"), "\n",
 					"查重结果仅作参考，请注意辨别是否为原创", "\n",
 					"数据来源: https://asoulcnki.asia/",
-					))
-		}else {
+				))
+			} else {
 				return
 			}
-	})
+		})
 }
 
 // 发起api请求并把返回body交由json库解析
@@ -65,7 +76,7 @@ func zhiwangapi(Text string) *zhiwang {
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
