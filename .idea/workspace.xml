@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="075d8bd1-a584-4439-8e19-b0c2acd4ed59" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin_ai_false/ai_false.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin_ai_false/ai_false.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin_bilibili/fansDaily.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin_bilibili/fansDaily.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin_bilibili/info.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin_bilibili/info.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin_bilibili/live_info.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugin_bilibili/live_info.go" afterDir="false" />
-    </list>
+    <list default="true" id="075d8bd1-a584-4439-8e19-b0c2acd4ed59" name="Default Changelist" comment="修了个body包数据为空的bug，虽然不知道发生了啥，但它确实是被修好了" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -119,6 +113,10 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="修了个body包数据为空的bug，虽然不知道发生了啥，但它确实是被修好了" />
+    <option name="LAST_COMMIT_MESSAGE" value="修了个body包数据为空的bug，虽然不知道发生了啥，但它确实是被修好了" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
