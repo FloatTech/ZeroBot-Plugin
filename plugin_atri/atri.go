@@ -1,3 +1,4 @@
+// Package atri
 // 本文件基于 https://github.com/Kyomotoi/ATRI
 // 为 Golang 移植版，语料、素材均来自上述项目
 // 本项目遵守 AGPL v3 协议进行开源
@@ -12,8 +13,11 @@ import (
 )
 
 var (
-	PRIO   = -1
-	RES    = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/plugin_atri/"
+	// ATRI 所有命令的优先级
+	PRIO = -1
+	// ATRI 表情的 GitHub 镜像位置
+	RES = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/plugin_atri/"
+	// ATRI 的总开关
 	ENABLE = true
 )
 
@@ -89,8 +93,7 @@ func init() { // 插件主体
 	zero.OnFullMatchGroup([]string{"中午好", "午安"}, AtriSwitch()).SetBlock(true).SetPriority(PRIO).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
-			switch {
-			case now < 6: // 凌晨
+			if now > 11 && now < 15 { // 中午
 				ctx.SendChain(randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",

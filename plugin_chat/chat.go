@@ -1,4 +1,5 @@
 /*
+Package plugin_chat
 对话插件 example
 */
 package plugin_chat
@@ -74,13 +75,11 @@ func init() { // 插件主体
 					"❄️风速中", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			} else {
 				ctx.SendChain(message.Text(
 					"💤", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			}
 		})
 	zero.OnFullMatch(`群温度`).SetBlock(true).FirstPriority().
@@ -93,13 +92,11 @@ func init() { // 插件主体
 					"❄️风速中", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			} else {
 				ctx.SendChain(message.Text(
 					"💤", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			}
 		})
 }

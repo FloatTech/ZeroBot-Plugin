@@ -260,7 +260,7 @@ func init() { // 插件主体
 			if ok {
 				t.Enable = false
 				delete(*timer.Timers, ti) //避免重复取消
-				timer.SaveTimers()
+				_ = timer.SaveTimers()
 				ctx.Send("取消成功~")
 			} else {
 				ctx.Send("没有这个定时器哦~")

@@ -2,11 +2,12 @@ package plugin_bilibili
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/robfig/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"net/http"
-	"time"
 )
 
 type follower struct {
@@ -24,14 +25,14 @@ type follower struct {
 func init() {
 	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
-			FansDaily(130591566) //群号传进去给下面发信息的函数
+			FansDaily(130591566) // 群号传进去给下面发信息的函数
 		})
 }
 
 // 定时任务每天晚上最后2分钟执行一次
 func FansDaily(groupID int64) {
 	c := cron.New()
-	c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
+	_ = c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
 	c.Start()
 }
 
