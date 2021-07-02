@@ -2,7 +2,6 @@ package plugin_bilibili
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+// 查vup粉丝数据
 func init() {
 	zero.OnRegex(`^>vup info\s?(.{1,25})$`).
 		Handle(func(ctx *zero.Ctx) {
@@ -21,36 +21,25 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			id := res.Get("data.result.0.mid").Int()
+			id := res.Get("data.result.0.mid").String()
 			// 获取详情
-			api := fmt.Sprintf("https://api.vtbs.moe/v1/detail/%d", id)
-			resp, err := http.Get(api)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				ctx.SendChain(message.Text("ERROR: code ", resp.StatusCode))
-				return
-			}
-			data, _ := ioutil.ReadAll(resp.Body)
-			json := gjson.ParseBytes(data)
+			json := fansapi(id)
 			ctx.SendChain(message.Text(
-				"uid: ", json.Get("mid").Int(), "\n",
-				"名字: ", json.Get("uname").Str, "\n",
-				"当前粉丝数: ", json.Get("follower").Int(), "\n",
-				"24h涨粉数: ", json.Get("rise").Int(), "\n",
-				"视频投稿数: ", json.Get("video").Int(), "\n",
-				"直播间id: ", json.Get("roomid").Int(), "\n",
-				"舰队: ", json.Get("guardNum").Int(), "\n",
-				"直播总排名: ", json.Get("areaRank").Int(), "\n",
-				"数据来源: ", "https://vtbs.moe/detail/", uid, "\n",
+				"uid: ", json.Mid, "\n",
+				"名字: ", json.Uname, "\n",
+				"当前粉丝数: ", json.Follower, "\n",
+				"24h涨粉数: ", json.Rise, "\n",
+				"视频投稿数: ", json.Video, "\n",
+				"直播间id: ", json.Roomid, "\n",
+				"舰队: ", json.GuardNum, "\n",
+				"直播总排名: ", json.AreaRank, "\n",
+				"数据来源: ", "https://vtbs.moe/detail/", json.Mid, "\n",
 				"数据获取时间: ", time.Now().Format("2006-01-02 15:04:05"),
 			))
 		})
 }
 
+// 搜索api：通过把触发指令传入的昵称找出uid返回
 func uid(keyword string) (gjson.Result, error) {
 	api := "http://api.bilibili.com/x/web-interface/search/type?search_type=bili_user&&user_type=1&keyword=" + keyword
 	resp, err := http.Get(api)

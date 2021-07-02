@@ -16,7 +16,7 @@ import (
 )
 
 func init() { // 插件主体
-	zero.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).
+	zero.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
 				"* CPU占用率: ", getCpuPercent(), "%\n",
