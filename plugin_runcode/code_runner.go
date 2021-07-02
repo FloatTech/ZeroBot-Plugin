@@ -4,7 +4,7 @@
 package plugin_runcode
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -157,7 +157,7 @@ func init() {
 				block = message.UnescapeCQCodeText(block)
 
 				if block == "help" {
-					//输出模板
+					// 输出模板
 					ctx.SendChain(
 						message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
 						message.Text(
@@ -216,7 +216,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	}
 	defer body.Body.Close()
 	if body.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("code %d", body.StatusCode)
+		return "", errors.New("code not 200")
 	}
 	res, err := ioutil.ReadAll(body.Body)
 	if err != nil {
@@ -225,7 +225,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	// 结果处理
 	content := gjson.ParseBytes(res)
 	if e := content.Get("errors").Str; e != "\n\n" {
-		return "", fmt.Errorf(cutTooLong(clearNewLineSuffix(e)))
+		return "", errors.New(cutTooLong(clearNewLineSuffix(e)))
 	}
 	output := content.Get("output").Str
 

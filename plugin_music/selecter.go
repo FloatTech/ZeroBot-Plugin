@@ -129,7 +129,7 @@ func kugou(keyword string) message.MessageSegment {
 	// 返回音乐卡片
 	return message.CustomMusic(
 		"https://www.kugou.com/song/#hash="+audio.Get("hash").Str+"&album_id="+audio.Get("album_id").Str,
-		strings.Replace(audio.Get("play_backup_url").Str, "\\/", "/", -1),
+		strings.ReplaceAll(audio.Get("play_backup_url").Str, "\\/", "/"),
 		audio.Get("audio_name").Str,
 	).Add("content", audio.Get("author_name").Str).Add("image", audio.Get("img").Str)
 }
@@ -202,7 +202,7 @@ func find(pre string, suf string, str string) string {
 	if n == -1 {
 		n = 0
 	} else {
-		n = n + len(pre)
+		n += len(pre)
 	}
 	str = str[n:]
 	m := strings.Index(str, suf)
