@@ -39,11 +39,11 @@ func FansDaily(groupID int64) {
 func fansData(groupID int64) {
 	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 		var (
-			diana  = fensiapi("672328094")
-			ava    = fensiapi("672346917")
-			eileen = fensiapi("672342685")
-			bella  = fensiapi("672353429")
-			carol  = fensiapi("351609538")
+			diana  = fansapi("672328094")
+			ava    = fansapi("672346917")
+			eileen = fansapi("672342685")
+			bella  = fansapi("672353429")
+			carol  = fansapi("351609538")
 		)
 		ctx.SendGroupMessage(
 			groupID,
@@ -104,7 +104,7 @@ func fansData(groupID int64) {
 }
 
 // 请求api
-func fensiapi(uid string) *follower {
+func fansapi(uid string) *follower {
 
 	url := "https://api.vtbs.moe/v1/detail/" + uid
 	resp, err := http.Get(url)
