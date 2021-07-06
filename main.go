@@ -18,8 +18,9 @@ import (
 
 	// 娱乐类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false" // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"    // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"  // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"   // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan" // 测定
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
