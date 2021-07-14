@@ -3,7 +3,7 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.16
 
 require (
-	github.com/FloatTech/AnimeAPI v0.0.0-20210619112022-a8fdd4fefc07
+	github.com/FloatTech/AnimeAPI v0.0.0-20210713044920-63367fe18ccd
 	github.com/FloatTech/ZeroBot-ACGImage v1.1.2
 	github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.2
 	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 // indirect
@@ -13,6 +13,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.8.1
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.6 // indirect
 	github.com/wdvxdr1123/ZeroBot v1.2.1
 	modernc.org/sqlite v1.11.1

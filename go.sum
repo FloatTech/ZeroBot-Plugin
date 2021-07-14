@@ -1,5 +1,7 @@
 github.com/FloatTech/AnimeAPI v0.0.0-20210619112022-a8fdd4fefc07 h1:7fBPLLoZysaa9PI9ApgzyVMrMLMWBam273YgKwy7Ddg=
 github.com/FloatTech/AnimeAPI v0.0.0-20210619112022-a8fdd4fefc07/go.mod h1:GYrQD70HvBzry1XiZ1tHFNOsOqRkR+ao4XGYZqV4I9c=
+github.com/FloatTech/AnimeAPI v0.0.0-20210713044920-63367fe18ccd h1:rvV66DIEqNJMEKwYXDJvw6kpJuGg+Pz/BooewuTBjXs=
+github.com/FloatTech/AnimeAPI v0.0.0-20210713044920-63367fe18ccd/go.mod h1:GYrQD70HvBzry1XiZ1tHFNOsOqRkR+ao4XGYZqV4I9c=
 github.com/FloatTech/ZeroBot-ACGImage v1.1.2 h1:Q+FwOb1vCCYG2B7hPU0uBMzWwB85eVlC0pWRJZ+rBCQ=
 github.com/FloatTech/ZeroBot-ACGImage v1.1.2/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.2 h1:I7RSCsJVT6elehdaSiWB4n96y06fQxMsvAG494S5Od0=
@@ -76,6 +78,8 @@ github.com/tidwall/match v1.0.3 h1:FQUVvBImDutD8wJLN6c5eMzWtjgONK9MwIBCOrUJKeE=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/pretty v1.1.0 h1:K3hMW5epkdAVwibsQEfR/7Zj0Qgt4DxtNumTq/VloO8=
 github.com/tidwall/pretty v1.1.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
+github.com/tidwall/pretty v1.2.0 h1:RWIZEg2iJ8/g6fDDYzMpobmaoGh5OLl4AXtGUGPcqCs=
+github.com/tidwall/pretty v1.2.0/go.mod h1:ITEVvHYasfjBbM0u2Pg8T2nJnzm8xPwvNhhsoaGGjNU=
 github.com/tklauser/go-sysconf v0.3.6 h1:oc1sJWvKkmvIxhDHeKWvZS4f6AW+YcoguSfRF2/Hmo4=
 github.com/tklauser/go-sysconf v0.3.6/go.mod h1:MkWzOF4RMCshBAMXuhXJs64Rte09mITnppBXY/rYEFI=
 github.com/tklauser/numcpus v0.2.2 h1:oyhllyrScuYI6g+h/zUvNXNp1wy7x8qQy3t/piefldA=
