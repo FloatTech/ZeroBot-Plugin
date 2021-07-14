@@ -28,7 +28,7 @@ func init() {
 // shindanmaker 处理函数
 var handle = func(ctx *zero.Ctx) {
 	if !limit.Load(ctx.Event.UserID).Acquire() {
-		ctx.Send("请稍后重试0x0...")
+		ctx.SendChain(message.Text("请稍后重试0x0..."))
 		return
 	}
 	// 获取名字

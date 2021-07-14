@@ -59,7 +59,7 @@ func init() { // 插件主体
 	zero.OnRegex(`^来份(.*)$`, FirstValueInList(POOL.List)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("少女祈祷中......"))
+				ctx.SendChain(message.Text("请稍后重试0x0..."))
 				return
 			}
 			var type_ = ctx.State["regex_matched"].([]string)[1]
