@@ -6,6 +6,10 @@ github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4 h1:BMrSHJO1lWKTKU1DCK+XEpTaK38F
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4/go.mod h1:femu/wVuqVSN/rg209qksMx8/2OKUF8l1PZCNg4RwVA=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.1 h1:AT/nudxY5murKpEyP+ZZTczknSipeZPP2tId6/2I7Nw=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.1/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
+github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.2 h1:mVkuGVtznDH1n0l00TJesmA5K2NZ+98OaXcqyPh6TVM=
+github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.2/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
+github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.3 h1:NXk18XCfy4cCSMXru/NHfCdf26o3fBWOTuEvxFcweeg=
+github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.3/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 h1:5sXbqlSomvdjlRbWyNqkPsJ3Fg+tQZCbgeX1VGljbQY=
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/StackExchange/wmi v1.2.0 h1:noJEYkMQVlFCEAc+2ma5YyRhlfjcWfZqk5sBRYozdyM=
