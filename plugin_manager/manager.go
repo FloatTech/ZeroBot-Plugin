@@ -258,7 +258,7 @@ func init() { // 插件主体
 	zero.OnFullMatch("列出所有提醒", zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
-				ctx.Send(timer.ListTimers(uint64(ctx.Event.GroupID)))
+				ctx.Send(fmt.Sprint(timer.ListTimers(uint64(ctx.Event.GroupID))))
 			}
 		})
 	// 随机点名
