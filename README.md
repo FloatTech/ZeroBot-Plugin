@@ -47,6 +47,7 @@
     - [x] 在[月份]月[每周or周几]的[小时]点[分钟]分时(用[url])提醒大家[消息]
     - [x] 取消在[月份]月[日期]日的[小时]点[分钟]分的提醒
     - [x] 取消在[月份]月[每周or周几]的[小时]点[分钟]分的提醒
+    - [x] 列出所有提醒
     - [x] 翻牌
     - [ ] 同意入群请求
     - [ ] 同意好友请求
@@ -80,11 +81,11 @@
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
 - 随机图片与点评 `github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image`
-    - [x] 随机图片
+    - [x] 随机图片（也有概率出r18，请务必小心）
     - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
     - [x] 太涩了（撤回最近发的图）
-    - [x] 评价图片：发送一张图片进行评分
+    - [x] 评价图片：发送一张图片让bot评分
 - bilibili `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >bili info [名字]
 - 嘉然 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
