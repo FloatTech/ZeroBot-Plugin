@@ -81,7 +81,7 @@
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
 - 随机图片与点评 `github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image`
-    - [x] 随机图片（也有概率出r18，请务必小心）
+    - [x] 随机图片
     - [x] 直接随机（无r18检测，后果自负）
     - [x] 设置随机图片网址[url]
     - [x] 太涩了（撤回最近发的图）
