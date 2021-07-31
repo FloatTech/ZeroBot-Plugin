@@ -2,6 +2,8 @@ github.com/FloatTech/AnimeAPI v0.0.0-20210713044920-63367fe18ccd h1:rvV66DIEqNJM
 github.com/FloatTech/AnimeAPI v0.0.0-20210713044920-63367fe18ccd/go.mod h1:GYrQD70HvBzry1XiZ1tHFNOsOqRkR+ao4XGYZqV4I9c=
 github.com/FloatTech/ZeroBot-ACGImage v1.1.2 h1:Q+FwOb1vCCYG2B7hPU0uBMzWwB85eVlC0pWRJZ+rBCQ=
 github.com/FloatTech/ZeroBot-ACGImage v1.1.2/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
+github.com/FloatTech/ZeroBot-ACGImage v1.2.1 h1:GQR1dudKIPh13EKybH5o3GZys0m6Wy87BF5DpcNzutw=
+github.com/FloatTech/ZeroBot-ACGImage v1.2.1/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4 h1:BMrSHJO1lWKTKU1DCK+XEpTaK38FMlBEIywFLIiatu8=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4/go.mod h1:femu/wVuqVSN/rg209qksMx8/2OKUF8l1PZCNg4RwVA=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.1 h1:AT/nudxY5murKpEyP+ZZTczknSipeZPP2tId6/2I7Nw=
@@ -14,6 +16,8 @@ github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 h1:5sXbqlSomvdjl
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/StackExchange/wmi v1.2.0 h1:noJEYkMQVlFCEAc+2ma5YyRhlfjcWfZqk5sBRYozdyM=
 github.com/StackExchange/wmi v1.2.0/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
+github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
+github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
 github.com/antchfx/htmlquery v1.2.3 h1:sP3NFDneHx2stfNXCKbhHFo8XgNjCACnU/4AO5gWz6M=
 github.com/antchfx/htmlquery v1.2.3/go.mod h1:B0ABL+F5irhhMWg54ymEZinzMSi0Kt3I2if0BLYa3V0=
 github.com/antchfx/xpath v1.1.6 h1:6sVh6hB5T6phw1pFpHRQ+C4bd8sNI+O58flqtg7h0R0=
