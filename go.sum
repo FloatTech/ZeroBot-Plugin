@@ -4,6 +4,10 @@ github.com/FloatTech/ZeroBot-ACGImage v1.1.2 h1:Q+FwOb1vCCYG2B7hPU0uBMzWwB85eVlC
 github.com/FloatTech/ZeroBot-ACGImage v1.1.2/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-ACGImage v1.2.1 h1:GQR1dudKIPh13EKybH5o3GZys0m6Wy87BF5DpcNzutw=
 github.com/FloatTech/ZeroBot-ACGImage v1.2.1/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
+github.com/FloatTech/ZeroBot-ACGImage v1.3.1 h1:P9zfrVJcyFFViYz7qr/+DTD34oIpn5/hilmuhIeatwY=
+github.com/FloatTech/ZeroBot-ACGImage v1.3.1/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
+github.com/FloatTech/ZeroBot-ACGImage v1.3.3 h1:Y1fZO9YAMM1wQBN+ZbOXCEKpp+8TrM5TwaUqgWffVsI=
+github.com/FloatTech/ZeroBot-ACGImage v1.3.3/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4 h1:BMrSHJO1lWKTKU1DCK+XEpTaK38FMlBEIywFLIiatu8=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4/go.mod h1:femu/wVuqVSN/rg209qksMx8/2OKUF8l1PZCNg4RwVA=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.1 h1:AT/nudxY5murKpEyP+ZZTczknSipeZPP2tId6/2I7Nw=
