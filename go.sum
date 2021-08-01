@@ -12,6 +12,8 @@ github.com/FloatTech/ZeroBot-ACGImage v1.3.4 h1:oyPYs9R+yKMCzTEgEZkP4yMOTs/GTvnQ
 github.com/FloatTech/ZeroBot-ACGImage v1.3.4/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-ACGImage v1.4.1 h1:P4Pjci0djSQ99nnCGnSLh6mh4Jq5qOL+PBQzAG0ZyZc=
 github.com/FloatTech/ZeroBot-ACGImage v1.4.1/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
+github.com/FloatTech/ZeroBot-ACGImage v1.4.2 h1:/jj/+5a4EeejeqIDkeUbaxpCpZfLPCODa3sw/1m/Das=
+github.com/FloatTech/ZeroBot-ACGImage v1.4.2/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4 h1:BMrSHJO1lWKTKU1DCK+XEpTaK38FMlBEIywFLIiatu8=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4/go.mod h1:femu/wVuqVSN/rg209qksMx8/2OKUF8l1PZCNg4RwVA=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.1 h1:AT/nudxY5murKpEyP+ZZTczknSipeZPP2tId6/2I7Nw=
@@ -20,6 +22,8 @@ github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.2 h1:mVkuGVtznDH1n0l00TJesmA5K2NZ
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.2/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.3 h1:NXk18XCfy4cCSMXru/NHfCdf26o3fBWOTuEvxFcweeg=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.3/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
+github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.4 h1:nRJqY/S7TRlN32MQGIBH3UWfVrpjxpJXCnp42pd2O2Q=
+github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.4/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 h1:5sXbqlSomvdjlRbWyNqkPsJ3Fg+tQZCbgeX1VGljbQY=
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/StackExchange/wmi v1.2.0 h1:noJEYkMQVlFCEAc+2ma5YyRhlfjcWfZqk5sBRYozdyM=
@@ -78,6 +82,8 @@ github.com/robfig/cron v1.2.0 h1:ZjScXvvxeQ63Dbyxy76Fj3AT3Ut0aKsyd2/tl3DTMuQ=
 github.com/robfig/cron v1.2.0/go.mod h1:JGuDeoQd7Z6yL4zQhZ3OPEVHB7fL6Ka6skscFHfmt2k=
 github.com/shirou/gopsutil v3.21.6+incompatible h1:mmZtAlWSd8U2HeRTjswbnDLPxqsEoK01NK+GZ1P+nEM=
 github.com/shirou/gopsutil v3.21.6+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
+github.com/shirou/gopsutil v3.21.7+incompatible h1:g/wcPHcuCQvHSePVofjQljd2vX4ty0+J6VoMB+NPcdk=
+github.com/shirou/gopsutil v3.21.7+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.8.1 h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE=
 github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
