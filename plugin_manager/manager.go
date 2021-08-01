@@ -220,7 +220,6 @@ func init() { // 插件主体
 			)
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 		})
-
 	// 定时提醒
 	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
@@ -255,7 +254,13 @@ func init() { // 插件主体
 				}
 			}
 		})
-
+	//列出本群所有定时
+	zero.OnFullMatch("列出所有提醒", zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.GroupID > 0 {
+				ctx.Send(fmt.Sprint(timer.ListTimers(uint64(ctx.Event.GroupID))))
+			}
+		})
 	// 随机点名
 	zero.OnFullMatchGroup([]string{"翻牌"}).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
