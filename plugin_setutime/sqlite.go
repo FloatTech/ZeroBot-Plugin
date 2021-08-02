@@ -2,7 +2,6 @@ package plugin_setutime
 
 import (
 	"database/sql"
-	"errors"
 	"reflect"
 	"strings"
 
@@ -134,7 +133,7 @@ func (db *Sqlite) Select(table string, objptr interface{}, condition string) (er
 			return err
 		}
 	}
-	return errors.New("数据库无此条件项目")
+	return nil
 }
 
 // Delete 删除数据库
