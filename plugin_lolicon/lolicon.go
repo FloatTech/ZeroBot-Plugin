@@ -26,13 +26,6 @@ func init() {
 	zero.OnFullMatch("来份萝莉").
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
-				min := func(a, b int) int {
-					if a < b {
-						return a
-					} else {
-						return b
-					}
-				}
 				for i := 0; i < min(cap(QUEUE)-len(QUEUE), 2); i++ {
 					resp, err := http.Get(API)
 					if err != nil {
@@ -62,4 +55,12 @@ func init() {
 				ctx.SendChain(message.Image(url))
 			}
 		})
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
 }

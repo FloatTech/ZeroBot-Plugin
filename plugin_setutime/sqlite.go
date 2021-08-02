@@ -133,7 +133,6 @@ func (db *Sqlite) Select(table string, objptr interface{}, condition string) (er
 		if err != nil {
 			return err
 		}
-		return nil
 	}
 	return errors.New("数据库无此条件项目")
 }

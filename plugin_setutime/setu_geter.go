@@ -56,7 +56,7 @@ var (
 )
 
 func init() { // 插件主体
-	zero.OnRegex(`^来份(.*)$`, FirstValueInList(POOL.List)).SetBlock(true).SetPriority(20).
+	zero.OnRegex(`^来份(.*)$`, firstValueInList(POOL.List)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
@@ -65,7 +65,7 @@ func init() { // 插件主体
 			var type_ = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := Min(POOL.Max-POOL.Size(type_), 2)
+				times := min(POOL.Max-POOL.Size(type_), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
@@ -101,7 +101,7 @@ func init() { // 插件主体
 			return
 		})
 
-	zero.OnRegex(`^添加(.*?)(\d+)$`, FirstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
+	zero.OnRegex(`^添加(.*?)(\d+)$`, firstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
@@ -133,7 +133,7 @@ func init() { // 插件主体
 			return
 		})
 
-	zero.OnRegex(`^删除(.*?)(\d+)$`, FirstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
+	zero.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
@@ -167,8 +167,8 @@ func init() { // 插件主体
 		})
 }
 
-// FirstValueInList 判断正则匹配的第一个参数是否在列表中
-func FirstValueInList(list []string) zero.Rule {
+// firstValueInList 判断正则匹配的第一个参数是否在列表中
+func firstValueInList(list []string) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
 		first := ctx.State["regex_matched"].([]string)[1]
 		for i := range list {
@@ -180,8 +180,8 @@ func FirstValueInList(list []string) zero.Rule {
 	}
 }
 
-// Min 返回两数最小值
-func Min(a, b int) int {
+// min 返回两数最小值
+func min(a, b int) int {
 	switch {
 	default:
 		return a
