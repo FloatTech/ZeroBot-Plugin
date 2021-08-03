@@ -18,7 +18,7 @@ import (
 
 	// 娱乐类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false" // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"   // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan" // 测定
 
@@ -29,9 +29,10 @@ import (
 	// 二次元图片
 	_ "github.com/FloatTech/ZeroBot-ACGImage"                   // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder" // 关键字搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"      // lolicon 随机图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"     // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
+
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"      // lolicon 随机图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao" // 以图搜图
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -70,7 +71,7 @@ func main() {
 		// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
 		// []string{}：通过代码写死的方式添加主人账号
 		// os.Args[1:]：通过命令行参数的方式添加主人账号
-		SuperUsers: append([]string{"12345678", "87654321"}, os.Args[1:]...),
+		SuperUsers: os.Args[1:],
 
 		Driver: []zero.Driver{
 			&driver.WSClient{
