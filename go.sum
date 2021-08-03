@@ -16,6 +16,8 @@ github.com/FloatTech/ZeroBot-ACGImage v1.4.2 h1:/jj/+5a4EeejeqIDkeUbaxpCpZfLPCOD
 github.com/FloatTech/ZeroBot-ACGImage v1.4.2/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
 github.com/FloatTech/ZeroBot-ACGImage v1.4.3 h1:lQTKfrVYdO5T+4KfC8U2bIxYnZql2hG2tSo/msTGRcI=
 github.com/FloatTech/ZeroBot-ACGImage v1.4.3/go.mod h1:CtEYnFTjgzH4v1jaowyyjBmjSKK3p8WPXExfGnVmx1E=
+github.com/FloatTech/ZeroBot-ACGImage v1.5.1 h1:iolon1PR4AjEJJmUHEDfCXL8tBZOx5W21hRvNirX1Bw=
+github.com/FloatTech/ZeroBot-ACGImage v1.5.1/go.mod h1:Q9k43tGy2c5sDxw3XZc2An4YfqkN1wWIXeXUH2GlaBg=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4 h1:BMrSHJO1lWKTKU1DCK+XEpTaK38FMlBEIywFLIiatu8=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.2.4/go.mod h1:femu/wVuqVSN/rg209qksMx8/2OKUF8l1PZCNg4RwVA=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.1 h1:AT/nudxY5murKpEyP+ZZTczknSipeZPP2tId6/2I7Nw=
@@ -26,6 +28,8 @@ github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.3 h1:NXk18XCfy4cCSMXru/NHfCdf26o3
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.3/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.4 h1:nRJqY/S7TRlN32MQGIBH3UWfVrpjxpJXCnp42pd2O2Q=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.4/go.mod h1:NuODdnVhf9AClsJBdYFqnL9sQE7VIRZyZos37J286n0=
+github.com/FloatTech/Zerobot-ACGImage-Classify v1.2.1 h1:HEdT6yq06lV94jcArutpyqQLaPpczs0bTd6gdwVG1ps=
+github.com/FloatTech/Zerobot-ACGImage-Classify v1.2.1/go.mod h1:swPvVKyXu1YFWZ7Kt6R79LgIa16hs4cE1E5LroBB2SQ=
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 h1:5sXbqlSomvdjlRbWyNqkPsJ3Fg+tQZCbgeX1VGljbQY=
 github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/StackExchange/wmi v1.2.0 h1:noJEYkMQVlFCEAc+2ma5YyRhlfjcWfZqk5sBRYozdyM=
