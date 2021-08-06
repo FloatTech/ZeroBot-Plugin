@@ -34,9 +34,45 @@ jobs:
       
     - name: Build linux-x64
       run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-x64
+    - name: Build linux-x86
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-x86
+    - name: Build windows-x64
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-windows-x64.exe
+    - name: Build windows-x86
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-windows-x86.exe
+    - name: Build arm64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOARM=7 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-arm64
+    - name: Build armv6
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
     
-    - name: Upload Build Artifact
+    - name: Upload Build Artifact Linux x64
       uses: actions/upload-artifact@v2
       with:
-        name: zerobot-plugin
-        path: ./artifacts/zerobot-plugin-*
+        name: zerobot-plugin-linux-x64
+        path: ./artifacts/zerobot-plugin-linux-x64
+    - name: Upload Build Artifact Linux x86
+      uses: actions/upload-artifact@v2
+      with:
+        name: zerobot-plugin-linux-x86
+        path: ./artifacts/zerobot-plugin-linux-x86
+    - name: Upload Build Artifact Windows x64
+      uses: actions/upload-artifact@v2
+      with:
+        name: zerobot-plugin-windows-x64.exe
+        path: ./artifacts/zerobot-plugin-windows-x64.exe
+    - name: Upload Build Artifact Windows x86
+      uses: actions/upload-artifact@v2
+      with:
+        name: zerobot-plugin-windows-x86.exe
+        path: ./artifacts/zerobot-plugin-windows-x86.exe
+    - name: Upload Build Artifact Linux arm64
+      uses: actions/upload-artifact@v2
+      with:
+        name: zerobot-plugin-linux-arm64
+        path: ./artifacts/zerobot-plugin-linux-arm64
+    - name: Upload Build Artifact Linux armv6
+      uses: actions/upload-artifact@v2
+      with:
+        name: zerobot-plugin-linux-armv6
+        path: ./artifacts/zerobot-plugin-linux-armv6
+    
