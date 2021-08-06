@@ -27,7 +27,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"    // 嘉心糖发病
 
 	// 二次元图片
-	_ "github.com/FloatTech/ZeroBot-ACGImage"                   // 随机图片与AI点评
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"     // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder" // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"      // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"     // 以图搜图
