@@ -91,10 +91,14 @@
 - 嘉然 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] @BOT 小作文
     - [x] @BOT 发大病
+    - [x] @BOT 教你一篇小作文[作文]
 - AIfalse `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_AIfalse"`
     - [x] 查询计算机当前活跃度 [身体检查]
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
+- minecraft `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
+    - [x] 具体指令看代码
+    - [x] 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
 - TODO...
 
 ### 使用方法
