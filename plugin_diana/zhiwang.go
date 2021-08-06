@@ -65,10 +65,10 @@ func init() {
 }
 
 // 发起api请求并把返回body交由json库解析
-func zhiwangapi(Text string) *zhiwang {
+func zhiwangapi(text string) *zhiwang {
 
 	url := "https://asoulcnki.asia/v1/api/check"
-	post := "{\n\"text\":\"" + Text + "\"\n}"
+	post := "{\n\"text\":\"" + text + "\"\n}"
 	var jsonStr = []byte(post)
 
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))

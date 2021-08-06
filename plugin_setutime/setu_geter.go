@@ -150,7 +150,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
 			for i := range pool.List {
-				num, err := pool.DB.num(pool.List[i])
+				num, err := pool.DB.count(pool.List[i])
 				if err != nil {
 					num = 0
 				}
@@ -193,10 +193,11 @@ func (p *imgpool) size(imgtype string) int {
 	return len(p.Pool[imgtype])
 }
 
+/*
 // isFull 返回缓冲池指定类型是否已满
 func (p *imgpool) isFull(imgtype string) bool {
 	return len(p.Pool[imgtype]) >= p.Max
-}
+}*/
 
 // push 向缓冲池插入一张图片
 func (p *imgpool) push(imgtype string, illust *pixiv.Illust) {
