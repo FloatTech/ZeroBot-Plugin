@@ -1,0 +1,105 @@
+name: 稳定版
+on:
+  push:
+    tags:
+      - v*
+
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+
+jobs:
+  my-job:
+    name: Build ZeroBot-Plugin on Push Tag 🚀
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+      
+    - name: Cache Go
+      id: cache
+      uses: actions/cache@v2
+      with:
+        # A list of files, directories, and wildcard patterns to cache and restore
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+
+    - name: Tidy Go modules
+      run: go mod tidy
+      
+    - name: Build linux-x64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-x64
+    - name: Build linux-x86
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-x86
+    - name: Build windows-x64
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-windows-x64.exe
+    - name: Build windows-x86
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-windows-x86.exe
+    - name: Build arm64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOARM=7 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-arm64
+    - name: Build armv6
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset Linux x64
+      id: upload-release-asset-lx64
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./artifacts/zerobot-plugin-linux-x64
+        asset_name: zerobot-plugin-linux-x64
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset Linux x86
+      id: upload-release-asset-lx86
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./artifacts/zerobot-plugin-linux-x86
+        asset_name: zerobot-plugin-linux-x86
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset Windows x64
+      id: upload-release-asset-wx64
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./artifacts/zerobot-plugin-windows-x64.exe
+        asset_name: zerobot-plugin-windows-x64.exe
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset Windows x86
+      id: upload-release-asset-wx86
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./artifacts/zerobot-plugin-windows-x86.exe
+        asset_name: zerobot-plugin-windows-x86.exe
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset ARM64
+      id: upload-release-asset-arm64
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./artifacts/zerobot-plugin-linux-arm64
+        asset_name: zerobot-plugin-linux-arm64
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset ARMv6
+      id: upload-release-asset-armv6
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./artifacts/zerobot-plugin-linux-armv6
+        asset_name: zerobot-plugin-linux-armv6
+        asset_content_type: application/octet-stream
+    
