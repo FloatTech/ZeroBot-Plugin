@@ -2,6 +2,7 @@
 package github
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -90,7 +91,7 @@ func netGet(dest string, header http.Header) ([]byte, error) {
 	}
 	if code := resp.StatusCode; code != 200 {
 		// 如果返回不是200则立刻抛出错误
-		return nil, fmt.Errorf("code %d", code)
+		return nil, errors.New(fmt.Sprintf("code %d", code))
 	}
 	return body, nil
 }

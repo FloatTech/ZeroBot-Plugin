@@ -2,6 +2,7 @@
 package diana
 
 import (
+	fmt "fmt"
 	"math/rand"
 	"time"
 
@@ -71,6 +72,9 @@ func init() {
 	// 增加小作文
 	zero.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
-			addText(ctx.State["regex_matched"].([]string)[1])
+			err := addText(ctx.State["regex_matched"].([]string)[1])
+			if err != nil {
+				ctx.Send(fmt.Sprintf("ERROR: %v", err))
+			}
 		})
 }

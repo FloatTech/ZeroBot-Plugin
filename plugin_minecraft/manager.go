@@ -33,7 +33,7 @@ func init() {
 		})
 }
 
-//开启服务器的api请求
+// 开启服务器的api请求
 func start(name string) string {
 	url := fmt.Sprintf("http://your.addr:23333/api/start_server/%s/?apikey=apikey", name)
 	client := &http.Client{}
@@ -54,7 +54,7 @@ func start(name string) string {
 	return string(body)
 }
 
-//关闭服务器的api请求
+// 关闭服务器的api请求
 func stop(name string) string {
 	url := fmt.Sprintf("http://your.addr:23333/api/stop_server/%s/?apikey=apikey", name)
 	client := &http.Client{}
