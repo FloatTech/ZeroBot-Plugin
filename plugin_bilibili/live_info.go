@@ -1,4 +1,4 @@
-package plugin_bilibili
+package bilibili
 
 import (
 	"errors"

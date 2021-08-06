@@ -1,8 +1,5 @@
-/*
-Package plugin_chat
-对话插件 example
-*/
-package plugin_chat
+// Package chat 对话插件
+package chat
 
 import (
 	"math/rand"
@@ -47,7 +44,6 @@ func init() { // 插件主体
 			default:
 				// 频繁触发，不回复
 			}
-			return
 		})
 	// 群空调
 	var AirConditTemp = map[int64]int{}
