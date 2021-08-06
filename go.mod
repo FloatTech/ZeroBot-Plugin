@@ -3,7 +3,7 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.16
 
 require (
-	github.com/FloatTech/AnimeAPI v1.1.1
+	github.com/FloatTech/AnimeAPI v1.1.2
 	github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.2
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/golang/protobuf v1.5.2
