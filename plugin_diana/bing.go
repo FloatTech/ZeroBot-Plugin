@@ -11,20 +11,19 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const yamai = "贝拉抽我\u200b嘉然骑在我背上\u200b晚晚踩我\u200b乃琳坐在王座是用看垃圾的眼神看我\u200b\u200b珈乐踢我\u200b\u200b，把我眼睛蒙住然后五只脚一起踩我\u200b还让我猜脚是谁的，猜错了给我劈眼一铁棍\u200b​"
-
 func init() {
 	// 随机发送一篇上面的小作文
 	zero.OnFullMatch("小作文", zero.OnlyToMe).
 		Handle(func(ctx *zero.Ctx) {
 			rand.Seed(time.Now().UnixNano())
-			ctx.SendChain(message.Text(data.Array[rand.Intn(len(data.Array))]))
+			// 绕过第一行发病
+			ctx.SendChain(message.Text(data.Array[rand.Intn(len(data.Array)-1)+1]))
 		})
-
 	// 逆天
 	zero.OnFullMatch("发大病", zero.OnlyToMe).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.Send(yamai)
+			// 第一行是发病
+			ctx.Send(data.Array[0])
 		})
 	// 增加小作文
 	zero.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).
