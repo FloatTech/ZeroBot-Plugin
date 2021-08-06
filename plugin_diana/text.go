@@ -23,23 +23,27 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		loadText()
-		array = compo.Array
+		if loadText() == nil {
+			array = compo.Array
+		}
 	}()
 }
 
-func loadText() {
+func loadText() error {
 	if _, err := os.Stat(pbfile); err == nil || os.IsExist(err) {
 		f, err := os.Open(pbfile)
 		if err == nil {
 			data, err1 := io.ReadAll(f)
 			if err1 == nil {
 				if len(data) > 0 {
-					compo.Unmarshal(data)
+					return compo.Unmarshal(data)
 				}
 			}
+			return err1
 		}
+		return err
 	}
+	return nil
 }
 
 func addText(txt string) error {

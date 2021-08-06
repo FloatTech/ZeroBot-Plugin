@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // 引入sqlite
 )
 
 // sqlite 数据库对象

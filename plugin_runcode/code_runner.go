@@ -130,50 +130,49 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.Send("请稍后重试0x0...")
-				return
-			}
-			language := ctx.State["regex_matched"].([]string)[1]
-			language = strings.ToLower(language)
-			if runType, exist := table[language]; !exist {
-				// 不支持语言
-				ctx.SendChain(
-					message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-					message.Text("语言不是受支持的编程语种呢~"),
-				)
-				return
 			} else {
-				if RunAllow == false {
-					// 运行代码被禁用
+				language := ctx.State["regex_matched"].([]string)[1]
+				language = strings.ToLower(language)
+				if runType, exist := table[language]; !exist {
+					// 不支持语言
 					ctx.SendChain(
 						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text("在线运行代码功能已被禁用"),
+						message.Text("语言不是受支持的编程语种呢~"),
 					)
 				} else {
-					// 执行运行
-					block := ctx.State["regex_matched"].([]string)[2]
-					block = message.UnescapeCQCodeText(block)
-					if block == "help" {
-						// 输出模板
+					if RunAllow == false {
+						// 运行代码被禁用
 						ctx.SendChain(
-							message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
-							message.Text(
-								">runcode ", language, "\n",
-								templates[language],
-							),
+							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+							message.Text("在线运行代码功能已被禁用"),
 						)
 					} else {
-						if output, err := runCode(block, runType); err != nil {
-							// 运行失败
+						// 执行运行
+						block := ctx.State["regex_matched"].([]string)[2]
+						block = message.UnescapeCQCodeText(block)
+						if block == "help" {
+							// 输出模板
 							ctx.SendChain(
-								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-								message.Text("ERROR: ", err),
+								message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
+								message.Text(
+									">runcode ", language, "\n",
+									templates[language],
+								),
 							)
 						} else {
-							// 运行成功
-							ctx.SendChain(
-								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-								message.Text(output),
-							)
+							if output, err := runCode(block, runType); err != nil {
+								// 运行失败
+								ctx.SendChain(
+									message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+									message.Text("ERROR: ", err),
+								)
+							} else {
+								// 运行成功
+								ctx.SendChain(
+									message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+									message.Text(output),
+								)
+							}
 						}
 					}
 				}

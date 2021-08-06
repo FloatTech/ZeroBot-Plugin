@@ -1,3 +1,4 @@
+// Package bilibili 查询b站用户信息
 package bilibili
 
 import (

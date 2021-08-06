@@ -193,31 +193,31 @@ func min(a, b int) int {
 }
 
 // size 返回缓冲池指定类型的现有大小
-func (p *imgpool) size(type_ string) int {
-	return len(p.Pool[type_])
+func (p *imgpool) size(imgtype string) int {
+	return len(p.Pool[imgtype])
 }
 
 // isFull 返回缓冲池指定类型是否已满
-func (p *imgpool) isFull(type_ string) bool {
-	return len(p.Pool[type_]) >= p.Max
+func (p *imgpool) isFull(imgtype_ string) bool {
+	return len(p.Pool[imgtype_]) >= p.Max
 }
 
 // push 向缓冲池插入一张图片
-func (p *imgpool) push(type_ string, illust *pixiv.Illust) {
+func (p *imgpool) push(imgtype_ string, illust *pixiv.Illust) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
-	p.Pool[type_] = append(p.Pool[type_], illust)
+	p.Pool[imgtype_] = append(p.Pool[imgtype_], illust)
 }
 
 // Push 在缓冲池拿出一张图片
-func (p *imgpool) pop(type_ string) (illust *pixiv.Illust) {
+func (p *imgpool) pop(imgtype_ string) (illust *pixiv.Illust) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
-	if p.size(type_) == 0 {
+	if p.size(imgtype_) == 0 {
 		return
 	}
-	illust = p.Pool[type_][0]
-	p.Pool[type_] = p.Pool[type_][1:]
+	illust = p.Pool[imgtype_][0]
+	p.Pool[imgtype_] = p.Pool[imgtype_][1:]
 	return
 }
 
