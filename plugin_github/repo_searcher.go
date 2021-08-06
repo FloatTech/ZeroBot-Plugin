@@ -1,7 +1,8 @@
 /*
+Plugin github
 GitHub 仓库搜索
 */
-package plugin_github
+package github
 
 import (
 	"errors"

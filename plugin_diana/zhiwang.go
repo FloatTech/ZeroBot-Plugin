@@ -1,16 +1,18 @@
-package plugin_diana
+package diana
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"math"
 	"strconv"
 	"time"
 
-	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+
 	"net/http"
 	"strings"
+
+	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 type zhiwang struct {
@@ -26,7 +28,7 @@ type zhiwang struct {
 
 // 小作文查重: 回复要查的消息 查重
 func init() {
-	zero.OnMessage(FullMatchText("查重")).
+	zero.OnMessage(fullMatchText("查重")).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.Event.Message
 			if msg[0].Type == "reply" {
@@ -88,7 +90,7 @@ func zhiwangapi(Text string) *zhiwang {
 	return result
 }
 
-func FullMatchText(src ...string) zero.Rule {
+func fullMatchText(src ...string) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
 		msg := ctx.Event.Message
 		for _, elem := range msg {

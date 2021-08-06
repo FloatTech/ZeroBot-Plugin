@@ -7,6 +7,7 @@ require (
 	github.com/FloatTech/ZeroBot-ACGImage v1.5.5
 	github.com/FloatTech/ZeroBot-Plugin-Timer v1.3.4
 	github.com/StackExchange/wmi v1.2.1 // indirect
+	github.com/golang/protobuf v1.5.2
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.7+incompatible
 	github.com/sirupsen/logrus v1.8.1
@@ -17,5 +18,6 @@ require (
 	github.com/wdvxdr1123/ZeroBot v1.2.2
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/tools v0.1.5 // indirect
+	google.golang.org/protobuf v1.27.1 // indirect
 	modernc.org/sqlite v1.12.0
 )

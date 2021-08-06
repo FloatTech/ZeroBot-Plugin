@@ -1,4 +1,4 @@
-package plugin_setutime
+package setutime
 
 import (
 	"database/sql"
@@ -8,16 +8,16 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// Sqlite 数据库对象
-type Sqlite struct {
+// sqlite 数据库对象
+type sqlite struct {
 	DB     *sql.DB
 	DBPath string
 }
 
-// Create 生成数据库
+// create 生成数据库
 // 默认结构体的第一个元素为主键
 // 返回错误
-func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
+func (db *sqlite) create(table string, objptr interface{}) (err error) {
 	if db.DB == nil {
 		database, err := sql.Open("sqlite", db.DBPath)
 		if err != nil {
@@ -53,10 +53,10 @@ func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
 	return nil
 }
 
-// Insert 插入数据集
+// insert 插入数据集
 // 默认结构体的第一个元素为主键
 // 返回错误
-func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
+func (db *sqlite) insert(table string, objptr interface{}) (err error) {
 	rows, err := db.DB.Query("SELECT * FROM " + table)
 	if err != nil {
 		return err
@@ -109,11 +109,11 @@ func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
 	return nil
 }
 
-// Select 查询数据库
+// find 查询数据库
 // condition 可为"WHERE id = 0"
 // 默认字段与结构体元素顺序一致
 // 返回错误
-func (db *Sqlite) Select(table string, objptr interface{}, condition string) (err error) {
+func (db *sqlite) find(table string, objptr interface{}, condition string) (err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM ")
 	cmd = append(cmd, table)
@@ -136,10 +136,10 @@ func (db *Sqlite) Select(table string, objptr interface{}, condition string) (er
 	return nil
 }
 
-// Delete 删除数据库
+// del 删除数据库
 // condition 可为"WHERE id = 0"
 // 返回错误
-func (db *Sqlite) Delete(table string, condition string) (err error) {
+func (db *sqlite) del(table string, condition string) (err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "DELETE FROM")
 	cmd = append(cmd, table)
@@ -155,9 +155,9 @@ func (db *Sqlite) Delete(table string, condition string) (err error) {
 	return nil
 }
 
-// Num 查询数据库行数
+// num 查询数据库行数
 // 返回行数以及错误
-func (db *Sqlite) Num(table string) (num int, err error) {
+func (db *sqlite) num(table string) (num int, err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM")
 	cmd = append(cmd, table)

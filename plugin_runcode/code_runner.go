@@ -1,7 +1,8 @@
 /*
+Package runcode
 基于 https://tool.runoob.com 的在线运行代码
 */
-package plugin_runcode
+package runcode
 
 import (
 	"errors"
