@@ -149,9 +149,9 @@ func init() { // 插件主体
 			case "分钟":
 				//
 			case "小时":
-				duration = duration * 60
+				duration *= 60
 			case "天":
-				duration = duration * 60 * 24
+				duration *= 60 * 24
 			default:
 				//
 			}
