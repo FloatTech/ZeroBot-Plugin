@@ -37,7 +37,6 @@ func init() {
 			default: // 默认 QQ音乐
 				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
 			}
-			return
 		})
 }
 

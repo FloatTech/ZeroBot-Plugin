@@ -61,6 +61,9 @@ func (db *sqlite) insert(table string, objptr interface{}) (err error) {
 	if err != nil {
 		return err
 	}
+	if rows.Err() != nil {
+		return rows.Err()
+	}
 	tags, _ := rows.Columns()
 	rows.Close()
 	var (

@@ -16,12 +16,10 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-var limit = rate.NewManager(time.Minute*3, 5)
-
-func init() {
-	RunAllow := true
-
-	templates := map[string]string{
+var (
+	enable    = true
+	limit     = rate.NewManager(time.Minute*3, 5)
+	templates = map[string]string{
 		"py2":        "print 'Hello World!'",
 		"ruby":       "puts \"Hello World!\";",
 		"rb":         "puts \"Hello World!\";",
@@ -56,8 +54,7 @@ func init() {
 		"typescript": "const hello : string = \"Hello World!\"\nconsole.log(hello)",
 		"ts":         "const hello : string = \"Hello World!\"\nconsole.log(hello)",
 	}
-
-	table := map[string][2]string{
+	table = map[string][2]string{
 		"py2":        {"0", "py"},
 		"ruby":       {"1", "rb"},
 		"rb":         {"1", "rb"},
@@ -92,7 +89,9 @@ func init() {
 		"typescript": {"1010", "ts"},
 		"ts":         {"1010", "ts"},
 	}
+)
 
+func init() {
 	zero.OnFullMatch(">runcode help").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
@@ -110,7 +109,7 @@ func init() {
 
 	zero.OnFullMatch(">runcode on", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			RunAllow = true
+			enable = true
 			ctx.SendChain(
 				message.Text("> ", ctx.Event.Sender.NickName, "\n"),
 				message.Text("在线运行代码功能已启用"),
@@ -119,7 +118,7 @@ func init() {
 
 	zero.OnFullMatch(">runcode off", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			RunAllow = false
+			enable = false
 			ctx.SendChain(
 				message.Text("> ", ctx.Event.Sender.NickName, "\n"),
 				message.Text("在线运行代码功能已禁用"),
@@ -140,7 +139,7 @@ func init() {
 						message.Text("语言不是受支持的编程语种呢~"),
 					)
 				} else {
-					if RunAllow == false {
+					if !enable {
 						// 运行代码被禁用
 						ctx.SendChain(
 							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
@@ -199,7 +198,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	}
 	// 发送请求
 	client := &http.Client{
-		Timeout: time.Duration(15 * time.Second),
+		Timeout: 15 * time.Second,
 	}
 	request, _ := http.NewRequest("POST", api, strings.NewReader(val.Encode()))
 	request.Header = header

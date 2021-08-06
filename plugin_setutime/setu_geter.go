@@ -74,7 +74,7 @@ func init() { // 插件主体
 						continue
 					}
 					// 下载图片
-					if _, err := download(illust, pool.Path); err != nil {
+					if err := download(illust, pool.Path); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
@@ -98,7 +98,6 @@ func init() { // 插件主体
 			if id := ctx.SendChain(message.Image(file(pool.pop(imgtype)))); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
-			return
 		})
 
 	zero.OnRegex(`^添加(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
@@ -115,7 +114,7 @@ func init() { // 插件主体
 				return
 			}
 			// 下载插画
-			if _, err := download(illust, pool.Path); err != nil {
+			if err := download(illust, pool.Path); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -130,7 +129,6 @@ func init() { // 插件主体
 				return
 			}
 			ctx.Send("添加成功")
-			return
 		})
 
 	zero.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
@@ -145,7 +143,6 @@ func init() { // 插件主体
 				return
 			}
 			ctx.Send("删除成功")
-			return
 		})
 
 	// 查询数据库涩图数量
@@ -163,7 +160,6 @@ func init() { // 插件主体
 				state = append(state, fmt.Sprintf("%d", num))
 			}
 			ctx.Send(strings.Join(state, ""))
-			return
 		})
 }
 
@@ -198,26 +194,26 @@ func (p *imgpool) size(imgtype string) int {
 }
 
 // isFull 返回缓冲池指定类型是否已满
-func (p *imgpool) isFull(imgtype_ string) bool {
-	return len(p.Pool[imgtype_]) >= p.Max
+func (p *imgpool) isFull(imgtype string) bool {
+	return len(p.Pool[imgtype]) >= p.Max
 }
 
 // push 向缓冲池插入一张图片
-func (p *imgpool) push(imgtype_ string, illust *pixiv.Illust) {
+func (p *imgpool) push(imgtype string, illust *pixiv.Illust) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
-	p.Pool[imgtype_] = append(p.Pool[imgtype_], illust)
+	p.Pool[imgtype] = append(p.Pool[imgtype], illust)
 }
 
 // Push 在缓冲池拿出一张图片
-func (p *imgpool) pop(imgtype_ string) (illust *pixiv.Illust) {
+func (p *imgpool) pop(imgtype string) (illust *pixiv.Illust) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
-	if p.size(imgtype_) == 0 {
+	if p.size(imgtype) == 0 {
 		return
 	}
-	illust = p.Pool[imgtype_][0]
-	p.Pool[imgtype_] = p.Pool[imgtype_][1:]
+	illust = p.Pool[imgtype][0]
+	p.Pool[imgtype] = p.Pool[imgtype][1:]
 	return
 }
 
@@ -237,17 +233,17 @@ func file(i *pixiv.Illust) string {
 	return ""
 }
 
-func download(i *pixiv.Illust, filedir string) (string, error) {
+func download(i *pixiv.Illust, filedir string) /*(string, */ error /*)*/ {
 	filename := fmt.Sprint(i.Pid)
 	filepath := filedir + filename
 	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
-		return filepath + ".jpg", nil
+		return /*filepath + ".jpg",*/ nil
 	}
 	if _, err := os.Stat(filepath + ".png"); err == nil || os.IsExist(err) {
-		return filepath + ".png", nil
+		return /*filepath + ".png",*/ nil
 	}
 	if _, err := os.Stat(filepath + ".gif"); err == nil || os.IsExist(err) {
-		return filepath + ".gif", nil
+		return /*filepath + ".gif",*/ nil
 	}
 	// 下载最大分辨率为 1200 的图片
 	link := i.ImageUrls
@@ -255,5 +251,6 @@ func download(i *pixiv.Illust, filedir string) (string, error) {
 	link = strings.ReplaceAll(link, "_p0", "_p0_master1200")
 	link = strings.ReplaceAll(link, ".png", ".jpg")
 	// 下载
-	return pixiv.Download(link, filedir, filename)
+	_, err1 := pixiv.Download(link, filedir, filename)
+	return err1
 }

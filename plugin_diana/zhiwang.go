@@ -28,7 +28,7 @@ type zhiwang struct {
 
 // 小作文查重: 回复要查的消息 查重
 func init() {
-	zero.OnMessage(fullMatchText("查重")).
+	zero.OnMessage(fullmatch("查重")).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.Event.Message
 			if msg[0].Type == "reply" {
@@ -36,7 +36,7 @@ func init() {
 				msg := ctx.GetMessage(int64(id)).Elements[0].Data["text"]
 				zhiwangjson := zhiwangapi(msg)
 
-				if zhiwangjson.Code != 0 {
+				if zhiwangjson == nil || zhiwangjson.Code != 0 {
 					ctx.Send("api返回错误")
 					return
 				}
@@ -60,8 +60,6 @@ func init() {
 					"查重结果仅作参考，请注意辨别是否为原创", "\n",
 					"数据来源: https://asoulcnki.asia/",
 				))
-			} else {
-				return
 			}
 		})
 }
@@ -73,24 +71,25 @@ func zhiwangapi(Text string) *zhiwang {
 	post := "{\n\"text\":\"" + Text + "\"\n}"
 	var jsonStr = []byte(post)
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
+
 	if err != nil {
-		panic(err)
+		return nil
 	}
 	defer resp.Body.Close()
 
 	result := &zhiwang{}
-	if err := json.NewDecoder(resp.Body).Decode(result); err != nil {
-		panic(err)
+	if err1 := json.NewDecoder(resp.Body).Decode(result); err1 != nil {
+		return nil
 	}
 	return result
 }
 
-func fullMatchText(src ...string) zero.Rule {
+func fullmatch(src ...string) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
 		msg := ctx.Event.Message
 		for _, elem := range msg {
