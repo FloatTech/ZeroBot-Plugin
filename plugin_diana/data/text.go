@@ -31,7 +31,7 @@ func init() {
 	}()
 }
 
-// 加载小作文
+// LoadText 加载小作文
 func LoadText() error {
 	if _, err := os.Stat(pbfile); err == nil || os.IsExist(err) {
 		f, err := os.Open(pbfile)
@@ -49,7 +49,7 @@ func LoadText() error {
 	return nil
 }
 
-// 添加小作文
+// AddText 添加小作文
 func AddText(txt string) error {
 	if txt != "" {
 		compo.Array = append(compo.Array, txt)
