@@ -1,7 +1,4 @@
-/*
-Package diana
-虚拟偶像女团 A-SOUL 成员嘉然相关
-*/
+// Package diana 虚拟偶像女团 A-SOUL 成员嘉然相关
 package diana
 
 import (

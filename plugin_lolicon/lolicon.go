@@ -1,7 +1,4 @@
-/*
-Package lolicon
-基于 https://api.lolicon.app 随机图片
-*/
+// Package lolicon 基于 https://api.lolicon.app 随机图片
 package lolicon
 
 import (

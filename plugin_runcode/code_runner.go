@@ -1,7 +1,4 @@
-/*
-Package runcode
-基于 https://tool.runoob.com 的在线运行代码
-*/
+// Package runcode 基于 https://tool.runoob.com 的在线运行代码
 package runcode
 
 import (
