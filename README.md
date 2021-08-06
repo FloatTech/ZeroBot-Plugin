@@ -16,9 +16,6 @@
 [![License](https://img.shields.io/github/license/Yiwen-Chan/OneBot-YaYa.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
 [![qq group](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
 
-[![Compile ZeroBot-Plugin-linux](https://github.com/FloatTech/ZeroBot-Plugin/actions/workflows/linux.yml/badge.svg?branch=master)](https://github.com/FloatTech/ZeroBot-Plugin/actions/workflows/linux.yml)
-[![Compile ZeroBot-Plugin-windows](https://github.com/FloatTech/ZeroBot-Plugin/actions/workflows/windows.yml/badge.svg?branch=master)](https://github.com/FloatTech/ZeroBot-Plugin/actions/workflows/windows.yml)
-
 </div>
 
 
@@ -116,6 +113,9 @@
 | [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |  |
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
+
+### 使用稳定版
+可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统的稳定版，默认开启全部插件。
 
 ### 本地运行
 1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
