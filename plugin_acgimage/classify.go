@@ -11,17 +11,21 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const (
+	datapath = "data/acgimage/"
+	cacheuri = "file:///" + datapath + "cache"
+	lolipxy  = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
+)
+
 var (
-	lolipxy = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
 	// r18有一定保护，一般不会发出图片
-	randapi   = "&loli=true&r18=true"
-	msgof     = make(map[int64]int64)
-	datapath  = "data/acgimage/"
-	cachefile = datapath + "cache"
-	cacheuri  = "file:///" + cachefile
+	randapi = "&loli=true&r18=true"
+	msgof   = make(map[int64]int64)
 )
 
 func init() { // 插件主体
+	// 初始化 classify
+	classify.Init(datapath)
 	zero.OnRegex(`^设置随机图片网址(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]
