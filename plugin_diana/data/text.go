@@ -2,10 +2,11 @@
 package data
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -28,9 +29,9 @@ func init() {
 		}
 		err1 := LoadText()
 		if err1 == nil {
-			fmt.Printf("[Diana]读取%d条小作文\n", len(*Array))
+			log.Printf("[Diana]读取%d条小作文", len(*Array))
 		} else {
-			fmt.Printf("[Diana]读取小作文错误：%v\n", err1)
+			log.Printf("[Diana]读取小作文错误：%v", err1)
 		}
 	}()
 }
