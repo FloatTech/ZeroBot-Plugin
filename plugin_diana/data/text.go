@@ -1,4 +1,4 @@
-package diana
+package data
 
 import (
 	"io"
@@ -13,7 +13,7 @@ const (
 
 var (
 	compo Composition
-	array []string
+	Array []string
 )
 
 func init() {
@@ -23,13 +23,13 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		if loadText() == nil {
-			array = compo.Array
+		if LoadText() == nil {
+			Array = compo.Array
 		}
 	}()
 }
 
-func loadText() error {
+func LoadText() error {
 	if _, err := os.Stat(pbfile); err == nil || os.IsExist(err) {
 		f, err := os.Open(pbfile)
 		if err == nil {
@@ -46,9 +46,9 @@ func loadText() error {
 	return nil
 }
 
-func addText(txt string) error {
+func AddText(txt string) error {
 	if txt != "" {
-		array = append(array, txt)
+		compo.Array = append(compo.Array, txt)
 		data, err := compo.Marshal()
 		if err == nil {
 			if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
