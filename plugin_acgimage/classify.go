@@ -1,3 +1,4 @@
+// Package acgimage 随机图片与AI点评
 package acgimage
 
 import (
