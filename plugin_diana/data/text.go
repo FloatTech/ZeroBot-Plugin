@@ -2,6 +2,7 @@
 package data
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -28,6 +29,7 @@ func init() {
 		if LoadText() == nil {
 			Array = compo.Array
 		}
+		fmt.Printf("[Diana]读取%d条小作文\n", len(Array))
 	}()
 }
 
