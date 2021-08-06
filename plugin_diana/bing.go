@@ -60,7 +60,7 @@ func init() {
 	zero.OnFullMatch("小作文", zero.OnlyToMe).
 		Handle(func(ctx *zero.Ctx) {
 			rand.Seed(time.Now().UnixNano())
-			ctx.SendChain(message.Text(ARRAY[rand.Intn(len(ARRAY))]))
+			ctx.SendChain(message.Text(array[rand.Intn(len(array))]))
 		})
 
 	// 逆天

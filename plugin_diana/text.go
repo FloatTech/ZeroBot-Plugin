@@ -13,7 +13,7 @@ const (
 
 var (
 	compo Composition
-	ARRAY []string
+	array []string
 )
 
 func init() {
@@ -24,7 +24,7 @@ func init() {
 			panic(err)
 		}
 		loadText()
-		ARRAY = compo.Array
+		array = compo.Array
 	}()
 }
 
@@ -44,18 +44,17 @@ func loadText() {
 
 func addText(txt string) error {
 	if txt != "" {
-		ARRAY = append(ARRAY, txt)
+		array = append(array, txt)
 		data, err := compo.Marshal()
 		if err == nil {
 			if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
 				f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-				if err1 != nil {
-					return err1
-				} else {
+				if err1 == nil {
 					defer f.Close()
 					_, err2 := f.Write(data)
 					return err2
 				}
+				return err1
 			}
 		}
 		return err

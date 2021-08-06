@@ -148,38 +148,34 @@ func init() {
 						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
 						message.Text("在线运行代码功能已被禁用"),
 					)
-					return
-				}
-				// 执行运行
-				block := ctx.State["regex_matched"].([]string)[2]
-				block = message.UnescapeCQCodeText(block)
-
-				if block == "help" {
-					// 输出模板
-					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
-						message.Text(
-							">runcode ", language, "\n",
-							templates[language],
-						),
-					)
-					return
-				}
-
-				if output, err := runCode(block, runType); err != nil {
-					// 运行失败
-					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text("ERROR: ", err),
-					)
-					return
 				} else {
-					// 运行成功
-					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text(output),
-					)
-					return
+					// 执行运行
+					block := ctx.State["regex_matched"].([]string)[2]
+					block = message.UnescapeCQCodeText(block)
+					if block == "help" {
+						// 输出模板
+						ctx.SendChain(
+							message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
+							message.Text(
+								">runcode ", language, "\n",
+								templates[language],
+							),
+						)
+					} else {
+						if output, err := runCode(block, runType); err != nil {
+							// 运行失败
+							ctx.SendChain(
+								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+								message.Text("ERROR: ", err),
+							)
+						} else {
+							// 运行成功
+							ctx.SendChain(
+								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+								message.Text(output),
+							)
+						}
+					}
 				}
 			}
 		})

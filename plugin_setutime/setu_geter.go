@@ -62,14 +62,14 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
 				return
 			}
-			var type_ = ctx.State["regex_matched"].([]string)[1]
+			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := min(pool.Max-pool.size(type_), 2)
+				times := min(pool.Max-pool.size(imgtype), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
-					if err := pool.DB.find(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
+					if err := pool.DB.find(imgtype, illust, "ORDER BY RANDOM() limit 1"); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
@@ -80,22 +80,22 @@ func init() { // 插件主体
 					}
 					ctx.SendGroupMessage(pool.Group, []message.MessageSegment{message.Image(file(illust))})
 					// 向缓冲池添加一张图片
-					pool.push(type_, illust)
+					pool.push(imgtype, illust)
 
 					time.Sleep(time.Second * 1)
 				}
 			}()
 			// 如果没有缓存，阻塞5秒
-			if pool.size(type_) == 0 {
+			if pool.size(imgtype) == 0 {
 				ctx.SendChain(message.Text("INFO: 正在填充弹药......"))
 				<-time.After(time.Second * 5)
-				if pool.size(type_) == 0 {
+				if pool.size(imgtype) == 0 {
 					ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 					return
 				}
 			}
 			// 从缓冲池里抽一张
-			if id := ctx.SendChain(message.Image(file(pool.pop(type_)))); id == 0 {
+			if id := ctx.SendChain(message.Image(file(pool.pop(imgtype)))); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			return
@@ -104,8 +104,8 @@ func init() { // 插件主体
 	zero.OnRegex(`^添加(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
 		Handle(func(ctx *zero.Ctx) {
 			var (
-				type_ = ctx.State["regex_matched"].([]string)[1]
-				id, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+				imgtype = ctx.State["regex_matched"].([]string)[1]
+				id, _   = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			// 查询P站插图信息
@@ -125,7 +125,7 @@ func init() { // 插件主体
 				return
 			}
 			// 添加插画到对应的数据库table
-			if err := pool.DB.insert(type_, illust); err != nil {
+			if err := pool.DB.insert(imgtype, illust); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -136,11 +136,11 @@ func init() { // 插件主体
 	zero.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
 		Handle(func(ctx *zero.Ctx) {
 			var (
-				type_ = ctx.State["regex_matched"].([]string)[1]
-				id, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+				imgtype = ctx.State["regex_matched"].([]string)[1]
+				id, _   = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
 			// 查询数据库
-			if err := pool.DB.del(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
+			if err := pool.DB.del(imgtype, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}

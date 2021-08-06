@@ -1,8 +1,7 @@
-// Plugin github GitHub 仓库搜索
+// Package github GitHub 仓库搜索
 package github
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -64,9 +63,9 @@ func init() { // 插件主体
 }
 
 // notnull 如果传入文本为空，则返回默认值
-func notnull(text, default_ string) string {
+func notnull(text, defstr string) string {
 	if text == "" {
-		return default_
+		return defstr
 	}
 	return text
 }
@@ -91,7 +90,7 @@ func netGet(dest string, header http.Header) ([]byte, error) {
 	}
 	if code := resp.StatusCode; code != 200 {
 		// 如果返回不是200则立刻抛出错误
-		return nil, errors.New(fmt.Sprintf("code %d", code))
+		return nil, fmt.Errorf("code %d", code)
 	}
 	return body, nil
 }
