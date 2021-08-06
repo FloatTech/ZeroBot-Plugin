@@ -17,37 +17,38 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode" // 在线运行代码
 
 	// 娱乐类
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false" // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"   // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan" // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"  // 服务器监控
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft" // MCSManager
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"     // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"   // 测定
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"    // 嘉心糖发病
 
 	// 二次元图片
-	_ "github.com/FloatTech/ZeroBot-ACGImage"                   // 随机图片与AI点评
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"     // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder" // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"      // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"     // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/driver"
-	"github.com/wdvxdr1123/ZeroBot/message"
-
 	log "github.com/sirupsen/logrus"
 	easy "github.com/t-tomalak/logrus-easy-formatter"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/driver"
 )
 
-var content = []string{
-	"* OneBot + ZeroBot + Golang ",
-	"* Version 1.0.4 - 2021-07-14 14:09:58.581489207 +0800 CST",
-	"* Copyright © 2020 - 2021  Kanri, DawnNights, Fumiama, Suika",
-	"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
-}
+var (
+	contents = []string{
+		"* OneBot + ZeroBot + Golang ",
+		"* Version 1.1.0 - 2021-08-06 23:36:29 +0800 CST",
+		"* Copyright © 2020 - 2021  Kanri, DawnNights, Fumiama, Suika",
+		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
+	}
+	banner = strings.Join(contents, "\n")
+)
 
 func init() {
 	log.SetFormatter(&easy.Formatter{
@@ -59,9 +60,9 @@ func init() {
 
 func main() {
 	fmt.Print(
-		"====================[ZeroBot-Plugin]====================",
-		"\n", strings.Join(content, "\n"), "\n",
-		"========================================================",
+		"======================[ZeroBot-Plugin]======================",
+		"\n", banner, "\n",
+		"============================================================\n",
 	) // 启动打印
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
@@ -84,9 +85,7 @@ func main() {
 	// 帮助
 	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单", "帮助"}, zero.OnlyToMe).SetBlock(true).SetPriority(999).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(
-				message.Text(strings.Join(content, "\n")),
-			)
+			ctx.Send(banner)
 		})
 	select {}
 }

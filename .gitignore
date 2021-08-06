@@ -4,4 +4,3 @@ data/manager
 .idea/
 .DS_Store
 .vscode
-.github/workflows/golint.yml
