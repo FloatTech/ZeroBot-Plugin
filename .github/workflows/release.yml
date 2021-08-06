@@ -40,12 +40,10 @@ jobs:
       run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-windows-x64.exe
     - name: Build windows-x86
       run: CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-windows-x86.exe
-    - name: Build armv7
-      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
+    - name: Build arm64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOARM=7 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-arm64
     - name: Build armv6
       run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
-    - name: Build mips
-      run: GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-mips
 
     - name: Create Release
         id: create_release
