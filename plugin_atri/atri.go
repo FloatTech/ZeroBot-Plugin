@@ -1,6 +1,5 @@
 /*
-Package atri
-本文件基于 https://github.com/Kyomotoi/ATRI
+Package atri 本文件基于 https://github.com/Kyomotoi/ATRI
 为 Golang 移植版，语料、素材均来自上述项目
 本项目遵守 AGPL v3 协议进行开源
 */

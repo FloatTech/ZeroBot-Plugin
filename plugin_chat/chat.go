@@ -1,7 +1,4 @@
-/*
-Package chat
-对话插件 example
-*/
+// Package chat 对话插件
 package chat
 
 import (

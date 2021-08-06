@@ -1,7 +1,4 @@
-/*
-Plugin github
-GitHub 仓库搜索
-*/
+// Plugin github GitHub 仓库搜索
 package github
 
 import (

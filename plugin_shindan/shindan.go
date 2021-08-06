@@ -1,7 +1,4 @@
-/*
-Package shindan
-基于 https://shindanmaker.com 的测定小功能
-*/
+// Package shindan 基于 https://shindanmaker.com 的测定小功能
 package shindan
 
 import (
