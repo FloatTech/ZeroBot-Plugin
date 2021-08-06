@@ -1,0 +1,6 @@
+syntax = "proto3";
+package diana;
+
+message composition {
+    repeated string array = 1;
+}

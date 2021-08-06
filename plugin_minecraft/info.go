@@ -1,12 +1,13 @@
-package plugin_minecraft
+package minecraft
 
 import (
 	"encoding/json"
 	"fmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"net/http"
 	"strings"
+
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 type resultjson struct {

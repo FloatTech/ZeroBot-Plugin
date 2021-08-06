@@ -1,11 +1,12 @@
-package plugin_minecraft
+package minecraft
 
 import (
 	"fmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"io/ioutil"
 	"net/http"
+
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 // 此功能实现依赖MCSManager项目对服务器的管理api,mc服务器如果没有在该管理平台部署此功能无效

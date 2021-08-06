@@ -1,4 +1,4 @@
-package plugin_setutime
+package setutime
 
 import (
 	"fmt"
@@ -16,9 +16,9 @@ import (
 )
 
 // Pools 图片缓冲池
-type Pool struct {
+type imgpool struct {
 	Lock  sync.Mutex
-	DB    *Sqlite
+	DB    *sqlite
 	Path  string
 	Group int64
 	List  []string
@@ -28,9 +28,9 @@ type Pool struct {
 }
 
 // NewPoolsCache 返回一个缓冲池对象
-func NewPools() *Pool {
-	cache := &Pool{
-		DB:    &Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+func newPools() *imgpool {
+	cache := &imgpool{
+		DB:    &sqlite{DBPath: "data/SetuTime/SetuTime.db"},
 		Path:  "data/SetuTime/cache/",
 		Group: 0,
 		List:  []string{"涩图", "二次元", "风景", "车万"}, // 可以自己加类别，得自己加图片进数据库
@@ -43,7 +43,7 @@ func NewPools() *Pool {
 		panic(err)
 	}
 	for i := range cache.List {
-		if err := cache.DB.Create(cache.List[i], &pixiv.Illust{}); err != nil {
+		if err := cache.DB.create(cache.List[i], &pixiv.Illust{}); err != nil {
 			panic(err)
 		}
 	}
@@ -51,12 +51,12 @@ func NewPools() *Pool {
 }
 
 var (
-	POOL  = NewPools()
+	pool  = newPools()
 	limit = rate.NewManager(time.Minute*1, 5)
 )
 
 func init() { // 插件主体
-	zero.OnRegex(`^来份(.*)$`, firstValueInList(POOL.List)).SetBlock(true).SetPriority(20).
+	zero.OnRegex(`^来份(.*)$`, firstValueInList(pool.List)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
@@ -65,43 +65,43 @@ func init() { // 插件主体
 			var type_ = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := min(POOL.Max-POOL.Size(type_), 2)
+				times := min(pool.Max-pool.size(type_), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
-					if err := POOL.DB.Select(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
+					if err := pool.DB.find(type_, illust, "ORDER BY RANDOM() limit 1"); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
 					// 下载图片
-					if _, err := download(illust, POOL.Path); err != nil {
+					if _, err := download(illust, pool.Path); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					ctx.SendGroupMessage(POOL.Group, []message.MessageSegment{message.Image(file(illust))})
+					ctx.SendGroupMessage(pool.Group, []message.MessageSegment{message.Image(file(illust))})
 					// 向缓冲池添加一张图片
-					POOL.Push(type_, illust)
+					pool.push(type_, illust)
 
 					time.Sleep(time.Second * 1)
 				}
 			}()
 			// 如果没有缓存，阻塞5秒
-			if POOL.Size(type_) == 0 {
+			if pool.size(type_) == 0 {
 				ctx.SendChain(message.Text("INFO: 正在填充弹药......"))
 				<-time.After(time.Second * 5)
-				if POOL.Size(type_) == 0 {
+				if pool.size(type_) == 0 {
 					ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 					return
 				}
 			}
 			// 从缓冲池里抽一张
-			if id := ctx.SendChain(message.Image(file(POOL.Pop(type_)))); id == 0 {
+			if id := ctx.SendChain(message.Image(file(pool.pop(type_)))); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			return
 		})
 
-	zero.OnRegex(`^添加(.*?)(\d+)$`, firstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
+	zero.OnRegex(`^添加(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
@@ -115,7 +115,7 @@ func init() { // 插件主体
 				return
 			}
 			// 下载插画
-			if _, err := download(illust, POOL.Path); err != nil {
+			if _, err := download(illust, pool.Path); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -125,7 +125,7 @@ func init() { // 插件主体
 				return
 			}
 			// 添加插画到对应的数据库table
-			if err := POOL.DB.Insert(type_, illust); err != nil {
+			if err := pool.DB.insert(type_, illust); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -133,14 +133,14 @@ func init() { // 插件主体
 			return
 		})
 
-	zero.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(POOL.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
+	zero.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				type_ = ctx.State["regex_matched"].([]string)[1]
 				id, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
 			// 查询数据库
-			if err := POOL.DB.Delete(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
+			if err := pool.DB.del(type_, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
@@ -152,13 +152,13 @@ func init() { // 插件主体
 	zero.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).SetPriority(23).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
-			for i := range POOL.List {
-				num, err := POOL.DB.Num(POOL.List[i])
+			for i := range pool.List {
+				num, err := pool.DB.num(pool.List[i])
 				if err != nil {
 					num = 0
 				}
 				state = append(state, "\n")
-				state = append(state, POOL.List[i])
+				state = append(state, pool.List[i])
 				state = append(state, ": ")
 				state = append(state, fmt.Sprintf("%d", num))
 			}
@@ -192,28 +192,28 @@ func min(a, b int) int {
 	}
 }
 
-// Size 返回缓冲池指定类型的现有大小
-func (p *Pool) Size(type_ string) int {
+// size 返回缓冲池指定类型的现有大小
+func (p *imgpool) size(type_ string) int {
 	return len(p.Pool[type_])
 }
 
-// IsFull 返回缓冲池指定类型是否已满
-func (p *Pool) IsFull(type_ string) bool {
+// isFull 返回缓冲池指定类型是否已满
+func (p *imgpool) isFull(type_ string) bool {
 	return len(p.Pool[type_]) >= p.Max
 }
 
-// Push 向缓冲池插入一张图片
-func (p *Pool) Push(type_ string, illust *pixiv.Illust) {
+// push 向缓冲池插入一张图片
+func (p *imgpool) push(type_ string, illust *pixiv.Illust) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
 	p.Pool[type_] = append(p.Pool[type_], illust)
 }
 
 // Push 在缓冲池拿出一张图片
-func (p *Pool) Pop(type_ string) (illust *pixiv.Illust) {
+func (p *imgpool) pop(type_ string) (illust *pixiv.Illust) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
-	if p.Size(type_) == 0 {
+	if p.size(type_) == 0 {
 		return
 	}
 	illust = p.Pool[type_][0]
@@ -224,7 +224,7 @@ func (p *Pool) Pop(type_ string) (illust *pixiv.Illust) {
 func file(i *pixiv.Illust) string {
 	filename := fmt.Sprint(i.Pid)
 	pwd, _ := os.Getwd()
-	filepath := pwd + `/` + POOL.Path + filename
+	filepath := pwd + `/` + pool.Path + filename
 	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
 		return `file:///` + filepath + ".jpg"
 	}

@@ -1,4 +1,4 @@
-package plugin_bilibili
+package bilibili
 
 import (
 	"encoding/json"
@@ -25,12 +25,12 @@ type follower struct {
 func init() {
 	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
-			FansDaily(130591566) // 群号传进去给下面发信息的函数
+			fansDaily(130591566) // 群号传进去给下面发信息的函数
 		})
 }
 
 // 定时任务每天晚上最后2分钟执行一次
-func FansDaily(groupID int64) {
+func fansDaily(groupID int64) {
 	c := cron.New()
 	_ = c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
 	c.Start()

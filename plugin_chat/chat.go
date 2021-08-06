@@ -1,8 +1,8 @@
 /*
-Package plugin_chat
+Package chat
 对话插件 example
 */
-package plugin_chat
+package chat
 
 import (
 	"math/rand"
