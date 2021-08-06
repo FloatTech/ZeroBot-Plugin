@@ -10,7 +10,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-// 此功能实现依赖MCSManager项目对服务器的管理api,mc服务器如果没有在该管理平台部署此功能无效
+// 此功能实现依赖MCSManager项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
 // 项目地址: https://github.com/Suwings/MCSManager
 // 项目的api文档: https://github.com/Suwings/MCSManager/wiki/API-Documentation
 
