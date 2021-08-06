@@ -24,6 +24,7 @@ var (
 	// r18有一定保护，一般不会发出图片
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]int64)
+	block   = false
 )
 
 func init() { // 插件主体
@@ -56,9 +57,10 @@ func init() { // 插件主体
 	zero.OnFullMatch("直接随机", zero.AdminPermission).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
-				if classify.CanVisit(5) {
+				if block {
 					ctx.Send("请稍后再试哦")
 				} else if randapi != "" {
+					block = true
 					var url string
 					if randapi[0] == '&' {
 						url = lolipxy
@@ -66,6 +68,7 @@ func init() { // 插件主体
 						url = randapi
 					}
 					setLastMsg(ctx.Event.GroupID, ctx.Send(message.Image(url).Add("cache", "0")))
+					block = false
 				}
 			}
 		})
