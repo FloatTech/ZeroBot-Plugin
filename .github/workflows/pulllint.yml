@@ -1,4 +1,4 @@
-name: Lint
+name: PullLint
 on: [pull_request]
 jobs:
   golangci:
