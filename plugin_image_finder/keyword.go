@@ -1,3 +1,4 @@
+// Package imagefinder 关键字搜图
 package imagefinder
 
 import (

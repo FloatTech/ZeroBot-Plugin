@@ -1,3 +1,4 @@
+// Package minecraft MCSManager
 package minecraft
 
 import (

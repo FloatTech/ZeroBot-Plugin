@@ -125,6 +125,9 @@ func (db *sqlite) find(table string, objptr interface{}, condition string) (err 
 	if err != nil {
 		return err
 	}
+	if rows.Err() != nil {
+		return rows.Err()
+	}
 	defer rows.Close()
 
 	for rows.Next() {
@@ -158,15 +161,18 @@ func (db *sqlite) del(table string, condition string) (err error) {
 	return nil
 }
 
-// num 查询数据库行数
+// count 查询数据库行数
 // 返回行数以及错误
-func (db *sqlite) num(table string) (num int, err error) {
+func (db *sqlite) count(table string) (num int, err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM")
 	cmd = append(cmd, table)
 	rows, err := db.DB.Query(strings.Join(cmd, " "))
 	if err != nil {
 		return num, err
+	}
+	if rows.Err() != nil {
+		return num, rows.Err()
 	}
 	defer rows.Close()
 	for rows.Next() {
