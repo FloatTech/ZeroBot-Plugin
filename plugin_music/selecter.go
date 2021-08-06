@@ -219,9 +219,9 @@ func md5str(s string) string {
 }
 
 // netGet 返回请求数据
-func netGet(get_url string, header http.Header) []byte {
+func netGet(url string, header http.Header) []byte {
 	client := &http.Client{}
-	request, _ := http.NewRequest("GET", get_url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 	request.Header = header
 	res, err := client.Do(request)
 	if err != nil {
@@ -233,9 +233,9 @@ func netGet(get_url string, header http.Header) []byte {
 }
 
 // netPost 返回请求数据
-func netPost(post_url string, data url.Values, header http.Header) []byte {
+func netPost(url string, data url.Values, header http.Header) []byte {
 	client := &http.Client{}
-	request, _ := http.NewRequest("POST", post_url, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
 	request.Header = header
 	res, err := client.Do(request)
 	if err != nil {
