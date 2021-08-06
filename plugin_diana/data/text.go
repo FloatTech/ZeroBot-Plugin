@@ -2,10 +2,11 @@
 package data
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -15,8 +16,8 @@ const (
 
 var (
 	compo Composition
-	// Array 小作文数组
-	Array []string
+	// Array 小作文数组指针
+	Array = &compo.Array
 )
 
 func init() {
@@ -26,10 +27,12 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		if LoadText() == nil {
-			Array = compo.Array
+		err1 := LoadText()
+		if err1 == nil {
+			log.Printf("[Diana]读取%d条小作文", len(*Array))
+		} else {
+			log.Printf("[Diana]读取小作文错误：%v", err1)
 		}
-		fmt.Printf("[Diana]读取%d条小作文\n", len(Array))
 	}()
 }
 
