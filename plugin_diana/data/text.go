@@ -14,7 +14,7 @@ const (
 
 var (
 	compo Composition
-	// 小作文数组
+	// Array 小作文数组
 	Array []string
 )
 
