@@ -1,8 +1,5 @@
-/*
-- 根据 P站 ID 搜图
-- 基于 saucenao 和 ascii2d 搜图
-*/
-package plugin_saucenao
+// Package saucenao P站ID/saucenao/ascii2d搜图
+package saucenao
 
 import (
 	"fmt"

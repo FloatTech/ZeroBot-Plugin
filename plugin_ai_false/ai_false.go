@@ -1,7 +1,5 @@
-/*
-暂时只有服务器监控
-*/
-package plugin_ai_false
+// Package aifalse 暂时只有服务器监控
+package aifalse
 
 import (
 	"math"

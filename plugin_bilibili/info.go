@@ -1,11 +1,13 @@
-package plugin_bilibili
+// Package bilibili 查询b站用户信息
+package bilibili
 
 import (
+	"io/ioutil"
+	"net/http"
+
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"io/ioutil"
-	"net/http"
 )
 
 // 查成分的

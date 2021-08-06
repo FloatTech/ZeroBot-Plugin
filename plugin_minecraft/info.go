@@ -1,12 +1,13 @@
-package plugin_minecraft
+package minecraft
 
 import (
 	"encoding/json"
 	"fmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"net/http"
 	"strings"
+
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 type resultjson struct {
@@ -41,7 +42,7 @@ func init() {
 			// 支持多个服务器
 			switch ctx.State["regex_matched"].([]string)[1] {
 			case "ftbi": // 这里对应触发指令里的服务器名称
-				ftbijson := infoapi("115.28.186.22:25710") //这里填对应mc服务器的登录地址
+				ftbijson := infoapi("115.28.186.22:25710") // 这里填对应mc服务器的登录地址
 				var str = ftbijson.Players.List
 				cs := strings.Join(str, "\n")
 				ctx.SendChain(message.Text(
@@ -50,7 +51,7 @@ func init() {
 					"以下为玩家名字: ", "\n", cs,
 				))
 			case "ges": // 这里对应触发指令里的服务器名称
-				gesjson := infoapi("115.28.186.22:25701") //这里填对应mc服务器的登录地址
+				gesjson := infoapi("115.28.186.22:25701") // 这里填对应mc服务器的登录地址
 				var str = gesjson.Players.List
 				cs := strings.Join(str, "\n")
 				ctx.SendChain(message.Text(

@@ -1,4 +1,5 @@
-package plugin_manager
+// Package manager 群管
+package manager
 
 import (
 	"fmt"
@@ -114,9 +115,9 @@ func init() { // 插件主体
 			case "分钟":
 				//
 			case "小时":
-				duration = duration * 60
+				duration *= 60
 			case "天":
-				duration = duration * 60 * 24
+				duration *= 60 * 24
 			default:
 				//
 			}
@@ -148,9 +149,9 @@ func init() { // 插件主体
 			case "分钟":
 				//
 			case "小时":
-				duration = duration * 60
+				duration *= 60
 			case "天":
-				duration = duration * 60 * 24
+				duration *= 60 * 24
 			default:
 				//
 			}
@@ -246,7 +247,7 @@ func init() { // 插件主体
 				t, ok := (*timer.Timers)[ti]
 				if ok {
 					t.Enable = false
-					delete(*timer.Timers, ti) //避免重复取消
+					delete(*timer.Timers, ti) // 避免重复取消
 					_ = timer.SaveTimers()
 					ctx.Send("取消成功~")
 				} else {
@@ -254,7 +255,7 @@ func init() { // 插件主体
 				}
 			}
 		})
-	//列出本群所有定时
+	// 列出本群所有定时
 	zero.OnFullMatch("列出所有提醒", zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
@@ -267,12 +268,12 @@ func init() { // 插件主体
 			if ctx.Event.GroupID > 0 {
 				list := ctx.GetGroupMemberList(ctx.Event.GroupID)
 				rand.Seed(time.Now().UnixNano())
-				rand_index := fmt.Sprint(rand.Intn(int(list.Get("#").Int())))
-				random_card := list.Get(rand_index + ".card").String()
-				if random_card == "" {
-					random_card = list.Get(rand_index + ".nickname").String()
+				randIndex := fmt.Sprint(rand.Intn(int(list.Get("#").Int())))
+				randCard := list.Get(randIndex + ".card").String()
+				if randCard == "" {
+					randCard = list.Get(randIndex + ".nickname").String()
 				}
-				ctx.Send(random_card + "，就是你啦!")
+				ctx.Send(randCard + "，就是你啦!")
 			}
 		})
 	// 入群欢迎

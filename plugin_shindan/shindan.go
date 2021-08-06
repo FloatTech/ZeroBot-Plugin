@@ -1,7 +1,5 @@
-/*
-基于 https://shindanmaker.com 的测定小功能
-*/
-package plugin_shindan
+// Package shindan 基于 https://shindanmaker.com 的测定小功能
+package shindan
 
 import (
 	"strconv"

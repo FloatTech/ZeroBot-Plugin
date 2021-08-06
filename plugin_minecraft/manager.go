@@ -1,14 +1,16 @@
-package plugin_minecraft
+// Package minecraft MCSManager
+package minecraft
 
 import (
 	"fmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"io/ioutil"
 	"net/http"
+
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-// 此功能实现依赖MCSManager项目对服务器的管理api,mc服务器如果没有在该管理平台部署此功能无效
+// 此功能实现依赖MCSManager项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
 // 项目地址: https://github.com/Suwings/MCSManager
 // 项目的api文档: https://github.com/Suwings/MCSManager/wiki/API-Documentation
 
@@ -32,7 +34,7 @@ func init() {
 		})
 }
 
-//开启服务器的api请求
+// 开启服务器的api请求
 func start(name string) string {
 	url := fmt.Sprintf("http://your.addr:23333/api/start_server/%s/?apikey=apikey", name)
 	client := &http.Client{}
@@ -53,7 +55,7 @@ func start(name string) string {
 	return string(body)
 }
 
-//关闭服务器的api请求
+// 关闭服务器的api请求
 func stop(name string) string {
 	url := fmt.Sprintf("http://your.addr:23333/api/stop_server/%s/?apikey=apikey", name)
 	client := &http.Client{}
