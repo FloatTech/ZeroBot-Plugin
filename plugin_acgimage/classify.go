@@ -3,6 +3,7 @@ package acgimage
 
 import (
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -13,12 +14,13 @@ import (
 )
 
 const (
-	datapath = "data/acgimage/"
-	cacheuri = "file:///" + datapath + "cache"
-	lolipxy  = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
+	lolipxy = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
 )
 
 var (
+	botpath, _ = os.Getwd()
+	datapath   = botpath + "/data/acgimage/"
+	cacheuri   = "file:///" + datapath + "cache"
 	// r18有一定保护，一般不会发出图片
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]int64)
