@@ -106,7 +106,6 @@ func fansData(groupID int64) {
 
 // 请求api
 func fansapi(uid string) *follower {
-
 	url := "https://api.vtbs.moe/v1/detail/" + uid
 	resp, err := http.Get(url)
 	if err != nil {
