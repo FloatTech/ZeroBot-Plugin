@@ -89,7 +89,7 @@ func init() { // 插件主体
 	zero.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			dhash := ctx.State["regex_matched"].([]string)[1]
-			if len(dhash) == 5 {
+			if len(dhash) == 5*3 {
 				ctx.Send(message.Image(apihead + dhash))
 			}
 		})
