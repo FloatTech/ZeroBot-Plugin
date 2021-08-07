@@ -45,15 +45,6 @@ jobs:
     - name: Build armv6
       run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-
     - name: Upload Release Asset Linux x64
       id: upload-release-asset-lx64
       uses: actions/upload-release-asset@v1
