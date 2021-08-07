@@ -68,12 +68,10 @@ func init() {
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Large[19:]
 			ctx.SendChain(message.Image(pom1 + pom2))
 		})
-
 }
 
 // soutuapi 请求api
 func soutuapi(keyword string) *resultjson {
-
 	url := "https://api.pixivel.moe/pixiv?type=search&page=0&mode=partial_match_for_tags&word=" + keyword
 	method := "GET"
 
