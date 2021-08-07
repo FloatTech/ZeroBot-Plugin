@@ -1,15 +1,15 @@
-name: 最新版
+name: 测试版
 on:
   push:
-    branches:
-      - dev
+    tags:
+      - p*
 
 env:
   GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   my-job:
-    name: Build ZeroBot-Plugin on Push 🚀
+    name: Build ZeroBot-Plugin on Push Tag 🚀
     runs-on: ubuntu-latest
     steps:
 
@@ -44,9 +44,12 @@ jobs:
       run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOARM=7 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-arm64
     - name: Build armv6
       run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
-    
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        name: zerobot-plugin-all.zip
-        path: ./artifacts/zerobot-plugin-*
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: artifacts/zerobot-plugin-*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true

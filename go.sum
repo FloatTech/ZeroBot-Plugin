@@ -1,9 +1,5 @@
-github.com/FloatTech/AnimeAPI v1.1.0 h1:X6UMkl6eC8NHHeInt40x0AHb8a3GiQSmE1HigyTG/Qg=
-github.com/FloatTech/AnimeAPI v1.1.0/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
-github.com/FloatTech/AnimeAPI v1.1.1 h1:SPyrVlqRVQHfYOm9x8eGBJWlT+3gj1wtFsbH1bCgkXs=
-github.com/FloatTech/AnimeAPI v1.1.1/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
-github.com/FloatTech/AnimeAPI v1.1.2 h1:u+aVY1HlRi6jCvOQ9dePNGtCv71ESt79SG1Y4JZNx38=
-github.com/FloatTech/AnimeAPI v1.1.2/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
+github.com/FloatTech/AnimeAPI v1.1.3 h1:VZA0XDEKOGAtmm0PU6/8ty6wI2n0Xg21QmngQVvUMhw=
+github.com/FloatTech/AnimeAPI v1.1.3/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.2 h1:w/JerL8DwdyoxZYB4HRMaHANRV2j+r5XxaQhVB0sjBw=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.2/go.mod h1:MVOQQ4e6AVGFm993blXXU4Sd6bAsLY2+Zb+/HMrEeEc=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
