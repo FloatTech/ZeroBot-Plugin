@@ -15,6 +15,7 @@ import (
 
 const (
 	lolipxy = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
+	apihead = "http://sayuri.fumiama.top:8080/img?path="
 )
 
 var (
@@ -30,46 +31,43 @@ var (
 func init() { // 插件主体
 	// 初始化 classify
 	classify.Init(datapath)
-	zero.OnRegex(`^设置随机图片网址(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(20).
+	zero.OnRegex(`^设置随机图片网址(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]
 			if !strings.HasPrefix(url, "http") {
 				ctx.Send("URL非法!")
 			} else {
 				randapi = url
+				ctx.Send("设置好啦")
 			}
 		})
 	// 有保护的随机图片
-	zero.OnFullMatch("随机图片").SetBlock(true).SetPriority(24).
+	zero.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				if classify.CanVisit(5) {
-					go func() {
-						class, lastvisit, dhash, comment := classify.Classify(randapi, false)
-						replyClass(ctx, dhash, class, false, lastvisit, comment)
-					}()
-				} else {
-					ctx.Send("你太快啦!")
-				}
+			if classify.CanVisit(5) {
+				go func() {
+					class, lastvisit, dhash, comment := classify.Classify(randapi, false)
+					replyClass(ctx, dhash, class, false, lastvisit, comment)
+				}()
+			} else {
+				ctx.Send("你太快啦!")
 			}
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
-	zero.OnFullMatch("直接随机", zero.AdminPermission).SetBlock(true).SetPriority(24).
+	zero.OnFullMatch("直接随机", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				if block {
-					ctx.Send("请稍后再试哦")
-				} else if randapi != "" {
-					block = true
-					var url string
-					if randapi[0] == '&' {
-						url = lolipxy
-					} else {
-						url = randapi
-					}
-					setLastMsg(ctx.Event.GroupID, ctx.Send(message.Image(url).Add("cache", "0")))
-					block = false
+			if block {
+				ctx.Send("请稍后再试哦")
+			} else if randapi != "" {
+				block = true
+				var url string
+				if randapi[0] == '&' {
+					url = lolipxy
+				} else {
+					url = randapi
 				}
+				setLastMsg(ctx.Event.GroupID, ctx.Send(message.Image(url).Add("cache", "0")))
+				block = false
 			}
 		})
 	// 撤回最后的直接随机图片
@@ -78,16 +76,21 @@ func init() { // 插件主体
 			go cancel(ctx)
 		})
 	// 上传一张图进行评价
-	zero.OnKeywordGroup([]string{"评价图片"}, picture.CmdMatch(), picture.MustGiven()).SetBlock(true).SetPriority(24).
+	zero.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				ctx.Send("少女祈祷中...")
-				for _, url := range ctx.State["image_url"].([]string) {
-					go func(target string) {
-						class, lastvisit, dhash, comment := classify.Classify(target, true)
-						replyClass(ctx, dhash, class, true, lastvisit, comment)
-					}(url)
-				}
+			ctx.Send("少女祈祷中...")
+			for _, url := range ctx.State["image_url"].([]string) {
+				go func(target string) {
+					class, lastvisit, dhash, comment := classify.Classify(target, true)
+					replyClass(ctx, dhash, class, true, lastvisit, comment)
+				}(url)
+			}
+		})
+	zero.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).SetPriority(20).
+		Handle(func(ctx *zero.Ctx) {
+			dhash := ctx.State["regex_matched"].([]string)[1]
+			if len(dhash) == 5*3 {
+				ctx.Send(message.Image(apihead + dhash))
 			}
 		})
 }
