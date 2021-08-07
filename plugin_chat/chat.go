@@ -1,7 +1,5 @@
-/*
-对话插件 example
-*/
-package plugin_chat
+// Package chat 对话插件
+package chat
 
 import (
 	"math/rand"
@@ -46,7 +44,6 @@ func init() { // 插件主体
 			default:
 				// 频繁触发，不回复
 			}
-			return
 		})
 	// 群空调
 	var AirConditTemp = map[int64]int{}
@@ -74,13 +71,11 @@ func init() { // 插件主体
 					"❄️风速中", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			} else {
 				ctx.SendChain(message.Text(
 					"💤", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			}
 		})
 	zero.OnFullMatch(`群温度`).SetBlock(true).FirstPriority().
@@ -93,13 +88,11 @@ func init() { // 插件主体
 					"❄️风速中", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			} else {
 				ctx.SendChain(message.Text(
 					"💤", "\n",
 					"群温度 ", AirConditTemp[ctx.Event.GroupID], "℃",
 				))
-				return
 			}
 		})
 }

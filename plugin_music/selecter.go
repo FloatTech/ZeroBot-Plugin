@@ -1,7 +1,5 @@
-/*
-QQ音乐、网易云、酷狗、酷我 点歌
-*/
-package plugin_music
+// Package music QQ音乐、网易云、酷狗、酷我 点歌
+package music
 
 import (
 	"crypto/md5"
@@ -39,7 +37,6 @@ func init() {
 			default: // 默认 QQ音乐
 				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
 			}
-			return
 		})
 }
 
@@ -129,7 +126,7 @@ func kugou(keyword string) message.MessageSegment {
 	// 返回音乐卡片
 	return message.CustomMusic(
 		"https://www.kugou.com/song/#hash="+audio.Get("hash").Str+"&album_id="+audio.Get("album_id").Str,
-		strings.Replace(audio.Get("play_backup_url").Str, "\\/", "/", -1),
+		strings.ReplaceAll(audio.Get("play_backup_url").Str, "\\/", "/"),
 		audio.Get("audio_name").Str,
 	).Add("content", audio.Get("author_name").Str).Add("image", audio.Get("img").Str)
 }
@@ -202,7 +199,7 @@ func find(pre string, suf string, str string) string {
 	if n == -1 {
 		n = 0
 	} else {
-		n = n + len(pre)
+		n += len(pre)
 	}
 	str = str[n:]
 	m := strings.Index(str, suf)
@@ -221,9 +218,9 @@ func md5str(s string) string {
 }
 
 // netGet 返回请求数据
-func netGet(get_url string, header http.Header) []byte {
+func netGet(url string, header http.Header) []byte {
 	client := &http.Client{}
-	request, _ := http.NewRequest("GET", get_url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 	request.Header = header
 	res, err := client.Do(request)
 	if err != nil {
@@ -235,9 +232,9 @@ func netGet(get_url string, header http.Header) []byte {
 }
 
 // netPost 返回请求数据
-func netPost(post_url string, data url.Values, header http.Header) []byte {
+func netPost(url string, data url.Values, header http.Header) []byte {
 	client := &http.Client{}
-	request, _ := http.NewRequest("POST", post_url, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
 	request.Header = header
 	res, err := client.Do(request)
 	if err != nil {

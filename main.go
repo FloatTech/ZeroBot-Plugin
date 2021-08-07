@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
@@ -15,30 +17,37 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode" // 在线运行代码
 
 	// 娱乐类
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false" // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"    // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"  // 测定
-
-	//_ "github.com/FloatTech/ZeroBot-ACGImage" //简易随机图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"  // 服务器监控
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft" // MCSManager
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"     // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"   // 测定
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"    // 嘉心糖发病
 
 	// 二次元图片
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"     // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder" // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"      // lolicon 随机图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_rand_image"   // 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"     // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/driver"
-	"github.com/wdvxdr1123/ZeroBot/message"
-
 	log "github.com/sirupsen/logrus"
 	easy "github.com/t-tomalak/logrus-easy-formatter"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/driver"
+)
+
+var (
+	contents = []string{
+		"* OneBot + ZeroBot + Golang ",
+		"* Version 1.1.0 - 2021-08-06 23:36:29 +0800 CST",
+		"* Copyright © 2020 - 2021  Kanri, DawnNights, Fumiama, Suika",
+		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
+	}
+	banner = strings.Join(contents, "\n")
 )
 
 func init() {
@@ -50,34 +59,33 @@ func init() {
 }
 
 func main() {
-	fmt.Print(`
-====================[ZeroBot-Plugin]====================
-* OneBot + ZeroBot + Golang
-* Version 1.0.3 - 2021-05-02 18:50:40.5489203 +0800 CST
-* Copyright © 2021 Kanri, DawnNights, Fumiama
-* Project: https://github.com/FloatTech/ZeroBot-Plugin
-========================================================
-`) // 启动打印
+	fmt.Print(
+		"======================[ZeroBot-Plugin]======================",
+		"\n", banner, "\n",
+		"============================================================\n",
+	) // 启动打印
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 		CommandPrefix: "/",
-		SuperUsers:    []string{"213864964"}, // 必须修改，否则无权限
+
+		// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
+		// []string{}：通过代码写死的方式添加主人账号
+		// os.Args[1:]：通过命令行参数的方式添加主人账号
+		SuperUsers: append([]string{"12345678", "87654321"}, os.Args[1:]...),
+
 		Driver: []zero.Driver{
 			&driver.WSClient{
+				// OneBot 正向WS 默认使用 6700 端口
 				Url:         "ws://127.0.0.1:6700",
 				AccessToken: "",
 			},
 		},
 	})
+
 	// 帮助
 	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单", "帮助"}, zero.OnlyToMe).SetBlock(true).SetPriority(999).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
-				"* OneBot + ZeroBot + Golang ", "\n",
-				"* Version 1.0.3 - 2021-05-02 18:50:40.5489203 +0800 CST", "\n",
-				"* Copyright © 2021 Kanri, DawnNights, Fumiama ", "\n",
-				"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
-			))
+			ctx.Send(banner)
 		})
 	select {}
 }

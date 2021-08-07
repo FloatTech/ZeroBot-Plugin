@@ -4,7 +4,7 @@ linters-settings:
     ignoretests: true
 
   goimports:
-    local-prefixes: github.com/Yiwen-Chan/ZeroBot-Plugin
+    local-prefixes: github.com/FloatTech/ZeroBot-Plugin
 
   gocritic:
     disabled-checks:

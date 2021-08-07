@@ -1,19 +1,16 @@
-/*
-- 根据 P站 ID 搜图
-- 基于 saucenao 和 ascii2d 搜图
-*/
-package plugin_saucenao
+// Package saucenao P站ID/saucenao/ascii2d搜图
+package saucenao
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/AnimeAPI/ascii2d"
+	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
 )
@@ -47,49 +44,8 @@ func init() { // 插件主体
 			)
 		})
 	// 以图搜图
-	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}).SetBlock(true).FirstPriority().
+	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch(), picture.MustGiven()).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			// 匹配命令
-			for _, elem := range ctx.Event.Message {
-				if elem.Type == "text" {
-					text := strings.ReplaceAll(elem.Data["text"], " ", "")
-					if text != ctx.State["keyword"].(string) {
-						return
-					}
-				}
-			}
-			// 匹配图片
-			rule := func() zero.Rule {
-				return func(ctx *zero.Ctx) bool {
-					var urls = []string{}
-					for _, elem := range ctx.Event.Message {
-						if elem.Type == "image" {
-							urls = append(urls, elem.Data["url"])
-						}
-					}
-					if len(urls) > 0 {
-						ctx.State["image_url"] = urls
-						return true
-					}
-					return false
-				}
-			}
-			// 索取图片
-			if !rule()(ctx) {
-				ctx.SendChain(message.Text("请发送一张图片"))
-				next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule())
-				recv, cancel := next.Repeat()
-				select {
-				case <-time.After(time.Second * 120):
-					return
-				case e := <-recv:
-					cancel()
-					newCtx := &zero.Ctx{Event: e, State: zero.State{}}
-					if rule()(newCtx) {
-						ctx.State["image_url"] = newCtx.State["image_url"]
-					}
-				}
-			}
 			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
 			for _, pic := range ctx.State["image_url"].([]string) {
