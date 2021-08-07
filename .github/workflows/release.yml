@@ -45,52 +45,11 @@ jobs:
     - name: Build armv6
       run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -ldflags="-s -w" -o artifacts/zerobot-plugin-linux-armv6
 
-    - name: Upload Release Asset Linux x64
-      id: upload-release-asset-lx64
-      uses: actions/upload-release-asset@v1
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./artifacts/zerobot-plugin-linux-x64
-        asset_name: zerobot-plugin-linux-x64
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset Linux x86
-      id: upload-release-asset-lx86
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./artifacts/zerobot-plugin-linux-x86
-        asset_name: zerobot-plugin-linux-x86
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset Windows x64
-      id: upload-release-asset-wx64
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./artifacts/zerobot-plugin-windows-x64.exe
-        asset_name: zerobot-plugin-windows-x64.exe
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset Windows x86
-      id: upload-release-asset-wx86
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./artifacts/zerobot-plugin-windows-x86.exe
-        asset_name: zerobot-plugin-windows-x86.exe
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset ARM64
-      id: upload-release-asset-arm64
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./artifacts/zerobot-plugin-linux-arm64
-        asset_name: zerobot-plugin-linux-arm64
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset ARMv6
-      id: upload-release-asset-armv6
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./artifacts/zerobot-plugin-linux-armv6
-        asset_name: zerobot-plugin-linux-armv6
-        asset_content_type: application/octet-stream
-    
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: artifacts/zerobot-plugin-*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
