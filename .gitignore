@@ -2,3 +2,5 @@ data/SetuTime/cache
 data/SetuTime/search
 data/manager
 .idea/
+.DS_Store
+.vscode

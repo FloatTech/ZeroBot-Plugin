@@ -1,7 +1,5 @@
-/*
-基于 https://api.lolicon.app 随机图片
-*/
-package plugin_lolicon
+// Package lolicon 基于 https://api.lolicon.app 随机图片
+package lolicon
 
 import (
 	"io/ioutil"
@@ -14,27 +12,20 @@ import (
 )
 
 const (
-	API = "https://api.lolicon.app/setu/v2"
-	CAP = 10
+	api      = "https://api.lolicon.app/setu/v2"
+	capacity = 10
 )
 
 var (
-	QUEUE = make(chan string, CAP)
+	queue = make(chan string, capacity)
 )
 
 func init() {
 	zero.OnFullMatch("来份萝莉").
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
-				min := func(a, b int) int {
-					if a < b {
-						return a
-					} else {
-						return b
-					}
-				}
-				for i := 0; i < min(cap(QUEUE)-len(QUEUE), 2); i++ {
-					resp, err := http.Get(API)
+				for i := 0; i < min(cap(queue)-len(queue), 2); i++ {
+					resp, err := http.Get(api)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
@@ -52,14 +43,21 @@ func init() {
 					}
 					url := json.Get("data.0.urls.original").Str
 					ctx.SendGroupMessage(0, message.Image(url))
-					QUEUE <- url
+					queue <- url
 				}
 			}()
 			select {
 			case <-time.After(time.Second * 10):
 				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
-			case url := <-QUEUE:
+			case url := <-queue:
 				ctx.SendChain(message.Image(url))
 			}
 		})
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -1,10 +1,8 @@
-/*
-基于 https://tool.runoob.com 的在线运行代码
-*/
-package plugin_runcode
+// Package runcode 基于 https://tool.runoob.com 的在线运行代码
+package runcode
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -18,12 +16,10 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-var limit = rate.NewManager(time.Minute*3, 5)
-
-func init() {
-	RunAllow := true
-
-	templates := map[string]string{
+var (
+	enable    = true
+	limit     = rate.NewManager(time.Minute*3, 5)
+	templates = map[string]string{
 		"py2":        "print 'Hello World!'",
 		"ruby":       "puts \"Hello World!\";",
 		"rb":         "puts \"Hello World!\";",
@@ -58,8 +54,7 @@ func init() {
 		"typescript": "const hello : string = \"Hello World!\"\nconsole.log(hello)",
 		"ts":         "const hello : string = \"Hello World!\"\nconsole.log(hello)",
 	}
-
-	table := map[string][2]string{
+	table = map[string][2]string{
 		"py2":        {"0", "py"},
 		"ruby":       {"1", "rb"},
 		"rb":         {"1", "rb"},
@@ -94,7 +89,9 @@ func init() {
 		"typescript": {"1010", "ts"},
 		"ts":         {"1010", "ts"},
 	}
+)
 
+func init() {
 	zero.OnFullMatch(">runcode help").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
@@ -112,7 +109,7 @@ func init() {
 
 	zero.OnFullMatch(">runcode on", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			RunAllow = true
+			enable = true
 			ctx.SendChain(
 				message.Text("> ", ctx.Event.Sender.NickName, "\n"),
 				message.Text("在线运行代码功能已启用"),
@@ -121,7 +118,7 @@ func init() {
 
 	zero.OnFullMatch(">runcode off", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			RunAllow = false
+			enable = false
 			ctx.SendChain(
 				message.Text("> ", ctx.Event.Sender.NickName, "\n"),
 				message.Text("在线运行代码功能已禁用"),
@@ -132,56 +129,51 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.Send("请稍后重试0x0...")
-				return
-			}
-			language := ctx.State["regex_matched"].([]string)[1]
-			language = strings.ToLower(language)
-			if runType, exist := table[language]; !exist {
-				// 不支持语言
-				ctx.SendChain(
-					message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-					message.Text("语言不是受支持的编程语种呢~"),
-				)
-				return
 			} else {
-				if RunAllow == false {
-					// 运行代码被禁用
+				language := ctx.State["regex_matched"].([]string)[1]
+				language = strings.ToLower(language)
+				if runType, exist := table[language]; !exist {
+					// 不支持语言
 					ctx.SendChain(
 						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text("在线运行代码功能已被禁用"),
+						message.Text("语言不是受支持的编程语种呢~"),
 					)
-					return
-				}
-				// 执行运行
-				block := ctx.State["regex_matched"].([]string)[2]
-				block = message.UnescapeCQCodeText(block)
-
-				if block == "help" {
-					//输出模板
-					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
-						message.Text(
-							">runcode ", language, "\n",
-							templates[language],
-						),
-					)
-					return
-				}
-
-				if output, err := runCode(block, runType); err != nil {
-					// 运行失败
-					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text("ERROR: ", err),
-					)
-					return
 				} else {
-					// 运行成功
-					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text(output),
-					)
-					return
+					if !enable {
+						// 运行代码被禁用
+						ctx.SendChain(
+							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+							message.Text("在线运行代码功能已被禁用"),
+						)
+					} else {
+						// 执行运行
+						block := ctx.State["regex_matched"].([]string)[2]
+						block = message.UnescapeCQCodeText(block)
+						if block == "help" {
+							// 输出模板
+							ctx.SendChain(
+								message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
+								message.Text(
+									">runcode ", language, "\n",
+									templates[language],
+								),
+							)
+						} else {
+							if output, err := runCode(block, runType); err != nil {
+								// 运行失败
+								ctx.SendChain(
+									message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+									message.Text("ERROR: ", err),
+								)
+							} else {
+								// 运行成功
+								ctx.SendChain(
+									message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+									message.Text(output),
+								)
+							}
+						}
+					}
 				}
 			}
 		})
@@ -206,7 +198,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	}
 	// 发送请求
 	client := &http.Client{
-		Timeout: time.Duration(15 * time.Second),
+		Timeout: 15 * time.Second,
 	}
 	request, _ := http.NewRequest("POST", api, strings.NewReader(val.Encode()))
 	request.Header = header
@@ -216,7 +208,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	}
 	defer body.Body.Close()
 	if body.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("code %d", body.StatusCode)
+		return "", errors.New("code not 200")
 	}
 	res, err := ioutil.ReadAll(body.Body)
 	if err != nil {
@@ -225,7 +217,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	// 结果处理
 	content := gjson.ParseBytes(res)
 	if e := content.Get("errors").Str; e != "\n\n" {
-		return "", fmt.Errorf(cutTooLong(clearNewLineSuffix(e)))
+		return "", errors.New(cutTooLong(clearNewLineSuffix(e)))
 	}
 	output := content.Get("output").Str
 

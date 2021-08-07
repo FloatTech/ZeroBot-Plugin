@@ -1,12 +1,13 @@
-package plugin_bilibili
+package bilibili
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/robfig/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"net/http"
-	"time"
 )
 
 type follower struct {
@@ -24,14 +25,14 @@ type follower struct {
 func init() {
 	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
-			FansDaily(130591566) //群号传进去给下面发信息的函数
+			fansDaily(130591566) // 群号传进去给下面发信息的函数
 		})
 }
 
 // 定时任务每天晚上最后2分钟执行一次
-func FansDaily(groupID int64) {
+func fansDaily(groupID int64) {
 	c := cron.New()
-	c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
+	_ = c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
 	c.Start()
 }
 
@@ -39,11 +40,11 @@ func FansDaily(groupID int64) {
 func fansData(groupID int64) {
 	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 		var (
-			diana  = fensiapi("672328094")
-			ava    = fensiapi("672346917")
-			eileen = fensiapi("672342685")
-			bella  = fensiapi("672353429")
-			carol  = fensiapi("351609538")
+			diana  = fansapi("672328094")
+			ava    = fansapi("672346917")
+			eileen = fansapi("672342685")
+			bella  = fansapi("672353429")
+			carol  = fansapi("351609538")
 		)
 		ctx.SendGroupMessage(
 			groupID,
@@ -104,8 +105,7 @@ func fansData(groupID int64) {
 }
 
 // 请求api
-func fensiapi(uid string) *follower {
-
+func fansapi(uid string) *follower {
 	url := "https://api.vtbs.moe/v1/detail/" + uid
 	resp, err := http.Get(url)
 	if err != nil {
