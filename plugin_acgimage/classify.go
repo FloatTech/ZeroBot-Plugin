@@ -15,6 +15,7 @@ import (
 
 const (
 	lolipxy = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
+	apihead = "http://sayuri.fumiama.top:8080/img?path="
 )
 
 var (
@@ -88,6 +89,13 @@ func init() { // 插件主体
 						replyClass(ctx, dhash, class, true, lastvisit, comment)
 					}(url)
 				}
+			}
+		})
+	zero.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).SetPriority(20).
+		Handle(func(ctx *zero.Ctx) {
+			dhash := ctx.State["regex_matched"].([]string)[1]
+			if len(dhash) == 5 {
+				ctx.Send(message.Image(apihead + dhash))
 			}
 		})
 }
