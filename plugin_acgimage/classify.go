@@ -79,7 +79,7 @@ func init() { // 插件主体
 			go cancel(ctx)
 		})
 	// 上传一张图进行评价
-	zero.OnKeywordGroup([]string{"评价图片"}, picture.CmdMatch(), picture.MustGiven()).SetBlock(true).SetPriority(24).
+	zero.OnKeywordGroup([]string{"评价图片"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				ctx.Send("少女祈祷中...")

@@ -44,7 +44,7 @@ func init() { // 插件主体
 			)
 		})
 	// 以图搜图
-	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch(), picture.MustGiven()).SetBlock(true).FirstPriority().
+	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
