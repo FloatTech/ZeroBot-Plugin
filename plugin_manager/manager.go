@@ -393,6 +393,7 @@ func strToInt(str string) int64 {
 	return val
 }
 
+// loadConfig 加载设置，没有则手动初始化
 func loadConfig() {
 	mkdirerr := os.MkdirAll(datapath, 0755)
 	if mkdirerr == nil {
@@ -416,6 +417,7 @@ func loadConfig() {
 	}
 }
 
+// saveConfig 保存设置，无此文件则新建
 func saveConfig() error {
 	data, err := config.Marshal()
 	if err != nil {
