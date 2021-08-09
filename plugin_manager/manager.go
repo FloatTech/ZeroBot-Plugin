@@ -403,8 +403,9 @@ func loadConfig() {
 				data, err1 := io.ReadAll(f)
 				if err1 == nil {
 					if len(data) > 0 {
-						config.Unmarshal(data)
-						return
+						if config.Unmarshal(data) == nil {
+							return
+						}
 					}
 				}
 			}
