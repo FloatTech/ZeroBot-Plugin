@@ -426,11 +426,10 @@ func saveConfig() error {
 		f, err1 := os.OpenFile(confile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 		if err1 != nil {
 			return err1
-		} else {
-			defer f.Close()
-			_, err2 := f.Write(data)
-			return err2
 		}
+		defer f.Close()
+		_, err2 := f.Write(data)
+		return err2
 	}
 	return nil
 }
