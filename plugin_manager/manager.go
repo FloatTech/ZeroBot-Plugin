@@ -322,9 +322,8 @@ func init() { // 插件主体
 									if ans != r {
 										ctx.Send("答案不对哦，再想想吧~")
 										return false
-									} else {
-										return true
 									}
+									return true
 								}
 							}
 						}
@@ -430,7 +429,6 @@ func saveConfig() error {
 			_, err2 := f.Write(data)
 			return err2
 		}
-	} else {
-		return nil
 	}
+	return nil
 }
