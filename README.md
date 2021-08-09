@@ -59,21 +59,21 @@
     - [ ] 警告[@xxx]
     - [x] run[xxx]
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"`
-    - [x] >github [xxx] 
-    - [x] >github -p [xxx] 
+    - [x] >github [xxx]
+    - [x] >github -p [xxx]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
     - [x] >runcode help
     - [x] >runcode [on/off]
-    - [x] >runcode [language] [code block] 
+    - [x] >runcode [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
     - [x] 酷我点歌[xxx]
     - [x] 酷狗点歌[xxx]
 - **shindan** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"`
-    - [x] 今天是什么少女[@xxx] 
-    - [x] 异世界转生[@xxx] 
-    - [x] 卖萌[@xxx] 
+    - [x] 今天是什么少女[@xxx]
+    - [x] 异世界转生[@xxx]
+    - [x] 卖萌[@xxx]
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
@@ -84,7 +84,7 @@
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
-- **随机图片与AI点评** `github.com/FloatTech/ZeroBot-ACGImage`
+- **随机图片与AI点评** `github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
     - [x] 设置随机图片网址[url]
@@ -96,7 +96,7 @@
     - [x] @BOT 小作文
     - [x] @BOT 发大病
     - [x] @BOT 教你一篇小作文[作文]
-- **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_AIfalse"`
+- **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度 [身体检查]
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
@@ -116,11 +116,12 @@
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
-### 使用稳定版
-可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统的稳定版，默认开启全部插件。
+### 使用稳定版/测试版
+> 需要将`data`目录放置到与编译好的可执行文件相同目录下才可正常执行。
+可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。
 
 ### 本地运行
-1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
+1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. 下载本项目[压缩包](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip)，本地解压
 3. 编辑 main.go 文件，内容按需修改
 4. 双击 build.bat 文件 或 直接双击 run.bat 文件
@@ -138,7 +139,7 @@
 6. 啾咪~
 
 #### 本地编译/交叉编译
-1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
+1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. clone 并进入本项目，下载所需包
 ```bash
 git clone --depth=1 https://github.com/FloatTech/ZeroBot-Plugin.git
@@ -152,11 +153,11 @@ go mod tidy
 4. 按照平台输入命令编译，下面举了两个不太常见的例子
 ```bash
 # 本机平台
-go build -ldflags "-s -w -extldflags '-static-libgo'" -o zerobot
+go build -ldflags "-s -w" -o zerobot
 # armv6 Linux 平台 如树莓派 zero W
-GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static-libgo'" -o zerobot
+GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 # mips Linux 平台 如 路由器 wndr4300
-GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static-libgo'" -o zerobot
+GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 ```
 5. 运行 OneBot 框架，并同时运行本插件
 

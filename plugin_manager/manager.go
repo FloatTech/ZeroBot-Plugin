@@ -351,7 +351,7 @@ func init() { // 插件主体
 			}
 		})
 	// 设置欢迎语
-	zero.OnRegex(`^设置欢迎语(.*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			config.Welcome[uint64(ctx.Event.GroupID)] = ctx.State["regex_matched"].([]string)[1]
 			if saveConfig() == nil {
