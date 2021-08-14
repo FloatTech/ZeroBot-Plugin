@@ -5,11 +5,12 @@ jobs:
     name: lint_golangci-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2.5.2
+        uses: golangci/golangci-lint-action@v2
         with:
           version: latest
+          args: --issues-exit-code=0
       - name: Commit back
         continue-on-error: true
         run: |
