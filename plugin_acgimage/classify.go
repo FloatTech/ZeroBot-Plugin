@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	lolipxy = "http://sayuri.fumiama.top:62002/dice?class=0&loli=true&r18=true"
+	lolipxy = "http://sayuri.fumiama.top:8080/dice?class=0&loli=true&r18=true"
 	apihead = "http://sayuri.fumiama.top:8080/img?path="
 )
 
