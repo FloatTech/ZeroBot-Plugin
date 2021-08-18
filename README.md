@@ -74,6 +74,11 @@
     - [x] 今天是什么少女[@xxx]
     - [x] 异世界转生[@xxx]
     - [x] 卖萌[@xxx]
+- **gif** `import _ "github.com/tdf1939/ZeroBot-Plugin-Gif/plugin_gif"`
+    - [x] 爬[@xxx]
+    - [x] 摸[@xxx]
+    - [x] 搓[@xxx]
+    - 注：详情见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
