@@ -5,11 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/shindanmaker"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/AnimeAPI/shindanmaker"
 )
 
 var (
@@ -25,7 +24,7 @@ func init() {
 }
 
 // shindanmaker 处理函数
-var handle = func(ctx *zero.Ctx) {
+func handle(ctx *zero.Ctx) {
 	if !limit.Load(ctx.Event.UserID).Acquire() {
 		ctx.SendChain(message.Text("请稍后重试0x0..."))
 		return
@@ -43,11 +42,11 @@ var handle = func(ctx *zero.Ctx) {
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 	}
-	ctx.SendChain(message.Text(text))
+	ctx.Send(text)
 }
 
 // 传入 shindanmaker id
-var number = func(id int64) func(ctx *zero.Ctx) bool {
+func number(id int64) func(ctx *zero.Ctx) bool {
 	return func(ctx *zero.Ctx) bool {
 		ctx.State["id"] = id
 		return true
