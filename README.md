@@ -124,7 +124,6 @@
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
 ### 使用稳定版/测试版
-> 需要将`data`目录放置到与编译好的可执行文件相同目录下才可正常执行。
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。
 
 ### 本地运行
@@ -135,7 +134,6 @@
 5. 运行 OneBot 框架，并同时运行本插件
 
 ### 编译运行
-> 需要将`data`目录放置到与编译好的可执行文件相同目录下才可正常执行。
 
 #### 利用 Actions 在线编译 (推荐)
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
