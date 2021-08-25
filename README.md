@@ -95,6 +95,8 @@
     - [x] 设置随机图片网址[url]
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
+- **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
+    - [x] @BOT 求签|运势|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >bili info [名字]
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
