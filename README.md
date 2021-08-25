@@ -74,6 +74,7 @@
     - [x] 今天是什么少女[@xxx]
     - [x] 异世界转生[@xxx]
     - [x] 卖萌[@xxx]
+    - [x] 抽老婆[@xxx]
 - **gif** `import _ "github.com/tdf1939/ZeroBot-Plugin-Gif/plugin_gif"`
     - [x] 爬[@xxx]
     - [x] 摸[@xxx]
@@ -96,6 +97,7 @@
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
 - **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
+    - 本插件要求`Go`版本大于等于`1.17`
     - [x] @BOT 求签|运势|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >bili info [名字]
