@@ -3,6 +3,7 @@ package omikuji
 import (
 	"fmt"
 	"math/rand"
+	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -13,6 +14,7 @@ const (
 )
 
 func init() { // 插件主体
+	rand.Seed(time.Now().UnixMicro())
 	zero.OnFullMatchGroup([]string{"求签", "运势", "占卜"}, zero.OnlyToMe).SetPriority(10).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100) + 1
