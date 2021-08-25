@@ -21,6 +21,7 @@ func init() {
 	zero.OnPrefix("异世界转生", number(587874)).SetBlock(true).FirstPriority().Handle(handle)
 	zero.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).FirstPriority().Handle(handle)
 	zero.OnPrefix("卖萌", number(360578)).SetBlock(true).FirstPriority().Handle(handle)
+	zero.OnPrefix("抽老婆", number(1075116)).SetBlock(true).FirstPriority().Handle(handle)
 }
 
 // shindanmaker 处理函数
