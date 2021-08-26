@@ -177,9 +177,9 @@ func qqmusic(keyword string) message.MessageSegment {
 	}.Encode()
 	audio := gjson.ParseBytes(netGet(music.String(), h2))
 	// 获得音乐封面
-	image := "https://y.gtimg.cn/music/photo_new" +
+	image := "https://y.gtimg.cn/music/photo_new/" +
 		find(
-			"src=\"//y.gtimg.cn/music/photo_new",
+			`photo_new\u002F`,
 			"?max_age",
 			string(
 				netGet("https://y.qq.com/n/yqq/song/"+info.Get("songmid").Str+".html", nil),
