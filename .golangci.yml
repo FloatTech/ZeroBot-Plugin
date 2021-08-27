@@ -10,6 +10,10 @@ linters-settings:
     disabled-checks:
       - exitAfterDefer
 
+  gofumpt:
+    # Select the Go version to target. The default is `1.15`.
+    lang-version: "1.17"
+
   forbidigo:
     # Forbid the following identifiers
     forbid:
