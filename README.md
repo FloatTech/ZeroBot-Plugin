@@ -74,8 +74,8 @@
     - [x] 卖萌[@xxx] 
 - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
     - [x] 搜卡[xxxx] 
-    - [x]  [卡组代码]
-    - 更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
+    - [x]  [卡组代码xxx]
+    - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
