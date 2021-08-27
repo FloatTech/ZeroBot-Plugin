@@ -75,6 +75,8 @@
     - [x] 异世界转生[@xxx]
     - [x] 卖萌[@xxx]
     - [x] 抽老婆[@xxx]
+- **AIWife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"`
+    - [x] waifu|随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
 - **gif** `import _ "github.com/tdf1939/ZeroBot-Plugin-Gif/plugin_gif"`
     - [x] 爬[@xxx]
     - [x] 摸[@xxx]
