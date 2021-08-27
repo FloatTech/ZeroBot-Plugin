@@ -9,7 +9,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: latest
+          version: v1.17
           args: --issues-exit-code=0
       - name: Commit back
         continue-on-error: true
