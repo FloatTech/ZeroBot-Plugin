@@ -3,6 +3,7 @@ package data
 
 import (
 	"io"
+	"net/http"
 	"os"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 const (
 	datapath = "data/Diana"
 	pbfile   = datapath + "/text.pb"
+	pburl    = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/data/Diana/text.pb"
 )
 
 var (
@@ -41,6 +43,7 @@ func LoadText() error {
 	if _, err := os.Stat(pbfile); err == nil || os.IsExist(err) {
 		f, err := os.Open(pbfile)
 		if err == nil {
+			defer f.Close()
 			data, err1 := io.ReadAll(f)
 			if err1 == nil {
 				if len(data) > 0 {
@@ -48,6 +51,26 @@ func LoadText() error {
 				}
 			}
 			return err1
+		}
+	} else { // 如果没有小作文，则从 url 下载
+		f, err := os.Create(pbfile)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		resp, err := http.Get(pburl)
+		if err == nil {
+			defer resp.Body.Close()
+			if resp.ContentLength > 0 {
+				log.Printf("[Diana]从镜像下载小作文%d字节...", resp.ContentLength)
+				data, err := io.ReadAll(resp.Body)
+				if err == nil && len(data) > 0 {
+					f.Write(data)
+					return compo.Unmarshal(data)
+				}
+				return err
+			}
+			return nil
 		}
 		return err
 	}
