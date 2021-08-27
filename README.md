@@ -48,8 +48,8 @@
     - [x] 设置欢迎语[欢迎~]
     - [x] 在MM月dd日的hh点mm分时(用http://url)提醒大家xxx
     - [x] 在MM月[每周|周几]的hh点mm分时(用http://url)提醒大家xxx
-	- [x] 取消在MM月dd日的hh点mm分的提醒
-	- [x] 取消在MM月[每周|周几]的hh点mm分的提醒
+    - [x] 取消在MM月dd日的hh点mm分的提醒
+    - [x] 取消在MM月[每周|周几]的hh点mm分的提醒
     - [x] 列出所有提醒
     - [x] 翻牌
     - [x] [开启|关闭]入群验证
@@ -114,6 +114,10 @@
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
     - [x] 具体指令看代码
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
+ - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
+    - [x] 搜卡[xxxx] 
+    - [x]  [卡组代码xxx]
+    - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **TODO...**
 
 ## 使用方法

@@ -22,6 +22,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"     // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"   // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"   // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"        // 炉石
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
