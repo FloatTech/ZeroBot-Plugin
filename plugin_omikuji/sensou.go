@@ -1,3 +1,4 @@
+// Package omikuji 浅草寺求签
 package omikuji
 
 import (
