@@ -2,14 +2,12 @@ name: PushLint
 on: [push]
 jobs:
   golangci:
-    strategy:
-      go-version: 1.17.x
     name: lint_golangci-lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@master
         with:
           version: latest
           args: --issues-exit-code=0
