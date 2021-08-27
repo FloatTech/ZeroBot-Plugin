@@ -65,7 +65,7 @@ func LoadText() error {
 				log.Printf("[Diana]从镜像下载小作文%d字节...", resp.ContentLength)
 				data, err := io.ReadAll(resp.Body)
 				if err == nil && len(data) > 0 {
-					f.Write(data)
+					_, _ = f.Write(data)
 					return compo.Unmarshal(data)
 				}
 				return err
