@@ -131,7 +131,7 @@
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
-### 使用稳定版/测试版
+### 使用稳定版/测试版 (推荐)
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。
 
 ### 本地运行
@@ -143,13 +143,14 @@
 
 ### 编译运行
 
-#### 利用 Actions 在线编译 (推荐)
+#### 利用 Actions 在线编译
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
-3. 编辑 main.go 文件，内容按需修改，提交修改后 Actions 自动执行
-4. 点击 Actions 按钮，等待编译完成，在 Actions 里下载编译好的文件
-5. 运行 OneBot 框架，并同时运行本插件
-6. 啾咪~
+3. 编辑 main.go 文件，内容按需修改
+4. 前往 Release 页面发布一个 Release，`tag`形如`vx.y.z`，以触发稳定版编译流程
+5. 点击 Actions 按钮，等待编译完成，回到 Release 页面下载编译好的文件
+6. 运行 OneBot 框架，并同时运行本插件
+7. 啾咪~
 
 #### 本地编译/交叉编译
 1. 下载安装 [Go](https://studygolang.com/dl) 环境
