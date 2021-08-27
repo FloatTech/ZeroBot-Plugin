@@ -3,6 +3,9 @@ package setutime
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -28,6 +31,10 @@ type imgpool struct {
 	Form  int64
 }
 
+const (
+	dburl = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/data/SetuTime/SetuTime.db"
+)
+
 // NewPoolsCache 返回一个缓冲池对象
 func newPools() *imgpool {
 	cache := &imgpool{
@@ -42,6 +49,24 @@ func newPools() *imgpool {
 	err := os.MkdirAll(cache.Path, 0755)
 	if err != nil {
 		panic(err)
+	}
+	// 如果数据库不存在则下载
+	if _, err := os.Stat(cache.DB.DBPath); err != nil || os.IsNotExist(err) {
+		f, err := os.Create(cache.DB.DBPath)
+		if err == nil {
+			resp, err := http.Get(dburl)
+			if err == nil {
+				defer resp.Body.Close()
+				if resp.ContentLength > 0 {
+					log.Printf("[Setu]从镜像下载数据库%d字节...", resp.ContentLength)
+					data, err := io.ReadAll(resp.Body)
+					if err == nil && len(data) > 0 {
+						f.Write(data)
+					}
+				}
+			}
+			f.Close()
+		}
 	}
 	for i := range cache.List {
 		if err := cache.DB.create(cache.List[i], &pixiv.Illust{}); err != nil {

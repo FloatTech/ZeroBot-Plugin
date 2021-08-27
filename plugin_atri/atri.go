@@ -16,8 +16,8 @@ import (
 var (
 	// ATRI 所有命令的优先级
 	prio = -1
-	// ATRI 表情的 GitHub 镜像位置
-	res = "https://raw.dihe.moe/Yiwen-Chan/ZeroBot-Plugin/master/plugin_atri/"
+	// ATRI 表情的 codechina 镜像
+	res = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/plugin_atri/"
 	// ATRI 的总开关
 	enable = true
 )

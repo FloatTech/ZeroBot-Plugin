@@ -3,7 +3,9 @@ package manager
 
 import (
 	"fmt"
+	"io"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,27 +16,44 @@ import (
 	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
 )
 
+const (
+	datapath = "data/manager/"
+	confile  = datapath + "config.pb"
+	hint     = "====群管====\n" +
+		"- 禁言@QQ 1分钟\n" +
+		"- 解除禁言 @QQ\n" +
+		"- 我要自闭 1分钟\n" +
+		"- 开启全员禁言\n" +
+		"- 解除全员禁言\n" +
+		"- 升为管理@QQ\n" +
+		"- 取消管理@QQ\n" +
+		"- 修改名片@QQ XXX\n" +
+		"- 修改头衔@QQ XXX\n" +
+		"- 申请头衔 XXX\n" +
+		"- 踢出群聊@QQ\n" +
+		"- 退出群聊 1234\n" +
+		"- 群聊转发 1234 XXX\n" +
+		"- 私聊转发 0000 XXX\n" +
+		"- 在MM月dd日的hh点mm分时(用http://url)提醒大家XXX\n" +
+		"- 在MM月[每周|周几]的hh点mm分时(用http://url)提醒大家XXX\n" +
+		"- 取消在MM月dd日的hh点mm分的提醒\n" +
+		"- 取消在MM月[每周|周几]的hh点mm分的提醒\n" +
+		"- 列出所有提醒\n" +
+		"- 翻牌\n" +
+		"- 设置欢迎语XXX\n" +
+		"- [开启|关闭]入群验证"
+)
+
+var (
+	config Config
+)
+
 func init() { // 插件主体
+	loadConfig()
 	// 菜单
 	zero.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
-				"====群管====", "\n",
-				"- 禁言@QQ 1分钟", "\n",
-				"- 解除禁言 @QQ", "\n",
-				"- 我要自闭 1分钟", "\n",
-				"- 开启全员禁言", "\n",
-				"- 解除全员禁言", "\n",
-				"- 升为管理@QQ", "\n",
-				"- 取消管理@QQ", "\n",
-				"- 修改名片@QQ XXX", "\n",
-				"- 修改头衔@QQ XXX", "\n",
-				"- 申请头衔 XXX", "\n",
-				"- 踢出群聊@QQ", "\n",
-				"- 退出群聊 1234", "\n",
-				"- 群聊转发 1234 XXX", "\n",
-				"- 私聊转发 0000 XXX",
-			))
+			ctx.Send(hint)
 		})
 	// 升为管理
 	zero.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
@@ -222,7 +241,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 		})
 	// 定时提醒
-	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				dateStrs := ctx.State["regex_matched"].([]string)
@@ -237,7 +256,7 @@ func init() { // 插件主体
 			}
 		})
 	// 取消定时
-	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				dateStrs := ctx.State["regex_matched"].([]string)
@@ -256,7 +275,7 @@ func init() { // 插件主体
 			}
 		})
 	// 列出本群所有定时
-	zero.OnFullMatch("列出所有提醒", zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	zero.OnFullMatch("列出所有提醒", zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				ctx.Send(fmt.Sprint(timer.ListTimers(uint64(ctx.Event.GroupID))))
@@ -277,10 +296,51 @@ func init() { // 插件主体
 			}
 		})
 	// 入群欢迎
-	zero.OnNotice().SetBlock(false).SetPriority(40).
+	zero.OnNotice().SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_increase" {
-				ctx.SendChain(message.Text("欢迎~"))
+				word, ok := config.Welcome[uint64(ctx.Event.GroupID)]
+				if ok {
+					ctx.Send(word)
+				} else {
+					ctx.Send("欢迎~")
+				}
+				enable, ok1 := config.Checkin[uint64(ctx.Event.GroupID)]
+				if ok1 && enable {
+					uid := ctx.Event.UserID
+					a := rand.Intn(100)
+					b := rand.Intn(100)
+					r := a + b
+					ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("考你一道题：%d+%d=?\n如果60秒之内答不上来，%s就要把你踢出去了哦~", a, b, zero.BotConfig.NickName[0])))
+					// 匹配发送者进行验证
+					rule := func(ctx *zero.Ctx) bool {
+						for _, elem := range ctx.Event.Message {
+							if elem.Type == "text" {
+								text := strings.ReplaceAll(elem.Data["text"], " ", "")
+								ans, err := strconv.Atoi(text)
+								if err == nil {
+									if ans != r {
+										ctx.Send("答案不对哦，再想想吧~")
+										return false
+									}
+									return true
+								}
+							}
+						}
+						return false
+					}
+					next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule)
+					recv, cancel := next.Repeat()
+					select {
+					case <-time.After(time.Minute):
+						ctx.Send("拜拜啦~")
+						ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
+						cancel()
+					case <-recv:
+						cancel()
+						ctx.Send("答对啦~")
+					}
+				}
 			}
 		})
 	// 退群提醒
@@ -288,6 +348,34 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
 				ctx.SendChain(message.Text("有人跑路了~"))
+			}
+		})
+	// 设置欢迎语
+	zero.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			config.Welcome[uint64(ctx.Event.GroupID)] = ctx.State["regex_matched"].([]string)[1]
+			if saveConfig() == nil {
+				ctx.Send("记住啦!")
+			} else {
+				ctx.Send("出错啦!")
+			}
+		})
+	// 入群验证开关
+	zero.OnRegex(`^(.*)入群验证$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			option := ctx.State["regex_matched"].([]string)[1]
+			switch option {
+			case "开启":
+				config.Checkin[uint64(ctx.Event.GroupID)] = true
+			case "关闭":
+				config.Checkin[uint64(ctx.Event.GroupID)] = false
+			default:
+				return
+			}
+			if saveConfig() == nil {
+				ctx.Send("已" + option)
+			} else {
+				ctx.Send("出错啦!")
 			}
 		})
 	// 运行 CQ 码
@@ -303,4 +391,45 @@ func init() { // 插件主体
 func strToInt(str string) int64 {
 	val, _ := strconv.ParseInt(str, 10, 64)
 	return val
+}
+
+// loadConfig 加载设置，没有则手动初始化
+func loadConfig() {
+	mkdirerr := os.MkdirAll(datapath, 0755)
+	if mkdirerr == nil {
+		if _, err := os.Stat(confile); err == nil || os.IsExist(err) {
+			f, err := os.Open(confile)
+			if err == nil {
+				data, err1 := io.ReadAll(f)
+				if err1 == nil {
+					if len(data) > 0 {
+						if config.Unmarshal(data) == nil {
+							return
+						}
+					}
+				}
+			}
+		}
+		config.Checkin = make(map[uint64]bool)
+		config.Welcome = make(map[uint64]string)
+	} else {
+		panic(mkdirerr)
+	}
+}
+
+// saveConfig 保存设置，无此文件则新建
+func saveConfig() error {
+	data, err := config.Marshal()
+	if err != nil {
+		return err
+	} else if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
+		f, err1 := os.OpenFile(confile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+		if err1 != nil {
+			return err1
+		}
+		defer f.Close()
+		_, err2 := f.Write(data)
+		return err2
+	}
+	return nil
 }

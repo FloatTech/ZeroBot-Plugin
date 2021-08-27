@@ -1,0 +1,7 @@
+syntax = "proto3";
+package manager;
+
+message config {
+    map<uint64, bool> checkin = 1;
+    map<uint64, string> welcome = 2;
+}
