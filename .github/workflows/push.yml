@@ -2,7 +2,7 @@ name: PushLint
 on: [push]
 jobs:
   golangci:
-    name: lint_golangci-lint
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
