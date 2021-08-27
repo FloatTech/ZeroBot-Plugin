@@ -37,7 +37,7 @@ jobs:
           # only-new-issues: true
 
           # Optional: if set to true then the action will use pre-installed Go.
-          # skip-go-installation: true
+          skip-go-installation: true
 
           # Optional: if set to true then the action don't cache or restore ~/go/pkg.
           # skip-pkg-cache: true

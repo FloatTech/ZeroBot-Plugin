@@ -26,6 +26,7 @@ jobs:
         with:
           version: latest
           args: --issues-exit-code=0
+          skip-go-installation: true
       - name: Commit back
         continue-on-error: true
         run: |
