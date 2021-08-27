@@ -45,37 +45,43 @@
     - [x] 退出群聊[群号]
     - [x] *入群欢迎
     - [x] *退群通知
-    - [x] 在[月份]月[日期]日的[小时]点[分钟]分时(用[url])提醒大家[消息]
-    - [x] 在[月份]月[每周or周几]的[小时]点[分钟]分时(用[url])提醒大家[消息]
-    - [x] 取消在[月份]月[日期]日的[小时]点[分钟]分的提醒
-    - [x] 取消在[月份]月[每周or周几]的[小时]点[分钟]分的提醒
+    - [x] 设置欢迎语[欢迎~]
+    - [x] 在MM月dd日的hh点mm分时(用http://url)提醒大家xxx
+    - [x] 在MM月[每周|周几]的hh点mm分时(用http://url)提醒大家xxx
+	- [x] 取消在MM月dd日的hh点mm分的提醒
+	- [x] 取消在MM月[每周|周几]的hh点mm分的提醒
     - [x] 列出所有提醒
     - [x] 翻牌
+    - [x] [开启|关闭]入群验证
     - [ ] 同意入群请求
     - [ ] 同意好友请求
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
     - [x] run[xxx]
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"`
-    - [x] >github [xxx] 
-    - [x] >github -p [xxx] 
+    - [x] >github [xxx]
+    - [x] >github -p [xxx]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
     - [x] >runcode help
     - [x] >runcode [on/off]
-    - [x] >runcode [language] [code block] 
+    - [x] >runcode [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
     - [x] 酷我点歌[xxx]
     - [x] 酷狗点歌[xxx]
 - **shindan** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"`
-    - [x] 今天是什么少女[@xxx] 
-    - [x] 异世界转生[@xxx] 
-    - [x] 卖萌[@xxx] 
-- **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
-    - [x] 搜卡[xxxx] 
-    - [x]  [卡组代码xxx]
-    - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
+    - [x] 今天是什么少女[@xxx]
+    - [x] 异世界转生[@xxx]
+    - [x] 卖萌[@xxx]
+    - [x] 抽老婆[@xxx]
+- **AIWife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"`
+    - [x] waifu|随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
+- **gif** `import _ "github.com/tdf1939/ZeroBot-Plugin-Gif/plugin_gif"`
+    - [x] 爬[@xxx]
+    - [x] 摸[@xxx]
+    - [x] 搓[@xxx]
+    - 注：`main.go`中并未import该插件。详情见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
@@ -86,25 +92,32 @@
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
-- **随机图片与AI点评** `github.com/FloatTech/ZeroBot-ACGImage`
+- **随机图片与AI点评** `github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
     - [x] 设置随机图片网址[url]
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
+- **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
+    - 本插件要求`Go`版本大于等于`1.17`
+    - [x] @BOT 求签|运势|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >bili info [名字]
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] @BOT 小作文
     - [x] @BOT 发大病
     - [x] @BOT 教你一篇小作文[作文]
-- **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_AIfalse"`
+- **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度 [身体检查]
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
     - [x] 具体指令看代码
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
+ - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
+    - [x] 搜卡[xxxx] 
+    - [x]  [卡组代码xxx]
+    - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **TODO...**
 
 ## 使用方法
@@ -118,18 +131,17 @@
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
-### 使用稳定版
-可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统的稳定版，默认开启全部插件。
+### 使用稳定版/测试版
+可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。
 
 ### 本地运行
-1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
+1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. 下载本项目[压缩包](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip)，本地解压
 3. 编辑 main.go 文件，内容按需修改
 4. 双击 build.bat 文件 或 直接双击 run.bat 文件
 5. 运行 OneBot 框架，并同时运行本插件
 
 ### 编译运行
-> 需要将`data`目录放置到与编译好的可执行文件相同目录下才可正常执行。
 
 #### 利用 Actions 在线编译 (推荐)
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
@@ -140,7 +152,7 @@
 6. 啾咪~
 
 #### 本地编译/交叉编译
-1. 下载安装 [Go](https://studygolang.com/dl/golang/go1.16.2.windows-amd64.msi) 环境
+1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. clone 并进入本项目，下载所需包
 ```bash
 git clone --depth=1 https://github.com/FloatTech/ZeroBot-Plugin.git
@@ -154,11 +166,11 @@ go mod tidy
 4. 按照平台输入命令编译，下面举了两个不太常见的例子
 ```bash
 # 本机平台
-go build -ldflags "-s -w -extldflags '-static-libgo'" -o zerobot
+go build -ldflags "-s -w" -o zerobot
 # armv6 Linux 平台 如树莓派 zero W
-GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static-libgo'" -o zerobot
+GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 # mips Linux 平台 如 路由器 wndr4300
-GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static-libgo'" -o zerobot
+GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 ```
 5. 运行 OneBot 框架，并同时运行本插件
 
