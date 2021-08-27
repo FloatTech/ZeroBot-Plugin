@@ -4,7 +4,6 @@ package setutime
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,11 +11,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/pixiv"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/AnimeAPI/pixiv"
 )
 
 // Pools 图片缓冲池
@@ -58,10 +57,13 @@ func newPools() *imgpool {
 			if err == nil {
 				defer resp.Body.Close()
 				if resp.ContentLength > 0 {
-					log.Printf("[Setu]从镜像下载数据库%d字节...", resp.ContentLength)
+					logrus.Printf("[Setu]从镜像下载数据库%d字节...", resp.ContentLength)
 					data, err := io.ReadAll(resp.Body)
 					if err == nil && len(data) > 0 {
-						f.Write(data)
+						_, err = f.Write(data)
+						if err != nil {
+							logrus.Errorf("[Setu]写入数据库失败: %v", err)
+						}
 					}
 				}
 			}
