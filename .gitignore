@@ -6,4 +6,4 @@ data/acgimage
 .DS_Store
 .vscode
 go-zero*
-*.out
+nohup*
