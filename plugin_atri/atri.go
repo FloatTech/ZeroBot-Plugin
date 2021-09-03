@@ -15,7 +15,7 @@ import (
 
 var (
 	// ATRI 所有命令的优先级
-	prio = 2
+	prio = -1
 	// ATRI 表情的 codechina 镜像
 	res = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/plugin_atri/"
 	// ATRI 的总开关
@@ -65,7 +65,7 @@ func init() { // 插件主体
 		   time.Sleep(time.Second * 1)
 			ctx.SendChain(randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
 		})
-	zero.OnFullMatchGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う","早好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
@@ -108,7 +108,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"中午好", "午安"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"中午好", "午安","午好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			if now > 11 && now < 15 { // 中午
@@ -121,7 +121,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"晚安", "oyasuminasai", "おやすみなさい","晚好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
@@ -211,14 +211,14 @@ func init() { // 插件主体
 				ctx.SendChain(randImage("YES.png", "NO.jpg"))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"啊这"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"啊这"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 		    time.Sleep(time.Second * 1)
 			if rand.Intn(2) == 0 {
 				ctx.SendChain(randImage("AZ.jpg", "AZ1.jpg"))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"我好了"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"我好了"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 		    time.Sleep(time.Second * 1)
 			ctx.SendChain(randText("不许好！", "憋回去！"))
