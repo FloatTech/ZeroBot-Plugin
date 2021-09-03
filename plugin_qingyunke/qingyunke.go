@@ -40,7 +40,7 @@ func init() { // 插件主体
 				} else {
 					textReply = reply
 				}
-				strings.Replace(textReply,"菲菲","椛椛",-1)
+				textReply = strings.Replace(textReply,"菲菲","椛椛",-1)
 				if ctx.Event.DetailType == "group" {
 
 					ctx.SendChain(message.Text(textReply))
