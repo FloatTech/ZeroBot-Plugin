@@ -13,7 +13,15 @@ import (
 
 func init() {
 	//所有群添加定时早安
-	zero.OnMessage().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
+	//zero.RangeBot(func(id int64, ctx *zero.Ctx) bool { // test the range bot function
+	//	result := ctx.GetGroupList()
+	//	log.Println(result)
+	//	for _, v := range result.Array() {
+	//		Daily(v.Get("group_id").Int())
+	//	}
+	//	return true
+	//})
+	zero.OnCommand("daily").SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
 		log.Println(ctx.GetGroupList())
 		result := ctx.GetGroupList()
 		for _, v := range result.Array() {
@@ -22,7 +30,6 @@ func init() {
 
 	})
 
-	Daily(780549442)
 
 }
 
