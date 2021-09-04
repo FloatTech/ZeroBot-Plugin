@@ -2,5 +2,5 @@ syntax = "proto3";
 package data;
 
 message composition {
-    repeated string array = 1;
+  repeated string array = 1;
 }

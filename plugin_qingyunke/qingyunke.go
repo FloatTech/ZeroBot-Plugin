@@ -21,9 +21,8 @@ var enable = true
 
 func init() { // 插件主体
 	// 被喊名字
-	zero.OnRegex("(^.{1,30}$)", zero.OnlyToMe,atriSwitch()).SetBlock(false).FirstPriority().
+	zero.OnRegex("(^.{1,30}$)", zero.OnlyToMe, atriSwitch()).SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			//var nickname = zero.BotConfig.NickName[0]
 			switch {
 			case poke.Load(ctx.Event.UserID).Acquire():
 				time.Sleep(time.Second * 1)
@@ -40,61 +39,62 @@ func init() { // 插件主体
 				} else {
 					textReply = reply
 				}
-				textReply = strings.Replace(textReply,"菲菲","椛椛",-1)
+				textReply = strings.Replace(textReply, "菲菲", "椛椛", -1)
 				if ctx.Event.DetailType == "group" {
-					ctx.SendChain(message.Text(textReply))
+
 					if faceReply != -1 {
-						ctx.SendChain(message.Face(faceReply))
+						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply), message.Face(faceReply))
+					} else {
+						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply))
 					}
 
 				}
 				if ctx.Event.DetailType == "private" {
-					ctx.SendChain(message.Text(textReply))
 					if faceReply != -1 {
-						ctx.SendChain(message.Face(faceReply))
+						ctx.SendChain(message.Text(textReply), message.Face(faceReply))
+					} else {
+						ctx.SendChain(message.Text(textReply))
 					}
 				}
-			
 
 			default:
 				//频繁触发，不回复
 			}
 
 		})
-	zero.OnRegex("CQ:image,file=|CQ:face,id=", zero.OnlyToMe,atriSwitch()).SetBlock(false).FirstPriority().
+	zero.OnRegex("CQ:image,file=|CQ:face,id=", zero.OnlyToMe, atriSwitch()).SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			imageUrl := getPicture()
 			time.Sleep(time.Second * 1)
-			ctx.SendChain(message.Image(imageUrl))
+			if ctx.Event.DetailType == "group" {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image(imageUrl))
+			}
+			if ctx.Event.DetailType == "private" {
+				ctx.SendChain(message.Image(imageUrl))
+			}
+
 		})
 
-
-	zero.OnFullMatch("启动",zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
+	zero.OnFullMatch("启动自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 
-				enable = true
-				ctx.SendChain(message.Text("自动回复启动"))
-
-
+			enable = true
+			ctx.SendChain(message.Text("自动回复启动"))
 
 		})
-	zero.OnFullMatch("关闭",zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
+	zero.OnFullMatch("关闭自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 
-				enable = false
-				ctx.SendChain(message.Text("自动回复关闭"))
-
-
+			enable = false
+			ctx.SendChain(message.Text("自动回复关闭"))
 
 		})
-
-
 
 	// 群空调
 
 }
 
-type Data struct {
+type QYData struct {
 	Result  int    `json:"result"`
 	Content string `json:"content"`
 }
@@ -127,11 +127,11 @@ func getMessage(msg string) string {
 		fmt.Println("ioutil.ReadAll", err)
 	}
 	fmt.Println(string(bytes))
-	var data Data
-	if err := json.Unmarshal(bytes, &data); err != nil {
+	var QYData QYData
+	if err := json.Unmarshal(bytes, &QYData); err != nil {
 		fmt.Println("json transform", err)
 	}
-	return data.Content
+	return QYData.Content
 }
 
 func getAgent() string {
@@ -157,4 +157,3 @@ func atriSwitch() zero.Rule {
 		return enable
 	}
 }
-

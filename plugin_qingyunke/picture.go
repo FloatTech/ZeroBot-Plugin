@@ -10,18 +10,18 @@ import (
 )
 
 var (
-	reImg    = `https?://[^"]+?(\.((jpg)|(png)|(jpeg)|(gif)|(bmp)))`
+	reImg = `https?://[^"]+?(\.((jpg)|(png)|(jpeg)|(gif)|(bmp)))`
 )
 
 func getPicture() string {
-	prefix:="https://www.fabiaoqing.com/search/bqb/keyword/%E5%88%AB%E5%8F%91%E5%9B%BE%E7%89%87/type/bq/page/"
-	url :=fmt.Sprintf("%d.html",rand.Intn(5)+1)
+	prefix := "https://fabiaoqing.com/tag/detail/id/5682/page"
+	url := fmt.Sprintf("%d.html", rand.Intn(11)+1)
 	url = prefix + url
-	log.Println("正在"+url+"寻找图片")
+	log.Println("正在" + url + "寻找图片")
 	urls := getImgs(url)
 	fmt.Println(urls)
 	imageUrl := urls[rand.Intn(len(urls))]
-	log.Println("取到"+imageUrl)
+	log.Println("取到" + imageUrl)
 	return imageUrl
 }
 
