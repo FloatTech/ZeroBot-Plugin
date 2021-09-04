@@ -15,7 +15,7 @@ import (
 
 var (
 	// ATRI 所有命令的优先级
-	prio = -1
+	prio = 2
 	// ATRI 表情的 codechina 镜像
 	res = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/plugin_atri/"
 	// ATRI 的总开关
@@ -65,7 +65,7 @@ func init() { // 插件主体
 		   time.Sleep(time.Second * 1)
 			ctx.SendChain(randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
 		})
-	zero.OnKeywordGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う","早好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う","早好","早"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {

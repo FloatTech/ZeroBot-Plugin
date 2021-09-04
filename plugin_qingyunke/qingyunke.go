@@ -42,7 +42,6 @@ func init() { // 插件主体
 				}
 				textReply = strings.Replace(textReply,"菲菲","椛椛",-1)
 				if ctx.Event.DetailType == "group" {
-
 					ctx.SendChain(message.Text(textReply))
 					if faceReply != -1 {
 						ctx.SendChain(message.Face(faceReply))
@@ -55,12 +54,21 @@ func init() { // 插件主体
 						ctx.SendChain(message.Face(faceReply))
 					}
 				}
+			
 
 			default:
 				//频繁触发，不回复
 			}
 
 		})
+	zero.OnRegex("CQ:image,file=|CQ:face,id=", zero.OnlyToMe,atriSwitch()).SetBlock(false).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			imageUrl := getPicture()
+			time.Sleep(time.Second * 1)
+			ctx.SendChain(message.Image(imageUrl))
+		})
+
+
 	zero.OnFullMatch("启动",zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 
@@ -79,6 +87,7 @@ func init() { // 插件主体
 
 
 		})
+
 
 
 	// 群空调
