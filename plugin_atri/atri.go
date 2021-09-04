@@ -27,18 +27,18 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 
 			enable = true
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			ctx.SendChain(randText("嗯呜呜……夏生先生……？"))
 		})
 	zero.OnFullMatch("ATRI睡吧", zero.AdminPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			enable = false
-		   time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			ctx.SendChain(randText("Zzz……Zzz……"))
 		})
 	zero.OnFullMatch("萝卜子", atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			switch rand.Intn(2) {
 			case 0:
 				ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
@@ -48,40 +48,32 @@ func init() { // 插件主体
 		})
 	zero.OnKeywordGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
-			if rand.Intn(10) == 0 {
-				ctx.SendChain(randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
-			}else{
-				ctx.SendChain(randText(
-					"椛椛不是你的电子宠物",
-					"椛椛不爱你,爬",
-					"你是个好人,你值得更好的归属",
-					"椛椛已经有主人了",
-				))
-			}
+			time.Sleep(time.Second * 1)
+			ctx.SendChain(randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
+
 		})
 	zero.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio - 1).
 		Handle(func(ctx *zero.Ctx) {
-		   time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			ctx.SendChain(randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
 		})
-	zero.OnKeywordGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う","早好","早"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う", "早好", "早"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
 			case now < 6: // 凌晨
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"zzzz......",
 					"zzzzzzzz......",
 					"zzz...好涩哦..zzz....",
 					"别...不要..zzz..那..zzz..",
 					"嘻嘻..zzz..呐~..zzzz..",
 					"...zzz....哧溜哧溜....",
-				))
+				)))
 			case now >= 6 && now < 9:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"啊......早上好...(哈欠)",
 					"唔......吧唧...早上...哈啊啊~~~\n早上好......",
 					"早上好......",
@@ -91,86 +83,86 @@ func init() { // 插件主体
 					"早上好！",
 					"......看起来像是傍晚，其实已经早上了吗？",
 					"早上好......欸~~~脸好近呢",
-				))
+				)))
 			case now >= 9 && now < 18:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"哼！这个点还早啥，昨晚干啥去了！？",
 					"熬夜了对吧熬夜了对吧熬夜了对吧？？？！",
 					"是不是熬夜是不是熬夜是不是熬夜？！",
-				))
+				)))
 			case now >= 18 && now < 24:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"早个啥？哼唧！我都准备洗洗睡了！",
 					"不是...你看看几点了，哼！",
 					"晚上好哇",
-				))
+				)))
 			}
 		})
-	zero.OnKeywordGroup([]string{"中午好", "午安","午好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"中午好", "午安", "午好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			if now > 11 && now < 15 { // 中午
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
 					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
 					"睡你午觉去！哼唧！！",
-				))
+				)))
 			}
 		})
-	zero.OnKeywordGroup([]string{"晚安", "oyasuminasai", "おやすみなさい","晚好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnKeywordGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
 			case now < 6: // 凌晨
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"zzzz......",
 					"zzzzzzzz......",
 					"zzz...好涩哦..zzz....",
 					"别...不要..zzz..那..zzz..",
 					"嘻嘻..zzz..呐~..zzzz..",
 					"...zzz....哧溜哧溜....",
-				))
+				)))
 			case now >= 6 && now < 11:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"你可猝死算了吧！",
 					"？啊这",
 					"亲，这边建议赶快去睡觉呢~~~",
 					"不可忍不可忍不可忍！！为何这还不猝死！！",
-				))
+				)))
 			case now >= 11 && now < 15:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
 					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
 					"睡你午觉去！哼唧！！",
-				))
+				)))
 			case now >= 15 && now < 19:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"难不成？？晚上不想睡觉？？现在休息",
 					"就......挺离谱的...现在睡觉",
 					"现在还是白天哦，睡觉还太早了",
-				))
+				)))
 			case now >= 19 && now < 24:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
 					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
 					"......(打瞌睡)",
 					"呼...呼...已经睡着了哦~...呼......",
 					"......我、我会在这守着你的，请务必好好睡着",
-				))
+				)))
 			}
 		})
 	zero.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			ctx.SendChain(randText(
 				"当然，我是高性能的嘛~！",
 				"小事一桩，我是高性能的嘛",
@@ -191,7 +183,7 @@ func init() { // 插件主体
 		})
 	zero.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			ctx.SendChain(randText(
 				"当然，我是高性能的嘛~！",
 				"没事没事，因为我是高性能的嘛！嗯哼！",
@@ -206,26 +198,26 @@ func init() { // 插件主体
 
 	zero.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			if rand.Intn(2) == 0 {
 				ctx.SendChain(randImage("YES.png", "NO.jpg"))
 			}
 		})
 	zero.OnKeywordGroup([]string{"啊这"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			if rand.Intn(2) == 0 {
 				ctx.SendChain(randImage("AZ.jpg", "AZ1.jpg"))
 			}
 		})
 	zero.OnKeywordGroup([]string{"我好了"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
-			ctx.SendChain(randText("不许好！", "憋回去！"))
+			time.Sleep(time.Second * 1)
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText("不许好！", "憋回去！")))
 		})
 	zero.OnFullMatchGroup([]string{"？", "?", "¿"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			switch rand.Intn(5) {
 			case 0:
 				ctx.SendChain(randText("?", "？", "嗯？", "(。´・ω・)ん?", "ん？"))
@@ -244,7 +236,7 @@ func init() { // 插件主体
 		})
 	zero.OnKeyword("答应我", atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-		    time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 1)
 			ctx.SendChain(randText("我无法回应你的请求"))
 		})
 }

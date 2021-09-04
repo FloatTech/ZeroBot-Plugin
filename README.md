@@ -18,8 +18,8 @@
 
 </div>
 
-
 ## 功能
+
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -59,12 +59,12 @@
     - [ ] 警告[@xxx]
     - [x] run[xxx]
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"`
-    - [x] >github [xxx]
-    - [x] >github -p [xxx]
+    - [x] > github [xxx]
+    - [x] > github -p [xxx]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
-    - [x] >runcode help
-    - [x] >runcode [on/off]
-    - [x] >runcode [language] [code block]
+    - [x] > runcode help
+    - [x] > runcode [on/off]
+    - [x] > runcode [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
@@ -86,7 +86,7 @@
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
-    - [x] >setu status
+    - [x] > setu status
 - **lolicon** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"`
     - [x] 来份萝莉
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
@@ -102,7 +102,7 @@
     - 本插件要求`Go`版本大于等于`1.17`
     - [x] @BOT 求签|运势|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
-    - [x] >bili info [名字]
+    - [x] > bili info [名字]
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] @BOT 小作文
     - [x] @BOT 发大病
@@ -114,27 +114,30 @@
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
     - [x] 具体指令看代码
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
- - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
-    - [x] 搜卡[xxxx] 
+- **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
+    - [x] 搜卡[xxxx]
     - [x]  [卡组代码xxx]
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **TODO...**
 
 ## 使用方法
 
-本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
-| 项目地址 | 平台 | 核心作者 | 备注 |
-| --- | --- | --- | --- |
-| [Yiwen-Chan/OneBot-YaYa](https://github.com/Yiwen-Chan/OneBot-YaYa) | [先驱](https://www.xianqubot.com/) | kanri |  |
-| [richardchien/coolq-http-api](https://github.com/richardchien/coolq-http-api) | CKYU | richardchien | 可在 Mirai 平台使用 [mirai-native](https://github.com/iTXTech/mirai-native) 加载 |
-| [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |  |
-| [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
-| [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
+本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互 | 项目地址 | 平台 | 核心作者 | 备注 | | --- | --- |
+--- | --- | | [Yiwen-Chan/OneBot-YaYa](https://github.com/Yiwen-Chan/OneBot-YaYa) | [先驱](https://www.xianqubot.com/) |
+kanri | | | [richardchien/coolq-http-api](https://github.com/richardchien/coolq-http-api) | CKYU | richardchien | 可在
+Mirai 平台使用 [mirai-native](https://github.com/iTXTech/mirai-native) 加载 |
+| [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s | |
+| [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai)
+| [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg | |
+| [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) |
+takayama | |
 
 ### 使用稳定版/测试版 (推荐)
+
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。
 
 ### 本地运行
+
 1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. 下载本项目[压缩包](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip)，本地解压
 3. 编辑 main.go 文件，内容按需修改
@@ -144,6 +147,7 @@
 ### 编译运行
 
 #### 利用 Actions 在线编译
+
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
 3. 编辑 main.go 文件，内容按需修改
@@ -153,8 +157,10 @@
 7. 啾咪~
 
 #### 本地编译/交叉编译
+
 1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. clone 并进入本项目，下载所需包
+
 ```bash
 git clone --depth=1 https://github.com/FloatTech/ZeroBot-Plugin.git
 cd ZeroBot-Plugin
@@ -163,8 +169,10 @@ go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GO111MODULE=auto
 go mod tidy
 ```
+
 3. 编辑 main.go 文件，内容按需修改
 4. 按照平台输入命令编译，下面举了两个不太常见的例子
+
 ```bash
 # 本机平台
 go build -ldflags "-s -w" -o zerobot
@@ -173,12 +181,14 @@ GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 # mips Linux 平台 如 路由器 wndr4300
 GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 ```
+
 5. 运行 OneBot 框架，并同时运行本插件
 
 ## 特别感谢
+
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
 
-
 ## License
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FYiwen-Chan%2FZeroBot-Plugin.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FYiwen-Chan%2FZeroBot-Plugin?ref=badge_large)
