@@ -25,7 +25,6 @@ var (
 func init() { // 插件主体
 	zero.OnFullMatch("ATRI醒醒", zero.AdminPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-
 			enable = true
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(randText("嗯呜呜……夏生先生……？"))
@@ -50,7 +49,6 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
-
 		})
 	zero.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio - 1).
 		Handle(func(ctx *zero.Ctx) {
@@ -113,7 +111,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好","晚上好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好", "晚上好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {

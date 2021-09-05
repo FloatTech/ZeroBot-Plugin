@@ -2,13 +2,14 @@ package qingyunke
 
 //定时早安,晚安
 import (
-	"github.com/robfig/cron"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/robfig/cron"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
@@ -20,9 +21,7 @@ func init() {
 		for _, v := range result.Array() {
 			Daily(v.Get("group_id").Int())
 		}
-
 	})
-
 
 }
 
