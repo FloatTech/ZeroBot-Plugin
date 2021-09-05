@@ -63,17 +63,17 @@ func init() { // 插件主体
 			switch {
 			case now < 6: // 凌晨
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"zzzz......",
 					"zzzzzzzz......",
 					"zzz...好涩哦..zzz....",
 					"别...不要..zzz..那..zzz..",
 					"嘻嘻..zzz..呐~..zzzz..",
 					"...zzz....哧溜哧溜....",
-				)))
+				))
 			case now >= 6 && now < 9:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"啊......早上好...(哈欠)",
 					"唔......吧唧...早上...哈啊啊~~~\n早上好......",
 					"早上好......",
@@ -83,21 +83,21 @@ func init() { // 插件主体
 					"早上好！",
 					"......看起来像是傍晚，其实已经早上了吗？",
 					"早上好......欸~~~脸好近呢",
-				)))
+				))
 			case now >= 9 && now < 18:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"哼！这个点还早啥，昨晚干啥去了！？",
 					"熬夜了对吧熬夜了对吧熬夜了对吧？？？！",
 					"是不是熬夜是不是熬夜是不是熬夜？！",
-				)))
+				))
 			case now >= 18 && now < 24:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"早个啥？哼唧！我都准备洗洗睡了！",
 					"不是...你看看几点了，哼！",
 					"晚上好哇",
-				)))
+				))
 			}
 		})
 	zero.OnKeywordGroup([]string{"中午好", "午安", "午好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
@@ -105,12 +105,12 @@ func init() { // 插件主体
 			now := time.Now().Hour()
 			if now > 11 && now < 15 { // 中午
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
 					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
 					"睡你午觉去！哼唧！！",
-				)))
+				))
 			}
 		})
 	zero.OnKeywordGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
@@ -119,45 +119,45 @@ func init() { // 插件主体
 			switch {
 			case now < 6: // 凌晨
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"zzzz......",
 					"zzzzzzzz......",
 					"zzz...好涩哦..zzz....",
 					"别...不要..zzz..那..zzz..",
 					"嘻嘻..zzz..呐~..zzzz..",
 					"...zzz....哧溜哧溜....",
-				)))
+				))
 			case now >= 6 && now < 11:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"你可猝死算了吧！",
 					"？啊这",
 					"亲，这边建议赶快去睡觉呢~~~",
 					"不可忍不可忍不可忍！！为何这还不猝死！！",
-				)))
+				))
 			case now >= 11 && now < 15:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
 					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
 					"睡你午觉去！哼唧！！",
-				)))
+				))
 			case now >= 15 && now < 19:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"难不成？？晚上不想睡觉？？现在休息",
 					"就......挺离谱的...现在睡觉",
 					"现在还是白天哦，睡觉还太早了",
-				)))
+				))
 			case now >= 19 && now < 24:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
 					"......(打瞌睡)",
 					"呼...呼...已经睡着了哦~...呼......",
 					"......我、我会在这守着你的，请务必好好睡着",
-				)))
+				))
 			}
 		})
 	zero.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, atriSwitch(), atriSleep(), zero.OnlyToMe).SetBlock(true).SetPriority(prio).
