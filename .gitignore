@@ -5,3 +5,5 @@ data/acgimage
 .idea/
 .DS_Store
 .vscode
+go-zero*
+nohup.out

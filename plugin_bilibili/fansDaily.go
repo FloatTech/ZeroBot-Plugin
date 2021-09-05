@@ -25,7 +25,7 @@ type follower struct {
 func init() {
 	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
-			fansDaily(130591566) // 群号传进去给下面发信息的函数
+			fansDaily(ctx.Event.GroupID) // 群号传进去给下面发信息的函数
 		})
 }
 
