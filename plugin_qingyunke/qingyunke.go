@@ -99,6 +99,7 @@ type QYData struct {
 	Content string `json:"content"`
 }
 
+//青云客取消息
 func getMessage(msg string) string {
 	url := "http://api.qingyunke.com/api.php"
 	key := "free"
