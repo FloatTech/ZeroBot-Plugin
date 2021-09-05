@@ -113,7 +113,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
+	zero.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好","晚上好"}, atriSwitch()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			switch {
