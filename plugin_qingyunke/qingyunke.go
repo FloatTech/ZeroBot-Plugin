@@ -3,9 +3,6 @@ package qingyunke
 import (
 	"encoding/json"
 	"fmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -13,6 +10,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var prio = -1
@@ -41,13 +42,11 @@ func init() { // 插件主体
 				}
 				textReply = strings.Replace(textReply, "菲菲", "椛椛", -1)
 				if ctx.Event.DetailType == "group" {
-
 					if faceReply != -1 {
 						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply), message.Face(faceReply))
 					} else {
 						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply))
 					}
-
 				}
 				if ctx.Event.DetailType == "private" {
 					if faceReply != -1 {
@@ -60,7 +59,6 @@ func init() { // 插件主体
 			default:
 				//频繁触发，不回复
 			}
-
 		})
 	zero.OnRegex("CQ:image,file=|CQ:face,id=", zero.OnlyToMe, atriSwitch()).SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
@@ -72,26 +70,20 @@ func init() { // 插件主体
 			if ctx.Event.DetailType == "private" {
 				ctx.SendChain(message.Image(imageUrl))
 			}
-
 		})
 
 	zero.OnFullMatch("开启自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-
 			enable = true
 			ctx.SendChain(message.Text("自动回复开启"))
-
 		})
 	zero.OnFullMatch("关闭自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-
 			enable = false
 			ctx.SendChain(message.Text("自动回复关闭"))
-
 		})
 
 	// 群空调
-
 }
 
 type QYData struct {
