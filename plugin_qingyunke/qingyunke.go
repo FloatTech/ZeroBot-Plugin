@@ -75,11 +75,11 @@ func init() { // 插件主体
 
 		})
 
-	zero.OnFullMatch("启动自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
+	zero.OnFullMatch("开启自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 
 			enable = true
-			ctx.SendChain(message.Text("自动回复启动"))
+			ctx.SendChain(message.Text("自动回复开启"))
 
 		})
 	zero.OnFullMatch("关闭自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
