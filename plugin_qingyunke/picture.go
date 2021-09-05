@@ -12,7 +12,7 @@ import (
 var (
 	reImg = `https?://[^"]+?(\.((jpg)|(png)|(jpeg)|(gif)|(bmp)))`
 )
-
+//取图片
 func getPicture() string {
 	prefix := "https://fabiaoqing.com/tag/detail/id/5682/page"
 	url := fmt.Sprintf("%d.html", rand.Intn(11)+1)

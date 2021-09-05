@@ -118,6 +118,12 @@
     - [x] 搜卡[xxxx]
     - [x]  [卡组代码xxx]
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
+- **青云客** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"`
+	- [x] @Bot 任意文本(任意一句话回复)
+	- [x] /daily(群定时发早晚安)
+	- [x] @Bot 任意图片|任意表情(用图片回复图片表情)
+	- [x] 关闭自动回复
+	- [x] 启动自动回复
 - **TODO...**
 
 ## 使用方法
