@@ -15,10 +15,16 @@ const (
 )
 
 func init() { // 插件主体
-	rand.Seed(time.Now().UnixMicro())
+	// TODO: 1.17 特性暂不增加
+	// rand.Seed(time.Now().UnixMicro())
+	rand.Seed(time.Now().UnixNano())
 	zero.OnFullMatchGroup([]string{"求签", "运势", "占卜"}, zero.OnlyToMe).SetPriority(10).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100) + 1
-			ctx.SendChain(message.At(ctx.Event.UserID), message.Image(fmt.Sprintf(bed, miku, 0)), message.Image(fmt.Sprintf(bed, miku, 1)))
+			ctx.SendChain(
+				message.At(ctx.Event.UserID),
+				message.Image(fmt.Sprintf(bed, miku, 0)),
+				message.Image(fmt.Sprintf(bed, miku, 1)),
+			)
 		})
 }
