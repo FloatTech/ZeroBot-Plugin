@@ -22,7 +22,6 @@ func init() {
 			Daily(v.Get("group_id").Int())
 		}
 	})
-
 }
 
 func morningData(groupId int64) {
