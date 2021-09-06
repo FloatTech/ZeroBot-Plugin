@@ -14,5 +14,4 @@ func init() {
 			ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "我爱你，mua~")
 		}
 	})
-
 }
