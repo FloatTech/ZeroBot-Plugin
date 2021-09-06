@@ -1,4 +1,5 @@
-package qingyunke
+// TODO: 待优化
+/*package qingyunke
 
 import (
 	"fmt"
@@ -21,9 +22,9 @@ func getPicture() string {
 	log.Println("正在" + url + "寻找图片")
 	urls := getImgs(url)
 	fmt.Println(urls)
-	imageUrl := urls[rand.Intn(len(urls))]
-	log.Println("取到" + imageUrl)
-	return imageUrl
+	imageURL := urls[rand.Intn(len(urls))]
+	log.Println("取到" + imageURL)
+	return imageURL
 }
 
 func HandleError(err error, why string) {
@@ -55,3 +56,4 @@ func GetPageStr(url string) (pageStr string) {
 	pageStr = string(pageBytes)
 	return pageStr
 }
+*/
