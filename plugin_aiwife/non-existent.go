@@ -15,7 +15,9 @@ const (
 )
 
 func init() { // 插件主体
-	rand.Seed(time.Now().UnixMicro())
+	// TODO: 1.17 特性暂不增加
+	// rand.Seed(time.Now().UnixMicro())
+	rand.Seed(time.Now().UnixNano())
 	zero.OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetPriority(10).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100000) + 1
