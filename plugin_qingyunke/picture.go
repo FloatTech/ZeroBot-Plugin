@@ -1,6 +1,7 @@
 // TODO: 待优化
-/*package qingyunke
+package qingyunke
 
+/*
 import (
 	"fmt"
 	"io/ioutil"
