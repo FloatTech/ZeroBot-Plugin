@@ -1,4 +1,5 @@
-package qingyunke
+// TODO: 移动到 manager 搭配自动验证使用
+/*package qingyunke
 
 import (
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -15,3 +16,4 @@ func init() {
 		}
 	})
 }
+*/
