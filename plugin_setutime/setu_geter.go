@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
+	. "github.com/FloatTech/ZeroBot-Plugin/data"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -21,7 +22,7 @@ import (
 // Pools 图片缓冲池
 type imgpool struct {
 	Lock  sync.Mutex
-	DB    *sqlite
+	DB    *Sqlite
 	Path  string
 	Group int64
 	List  []string
@@ -37,7 +38,7 @@ const (
 // NewPoolsCache 返回一个缓冲池对象
 func newPools() *imgpool {
 	cache := &imgpool{
-		DB:    &sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+		DB:    &Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
 		Path:  "data/SetuTime/cache/",
 		Group: 0,
 		List:  []string{"涩图", "二次元", "风景", "车万"}, // 可以自己加类别，得自己加图片进数据库
@@ -71,7 +72,7 @@ func newPools() *imgpool {
 		}
 	}
 	for i := range cache.List {
-		if err := cache.DB.create(cache.List[i], &pixiv.Illust{}); err != nil {
+		if err := cache.DB.Create(cache.List[i], &pixiv.Illust{}); err != nil {
 			panic(err)
 		}
 	}
@@ -97,7 +98,7 @@ func init() { // 插件主体
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
-					if err := pool.DB.find(imgtype, illust, "ORDER BY RANDOM() limit 1"); err != nil {
+					if err := pool.DB.Find(imgtype, illust, "ORDER BY RANDOM() limit 1"); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
@@ -152,7 +153,7 @@ func init() { // 插件主体
 				return
 			}
 			// 添加插画到对应的数据库table
-			if err := pool.DB.insert(imgtype, illust); err != nil {
+			if err := pool.DB.Insert(imgtype, illust); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -166,7 +167,7 @@ func init() { // 插件主体
 				id, _   = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
 			// 查询数据库
-			if err := pool.DB.del(imgtype, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
+			if err := pool.DB.Del(imgtype, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
 				ctx.Send(fmt.Sprintf("ERROR: %v", err))
 				return
 			}
@@ -178,7 +179,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
 			for i := range pool.List {
-				num, err := pool.DB.count(pool.List[i])
+				num, err := pool.DB.Count(pool.List[i])
 				if err != nil {
 					num = 0
 				}

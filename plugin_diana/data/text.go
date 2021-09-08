@@ -93,6 +93,8 @@ func LoadText() error {
 func AddText(txt string) error {
 	sum := md5.Sum(str2bytes(txt))
 	if txt != "" && !isin(sum) {
+		m.Lock()
+		defer m.Unlock()
 		compo.Array = append(compo.Array, txt)
 		md5s = append(md5s, sum)
 		return savecompo()
@@ -114,13 +116,10 @@ func savecompo() error {
 	data, err := compo.Marshal()
 	if err == nil {
 		if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
-			m.Lock()
-			defer m.Unlock()
 			f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 			if err1 == nil {
 				_, err2 := f.Write(data)
 				f.Close()
-
 				return err2
 			}
 			return err1

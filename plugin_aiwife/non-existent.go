@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -18,7 +19,12 @@ func init() { // 插件主体
 	// TODO: 1.17 特性暂不增加
 	// rand.Seed(time.Now().UnixMicro())
 	rand.Seed(time.Now().UnixNano())
-	zero.OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetPriority(10).
+	engine := control.Register("aiwife", &control.Options{
+		DisableOnDefault: false,
+		Help: "AIWife\n" +
+			"- waifu|随机waifu",
+	})
+	engine.OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetPriority(10).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100000) + 1
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Image(fmt.Sprintf(bed, miku)))
