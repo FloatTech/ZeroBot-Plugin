@@ -6,11 +6,12 @@ import (
 	"strconv"
 	"sync"
 
-	. "github.com/FloatTech/ZeroBot-Plugin/data"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	. "github.com/FloatTech/ZeroBot-Plugin/data"
 )
 
 var (
