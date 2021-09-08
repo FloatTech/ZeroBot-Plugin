@@ -6,8 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_diana/data"
 	zero "github.com/wdvxdr1123/ZeroBot"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_diana/data"
 )
 
 func init() {
