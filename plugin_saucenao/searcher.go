@@ -27,21 +27,25 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			// 改用 i.pixiv.cat 镜像站
-			link := illust.ImageUrls
-			link = strings.ReplaceAll(link, "i.pximg.net", "i.pixiv.cat")
-			// 发送搜索结果
-			ctx.SendChain(
-				message.Image(link),
-				message.Text(
-					"\n",
-					"标题：", illust.Title, "\n",
-					"插画ID：", illust.Pid, "\n",
-					"画师：", illust.UserName, "\n",
-					"画师ID：", illust.UserId, "\n",
-					"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
-				),
-			)
+			if illust.Pid > 0 {
+				// 改用 i.pixiv.cat 镜像站
+				link := illust.ImageUrls
+				link = strings.ReplaceAll(link, "i.pximg.net", "i.pixiv.cat")
+				// 发送搜索结果
+				ctx.SendChain(
+					message.Image(link),
+					message.Text(
+						"\n",
+						"标题：", illust.Title, "\n",
+						"插画ID：", illust.Pid, "\n",
+						"画师：", illust.UserName, "\n",
+						"画师ID：", illust.UserId, "\n",
+						"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
+					),
+				)
+			} else {
+				ctx.Send("图片不存在!")
+			}
 		})
 	// 以图搜图
 	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
