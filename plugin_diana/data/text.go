@@ -95,7 +95,7 @@ func AddText(txt string) error {
 	if txt != "" && !isin(sum) {
 		compo.Array = append(compo.Array, txt)
 		md5s = append(md5s, sum)
-		savecompo()
+		return savecompo()
 	}
 	return nil
 }
