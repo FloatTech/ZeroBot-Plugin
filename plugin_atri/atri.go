@@ -204,7 +204,7 @@ func init() { // 插件主体
 	zero.OnKeywordGroup([]string{"我好了"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			time.Sleep(time.Second * 1)
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(randText("不许好！", "憋回去！")))
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), randText("不许好！", "憋回去！"))
 		})
 	zero.OnFullMatchGroup([]string{"？", "?", "¿"}, atriSwitch(), atriSleep()).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
