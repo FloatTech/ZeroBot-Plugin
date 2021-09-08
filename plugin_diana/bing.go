@@ -18,20 +18,20 @@ func init() {
 	engine = control.Register("diana", &control.Options{
 		DisableOnDefault: false,
 		Help: "嘉然\n" +
-			"- @BOT 小作文\n" +
-			"- @BOT 发大病\n" +
-			"- @BOT 教你一篇小作文[作文]\n" +
+			"- 小作文\n" +
+			"- 发大病\n" +
+			"- 教你一篇小作文[作文]\n" +
 			"- [回复]查重",
 	})
 	// 随机发送一篇上面的小作文
-	engine.OnFullMatch("小作文", zero.OnlyToMe).
+	engine.OnFullMatch("小作文").
 		Handle(func(ctx *zero.Ctx) {
 			rand.Seed(time.Now().UnixNano())
 			// 绕过第一行发病
 			ctx.Send((*data.Array)[rand.Intn(len(*data.Array)-1)+1])
 		})
 	// 逆天
-	engine.OnFullMatch("发大病", zero.OnlyToMe).
+	engine.OnFullMatch("发大病").
 		Handle(func(ctx *zero.Ctx) {
 			// 第一行是发病
 			ctx.Send((*data.Array)[0])

@@ -103,16 +103,16 @@
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
 - **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
-    - [x] @BOT 求签|运势|占卜
+    - [x] 求签|运势|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >vup info [名字|uid]
 	- [x] >user info [名字|uid]
 	- [x] /开启粉丝日报
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
-    - [x] @BOT 小作文
-    - [x] @BOT 发大病
-    - [x] @BOT 教你一篇小作文[作文]
-    = [x] [回复]查重
+    - [x] 小作文
+    - [x] 发大病
+    - [x] 教你一篇小作文[作文]
+    - [x] [回复]查重
 - **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度 [身体检查]
     - [ ] 简易语音
@@ -122,7 +122,7 @@
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
 - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
     - [x] 搜卡[xxxx]
-    - [x]  [卡组代码xxx]
+    - [x] [卡组代码xxx]
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **青云客** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"`
 	- [x] @Bot 任意文本(任意一句话回复)
