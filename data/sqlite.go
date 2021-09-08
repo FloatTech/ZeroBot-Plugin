@@ -1,4 +1,4 @@
-package setutime
+package data
 
 import (
 	"database/sql"
@@ -8,16 +8,16 @@ import (
 	_ "modernc.org/sqlite" // 引入sqlite
 )
 
-// sqlite 数据库对象
-type sqlite struct {
+// Sqlite 数据库对象
+type Sqlite struct {
 	DB     *sql.DB
 	DBPath string
 }
 
-// create 生成数据库
+// Create 生成数据库
 // 默认结构体的第一个元素为主键
 // 返回错误
-func (db *sqlite) create(table string, objptr interface{}) (err error) {
+func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
 	if db.DB == nil {
 		database, err := sql.Open("sqlite", db.DBPath)
 		if err != nil {
@@ -53,10 +53,10 @@ func (db *sqlite) create(table string, objptr interface{}) (err error) {
 	return nil
 }
 
-// insert 插入数据集
+// Insert 插入数据集
 // 默认结构体的第一个元素为主键
 // 返回错误
-func (db *sqlite) insert(table string, objptr interface{}) (err error) {
+func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
 	rows, err := db.DB.Query("SELECT * FROM " + table)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (db *sqlite) insert(table string, objptr interface{}) (err error) {
 		top    = len(tags) - 1
 		cmd    = []string{}
 	)
-	cmd = append(cmd, "INSERT INTO")
+	cmd = append(cmd, "REPLACE INTO")
 	cmd = append(cmd, table)
 	for i := range tags {
 		switch i {
@@ -112,11 +112,11 @@ func (db *sqlite) insert(table string, objptr interface{}) (err error) {
 	return nil
 }
 
-// find 查询数据库
+// Find 查询数据库
 // condition 可为"WHERE id = 0"
 // 默认字段与结构体元素顺序一致
 // 返回错误
-func (db *sqlite) find(table string, objptr interface{}, condition string) (err error) {
+func (db *Sqlite) Find(table string, objptr interface{}, condition string) (err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM ")
 	cmd = append(cmd, table)
@@ -142,10 +142,35 @@ func (db *sqlite) find(table string, objptr interface{}, condition string) (err 
 	return nil
 }
 
-// del 删除数据库
+// ListTables 列出所有表名
+// 返回所有表名+错误
+func (db *Sqlite) ListTables() (s []string, err error) {
+	rows, err := db.DB.Query("SELECT name FROM sqlite_master where type='table' order by name;")
+	if err != nil {
+		return
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if err != nil {
+			return
+		}
+		objptr := new(string)
+		err = rows.Scan(objptr)
+		if err == nil {
+			s = append(s, *objptr)
+		}
+	}
+	return
+}
+
+// Del 删除数据库
 // condition 可为"WHERE id = 0"
 // 返回错误
-func (db *sqlite) del(table string, condition string) (err error) {
+func (db *Sqlite) Del(table string, condition string) (err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "DELETE FROM")
 	cmd = append(cmd, table)
@@ -161,9 +186,9 @@ func (db *sqlite) del(table string, condition string) (err error) {
 	return nil
 }
 
-// count 查询数据库行数
+// Count 查询数据库行数
 // 返回行数以及错误
-func (db *sqlite) count(table string) (num int, err error) {
+func (db *Sqlite) Count(table string) (num int, err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM")
 	cmd = append(cmd, table)

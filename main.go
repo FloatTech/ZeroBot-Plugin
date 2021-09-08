@@ -8,6 +8,7 @@ import (
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 	// 词库类
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" //青云客
@@ -60,6 +61,7 @@ func init() {
 		LogFormat:       "[zero][%time%][%lvl%]: %msg% \n",
 	})
 	log.SetLevel(log.DebugLevel)
+	control.Init()
 }
 
 func main() {

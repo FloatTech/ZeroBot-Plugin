@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/imroc/req"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -27,7 +28,15 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	zero.OnRegex(`^搜卡(.+)$`).
+
+	engine := control.Register("hs", &control.Options{
+		DisableOnDefault: false,
+		Help: "炉石\n" +
+			"- 搜卡[xxxx]\n" +
+			"- [卡组代码xxx]\n" +
+			"- 更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp",
+	})
+	engine.OnRegex(`^搜卡(.+)$`).
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]
 		g := sh(List)
@@ -67,7 +76,7 @@ func init() {
 		}
 	})
 	// 卡组
-	zero.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
+	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		fmt.Print("成功")
 		List := ctx.State["regex_matched"].([]string)[1]

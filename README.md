@@ -19,7 +19,11 @@
 </div>
 
 ## 功能
-
+- **插件控制**
+    - [x] /启用 xxx
+    - [x] /禁用 xxx
+    - [x] /用法 xxx
+    - [x] /服务列表
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -59,8 +63,8 @@
     - [ ] 警告[@xxx]
     - [x] run[xxx]
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"`
-    - [x] > github [xxx]
-    - [x] > github -p [xxx]
+    - [x] >github [xxx]
+    - [x] >github -p [xxx]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
     - [x] > runcode help
     - [x] > runcode [on/off]
@@ -99,14 +103,16 @@
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
 - **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
-    - 本插件要求`Go`版本大于等于`1.17`
     - [x] @BOT 求签|运势|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
-    - [x] > bili info [名字]
+    - [x] >vup info [名字|uid]
+	- [x] >user info [名字|uid]
+	- [x] /开启粉丝日报
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] @BOT 小作文
     - [x] @BOT 发大病
     - [x] @BOT 教你一篇小作文[作文]
+    = [x] [回复]查重
 - **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度 [身体检查]
     - [ ] 简易语音
@@ -122,6 +128,8 @@
 	- [x] @Bot 任意文本(任意一句话回复)
 	- [x] 关闭自动回复
 	- [x] 启动自动回复
+- **关键字搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"`
+    - [x] 来张 [xxx]
 - **TODO...**
 
 ## 使用方法

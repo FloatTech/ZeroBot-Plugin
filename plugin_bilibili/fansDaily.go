@@ -23,7 +23,7 @@ type follower struct {
 
 // 开启日报推送
 func init() {
-	zero.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
+	engine.OnFullMatch("/开启粉丝日报", zero.AdminPermission).
 		Handle(func(ctx *zero.Ctx) {
 			fansDaily(ctx.Event.GroupID) // 群号传进去给下面发信息的函数
 		})
