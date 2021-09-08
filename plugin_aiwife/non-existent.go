@@ -6,9 +6,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 const (
