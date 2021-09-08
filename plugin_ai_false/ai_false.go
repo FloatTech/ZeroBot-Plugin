@@ -5,10 +5,11 @@ import (
 	"math"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

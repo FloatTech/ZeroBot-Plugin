@@ -12,11 +12,12 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
-	. "github.com/FloatTech/ZeroBot-Plugin/data"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	. "github.com/FloatTech/ZeroBot-Plugin/data"
 )
 
 // Pools 图片缓冲池
