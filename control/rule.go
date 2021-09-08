@@ -76,6 +76,7 @@ func (m *Control) Handler() zero.Rule {
 		err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 		if err == nil {
 			m.RUnlock()
+			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
 			return c.Disable == 0
 		} else {
 			logrus.Errorf("[control] %v", err)
