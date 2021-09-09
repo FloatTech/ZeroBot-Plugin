@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -18,7 +19,11 @@ func init() { // 插件主体
 	// TODO: 1.17 特性暂不增加
 	// rand.Seed(time.Now().UnixMicro())
 	rand.Seed(time.Now().UnixNano())
-	zero.OnFullMatchGroup([]string{"求签", "运势", "占卜"}).SetPriority(10).
+	control.Register("omikuji", &control.Options{
+		DisableOnDefault: false,
+		Help: "浅草寺求签\n" +
+			"- 求签|运势|占卜",
+	}).OnFullMatchGroup([]string{"求签", "运势", "占卜"}).SetPriority(10).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100) + 1
 			ctx.SendChain(

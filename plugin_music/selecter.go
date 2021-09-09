@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -20,7 +21,14 @@ import (
 var limit = rate.NewManager(time.Minute*3, 5)
 
 func init() {
-	zero.OnRegex("^(.{0,2})点歌(.{1,25})$").SetBlock(true).FirstPriority().
+	control.Register("music", &control.Options{
+		DisableOnDefault: false,
+		Help: "点歌\n" +
+			"- 点歌[xxx]\n" +
+			"- 网易点歌[xxx]\n" +
+			"- 酷我点歌[xxx]\n" +
+			"- 酷狗点歌[xxx]",
+	}).OnRegex("^(.{0,2})点歌(.{1,25})$").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.Send("请稍后重试0x0...")

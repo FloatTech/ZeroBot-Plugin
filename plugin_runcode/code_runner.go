@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -17,7 +18,6 @@ import (
 )
 
 var (
-	enable    = true
 	limit     = rate.NewManager(time.Minute*3, 5)
 	templates = map[string]string{
 		"py2":        "print 'Hello World!'",
@@ -92,40 +92,18 @@ var (
 )
 
 func init() {
-	zero.OnFullMatch(">runcode help").SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
-				"使用说明: ", "\n",
-				">runcode [language] [code block]", "\n",
-				"模板查看: ", "\n",
-				">runcode [language] help", "\n",
-				"支持语种: ", "\n",
-				"Go || Python || C/C++ || C# || Java || Lua ", "\n",
-				"JavaScript || TypeScript || PHP || Shell ", "\n",
-				"Kotlin  || Rust || Erlang || Ruby || Swift ", "\n",
-				"R || VB || Py2 || Perl || Pascal || Scala ", "\n",
-			))
-		})
-
-	zero.OnFullMatch(">runcode on", zero.AdminPermission).SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			enable = true
-			ctx.SendChain(
-				message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-				message.Text("在线运行代码功能已启用"),
-			)
-		})
-
-	zero.OnFullMatch(">runcode off", zero.AdminPermission).SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			enable = false
-			ctx.SendChain(
-				message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-				message.Text("在线运行代码功能已禁用"),
-			)
-		})
-
-	zero.OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).SecondPriority().
+	control.Register("runcode", &control.Options{
+		DisableOnDefault: false,
+		Help: "在线代码运行: \n" +
+			">runcode [language] [code block]\n" +
+			"模板查看: \n" +
+			">runcode [language] help\n" +
+			"支持语种: \n" +
+			"Go || Python || C/C++ || C# || Java || Lua \n" +
+			"JavaScript || TypeScript || PHP || Shell \n" +
+			"Kotlin  || Rust || Erlang || Ruby || Swift \n" +
+			"R || VB || Py2 || Perl || Pascal || Scala",
+	}).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).SecondPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.Send("请稍后重试0x0...")
@@ -139,39 +117,31 @@ func init() {
 						message.Text("语言不是受支持的编程语种呢~"),
 					)
 				} else {
-					if !enable {
-						// 运行代码被禁用
+					// 执行运行
+					block := ctx.State["regex_matched"].([]string)[2]
+					block = message.UnescapeCQCodeText(block)
+					if block == "help" {
+						// 输出模板
 						ctx.SendChain(
-							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-							message.Text("在线运行代码功能已被禁用"),
+							message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
+							message.Text(
+								">runcode ", language, "\n",
+								templates[language],
+							),
 						)
 					} else {
-						// 执行运行
-						block := ctx.State["regex_matched"].([]string)[2]
-						block = message.UnescapeCQCodeText(block)
-						if block == "help" {
-							// 输出模板
+						if output, err := runCode(block, runType); err != nil {
+							// 运行失败
 							ctx.SendChain(
-								message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
-								message.Text(
-									">runcode ", language, "\n",
-									templates[language],
-								),
+								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+								message.Text("ERROR: ", err),
 							)
 						} else {
-							if output, err := runCode(block, runType); err != nil {
-								// 运行失败
-								ctx.SendChain(
-									message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-									message.Text("ERROR: ", err),
-								)
-							} else {
-								// 运行成功
-								ctx.SendChain(
-									message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-									message.Text(output),
-								)
-							}
+							// 运行成功
+							ctx.SendChain(
+								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+								message.Text(output),
+							)
 						}
 					}
 				}

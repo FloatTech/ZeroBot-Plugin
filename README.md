@@ -66,8 +66,7 @@
     - [x] >github [xxx]
     - [x] >github -p [xxx]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
-    - [x] > runcode help
-    - [x] > runcode [on/off]
+    - [x] > runcode [language] help
     - [x] > runcode [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"`
     - [x] 点歌[xxx]
@@ -118,7 +117,9 @@
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
-    - [x] 具体指令看代码
+    - [x] /mcstart xxx
+	- [x] /mcstop xxx
+	- [x] /mclist servername
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
 - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
     - [x] 搜卡[xxxx]
@@ -126,8 +127,6 @@
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **青云客** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"`
 	- [x] @Bot 任意文本(任意一句话回复)
-	- [x] 关闭自动回复
-	- [x] 启动自动回复
 - **关键字搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"`
     - [x] 来张 [xxx]
 - **TODO...**

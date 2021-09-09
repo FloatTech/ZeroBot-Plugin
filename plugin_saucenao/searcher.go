@@ -13,11 +13,18 @@ import (
 	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 func init() { // 插件主体
+	engine := control.Register("saucenao", &control.Options{
+		DisableOnDefault: false,
+		Help: "搜图\n" +
+			"- 以图搜图|搜索图片|以图识图[图片]\n" +
+			"- 搜图[P站图片ID]",
+	})
 	// 根据 PID 搜图
-	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).FirstPriority().
+	engine.OnRegex(`^搜图(\d+)$`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			id, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 			ctx.Send("少女祈祷中......")
@@ -48,7 +55,7 @@ func init() { // 插件主体
 			}
 		})
 	// 以图搜图
-	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
+	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
