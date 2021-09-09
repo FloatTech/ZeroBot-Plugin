@@ -6,7 +6,6 @@ import (
 
 func Register(service string, o *Options) *zero.Engine {
 	engine := zero.New()
-	m := *New(service, o)
-	engine.UsePreHandler(m.Handler())
+	engine.UsePreHandler(New(service, o).Handler())
 	return engine
 }
