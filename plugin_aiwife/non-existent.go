@@ -24,7 +24,7 @@ func init() { // 插件主体
 		DisableOnDefault: false,
 		Help: "AIWife\n" +
 			"- waifu|随机waifu",
-	}).OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetPriority(10).
+	}).OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100000) + 1
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Image(fmt.Sprintf(bed, miku)))

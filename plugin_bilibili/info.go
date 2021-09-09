@@ -23,7 +23,7 @@ func init() {
 			"- >user info [名字|uid]\n" +
 			"- /开启粉丝日报",
 	})
-	engine.OnRegex(`^>user info\s(.{1,25})$`).
+	engine.OnRegex(`^>user info\s(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			rest, err := uid(keyword)

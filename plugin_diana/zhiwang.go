@@ -28,7 +28,7 @@ type zhiwang struct {
 
 // 小作文查重: 回复要查的消息 查重
 func init() {
-	engine.OnMessage(fullmatch("查重")).
+	engine.OnMessage(fullmatch("查重")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.Event.Message
 			if msg[0].Type == "reply" {

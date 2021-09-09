@@ -46,7 +46,7 @@ func init() {
 	servers["ftbi"] = "115.28.186.22:25710"
 	servers["ges"] = "115.28.186.22:25701"
 
-	engine.OnCommand("mclist").
+	engine.OnCommand("mclist").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
 			_ = ctx.Parse(&model)

@@ -24,7 +24,7 @@ func init() { // 插件主体
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签|运势|占卜",
-	}).OnFullMatchGroup([]string{"求签", "运势", "占卜"}).SetPriority(10).
+	}).OnFullMatchGroup([]string{"求签", "运势", "占卜"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100) + 1
 			ctx.SendChain(

@@ -30,7 +30,7 @@ func init() {
 			"- /mclist servername\n" +
 			"- https://github.com/Suwings/MCSManager",
 	})
-	engine.OnCommand("mcstart").
+	engine.OnCommand("mcstart").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
 			_ = ctx.Parse(&model)
@@ -38,7 +38,7 @@ func init() {
 			result := start(model.Args)
 			ctx.Send(result)
 		})
-	engine.OnCommand("mcstop").
+	engine.OnCommand("mcstop").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
 			_ = ctx.Parse(&model)
