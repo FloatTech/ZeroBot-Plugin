@@ -38,11 +38,12 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	log "github.com/sirupsen/logrus"
 	easy "github.com/t-tomalak/logrus-easy-formatter"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
