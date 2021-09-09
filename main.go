@@ -47,9 +47,9 @@ import (
 
 var (
 	contents = []string{
-		"* OneBot + ZeroBot + Golang ",
-		"* Version 1.1.0 - 2021-08-06 23:36:29 +0800 CST",
-		"* Copyright © 2020 - 2021  Kanri, DawnNights, Fumiama, Suika",
+		"* OneBot + ZeroBot + Golang",
+		"* Version 1.1.5 - 2021-09-09 20:52:33 +0800 CST",
+		"* Copyright © 2020 - 2021 Kanri, DawnNights, Fumiama, Suika",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
 	banner = strings.Join(contents, "\n")
