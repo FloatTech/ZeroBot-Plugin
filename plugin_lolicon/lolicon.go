@@ -27,7 +27,7 @@ func init() {
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
 			"- 来份萝莉",
-	}).OnFullMatch("来份萝莉").
+	}).OnFullMatch("来份萝莉").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				for i := 0; i < min(cap(queue)-len(queue), 2); i++ {

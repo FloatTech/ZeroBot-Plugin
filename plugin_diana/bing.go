@@ -24,20 +24,20 @@ func init() {
 			"- [回复]查重",
 	})
 	// 随机发送一篇上面的小作文
-	engine.OnFullMatch("小作文").
+	engine.OnFullMatch("小作文").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			rand.Seed(time.Now().UnixNano())
 			// 绕过第一行发病
 			ctx.Send((*data.Array)[rand.Intn(len(*data.Array)-1)+1])
 		})
 	// 逆天
-	engine.OnFullMatch("发大病").
+	engine.OnFullMatch("发大病").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 第一行是发病
 			ctx.Send((*data.Array)[0])
 		})
 	// 增加小作文
-	engine.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).
+	engine.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			err := data.AddText(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {

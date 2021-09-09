@@ -13,7 +13,7 @@ import (
 
 // 查vup粉丝数据
 func init() {
-	engine.OnRegex(`^>vup info\s?(.{1,25})$`).
+	engine.OnRegex(`^>vup info\s?(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			res, err := uid(keyword)
