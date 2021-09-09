@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -21,7 +22,11 @@ var (
 )
 
 func init() {
-	zero.OnFullMatch("来份萝莉").
+	control.Register("lolicon", &control.Options{
+		DisableOnDefault: false,
+		Help: "lolicon\n" +
+			"- 来份萝莉",
+	}).OnFullMatch("来份萝莉").
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				for i := 0; i < min(cap(queue)-len(queue), 2); i++ {

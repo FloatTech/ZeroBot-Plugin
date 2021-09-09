@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -22,23 +23,17 @@ import (
 var (
 	prio   = 3
 	bucket = rate.NewManager(time.Minute, 20) // 青云客接口回复
-	enable = true
+	engine *zero.Engine
 )
 
 func init() { // 插件主体
-	// 开关
-	zero.OnFullMatch("开启自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
-		Handle(func(ctx *zero.Ctx) {
-			enable = true
-			ctx.SendChain(message.Text("自动回复开启"))
-		})
-	zero.OnFullMatch("关闭自动回复", zero.SuperUserPermission).SetBlock(true).SetPriority(prio).
-		Handle(func(ctx *zero.Ctx) {
-			enable = false
-			ctx.SendChain(message.Text("自动回复关闭"))
-		})
+	engine = control.Register("qingyunke", &control.Options{
+		DisableOnDefault: false,
+		Help: "青云客\n" +
+			"- @Bot 任意文本(任意一句话回复)",
+	})
 	// 回复
-	zero.OnRegex("(^.{1,30}$)", zero.OnlyToMe, switchQYK()).SetBlock(false).SetPriority(prio).
+	engine.OnRegex("(^.{1,30}$)", zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			if !bucket.Load(ctx.Event.UserID).Acquire() {
 				// 频繁触发，不回复
@@ -151,10 +146,4 @@ func getAgent() string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	len1 := len(agent)
 	return agent[r.Intn(len1)]
-}
-
-func switchQYK() zero.Rule {
-	return func(ctx *zero.Ctx) bool {
-		return enable
-	}
 }
