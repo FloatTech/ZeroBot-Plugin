@@ -42,8 +42,6 @@ import (
 	easy "github.com/t-tomalak/logrus-easy-formatter"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
@@ -62,7 +60,6 @@ func init() {
 		LogFormat:       "[zero][%time%][%lvl%]: %msg% \n",
 	})
 	log.SetLevel(log.DebugLevel)
-	control.Init()
 }
 
 func main() {

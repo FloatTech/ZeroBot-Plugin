@@ -19,6 +19,7 @@ var (
 	// managers 每个插件对应的管理
 	managers = map[string]*Control{}
 	mu       = sync.RWMutex{}
+	hasinit  bool
 )
 
 // Control is to control the plugins.
@@ -122,61 +123,66 @@ func copyMap(m map[string]*Control) map[string]*Control {
 }
 
 func init() {
-	err := os.MkdirAll("data/control", 0755)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func Init() {
-	zero.OnCommandGroup([]string{"启用", "enable"}, zero.AdminPermission, zero.OnlyGroup).
-		Handle(func(ctx *zero.Ctx) {
-			model := extension.CommandModel{}
-			_ = ctx.Parse(&model)
-			service, ok := lookup(model.Args)
-			if !ok {
-				ctx.Send("没有找到指定服务!")
-			}
-			service.enable(ctx.Event.GroupID)
-			ctx.Send(message.Text("已启用服务: " + model.Args))
-		})
-
-	zero.OnCommandGroup([]string{"禁用", "disable"}, zero.AdminPermission, zero.OnlyGroup).
-		Handle(func(ctx *zero.Ctx) {
-			model := extension.CommandModel{}
-			_ = ctx.Parse(&model)
-			service, ok := lookup(model.Args)
-			if !ok {
-				ctx.Send("没有找到指定服务!")
-			}
-			service.disable(ctx.Event.GroupID)
-			ctx.Send(message.Text("已关闭服务: " + model.Args))
-		})
-
-	zero.OnCommandGroup([]string{"用法", "usage"}, zero.AdminPermission, zero.OnlyGroup).
-		Handle(func(ctx *zero.Ctx) {
-			model := extension.CommandModel{}
-			_ = ctx.Parse(&model)
-			service, ok := lookup(model.Args)
-			if !ok {
-				ctx.Send("没有找到指定服务!")
-			}
-			if service.options.Help != "" {
-				ctx.Send(service.options.Help)
+	if !hasinit {
+		mu.Lock()
+		if !hasinit {
+			err := os.MkdirAll("data/control", 0755)
+			if err != nil {
+				panic(err)
 			} else {
-				ctx.Send("该服务无帮助!")
-			}
-		})
+				hasinit = true
+				zero.OnCommandGroup([]string{"启用", "enable"}, zero.AdminPermission, zero.OnlyGroup).
+					Handle(func(ctx *zero.Ctx) {
+						model := extension.CommandModel{}
+						_ = ctx.Parse(&model)
+						service, ok := lookup(model.Args)
+						if !ok {
+							ctx.Send("没有找到指定服务!")
+						}
+						service.enable(ctx.Event.GroupID)
+						ctx.Send(message.Text("已启用服务: " + model.Args))
+					})
 
-	zero.OnCommandGroup([]string{"服务列表", "service_list"}, zero.AdminPermission, zero.OnlyGroup).
-		Handle(func(ctx *zero.Ctx) {
-			msg := `---服务列表---`
-			i := 0
-			forEach(func(key string, manager *Control) bool {
-				i++
-				msg += "\n" + strconv.Itoa(i) + `: ` + key
-				return true
-			})
-			ctx.Send(message.Text(msg))
-		})
+				zero.OnCommandGroup([]string{"禁用", "disable"}, zero.AdminPermission, zero.OnlyGroup).
+					Handle(func(ctx *zero.Ctx) {
+						model := extension.CommandModel{}
+						_ = ctx.Parse(&model)
+						service, ok := lookup(model.Args)
+						if !ok {
+							ctx.Send("没有找到指定服务!")
+						}
+						service.disable(ctx.Event.GroupID)
+						ctx.Send(message.Text("已关闭服务: " + model.Args))
+					})
+
+				zero.OnCommandGroup([]string{"用法", "usage"}, zero.AdminPermission, zero.OnlyGroup).
+					Handle(func(ctx *zero.Ctx) {
+						model := extension.CommandModel{}
+						_ = ctx.Parse(&model)
+						service, ok := lookup(model.Args)
+						if !ok {
+							ctx.Send("没有找到指定服务!")
+						}
+						if service.options.Help != "" {
+							ctx.Send(service.options.Help)
+						} else {
+							ctx.Send("该服务无帮助!")
+						}
+					})
+
+				zero.OnCommandGroup([]string{"服务列表", "service_list"}, zero.AdminPermission, zero.OnlyGroup).
+					Handle(func(ctx *zero.Ctx) {
+						msg := `---服务列表---`
+						i := 0
+						forEach(func(key string, manager *Control) bool {
+							i++
+							msg += "\n" + strconv.Itoa(i) + `: ` + key
+							return true
+						})
+						ctx.Send(message.Text(msg))
+					})
+			}
+		}
+		mu.Unlock()
+	}
 }
