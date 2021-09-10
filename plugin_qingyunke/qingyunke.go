@@ -34,7 +34,7 @@ func init() { // 插件主体
 			"- @Bot 任意文本(任意一句话回复)",
 	})
 	// 回复 匹配中文、英文、数字、空格但不包括下划线等符号
-	engine.OnRegex(`^([\u4E00-\u9FA5A-Za-z0-9|\s]{1,30})`, zero.OnlyToMe).SetBlock(true).SetPriority(prio).
+	engine.OnRegex(`^([\u4E00-\u9FA5A-Za-z0-9\s]{1,30})`, zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			if !bucket.Load(ctx.Event.UserID).Acquire() {
 				// 频繁触发，不回复
