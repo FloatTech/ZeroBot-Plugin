@@ -28,8 +28,8 @@ type Control struct {
 	options Options
 }
 
-// New returns Manager with settings.
-func New(service string, o *Options) *Control {
+// new returns Manager with settings.
+func new(service string, o *Options) *Control {
 	m := &Control{service: service,
 		options: func() Options {
 			if o == nil {
@@ -48,8 +48,8 @@ func New(service string, o *Options) *Control {
 	return m
 }
 
-// Enable enables a group to pass the Manager.
-func (m *Control) Enable(groupID int64) {
+// enable enables a group to pass the Manager.
+func (m *Control) enable(groupID int64) {
 	m.Lock()
 	err := db.Insert(m.service, &grpcfg{groupID, 0})
 	if err != nil {
@@ -58,8 +58,8 @@ func (m *Control) Enable(groupID int64) {
 	m.Unlock()
 }
 
-// Disable disables a group to pass the Manager.
-func (m *Control) Disable(groupID int64) {
+// disable disables a group to pass the Manager.
+func (m *Control) disable(groupID int64) {
 	m.Lock()
 	err := db.Insert(m.service, &grpcfg{groupID, 1})
 	if err != nil {
@@ -84,25 +84,25 @@ func (m *Control) Handler() zero.Rule {
 		}
 		m.RUnlock()
 		if m.options.DisableOnDefault {
-			m.Disable(ctx.Event.GroupID)
+			m.disable(ctx.Event.GroupID)
 		} else {
-			m.Enable(ctx.Event.GroupID)
+			m.enable(ctx.Event.GroupID)
 		}
 		return !m.options.DisableOnDefault
 	}
 }
 
-// Lookup returns a Manager by the service name, if
+// lookup returns a Manager by the service name, if
 // not exist, it will returns nil.
-func Lookup(service string) (*Control, bool) {
+func lookup(service string) (*Control, bool) {
 	mu.RLock()
 	defer mu.RUnlock()
 	m, ok := managers[service]
 	return m, ok
 }
 
-// ForEach iterates through managers.
-func ForEach(iterator func(key string, manager *Control) bool) {
+// forEach iterates through managers.
+func forEach(iterator func(key string, manager *Control) bool) {
 	mu.RLock()
 	m := copyMap(managers)
 	mu.RUnlock()
@@ -121,20 +121,23 @@ func copyMap(m map[string]*Control) map[string]*Control {
 	return ret
 }
 
-func Init() {
+func init() {
 	err := os.MkdirAll("data/control", 0755)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Init() {
 	zero.OnCommandGroup([]string{"启用", "enable"}, zero.AdminPermission, zero.OnlyGroup).
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
 			_ = ctx.Parse(&model)
-			service, ok := Lookup(model.Args)
+			service, ok := lookup(model.Args)
 			if !ok {
 				ctx.Send("没有找到指定服务!")
 			}
-			service.Enable(ctx.Event.GroupID)
+			service.enable(ctx.Event.GroupID)
 			ctx.Send(message.Text("已启用服务: " + model.Args))
 		})
 
@@ -142,11 +145,11 @@ func Init() {
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
 			_ = ctx.Parse(&model)
-			service, ok := Lookup(model.Args)
+			service, ok := lookup(model.Args)
 			if !ok {
 				ctx.Send("没有找到指定服务!")
 			}
-			service.Disable(ctx.Event.GroupID)
+			service.disable(ctx.Event.GroupID)
 			ctx.Send(message.Text("已关闭服务: " + model.Args))
 		})
 
@@ -154,7 +157,7 @@ func Init() {
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
 			_ = ctx.Parse(&model)
-			service, ok := Lookup(model.Args)
+			service, ok := lookup(model.Args)
 			if !ok {
 				ctx.Send("没有找到指定服务!")
 			}
@@ -169,7 +172,7 @@ func Init() {
 		Handle(func(ctx *zero.Ctx) {
 			msg := `---服务列表---`
 			i := 0
-			ForEach(func(key string, manager *Control) bool {
+			forEach(func(key string, manager *Control) bool {
 				i++
 				msg += "\n" + strconv.Itoa(i) + `: ` + key
 				return true
