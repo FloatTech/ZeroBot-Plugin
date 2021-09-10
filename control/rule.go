@@ -180,11 +180,11 @@ func init() {
 						i := 0
 						forEach(func(key string, manager *Control) bool {
 							i++
-							msg += "\n" + strconv.Itoa(i) + `: ` + key
+							msg += "\n" + strconv.Itoa(i) + `: `
 							if manager.isEnabledIn(ctx.Event.GroupID) {
-								msg += " ●"
+								msg += " ●" + key
 							} else {
-								msg += " ○"
+								msg += " ○" + key
 							}
 							return true
 						})
