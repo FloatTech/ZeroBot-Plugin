@@ -182,9 +182,9 @@ func init() {
 							i++
 							msg += "\n" + strconv.Itoa(i) + `: `
 							if manager.isEnabledIn(ctx.Event.GroupID) {
-								msg += " ●" + key
+								msg += "●" + key
 							} else {
-								msg += " ○" + key
+								msg += "○" + key
 							}
 							return true
 						})
