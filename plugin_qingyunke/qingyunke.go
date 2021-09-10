@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	prio   = 3
+	prio   = 100
 	bucket = rate.NewManager(time.Minute, 20) // 青云客接口回复
 	engine *zero.Engine
 )
@@ -58,6 +58,7 @@ func init() { // 插件主体
 				textReply = reply
 			}
 			textReply = strings.ReplaceAll(textReply, "菲菲", zero.BotConfig.NickName[0])
+			textReply = strings.ReplaceAll(textReply, "{br}", "\n")
 			// 回复
 			time.Sleep(time.Second * 1)
 			if ctx.Event.MessageType == "group" {
