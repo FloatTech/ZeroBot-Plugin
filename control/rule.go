@@ -69,27 +69,31 @@ func (m *Control) disable(groupID int64) {
 	m.Unlock()
 }
 
+func (m *Control) isEnabledIn(gid int64) bool {
+	m.RLock()
+	var c grpcfg
+	err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
+	if err == nil {
+		m.RUnlock()
+		logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
+		return c.Disable == 0
+	} else {
+		logrus.Errorf("[control] %v", err)
+	}
+	m.RUnlock()
+	if m.options.DisableOnDefault {
+		m.disable(gid)
+	} else {
+		m.enable(gid)
+	}
+	return !m.options.DisableOnDefault
+}
+
 // Handler 返回 预处理器
 func (m *Control) Handler() zero.Rule {
 	return func(ctx *zero.Ctx) bool {
-		m.RLock()
 		ctx.State["manager"] = m
-		var c grpcfg
-		err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
-		if err == nil {
-			m.RUnlock()
-			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
-			return c.Disable == 0
-		} else {
-			logrus.Errorf("[control] %v", err)
-		}
-		m.RUnlock()
-		if m.options.DisableOnDefault {
-			m.disable(ctx.Event.GroupID)
-		} else {
-			m.enable(ctx.Event.GroupID)
-		}
-		return !m.options.DisableOnDefault
+		return m.isEnabledIn(ctx.Event.GroupID)
 	}
 }
 
@@ -177,6 +181,11 @@ func init() {
 						forEach(func(key string, manager *Control) bool {
 							i++
 							msg += "\n" + strconv.Itoa(i) + `: ` + key
+							if manager.isEnabledIn(ctx.Event.GroupID) {
+								msg += " ●"
+							} else {
+								msg += " ○"
+							}
 							return true
 						})
 						ctx.Send(message.Text(msg))
