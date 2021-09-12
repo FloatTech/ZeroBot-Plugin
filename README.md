@@ -50,8 +50,8 @@
     - [x] *入群欢迎
     - [x] *退群通知
     - [x] 设置欢迎语[欢迎~]
-    - [x] 在MM月dd日的hh点mm分时(用http://url)提醒大家xxx
-    - [x] 在MM月[每周|周几]的hh点mm分时(用http://url)提醒大家xxx
+    - [x] 在MM月dd日的hh点mm分时(用[url])提醒大家xxx
+    - [x] 在MM月[每周|周几]的hh点mm分时(用[url])提醒大家xxx
     - [x] 取消在MM月dd日的hh点mm分的提醒
     - [x] 取消在MM月[每周|周几]的hh点mm分的提醒
     - [x] 列出所有提醒
