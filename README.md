@@ -129,6 +129,8 @@
 	- [x] @Bot 任意文本(任意一句话回复)
 - **关键字搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"`
     - [x] 来张 [xxx]
+- **拼音首字母释义工具** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"`
+    - [x] ?? [缩写]
 - **TODO...**
 
 ## 使用方法
