@@ -131,6 +131,8 @@
     - [x] 来张 [xxx]
 - **拼音首字母释义工具** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"`
     - [x] ?? [缩写]
+- **选择困难症帮手** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"`
+    - [x] 选择[选择项1]还是[选项2]还是[更多选项]
 - **TODO...**
 
 ## 使用方法
