@@ -1,12 +1,12 @@
 github.com/FloatTech/AnimeAPI v1.1.9 h1:H1hZmgwZPNHdx39K9JvY3awT8TTsCl9kKA1uVMyCjRg=
 github.com/FloatTech/AnimeAPI v1.1.9/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
 github.com/FloatTech/ZeroBot-Plugin v1.1.5/go.mod h1:kWuUARvU7gs4xLggi8Sy37ja2GRL6k0X6kewe5TiZRs=
-github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.4 h1:IOb2Tp421fsNAKJ8D6rsU6H7XxrTOcruOHEfdabFbNE=
-github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.4/go.mod h1:cDQiLA2zl+Zfq0s4QnLnYdpZhWEhGa15/QGgdRifUrc=
+github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.5 h1:SighsMMD7s0cB4r5ya/7B8sOLQ6W1wY2xhgwFc1fO3c=
+github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.5/go.mod h1:W7ag6hml1pZTNzRXKU74OMr6rS8awQKSU+o2g7Gj4O0=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3 h1:jn/dH+OwPSRozkmeCeQQPrAGJRBudcm3OK5tXhGItRk=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3/go.mod h1:MVOQQ4e6AVGFm993blXXU4Sd6bAsLY2+Zb+/HMrEeEc=
-github.com/FloatTech/imgfactory v0.1.0 h1:MXEVNgMIkbwvp3Mh+kqkzEslGIgDOHpfwetInbiCH64=
-github.com/FloatTech/imgfactory v0.1.0/go.mod h1:ThDALab8aOuU6KVYESVWFqmjcqtm03e0SvGlTw6s+aw=
+github.com/FloatTech/imgfactory v0.1.1 h1:ooL2+fV8yrMhv1ShGGKsN0Rm/flWoKnvqXaUD+dC3DQ=
+github.com/FloatTech/imgfactory v0.1.1/go.mod h1:ThDALab8aOuU6KVYESVWFqmjcqtm03e0SvGlTw6s+aw=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
 github.com/antchfx/htmlquery v1.2.3 h1:sP3NFDneHx2stfNXCKbhHFo8XgNjCACnU/4AO5gWz6M=
@@ -95,8 +95,9 @@ github.com/tklauser/go-sysconf v0.3.9/go.mod h1:11DU/5sG7UexIrp/O6g35hrWzu0JxlwQ
 github.com/tklauser/numcpus v0.3.0 h1:ILuRUQBtssgnxw0XXIjKUC56fgnOrFoQQ/4+DeU2biQ=
 github.com/tklauser/numcpus v0.3.0/go.mod h1:yFGUr7TUHQRAhyqBcEg0Ge34zDBAsIvJJcyE6boqnA8=
 github.com/wdvxdr1123/ZeroBot v1.2.2/go.mod h1:83nHtG8V5TAxPwH/LCDxLpZk4khIgs29dkr5TBWf7fc=
-github.com/wdvxdr1123/ZeroBot v1.2.3 h1:Fu6aHr+91NRN48G9szJwyR0MhnTjG5lNMS0Wy0QX1Uo=
 github.com/wdvxdr1123/ZeroBot v1.2.3/go.mod h1:83nHtG8V5TAxPwH/LCDxLpZk4khIgs29dkr5TBWf7fc=
+github.com/wdvxdr1123/ZeroBot v1.2.4 h1:eC/41Tlkj1jxXW91x4K+qjUlaQXKGgUeLhxw7C6+qkM=
+github.com/wdvxdr1123/ZeroBot v1.2.4/go.mod h1:83nHtG8V5TAxPwH/LCDxLpZk4khIgs29dkr5TBWf7fc=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
