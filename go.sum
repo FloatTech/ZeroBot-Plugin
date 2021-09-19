@@ -1,8 +1,8 @@
 github.com/FloatTech/AnimeAPI v1.1.9 h1:H1hZmgwZPNHdx39K9JvY3awT8TTsCl9kKA1uVMyCjRg=
 github.com/FloatTech/AnimeAPI v1.1.9/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
 github.com/FloatTech/ZeroBot-Plugin v1.1.5/go.mod h1:kWuUARvU7gs4xLggi8Sy37ja2GRL6k0X6kewe5TiZRs=
-github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.3 h1:/uZH5E/rqCumD082rw8pAgGo/bxZVJoT/1oNk4NSaWI=
-github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.3/go.mod h1:PWjnDyYCvvM2axEUC7b4TwbK3QTw+ffgHjTDNHujCn0=
+github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.4 h1:IOb2Tp421fsNAKJ8D6rsU6H7XxrTOcruOHEfdabFbNE=
+github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.4/go.mod h1:cDQiLA2zl+Zfq0s4QnLnYdpZhWEhGa15/QGgdRifUrc=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3 h1:jn/dH+OwPSRozkmeCeQQPrAGJRBudcm3OK5tXhGItRk=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3/go.mod h1:MVOQQ4e6AVGFm993blXXU4Sd6bAsLY2+Zb+/HMrEeEc=
 github.com/FloatTech/imgfactory v0.1.0 h1:MXEVNgMIkbwvp3Mh+kqkzEslGIgDOHpfwetInbiCH64=
