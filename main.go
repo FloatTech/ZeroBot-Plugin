@@ -42,7 +42,6 @@ import (
 
 	// 以下为内置依赖，勿动
 	log "github.com/sirupsen/logrus"
-	easy "github.com/t-tomalak/logrus-easy-formatter"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 )
@@ -58,10 +57,6 @@ var (
 )
 
 func init() {
-	log.SetFormatter(&easy.Formatter{
-		TimestampFormat: "2006-01-02 15:04:05",
-		LogFormat:       "[zero][%time%][%lvl%]: %msg% \n",
-	})
 	log.SetLevel(log.DebugLevel)
 }
 
