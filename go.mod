@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/FloatTech/AnimeAPI v1.1.9
-	github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.3
+	github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.4
 	github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3
 	github.com/golang/protobuf v1.5.2
 	github.com/imroc/req v0.3.0
