@@ -25,6 +25,7 @@ var (
 	// 向前端推送日志的ws链接
 	logConn *websocket.Conn
 
+	// L 一个向外到处的LogWriter实例
 	L LogWriter
 )
 
@@ -196,7 +197,7 @@ func updatePluginAllGroupStatus(context *gin.Context) {
  * example
  */
 func updatePluginStatus(context *gin.Context) {
-	groupId, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
+	groupID, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
 	name := context.PostForm("name")
 	enable, err := strconv.ParseBool(context.PostForm("enable"))
 
@@ -207,7 +208,7 @@ func updatePluginStatus(context *gin.Context) {
 			log.Errorln(err.Error())
 			return
 		}
-		groupId = int64(parse["group_id"].(float64))
+		groupID = int64(parse["group_id"].(float64))
 		name = parse["name"].(string)
 		enable = parse["enable"].(bool)
 	}
@@ -218,9 +219,9 @@ func updatePluginStatus(context *gin.Context) {
 		return
 	}
 	if enable {
-		control.enable(groupId)
+		control.enable(groupID)
 	} else {
-		control.disable(groupId)
+		control.disable(groupID)
 	}
 	context.JSON(200, nil)
 }
@@ -232,7 +233,7 @@ func updatePluginStatus(context *gin.Context) {
  * example
  */
 func getPluginStatus(context *gin.Context) {
-	groupId, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
+	groupID, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
 	name := context.PostForm("name")
 	if err != nil {
 		var parse map[string]interface{}
@@ -241,7 +242,7 @@ func getPluginStatus(context *gin.Context) {
 			log.Errorln(err.Error())
 			return
 		}
-		groupId = int64(parse["group_id"].(float64))
+		groupID = int64(parse["group_id"].(float64))
 		name = parse["name"].(string)
 	}
 	control, b := lookup(name)
@@ -249,7 +250,7 @@ func getPluginStatus(context *gin.Context) {
 		context.JSON(404, "服务不存在")
 		return
 	}
-	context.JSON(200, gin.H{"enable": control.isEnabledIn(groupId)})
+	context.JSON(200, gin.H{"enable": control.isEnabledIn(groupID)})
 }
 
 // getPluginsStatus
@@ -259,7 +260,7 @@ func getPluginStatus(context *gin.Context) {
  * example
  */
 func getPluginsStatus(context *gin.Context) {
-	groupId, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
+	groupID, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
 	if err != nil {
 		var parse map[string]interface{}
 		err := context.BindJSON(&parse)
@@ -267,11 +268,11 @@ func getPluginsStatus(context *gin.Context) {
 			log.Errorln(err.Error())
 			return
 		}
-		groupId = int64(parse["group_id"].(float64))
+		groupID = int64(parse["group_id"].(float64))
 	}
 	var datas []map[string]interface{}
 	forEach(func(key string, manager *Control) bool {
-		enable := manager.isEnabledIn(groupId)
+		enable := manager.isEnabledIn(groupID)
 		datas = append(datas, map[string]interface{}{"name": key, "enable": enable})
 		return true
 	})
