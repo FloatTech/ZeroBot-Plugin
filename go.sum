@@ -5,6 +5,10 @@ github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.5 h1:SighsMMD7s0cB4r5ya/7B8sOLQ6W1w
 github.com/FloatTech/ZeroBot-Plugin-Gif v0.1.5/go.mod h1:W7ag6hml1pZTNzRXKU74OMr6rS8awQKSU+o2g7Gj4O0=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3 h1:jn/dH+OwPSRozkmeCeQQPrAGJRBudcm3OK5tXhGItRk=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3/go.mod h1:MVOQQ4e6AVGFm993blXXU4Sd6bAsLY2+Zb+/HMrEeEc=
+github.com/FloatTech/bot-manager v0.0.0-20210923052555-6490b0f05372 h1:THQ1mg8hq3lAwZO95u7Z7VF8jKR5SHG/WWh0Xl9nllU=
+github.com/FloatTech/bot-manager v0.0.0-20210923052555-6490b0f05372/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
+github.com/FloatTech/bot-manager v1.0.0 h1:d63J5htLhVBc2ITG09WBJI+qAB0ubPjYhfXl6hljBNk=
+github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
 github.com/FloatTech/imgfactory v0.1.1 h1:ooL2+fV8yrMhv1ShGGKsN0Rm/flWoKnvqXaUD+dC3DQ=
 github.com/FloatTech/imgfactory v0.1.1/go.mod h1:ThDALab8aOuU6KVYESVWFqmjcqtm03e0SvGlTw6s+aw=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
@@ -56,12 +60,6 @@ github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/huoxue1/test3 v0.0.0-20210921063422-c43e6876777d h1:wCAgKH32OqyCkV6K/E6unTW2KEuBzkB9VRjWyxBkGPQ=
-github.com/huoxue1/test3 v0.0.0-20210921063422-c43e6876777d/go.mod h1:6ausQYwJPfruk1GDGhqf7J5ptnOrlakAXHwNuaMrpvo=
-github.com/huoxue1/test3 v0.0.0-20210921143240-171d18ce9f77 h1:j+cptQbHXQ7NxBQZSGBvvy/uQVnBfV4wI+NT89uqIEY=
-github.com/huoxue1/test3 v0.0.0-20210921143240-171d18ce9f77/go.mod h1:6ausQYwJPfruk1GDGhqf7J5ptnOrlakAXHwNuaMrpvo=
-github.com/huoxue1/test3 v0.0.0-20210921150523-4c58050a4a78 h1:v/cULLIJVrqGCp92BdaXGEVadaYHwwvOMxlMda6pvck=
-github.com/huoxue1/test3 v0.0.0-20210921150523-4c58050a4a78/go.mod h1:6ausQYwJPfruk1GDGhqf7J5ptnOrlakAXHwNuaMrpvo=
 github.com/imroc/req v0.3.0 h1:3EioagmlSG+z+KySToa+Ylo3pTFZs+jh3Brl7ngU12U=
 github.com/imroc/req v0.3.0/go.mod h1:F+NZ+2EFSo6EFXdeIbpfE9hcC233id70kf0byW97Caw=
 github.com/json-iterator/go v1.1.9/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=

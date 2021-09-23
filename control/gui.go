@@ -4,15 +4,15 @@ package control
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/FloatTech/bot-manager"
 	// 依赖gin监听server
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	// 前端静态文件
-	"github.com/huoxue1/test3"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -22,13 +22,23 @@ var (
 	engine *zero.Engine
 	// 向前端推送消息的ws链接
 	conn *websocket.Conn
+	// 向前端推送日志的ws链接
+	logConn *websocket.Conn
+
+	L LogWriter
 )
+
+// LogWriter
+// @Description: 实现了writer接口，日志将会重定向到该接口
+//
+type LogWriter struct {
+}
 
 func init() {
 	// 监听后端
-	go Controller()
+	go controller()
 	// 注册消息handle
-	MessageHandle()
+	messageHandle()
 	engine = Register("gui", &Options{
 		DisableOnDefault: false,
 		Help:             "向webui推送信息",
@@ -42,46 +52,56 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-func Controller() {
-	if log.GetLevel() != log.DebugLevel {
-		gin.SetMode(gin.ReleaseMode)
-		gin.DefaultWriter = io.Discard
-	}
+func controller() {
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.Errorln("bot-manager出现不可恢复的错误")
+			log.Errorln(err)
+		}
+	}()
+
 	engine := gin.New()
 	// 支持跨域
-	engine.Use(Cors())
+	engine.Use(cors())
 	// 注册静态文件
-	engine.StaticFS("/dist", http.FS(test3.Dist))
-	engine.POST("/get_bots", GetBots)
-	engine.POST("/get_group_list", GetGroupList)
-	engine.POST("/get_friend_list", GetFriendList)
+	engine.StaticFS("/dist", http.FS(bot_manager.Dist))
+	engine.POST("/get_bots", getBots)
+	engine.POST("/get_group_list", getGroupList)
+	engine.POST("/get_friend_list", getFriendList)
 	// 注册主路径路由，使其跳转到主页面
 	engine.GET("/", func(context *gin.Context) {
 		context.Redirect(http.StatusMovedPermanently, "/dist/dist/default.html")
 	})
-	engine.POST("/update_plugin_states", func(context *gin.Context) {
-
-	})
+	// 更改某个插件状态
+	engine.POST("/update_plugin_status", updatePluginStatus)
+	// 更改某一个插件在所有群的状态
+	engine.POST("/update_plugin_all_group_status", updatePluginAllGroupStatus)
+	// 更改所有插件状态
+	engine.POST("/update_all_plugin_status", updateAllPluginStatus)
+	// 获取所有插件状态
+	engine.POST("/get_plugins_status", getPluginsStatus)
+	// 获取一个插件状态
+	engine.POST("/get_plugin_status", getPluginStatus)
 	// 获取插件列表
 	engine.POST("/get_plugins", func(context *gin.Context) {
 		var datas []map[string]interface{}
 		forEach(func(key string, manager *Control) bool {
-			datas = append(datas, map[string]interface{}{"ID": 1, "HandleType": "", "Name": key, "Enable": manager.isEnabledIn(0)})
+			datas = append(datas, map[string]interface{}{"id": 1, "handle_type": "", "name": key, "enable": manager.isEnabledIn(0)})
 			return true
 		})
 		context.JSON(200, datas)
 	})
-
-	engine.GET("/get_log", func(context *gin.Context) {
-
-	})
+	// 链接日志
+	engine.GET("/get_log", getLogs)
 	// 获取前端标签
 	engine.GET("/get_label", func(context *gin.Context) {
 		context.JSON(200, "ZeroBot-Plugin")
 	})
 
 	// 发送信息
-	engine.POST("/send_msg", CallApi)
+	engine.POST("/send_msg", sendMsg)
 	engine.GET("/data", data)
 	log.Infoln("the webui is running http://127.0.0.1:3000")
 	if err := engine.Run("127.0.0.1:3000"); err != nil {
@@ -90,13 +110,195 @@ func Controller() {
 
 }
 
-// GetFriendList
+// updateAllPluginStatus
+/**
+ * @Description: 改变所有插件的状态
+ * @param context
+ * example
+ */
+func updateAllPluginStatus(context *gin.Context) {
+	enable, err := strconv.ParseBool(context.PostForm("enable"))
+	if err != nil {
+		var parse map[string]interface{}
+		err := context.BindJSON(&parse)
+		if err != nil {
+			log.Errorln(err.Error())
+			return
+		}
+		enable = parse["enable"].(bool)
+	}
+	var groups []int64
+	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+		for _, group := range ctx.GetGroupList().Array() {
+			groups = append(groups, group.Get("group_id").Int())
+		}
+		return true
+	})
+
+	forEach(func(key string, manager *Control) bool {
+		if enable {
+			for _, group := range groups {
+				manager.enable(group)
+			}
+		} else {
+			for _, group := range groups {
+				manager.disable(group)
+			}
+		}
+		return true
+	})
+	context.JSON(200, nil)
+}
+
+// updatePluginAllGroupStatus
+/**
+ * @Description: 改变插件在所有群的状态
+ * @param context
+ * example
+ */
+func updatePluginAllGroupStatus(context *gin.Context) {
+	name := context.PostForm("name")
+	enable, err := strconv.ParseBool(context.PostForm("enable"))
+	if err != nil {
+		var parse map[string]interface{}
+		err := context.BindJSON(&parse)
+		if err != nil {
+			log.Errorln(err.Error())
+			return
+		}
+		name = parse["name"].(string)
+		enable = parse["enable"].(bool)
+	}
+	control, b := lookup(name)
+	if !b {
+		context.JSON(404, nil)
+		return
+	}
+	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+		for _, group := range ctx.GetGroupList().Array() {
+			if enable {
+				control.enable(group.Get("group_id").Int())
+			} else {
+				control.disable(group.Get("group_id").Int())
+			}
+		}
+
+		return true
+	})
+
+	context.JSON(200, nil)
+}
+
+// updatePluginStatus
+/**
+ * @Description: 更改某一个插件状态
+ * @param context
+ * example
+ */
+func updatePluginStatus(context *gin.Context) {
+	groupId, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
+	name := context.PostForm("name")
+	enable, err := strconv.ParseBool(context.PostForm("enable"))
+
+	if err != nil {
+		var parse map[string]interface{}
+		err := context.BindJSON(&parse)
+		if err != nil {
+			log.Errorln(err.Error())
+			return
+		}
+		groupId = int64(parse["group_id"].(float64))
+		name = parse["name"].(string)
+		enable = parse["enable"].(bool)
+	}
+	fmt.Println(name)
+	control, b := lookup(name)
+	if !b {
+		context.JSON(404, "服务不存在")
+		return
+	}
+	if enable {
+		control.enable(groupId)
+	} else {
+		control.disable(groupId)
+	}
+	context.JSON(200, nil)
+}
+
+// getPluginStatus
+/**
+ * @Description: 获取一个插件的状态
+ * @param context
+ * example
+ */
+func getPluginStatus(context *gin.Context) {
+	groupId, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
+	name := context.PostForm("name")
+	if err != nil {
+		var parse map[string]interface{}
+		err := context.BindJSON(&parse)
+		if err != nil {
+			log.Errorln(err.Error())
+			return
+		}
+		groupId = int64(parse["group_id"].(float64))
+		name = parse["name"].(string)
+	}
+	control, b := lookup(name)
+	if !b {
+		context.JSON(404, "服务不存在")
+		return
+	}
+	context.JSON(200, gin.H{"enable": control.isEnabledIn(groupId)})
+}
+
+// getPluginsStatus
+/**
+ * @Description: 获取所有插件的状态
+ * @param context
+ * example
+ */
+func getPluginsStatus(context *gin.Context) {
+	groupId, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
+	if err != nil {
+		var parse map[string]interface{}
+		err := context.BindJSON(&parse)
+		if err != nil {
+			log.Errorln(err.Error())
+			return
+		}
+		groupId = int64(parse["group_id"].(float64))
+	}
+	var datas []map[string]interface{}
+	forEach(func(key string, manager *Control) bool {
+		enable := manager.isEnabledIn(groupId)
+		datas = append(datas, map[string]interface{}{"name": key, "enable": enable})
+		return true
+	})
+	context.JSON(200, datas)
+}
+
+// getLogs
+/**
+ * @Description: 连接日志
+ * @param context
+ * example
+ */
+func getLogs(context *gin.Context) {
+	con1, err := upGrader.Upgrade(context.Writer, context.Request, nil)
+	if err != nil {
+		return
+	}
+	logConn = con1
+}
+
+// getFriendList
 /**
  * @Description: 获取好友列表
  * @param context
  * example
  */
-func GetFriendList(context *gin.Context) {
+func getFriendList(context *gin.Context) {
 	selfID, err := strconv.Atoi(context.PostForm("self_id"))
 	if err != nil {
 		log.Errorln(err.Error())
@@ -120,13 +322,13 @@ func GetFriendList(context *gin.Context) {
 	context.JSON(200, resp)
 }
 
-// GetGroupList
+// getGroupList
 /**
  * @Description: 获取群列表
  * @param context
  * example
  */
-func GetGroupList(context *gin.Context) {
+func getGroupList(context *gin.Context) {
 	selfID, err := strconv.Atoi(context.PostForm("self_id"))
 	if err != nil {
 
@@ -149,13 +351,13 @@ func GetGroupList(context *gin.Context) {
 	context.JSON(200, resp)
 }
 
-// GetBots
+// getBots
 /**
  * @Description: 获取机器人qq号
  * @param context
  * example
  */
-func GetBots(context *gin.Context) {
+func getBots(context *gin.Context) {
 	var bots []int64
 
 	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
@@ -170,7 +372,14 @@ func GetBots(context *gin.Context) {
  * @Description: 定义一个向前端发送信息的handle
  * example
  */
-func MessageHandle() {
+func messageHandle() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.Errorln("bot-manager出现不可恢复的错误")
+			log.Errorln(err)
+		}
+	}()
 	matcher := engine.OnMessage().SetBlock(false).SetPriority(1)
 
 	matcher.Handle(func(ctx *zero.Ctx) {
@@ -200,13 +409,13 @@ func data(context *gin.Context) {
 	conn = con
 }
 
-// CallApi
+// sendMsg
 /**
  * @Description: 前端调用发送信息
  * @param context
  * example
  */
-func CallApi(context *gin.Context) {
+func sendMsg(context *gin.Context) {
 	selfID, err := strconv.ParseInt(context.PostForm("self_id"), 10, 64)
 	id, err := strconv.ParseInt(context.PostForm("id"), 10, 64)
 	message1 := context.PostForm("message")
@@ -234,13 +443,13 @@ func CallApi(context *gin.Context) {
 	context.JSON(200, msgID)
 }
 
-// Cors
+// cors
 /**
  * @Description: 支持跨域访问
  * @return gin.HandlerFunc
  * example
  */
-func Cors() gin.HandlerFunc {
+func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
 		origin := c.Request.Header.Get("Origin") //请求头部
@@ -272,4 +481,23 @@ func Cors() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// Write
+/**
+ * @Description: Log的writer接口
+ * @receiver l
+ * @param p
+ * @return n
+ * @return err
+ * example
+ */
+func (l LogWriter) Write(p []byte) (n int, err error) {
+	if logConn != nil {
+		err := logConn.WriteMessage(websocket.TextMessage, p)
+		if err != nil {
+			return len(p), nil
+		}
+	}
+	return len(p), nil
 }
