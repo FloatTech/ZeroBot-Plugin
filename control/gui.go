@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/FloatTech/bot-manager"
+	bot_manager "github.com/FloatTech/bot-manager"
 	// 依赖gin监听server
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+
 	// 前端静态文件
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -54,7 +55,6 @@ var upGrader = websocket.Upgrader{
 }
 
 func controller() {
-
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -108,7 +108,6 @@ func controller() {
 	if err := engine.Run("127.0.0.1:3000"); err != nil {
 		log.Debugln(err.Error())
 	}
-
 }
 
 // updateAllPluginStatus
@@ -332,7 +331,6 @@ func getFriendList(context *gin.Context) {
 func getGroupList(context *gin.Context) {
 	selfID, err := strconv.Atoi(context.PostForm("self_id"))
 	if err != nil {
-
 		var data map[string]interface{}
 		err := context.BindJSON(&data)
 		if err != nil {
@@ -384,7 +382,6 @@ func messageHandle() {
 	matcher := engine.OnMessage().SetBlock(false).SetPriority(1)
 
 	matcher.Handle(func(ctx *zero.Ctx) {
-
 		if conn != nil {
 			err := conn.WriteJSON(ctx.Event)
 			if err != nil {
@@ -392,7 +389,6 @@ func messageHandle() {
 				return
 			}
 		}
-
 	})
 }
 
@@ -432,7 +428,6 @@ func sendMsg(context *gin.Context) {
 		id = int64(data["id"].(float64))
 		message1 = data["message"].(string)
 		messageType = data["message_type"].(string)
-
 	}
 	bot := zero.GetBot(selfID)
 	var msgID int64
