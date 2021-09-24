@@ -3,7 +3,9 @@ package control
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	manager "github.com/FloatTech/bot-manager"
@@ -18,14 +20,13 @@ import (
 )
 
 var (
-	engine *zero.Engine
+
 	// 向前端推送消息的ws链接
 	conn *websocket.Conn
 	// 向前端推送日志的ws链接
 	logConn *websocket.Conn
 
-	// L 一个向外到处的LogWriter实例
-	L logWriter
+	l logWriter
 )
 
 // logWriter
@@ -34,15 +35,15 @@ var (
 type logWriter struct {
 }
 
-func init() {
+// InitGui 初始化gui
+func InitGui() {
+	// 将日志重定向到前端hook
+	writer := io.MultiWriter(l, os.Stderr)
+	log.SetOutput(writer)
 	// 监听后端
 	go controller()
 	// 注册消息handle
 	messageHandle()
-	engine = Register("gui", &Options{
-		DisableOnDefault: false,
-		Help:             "向webui推送信息",
-	})
 }
 
 // websocket的协议升级
@@ -56,8 +57,8 @@ func controller() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Errorln("bot-manager出现不可恢复的错误")
-			log.Errorln(err)
+			log.Errorln("[gui]" + "bot-manager出现不可恢复的错误")
+			log.Errorln("[gui]", err)
 		}
 	}()
 
@@ -102,9 +103,10 @@ func controller() {
 	// 发送信息
 	engine.POST("/send_msg", sendMsg)
 	engine.GET("/data", data)
-	log.Infoln("the webui is running http://127.0.0.1:3000")
+	log.Infoln("[gui] the webui is running http://127.0.0.1:3000")
+	log.Infoln("[gui] ", "you input the `ZeroBot-Plugin.exe -g` can disable the gui")
 	if err := engine.Run("127.0.0.1:3000"); err != nil {
-		log.Debugln(err.Error())
+		log.Debugln("[gui] ", err.Error())
 	}
 }
 
@@ -120,7 +122,7 @@ func updateAllPluginStatus(context *gin.Context) {
 		var parse map[string]interface{}
 		err := context.BindJSON(&parse)
 		if err != nil {
-			log.Errorln(err.Error())
+			log.Errorln("[gui] " + err.Error())
 			return
 		}
 		enable = parse["enable"].(bool)
@@ -161,7 +163,7 @@ func updatePluginAllGroupStatus(context *gin.Context) {
 		var parse map[string]interface{}
 		err := context.BindJSON(&parse)
 		if err != nil {
-			log.Errorln(err.Error())
+			log.Errorln("[gui]" + err.Error())
 			return
 		}
 		name = parse["name"].(string)
@@ -197,7 +199,7 @@ func updatePluginStatus(context *gin.Context) {
 	var parse map[string]interface{}
 	err := context.BindJSON(&parse)
 	if err != nil {
-		log.Errorln("[gui]", err)
+		log.Errorln("[gui] ", err)
 		return
 	}
 	groupID := int64(parse["group_id"].(float64))
@@ -230,7 +232,7 @@ func getPluginStatus(context *gin.Context) {
 		var parse map[string]interface{}
 		err := context.BindJSON(&parse)
 		if err != nil {
-			log.Errorln(err.Error())
+			log.Errorln("[gui]" + err.Error())
 			return
 		}
 		groupID = int64(parse["group_id"].(float64))
@@ -256,7 +258,7 @@ func getPluginsStatus(context *gin.Context) {
 		var parse map[string]interface{}
 		err := context.BindJSON(&parse)
 		if err != nil {
-			log.Errorln(err.Error())
+			log.Errorln("[gui]" + err.Error())
 			return
 		}
 		groupID = int64(parse["group_id"].(float64))
@@ -293,12 +295,12 @@ func getLogs(context *gin.Context) {
 func getFriendList(context *gin.Context) {
 	selfID, err := strconv.Atoi(context.PostForm("self_id"))
 	if err != nil {
-		log.Errorln(err.Error())
+		log.Errorln("[gui]" + err.Error())
 		var data map[string]interface{}
 		err := context.BindJSON(&data)
 		if err != nil {
-			log.Errorln(err.Error())
-			log.Errorln("绑定错误")
+			log.Errorln("[gui]" + err.Error())
+			log.Errorln("[gui]" + "绑定错误")
 			return
 		}
 		selfID = int(data["self_id"].(float64))
@@ -308,8 +310,8 @@ func getFriendList(context *gin.Context) {
 	list := bot.GetFriendList().String()
 	err = json.Unmarshal([]byte(list), &resp)
 	if err != nil {
-		log.Errorln(err.Error())
-		log.Errorln("解析json错误")
+		log.Errorln("[gui]" + err.Error())
+		log.Errorln("[gui]" + "解析json错误")
 	}
 	context.JSON(200, resp)
 }
@@ -326,7 +328,7 @@ func getGroupList(context *gin.Context) {
 		var data map[string]interface{}
 		err := context.BindJSON(&data)
 		if err != nil {
-			log.Errorln(err.Error())
+			log.Errorln("[gui]" + err.Error())
 			return
 		}
 		selfID = int(data["self_id"].(float64))
@@ -337,7 +339,7 @@ func getGroupList(context *gin.Context) {
 	list := bot.GetGroupList().String()
 	err = json.Unmarshal([]byte(list), &resp)
 	if err != nil {
-		log.Errorln(err.Error())
+		log.Errorln("[gui]" + err.Error())
 	}
 	context.JSON(200, resp)
 }
@@ -367,17 +369,18 @@ func messageHandle() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Errorln("bot-manager出现不可恢复的错误")
-			log.Errorln(err)
+			log.Errorln("[gui]" + "bot-manager出现不可恢复的错误")
+			log.Errorln("[gui] ", err)
 		}
 	}()
-	matcher := engine.OnMessage().SetBlock(false).SetPriority(1)
+
+	matcher := zero.OnMessage().SetBlock(false).SetPriority(1)
 
 	matcher.Handle(func(ctx *zero.Ctx) {
 		if conn != nil {
 			err := conn.WriteJSON(ctx.Event)
 			if err != nil {
-				log.Debugln("向发送错误")
+				log.Debugln("[gui] " + "向发送错误")
 				return
 			}
 		}

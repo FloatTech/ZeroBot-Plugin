@@ -1,8 +1,8 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -11,7 +11,7 @@ import (
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" //青云客
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"  // 搜索GitHub仓库
@@ -57,12 +57,17 @@ var (
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
 	banner = strings.Join(contents, "\n")
+	// 是否禁用gui
+	disableGui bool
 )
 
 func init() {
-	// 将日志重定向到前端hook
-	writer := io.MultiWriter(control.L, os.Stderr)
-	log.SetOutput(writer)
+	// 解析命令行参数，输入`-g`即可禁用gui
+	flag.BoolVar(&disableGui, "g", false, "Disable the gui")
+	flag.Parse()
+	if !disableGui {
+		control.InitGui()
+	}
 
 	log.SetLevel(log.DebugLevel)
 }
