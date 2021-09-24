@@ -62,6 +62,11 @@ func controller() {
 		}
 	}()
 
+	if log.GetLevel() != log.DebugLevel {
+		gin.SetMode(gin.ReleaseMode)
+		gin.DefaultWriter = io.Discard
+	}
+
 	engine := gin.New()
 	// 支持跨域
 	engine.Use(cors())
