@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	bot_manager "github.com/FloatTech/bot-manager"
+	manager "github.com/FloatTech/bot-manager"
 	// 依赖gin监听server
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -67,7 +67,7 @@ func controller() {
 	// 支持跨域
 	engine.Use(cors())
 	// 注册静态文件
-	engine.StaticFS("/dist", http.FS(bot_manager.Dist))
+	engine.StaticFS("/dist", http.FS(manager.Dist))
 	engine.POST("/get_bots", getBots)
 	engine.POST("/get_group_list", getGroupList)
 	engine.POST("/get_friend_list", getFriendList)
@@ -452,17 +452,17 @@ func cors() gin.HandlerFunc {
 		method := c.Request.Method
 		origin := c.Request.Header.Get("Origin") //请求头部
 		if origin != "" {
-			//接收客户端发送的origin （重要！）
+			// 接收客户端发送的origin （重要！）
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-			//服务器支持的所有跨域请求的方法
+			// 服务器支持的所有跨域请求的方法
 			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
-			//允许跨域设置可以返回其他子段，可以自定义字段
+			// 允许跨域设置可以返回其他子段，可以自定义字段
 			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session, Content-Type")
 			// 允许浏览器（客户端）可以解析的头部 （重要）
 			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
-			//设置缓存时间
+			// 设置缓存时间
 			c.Header("Access-Control-Max-Age", "172800")
-			//允许客户端传递校验信息比如 cookie (重要)
+			// 允许客户端传递校验信息比如 cookie (重要)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
 
