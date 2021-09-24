@@ -41,10 +41,7 @@ func handle(ctx *zero.Ctx) {
 	}
 	// 获取名字
 	name := ctx.State["args"].(string)
-	if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
-		qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
-		name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
-	} else if name == "" {
+	if name == "" {
 		name = ctx.Event.Sender.NickName
 	}
 	// 调用接口
