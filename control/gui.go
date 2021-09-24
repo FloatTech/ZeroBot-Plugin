@@ -1,5 +1,3 @@
-// Package control
-// @Description: 该文件提供了对前端的支持
 package control
 
 import (
@@ -27,13 +25,13 @@ var (
 	logConn *websocket.Conn
 
 	// L 一个向外到处的LogWriter实例
-	L LogWriter
+	L logWriter
 )
 
-// LogWriter
-// @Description: 实现了writer接口，日志将会重定向到该接口
+// logWriter
+// @Description:
 //
-type LogWriter struct {
+type logWriter struct {
 }
 
 func init() {
@@ -196,35 +194,27 @@ func updatePluginAllGroupStatus(context *gin.Context) {
  * example
  */
 func updatePluginStatus(context *gin.Context) {
-	groupID, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
-	name := context.PostForm("name")
-	enable, err1 := strconv.ParseBool(context.PostForm("enable"))
-
-	if err != nil && err1 != nil {
-		var parse map[string]interface{}
-		err = context.BindJSON(&parse)
-		if err != nil {
-			log.Errorln("[gui]", err)
-			return
-		}
-		groupID = int64(parse["group_id"].(float64))
-		name = parse["name"].(string)
-		enable = parse["enable"].(bool)
-		fmt.Println(name)
-		control, b := lookup(name)
-		if !b {
-			context.JSON(404, "服务不存在")
-			return
-		}
-		if enable {
-			control.enable(groupID)
-		} else {
-			control.disable(groupID)
-		}
-		context.JSON(200, nil)
-	} else {
-		log.Errorln("[gui]", err, err1)
+	var parse map[string]interface{}
+	err := context.BindJSON(&parse)
+	if err != nil {
+		log.Errorln("[gui]", err)
+		return
 	}
+	groupID := int64(parse["group_id"].(float64))
+	name := parse["name"].(string)
+	enable := parse["enable"].(bool)
+	fmt.Println(name)
+	control, b := lookup(name)
+	if !b {
+		context.JSON(404, "服务不存在")
+		return
+	}
+	if enable {
+		control.enable(groupID)
+	} else {
+		control.disable(groupID)
+	}
+	context.JSON(200, nil)
 }
 
 // getPluginStatus
@@ -415,22 +405,17 @@ func data(context *gin.Context) {
  * example
  */
 func sendMsg(context *gin.Context) {
-	selfID, err := strconv.ParseInt(context.PostForm("self_id"), 10, 64)
-	id, err := strconv.ParseInt(context.PostForm("id"), 10, 64)
-	message1 := context.PostForm("message")
-	messageType := context.PostForm("message_type")
+	var data map[string]interface{}
+	err := context.BindJSON(&data)
 	if err != nil {
-		var data map[string]interface{}
-		err := context.BindJSON(&data)
-		if err != nil {
-			context.JSON(404, nil)
-			return
-		}
-		selfID = int64(data["self_id"].(float64))
-		id = int64(data["id"].(float64))
-		message1 = data["message"].(string)
-		messageType = data["message_type"].(string)
+		context.JSON(404, nil)
+		return
 	}
+	selfID := int64(data["self_id"].(float64))
+	id := int64(data["id"].(float64))
+	message1 := data["message"].(string)
+	messageType := data["message_type"].(string)
+
 	bot := zero.GetBot(selfID)
 	var msgID int64
 	if messageType == "group" {
@@ -450,7 +435,7 @@ func sendMsg(context *gin.Context) {
 func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
-		origin := c.Request.Header.Get("Origin") //请求头部
+		origin := c.Request.Header.Get("Origin") // 请求头部
 		if origin != "" {
 			// 接收客户端发送的origin （重要！）
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
@@ -466,7 +451,7 @@ func cors() gin.HandlerFunc {
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
 
-		//允许类型校验
+		// 允许类型校验
 		if method == "OPTIONS" {
 			c.JSON(http.StatusOK, "ok!")
 		}
@@ -481,16 +466,7 @@ func cors() gin.HandlerFunc {
 	}
 }
 
-// Write
-/**
- * @Description: Log的writer接口
- * @receiver l
- * @param p
- * @return n
- * @return err
- * example
- */
-func (l LogWriter) Write(p []byte) (n int, err error) {
+func (l logWriter) Write(p []byte) (n int, err error) {
 	if logConn != nil {
 		err := logConn.WriteMessage(websocket.TextMessage, p)
 		if err != nil {
