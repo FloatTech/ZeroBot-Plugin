@@ -198,31 +198,33 @@ func updatePluginAllGroupStatus(context *gin.Context) {
 func updatePluginStatus(context *gin.Context) {
 	groupID, err := strconv.ParseInt(context.PostForm("group_id"), 10, 64)
 	name := context.PostForm("name")
-	enable, err := strconv.ParseBool(context.PostForm("enable"))
+	enable, err1 := strconv.ParseBool(context.PostForm("enable"))
 
-	if err != nil {
+	if err != nil && err1 != nil {
 		var parse map[string]interface{}
-		err := context.BindJSON(&parse)
+		err = context.BindJSON(&parse)
 		if err != nil {
-			log.Errorln(err.Error())
+			log.Errorln("[gui]", err)
 			return
 		}
 		groupID = int64(parse["group_id"].(float64))
 		name = parse["name"].(string)
 		enable = parse["enable"].(bool)
-	}
-	fmt.Println(name)
-	control, b := lookup(name)
-	if !b {
-		context.JSON(404, "服务不存在")
-		return
-	}
-	if enable {
-		control.enable(groupID)
+		fmt.Println(name)
+		control, b := lookup(name)
+		if !b {
+			context.JSON(404, "服务不存在")
+			return
+		}
+		if enable {
+			control.enable(groupID)
+		} else {
+			control.disable(groupID)
+		}
+		context.JSON(200, nil)
 	} else {
-		control.disable(groupID)
+		log.Errorln("[gui]", err, err1)
 	}
-	context.JSON(200, nil)
 }
 
 // getPluginStatus
