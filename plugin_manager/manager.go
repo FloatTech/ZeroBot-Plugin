@@ -6,11 +6,13 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
@@ -46,6 +48,7 @@ const (
 
 var (
 	config Config
+	limit  = rate.NewManager(time.Minute*5, 2)
 )
 
 func init() { // 插件主体
@@ -282,18 +285,48 @@ func init() { // 插件主体
 			}
 		})
 	// 随机点名
-	zero.OnFullMatchGroup([]string{"翻牌"}).SetBlock(true).SetPriority(40).
+	zero.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				list := ctx.GetGroupMemberList(ctx.Event.GroupID)
-				rand.Seed(time.Now().UnixNano())
-				randIndex := fmt.Sprint(rand.Intn(int(list.Get("#").Int())))
-				randCard := list.Get(randIndex + ".card").String()
-				if randCard == "" {
-					randCard = list.Get(randIndex + ".nickname").String()
-				}
-				ctx.Send(randCard + "，就是你啦!")
+			if !limit.Load(ctx.Event.UserID).Acquire() {
+				ctx.SendChain(message.Text("少女祈祷中......"))
+				return
 			}
+			// 无缓存获取群员列表
+			list := ctx.CallAction("get_group_member_list", zero.Params{
+				"group_id": ctx.Event.GroupID,
+				"no_cache": true,
+			}).Data
+			temp := list.Array()
+			sort.SliceStable(temp, func(i, j int) bool {
+				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
+			})
+			max := func(a, b int) int {
+				if a > b {
+					return a
+				}
+				return b
+			}
+			temp = temp[max(0, len(temp)-10):]
+			rand.Seed(time.Now().UnixNano())
+			who := temp[rand.Intn(len(temp))]
+			if who.Get("user_id").Int() == ctx.Event.SelfID {
+				ctx.SendChain(message.Text("幸运儿居然是我自己"))
+				return
+			}
+			if who.Get("user_id").Int() == ctx.Event.UserID {
+				ctx.SendChain(message.Text("哎呀，就是你自己了"))
+				return
+			}
+			nick := who.Get("card").Str
+			if nick == "" {
+				nick = who.Get("nickname").Str
+			}
+			ctx.SendChain(
+				message.Text(
+					nick,
+					" 就是你啦！",
+				),
+			)
 		})
 	// 入群欢迎
 	zero.OnNotice().SetBlock(false).FirstPriority().
