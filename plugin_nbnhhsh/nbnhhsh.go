@@ -23,19 +23,25 @@ func init() {
 func getValue(text string) []string {
 	urlValues := url.Values{}
 	urlValues.Add("text", text)
-	resp, _ := http.PostForm("https://lab.magiconch.com/api/nbnhhsh/guess", urlValues)
-	body, _ := ioutil.ReadAll(resp.Body)
-	resp.Close()
-	json := gjson.ParseBytes(body)
-	res := make([]string, 0)
-	var jsonPath string
-	if json.Get("0.trans").Exists() {
-		jsonPath = "0.trans"
-	} else {
-		jsonPath = "0.inputting"
+	resp, err := http.PostForm("https://lab.magiconch.com/api/nbnhhsh/guess", urlValues)
+	if err == nil {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			resp.Body.Close()
+			json := gjson.ParseBytes(body)
+			res := make([]string, 0)
+			var jsonPath string
+			if json.Get("0.trans").Exists() {
+				jsonPath = "0.trans"
+			} else {
+				jsonPath = "0.inputting"
+			}
+			for _, value := range json.Get(jsonPath).Array() {
+				res = append(res, value.String())
+			}
+			return res
+		}
+		return []string{err.Error()}
 	}
-	for _, value := range json.Get(jsonPath).Array() {
-		res = append(res, value.String())
-	}
-	return res
+	return []string{err.Error()}
 }
