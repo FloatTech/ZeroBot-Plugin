@@ -1,6 +1,4 @@
-/*
-基于青云客接口的聊天对话功能
-*/
+// Package qingyunke 基于青云客接口的聊天对话功能
 package qingyunke
 
 import (
