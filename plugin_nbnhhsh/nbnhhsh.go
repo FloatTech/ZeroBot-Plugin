@@ -1,3 +1,4 @@
+// Package nbnhhsh 能不能好好说话
 package nbnhhsh
 
 import (
@@ -24,6 +25,7 @@ func getValue(text string) []string {
 	urlValues.Add("text", text)
 	resp, _ := http.PostForm("https://lab.magiconch.com/api/nbnhhsh/guess", urlValues)
 	body, _ := ioutil.ReadAll(resp.Body)
+	resp.Close()
 	json := gjson.ParseBytes(body)
 	res := make([]string, 0)
 	var jsonPath string
