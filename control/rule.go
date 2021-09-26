@@ -29,8 +29,8 @@ type Control struct {
 	options Options
 }
 
-// new returns Manager with settings.
-func new(service string, o *Options) *Control {
+// newctrl returns Manager with settings.
+func newctrl(service string, o *Options) *Control {
 	m := &Control{service: service,
 		options: func() Options {
 			if o == nil {
