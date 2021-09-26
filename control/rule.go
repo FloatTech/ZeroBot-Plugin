@@ -77,9 +77,8 @@ func (m *Control) isEnabledIn(gid int64) bool {
 		m.RUnlock()
 		logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
 		return c.Disable == 0
-	} else {
-		logrus.Errorf("[control] %v", err)
 	}
+	logrus.Errorf("[control] %v", err)
 	m.RUnlock()
 	if m.options.DisableOnDefault {
 		m.disable(gid)
