@@ -1,3 +1,4 @@
+// Package choose 选择困难症帮手
 package choose
 
 import (
