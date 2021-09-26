@@ -106,7 +106,7 @@ func controller() {
 
 	// 发送信息
 	engine.POST("/send_msg", sendMsg)
-	engine.GET("/data", data)
+	engine.GET("/data", upgrade)
 	log.Infoln("[gui] the webui is running http://127.0.0.1:3000")
 	log.Infoln("[gui] ", "you input the `ZeroBot-Plugin.exe -g` can disable the gui")
 	if err := engine.Run("127.0.0.1:3000"); err != nil {
@@ -391,13 +391,13 @@ func messageHandle() {
 	})
 }
 
-// data
+// upgrade
 /**
  * @Description: 连接ws，向前端推送message
  * @param context
  * example
  */
-func data(context *gin.Context) {
+func upgrade(context *gin.Context) {
 	con, err := upGrader.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {
 		return
