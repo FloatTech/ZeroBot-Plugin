@@ -20,7 +20,6 @@ import (
 )
 
 var (
-
 	// 向前端推送消息的ws链接
 	conn *websocket.Conn
 	// 向前端推送日志的ws链接
