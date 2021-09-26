@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -10,7 +11,7 @@ import (
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" //青云客
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"  // 搜索GitHub仓库
@@ -44,6 +45,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
@@ -54,9 +57,18 @@ var (
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
 	banner = strings.Join(contents, "\n")
+	// 是否禁用gui
+	disableGui bool
 )
 
 func init() {
+	// 解析命令行参数，输入`-g`即可禁用gui
+	flag.BoolVar(&disableGui, "g", false, "Disable the gui")
+	flag.Parse()
+	if !disableGui {
+		control.InitGui()
+	}
+
 	log.SetLevel(log.DebugLevel)
 }
 
