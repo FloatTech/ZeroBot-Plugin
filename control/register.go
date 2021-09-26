@@ -7,6 +7,6 @@ import (
 // Register 注册插件控制器
 func Register(service string, o *Options) *zero.Engine {
 	engine := zero.New()
-	engine.UsePreHandler(new(service, o).Handler())
+	engine.UsePreHandler(newctrl(service, o).Handler())
 	return engine
 }
