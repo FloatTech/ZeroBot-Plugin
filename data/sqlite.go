@@ -1,3 +1,4 @@
+// Package data 数据库/数据处理相关工具
 package data
 
 import (
