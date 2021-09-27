@@ -47,7 +47,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		log.Printf("[Reborn] 读取%d个国家/地区", len(area))
+		log.Printf("[Reborn]读取%d个国家/地区", len(area))
 	}()
 }
 
@@ -75,7 +75,7 @@ func load(area *rate) error {
 		if err == nil {
 			defer resp.Body.Close()
 			if resp.ContentLength > 0 {
-				log.Printf("[Reborn] 从镜像下载国家和地区%d字节...", resp.ContentLength)
+				log.Printf("[Reborn]从镜像下载国家和地区%d字节...", resp.ContentLength)
 				data, err := io.ReadAll(resp.Body)
 				if err == nil && len(data) > 0 {
 					_, _ = f.Write(data)
