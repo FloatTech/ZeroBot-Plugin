@@ -3,6 +3,7 @@ package aifalse
 
 import (
 	"math"
+	"os"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -29,6 +30,15 @@ func init() { // 插件主体
 				"* 硬盘活动率: ", diskPercent(), "%",
 			),
 			)
+		})
+	engine.OnFullMatch("清理缓存", zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			err := os.RemoveAll("data/cache/*")
+			if err != nil {
+				ctx.Send("错误: " + err.Error())
+			} else {
+				ctx.Send("成功!")
+			}
 		})
 }
 

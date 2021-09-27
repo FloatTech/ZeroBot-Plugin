@@ -48,6 +48,8 @@ func newPools() *imgpool {
 		Pool:  map[string][]*pixiv.Illust{},
 		Form:  0,
 	}
+	// 每次启动清理缓存
+	os.RemoveAll(cache.Path)
 	err := os.MkdirAll(cache.Path, 0755)
 	if err != nil {
 		panic(err)
