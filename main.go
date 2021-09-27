@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"strings"
 
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
@@ -12,6 +11,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
+	"github.com/sirupsen/logrus"
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"  // 搜索GitHub仓库
@@ -62,13 +62,18 @@ var (
 
 func init() {
 	var en bool
+	var debg bool
 	// 解析命令行参数，输入 `-g` 即可启用 gui
-	flag.BoolVar(&en, "g", false, "Enable the gui")
+	flag.BoolVar(&en, "g", false, "Enable web gui.")
+	// 解析命令行参数，输入 `-d` 即可开启 debug log
+	flag.BoolVar(&debg, "d", false, "Enable debug log.")
 	flag.Parse()
 	if en {
 		control.InitGui()
 	}
-	// log.SetLevel(log.DebugLevel)
+	if debg {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
 }
 
 func main() {
@@ -83,8 +88,8 @@ func main() {
 
 		// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
 		// []string{}：通过代码写死的方式添加主人账号
-		// os.Args[1:]：通过命令行参数的方式添加主人账号
-		SuperUsers: append([]string{"12345678", "87654321"}, os.Args[1:]...),
+		// flag.Args()：通过命令行参数的方式添加主人账号
+		SuperUsers: append([]string{"12345678", "87654321"}, flag.Args()...),
 
 		Driver: []zero.Driver{
 			&driver.WSClient{
