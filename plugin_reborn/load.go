@@ -3,11 +3,12 @@ package reborn
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
+	"time"
 
 	wr "github.com/mroth/weightedrand"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -26,20 +27,24 @@ var (
 )
 
 func init() {
-	area := make(rate, 226)
-	err := load(&area)
-	if err != nil {
-		panic(err)
-	}
-	choices := make([]wr.Choice, len(area))
-	for i, a := range area {
-		choices[i].Item = a.Name
-		choices[i].Weight = uint(a.Weight * 1e9)
-	}
-	areac, err = wr.NewChooser(choices...)
-	if err != nil {
-		panic(err)
-	}
+	go func() {
+		time.Sleep(time.Second)
+		area := make(rate, 226)
+		err := load(&area)
+		if err != nil {
+			panic(err)
+		}
+		choices := make([]wr.Choice, len(area))
+		for i, a := range area {
+			choices[i].Item = a.Name
+			choices[i].Weight = uint(a.Weight * 1e9)
+		}
+		areac, err = wr.NewChooser(choices...)
+		if err != nil {
+			panic(err)
+		}
+		log.Printf("[Reborn] 读取%d个国家/地区", len(area))
+	}()
 }
 
 // load 加载rate数据
