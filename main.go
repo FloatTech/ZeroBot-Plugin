@@ -43,7 +43,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
-	log "github.com/sirupsen/logrus"
+
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 
@@ -58,19 +58,17 @@ var (
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
 	banner = strings.Join(contents, "\n")
-	// 是否禁用gui
-	disableGui bool
 )
 
 func init() {
-	// 解析命令行参数，输入`-g`即可禁用gui
-	flag.BoolVar(&disableGui, "g", false, "Disable the gui")
+	var en bool
+	// 解析命令行参数，输入 `-g` 即可启用 gui
+	flag.BoolVar(&en, "g", false, "Enable the gui")
 	flag.Parse()
-	if !disableGui {
+	if en {
 		control.InitGui()
 	}
-
-	log.SetLevel(log.DebugLevel)
+	// log.SetLevel(log.DebugLevel)
 }
 
 func main() {
