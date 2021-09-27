@@ -53,7 +53,7 @@ import (
 var (
 	contents = []string{
 		"* OneBot + ZeroBot + Golang",
-		"* Version 1.1.5 - 2021-09-09 20:52:33 +0800 CST",
+		"* Version 1.1.6 - 2021-09-27 21:30:33 +0800 CST",
 		"* Copyright © 2020 - 2021 Kanri, DawnNights, Fumiama, Suika",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
