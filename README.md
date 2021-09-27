@@ -18,6 +18,14 @@
 
 </div>
 
+## 命令行参数
+```bash
+zerobot [-d] [-g] qq1 qq2 qq3 ...
+```
+- **-d**: 开启 debug 级别日志输出
+- **-g**: 开启 [webgui](https://github.com/FloatTech/bot-manager)
+- **qqs**: superusers 的 qq 号
+
 ## 功能
 - **插件控制**
     - [x] /启用 xxx
