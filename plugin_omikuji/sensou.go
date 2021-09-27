@@ -17,8 +17,6 @@ const (
 )
 
 func init() { // 插件主体
-	// TODO: 1.17 特性暂不增加
-	// rand.Seed(time.Now().UnixMicro())
 	rand.Seed(time.Now().UnixNano())
 	control.Register("omikuji", &control.Options{
 		DisableOnDefault: false,
