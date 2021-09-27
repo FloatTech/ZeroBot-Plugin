@@ -29,8 +29,12 @@ var (
 func init() {
 	go func() {
 		time.Sleep(time.Second)
+		err := os.MkdirAll(datapath, 0755)
+		if err != nil {
+			panic(err)
+		}
 		area := make(rate, 226)
-		err := load(&area)
+		err = load(&area)
 		if err != nil {
 			panic(err)
 		}
