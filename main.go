@@ -27,6 +27,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft" // MCSManager
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"     // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"   // 浅草寺求签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"    // 投胎
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"   // 测定
 
 	// b站相关

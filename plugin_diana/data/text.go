@@ -16,7 +16,7 @@ import (
 const (
 	datapath = "data/Diana"
 	pbfile   = datapath + "/text.pb"
-	pburl    = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/data/Diana/text.pb"
+	pburl    = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/" + pbfile
 )
 
 var (

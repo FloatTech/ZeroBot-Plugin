@@ -11,6 +11,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/imroc/req v0.3.0
+	github.com/mroth/weightedrand v0.4.1
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.8+incompatible
 	github.com/sirupsen/logrus v1.8.1

@@ -133,6 +133,9 @@
     - [x] ?? [缩写]
 - **选择困难症帮手** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"`
     - [x] 选择[选择项1]还是[选项2]还是[更多选项]
+- **投胎** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"`
+    - [x] reborn
+    - 注：本插件来源于[tgbot](https://github.com/YukariChiba/tgbot/blob/main/modules/Reborn.py)
 - **TODO...**
 
 ## 使用方法
