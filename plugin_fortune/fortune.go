@@ -21,14 +21,12 @@ import (
 
 	"github.com/fogleman/gg"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
-	limit = rate.NewManager(time.Minute*3, 5)
 	// 底图缓存位置
 	base = "data/fortune/"
 	// int64 群号 string 底图类型
@@ -154,7 +152,10 @@ func download(link, dest string) (string, error) {
 		return "", err
 	}
 	defer f.Close()
-	f.Write(data)
+	_, err = f.Write(data)
+	if err != nil {
+		return "", err
+	}
 	return dest + name, nil
 }
 
