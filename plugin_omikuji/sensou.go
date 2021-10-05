@@ -1,4 +1,10 @@
-// Package omikuji 浅草寺求签
+/*
+ * @Author: fumiama
+ * @Date: 2021-10-04 17:14:56
+ * @LastEditors: Kanri
+ * @LastEditTime: 2021-10-05 11:04:39
+ * @Description: 浅草寺求签
+ */
 package omikuji
 
 import (
@@ -21,8 +27,8 @@ func init() { // 插件主体
 	control.Register("omikuji", &control.Options{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
-			"- 求签|运势|占卜",
-	}).OnFullMatchGroup([]string{"求签", "运势", "占卜"}).SetPriority(10).SetBlock(true).
+			"- 求签|占卜",
+	}).OnFullMatchGroup([]string{"求签", "占卜"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100) + 1
 			ctx.SendChain(

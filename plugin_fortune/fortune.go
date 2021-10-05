@@ -1,20 +1,32 @@
 /*
  * @Author: Kanri
+ * @Date: 2021-10-05 11:30:32
+ * @LastEditors: Kanri
+ * @LastEditTime: 2021-10-05 11:59:46
+ * @Description:
+ */
+/*
+ * @Author: Kanri
  * @Date: 2021-10-04 17:18:34
  * @LastEditors: Kanri
- * @LastEditTime: 2021-10-05 00:55:53
+ * @LastEditTime: 2021-10-05 11:29:32
  * @Description: 每日运势
  */
 package fortune
 
 import (
 	"archive/zip"
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -31,16 +43,17 @@ import (
 var (
 	limit = rate.NewManager(time.Minute*3, 5)
 	// 底图缓存位置
-	base  = "data/fortune/"
+	base = "data/fortune/"
+	// int64 群号 string 底图类型
+	// 底图类型列表：车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌
+	// 				公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师
 	table = map[int64]string{
-		0:          "爱因斯坦",
-		1048452984: "碧蓝航线",
-		651044332:  "原神",
+		0:          "车万",
+		1048452984: "爱因斯坦",
 	}
 )
 
 func init() {
-
 	// 插件主体
 	control.Register("runcode", &control.Options{
 		DisableOnDefault: false,
@@ -84,7 +97,7 @@ func init() {
 					return
 				}
 				ctx.SendChain(message.Text("下载背景图片完毕"))
-				err = unpack(file, base)
+				err = unpack(file, base+type_+"/")
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -95,33 +108,33 @@ func init() {
 			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
 			seed := ctx.Event.UserID + t
 			// 随机获取背景
-			background, err := randimage(base+type_, seed)
+			background, err := randimage(base+type_+"/", seed)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 随机获取签文
-			title, text, err := randtext(base+"fortune.json", seed)
+			title, text, err := randtext(base+"运势签文.json", seed)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 绘制背景
-			err = draw(background, title, text)
+			data, err := draw(background, title, text)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 发送图片
-			ctx.SendChain(message.Image(base + "out.jpg"))
+			ctx.SendChain(message.Image("base64://" + string(data)))
 		})
 }
 
 // @function download 下载资源包
-// @param url 下载链接
+// @param link 下载链接
 // @param dest 下载位置
 // @return 文件路径 & 错误信息
-func download(url, dest string) (string, error) {
+func download(link, dest string) (string, error) {
 	// 路径目录不存在则创建目录
 	if _, err := os.Stat(dest); err != nil && !os.IsExist(err) {
 		if err := os.MkdirAll(dest, 0755); err != nil {
@@ -130,7 +143,7 @@ func download(url, dest string) (string, error) {
 	}
 	client := &http.Client{}
 	// 网络请求
-	request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", link, nil)
 	request.Header.Set("Accept", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
 	resp, err := client.Do(request)
 	if err != nil {
@@ -140,14 +153,22 @@ func download(url, dest string) (string, error) {
 	// 验证接收到的长度
 	length, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
 	data, _ := ioutil.ReadAll(resp.Body)
-	if length != len(data) {
+	if length > len(data) {
+		fmt.Println(len(data))
+		fmt.Println(length)
 		return "", errors.New("download not complete")
 	}
 	// 获取文件名
 	temp := strings.Split(resp.Header.Get("Content-Disposition"), "\"")
-	name := temp[len(temp)-1]
+	fmt.Println(temp)
+	fmt.Println(temp[len(temp)-2])
+	name, _ := url.QueryUnescape(temp[len(temp)-2])
+	fmt.Println(name)
 	// 写入文件
-	f, _ := os.OpenFile(dest+name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	f, err := os.OpenFile(dest+name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		return "", err
+	}
 	defer f.Close()
 	f.Write(data)
 	return dest + name, nil
@@ -203,7 +224,7 @@ func randimage(path string, seed int64) (string, error) {
 		return "", err
 	}
 	rand.Seed(seed)
-	return rd[rand.Intn(len(rd))].Name(), nil
+	return path + rd[rand.Intn(len(rd))].Name(), nil
 }
 
 // @function randtext 随机选取签文
@@ -230,25 +251,25 @@ func randtext(file string, seed int64) (string, string, error) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(background, title, text string) error {
+func draw(background, title, text string) ([]byte, error) {
 	// 加载背景
 	back, err := gg.LoadImage(background)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
 	canvas.DrawImage(back, 0, 0)
 	// 写标题
 	canvas.SetRGB(1, 1, 1)
 	if err := canvas.LoadFontFace(base+"sakura.ttf", 45); err != nil {
-		return err
+		return nil, err
 	}
 	sw, _ := canvas.MeasureString(title)
 	canvas.DrawString(title, 140-sw/2, 112)
 	// 写正文
 	canvas.SetRGB(0, 0, 0)
 	if err := canvas.LoadFontFace(base+"sakura.ttf", 23); err != nil {
-		return err
+		return nil, err
 	}
 	offest := func(total, now int, distance float64) float64 {
 		if total%2 == 0 {
@@ -297,6 +318,13 @@ func draw(background, title, text string) error {
 		}
 	}
 	// 保存
-	gg.SaveJPG(base+"out.jpg", canvas.Image(), 70)
-	return nil
+	buffer := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
+	var opt jpeg.Options
+	opt.Quality = 70
+	err = jpeg.Encode(encoder, canvas.Image(), &opt)
+	if err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }
