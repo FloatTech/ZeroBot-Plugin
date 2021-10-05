@@ -7,6 +7,7 @@ require (
 	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.3
 	github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3
 	github.com/FloatTech/bot-manager v1.0.0
+	github.com/fogleman/gg v1.3.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
