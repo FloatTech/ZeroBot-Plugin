@@ -1,10 +1,4 @@
-/*
- * @Author: fumiama
- * @Date: 2021-10-04 17:14:56
- * @LastEditors: Kanri
- * @LastEditTime: 2021-10-05 11:04:39
- * @Description: 浅草寺求签
- */
+// Package omikuji 浅草寺求签
 package omikuji
 
 import (

@@ -1,17 +1,4 @@
-/*
- * @Author: Kanri
- * @Date: 2021-10-05 11:30:32
- * @LastEditors: Kanri
- * @LastEditTime: 2021-10-05 11:59:46
- * @Description:
- */
-/*
- * @Author: Kanri
- * @Date: 2021-10-04 17:18:34
- * @LastEditors: Kanri
- * @LastEditTime: 2021-10-05 11:29:32
- * @Description: 每日运势
- */
+// Package fortune 每日运势
 package fortune
 
 import (
@@ -82,22 +69,22 @@ func init() {
 				ctx.SendChain(message.Text("下载字体文件完毕"))
 			}
 			// 获取该群背景类型
-			var type_ string
+			var kind string
 			if v, ok := table[ctx.Event.GroupID]; ok {
-				type_ = v
+				kind = v
 			} else {
-				type_ = table[0]
+				kind = table[0]
 			}
 			// 检查背景图片是否存在
-			if _, err := os.Stat(base + type_); err != nil && !os.IsExist(err) {
+			if _, err := os.Stat(base + kind); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
-				file, err := download("https://pan.dihe.moe/fortune/"+type_+".zip", base)
+				file, err := download("https://pan.dihe.moe/fortune/"+kind+".zip", base)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.Text("下载背景图片完毕"))
-				err = unpack(file, base+type_+"/")
+				err = unpack(file, base+kind+"/")
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -108,7 +95,7 @@ func init() {
 			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
 			seed := ctx.Event.UserID + t
 			// 随机获取背景
-			background, err := randimage(base+type_+"/", seed)
+			background, err := randimage(base+kind+"/", seed)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -160,10 +147,7 @@ func download(link, dest string) (string, error) {
 	}
 	// 获取文件名
 	temp := strings.Split(resp.Header.Get("Content-Disposition"), "\"")
-	fmt.Println(temp)
-	fmt.Println(temp[len(temp)-2])
 	name, _ := url.QueryUnescape(temp[len(temp)-2])
-	fmt.Println(name)
 	// 写入文件
 	f, err := os.OpenFile(dest+name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
@@ -274,14 +258,13 @@ func draw(background, title, text string) ([]byte, error) {
 	offest := func(total, now int, distance float64) float64 {
 		if total%2 == 0 {
 			return (float64(now-total/2) - 1) * distance
-		} else {
-			return (float64(now-total/2) - 1.5) * distance
 		}
+		return (float64(now-total/2) - 1.5) * distance
 	}
 	rowsnum := func(total, div int) int {
 		temp := total / div
 		if total%div != 0 {
-			temp += 1
+			temp++
 		}
 		return temp
 	}
