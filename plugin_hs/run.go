@@ -10,6 +10,7 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var header = req.Header{
