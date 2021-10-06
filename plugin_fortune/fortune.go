@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"image/jpeg"
 	"io"
 	"io/ioutil"
@@ -29,6 +28,8 @@ import (
 var (
 	// 底图缓存位置
 	base = "data/fortune/"
+	// 素材下载网站
+	site = "https://pan.dihe.moe/fortune/"
 	// int64 群号 string 底图类型
 	// 底图类型列表：车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌
 	// 				公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师
@@ -40,7 +41,7 @@ var (
 
 func init() {
 	// 插件主体
-	control.Register("runcode", &control.Options{
+	control.Register("fortune", &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势",
@@ -49,7 +50,7 @@ func init() {
 			// 检查签文文件是否存在
 			if _, err := os.Stat(base + "运势签文.json"); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
-				_, err := download("https://pan.dihe.moe/fortune/运势签文.json", base)
+				_, err := download(site+"运势签文.json", base)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -59,7 +60,7 @@ func init() {
 			// 检查字体文件是否存在
 			if _, err := os.Stat(base + "sakura.ttf"); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
-				_, err := download("https://pan.dihe.moe/fortune/sakura.ttf", base)
+				_, err := download(site+"sakura.ttf", base)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -76,7 +77,7 @@ func init() {
 			// 检查背景图片是否存在
 			if _, err := os.Stat(base + kind); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
-				file, err := download("https://pan.dihe.moe/fortune/"+kind+".zip", base)
+				file, err := download(site+kind+".zip", base)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -139,8 +140,6 @@ func download(link, dest string) (string, error) {
 	length, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
 	data, _ := ioutil.ReadAll(resp.Body)
 	if length > len(data) {
-		fmt.Println(len(data))
-		fmt.Println(length)
 		return "", errors.New("download not complete")
 	}
 	// 获取文件名
@@ -301,7 +300,7 @@ func draw(background, title, text string) ([]byte, error) {
 			}
 		}
 	}
-	// 保存
+	// 转成 base64
 	buffer := new(bytes.Buffer)
 	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
 	var opt jpeg.Options
@@ -310,5 +309,6 @@ func draw(background, title, text string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	encoder.Close()
 	return buffer.Bytes(), nil
 }
