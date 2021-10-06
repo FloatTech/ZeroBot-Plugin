@@ -18,7 +18,14 @@ var header = req.Header{
 }
 
 func init() {
-	zero.OnRegex(`^搜卡(.+)$`).
+	engine := control.Register("hs", &control.Options{
+		DisableOnDefault: false,
+		Help: "炉石\n" +
+			"- 搜卡[xxxx]\n" +
+			"- [卡组代码xxx]\n" +
+			"- 更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp",
+	})
+	engine.OnRegex(`^搜卡(.+)$`).
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]
 		g := sh(List)
