@@ -22,33 +22,34 @@ func init() {
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]
 		g := sh(List)
-		im, _ := req.Get(`https://res.fbigame.com/hs/v13/`+
-			gjson.Get(g, `list.0.CardID`).String()+
-			`.png?auth_key=`+
-			gjson.Get(g, `list.0.auth_key`).String(), header)
-		im.ToFile("data/image/1.png")
-		file, _ := os.Open("data/image/1.png")
-		sg, _ := req.Post("https://pic.sogou.com/pic/upload_pic.jsp", req.FileUpload{
-			File:      file,
-			FieldName: "image",      // FieldName 是表单字段名
-			FileName:  "avatar.png", // Filename 是要上传的文件的名称，我们使用它来猜测mimetype，并将其上传到服务器上
-		})
-		var tx string
 		t := int(gjson.Get(g, `list.#`).Int())
 		if t == 0 {
 			ctx.SendChain(message.Text("查询为空！"))
 			return
 		}
-		for i := 0; i < t && i < 10; i++ {
-			tx += strconv.Itoa(i+1) + ". 法力：" +
-				gjson.Get(g, `list.`+strconv.Itoa(i)+`.COST`).String() +
-				" " +
-				gjson.Get(g, `list.`+strconv.Itoa(i)+`.CARDNAME`).String() +
-				"\n"
+		var sk message.Message
+		for i := 0; i < t && i < 5; i++ {
+			im, _ := req.Get(`https://res.fbigame.com/hs/v13/`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()+
+				`.png?auth_key=`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
+				header,
+			)
+			sg, _ := req.Post("https://pic.sogou.com/pic/upload_pic.jsp", req.FileUpload{
+				File:      im.Response().Body,
+				FieldName: "image",      // FieldName 是表单字段名
+				FileName:  "avatar.png", // Filename 是要上传的文件的名称
+			})
+			sk = append(
+				sk,
+				message.CustomNode(
+					ctx.Event.Sender.NickName,
+					ctx.Event.UserID,
+					`[CQ:image,file=`+sg.String()+`]`, //图片
+				),
+			)
 		}
-		ctx.SendChain(
-			message.Image(sg.String()),
-			message.Text(tx),
+		ctx.SendGroupForwardMessage(
+			ctx.Event.GroupID,
+			sk,
 		)
 	})
 	//卡组
