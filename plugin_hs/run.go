@@ -78,7 +78,7 @@ func init() {
 				message.CustomNode(
 					ctx.Event.Sender.NickName,
 					ctx.Event.UserID,
-					imgcq, //图片
+					imgcq, // 图片
 				),
 			)
 		}
