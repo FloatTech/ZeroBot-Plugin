@@ -9,6 +9,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
@@ -17,10 +19,18 @@ var (
 )
 
 func init() {
-	zero.OnPrefix("异世界转生", number(587874)).SetBlock(true).FirstPriority().Handle(handle)
-	zero.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).FirstPriority().Handle(handle)
-	zero.OnPrefix("卖萌", number(360578)).SetBlock(true).FirstPriority().Handle(handle)
-	zero.OnPrefix("抽老婆", number(1075116)).SetBlock(true).FirstPriority().Handle(handle)
+	engine := control.Register("shindan", &control.Options{
+		DisableOnDefault: false,
+		Help: "shindan\n" +
+			"- 今天是什么少女[@xxx]\n" +
+			"- 异世界转生[@xxx]\n" +
+			"- 卖萌[@xxx]\n" +
+			"- 抽老婆[@xxx]",
+	})
+	engine.OnPrefix("异世界转生", number(587874)).SetBlock(true).FirstPriority().Handle(handle)
+	engine.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).FirstPriority().Handle(handle)
+	engine.OnPrefix("卖萌", number(360578)).SetBlock(true).FirstPriority().Handle(handle)
+	engine.OnPrefix("抽老婆", number(1075116)).SetBlock(true).FirstPriority().Handle(handle)
 }
 
 // shindanmaker 处理函数

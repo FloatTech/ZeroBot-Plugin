@@ -1,16 +1,24 @@
 name: PushLint
-on: [push]
+on: [ push ]
 jobs:
   golangci:
-    name: lint_golangci-lint
+    name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@master
         with:
           version: latest
           args: --issues-exit-code=0
+          skip-go-installation: true
       - name: Commit back
         continue-on-error: true
         run: |

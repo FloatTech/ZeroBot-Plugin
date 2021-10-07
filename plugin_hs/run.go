@@ -1,7 +1,9 @@
+// Package hs 炉石
 package hs
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -10,8 +12,12 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
+
+var botpath, _ = os.Getwd()
+var cachedir = botpath + "/data/hs/"
 
 var header = req.Header{
 	"user-agent": `Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36`,
@@ -19,6 +25,12 @@ var header = req.Header{
 }
 
 func init() {
+	os.RemoveAll(cachedir)
+	err := os.MkdirAll(cachedir, 0755)
+	if err != nil {
+		panic(err)
+	}
+
 	engine := control.Register("hs", &control.Options{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
@@ -36,22 +48,37 @@ func init() {
 			return
 		}
 		var sk message.Message
+		var imgcq string
+		var data []byte
 		for i := 0; i < t && i < 5; i++ {
-			im, _ := req.Get(`https://res.fbigame.com/hs/v13/`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()+
-				`.png?auth_key=`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
-				header,
-			)
-			sg, _ := req.Post("https://pic.sogou.com/pic/upload_pic.jsp", req.FileUpload{
-				File:      im.Response().Body,
-				FieldName: "image",      // FieldName 是表单字段名
-				FileName:  "avatar.png", // Filename 是要上传的文件的名称
-			})
+			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
+			cachefile := cachedir + cid
+			if _, err := os.Stat(cachefile); err != nil {
+				im, err := req.Get(`https://res.fbigame.com/hs/v13/`+cid+
+					`.png?auth_key=`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
+					header,
+				)
+				if err == nil {
+					data, err = io.ReadAll(im.Response().Body)
+					if err == nil {
+						err = im.Response().Body.Close()
+						if err == nil {
+							err = os.WriteFile(cachefile, data, 0644)
+						}
+					}
+				}
+				if err != nil {
+					imgcq = err.Error()
+				} else {
+					imgcq = `[CQ:image,file=` + "file:///" + cachefile + `]`
+				}
+			}
 			sk = append(
 				sk,
 				message.CustomNode(
 					ctx.Event.Sender.NickName,
 					ctx.Event.UserID,
-					`[CQ:image,file=`+sg.String()+`]`, //图片
+					imgcq, //图片
 				),
 			)
 		}
@@ -60,8 +87,8 @@ func init() {
 			sk,
 		)
 	})
-	//卡组
-	zero.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
+	// 卡组
+	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		fmt.Print("成功")
 		List := ctx.State["regex_matched"].([]string)[1]

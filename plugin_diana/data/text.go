@@ -2,10 +2,13 @@
 package data
 
 import (
+	"crypto/md5"
 	"io"
 	"net/http"
 	"os"
+	"sync"
 	"time"
+	"unsafe"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -13,13 +16,17 @@ import (
 const (
 	datapath = "data/Diana"
 	pbfile   = datapath + "/text.pb"
-	pburl    = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/data/Diana/text.pb"
+	pburl    = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/" + pbfile
 )
 
 var (
 	compo Composition
 	// Array 小作文数组指针
 	Array = &compo.Array
+	// m 小作文保存锁
+	m sync.Mutex
+	// md5s 验证重复
+	md5s []*[16]byte
 )
 
 func init() {
@@ -31,7 +38,13 @@ func init() {
 		}
 		err1 := LoadText()
 		if err1 == nil {
-			log.Printf("[Diana]读取%d条小作文", len(*Array))
+			arrl := len(*Array)
+			log.Printf("[Diana]读取%d条小作文", arrl)
+			md5s = make([]*[16]byte, arrl)
+			for i, t := range *Array {
+				m := md5.Sum(str2bytes(t))
+				md5s[i] = &m
+			}
 		} else {
 			log.Printf("[Diana]读取小作文错误：%v", err1)
 		}
@@ -65,7 +78,7 @@ func LoadText() error {
 				log.Printf("[Diana]从镜像下载小作文%d字节...", resp.ContentLength)
 				data, err := io.ReadAll(resp.Body)
 				if err == nil && len(data) > 0 {
-					f.Write(data)
+					_, _ = f.Write(data)
 					return compo.Unmarshal(data)
 				}
 				return err
@@ -79,21 +92,46 @@ func LoadText() error {
 
 // AddText 添加小作文
 func AddText(txt string) error {
-	if txt != "" {
+	sum := md5.Sum(str2bytes(txt))
+	if txt != "" && !isin(&sum) {
+		m.Lock()
+		defer m.Unlock()
 		compo.Array = append(compo.Array, txt)
-		data, err := compo.Marshal()
-		if err == nil {
-			if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
-				f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-				if err1 == nil {
-					defer f.Close()
-					_, err2 := f.Write(data)
-					return err2
-				}
-				return err1
-			}
-		}
-		return err
+		md5s = append(md5s, &sum)
+		return savecompo()
 	}
 	return nil
+}
+
+func isin(sum *[16]byte) bool {
+	for _, t := range md5s {
+		if *t == *sum {
+			return true
+		}
+	}
+	return false
+}
+
+// savecompo 同步保存作文
+func savecompo() error {
+	data, err := compo.Marshal()
+	if err == nil {
+		if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
+			f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+			if err1 == nil {
+				_, err2 := f.Write(data)
+				f.Close()
+				return err2
+			}
+			return err1
+		}
+	}
+	return err
+}
+
+// str2bytes Fast convert
+func str2bytes(s string) []byte {
+	x := (*[2]uintptr)(unsafe.Pointer(&s))
+	h := [3]uintptr{x[0], x[1], x[1]}
+	return *(*[]byte)(unsafe.Pointer(&h))
 }

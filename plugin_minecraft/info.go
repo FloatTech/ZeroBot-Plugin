@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -36,30 +37,28 @@ type resultjson struct {
 	} `json:"players"`
 }
 
+var (
+	servers = make(map[string]string)
+)
+
 func init() {
-	zero.OnRegex(`^/list (.*)$`).
+	// 这里填对应mc服务器的登录地址
+	servers["ftbi"] = "115.28.186.22:25710"
+	servers["ges"] = "115.28.186.22:25701"
+
+	engine.OnCommand("mclist").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			model := extension.CommandModel{}
+			_ = ctx.Parse(&model)
 			// 支持多个服务器
-			switch ctx.State["regex_matched"].([]string)[1] {
-			case "ftbi": // 这里对应触发指令里的服务器名称
-				ftbijson := infoapi("115.28.186.22:25710") // 这里填对应mc服务器的登录地址
-				var str = ftbijson.Players.List
-				cs := strings.Join(str, "\n")
-				ctx.SendChain(message.Text(
-					"服务器名字: ", ftbijson.Motd.Raw[0], "\n",
-					"在线人数: ", ftbijson.Players.Online, "/", ftbijson.Players.Max, "\n",
-					"以下为玩家名字: ", "\n", cs,
-				))
-			case "ges": // 这里对应触发指令里的服务器名称
-				gesjson := infoapi("115.28.186.22:25701") // 这里填对应mc服务器的登录地址
-				var str = gesjson.Players.List
-				cs := strings.Join(str, "\n")
-				ctx.SendChain(message.Text(
-					"服务器名字: ", gesjson.Motd.Raw[0], "\n",
-					"在线人数: ", gesjson.Players.Online, "/", gesjson.Players.Max, "\n",
-					"以下为玩家名字: ", "\n", cs,
-				))
-			}
+			gesjson := infoapi(servers[model.Args])
+			var str = gesjson.Players.List
+			cs := strings.Join(str, "\n")
+			ctx.SendChain(message.Text(
+				"服务器名字: ", gesjson.Motd.Raw[0], "\n",
+				"在线人数: ", gesjson.Players.Online, "/", gesjson.Players.Max, "\n",
+				"以下为玩家名字: ", "\n", cs,
+			))
 		})
 }
 

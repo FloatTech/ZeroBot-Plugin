@@ -12,14 +12,26 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Yiwen-Chan/ZeroBot-Plugin?style=flat-square&logo=go)](https://goreportcard.com/report/github.com/github.com/Yiwen-Chan/ZeroBot-Plugin)
 [![Badge](https://img.shields.io/badge/onebot-v11-black?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAxQTFRF////29vbr6+vAAAAk1hCcwAAAAR0Uk5T////AEAqqfQAAAKcSURBVHja7NrbctswDATQXfD//zlpO7FlmwAWIOnOtNaTM5JwDMa8E+PNFz7g3waJ24fviyDPgfhz8fHP39cBcBL9KoJbQUxjA2iYqHL3FAnvzhL4GtVNUcoSZe6eSHizBcK5LL7dBr2AUZlev1ARRHCljzRALIEog6H3U6bCIyqIZdAT0eBuJYaGiJaHSjmkYIZd+qSGWAQnIaz2OArVnX6vrItQvbhZJtVGB5qX9wKqCMkb9W7aexfCO/rwQRBzsDIsYx4AOz0nhAtWu7bqkEQBO0Pr+Ftjt5fFCUEbm0Sbgdu8WSgJ5NgH2iu46R/o1UcBXJsFusWF/QUaz3RwJMEgngfaGGdSxJkE/Yg4lOBryBiMwvAhZrVMUUvwqU7F05b5WLaUIN4M4hRocQQRnEedgsn7TZB3UCpRrIJwQfqvGwsg18EnI2uSVNC8t+0QmMXogvbPg/xk+Mnw/6kW/rraUlvqgmFreAA09xW5t0AFlHrQZ3CsgvZm0FbHNKyBmheBKIF2cCA8A600aHPmFtRB1XvMsJAiza7LpPog0UJwccKdzw8rdf8MyN2ePYF896LC5hTzdZqxb6VNXInaupARLDNBWgI8spq4T0Qb5H4vWfPmHo8OyB1ito+AysNNz0oglj1U955sjUN9d41LnrX2D/u7eRwxyOaOpfyevCWbTgDEoilsOnu7zsKhjRCsnD/QzhdkYLBLXjiK4f3UWmcx2M7PO21CKVTH84638NTplt6JIQH0ZwCNuiWAfvuLhdrcOYPVO9eW3A67l7hZtgaY9GZo9AFc6cryjoeFBIWeU+npnk/nLE0OxCHL1eQsc1IciehjpJv5mqCsjeopaH6r15/MrxNnVhu7tmcslay2gO2Z1QfcfX0JMACG41/u0RrI9QAAAABJRU5ErkJggg==)](https://github.com/howmanybots/onebot)
-[![Badge](https://img.shields.io/badge/zerobot-v1.2.2-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
+[![Badge](https://img.shields.io/badge/zerobot-v1.2.3-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
 [![License](https://img.shields.io/github/license/Yiwen-Chan/OneBot-YaYa.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
 [![qq group](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
 
 </div>
 
+## 命令行参数
+```bash
+zerobot [-d] [-g] qq1 qq2 qq3 ...
+```
+- **-d**: 开启 debug 级别日志输出
+- **-g**: 开启 [webgui](https://github.com/FloatTech/bot-manager)
+- **qqs**: superusers 的 qq 号
 
 ## 功能
+- **插件控制**
+    - [x] /启用 xxx
+    - [x] /禁用 xxx
+    - [x] /用法 xxx
+    - [x] /服务列表
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -46,10 +58,10 @@
     - [x] *入群欢迎
     - [x] *退群通知
     - [x] 设置欢迎语[欢迎~]
-    - [x] 在MM月dd日的hh点mm分时(用http://url)提醒大家xxx
-    - [x] 在MM月[每周|周几]的hh点mm分时(用http://url)提醒大家xxx
-    - [x] 取消在MM月dd日的hh点mm分的提醒
-    - [x] 取消在MM月[每周|周几]的hh点mm分的提醒
+    - [x] 在[MM]月[dd]日的[hh]点[mm]分时(用[url])提醒大家[xxx]
+    - [x] 在[MM]月[每周|周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
+    - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
+    - [x] 取消在[MM]月[每周|周几]的[hh]点[mm]分的提醒
     - [x] 列出所有提醒
     - [x] 翻牌
     - [x] [开启|关闭]入群验证
@@ -62,9 +74,8 @@
     - [x] >github [xxx]
     - [x] >github -p [xxx]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"`
-    - [x] >runcode help
-    - [x] >runcode [on/off]
-    - [x] >runcode [language] [code block]
+    - [x] > runcode [language] help
+    - [x] > runcode [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
@@ -81,12 +92,12 @@
     - [x] 爬[@xxx]
     - [x] 摸[@xxx]
     - [x] 搓[@xxx]
-    - 注：`main.go`中并未import该插件。详情见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
+    - 注：更多指令见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
-    - [x] >setu status
+    - [x] > setu status
 - **lolicon** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"`
     - [x] 来份萝莉
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
@@ -98,26 +109,44 @@
     - [x] 设置随机图片网址[url]
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
+- **每日运势** `github.com/FloatTech/ZeroBot-Plugin/plugin_fortune`
+    - [x] 运势
 - **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
-    - 本插件要求`Go`版本大于等于`1.17`
-    - [x] @BOT 求签|运势|占卜
+    - [x] 求签|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
-    - [x] >bili info [名字]
+    - [x] >vup info [名字|uid]
+	- [x] >user info [名字|uid]
+	- [x] /开启粉丝日报
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
-    - [x] @BOT 小作文
-    - [x] @BOT 发大病
-    - [x] @BOT 教你一篇小作文[作文]
+    - [x] 小作文
+    - [x] 发大病
+    - [x] 教你一篇小作文[作文]
+    - [x] [回复]查重
 - **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度 [身体检查]
+    - [x] 清理缓存
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
-    - [x] 具体指令看代码
+    - [x] /mcstart xxx
+	- [x] /mcstop xxx
+	- [x] /mclist servername
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
- - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
-    - [x] 搜卡[xxxx] 
-    - [x]  [卡组代码xxx]
+- **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
+    - [x] 搜卡[xxxx]
+    - [x] [卡组代码xxx]
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
+- **青云客** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"`
+	- [x] @Bot 任意文本(任意一句话回复)
+- **关键字搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"`
+    - [x] 来张 [xxx]
+- **拼音首字母释义工具** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"`
+    - [x] ?? [缩写]
+- **选择困难症帮手** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"`
+    - [x] 选择[选择项1]还是[选项2]还是[更多选项]
+- **投胎** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"`
+    - [x] reborn
+    - 注：本插件来源于[tgbot](https://github.com/YukariChiba/tgbot/blob/main/modules/Reborn.py)
 - **TODO...**
 
 ## 使用方法
@@ -125,16 +154,17 @@
 本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
 | 项目地址 | 平台 | 核心作者 | 备注 |
 | --- | --- | --- | --- |
-| [Yiwen-Chan/OneBot-YaYa](https://github.com/Yiwen-Chan/OneBot-YaYa) | [先驱](https://www.xianqubot.com/) | kanri |  |
-| [richardchien/coolq-http-api](https://github.com/richardchien/coolq-http-api) | CKYU | richardchien | 可在 Mirai 平台使用 [mirai-native](https://github.com/iTXTech/mirai-native) 加载 |
 | [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |  |
 | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
 | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
 
-### 使用稳定版/测试版
+
+### 使用稳定版/测试版 (推荐)
+
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。
 
 ### 本地运行
+
 1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. 下载本项目[压缩包](https://github.com/Yiwen-Chan/ZeroBot-Plugin/archive/master.zip)，本地解压
 3. 编辑 main.go 文件，内容按需修改
@@ -143,17 +173,21 @@
 
 ### 编译运行
 
-#### 利用 Actions 在线编译 (推荐)
+#### 利用 Actions 在线编译
+
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
-3. 编辑 main.go 文件，内容按需修改，提交修改后 Actions 自动执行
-4. 点击 Actions 按钮，等待编译完成，在 Actions 里下载编译好的文件
-5. 运行 OneBot 框架，并同时运行本插件
-6. 啾咪~
+3. 编辑 main.go 文件，内容按需修改
+4. 前往 Release 页面发布一个 Release，`tag`形如`vx.y.z`，以触发稳定版编译流程
+5. 点击 Actions 按钮，等待编译完成，回到 Release 页面下载编译好的文件
+6. 运行 OneBot 框架，并同时运行本插件
+7. 啾咪~
 
 #### 本地编译/交叉编译
+
 1. 下载安装 [Go](https://studygolang.com/dl) 环境
 2. clone 并进入本项目，下载所需包
+
 ```bash
 git clone --depth=1 https://github.com/FloatTech/ZeroBot-Plugin.git
 cd ZeroBot-Plugin
@@ -162,8 +196,10 @@ go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GO111MODULE=auto
 go mod tidy
 ```
+
 3. 编辑 main.go 文件，内容按需修改
 4. 按照平台输入命令编译，下面举了两个不太常见的例子
+
 ```bash
 # 本机平台
 go build -ldflags "-s -w" -o zerobot
@@ -172,12 +208,14 @@ GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 # mips Linux 平台 如 路由器 wndr4300
 GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 ```
+
 5. 运行 OneBot 框架，并同时运行本插件
 
 ## 特别感谢
+
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
 
-
 ## License
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FYiwen-Chan%2FZeroBot-Plugin.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FYiwen-Chan%2FZeroBot-Plugin?ref=badge_large)

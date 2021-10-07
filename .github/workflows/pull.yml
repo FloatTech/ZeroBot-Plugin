@@ -1,13 +1,20 @@
 name: PullLint
-on: [pull_request]
+on: [ pull_request ]
 jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@master
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: latest
@@ -22,7 +29,7 @@ jobs:
           # only-new-issues: true
 
           # Optional: if set to true then the action will use pre-installed Go.
-          # skip-go-installation: true
+          skip-go-installation: true
 
           # Optional: if set to true then the action don't cache or restore ~/go/pkg.
           # skip-pkg-cache: true

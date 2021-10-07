@@ -8,11 +8,22 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
+
+var engine *zero.Engine
 
 // 查成分的
 func init() {
-	zero.OnRegex(`^>user info\s(.{1,25})$`).
+	engine = control.Register("bilibili", &control.Options{
+		DisableOnDefault: false,
+		Help: "bilibili\n" +
+			"- >vup info [名字|uid]\n" +
+			"- >user info [名字|uid]\n" +
+			"- /开启粉丝日报",
+	})
+	engine.OnRegex(`^>user info\s(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			rest, err := uid(keyword)

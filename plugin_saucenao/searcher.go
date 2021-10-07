@@ -6,18 +6,25 @@ import (
 	"strconv"
 	"strings"
 
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
-
 	"github.com/FloatTech/AnimeAPI/ascii2d"
 	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 func init() { // 插件主体
+	engine := control.Register("saucenao", &control.Options{
+		DisableOnDefault: false,
+		Help: "搜图\n" +
+			"- 以图搜图|搜索图片|以图识图[图片]\n" +
+			"- 搜图[P站图片ID]",
+	})
 	// 根据 PID 搜图
-	zero.OnRegex(`^搜图(\d+)$`).SetBlock(true).FirstPriority().
+	engine.OnRegex(`^搜图(\d+)$`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			id, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 			ctx.Send("少女祈祷中......")
@@ -27,24 +34,28 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			// 改用 i.pixiv.cat 镜像站
-			link := illust.ImageUrls
-			link = strings.ReplaceAll(link, "i.pximg.net", "i.pixiv.cat")
-			// 发送搜索结果
-			ctx.SendChain(
-				message.Image(link),
-				message.Text(
-					"\n",
-					"标题：", illust.Title, "\n",
-					"插画ID：", illust.Pid, "\n",
-					"画师：", illust.UserName, "\n",
-					"画师ID：", illust.UserId, "\n",
-					"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
-				),
-			)
+			if illust.Pid > 0 {
+				// 改用 i.pixiv.cat 镜像站
+				link := illust.ImageUrls
+				link = strings.ReplaceAll(link, "i.pximg.net", "i.pixiv.cat")
+				// 发送搜索结果
+				ctx.SendChain(
+					message.Image(link),
+					message.Text(
+						"\n",
+						"标题：", illust.Title, "\n",
+						"插画ID：", illust.Pid, "\n",
+						"画师：", illust.UserName, "\n",
+						"画师ID：", illust.UserId, "\n",
+						"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
+					),
+				)
+			} else {
+				ctx.Send("图片不存在!")
+			}
 		})
 	// 以图搜图
-	zero.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
+	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.Send("少女祈祷中......")
