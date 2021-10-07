@@ -3,10 +3,10 @@ package hs
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/imroc/req"
 	"github.com/tidwall/gjson"
@@ -16,7 +16,8 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
-const cachedir = "data/hs/"
+var botpath, _ = os.Getwd()
+var cachedir = botpath + "/data/hs/"
 
 var header = req.Header{
 	"user-agent": `Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36`,
@@ -41,40 +42,50 @@ func init() {
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]
 		g := sh(List)
-		im, _ := req.Get(`https://res.fbigame.com/hs/v13/`+
-			gjson.Get(g, `list.0.CardID`).String()+
-			`.png?auth_key=`+
-			gjson.Get(g, `list.0.auth_key`).String(), header)
-		cachefile := cachedir + strconv.Itoa(int(time.Now().Unix()))
-		err := im.ToFile(cachefile)
-		if err == nil {
-			file, err := os.Open(cachefile)
-			if err == nil {
-				defer file.Close()
-				sg, _ := req.Post("https://pic.sogou.com/pic/upload_pic.jsp", req.FileUpload{
-					File:      file,
-					FieldName: "image",      // FieldName 是表单字段名
-					FileName:  "avatar.png", // Filename 是要上传的文件的名称，我们使用它来猜测mimetype，并将其上传到服务器上
-				})
-				var tx string
-				t := int(gjson.Get(g, `list.#`).Int())
-				if t == 0 {
-					ctx.Send("查询为空！")
-					return
-				}
-				for i := 0; i < t && i < 10; i++ {
-					tx += strconv.Itoa(i+1) + ". 法力：" +
-						gjson.Get(g, `list.`+strconv.Itoa(i)+`.COST`).String() +
-						" " +
-						gjson.Get(g, `list.`+strconv.Itoa(i)+`.CARDNAME`).String() +
-						"\n"
-				}
-				ctx.SendChain(
-					message.Image(sg.String()),
-					message.Text(tx),
-				)
-			}
+		t := int(gjson.Get(g, `list.#`).Int())
+		if t == 0 {
+			ctx.SendChain(message.Text("查询为空！"))
+			return
 		}
+		var sk message.Message
+		var imgcq string
+		var data []byte
+		for i := 0; i < t && i < 5; i++ {
+			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
+			cachefile := cachedir + cid
+			if _, err := os.Stat(cachefile); err != nil {
+				im, err := req.Get(`https://res.fbigame.com/hs/v13/`+cid+
+					`.png?auth_key=`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
+					header,
+				)
+				if err == nil {
+					data, err = io.ReadAll(im.Response().Body)
+					if err == nil {
+						err = im.Response().Body.Close()
+						if err == nil {
+							err = os.WriteFile(cachefile, data, 0644)
+						}
+					}
+				}
+				if err != nil {
+					imgcq = err.Error()
+				} else {
+					imgcq = `[CQ:image,file=` + "file:///" + cachefile + `]`
+				}
+			}
+			sk = append(
+				sk,
+				message.CustomNode(
+					ctx.Event.Sender.NickName,
+					ctx.Event.UserID,
+					imgcq, // 图片
+				),
+			)
+		}
+		ctx.SendGroupForwardMessage(
+			ctx.Event.GroupID,
+			sk,
+		)
 	})
 	// 卡组
 	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
