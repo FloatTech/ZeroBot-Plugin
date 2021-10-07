@@ -48,11 +48,11 @@ func init() {
 			return
 		}
 		var sk message.Message
-		var imgcq string
 		var data []byte
 		for i := 0; i < t && i < 5; i++ {
 			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
 			cachefile := cachedir + cid
+			imgcq := `[CQ:image,file=` + "file:///" + cachefile + `]`
 			if _, err := os.Stat(cachefile); err != nil {
 				im, err := req.Get(`https://res.fbigame.com/hs/v13/`+cid+
 					`.png?auth_key=`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
@@ -69,8 +69,6 @@ func init() {
 				}
 				if err != nil {
 					imgcq = err.Error()
-				} else {
-					imgcq = `[CQ:image,file=` + "file:///" + cachefile + `]`
 				}
 			}
 			sk = append(
