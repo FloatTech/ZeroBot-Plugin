@@ -70,7 +70,7 @@ func init() {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			soutujson := soutuapi(keyword)
 			pom1 := "https://i.pixiv.cat"
-			rannum := randint(len(soutujson.Illusts))
+			rannum := randintn(len(soutujson.Illusts))
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Large[19:]
 			ctx.SendChain(message.Image(pom1 + pom2))
 		})
@@ -102,8 +102,8 @@ func soutuapi(keyword string) *resultjson {
 	return result
 }
 
-// randint 从json里的30条数据中随机获取一条返回
-func randint(len int) int {
+// randintn 从json里的30条数据中随机获取一条返回
+func randintn(len int) int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(len)
 }
