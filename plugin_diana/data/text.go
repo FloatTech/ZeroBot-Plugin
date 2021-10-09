@@ -9,8 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/data"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/data"
 )
 
 const (
