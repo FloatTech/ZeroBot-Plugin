@@ -6,16 +6,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/fogleman/gg"
@@ -23,6 +19,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/data"
 )
 
 var (
@@ -30,27 +27,49 @@ var (
 	base = "data/fortune/"
 	// 素材下载网站
 	site = "https://pan.dihe.moe/fortune/"
-	// int64 群号 string 底图类型
 	// 底图类型列表：车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌
 	// 				公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师
-	table = map[int64]string{
-		0:          "车万",
-		1048452984: "爱因斯坦",
-	}
+	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师"}
+	// 映射底图与 index
+	index = make(map[string]uint32)
 )
 
 func init() {
+	err := loadcfg("cfg.pb")
+	if err != nil {
+		panic(err)
+	}
+	for i, s := range table {
+		index[s] = uint32(i)
+	}
+	err = os.MkdirAll(base, 0755)
+	if err != nil {
+		panic(err)
+	}
 	// 插件主体
-	control.Register("fortune", &control.Options{
+	en := control.Register("fortune", &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
-			"- 运势",
-	}).OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).SecondPriority().
+			"- 运势\n" +
+			"- 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]",
+	})
+	en.OnRegex(`^设置底图(.*)`, zero.OnlyGroup).SetBlock(true).SecondPriority().
+		Handle(func(ctx *zero.Ctx) {
+			i, ok := index[ctx.State["regex_matched"].([]string)[1]]
+			if ok {
+				conf.Kind[ctx.Event.GroupID] = i
+				savecfg("cfg.pb")
+			} else {
+				ctx.Send("没有这个底图哦～")
+			}
+		})
+	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).SecondPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 检查签文文件是否存在
-			if _, err := os.Stat(base + "运势签文.json"); err != nil && !os.IsExist(err) {
+			mikuji := base + "运势签文.json"
+			if _, err := os.Stat(mikuji); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
-				_, err := download(site+"运势签文.json", base)
+				err := data.DownloadTo(site+"运势签文.json", mikuji)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -58,37 +77,40 @@ func init() {
 				ctx.SendChain(message.Text("下载签文文件完毕"))
 			}
 			// 检查字体文件是否存在
-			if _, err := os.Stat(base + "sakura.ttf"); err != nil && !os.IsExist(err) {
+			ttf := base + "sakura.ttf"
+			if _, err := os.Stat(ttf); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
-				_, err := download(site+"sakura.ttf", base)
+				err := data.DownloadTo(site+"sakura.ttf", ttf)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.Text("下载字体文件完毕"))
 			}
-			// 获取该群背景类型
-			var kind string
-			if v, ok := table[ctx.Event.GroupID]; ok {
-				kind = v
-			} else {
-				kind = table[0]
+			// 获取该群背景类型，默认车万
+			kind := "车万"
+			if v, ok := conf.Kind[ctx.Event.GroupID]; ok {
+				kind = table[v]
 			}
 			// 检查背景图片是否存在
-			if _, err := os.Stat(base + kind); err != nil && !os.IsExist(err) {
+			folder := base + kind
+			if _, err := os.Stat(folder); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
-				file, err := download(site+kind+".zip", base)
+				zipfile := kind + ".zip"
+				err := data.DownloadTo(site+zipfile, zipfile)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.Text("下载背景图片完毕"))
-				err = unpack(file, base+kind+"/")
+				err = unpack(zipfile, folder+"/")
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.Text("解压背景图片完毕"))
+				// 释放空间
+				os.Remove(zipfile)
 			}
 			// 生成种子
 			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
@@ -106,56 +128,14 @@ func init() {
 				return
 			}
 			// 绘制背景
-			data, err := draw(background, title, text)
+			d, err := draw(background, title, text)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 发送图片
-			ctx.SendChain(message.Image("base64://" + string(data)))
+			ctx.SendChain(message.Image("base64://" + data.Bytes2str(d)))
 		})
-}
-
-// @function download 下载资源包
-// @param link 下载链接
-// @param dest 下载位置
-// @return 文件路径 & 错误信息
-func download(link, dest string) (string, error) {
-	// 路径目录不存在则创建目录
-	if _, err := os.Stat(dest); err != nil && !os.IsExist(err) {
-		if err := os.MkdirAll(dest, 0755); err != nil {
-			panic(err)
-		}
-	}
-	client := &http.Client{}
-	// 网络请求
-	request, _ := http.NewRequest("GET", link, nil)
-	request.Header.Set("Accept", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
-	resp, err := client.Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	// 验证接收到的长度
-	length, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
-	data, _ := ioutil.ReadAll(resp.Body)
-	if length > len(data) {
-		return "", errors.New("download not complete")
-	}
-	// 获取文件名
-	temp := strings.Split(resp.Header.Get("Content-Disposition"), "\"")
-	name, _ := url.QueryUnescape(temp[len(temp)-2])
-	// 写入文件
-	f, err := os.OpenFile(dest+name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	_, err = f.Write(data)
-	if err != nil {
-		return "", err
-	}
-	return dest + name, nil
 }
 
 // @function unpack 解压资源包

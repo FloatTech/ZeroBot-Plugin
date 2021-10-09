@@ -8,8 +8,8 @@ import (
 	"os"
 	"sync"
 	"time"
-	"unsafe"
 
+	"github.com/FloatTech/ZeroBot-Plugin/data"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,7 +42,7 @@ func init() {
 			log.Printf("[Diana]读取%d条小作文", arrl)
 			md5s = make([]*[16]byte, arrl)
 			for i, t := range *Array {
-				m := md5.Sum(str2bytes(t))
+				m := md5.Sum(data.Str2bytes(t))
 				md5s[i] = &m
 			}
 		} else {
@@ -92,7 +92,7 @@ func LoadText() error {
 
 // AddText 添加小作文
 func AddText(txt string) error {
-	sum := md5.Sum(str2bytes(txt))
+	sum := md5.Sum(data.Str2bytes(txt))
 	if txt != "" && !isin(&sum) {
 		m.Lock()
 		defer m.Unlock()
@@ -127,11 +127,4 @@ func savecompo() error {
 		}
 	}
 	return err
-}
-
-// str2bytes Fast convert
-func str2bytes(s string) []byte {
-	x := (*[2]uintptr)(unsafe.Pointer(&s))
-	h := [3]uintptr{x[0], x[1], x[1]}
-	return *(*[]byte)(unsafe.Pointer(&h))
 }

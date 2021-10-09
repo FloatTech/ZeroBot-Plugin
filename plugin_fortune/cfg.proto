@@ -1,0 +1,6 @@
+syntax = "proto3";
+package fortune;
+
+message conf {
+  map<int64, uint32> kind = 1;
+}
