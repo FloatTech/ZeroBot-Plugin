@@ -50,7 +50,7 @@ func init() {
 	en := control.Register("fortune", &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
-			"- 运势\n" +
+			"- 运势|抽签\n" +
 			"- 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]",
 	})
 	en.OnRegex(`^设置底图(.*)`, zero.OnlyGroup).SetBlock(true).SecondPriority().
