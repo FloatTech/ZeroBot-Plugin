@@ -14,9 +14,9 @@ require (
 	github.com/imroc/req v0.3.0
 	github.com/mroth/weightedrand v0.4.1
 	github.com/robfig/cron v1.2.0
-	github.com/shirou/gopsutil v3.21.8+incompatible
+	github.com/shirou/gopsutil v3.21.9+incompatible
 	github.com/sirupsen/logrus v1.8.1
-	github.com/tidwall/gjson v1.9.0
+	github.com/tidwall/gjson v1.9.3
 	github.com/wdvxdr1123/ZeroBot v1.2.4
-	modernc.org/sqlite v1.13.0
+	modernc.org/sqlite v1.13.1
 )
