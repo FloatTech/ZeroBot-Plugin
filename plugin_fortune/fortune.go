@@ -53,14 +53,20 @@ func init() {
 			"- 运势|抽签\n" +
 			"- 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]",
 	})
-	en.OnRegex(`^设置底图(.*)`, zero.OnlyGroup).SetBlock(true).SecondPriority().
+	en.OnRegex(`^设置底图(.*)`).SetBlock(true).SecondPriority().
 		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			if gid <= 0 {
+				// 个人用户设为负数
+				gid = -ctx.Event.UserID
+			}
 			i, ok := index[ctx.State["regex_matched"].([]string)[1]]
 			if ok {
-				conf.Kind[ctx.Event.GroupID] = i
+				conf.Kind[gid] = i
 				savecfg("cfg.pb")
+				ctx.SendChain(message.Text("设置成功~"))
 			} else {
-				ctx.Send("没有这个底图哦～")
+				ctx.SendChain(message.Text("没有这个底图哦～"))
 			}
 		})
 	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).SecondPriority().
@@ -89,7 +95,12 @@ func init() {
 			}
 			// 获取该群背景类型，默认车万
 			kind := "车万"
-			if v, ok := conf.Kind[ctx.Event.GroupID]; ok {
+			gid := ctx.Event.GroupID
+			if gid <= 0 {
+				// 个人用户设为负数
+				gid = -ctx.Event.UserID
+			}
+			if v, ok := conf.Kind[gid]; ok {
 				kind = table[v]
 			}
 			// 检查背景图片是否存在
@@ -116,13 +127,13 @@ func init() {
 			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
 			seed := ctx.Event.UserID + t
 			// 随机获取背景
-			background, err := randimage(base+kind+"/", seed)
+			background, err := randimage(folder+"/", seed)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 随机获取签文
-			title, text, err := randtext(base+"运势签文.json", seed)
+			title, text, err := randtext(mikuji, seed)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
