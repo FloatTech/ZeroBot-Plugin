@@ -63,16 +63,23 @@ var (
 )
 
 func init() {
-	var debg bool
+	var (
+		debg bool
+		warn bool
+	)
 	/* 注释处已移动至 control/web
 	// 解析命令行参数，输入 `-g` 即可启用 gui
 	flag.BoolVar(&en, "g", false, "Enable web gui.")
 	*/
 	// 解析命令行参数，输入 `-d` 即可开启 debug log
-	flag.BoolVar(&debg, "d", false, "Enable debug log.")
+	flag.BoolVar(&debg, "d", false, "Enable debug log and higher level.")
+	flag.BoolVar(&warn, "w", false, "Enable warning log and higher level.")
 	flag.Parse()
-	if debg {
+	if debg && !warn {
 		logrus.SetLevel(logrus.DebugLevel)
+	}
+	if warn {
+		logrus.SetLevel(logrus.WarnLevel)
 	}
 }
 

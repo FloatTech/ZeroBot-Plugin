@@ -20,13 +20,17 @@
 
 ## 命令行参数
 ```bash
-zerobot [-d] [-g] qq1 qq2 qq3 ...
+zerobot [-d|w] [-g] qq1 qq2 qq3 ...
 ```
-- **-d**: 开启 debug 级别日志输出
+- **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-g**: 开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
 
 ## 功能
+> 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
+> 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
+- **web管理**
+    - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
 - **插件控制**
     - [x] /启用 xxx
     - [x] /禁用 xxx
@@ -179,7 +183,7 @@ zerobot [-d] [-g] qq1 qq2 qq3 ...
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
 3. 编辑 main.go 文件，内容按需修改
-4. 前往 Release 页面发布一个 Release，`tag`形如`vx.y.z`，以触发稳定版编译流程
+4. 前往 Release 页面发布一个 Release，`tag`形如`v1.2.3`，以触发稳定版编译流程
 5. 点击 Actions 按钮，等待编译完成，回到 Release 页面下载编译好的文件
 6. 运行 OneBot 框架，并同时运行本插件
 7. 啾咪~
