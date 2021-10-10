@@ -14,10 +14,11 @@ import (
 	"github.com/gorilla/websocket"
 
 	// 前端静态文件
-	ctrl "github.com/FloatTech/ZeroBot-Plugin/control"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	ctrl "github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
