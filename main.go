@@ -7,9 +7,9 @@ import (
 
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
+	// 插件控制
+	_ "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
 	// 词库类
-	"github.com/sirupsen/logrus"
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
@@ -45,11 +45,9 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
-
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
@@ -63,16 +61,14 @@ var (
 )
 
 func init() {
-	var en bool
 	var debg bool
+	/* 注释处已移动至 control/web
 	// 解析命令行参数，输入 `-g` 即可启用 gui
 	flag.BoolVar(&en, "g", false, "Enable web gui.")
+	*/
 	// 解析命令行参数，输入 `-d` 即可开启 debug log
 	flag.BoolVar(&debg, "d", false, "Enable debug log.")
 	flag.Parse()
-	if en {
-		control.InitGui()
-	}
 	if debg {
 		logrus.SetLevel(logrus.DebugLevel)
 	}

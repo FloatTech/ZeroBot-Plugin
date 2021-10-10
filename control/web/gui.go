@@ -1,4 +1,4 @@
-package control
+package web
 
 import (
 	"encoding/json"
@@ -14,6 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	// 前端静态文件
+	ctrl "github.com/FloatTech/ZeroBot-Plugin/control"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -34,8 +35,8 @@ var (
 type logWriter struct {
 }
 
-// InitGui 初始化gui
-func InitGui() {
+// initGui 初始化gui
+func initGui() {
 	// 将日志重定向到前端hook
 	writer := io.MultiWriter(l, os.Stderr)
 	log.SetOutput(writer)
@@ -86,8 +87,8 @@ func controller() {
 	// 获取插件列表
 	engine.POST("/get_plugins", func(context *gin.Context) {
 		var datas []map[string]interface{}
-		forEach(func(key string, manager *Control) bool {
-			datas = append(datas, map[string]interface{}{"id": 1, "handle_type": "", "name": key, "enable": manager.isEnabledIn(0)})
+		ctrl.ForEach(func(key string, manager *ctrl.Control) bool {
+			datas = append(datas, map[string]interface{}{"id": 1, "handle_type": "", "name": key, "enable": manager.IsEnabledIn(0)})
 			return true
 		})
 		context.JSON(200, datas)
@@ -134,14 +135,14 @@ func updateAllPluginStatus(context *gin.Context) {
 		return true
 	})
 
-	forEach(func(key string, manager *Control) bool {
+	ctrl.ForEach(func(key string, manager *ctrl.Control) bool {
 		if enable {
 			for _, group := range groups {
-				manager.enable(group)
+				manager.Enable(group)
 			}
 		} else {
 			for _, group := range groups {
-				manager.disable(group)
+				manager.Disable(group)
 			}
 		}
 		return true
@@ -168,7 +169,7 @@ func updatePluginAllGroupStatus(context *gin.Context) {
 		name = parse["name"].(string)
 		enable = parse["enable"].(bool)
 	}
-	control, b := lookup(name)
+	control, b := ctrl.Lookup(name)
 	if !b {
 		context.JSON(404, nil)
 		return
@@ -176,9 +177,9 @@ func updatePluginAllGroupStatus(context *gin.Context) {
 	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 		for _, group := range ctx.GetGroupList().Array() {
 			if enable {
-				control.enable(group.Get("group_id").Int())
+				control.Enable(group.Get("group_id").Int())
 			} else {
-				control.disable(group.Get("group_id").Int())
+				control.Disable(group.Get("group_id").Int())
 			}
 		}
 
@@ -205,15 +206,15 @@ func updatePluginStatus(context *gin.Context) {
 	name := parse["name"].(string)
 	enable := parse["enable"].(bool)
 	fmt.Println(name)
-	control, b := lookup(name)
+	control, b := ctrl.Lookup(name)
 	if !b {
 		context.JSON(404, "服务不存在")
 		return
 	}
 	if enable {
-		control.enable(groupID)
+		control.Enable(groupID)
 	} else {
-		control.disable(groupID)
+		control.Disable(groupID)
 	}
 	context.JSON(200, nil)
 }
@@ -237,12 +238,12 @@ func getPluginStatus(context *gin.Context) {
 		groupID = int64(parse["group_id"].(float64))
 		name = parse["name"].(string)
 	}
-	control, b := lookup(name)
+	control, b := ctrl.Lookup(name)
 	if !b {
 		context.JSON(404, "服务不存在")
 		return
 	}
-	context.JSON(200, gin.H{"enable": control.isEnabledIn(groupID)})
+	context.JSON(200, gin.H{"enable": control.IsEnabledIn(groupID)})
 }
 
 // getPluginsStatus
@@ -263,8 +264,8 @@ func getPluginsStatus(context *gin.Context) {
 		groupID = int64(parse["group_id"].(float64))
 	}
 	var datas []map[string]interface{}
-	forEach(func(key string, manager *Control) bool {
-		enable := manager.isEnabledIn(groupID)
+	ctrl.ForEach(func(key string, manager *ctrl.Control) bool {
+		enable := manager.IsEnabledIn(groupID)
 		datas = append(datas, map[string]interface{}{"name": key, "enable": enable})
 		return true
 	})
