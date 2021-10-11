@@ -11,6 +11,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/data"
 )
 
 const (
@@ -30,7 +31,7 @@ func init() {
 	}).OnFullMatch("来份萝莉").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
-				for i := 0; i < min(cap(queue)-len(queue), 2); i++ {
+				for i := 0; i < data.Min(cap(queue)-len(queue), 2); i++ {
 					resp, err := http.Get(api)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
@@ -59,11 +60,4 @@ func init() {
 				ctx.SendChain(message.Image(url))
 			}
 		})
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

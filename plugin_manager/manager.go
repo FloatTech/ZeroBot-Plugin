@@ -16,6 +16,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
+
+	"github.com/FloatTech/ZeroBot-Plugin/data"
 )
 
 const (
@@ -300,13 +302,7 @@ func init() { // 插件主体
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
-			max := func(a, b int) int {
-				if a > b {
-					return a
-				}
-				return b
-			}
-			temp = temp[max(0, len(temp)-10):]
+			temp = temp[data.Max(0, len(temp)-10):]
 			rand.Seed(time.Now().UnixNano())
 			who := temp[rand.Intn(len(temp))]
 			if who.Get("user_id").Int() == ctx.Event.SelfID {

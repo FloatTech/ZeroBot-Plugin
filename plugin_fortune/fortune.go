@@ -246,25 +246,6 @@ func draw(background, title, text string) ([]byte, error) {
 	if err := canvas.LoadFontFace(base+"sakura.ttf", 23); err != nil {
 		return nil, err
 	}
-	offest := func(total, now int, distance float64) float64 {
-		if total%2 == 0 {
-			return (float64(now-total/2) - 1) * distance
-		}
-		return (float64(now-total/2) - 1.5) * distance
-	}
-	rowsnum := func(total, div int) int {
-		temp := total / div
-		if total%div != 0 {
-			temp++
-		}
-		return temp
-	}
-	min := func(a, b int) int {
-		if a < b {
-			return a
-		}
-		return b
-	}
 	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
 	r := []rune(text)
@@ -273,7 +254,7 @@ func draw(background, title, text string) ([]byte, error) {
 	default:
 		for i, o := range r {
 			xnow := rowsnum(i+1, 9)
-			ysum := min(len(r)-(xnow-1)*9, 9)
+			ysum := data.Min(len(r)-(xnow-1)*9, 9)
 			ynow := i%9 + 1
 			canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(ysum, ynow, th)+320.0)
 		}
@@ -281,7 +262,7 @@ func draw(background, title, text string) ([]byte, error) {
 		div := rowsnum(len(r), 2)
 		for i, o := range r {
 			xnow := rowsnum(i+1, div)
-			ysum := min(len(r)-(xnow-1)*div, div)
+			ysum := data.Min(len(r)-(xnow-1)*div, div)
 			ynow := i%div + 1
 			switch xnow {
 			case 1:
@@ -302,4 +283,19 @@ func draw(background, title, text string) ([]byte, error) {
 	}
 	encoder.Close()
 	return buffer.Bytes(), nil
+}
+
+func offest(total, now int, distance float64) float64 {
+	if total%2 == 0 {
+		return (float64(now-total/2) - 1) * distance
+	}
+	return (float64(now-total/2) - 1.5) * distance
+}
+
+func rowsnum(total, div int) int {
+	temp := total / div
+	if total%div != 0 {
+		temp++
+	}
+	return temp
 }

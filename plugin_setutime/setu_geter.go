@@ -106,7 +106,7 @@ func init() { // 插件主体
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := min(pool.Max-pool.size(imgtype), 2)
+				times := data.Min(pool.Max-pool.size(imgtype), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
@@ -122,7 +122,6 @@ func init() { // 插件主体
 					ctx.SendGroupMessage(pool.Group, []message.MessageSegment{message.Image(file(illust))})
 					// 向缓冲池添加一张图片
 					pool.push(imgtype, illust)
-
 					time.Sleep(time.Second * 1)
 				}
 			}()
@@ -214,18 +213,6 @@ func firstValueInList(list []string) zero.Rule {
 			}
 		}
 		return false
-	}
-}
-
-// min 返回两数最小值
-func min(a, b int) int {
-	switch {
-	default:
-		return a
-	case a > b:
-		return b
-	case a < b:
-		return a
 	}
 }
 
