@@ -20,9 +20,11 @@
 
 ## 命令行参数
 ```bash
-zerobot -h [-d|w] [-g] qq1 qq2 qq3 ...
+zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
 ```
-- **-h**: 显示帮助 
+- **-h**: 显示帮助
+- **-t token**: 设置`AccessToken`
+- **-u url**: 设置`Url`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-g**: 开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
