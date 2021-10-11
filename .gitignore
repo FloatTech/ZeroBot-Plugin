@@ -5,6 +5,7 @@ data/manager
 data/acgimage
 data/fortune
 data/hs
+plugins/*.so
 .idea/
 .DS_Store
 .vscode
