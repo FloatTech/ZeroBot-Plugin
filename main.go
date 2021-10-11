@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	// 注：以下插件均可通过前面加 // 注释，注释后停用并不加载插件
@@ -63,32 +64,36 @@ var (
 )
 
 func init() {
-	var (
-		debg bool
-		warn bool
-	)
-	/* 注释处已移动至 control/web
-	// 解析命令行参数，输入 `-g` 即可启用 gui
-	flag.BoolVar(&en, "g", false, "Enable web gui.")
-	*/
 	// 解析命令行参数，输入 `-d` 即可开启 debug log
-	flag.BoolVar(&debg, "d", false, "Enable debug log and higher level.")
-	flag.BoolVar(&warn, "w", false, "Enable warning log and higher level.")
+	d := flag.Bool("d", false, "Enable debug level log and higher.")
+	w := flag.Bool("w", false, "Enable warning level log and higher.")
+	h := flag.Bool("h", false, "Display this help.")
 	flag.Parse()
-	if debg && !warn {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	if warn {
-		logrus.SetLevel(logrus.WarnLevel)
+	if *h {
+		printBanner()
+		fmt.Println("Usage:")
+		flag.PrintDefaults()
+		os.Exit(0)
+	} else {
+		if *d && !*w {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
+		if *w {
+			logrus.SetLevel(logrus.WarnLevel)
+		}
 	}
 }
 
-func main() {
+func printBanner() {
 	fmt.Print(
 		"\n======================[ZeroBot-Plugin]======================",
 		"\n", banner, "\n",
 		"============================================================\n",
-	) // 启动打印
+	)
+}
+
+func main() {
+	printBanner()
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 		CommandPrefix: "/",

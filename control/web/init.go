@@ -4,10 +4,8 @@ package web
 import "flag"
 
 func init() {
-	var en bool
 	// 解析命令行参数，输入 `-g` 即可启用 gui
-	flag.BoolVar(&en, "g", false, "Enable web gui.")
-	if en {
+	if *flag.Bool("g", false, "Enable web gui.") {
 		initGui()
 	}
 }
