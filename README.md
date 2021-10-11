@@ -22,6 +22,7 @@
 ```bash
 zerobot [-d|w] [-g] qq1 qq2 qq3 ...
 ```
+- **-h**: 显示帮助 
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-g**: 开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
