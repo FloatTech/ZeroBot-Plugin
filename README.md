@@ -37,13 +37,14 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
 - **动态加载插件**
     - [x] /刷新插件
-    - 仅 Linux, FreeBSD, macOS, Windows 可用，默认注释不开启。
-    - 开启后`zbp`可执行文件约增大 2M ，每个插件的`.so`文件约 4 ~ 20 M ，如非必要建议不开启。
-    - 动态加载的插件需放置在`plugins/`下，编译命令如下。插件包名必须为`main`。
+    - [x] /加载插件 service名
+    - [x] /卸载插件 service名
+    - 仅 Linux, FreeBSD, macOS 可用，默认注释不开启。
+    - 每个插件的`.so`文件约 4 ~ 20 M ，如非必要建议不开启。
+    - 动态加载的插件需放置在`plugins/`下，需命名为`service名.so`，编译命令如下。模版详见[ZeroBot-Hook](https://github.com/fumiama/ZeroBot-Hook)。
     ```bash
     go build -ldflags "-s -w" -buildmode=plugin
     ```
-    - 插件一经加载，无法再卸载，只能通过`control`控制。
 - **插件控制**
     - [x] /启用 xxx
     - [x] /禁用 xxx
