@@ -15,7 +15,16 @@
 //
 // Currently plugins are only supported on Linux, FreeBSD, and macOS.
 // Please report any issues.
+
+//go:build linux,cgo darwin,cgo freebsd,cgo
+// +build linux,cgo darwin,cgo freebsd,cgo
+
 package plugin
+
+import (
+	pl "plugin"
+	"unsafe"
+)
 
 // Plugin is a loaded Go plugin.
 type Plugin struct {
@@ -29,7 +38,8 @@ type Plugin struct {
 // If a path has already been opened, then the existing *Plugin is returned.
 // It is safe for concurrent use by multiple goroutines.
 func Open(path string) (*Plugin, error) {
-	return open(path)
+	p, err := pl.Open(path)
+	return (*Plugin)(unsafe.Pointer(p)), err
 }
 
 // Lookup searches for a symbol named symName in plugin p.
@@ -37,14 +47,14 @@ func Open(path string) (*Plugin, error) {
 // It reports an error if the symbol is not found.
 // It is safe for concurrent use by multiple goroutines.
 func (p *Plugin) Lookup(symName string) (Symbol, error) {
-	return lookup(p, symName)
+	return (*pl.Plugin)(unsafe.Pointer(p)).Lookup(symName)
 }
 
 // Close closes a Go plugin.
 // If a path is noth opened, it is ignored.
 // It is safe for concurrent use by multiple goroutines.
-func Close(path string) error {
-	return unload(path)
+func Close(p *Plugin) error {
+	return unload(p)
 }
 
 // A Symbol is a pointer to a variable or function.

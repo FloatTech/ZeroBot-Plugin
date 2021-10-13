@@ -12,17 +12,16 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
-var engine *zero.Engine
+var engine = control.Register("bilibili", &control.Options{
+	DisableOnDefault: false,
+	Help: "bilibili\n" +
+		"- >vup info [名字|uid]\n" +
+		"- >user info [名字|uid]\n" +
+		"- /开启粉丝日报",
+})
 
 // 查成分的
 func init() {
-	engine = control.Register("bilibili", &control.Options{
-		DisableOnDefault: false,
-		Help: "bilibili\n" +
-			"- >vup info [名字|uid]\n" +
-			"- >user info [名字|uid]\n" +
-			"- /开启粉丝日报",
-	})
 	engine.OnRegex(`^>user info\s(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]

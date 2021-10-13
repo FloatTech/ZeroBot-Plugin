@@ -19,17 +19,16 @@ import (
 
 const api = "http://your.addr:23333/api/start_server/%s/?apikey=apikey"
 
-var engine *zero.Engine
+var engine = control.Register("minecraft", &control.Options{
+	DisableOnDefault: false,
+	Help: "minecraft\n" +
+		"- /mcstart xxx\n" +
+		"- /mcstop xxx\n" +
+		"- /mclist servername\n" +
+		"- https://github.com/Suwings/MCSManager",
+})
 
 func init() {
-	engine = control.Register("minecraft", &control.Options{
-		DisableOnDefault: false,
-		Help: "minecraft\n" +
-			"- /mcstart xxx\n" +
-			"- /mcstop xxx\n" +
-			"- /mclist servername\n" +
-			"- https://github.com/Suwings/MCSManager",
-	})
 	engine.OnCommand("mcstart").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			model := extension.CommandModel{}
