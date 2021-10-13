@@ -37,7 +37,7 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
 - **动态加载插件**
     - [x] /刷新插件
-    - 仅 Linux, FreeBSD, macOS 可用，默认注释不开启。
+    - 仅 Linux, FreeBSD, macOS, Windows 可用，默认注释不开启。
     - 开启后`zbp`可执行文件约增大 2M ，每个插件的`.so`文件约 4 ~ 20 M ，如非必要建议不开启。
     - 动态加载的插件需放置在`plugins/`下，编译命令如下。插件包名必须为`main`。
     ```bash

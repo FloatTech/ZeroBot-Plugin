@@ -1,17 +1,16 @@
-//go:build !windows
-// +build !windows
-
+// Package dyloader 动态插件加载器
 package dyloader
 
 import (
 	"io/fs"
 	"path/filepath"
-	"plugin"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/dyloader/plugin"
 )
 
 func init() {
@@ -36,7 +35,8 @@ func load(path string, d fs.DirEntry, err error) error {
 	if d.IsDir() {
 		return nil
 	}
-	if strings.HasSuffix(d.Name(), ".so") {
+	n := d.Name()
+	if strings.HasSuffix(n, ".so") || strings.HasSuffix(n, ".dll") {
 		_, err = plugin.Open(path)
 		if err == nil {
 			logrus.Infoln("[dyloader]加载插件", path, "成功")

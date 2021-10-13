@@ -6,6 +6,7 @@ data/acgimage
 data/fortune
 data/hs
 plugins/*.so
+plugins/*.dll
 .idea/
 .DS_Store
 .vscode
