@@ -51,8 +51,7 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
-
-	_ "github.com/FloatTech/ZeroBot-Plugin/dyloader"
+	//_ "github.com/FloatTech/ZeroBot-Plugin/dyloader"
 )
 
 var (
