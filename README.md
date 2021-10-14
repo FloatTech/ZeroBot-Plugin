@@ -33,7 +33,7 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
 > 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
 - **web管理** `import _ "github.com/FloatTech/ZeroBot-Plugin/control/web"`
-    - 因为开启后可执行文件大约增加 5M ，默认注释不开启。
+    - 开启后可执行文件大约增加 5M ，默认注释不开启。如需开启请自行编辑`main.go`取消注释
     - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
 - **动态加载插件** `import _ github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader`
     - 本功能需要`cgo`，故已分离出主线。详见[ZeroBot-Plugin-Dynamic](https://github.com/FloatTech/ZeroBot-Plugin-Dynamic)
