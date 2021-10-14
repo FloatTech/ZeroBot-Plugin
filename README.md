@@ -40,11 +40,8 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] /加载插件 service名
     - [x] /卸载插件 service名
     - 仅 Linux, FreeBSD, macOS 可用，默认注释不开启。
-    - 每个插件的`.so`文件约 4 ~ 20 M ，如非必要建议不开启。
-    - 动态加载的插件需放置在`plugins/`下，需命名为`service名.so`，编译命令如下。模版详见[ZeroBot-Hook](https://github.com/fumiama/ZeroBot-Hook)。
-    ```bash
-    go build -ldflags "-s -w" -buildmode=plugin
-    ```
+    - 开启后主可执行文件大约增加 2M ，每个插件的`.so`文件约为 2 ~ 10 M ，如非必要建议不开启。
+    - 动态加载的插件需放置在`plugins/`下，需命名为`service名.so`，编译模版详见[ZeroBot-Hook](https://github.com/fumiama/ZeroBot-Hook)。
 - **插件控制**
     - [x] /启用 xxx
     - [x] /禁用 xxx

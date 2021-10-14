@@ -10,7 +10,7 @@ import (
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 
 	// 插件控制
-	//_ "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
+	// _ "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
 
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
@@ -48,10 +48,10 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
+	// _ "github.com/FloatTech/ZeroBot-Plugin/dyloader"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
-	//_ "github.com/FloatTech/ZeroBot-Plugin/dyloader"
 )
 
 var (

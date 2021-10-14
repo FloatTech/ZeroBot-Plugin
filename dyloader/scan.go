@@ -23,11 +23,14 @@ var visited bool
 
 //go:linkname matcherList github.com/wdvxdr1123/ZeroBot.matcherList
 //go:linkname matcherLock github.com/wdvxdr1123/ZeroBot.matcherLock
+//go:linkname defaultEngine github.com/wdvxdr1123/ZeroBot.defaultEngine
 var (
-	// 所有主匹配器列表
+	// matcherList 所有主匹配器列表
 	matcherList []*zero.Matcher
 	// Matcher 修改读写锁
 	matcherLock sync.RWMutex
+	// defaultEngine zero 的默认 engine
+	defaultEngine *zero.Engine
 )
 
 var (
@@ -113,16 +116,37 @@ func open(path, target string) error {
 	pluginsMu.Unlock()
 	if !ok {
 		p, err := plugin.Open(path)
-		var initfunc, hookfunc plugin.Symbol
+		var initfunc, hookfunc, ishooked plugin.Symbol
 		if err == nil {
-			initfunc, err = p.Lookup("Inita")
+			ishooked, err = p.Lookup("IsHooked")
 			if err == nil {
-				hookfunc, err = p.Lookup("Hook")
+				if !*ishooked.(*bool) {
+					hookfunc, err = p.Lookup("Hook")
+					if err == nil {
+						logrus.Debugf("[dyloader]reg: %x, del: %x\n", control.Register, control.Delete)
+						logrus.Debugf("[dyloader]matlist: %p, matlock: %p\n", &matcherList, &matcherLock)
+						hookfunc.(func(interface{}, interface{}, interface{},
+							interface{}, interface{}, interface{},
+							interface{}, interface{},
+							interface{}, interface{}, interface{},
+							interface{},
+							interface{}, interface{}, interface{},
+						))(
+							&zero.BotConfig, &zero.APICallers, zero.New,
+							&matcherList, &matcherLock, defaultEngine,
+							control.Register, control.Delete,
+							sendGroupMessage, sendPrivateMessage, getMessage,
+							parse,
+							message.CustomNode, message.ParseMessage, message.ParseMessageFromArray,
+						)
+					} else {
+						_ = plugin.Close(p)
+						return err
+					}
+				}
+				initfunc, err = p.Lookup("Inita")
 				if err == nil {
-					logrus.Debugf("[dyloader]reg: %x, del: %x\n", control.Register, control.Delete)
-					logrus.Debugf("[dyloader]matlist: %p, matlock: %p\n", &matcherList, &matcherLock)
-					hookfunc.(func(interface{}, interface{}, interface{}, interface{}, interface{}))(&zero.BotConfig, &zero.APICallers, zero.New, &matcherList, &matcherLock)
-					initfunc.(func(interface{}, interface{}))(control.Register, control.Delete)
+					initfunc.(func())()
 					logrus.Infoln("[dyloader]加载插件", path, "成功")
 					pluginsMu.Lock()
 					plugins[target] = p
