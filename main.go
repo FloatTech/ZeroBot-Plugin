@@ -48,7 +48,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"     // 来份涩图
 
 	// 以下为内置依赖，勿动
-	// _ "github.com/FloatTech/ZeroBot-Plugin/dyloader"
+	// _ "github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
@@ -57,7 +57,7 @@ import (
 var (
 	contents = []string{
 		"* OneBot + ZeroBot + Golang",
-		"* Version 1.1.6 - 2021-10-09 12:50:23 +0800 CST",
+		"* Version 1.1.7 - 2021-10-09 12:50:23 +0800 CST",
 		"* Copyright © 2020 - 2021 Kanri, DawnNights, Fumiama, Suika",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
