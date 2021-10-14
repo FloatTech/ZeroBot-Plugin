@@ -12,3 +12,4 @@ plugins/*.dll
 .vscode
 go-zero*
 nohup.out
+zerobot
