@@ -11,11 +11,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/data"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
 var (
-	db = &data.Sqlite{DBPath: "data/control/plugins.db"}
+	db = &sql.Sqlite{DBPath: "data/control/plugins.db"}
 	// managers 每个插件对应的管理
 	managers = map[string]*Control{}
 	mu       = sync.RWMutex{}

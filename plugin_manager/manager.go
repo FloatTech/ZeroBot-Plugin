@@ -17,7 +17,7 @@ import (
 
 	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
 
-	"github.com/FloatTech/ZeroBot-Plugin/data"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 )
 
 const (
@@ -302,7 +302,7 @@ func init() { // 插件主体
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
-			temp = temp[data.Max(0, len(temp)-10):]
+			temp = temp[math.Max(0, len(temp)-10):]
 			rand.Seed(time.Now().UnixNano())
 			who := temp[rand.Intn(len(temp))]
 			if who.Get("user_id").Int() == ctx.Event.SelfID {

@@ -18,13 +18,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/data"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
 // Pools 图片缓冲池
 type imgpool struct {
 	Lock  sync.Mutex
-	DB    *data.Sqlite
+	DB    *sql.Sqlite
 	Path  string
 	Group int64
 	List  []string
@@ -40,7 +41,7 @@ const (
 // NewPoolsCache 返回一个缓冲池对象
 func newPools() *imgpool {
 	cache := &imgpool{
-		DB:    &data.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+		DB:    &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
 		Path:  "data/SetuTime/cache/",
 		Group: 0,
 		List:  []string{"涩图", "二次元", "风景", "车万"}, // 可以自己加类别，得自己加图片进数据库
@@ -106,7 +107,7 @@ func init() { // 插件主体
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go func() {
-				times := data.Min(pool.Max-pool.size(imgtype), 2)
+				times := math.Min(pool.Max-pool.size(imgtype), 2)
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片

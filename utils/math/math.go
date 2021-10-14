@@ -1,4 +1,5 @@
-package data
+// Package math 计算实用工具
+package math
 
 // min 返回两数最大值，该函数将被内联
 func Max(a, b int) int {

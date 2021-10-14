@@ -1,4 +1,5 @@
-package data
+// Package dl 下载实用工具
+package dl
 
 import (
 	"io"

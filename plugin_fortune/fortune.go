@@ -20,7 +20,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/data"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/dl"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 )
 
 var (
@@ -76,7 +77,7 @@ func init() {
 			mikuji := base + "运势签文.json"
 			if _, err := os.Stat(mikuji); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
-				err := data.DownloadTo(site+"运势签文.json", mikuji)
+				err := dl.DownloadTo(site+"运势签文.json", mikuji)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -87,7 +88,7 @@ func init() {
 			ttf := base + "sakura.ttf"
 			if _, err := os.Stat(ttf); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
-				err := data.DownloadTo(site+"sakura.ttf", ttf)
+				err := dl.DownloadTo(site+"sakura.ttf", ttf)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -109,7 +110,7 @@ func init() {
 			if _, err := os.Stat(folder); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
 				zipfile := kind + ".zip"
-				err := data.DownloadTo(site+zipfile, zipfile)
+				err := dl.DownloadTo(site+zipfile, zipfile)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -255,7 +256,7 @@ func draw(background, title, text string) ([]byte, error) {
 	default:
 		for i, o := range r {
 			xnow := rowsnum(i+1, 9)
-			ysum := data.Min(len(r)-(xnow-1)*9, 9)
+			ysum := math.Min(len(r)-(xnow-1)*9, 9)
 			ynow := i%9 + 1
 			canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(ysum, ynow, th)+320.0)
 		}
@@ -263,7 +264,7 @@ func draw(background, title, text string) ([]byte, error) {
 		div := rowsnum(len(r), 2)
 		for i, o := range r {
 			xnow := rowsnum(i+1, div)
-			ysum := data.Min(len(r)-(xnow-1)*div, div)
+			ysum := math.Min(len(r)-(xnow-1)*div, div)
 			ynow := i%div + 1
 			switch xnow {
 			case 1:
