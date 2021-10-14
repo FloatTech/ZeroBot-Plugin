@@ -17,6 +17,7 @@ import (
 	"github.com/fogleman/gg"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/data"
@@ -145,7 +146,7 @@ func init() {
 				return
 			}
 			// 发送图片
-			ctx.SendChain(message.Image("base64://" + data.Bytes2str(d)))
+			ctx.SendChain(message.Image("base64://" + helper.BytesToString(d)))
 		})
 }
 

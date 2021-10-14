@@ -10,8 +10,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/FloatTech/ZeroBot-Plugin/data"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
@@ -43,7 +42,7 @@ func init() {
 			log.Printf("[Diana]读取%d条小作文", arrl)
 			md5s = make([]*[16]byte, arrl)
 			for i, t := range *Array {
-				m := md5.Sum(data.Str2bytes(t))
+				m := md5.Sum(helper.StringToBytes(t))
 				md5s[i] = &m
 			}
 		} else {
@@ -93,7 +92,7 @@ func LoadText() error {
 
 // AddText 添加小作文
 func AddText(txt string) error {
-	sum := md5.Sum(data.Str2bytes(txt))
+	sum := md5.Sum(helper.StringToBytes(txt))
 	if txt != "" && !isin(&sum) {
 		m.Lock()
 		defer m.Unlock()
