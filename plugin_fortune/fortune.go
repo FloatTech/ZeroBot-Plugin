@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/fogleman/gg"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -102,6 +103,7 @@ func init() {
 				// 个人用户设为负数
 				gid = -ctx.Event.UserID
 			}
+			logrus.Debugln("[fortune]gid:", ctx.Event.GroupID, "uid:", ctx.Event.UserID)
 			if v, ok := conf.Kind[gid]; ok {
 				kind = table[v]
 			}
@@ -109,21 +111,22 @@ func init() {
 			folder := base + kind
 			if _, err := os.Stat(folder); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
-				zipfile := folder + ".zip"
-				err := dl.DownloadTo(site+zipfile, zipfile)
+				zipfile := kind + ".zip"
+				zipcache := base + zipfile
+				err := dl.DownloadTo(site+zipfile, zipcache)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.Text("下载背景图片完毕"))
-				err = unpack(zipfile, folder+"/")
+				err = unpack(zipcache, folder+"/")
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.Text("解压背景图片完毕"))
 				// 释放空间
-				os.Remove(zipfile)
+				os.Remove(zipcache)
 			}
 			// 生成种子
 			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
