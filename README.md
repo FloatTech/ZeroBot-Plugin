@@ -119,10 +119,10 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] 设置随机图片网址[url]
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
-- **每日运势** `github.com/FloatTech/ZeroBot-Plugin/plugin_fortune`
+- **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_fortune`
     - [x] 运势|抽签
     - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]
-- **浅草寺求签** `github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
+- **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
     - [x] 求签|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >vup info [名字|uid]
