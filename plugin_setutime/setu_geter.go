@@ -169,7 +169,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.Send("添加成功")
+			ctx.SendChain(message.Text("添加成功"))
 		})
 
 	engine.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
@@ -180,10 +180,10 @@ func init() { // 插件主体
 			)
 			// 查询数据库
 			if err := pool.DB.Del(imgtype, fmt.Sprintf("WHERE pid=%d", id)); err != nil {
-				ctx.Send(fmt.Sprintf("ERROR: %v", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.Send("删除成功")
+			ctx.SendChain(message.Text("删除成功"))
 		})
 
 	// 查询数据库涩图数量
@@ -200,7 +200,7 @@ func init() { // 插件主体
 				state = append(state, ": ")
 				state = append(state, fmt.Sprintf("%d", num))
 			}
-			ctx.Send(strings.Join(state, ""))
+			ctx.SendChain(message.Text(state))
 		})
 }
 

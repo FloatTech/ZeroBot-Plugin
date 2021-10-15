@@ -51,6 +51,7 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
@@ -121,7 +122,7 @@ func main() {
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.Send(banner)
+			ctx.SendChain(message.Text(banner))
 		})
 	select {}
 }

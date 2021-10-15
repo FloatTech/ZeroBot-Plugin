@@ -46,10 +46,10 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]
 			if !strings.HasPrefix(url, "http") {
-				ctx.Send("URL非法!")
+				ctx.SendChain(message.Text("URL非法!"))
 			} else {
 				randapi = url
-				ctx.Send("设置好啦")
+				ctx.SendChain(message.Text("设置好啦"))
 			}
 		})
 	// 有保护的随机图片
@@ -61,14 +61,14 @@ func init() { // 插件主体
 					replyClass(ctx, dhash, class, false, lastvisit, comment)
 				}()
 			} else {
-				ctx.Send("你太快啦!")
+				ctx.SendChain(message.Text("你太快啦!"))
 			}
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
 	engine.OnFullMatch("直接随机", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
 			if block {
-				ctx.Send("请稍后再试哦")
+				ctx.SendChain(message.Text("请稍后再试哦"))
 			} else if randapi != "" {
 				block = true
 				var url string
@@ -77,7 +77,7 @@ func init() { // 插件主体
 				} else {
 					url = randapi
 				}
-				setLastMsg(ctx.Event.GroupID, ctx.Send(message.Image(url).Add("cache", "0")))
+				setLastMsg(ctx.Event.GroupID, ctx.SendChain(message.Image(url).Add("cache", "0")))
 				block = false
 			}
 		})
@@ -89,7 +89,7 @@ func init() { // 插件主体
 	// 上传一张图进行评价
 	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.Send("少女祈祷中...")
+			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
 				go func(target string) {
 					class, lastvisit, dhash, comment := classify.Classify(target, true)
@@ -101,7 +101,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dhash := ctx.State["regex_matched"].([]string)[1]
 			if len(dhash) == 5*3 {
-				ctx.Send(message.Image(apihead + dhash))
+				ctx.SendChain(message.Image(apihead + dhash))
 			}
 		})
 }
@@ -124,19 +124,18 @@ func replyClass(ctx *zero.Ctx, dhash string, class int, noimg bool, lv int64, co
 		if dhash != "" && !noimg {
 			b14, err3 := url.QueryUnescape(dhash)
 			if err3 == nil {
-				ctx.Send(comment + "\n给你点提示哦：" + b14)
+				ctx.SendChain(message.Text(comment + "\n给你点提示哦：" + b14))
 				ctx.Event.GroupID = 0
-				ctx.Send(img)
+				ctx.SendChain(message.Text(img))
 			}
 		} else {
-			ctx.Send(comment)
+			ctx.SendChain(message.Text(comment))
 		}
 	} else {
-		comment := message.Text(comment)
 		if !noimg {
-			ctx.SendChain(img, comment)
+			ctx.SendChain(img, message.Text(comment))
 		} else {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), comment)
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(comment))
 		}
 	}
 }

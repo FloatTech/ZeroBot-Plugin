@@ -1,3 +1,10 @@
+/*
+ * @Author: Kanri
+ * @Date: 2021-10-15 21:23:14
+ * @LastEditors: Kanri
+ * @LastEditTime: 2021-10-15 21:40:37
+ * @Description:
+ */
 // Package minecraft MCSManager
 package minecraft
 
@@ -35,7 +42,7 @@ func init() {
 			_ = ctx.Parse(&model)
 			ctx.SendChain(message.Text("开启服务器: ", model.Args, "....."))
 			result := start(model.Args)
-			ctx.Send(result)
+			ctx.SendChain(message.Text(result))
 		})
 	engine.OnCommand("mcstop").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -43,7 +50,7 @@ func init() {
 			_ = ctx.Parse(&model)
 			ctx.SendChain(message.Text("开启服务器: ", model.Args, "....."))
 			result := stop(model.Args)
-			ctx.Send(result)
+			ctx.SendChain(message.Text(result))
 		})
 }
 

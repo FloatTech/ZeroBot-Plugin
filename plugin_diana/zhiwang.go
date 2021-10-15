@@ -37,12 +37,12 @@ func init() {
 				zhiwangjson := zhiwangapi(msg)
 
 				if zhiwangjson == nil || zhiwangjson.Code != 0 {
-					ctx.Send("api返回错误")
+					ctx.SendChain(message.Text("api返回错误"))
 					return
 				}
 
 				if len(zhiwangjson.Data.Related) == 0 {
-					ctx.Send("枝网没搜到，查重率为0%，我的评价是：一眼真")
+					ctx.SendChain(message.Text("枝网没搜到，查重率为0%，我的评价是：一眼真"))
 					return
 				}
 

@@ -35,9 +35,9 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			err := os.RemoveAll("data/cache/*")
 			if err != nil {
-				ctx.Send("错误: " + err.Error())
+				ctx.SendChain(message.Text("错误: ", err.Error()))
 			} else {
-				ctx.Send("成功!")
+				ctx.SendChain(message.Text("成功!"))
 			}
 		})
 }
