@@ -109,7 +109,7 @@ func init() {
 			folder := base + kind
 			if _, err := os.Stat(folder); err != nil && !os.IsExist(err) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
-				zipfile := kind + ".zip"
+				zipfile := folder + ".zip"
 				err := dl.DownloadTo(site+zipfile, zipfile)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
