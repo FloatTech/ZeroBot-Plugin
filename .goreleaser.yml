@@ -78,7 +78,7 @@ archives:
 nfpms:
   - license: GPL 3.0
     homepage: https://go-cqhttp.org
-    file_name_template: "zbp_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    file_name_template: "zbp_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}"
     formats:
       - deb
       - rpm
