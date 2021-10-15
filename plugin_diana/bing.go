@@ -2,11 +2,11 @@
 package diana
 
 import (
-	fmt "fmt"
 	"math/rand"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_diana/data"
@@ -28,22 +28,22 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			rand.Seed(time.Now().UnixNano())
 			// 绕过第一行发病
-			ctx.Send((*data.Array)[rand.Intn(len(*data.Array)-1)+1])
+			ctx.SendChain(message.Text((*data.Array)[rand.Intn(len(*data.Array)-1)+1]))
 		})
 	// 逆天
 	engine.OnFullMatch("发大病").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 第一行是发病
-			ctx.Send((*data.Array)[0])
+			ctx.SendChain(message.Text((*data.Array)[0]))
 		})
 	// 增加小作文
 	engine.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			err := data.AddText(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {
-				ctx.Send(fmt.Sprintf("ERROR: %v", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
-				ctx.Send("记住啦!")
+				ctx.SendChain(message.Text("记住啦!"))
 			}
 		})
 }

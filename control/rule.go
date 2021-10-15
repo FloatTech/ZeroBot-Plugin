@@ -69,6 +69,7 @@ func (m *Control) Disable(groupID int64) {
 	m.Unlock()
 }
 
+// IsEnabledIn 开启群
 func (m *Control) IsEnabledIn(gid int64) bool {
 	m.RLock()
 	var c grpcfg
@@ -140,10 +141,10 @@ func init() {
 						_ = ctx.Parse(&model)
 						service, ok := Lookup(model.Args)
 						if !ok {
-							ctx.Send("没有找到指定服务!")
+							ctx.SendChain(message.Text("没有找到指定服务!"))
 						}
 						service.Enable(ctx.Event.GroupID)
-						ctx.Send(message.Text("已启用服务: " + model.Args))
+						ctx.SendChain(message.Text("已启用服务: " + model.Args))
 					})
 
 				zero.OnCommandGroup([]string{"禁用", "disable"}, zero.AdminPermission, zero.OnlyGroup).
@@ -152,10 +153,10 @@ func init() {
 						_ = ctx.Parse(&model)
 						service, ok := Lookup(model.Args)
 						if !ok {
-							ctx.Send("没有找到指定服务!")
+							ctx.SendChain(message.Text("没有找到指定服务!"))
 						}
 						service.Disable(ctx.Event.GroupID)
-						ctx.Send(message.Text("已关闭服务: " + model.Args))
+						ctx.SendChain(message.Text("已关闭服务: " + model.Args))
 					})
 
 				zero.OnCommandGroup([]string{"用法", "usage"}, zero.AdminPermission, zero.OnlyGroup).
@@ -164,12 +165,12 @@ func init() {
 						_ = ctx.Parse(&model)
 						service, ok := Lookup(model.Args)
 						if !ok {
-							ctx.Send("没有找到指定服务!")
+							ctx.SendChain(message.Text("没有找到指定服务!"))
 						}
 						if service.options.Help != "" {
-							ctx.Send(service.options.Help)
+							ctx.SendChain(message.Text(service.options.Help))
 						} else {
-							ctx.Send("该服务无帮助!")
+							ctx.SendChain(message.Text("该服务无帮助!"))
 						}
 					})
 
@@ -187,7 +188,7 @@ func init() {
 							}
 							return true
 						})
-						ctx.Send(message.Text(msg))
+						ctx.SendChain(message.Text(msg))
 					})
 			}
 		}

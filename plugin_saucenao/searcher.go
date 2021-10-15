@@ -27,7 +27,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^搜图(\d+)$`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			id, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			ctx.Send("少女祈祷中......")
+			ctx.SendChain(message.Text("少女祈祷中......"))
 			// 获取P站插图信息
 			illust, err := pixiv.Works(id)
 			if err != nil {
@@ -51,14 +51,14 @@ func init() { // 插件主体
 					),
 				)
 			} else {
-				ctx.Send("图片不存在!")
+				ctx.SendChain(message.Text("图片不存在!"))
 			}
 		})
 	// 以图搜图
 	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
-			ctx.Send("少女祈祷中......")
+			ctx.SendChain(message.Text("少女祈祷中......"))
 			for _, pic := range ctx.State["image_url"].([]string) {
 				fmt.Println(pic)
 				if result, err := saucenao.SauceNAO(pic); err != nil {

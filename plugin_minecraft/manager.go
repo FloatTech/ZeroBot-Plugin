@@ -35,7 +35,7 @@ func init() {
 			_ = ctx.Parse(&model)
 			ctx.SendChain(message.Text("开启服务器: ", model.Args, "....."))
 			result := start(model.Args)
-			ctx.Send(result)
+			ctx.SendChain(message.Text(result))
 		})
 	engine.OnCommand("mcstop").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -43,7 +43,7 @@ func init() {
 			_ = ctx.Parse(&model)
 			ctx.SendChain(message.Text("开启服务器: ", model.Args, "....."))
 			result := stop(model.Args)
-			ctx.Send(result)
+			ctx.SendChain(message.Text(result))
 		})
 }
 

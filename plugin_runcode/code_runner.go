@@ -107,7 +107,7 @@ func init() {
 	}).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).SecondPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.Send("请稍后重试0x0...")
+				ctx.SendChain(message.Text("请稍后重试0x0..."))
 			} else {
 				language := ctx.State["regex_matched"].([]string)[1]
 				language = strings.ToLower(language)

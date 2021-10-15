@@ -1,3 +1,10 @@
+/*
+ * @Author: Kanri
+ * @Date: 2021-10-15 21:23:14
+ * @LastEditors: Kanri
+ * @LastEditTime: 2021-10-15 21:42:51
+ * @Description:
+ */
 // Package shindan 基于 https://shindanmaker.com 的测定小功能
 package shindan
 
@@ -52,6 +59,7 @@ func handle(ctx *zero.Ctx) {
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 	}
+	// TODO: 可注入
 	ctx.Send(text)
 }
 

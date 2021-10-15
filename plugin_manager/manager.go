@@ -58,7 +58,7 @@ func init() { // 插件主体
 	// 菜单
 	zero.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.Send(hint)
+			ctx.SendChain(message.Text(hint))
 		})
 	// 升为管理
 	zero.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
@@ -254,9 +254,9 @@ func init() { // 插件主体
 				ts.Grpid = uint64(ctx.Event.GroupID)
 				if ts.Enable {
 					go timer.RegisterTimer(ts, true)
-					ctx.Send("记住了~")
+					ctx.SendChain(message.Text("记住了~"))
 				} else {
-					ctx.Send("参数非法!")
+					ctx.SendChain(message.Text("参数非法!"))
 				}
 			}
 		})
@@ -273,9 +273,9 @@ func init() { // 插件主体
 					t.Enable = false
 					delete(*timer.Timers, ti) // 避免重复取消
 					_ = timer.SaveTimers()
-					ctx.Send("取消成功~")
+					ctx.SendChain(message.Text("取消成功~"))
 				} else {
-					ctx.Send("没有这个定时器哦~")
+					ctx.SendChain(message.Text("没有这个定时器哦~"))
 				}
 			}
 		})
@@ -283,7 +283,7 @@ func init() { // 插件主体
 	zero.OnFullMatch("列出所有提醒", zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
-				ctx.Send(fmt.Sprint(timer.ListTimers(uint64(ctx.Event.GroupID))))
+				ctx.SendChain(message.Text(timer.ListTimers(uint64(ctx.Event.GroupID))))
 			}
 		})
 	// 随机点名
@@ -330,9 +330,9 @@ func init() { // 插件主体
 			if ctx.Event.NoticeType == "group_increase" {
 				word, ok := config.Welcome[uint64(ctx.Event.GroupID)]
 				if ok {
-					ctx.Send(word)
+					ctx.SendChain(message.Text(word))
 				} else {
-					ctx.Send("欢迎~")
+					ctx.SendChain(message.Text("欢迎~"))
 				}
 				enable, ok1 := config.Checkin[uint64(ctx.Event.GroupID)]
 				if ok1 && enable {
@@ -349,7 +349,7 @@ func init() { // 插件主体
 								ans, err := strconv.Atoi(text)
 								if err == nil {
 									if ans != r {
-										ctx.Send("答案不对哦，再想想吧~")
+										ctx.SendChain(message.Text("答案不对哦，再想想吧~"))
 										return false
 									}
 									return true
@@ -362,12 +362,12 @@ func init() { // 插件主体
 					recv, cancel := next.Repeat()
 					select {
 					case <-time.After(time.Minute):
-						ctx.Send("拜拜啦~")
+						ctx.SendChain(message.Text("拜拜啦~"))
 						ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
 						cancel()
 					case <-recv:
 						cancel()
-						ctx.Send("答对啦~")
+						ctx.SendChain(message.Text("答对啦~"))
 					}
 				}
 			}
@@ -384,9 +384,9 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			config.Welcome[uint64(ctx.Event.GroupID)] = ctx.State["regex_matched"].([]string)[1]
 			if saveConfig() == nil {
-				ctx.Send("记住啦!")
+				ctx.SendChain(message.Text("记住啦!"))
 			} else {
-				ctx.Send("出错啦!")
+				ctx.SendChain(message.Text("出错啦!"))
 			}
 		})
 	// 入群验证开关
@@ -402,9 +402,9 @@ func init() { // 插件主体
 				return
 			}
 			if saveConfig() == nil {
-				ctx.Send("已" + option)
+				ctx.SendChain(message.Text("已", option))
 			} else {
-				ctx.Send("出错啦!")
+				ctx.SendChain(message.Text("出错啦!"))
 			}
 		})
 	// 运行 CQ 码
@@ -413,6 +413,7 @@ func init() { // 插件主体
 			var cmd = ctx.State["regex_matched"].([]string)[1]
 			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
 			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
+			// 可注入，权限为主人
 			ctx.Send(cmd)
 		})
 }
