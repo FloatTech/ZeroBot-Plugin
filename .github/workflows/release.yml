@@ -1,4 +1,4 @@
-name: 稳定版
+name: compile
 on:
   push:
     tags:
