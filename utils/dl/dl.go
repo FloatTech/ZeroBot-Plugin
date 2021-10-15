@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// DownloadTo 下载到路径
 func DownloadTo(url, file string) error {
 	resp, err := http.Get(url)
 	if err == nil {

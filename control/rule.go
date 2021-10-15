@@ -69,6 +69,7 @@ func (m *Control) Disable(groupID int64) {
 	m.Unlock()
 }
 
+// IsEnabledIn 开启群
 func (m *Control) IsEnabledIn(gid int64) bool {
 	m.RLock()
 	var c grpcfg

@@ -1,10 +1,3 @@
-/*
- * @Author: Kanri
- * @Date: 2021-10-15 21:23:14
- * @LastEditors: Kanri
- * @LastEditTime: 2021-10-15 21:40:37
- * @Description:
- */
 // Package minecraft MCSManager
 package minecraft
 
