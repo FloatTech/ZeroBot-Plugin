@@ -80,7 +80,7 @@ archives:
         format: zip
 
 nfpms:
-  - license: AGPL 3.0
+  - license: GPL 3.0
     homepage: https://go-cqhttp.org
     file_name_template: "zbp_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     formats:
