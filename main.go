@@ -104,20 +104,15 @@ func main() {
 	zero.Run(zero.Config{
 		NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 		CommandPrefix: "/",
-
 		// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
 		// []string{}：通过代码写死的方式添加主人账号
 		// flag.Args()：通过命令行参数的方式添加主人账号
 		SuperUsers: append([]string{"12345678", "87654321"}, flag.Args()...),
-
 		Driver: []zero.Driver{
-			&driver.WSClient{
-				// OneBot 正向WS 默认使用 6700 端口
-				Url:         *url,
-				AccessToken: *token,
-			},
+			driver.NewWebSocketClient(*url, *token),
 		},
-	})
+	},
+	)
 
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
