@@ -38,8 +38,10 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
 - **动态加载插件** `import _ github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader`
     - 本功能需要`cgo`，故已分离出主线。详见[ZeroBot-Plugin-Dynamic](https://github.com/FloatTech/ZeroBot-Plugin-Dynamic)
 - **插件控制**
-    - [x] /启用 xxx
-    - [x] /禁用 xxx
+    - [x] /启用 xxx (在发送的群/用户启用xxx)
+    - [x] /禁用 xxx (在发送的群/用户禁用xxx)
+    - [x] /全局启用 xxx
+    - [x] /全局禁用 xxx
     - [x] /用法 xxx
     - [x] /服务列表
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
