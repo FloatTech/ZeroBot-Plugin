@@ -40,8 +40,8 @@ func newctrl(service string, o *Options) *Control {
 		}(),
 	}
 	mu.Lock()
-	defer mu.Unlock()
 	managers[service] = m
+	mu.Unlock()
 	err := db.Create(service, &grpcfg{})
 	if err != nil {
 		panic(err)
@@ -101,8 +101,8 @@ func (m *Control) Handler() zero.Rule {
 // not exist, it will returns nil.
 func Lookup(service string) (*Control, bool) {
 	mu.RLock()
-	defer mu.RUnlock()
 	m, ok := managers[service]
+	mu.RUnlock()
 	return m, ok
 }
 
