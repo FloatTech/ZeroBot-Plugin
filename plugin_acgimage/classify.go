@@ -126,7 +126,7 @@ func replyClass(ctx *zero.Ctx, dhash string, class int, noimg bool, lv int64, co
 			if err3 == nil {
 				ctx.SendChain(message.Text(comment + "\n给你点提示哦：" + b14))
 				ctx.Event.GroupID = 0
-				ctx.SendChain(message.Text(img))
+				ctx.SendChain(img)
 			}
 		} else {
 			ctx.SendChain(message.Text(comment))
