@@ -10,6 +10,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -50,22 +51,22 @@ func init() { // 插件主体
 				filepath := datapath + name
 				switch {
 				case file.IsExist(filepath + ".jpg"):
-					filepath += ".jpg"
+					filepath = "file:///" + filepath + ".jpg"
 				case file.IsExist(filepath + ".png"):
-					filepath += ".png"
+					filepath = "file:///" + filepath + ".png"
 				case file.IsExist(filepath + ".gif"):
-					filepath += ".gif"
+					filepath = "file:///" + filepath + ".gif"
 				default:
 					filepath = ""
 				}
 				if filepath == "" {
+					logrus.Debug("[sausenao]开始下载", name)
 					filepath, err = pixiv.Download(illust.ImageUrls, datapath, name)
 					if err == nil {
 						filepath = "file:///" + filepath
 					}
 				}
 				txt := message.Text(
-					"\n",
 					"标题：", illust.Title, "\n",
 					"插画ID：", illust.Pid, "\n",
 					"画师：", illust.UserName, "\n",
@@ -74,7 +75,7 @@ func init() { // 插件主体
 				)
 				if filepath != "" {
 					// 发送搜索结果
-					ctx.SendChain(message.Image(filepath), txt)
+					ctx.SendChain(message.Image(filepath), message.Text("\n"), txt)
 				}
 				// 图片下载失败，仅发送文字结果
 				ctx.SendChain(txt)
