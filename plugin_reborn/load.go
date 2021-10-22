@@ -7,9 +7,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	wr "github.com/mroth/weightedrand"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
 const (
