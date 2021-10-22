@@ -3,6 +3,7 @@ package data
 
 import (
 	"crypto/md5"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -11,6 +12,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
 const (
@@ -53,7 +56,7 @@ func init() {
 
 // LoadText 加载小作文
 func LoadText() error {
-	if _, err := os.Stat(pbfile); err == nil || os.IsExist(err) {
+	if file.IsExist(pbfile) {
 		f, err := os.Open(pbfile)
 		if err == nil {
 			defer f.Close()
@@ -116,7 +119,7 @@ func isin(sum *[16]byte) bool {
 func savecompo() error {
 	data, err := compo.Marshal()
 	if err == nil {
-		if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
+		if file.IsExist(datapath) {
 			f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 			if err1 == nil {
 				_, err2 := f.Write(data)
@@ -125,6 +128,7 @@ func savecompo() error {
 			}
 			return err1
 		}
+		return errors.New("datapath is not exist")
 	}
 	return err
 }

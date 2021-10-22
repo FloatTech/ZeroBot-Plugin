@@ -1,9 +1,12 @@
 package fortune
 
 import (
+	"errors"
 	io "io"
 	"os"
 	"sync"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
 var (
@@ -13,7 +16,7 @@ var (
 
 func loadcfg(name string) error {
 	name = base + name
-	if _, err := os.Stat(name); err == nil || os.IsExist(err) {
+	if file.IsExist(name) {
 		f, err := os.Open(name)
 		if err == nil {
 			defer f.Close()
@@ -35,7 +38,7 @@ func savecfg(name string) error {
 	name = base + name
 	data, err := conf.Marshal()
 	if err == nil {
-		if _, err := os.Stat(base); err == nil || os.IsExist(err) {
+		if file.IsExist(base) {
 			f, err1 := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 			if err1 == nil {
 				mu.Lock()
@@ -46,6 +49,7 @@ func savecfg(name string) error {
 			}
 			return err1
 		}
+		return errors.New("base dir is not exist")
 	}
 	return err
 }

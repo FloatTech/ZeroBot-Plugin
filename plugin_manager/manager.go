@@ -17,6 +17,7 @@ import (
 
 	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
 
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 )
 
@@ -427,7 +428,7 @@ func strToInt(str string) int64 {
 func loadConfig() {
 	mkdirerr := os.MkdirAll(datapath, 0755)
 	if mkdirerr == nil {
-		if _, err := os.Stat(confile); err == nil || os.IsExist(err) {
+		if file.IsExist(confile) {
 			f, err := os.Open(confile)
 			if err == nil {
 				data, err1 := io.ReadAll(f)
@@ -452,7 +453,7 @@ func saveConfig() error {
 	data, err := config.Marshal()
 	if err != nil {
 		return err
-	} else if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
+	} else if file.IsExist(datapath) {
 		f, err1 := os.OpenFile(confile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 		if err1 != nil {
 			return err1

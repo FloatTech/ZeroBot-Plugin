@@ -14,6 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
 var botpath, _ = os.Getwd()
@@ -53,7 +54,7 @@ func init() {
 			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
 			cachefile := cachedir + cid
 			imgcq := `[CQ:image,file=` + "file:///" + cachefile + `]`
-			if _, err := os.Stat(cachefile); err != nil {
+			if file.IsNotExist(cachefile) {
 				im, err := req.Get(`https://res.fbigame.com/hs/v13/`+cid+
 					`.png?auth_key=`+gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
 					header,

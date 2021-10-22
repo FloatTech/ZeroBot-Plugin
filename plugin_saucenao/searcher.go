@@ -3,8 +3,8 @@ package saucenao
 
 import (
 	"fmt"
+	"os"
 	"strconv"
-	"strings"
 
 	"github.com/FloatTech/AnimeAPI/ascii2d"
 	"github.com/FloatTech/AnimeAPI/picture"
@@ -14,9 +14,20 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+)
+
+var (
+	botpath, _ = os.Getwd()
+	datapath   = botpath + "/data/saucenao/"
 )
 
 func init() { // 插件主体
+	_ = os.RemoveAll(datapath)
+	err := os.MkdirAll(datapath, 0755)
+	if err != nil {
+		panic(err)
+	}
 	engine := control.Register("saucenao", &control.Options{
 		DisableOnDefault: false,
 		Help: "搜图\n" +
@@ -35,21 +46,38 @@ func init() { // 插件主体
 				return
 			}
 			if illust.Pid > 0 {
-				// 改用 i.pixiv.cat 镜像站
-				link := illust.ImageUrls
-				link = strings.ReplaceAll(link, "i.pximg.net", "i.pixiv.cat")
-				// 发送搜索结果
-				ctx.SendChain(
-					message.Image(link),
-					message.Text(
-						"\n",
-						"标题：", illust.Title, "\n",
-						"插画ID：", illust.Pid, "\n",
-						"画师：", illust.UserName, "\n",
-						"画师ID：", illust.UserId, "\n",
-						"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
-					),
+				name := strconv.FormatInt(illust.Pid, 10)
+				filepath := datapath + name
+				switch {
+				case file.IsExist(filepath + ".jpg"):
+					filepath += ".jpg"
+				case file.IsExist(filepath + ".png"):
+					filepath += ".png"
+				case file.IsExist(filepath + ".gif"):
+					filepath += ".gif"
+				default:
+					filepath = ""
+				}
+				if filepath == "" {
+					filepath, err = pixiv.Download(illust.ImageUrls, datapath, name)
+					if err == nil {
+						filepath = "file:///" + filepath
+					}
+				}
+				txt := message.Text(
+					"\n",
+					"标题：", illust.Title, "\n",
+					"插画ID：", illust.Pid, "\n",
+					"画师：", illust.UserName, "\n",
+					"画师ID：", illust.UserId, "\n",
+					"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
+				if filepath != "" {
+					// 发送搜索结果
+					ctx.SendChain(message.Image(filepath), txt)
+				}
+				// 图片下载失败，仅发送文字结果
+				ctx.SendChain(txt)
 			} else {
 				ctx.SendChain(message.Text("图片不存在!"))
 			}

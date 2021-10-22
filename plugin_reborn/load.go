@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	wr "github.com/mroth/weightedrand"
 	log "github.com/sirupsen/logrus"
 )
@@ -53,7 +54,7 @@ func init() {
 
 // load 加载rate数据
 func load(area *rate) error {
-	if _, err := os.Stat(jsonfile); err == nil || os.IsExist(err) {
+	if file.IsExist(jsonfile) {
 		f, err := os.Open(jsonfile)
 		if err == nil {
 			defer f.Close()

@@ -21,7 +21,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/dl"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 )
 
@@ -76,9 +76,9 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			// 检查签文文件是否存在
 			mikuji := base + "运势签文.json"
-			if _, err := os.Stat(mikuji); err != nil && !os.IsExist(err) {
+			if file.IsNotExist(mikuji) {
 				ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
-				err := dl.DownloadTo(site+"运势签文.json", mikuji)
+				err := file.DownloadTo(site+"运势签文.json", mikuji)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -87,9 +87,9 @@ func init() {
 			}
 			// 检查字体文件是否存在
 			ttf := base + "sakura.ttf"
-			if _, err := os.Stat(ttf); err != nil && !os.IsExist(err) {
+			if file.IsNotExist(ttf) {
 				ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
-				err := dl.DownloadTo(site+"sakura.ttf", ttf)
+				err := file.DownloadTo(site+"sakura.ttf", ttf)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -109,11 +109,11 @@ func init() {
 			}
 			// 检查背景图片是否存在
 			folder := base + kind
-			if _, err := os.Stat(folder); err != nil && !os.IsExist(err) {
+			if file.IsNotExist(folder) {
 				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
 				zipfile := kind + ".zip"
 				zipcache := base + zipfile
-				err := dl.DownloadTo(site+zipfile, zipcache)
+				err := file.DownloadTo(site+zipfile, zipcache)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -160,7 +160,7 @@ func init() {
 // @return 错误信息
 func unpack(tgt, dest string) error {
 	// 路径目录不存在则创建目录
-	if _, err := os.Stat(dest); err != nil && !os.IsExist(err) {
+	if file.IsNotExist(dest) {
 		if err := os.MkdirAll(dest, 0755); err != nil {
 			panic(err)
 		}
