@@ -1,3 +1,4 @@
+project_name: zbp
 env:
   - GO111MODULE=on
 before:
@@ -26,7 +27,7 @@ builds:
         goarch: 386
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath -o zbp
+      - -trimpath
     ldflags:
       - -s -w
   - id: win
@@ -40,7 +41,7 @@ builds:
       - amd64
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath -o zbp.exe
+      - -trimpath
     ldflags:
       - -s -w
 
