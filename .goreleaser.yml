@@ -26,7 +26,7 @@ builds:
         goarch: 386
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath
+      - -trimpath -o zbp
     ldflags:
       - -s -w
   - id: win
@@ -40,7 +40,7 @@ builds:
       - amd64
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath
+      - -trimpath -o zbp.exe
     ldflags:
       - -s -w
 
@@ -59,13 +59,6 @@ changelog:
       - go mod tidy
 
 archives:
-  - id: binary
-    builds:
-      - win
-    name_template: "zbp_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
-    format_overrides:
-      - goos: windows
-        format: binary
   - id: nowin
     builds:
       - nowin
@@ -77,9 +70,9 @@ archives:
 
 nfpms:
   - license: GPL 3.0
-    homepage: https://go-cqhttp.org
+    homepage: https://github.com/FloatTech/ZeroBot-Plugin
     file_name_template: "zbp_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     formats:
       - deb
       - rpm
-    maintainer: Kanri, DawnNights, Fumiama, Suika
+    maintainer: FloatTech
