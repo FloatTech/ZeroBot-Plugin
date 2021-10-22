@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/FloatTech/AnimeAPI v1.1.9
-	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.3
+	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4
 	github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3
 	github.com/FloatTech/bot-manager v1.0.0
 	github.com/fogleman/gg v1.3.0
@@ -16,7 +16,7 @@ require (
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.9+incompatible
 	github.com/sirupsen/logrus v1.8.1
-	github.com/tidwall/gjson v1.9.4
+	github.com/tidwall/gjson v1.10.0
 	github.com/wdvxdr1123/ZeroBot v1.3.2
 	modernc.org/sqlite v1.13.1
 )

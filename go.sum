@@ -1,8 +1,8 @@
 github.com/FloatTech/AnimeAPI v1.1.9 h1:H1hZmgwZPNHdx39K9JvY3awT8TTsCl9kKA1uVMyCjRg=
 github.com/FloatTech/AnimeAPI v1.1.9/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
 github.com/FloatTech/ZeroBot-Plugin v1.1.5/go.mod h1:kWuUARvU7gs4xLggi8Sy37ja2GRL6k0X6kewe5TiZRs=
-github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.3 h1:TGQHhiPR/XIxYYoB6IxOzgMhsZs2tDYQlaJHT04gkQ8=
-github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.3/go.mod h1:W7ag6hml1pZTNzRXKU74OMr6rS8awQKSU+o2g7Gj4O0=
+github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4 h1:WW0BmmLLqAg+m6qGkrKbsfSIm91fkj3/udt3R7Myodo=
+github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4/go.mod h1:W7ag6hml1pZTNzRXKU74OMr6rS8awQKSU+o2g7Gj4O0=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3 h1:jn/dH+OwPSRozkmeCeQQPrAGJRBudcm3OK5tXhGItRk=
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3/go.mod h1:MVOQQ4e6AVGFm993blXXU4Sd6bAsLY2+Zb+/HMrEeEc=
 github.com/FloatTech/bot-manager v1.0.0 h1:d63J5htLhVBc2ITG09WBJI+qAB0ubPjYhfXl6hljBNk=
@@ -107,8 +107,8 @@ github.com/tdf1939/ZeroBot-Plugin-Gif v0.0.0-20210828060956-389b1dc33652/go.mod 
 github.com/tdf1939/img v0.0.0-20210827153520-90cb4e9580a3/go.mod h1:FgTEOcosTWrkOr7++gbtPSj1rX5loRWrf/AL+hm3Cnw=
 github.com/tidwall/gjson v1.8.0/go.mod h1:5/xDoumyyDNerp2U36lyolv46b3uF/9Bu6OfyQ9GImk=
 github.com/tidwall/gjson v1.9.0/go.mod h1:5/xDoumyyDNerp2U36lyolv46b3uF/9Bu6OfyQ9GImk=
-github.com/tidwall/gjson v1.9.4 h1:oNis7dk9Rs3dKJNNigXZT1MTOiJeBtpurn+IpCB75MY=
-github.com/tidwall/gjson v1.9.4/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
+github.com/tidwall/gjson v1.10.0 h1:FcpcxUhNwjb4ppKSlz5Bv8V1jc9ncrVAySohlNBrPUk=
+github.com/tidwall/gjson v1.10.0/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
 github.com/tidwall/match v1.1.1/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
