@@ -76,9 +76,10 @@ func init() { // 插件主体
 				if filepath != "" {
 					// 发送搜索结果
 					ctx.SendChain(message.Image(filepath), message.Text("\n"), txt)
+				} else {
+					// 图片下载失败，仅发送文字结果
+					ctx.SendChain(txt)
 				}
-				// 图片下载失败，仅发送文字结果
-				ctx.SendChain(txt)
 			} else {
 				ctx.SendChain(message.Text("图片不存在!"))
 			}
