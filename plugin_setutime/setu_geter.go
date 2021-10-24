@@ -18,6 +18,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
@@ -249,8 +250,7 @@ func (p *imgpool) pop(imgtype string) (illust *pixiv.Illust) {
 
 func file(i *pixiv.Illust) string {
 	filename := fmt.Sprint(i.Pid)
-	pwd, _ := os.Getwd()
-	filepath := pwd + `/` + pool.Path + filename
+	filepath := fileutil.BOT_PATH + `/` + pool.Path + filename
 	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
 		return `file:///` + filepath + ".jpg"
 	}

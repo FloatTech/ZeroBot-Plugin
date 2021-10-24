@@ -19,8 +19,7 @@ import (
 )
 
 var (
-	botpath, _ = os.Getwd()
-	datapath   = botpath + "/data/saucenao/"
+	datapath = file.BOT_PATH + "/data/saucenao/"
 )
 
 func init() { // 插件主体

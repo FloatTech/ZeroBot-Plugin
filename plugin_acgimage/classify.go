@@ -3,7 +3,6 @@ package acgimage
 
 import (
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
 const (
@@ -21,9 +21,8 @@ const (
 )
 
 var (
-	botpath, _ = os.Getwd()
-	datapath   = botpath + "/data/acgimage/"
-	cacheuri   = "file:///" + datapath + "cache"
+	datapath = file.BOT_PATH + "/data/acgimage/"
+	cacheuri = "file:///" + datapath + "cache"
 	// r18有一定保护，一般不会发出图片
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]int64)
