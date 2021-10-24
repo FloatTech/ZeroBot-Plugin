@@ -92,7 +92,7 @@ func init() { // 插件主体
 				fmt.Println(pic)
 				if result, err := saucenao.SauceNAO(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
-				} else if result == nil{
+				} else if result == nil {
 					ctx.SendChain(message.Text("ERROR: 图片不存在"))
 				} else {
 					// 返回SauceNAO的结果
@@ -113,7 +113,7 @@ func init() { // 插件主体
 				}
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
-				} else if result == nil{
+				} else if result == nil {
 					ctx.SendChain(message.Text("ERROR: 图片不存在"))
 				} else {
 					// 返回Ascii2d的结果
@@ -132,4 +132,3 @@ func init() { // 插件主体
 			}
 		})
 }
-
