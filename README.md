@@ -42,6 +42,7 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] /禁用 xxx (在发送的群/用户禁用xxx)
     - [x] /全局启用 xxx
     - [x] /全局禁用 xxx
+    - [x] /还原 xxx (在发送的群/用户还原xxx的开启状态到初始状态)
     - [x] /用法 xxx
     - [x] /服务列表
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
