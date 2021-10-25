@@ -89,11 +89,13 @@ func (m *Control) Reset(groupID int64) {
 func (m *Control) IsEnabledIn(gid int64) bool {
 	var c grpcfg
 	var err error
+	logrus.Debugln("[control] IsEnabledIn recv gid =", gid)
 	if gid != 0 {
 		m.RLock()
 		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 		m.RUnlock()
-		if err == nil {
+		logrus.Debugln("[control] db find gid =", c.GroupID)
+		if err == nil && gid == c.GroupID {
 			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
 			return c.Disable == 0
 		}
@@ -102,7 +104,7 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 	err = db.Find(m.service, &c, "WHERE gid = 0")
 	m.RUnlock()
 	if err == nil {
-		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.GroupID, c.Disable)
+		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.Disable)
 		return c.Disable == 0
 	}
 	return !m.options.DisableOnDefault
@@ -117,6 +119,7 @@ func (m *Control) Handler() zero.Rule {
 			// 个人用户
 			grp = -ctx.Event.UserID
 		}
+		logrus.Debugln("[control] handler get gid =", grp)
 		return m.IsEnabledIn(grp)
 	}
 }
@@ -150,6 +153,13 @@ func copyMap(m map[string]*Control) map[string]*Control {
 	return ret
 }
 
+func userOrGrpAdmin(ctx *zero.Ctx) bool {
+	if zero.OnlyGroup(ctx) {
+		return zero.AdminPermission(ctx)
+	}
+	return zero.OnlyToMe(ctx)
+}
+
 func init() {
 	if !hasinit {
 		mu.Lock()
@@ -162,12 +172,7 @@ func init() {
 				zero.OnCommandGroup([]string{
 					"启用", "enable", "禁用", "disable",
 					"全局启用", "enableall", "全局禁用", "disableall",
-				}, func(ctx *zero.Ctx) bool {
-					if zero.OnlyGroup(ctx) {
-						return zero.AdminPermission(ctx)
-					}
-					return zero.OnlyToMe(ctx)
-				}).Handle(func(ctx *zero.Ctx) {
+				}, userOrGrpAdmin).Handle(func(ctx *zero.Ctx) {
 					model := extension.CommandModel{}
 					_ = ctx.Parse(&model)
 					service, ok := Lookup(model.Args)
@@ -191,12 +196,7 @@ func init() {
 					}
 				})
 
-				zero.OnCommandGroup([]string{"还原", "reset"}, func(ctx *zero.Ctx) bool {
-					if zero.OnlyGroup(ctx) {
-						return zero.AdminPermission(ctx)
-					}
-					return zero.OnlyToMe(ctx)
-				}).Handle(func(ctx *zero.Ctx) {
+				zero.OnCommandGroup([]string{"还原", "reset"}, userOrGrpAdmin).Handle(func(ctx *zero.Ctx) {
 					model := extension.CommandModel{}
 					_ = ctx.Parse(&model)
 					service, ok := Lookup(model.Args)
@@ -212,7 +212,7 @@ func init() {
 					ctx.SendChain(message.Text("已还原服务的默认启用状态: " + model.Args))
 				})
 
-				zero.OnCommandGroup([]string{"用法", "usage"}, zero.AdminPermission, zero.OnlyGroup).
+				zero.OnCommandGroup([]string{"用法", "usage"}, userOrGrpAdmin).
 					Handle(func(ctx *zero.Ctx) {
 						model := extension.CommandModel{}
 						_ = ctx.Parse(&model)
@@ -227,14 +227,15 @@ func init() {
 						}
 					})
 
-				zero.OnCommandGroup([]string{"服务列表", "service_list"}, zero.AdminPermission, zero.OnlyGroup).
+				zero.OnCommandGroup([]string{"服务列表", "service_list"}, userOrGrpAdmin).
 					Handle(func(ctx *zero.Ctx) {
 						msg := `---服务列表---`
 						i := 0
+						gid := ctx.Event.GroupID
 						ForEach(func(key string, manager *Control) bool {
 							i++
 							msg += "\n" + strconv.Itoa(i) + `: `
-							if manager.IsEnabledIn(ctx.Event.GroupID) {
+							if manager.IsEnabledIn(gid) {
 								msg += "●" + key
 							} else {
 								msg += "○" + key

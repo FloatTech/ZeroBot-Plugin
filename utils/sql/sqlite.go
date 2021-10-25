@@ -48,17 +48,15 @@ func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
 			cmd = append(cmd, "NULL);")
 		}
 	}
-	if _, err := db.DB.Exec(strings.Join(cmd, " ")); err != nil {
-		return err
-	}
-	return nil
+	_, err = db.DB.Exec(strings.Join(cmd, " ") + ";")
+	return
 }
 
 // Insert 插入数据集
 // 默认结构体的第一个元素为主键
 // 返回错误
-func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
-	rows, err := db.DB.Query("SELECT * FROM " + table)
+func (db *Sqlite) Insert(table string, objptr interface{}) error {
+	rows, err := db.DB.Query("SELECT * FROM " + table + ";")
 	if err != nil {
 		return err
 	}
@@ -102,7 +100,7 @@ func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
 			cmd = append(cmd, ")")
 		}
 	}
-	stmt, err := db.DB.Prepare(strings.Join(cmd, " "))
+	stmt, err := db.DB.Prepare(strings.Join(cmd, " ") + ";")
 	if err != nil {
 		return err
 	}
@@ -110,19 +108,19 @@ func (db *Sqlite) Insert(table string, objptr interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	return nil
+	return stmt.Close()
 }
 
 // Find 查询数据库
 // condition 可为"WHERE id = 0"
 // 默认字段与结构体元素顺序一致
 // 返回错误
-func (db *Sqlite) Find(table string, objptr interface{}, condition string) (err error) {
+func (db *Sqlite) Find(table string, objptr interface{}, condition string) error {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM ")
 	cmd = append(cmd, table)
 	cmd = append(cmd, condition)
-	rows, err := db.DB.Query(strings.Join(cmd, " "))
+	rows, err := db.DB.Query(strings.Join(cmd, " ") + ";")
 	if err != nil {
 		return err
 	}
@@ -171,12 +169,12 @@ func (db *Sqlite) ListTables() (s []string, err error) {
 // Del 删除数据库
 // condition 可为"WHERE id = 0"
 // 返回错误
-func (db *Sqlite) Del(table string, condition string) (err error) {
+func (db *Sqlite) Del(table string, condition string) error {
 	var cmd = []string{}
 	cmd = append(cmd, "DELETE FROM")
 	cmd = append(cmd, table)
 	cmd = append(cmd, condition)
-	stmt, err := db.DB.Prepare(strings.Join(cmd, " "))
+	stmt, err := db.DB.Prepare(strings.Join(cmd, " ") + ";")
 	if err != nil {
 		return err
 	}
@@ -184,7 +182,7 @@ func (db *Sqlite) Del(table string, condition string) (err error) {
 	if err != nil {
 		return err
 	}
-	return nil
+	return stmt.Close()
 }
 
 // Count 查询数据库行数
@@ -193,17 +191,17 @@ func (db *Sqlite) Count(table string) (num int, err error) {
 	var cmd = []string{}
 	cmd = append(cmd, "SELECT * FROM")
 	cmd = append(cmd, table)
-	rows, err := db.DB.Query(strings.Join(cmd, " "))
+	rows, err := db.DB.Query(strings.Join(cmd, " ") + ";")
 	if err != nil {
 		return num, err
 	}
 	if rows.Err() != nil {
 		return num, rows.Err()
 	}
-	defer rows.Close()
 	for rows.Next() {
 		num++
 	}
+	rows.Close()
 	return num, nil
 }
 
