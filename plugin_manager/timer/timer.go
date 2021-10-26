@@ -46,33 +46,93 @@ func NewClock(pbfile string) (c Clock) {
 	return
 }
 
-func nextDistance(nextTime int32, nowTime int, smallUnit, largeUnit time.Duration) (d time.Duration, overflow bool) {
-	d = time.Duration(int(nextTime)-nowTime) * smallUnit
-	if d <= 0 {
-		d += largeUnit
-		overflow = true
+func firstWeek(date *time.Time, week time.Weekday) (d time.Time) {
+	d = date.AddDate(0, 0, 1-date.Day())
+	for d.Weekday() != week {
+		d = d.AddDate(0, 0, 1)
 	}
 	return
 }
 
-func (ts *Timer) nextDuration() time.Duration {
-	sleepdur := time.Minute
-	isThisHour := ts.Hour < 0 || ts.Hour == int32(time.Now().Hour())
-	if isThisHour {
-		isThisMinute := ts.Minute < 0 || ts.Minute == int32(time.Now().Minute())
-		if !isThisMinute {
-			d, over := nextDistance(ts.Minute, time.Now().Minute(), time.Minute, time.Hour)
-			if !(ts.Hour >= 0 && over) {
-				sleepdur = d
-			}
-		}
-	} else {
-		d, over := nextDistance(ts.Hour, time.Now().Hour(), time.Hour, time.Hour*24)
-		if !(ts.Day > 0 && over) {
-			sleepdur = d
+func (ts *Timer) nextWakeTime() (date time.Time) {
+	date = time.Now()
+	m := ts.Month
+	d := ts.Day
+	h := ts.Hour
+	mn := ts.Minute
+	w := ts.Week
+	unit := time.Minute
+	if mn >= 0 {
+		switch {
+		case h < 0:
+			unit = time.Hour
+		case d < 0:
+			unit = time.Hour * 24
+		case w < 0:
+			unit = time.Hour * 24 * 7
+		case m < 0:
+			unit = -1
+		default:
 		}
 	}
-	return sleepdur
+	stable := 0
+	if mn < 0 {
+		mn = int32(date.Minute())
+	}
+	if h < 0 {
+		h = int32(date.Hour())
+	} else {
+		stable |= 0x8
+	}
+	if d < 0 {
+		d = int32(date.Day())
+	} else if d > 0 {
+		stable |= 0x4
+	} else if w < 0 {
+		d = int32(date.Day())
+	} else {
+		stable |= 0x2
+	}
+	if m < 0 {
+		m = int32(date.Month())
+	} else {
+		stable |= 0x1
+	}
+	date = time.Date(date.Year(), time.Month(m), int(d), int(h), int(mn), date.Second(), date.Nanosecond(), date.Location())
+	if unit < 0 {
+		return date.AddDate(0, 1, 0)
+	}
+	date = date.Add(unit)
+	if stable&0x8 != 0 && date.Hour() != int(h) {
+		switch {
+		case stable&0x4 == 0:
+			date = date.AddDate(0, 0, 1).Add(-time.Hour)
+		case stable&0x2 == 0:
+			date = date.AddDate(0, 0, 7).Add(-time.Hour)
+		case stable*0x1 == 0:
+			date = date.AddDate(0, 1, 0).Add(-time.Hour)
+		default:
+			date = date.AddDate(1, 0, 0).Add(-time.Hour)
+		}
+	}
+	if stable&0x4 != 0 && date.Day() != int(d) {
+		switch {
+		case stable*0x1 == 0:
+			date = date.AddDate(0, 1, -1)
+		default:
+			date = date.AddDate(1, 0, -1)
+		}
+	}
+	if stable&0x2 != 0 && int32(date.Weekday()) != w {
+		switch {
+		case stable*0x1 == 0:
+			date = date.AddDate(0, 1, 0)
+		default:
+			date = date.AddDate(1, 0, 0)
+		}
+		date = firstWeek(&date, time.Weekday(ts.Week))
+	}
+	return date
 }
 
 // RegisterTimer 注册计时器
@@ -92,32 +152,10 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) {
 	}
 	log.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
 	for ts.Enable {
-		dur := ts.nextDuration()
-		isThisMonth := ts.Month < 0 || ts.Month == int32(time.Now().Month())
-		if isThisMonth {
-			isThisDay := ts.Day < 0 || ts.Day == int32(time.Now().Day())
-			isThisWeek := ts.Week < 0 || ts.Week == int32(time.Now().Weekday())
-			if !isThisDay && !isThisWeek {
-				if ts.Day == 0 {
-					d, over := nextDistance(ts.Week, int(time.Now().Weekday()), time.Hour*24*7, time.Hour*24*7)
-					if !(over && ts.Month > 0 && time.Now().Add(time.Hour*24*7).Month() != time.Now().Month()) {
-						dur += d
-					}
-				} else if ts.Day < int32(time.Now().Day()) {
-					if ts.Month < 0 {
-						dur += time.Until(time.Date(time.Now().Year(), time.Month(ts.Month)+1, int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
-					} else {
-						dur += time.Until(time.Date(time.Now().Year()+1, time.Month(ts.Month), int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
-					}
-				}
-			}
-		} else if ts.Month < int32(time.Now().Month()) {
-			dur += time.Until(time.Date(time.Now().Year()+1, time.Month(ts.Month), int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
-		} else {
-			dur += time.Until(time.Date(time.Now().Year(), time.Month(ts.Month), int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
-		}
-		log.Printf("[群管]计时器%s将睡眠%ds", key, dur/time.Second)
-		time.Sleep(dur)
+		nextdate := ts.nextWakeTime()
+		sleepsec := time.Until(nextdate)
+		log.Printf("[群管]计时器%s将睡眠%ds", key, sleepsec/time.Second)
+		time.Sleep(sleepsec)
 		if ts.Enable {
 			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 				ctx.Event = new(zero.Event)
