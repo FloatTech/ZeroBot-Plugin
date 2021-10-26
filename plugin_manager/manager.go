@@ -57,7 +57,10 @@ var (
 
 func init() { // 插件主体
 	loadConfig()
-	clock = timer.NewClock(timerfile)
+	go func() {
+		time.Sleep(time.Second + time.Millisecond*time.Duration(rand.Intn(1000)))
+		clock = timer.NewClock(timerfile)
+	}()
 	// 菜单
 	zero.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {

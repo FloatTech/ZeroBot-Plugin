@@ -62,7 +62,7 @@ func (ts *Timer) nextDuration() time.Duration {
 		isThisMinute := ts.Minute < 0 || ts.Minute == int32(time.Now().Minute())
 		if !isThisMinute {
 			d, over := nextDistance(ts.Minute, time.Now().Minute(), time.Minute, time.Hour)
-			if !(ts.Hour > 0 && over) {
+			if !(ts.Hour >= 0 && over) {
 				sleepdur = d
 			}
 		}
@@ -92,15 +92,31 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) {
 	}
 	log.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
 	for ts.Enable {
-		dur := time.Minute
+		dur := ts.nextDuration()
 		isThisMonth := ts.Month < 0 || ts.Month == int32(time.Now().Month())
 		if isThisMonth {
 			isThisDay := ts.Day < 0 || ts.Day == int32(time.Now().Day())
 			isThisWeek := ts.Week < 0 || ts.Week == int32(time.Now().Weekday())
-			if isThisDay || isThisWeek {
-				dur = ts.nextDuration()
+			if !isThisDay && !isThisWeek {
+				if ts.Day == 0 {
+					d, over := nextDistance(ts.Week, int(time.Now().Weekday()), time.Hour*24*7, time.Hour*24*7)
+					if !(over && ts.Month > 0 && time.Now().Add(time.Hour*24*7).Month() != time.Now().Month()) {
+						dur += d
+					}
+				} else if ts.Day < int32(time.Now().Day()) {
+					if ts.Month < 0 {
+						dur += time.Until(time.Date(time.Now().Year(), time.Month(ts.Month)+1, int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
+					} else {
+						dur += time.Until(time.Date(time.Now().Year()+1, time.Month(ts.Month), int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
+					}
+				}
 			}
+		} else if ts.Month < int32(time.Now().Month()) {
+			dur += time.Until(time.Date(time.Now().Year()+1, time.Month(ts.Month), int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
+		} else {
+			dur += time.Until(time.Date(time.Now().Year(), time.Month(ts.Month), int(ts.Day), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.Now().Location()))
 		}
+		log.Printf("[群管]计时器%s将睡眠%ds", key, dur/time.Second)
 		time.Sleep(dur)
 		if ts.Enable {
 			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
