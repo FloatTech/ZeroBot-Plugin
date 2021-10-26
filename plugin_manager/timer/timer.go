@@ -11,7 +11,7 @@ import (
 	"time"
 	"unicode"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -61,23 +61,31 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	h := ts.Hour
 	mn := ts.Minute
 	w := ts.Week
-	unit := time.Duration(int(ts.Minute) - date.Minute())
+	unit := time.Duration(int(ts.Minute)-date.Minute()) * time.Minute
+	logrus.Debugln("[timer] unit init:", unit)
 	if mn >= 0 {
 		switch {
 		case h < 0:
-			if unit < 0 {
+			if unit <= time.Second {
 				unit += time.Hour
 			}
-		case d < 0:
-			unit += time.Hour * 24
-		case w < 0:
-			unit += time.Hour * 24 * 7
+		case d < 0 || w < 0:
+			if unit <= time.Second {
+				unit += time.Hour * 24
+			}
+		case d == 0 && w >= 0:
+			delta := time.Hour * 24 * time.Duration(int(w)-int(date.Weekday()))
+			if delta < 0 {
+				delta += time.Hour * 24 * 7
+			}
+			unit += delta
 		case m < 0:
 			unit = -1
 		}
 	} else {
 		unit = time.Minute
 	}
+	logrus.Debugln("[timer] unit:", unit)
 	stable := 0
 	if mn < 0 {
 		mn = int32(date.Minute())
@@ -91,21 +99,56 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		d = int32(date.Day())
 	} else if d > 0 {
 		stable |= 0x4
-	} else if w < 0 {
-		d = int32(date.Day())
 	} else {
-		stable |= 0x2
+		d = int32(date.Day())
+		if w >= 0 {
+			stable |= 0x2
+		}
 	}
 	if m < 0 {
 		m = int32(date.Month())
 	} else {
 		stable |= 0x1
 	}
-	date = time.Date(date.Year(), time.Month(m), int(d), int(h), int(mn), date.Second(), date.Nanosecond(), date.Location())
-	if unit < 0 {
-		return date.AddDate(0, 1, 0)
+	switch stable {
+	case 0b0101:
+		if ts.Day != int32(time.Now().Day()) || ts.Month != int32(time.Now().Month()) {
+			h = 0
+		}
+	case 0b1001:
+		if ts.Month != int32(time.Now().Month()) {
+			d = 0
+		}
+	case 0b0001:
+		if ts.Month != int32(time.Now().Month()) {
+			d = 0
+			h = 0
+		}
 	}
-	date = date.Add(unit)
+	logrus.Debugln("[timer] stable:", stable)
+	logrus.Debugln("[timer] m:", m, "d:", d, "h:", h, "mn:", mn, "w:", w)
+	date = time.Date(date.Year(), time.Month(m), int(d), int(h), int(mn), date.Second(), date.Nanosecond(), date.Location())
+	logrus.Debugln("[timer] date original:", date)
+	if unit > 0 {
+		date = date.Add(unit)
+	}
+	logrus.Debugln("[timer] date after add:", date)
+	if time.Until(date) <= 0 {
+		if ts.Month < 0 {
+			if ts.Day > 0 || (ts.Day == 0 && ts.Week >= 0) {
+				date = date.AddDate(0, 1, 0)
+			} else if ts.Day < 0 || ts.Week < 0 {
+				if ts.Hour > 0 {
+					date = date.AddDate(0, 0, 1)
+				} else if ts.Minute > 0 {
+					date = date.Add(time.Hour)
+				}
+			}
+		} else {
+			date = date.AddDate(1, 0, 0)
+		}
+	}
+	logrus.Debugln("[timer] date after fix:", date)
 	if stable&0x8 != 0 && date.Hour() != int(h) {
 		switch {
 		case stable&0x4 == 0:
@@ -118,6 +161,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 			date = date.AddDate(1, 0, 0).Add(-time.Hour)
 		}
 	}
+	logrus.Debugln("[timer] date after s8:", date)
 	if stable&0x4 != 0 && date.Day() != int(d) {
 		switch {
 		case stable*0x1 == 0:
@@ -126,6 +170,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 			date = date.AddDate(1, 0, -1)
 		}
 	}
+	logrus.Debugln("[timer] date after s4:", date)
 	if stable&0x2 != 0 && int32(date.Weekday()) != w {
 		switch {
 		case stable*0x1 == 0:
@@ -135,7 +180,28 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		}
 		date = firstWeek(&date, time.Weekday(w))
 	}
+	logrus.Debugln("[timer] date after s2:", date)
+	if time.Until(date) <= 0 {
+		date = time.Now().Add(time.Minute)
+	}
 	return date
+}
+
+func (ts *Timer) judgeHM() {
+	if ts.Hour < 0 || ts.Hour == int32(time.Now().Hour()) {
+		if ts.Minute < 0 || ts.Minute == int32(time.Now().Minute()) {
+			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+				ctx.Event = new(zero.Event)
+				ctx.Event.GroupID = int64(ts.Grpid)
+				if ts.Url == "" {
+					ctx.SendChain(atall, message.Text(ts.Alert))
+				} else {
+					ctx.SendChain(atall, message.Text(ts.Alert), message.Image(ts.Url).Add("cache", "0"))
+				}
+				return false
+			})
+		}
+	}
 }
 
 // RegisterTimer 注册计时器
@@ -153,23 +219,22 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) {
 			c.SaveTimers()
 		}
 	}
-	log.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
+	logrus.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
 	for ts.Enable {
 		nextdate := ts.nextWakeTime()
 		sleepsec := time.Until(nextdate)
-		log.Printf("[群管]计时器%s将睡眠%ds", key, sleepsec/time.Second)
+		logrus.Printf("[群管]计时器%s将睡眠%ds", key, sleepsec/time.Second)
 		time.Sleep(sleepsec)
 		if ts.Enable {
-			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-				ctx.Event = new(zero.Event)
-				ctx.Event.GroupID = int64(ts.Grpid)
-				if ts.Url == "" {
-					ctx.SendChain(atall, message.Text(ts.Alert))
-				} else {
-					ctx.SendChain(atall, message.Text(ts.Alert), message.Image(ts.Url).Add("cache", "0"))
+			if ts.Month < 0 || ts.Month == int32(time.Now().Month()) {
+				if ts.Day < 0 || ts.Day == int32(time.Now().Day()) {
+					ts.judgeHM()
+				} else if ts.Day == 0 {
+					if ts.Week < 0 || ts.Week == int32(time.Now().Weekday()) {
+						ts.judgeHM()
+					}
 				}
-				return false
-			})
+			}
 		}
 	}
 }
@@ -270,7 +335,7 @@ func GetFilledTimer(dateStrs []string, matchDateOnly bool) *Timer {
 	var ts Timer
 	ts.Month = chineseNum2Int(monthStr)
 	if (ts.Month != -1 && ts.Month <= 0) || ts.Month > 12 { // 月份非法
-		log.Println("[群管]月份非法！")
+		logrus.Println("[群管]月份非法！")
 		return &ts
 	}
 	lenOfDW := len(dayWeekStr)
@@ -278,14 +343,14 @@ func GetFilledTimer(dateStrs []string, matchDateOnly bool) *Timer {
 		dayWeekStr = []rune{dayWeekStr[0], dayWeekStr[2]} // 去除中间的十
 		ts.Day = chineseNum2Int(dayWeekStr)
 		if (ts.Day != -1 && ts.Day <= 0) || ts.Day > 31 { // 日期非法
-			log.Println("[群管]日期非法1！")
+			logrus.Println("[群管]日期非法1！")
 			return &ts
 		}
 	} else if dayWeekStr[lenOfDW-1] == rune('日') { // xx日
 		dayWeekStr = dayWeekStr[:lenOfDW-1]
 		ts.Day = chineseNum2Int(dayWeekStr)
 		if (ts.Day != -1 && ts.Day <= 0) || ts.Day > 31 { // 日期非法
-			log.Println("[群管]日期非法2！")
+			logrus.Println("[群管]日期非法2！")
 			return &ts
 		}
 	} else if dayWeekStr[0] == rune('每') { // 每周
@@ -297,7 +362,7 @@ func GetFilledTimer(dateStrs []string, matchDateOnly bool) *Timer {
 		}
 		if ts.Week < 0 || ts.Week > 6 { // 星期非法
 			ts.Week = -11
-			log.Println("[群管]星期非法！")
+			logrus.Println("[群管]星期非法！")
 			return &ts
 		}
 	}
@@ -306,7 +371,7 @@ func GetFilledTimer(dateStrs []string, matchDateOnly bool) *Timer {
 	}
 	ts.Hour = chineseNum2Int(hourStr)
 	if ts.Hour < -1 || ts.Hour > 23 { // 小时非法
-		log.Println("[群管]小时非法！")
+		logrus.Println("[群管]小时非法！")
 		return &ts
 	}
 	if len(minuteStr) == 3 {
@@ -314,17 +379,17 @@ func GetFilledTimer(dateStrs []string, matchDateOnly bool) *Timer {
 	}
 	ts.Minute = chineseNum2Int(minuteStr)
 	if ts.Minute < -1 || ts.Minute > 59 { // 分钟非法
-		log.Println("[群管]分钟非法！")
+		logrus.Println("[群管]分钟非法！")
 		return &ts
 	}
 	if !matchDateOnly {
 		urlStr := dateStrs[5]
 		if urlStr != "" { // 是图片url
 			ts.Url = urlStr[3:] // utf-8下用为3字节
-			log.Println("[群管]" + ts.Url)
+			logrus.Println("[群管]" + ts.Url)
 			if !strings.HasPrefix(ts.Url, "http") {
 				ts.Url = "illegal"
-				log.Println("[群管]url非法！")
+				logrus.Println("[群管]url非法！")
 				return &ts
 			}
 		}
