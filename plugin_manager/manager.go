@@ -15,8 +15,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	timer "github.com/FloatTech/ZeroBot-Plugin-Timer"
-
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 )

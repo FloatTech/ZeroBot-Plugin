@@ -1,0 +1,18 @@
+syntax = "proto3";
+package timer;
+
+message Timer {
+    bool enable = 1;
+    string alert = 2;
+    string url = 3;    
+    sint32 month = 4;
+    sint32 day = 5;
+    sint32 week = 6;
+    sint32 hour = 7;
+    sint32 minute = 8;
+    uint64 grpid = 9;
+}
+
+message TimersMap {
+    map<string, Timer> timers = 1;
+}
