@@ -61,19 +61,22 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	h := ts.Hour
 	mn := ts.Minute
 	w := ts.Week
-	unit := time.Minute
+	unit := time.Duration(int(ts.Minute) - date.Minute())
 	if mn >= 0 {
 		switch {
 		case h < 0:
-			unit = time.Hour
+			if unit < 0 {
+				unit += time.Hour
+			}
 		case d < 0:
-			unit = time.Hour * 24
+			unit += time.Hour * 24
 		case w < 0:
-			unit = time.Hour * 24 * 7
+			unit += time.Hour * 24 * 7
 		case m < 0:
 			unit = -1
-		default:
 		}
+	} else {
+		unit = time.Minute
 	}
 	stable := 0
 	if mn < 0 {
@@ -130,7 +133,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		default:
 			date = date.AddDate(1, 0, 0)
 		}
-		date = firstWeek(&date, time.Weekday(ts.Week))
+		date = firstWeek(&date, time.Weekday(w))
 	}
 	return date
 }
