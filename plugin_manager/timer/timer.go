@@ -92,7 +92,7 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) {
 	}
 	log.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
 	for ts.Enable {
-		var dur time.Duration
+		dur := time.Minute
 		isThisMonth := ts.Month < 0 || ts.Month == int32(time.Now().Month())
 		if isThisMonth {
 			isThisDay := ts.Day < 0 || ts.Day == int32(time.Now().Day())
@@ -161,9 +161,7 @@ func (c *Clock) ListTimers(grpID uint64) []string {
 			if strings.Contains(k, g) {
 				start := strings.Index(k, "]")
 				msg := strings.ReplaceAll(k[start+1:]+"\n", "-1", "每")
-				msg = strings.ReplaceAll(msg, "日0周", "日的")
-				msg = strings.ReplaceAll(msg, "周", "的")
-				msg = strings.ReplaceAll(msg, "月0日", "月周")
+				msg = strings.ReplaceAll(msg, "日0周", "日周天")
 				keys = append(keys, msg)
 			}
 		}
