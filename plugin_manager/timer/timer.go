@@ -283,7 +283,9 @@ func (c *Clock) ListTimers(grpID uint64) []string {
 			if strings.Contains(k, g) {
 				start := strings.Index(k, "]")
 				msg := strings.ReplaceAll(k[start+1:]+"\n", "-1", "每")
-				msg = strings.ReplaceAll(msg, "日0周", "日周天")
+				msg = strings.ReplaceAll(msg, "月0日0周", "月周天")
+				msg = strings.ReplaceAll(msg, "月0日", "月")
+				msg = strings.ReplaceAll(msg, "日0周", "日")
 				keys = append(keys, msg)
 			}
 		}
