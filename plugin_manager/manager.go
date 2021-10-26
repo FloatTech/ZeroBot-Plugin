@@ -21,9 +21,10 @@ import (
 )
 
 const (
-	datapath = "data/manager/"
-	confile  = datapath + "config.pb"
-	hint     = "====群管====\n" +
+	datapath  = "data/manager/"
+	confile   = datapath + "config.pb"
+	timerfile = datapath + "timers.pb"
+	hint      = "====群管====\n" +
 		"- 禁言@QQ 1分钟\n" +
 		"- 解除禁言 @QQ\n" +
 		"- 我要自闭 1分钟\n" +
@@ -51,10 +52,12 @@ const (
 var (
 	config Config
 	limit  = rate.NewManager(time.Minute*5, 2)
+	clock  timer.Clock
 )
 
 func init() { // 插件主体
 	loadConfig()
+	clock = timer.NewClock(timerfile)
 	// 菜单
 	zero.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
@@ -250,10 +253,10 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				dateStrs := ctx.State["regex_matched"].([]string)
-				ts := timer.GetFilledTimeStamp(dateStrs, false)
+				ts := timer.GetFilledTimer(dateStrs, false)
 				ts.Grpid = uint64(ctx.Event.GroupID)
 				if ts.Enable {
-					go timer.RegisterTimer(ts, true)
+					go clock.RegisterTimer(ts, true)
 					ctx.SendChain(message.Text("记住了~"))
 				} else {
 					ctx.SendChain(message.Text("参数非法!"))
@@ -265,14 +268,11 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
 				dateStrs := ctx.State["regex_matched"].([]string)
-				ts := timer.GetFilledTimeStamp(dateStrs, true)
+				ts := timer.GetFilledTimer(dateStrs, true)
 				ts.Grpid = uint64(ctx.Event.GroupID)
-				ti := timer.GetTimerInfo(ts)
-				t, ok := (*timer.Timers)[ti]
+				ti := ts.GetTimerInfo()
+				ok := clock.CancelTimer(ti)
 				if ok {
-					t.Enable = false
-					delete(*timer.Timers, ti) // 避免重复取消
-					_ = timer.SaveTimers()
 					ctx.SendChain(message.Text("取消成功~"))
 				} else {
 					ctx.SendChain(message.Text("没有这个定时器哦~"))
@@ -283,7 +283,7 @@ func init() { // 插件主体
 	zero.OnFullMatch("列出所有提醒", zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.GroupID > 0 {
-				ctx.SendChain(message.Text(timer.ListTimers(uint64(ctx.Event.GroupID))))
+				ctx.SendChain(message.Text(clock.ListTimers(uint64(ctx.Event.GroupID))))
 			}
 		})
 	// 随机点名

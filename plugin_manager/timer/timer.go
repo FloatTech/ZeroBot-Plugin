@@ -4,33 +4,32 @@ package timer
 import (
 	"fmt"
 	"io"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
-type (
-	TimeStamp = Timer
-)
-
-const (
-	// 定时器存储位置
-	datapath = "data/manager/" // 数据目录
-	pbfile   = datapath + "timers.pb"
-)
-
-var (
+type Clock struct {
 	// 记录每个定时器以便取消
 	timersmap TimersMap
 	// 定时器map
-	Timers *(map[string]*Timer)
+	timers *(map[string]*Timer)
+	// 读写锁
+	timersmu sync.RWMutex
+	// 定时器存储位置
+	pbfile *string
+}
+
+var (
 	// @全体成员
 	atall = message.MessageSegment{
 		Type: "at",
@@ -40,21 +39,70 @@ var (
 	}
 )
 
-func init() {
-	go func() {
-		time.Sleep(time.Second + time.Millisecond*time.Duration(rand.Intn(1000)))
-		err := os.MkdirAll(datapath, 0755)
-		if err != nil {
-			panic(err)
-		}
-		loadTimers()
-		Timers = &timersmap.Timers
-	}()
+func NewClock(pbfile string) (c Clock) {
+	c.loadTimers(pbfile)
+	c.timers = &c.timersmap.Timers
+	c.pbfile = &pbfile
+	return
 }
 
-func judgeHM(ts *TimeStamp) {
-	if ts.Hour < 0 || ts.Hour == int32(time.Now().Hour()) {
-		if ts.Minute < 0 || ts.Minute == int32(time.Now().Minute()) {
+func nextDistance(nextTime int32, nowTime int, smallUnit, largeUnit time.Duration) (d time.Duration, overflow bool) {
+	d = time.Duration(int(nextTime)-nowTime) * smallUnit
+	if d <= 0 {
+		d += largeUnit
+		overflow = true
+	}
+	return
+}
+
+func (ts *Timer) nextDuration() time.Duration {
+	sleepdur := time.Minute
+	isThisHour := ts.Hour < 0 || ts.Hour == int32(time.Now().Hour())
+	if isThisHour {
+		isThisMinute := ts.Minute < 0 || ts.Minute == int32(time.Now().Minute())
+		if !isThisMinute {
+			d, over := nextDistance(ts.Minute, time.Now().Minute(), time.Minute, time.Hour)
+			if !(ts.Hour > 0 && over) {
+				sleepdur = d
+			}
+		}
+	} else {
+		d, over := nextDistance(ts.Hour, time.Now().Hour(), time.Hour, time.Hour*24)
+		if !(ts.Day > 0 && over) {
+			sleepdur = d
+		}
+	}
+	return sleepdur
+}
+
+// RegisterTimer 注册计时器
+func (c *Clock) RegisterTimer(ts *Timer, save bool) {
+	key := ts.GetTimerInfo()
+	if c.timers != nil {
+		t, ok := c.GetTimer(key)
+		if t != ts && ok { // 避免重复注册定时器
+			t.Enable = false
+		}
+		c.timersmu.Lock()
+		(*c.timers)[key] = ts
+		c.timersmu.Unlock()
+		if save {
+			c.SaveTimers()
+		}
+	}
+	log.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
+	for ts.Enable {
+		var dur time.Duration
+		isThisMonth := ts.Month < 0 || ts.Month == int32(time.Now().Month())
+		if isThisMonth {
+			isThisDay := ts.Day < 0 || ts.Day == int32(time.Now().Day())
+			isThisWeek := ts.Week < 0 || ts.Week == int32(time.Now().Weekday())
+			if isThisDay || isThisWeek {
+				dur = ts.nextDuration()
+			}
+		}
+		time.Sleep(dur)
+		if ts.Enable {
 			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 				ctx.Event = new(zero.Event)
 				ctx.Event.GroupID = int64(ts.Grpid)
@@ -69,103 +117,102 @@ func judgeHM(ts *TimeStamp) {
 	}
 }
 
-// RegisterTimer 注册计时器
-func RegisterTimer(ts *TimeStamp, save bool) {
-	key := GetTimerInfo(ts)
-	if Timers != nil {
-		t, ok := (*Timers)[key]
-		if t != ts && ok { // 避免重复注册定时器
-			t.Enable = false
-		}
-		(*Timers)[key] = ts
-		if save {
-			SaveTimers()
-		}
+// CancelTimer 取消计时器
+func (c *Clock) CancelTimer(key string) bool {
+	t, ok := (*c.timers)[key]
+	if ok {
+		t.Enable = false
+		c.timersmu.Lock()
+		delete(*c.timers, key) // 避免重复取消
+		c.timersmu.Unlock()
+		_ = c.SaveTimers()
 	}
-	log.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
-	for ts.Enable {
-		if ts.Month < 0 || ts.Month == int32(time.Now().Month()) {
-			if ts.Day < 0 || ts.Day == int32(time.Now().Day()) {
-				judgeHM(ts)
-			} else if ts.Day == 0 {
-				if ts.Week < 0 || ts.Week == int32(time.Now().Weekday()) {
-					judgeHM(ts)
-				}
-			}
-		}
-		time.Sleep(time.Minute)
-	}
+	return ok
 }
 
 // SaveTimers 保存当前计时器
-func SaveTimers() error {
-	data, err := timersmap.Marshal()
-	if err != nil {
-		return err
-	} else if _, err := os.Stat(datapath); err == nil || os.IsExist(err) {
-		f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+func (c *Clock) SaveTimers() error {
+	c.timersmu.RLock()
+	data, err := c.timersmap.Marshal()
+	c.timersmu.RUnlock()
+	if err == nil {
+		c.timersmu.Lock()
+		defer c.timersmu.Unlock()
+		f, err1 := os.OpenFile(*c.pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 		if err1 != nil {
 			return err1
 		} else {
-			defer f.Close()
 			_, err2 := f.Write(data)
+			f.Close()
 			return err2
 		}
-	} else {
-		return nil
 	}
+	return err
 }
 
 // ListTimers 列出本群所有计时器
-func ListTimers(grpID uint64) []string {
+func (c *Clock) ListTimers(grpID uint64) []string {
 	// 数组默认长度为map长度,后面append时,不需要重新申请内存和拷贝,效率很高
-	if Timers != nil {
+	if c.timers != nil {
 		g := strconv.FormatUint(grpID, 10)
-		keys := make([]string, 0, len(*Timers))
-		for k := range *Timers {
+		c.timersmu.RLock()
+		keys := make([]string, 0, len(*c.timers))
+		for k := range *c.timers {
 			if strings.Contains(k, g) {
 				start := strings.Index(k, "]")
-				keys = append(keys, strings.ReplaceAll(k[start+1:]+"\n", "-1", "每"))
+				msg := strings.ReplaceAll(k[start+1:]+"\n", "-1", "每")
+				msg = strings.ReplaceAll(msg, "日0周", "日的")
+				msg = strings.ReplaceAll(msg, "周", "的")
+				msg = strings.ReplaceAll(msg, "月0日", "月周")
+				keys = append(keys, msg)
 			}
 		}
+		c.timersmu.RUnlock()
 		return keys
 	} else {
 		return nil
 	}
 }
 
-func loadTimers() {
-	if _, err := os.Stat(pbfile); err == nil || os.IsExist(err) {
+func (c *Clock) GetTimer(key string) (t *Timer, ok bool) {
+	c.timersmu.RLock()
+	t, ok = (*c.timers)[key]
+	c.timersmu.RUnlock()
+	return
+}
+
+func (c *Clock) loadTimers(pbfile string) {
+	if file.IsExist(pbfile) {
 		f, err := os.Open(pbfile)
 		if err == nil {
 			data, err1 := io.ReadAll(f)
 			if err1 == nil {
 				if len(data) > 0 {
-					timersmap.Unmarshal(data)
-					for _, t := range timersmap.Timers {
-						go RegisterTimer(t, false)
+					c.timersmap.Unmarshal(data)
+					for _, t := range c.timersmap.Timers {
+						go c.RegisterTimer(t, false)
 					}
 					return
 				}
 			}
 		}
 	}
-	timersmap.Timers = make(map[string]*Timer)
+	c.timersmap.Timers = make(map[string]*Timer)
 }
 
 // GetTimerInfo 获得标准化定时字符串
-func GetTimerInfo(ts *TimeStamp) string {
+func (ts *Timer) GetTimerInfo() string {
 	return fmt.Sprintf("[%d]%d月%d日%d周%d:%d", ts.Grpid, ts.Month, ts.Day, ts.Week, ts.Hour, ts.Minute)
 }
 
-// GetFilledTimeStamp 获得填充好的ts
-func GetFilledTimeStamp(dateStrs []string, matchDateOnly bool) *TimeStamp {
+// GetFilledTimer 获得填充好的ts
+func GetFilledTimer(dateStrs []string, matchDateOnly bool) *Timer {
 	monthStr := []rune(dateStrs[1])
 	dayWeekStr := []rune(dateStrs[2])
 	hourStr := []rune(dateStrs[3])
 	minuteStr := []rune(dateStrs[4])
 
-	var ts TimeStamp
+	var ts Timer
 	ts.Month = chineseNum2Int(monthStr)
 	if (ts.Month != -1 && ts.Month <= 0) || ts.Month > 12 { // 月份非法
 		log.Println("[群管]月份非法！")
