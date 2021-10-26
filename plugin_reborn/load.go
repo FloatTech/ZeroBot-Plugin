@@ -3,6 +3,7 @@ package reborn
 import (
 	"encoding/json"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -30,7 +31,7 @@ var (
 
 func init() {
 	go func() {
-		time.Sleep(time.Second)
+		time.Sleep(time.Second + time.Millisecond*time.Duration(rand.Intn(1000)))
 		err := os.MkdirAll(datapath, 0755)
 		if err != nil {
 			panic(err)
