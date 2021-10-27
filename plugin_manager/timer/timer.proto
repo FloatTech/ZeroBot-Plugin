@@ -4,14 +4,14 @@ package timer;
 message Timer {
     bool enable = 1;
     string alert = 2;
-    string url = 3;
-    int32 month = 4;
-    int32 day = 5;
-    int32 week = 6;
-    int32 hour = 7;
-    int32 minute = 8;
-    int64 selfid = 9;
-    string cron = 10;
+    string url = 4;
+    int32 month = 8;
+    int32 day = 16;
+    int32 week = 32;
+    int32 hour = 64;
+    int32 minute = 128;
+    int64 selfid = 129;
+    string cron = 130;
 }
 
 message TimersMap {
