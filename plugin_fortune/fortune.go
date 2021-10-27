@@ -12,6 +12,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/fogleman/gg"
@@ -35,6 +36,8 @@ var (
 	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师"}
 	// 映射底图与 index
 	index = make(map[string]uint32)
+	// 下载锁
+	dlmu sync.Mutex
 )
 
 func init() {
@@ -77,24 +80,32 @@ func init() {
 			// 检查签文文件是否存在
 			mikuji := base + "运势签文.json"
 			if file.IsNotExist(mikuji) {
-				ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
-				err := file.DownloadTo(site+"运势签文.json", mikuji)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+				dlmu.Lock()
+				if file.IsNotExist(mikuji) {
+					ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
+					err := file.DownloadTo(site+"运势签文.json", mikuji)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					ctx.SendChain(message.Text("下载签文文件完毕"))
 				}
-				ctx.SendChain(message.Text("下载签文文件完毕"))
+				dlmu.Unlock()
 			}
 			// 检查字体文件是否存在
 			ttf := base + "sakura.ttf"
 			if file.IsNotExist(ttf) {
-				ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
-				err := file.DownloadTo(site+"sakura.ttf", ttf)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+				dlmu.Lock()
+				if file.IsNotExist(ttf) {
+					ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
+					err := file.DownloadTo(site+"sakura.ttf", ttf)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					ctx.SendChain(message.Text("下载字体文件完毕"))
 				}
-				ctx.SendChain(message.Text("下载字体文件完毕"))
+				dlmu.Unlock()
 			}
 			// 获取该群背景类型，默认车万
 			kind := "车万"
@@ -110,23 +121,27 @@ func init() {
 			// 检查背景图片是否存在
 			folder := base + kind
 			if file.IsNotExist(folder) {
-				ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
-				zipfile := kind + ".zip"
-				zipcache := base + zipfile
-				err := file.DownloadTo(site+zipfile, zipcache)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+				dlmu.Lock()
+				if file.IsNotExist(folder) {
+					ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
+					zipfile := kind + ".zip"
+					zipcache := base + zipfile
+					err := file.DownloadTo(site+zipfile, zipcache)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					ctx.SendChain(message.Text("下载背景图片完毕"))
+					err = unpack(zipcache, folder+"/")
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					ctx.SendChain(message.Text("解压背景图片完毕"))
+					// 释放空间
+					os.Remove(zipcache)
 				}
-				ctx.SendChain(message.Text("下载背景图片完毕"))
-				err = unpack(zipcache, folder+"/")
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				ctx.SendChain(message.Text("解压背景图片完毕"))
-				// 释放空间
-				os.Remove(zipcache)
+				dlmu.Unlock()
 			}
 			// 生成种子
 			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)

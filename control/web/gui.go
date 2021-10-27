@@ -128,23 +128,11 @@ func updateAllPluginStatus(context *gin.Context) {
 		}
 		enable = parse["enable"].(bool)
 	}
-	var groups []int64
-	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-		for _, group := range ctx.GetGroupList().Array() {
-			groups = append(groups, group.Get("group_id").Int())
-		}
-		return true
-	})
-
 	ctrl.ForEach(func(key string, manager *ctrl.Control) bool {
 		if enable {
-			for _, group := range groups {
-				manager.Enable(group)
-			}
+			manager.Enable(0)
 		} else {
-			for _, group := range groups {
-				manager.Disable(group)
-			}
+			manager.Disable(0)
 		}
 		return true
 	})
@@ -175,18 +163,11 @@ func updatePluginAllGroupStatus(context *gin.Context) {
 		context.JSON(404, nil)
 		return
 	}
-	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-		for _, group := range ctx.GetGroupList().Array() {
-			if enable {
-				control.Enable(group.Get("group_id").Int())
-			} else {
-				control.Disable(group.Get("group_id").Int())
-			}
-		}
-
-		return true
-	})
-
+	if enable {
+		control.Enable(0)
+	} else {
+		control.Disable(0)
+	}
 	context.JSON(200, nil)
 }
 

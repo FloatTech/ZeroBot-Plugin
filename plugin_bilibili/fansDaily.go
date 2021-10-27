@@ -38,6 +38,7 @@ func fansDaily(groupID int64) {
 
 // 获取数据拼接消息链并发送
 func fansData(groupID int64) {
+	// TODO: 更改为 GetBot
 	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 		var (
 			diana  = fansapi("672328094")

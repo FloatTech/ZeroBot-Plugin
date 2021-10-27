@@ -190,6 +190,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 func (ts *Timer) judgeHM() {
 	if ts.Hour < 0 || ts.Hour == int32(time.Now().Hour()) {
 		if ts.Minute < 0 || ts.Minute == int32(time.Now().Minute()) {
+			//zero.GetBot(zero.BotConfig.SelfID)
 			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 				ctx.Event = new(zero.Event)
 				ctx.Event.GroupID = int64(ts.Grpid)
