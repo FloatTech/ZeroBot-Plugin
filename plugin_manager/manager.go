@@ -252,42 +252,65 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 		})
 	// 定时提醒
-	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				dateStrs := ctx.State["regex_matched"].([]string)
-				ts := timer.GetFilledTimer(dateStrs, false)
-				ts.Grpid = uint64(ctx.Event.GroupID)
-				if ts.Enable {
-					go clock.RegisterTimer(ts, true)
-					ctx.SendChain(message.Text("记住了~"))
-				} else {
-					ctx.SendChain(message.Text("参数非法!"))
-				}
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, false)
+			if ts.Enable {
+				go clock.RegisterTimer(ts, ctx.Event.GroupID, true)
+				ctx.SendChain(message.Text("记住了~"))
+			} else {
+				ctx.SendChain(message.Text("参数非法!"))
+			}
+		})
+	// 定时 cron 提醒
+	zero.OnRegex(`^在"(.*)"时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			var url, alert string
+			if len(dateStrs) == 3 {
+				url = dateStrs[1]
+				alert = dateStrs[2]
+			} else {
+				alert = dateStrs[1]
+			}
+			ts := timer.GetFilledCronTimer(dateStrs[0], alert, url, ctx.Event.SelfID)
+			if clock.RegisterTimer(ts, ctx.Event.GroupID, true) {
+				ctx.SendChain(message.Text("记住了~"))
+			} else {
+				ctx.SendChain(message.Text("参数非法!"))
 			}
 		})
 	// 取消定时
-	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				dateStrs := ctx.State["regex_matched"].([]string)
-				ts := timer.GetFilledTimer(dateStrs, true)
-				ts.Grpid = uint64(ctx.Event.GroupID)
-				ti := ts.GetTimerInfo()
-				ok := clock.CancelTimer(ti)
-				if ok {
-					ctx.SendChain(message.Text("取消成功~"))
-				} else {
-					ctx.SendChain(message.Text("没有这个定时器哦~"))
-				}
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, true)
+			ti := ts.GetTimerInfo(ctx.Event.GroupID)
+			ok := clock.CancelTimer(ti)
+			if ok {
+				ctx.SendChain(message.Text("取消成功~"))
+			} else {
+				ctx.SendChain(message.Text("没有这个定时器哦~"))
+			}
+		})
+	// 取消 cron 定时
+	zero.OnRegex(`^取消在"(.*)"的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			dateStrs := ctx.State["regex_matched"].([]string)
+			ts := timer.Timer{Cron: dateStrs[0]}
+			ti := ts.GetTimerInfo(ctx.Event.GroupID)
+			ok := clock.CancelTimer(ti)
+			if ok {
+				ctx.SendChain(message.Text("取消成功~"))
+			} else {
+				ctx.SendChain(message.Text("没有这个定时器哦~"))
 			}
 		})
 	// 列出本群所有定时
-	zero.OnFullMatch("列出所有提醒", zero.AdminPermission).SetBlock(true).SetPriority(40).
+	zero.OnFullMatch("列出所有提醒", zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID > 0 {
-				ctx.SendChain(message.Text(clock.ListTimers(uint64(ctx.Event.GroupID))))
-			}
+			ctx.SendChain(message.Text(clock.ListTimers(uint64(ctx.Event.GroupID))))
 		})
 	// 随机点名
 	zero.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).SetPriority(40).

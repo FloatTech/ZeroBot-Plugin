@@ -75,6 +75,8 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] 在[MM]月[每周|周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
     - [x] 取消在[MM]月[每周|周几]的[hh]点[mm]分的提醒
+    - [x] 在"cron"时(用[url])提醒大家[xxx]
+    - [x] 取消在"cron"的提醒
     - [x] 列出所有提醒
     - [x] 翻牌
     - [x] [开启|关闭]入群验证
