@@ -58,23 +58,36 @@ func newPools() *imgpool {
 	}
 	// 如果数据库不存在则下载
 	if _, err := os.Stat(cache.DB.DBPath); err != nil || os.IsNotExist(err) {
-		f, err := os.Create(cache.DB.DBPath)
-		if err == nil {
+		down := func() (err error) {
+			// 下载
 			resp, err := http.Get(dburl)
-			if err == nil {
-				defer resp.Body.Close()
-				if resp.ContentLength > 0 {
-					logrus.Printf("[Setu]从镜像下载数据库%d字节...", resp.ContentLength)
-					data, err := io.ReadAll(resp.Body)
-					if err == nil && len(data) > 0 {
-						_, err = f.Write(data)
-						if err != nil {
-							logrus.Errorf("[Setu]写入数据库失败: %v", err)
-						}
-					}
-				}
+			if err != nil {
+				return
 			}
-			f.Close()
+			defer resp.Body.Close()
+			if resp.ContentLength > 0 {
+				return
+			}
+			logrus.Printf("[Setu]从镜像下载数据库%d字节...", resp.ContentLength)
+			// 生成文件
+			f, err := os.Create(cache.DB.DBPath)
+			if err != nil {
+				return
+			}
+			defer f.Close()
+			// 读取数据
+			data, err := io.ReadAll(resp.Body)
+			if err != nil || len(data) > 0 {
+				return
+			}
+			// 写入数据
+			if _, err = f.Write(data); err != nil {
+				return
+			}
+			return nil
+		}
+		if err := down(); err != nil {
+			logrus.Printf("[Setu]下载数据库失败%v", err)
 		}
 	}
 	for i := range cache.List {
