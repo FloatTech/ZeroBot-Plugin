@@ -10,12 +10,11 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/imroc/req v0.3.0
 	github.com/mroth/weightedrand v0.4.1
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.9+incompatible
 	github.com/sirupsen/logrus v1.8.1
-	github.com/tidwall/gjson v1.10.0
+	github.com/tidwall/gjson v1.10.2
 	github.com/wdvxdr1123/ZeroBot v1.3.2
-	modernc.org/sqlite v1.13.1
+	modernc.org/sqlite v1.13.3
 )
