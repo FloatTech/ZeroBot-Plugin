@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/robfig/cron"
+	"github.com/fumiama/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -32,8 +32,10 @@ func init() {
 // 定时任务每天晚上最后2分钟执行一次
 func fansDaily(groupID int64) {
 	c := cron.New()
-	_ = c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
-	c.Start()
+	_, err := c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
+	if err == nil {
+		c.Start()
+	}
 }
 
 // 获取数据拼接消息链并发送

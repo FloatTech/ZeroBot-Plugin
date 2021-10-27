@@ -7,11 +7,11 @@ require (
 	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4
 	github.com/FloatTech/bot-manager v1.0.0
 	github.com/fogleman/gg v1.3.0
+	github.com/fumiama/cron v1.3.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/mroth/weightedrand v0.4.1
-	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.9+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.10.2
