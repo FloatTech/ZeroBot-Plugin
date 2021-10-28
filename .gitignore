@@ -3,6 +3,7 @@ data/control
 data/SetuTime/search
 data/manager
 data/acgimage
+data/saucenao
 data/fortune
 data/hs
 plugins/*.so

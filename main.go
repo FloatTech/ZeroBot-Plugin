@@ -22,7 +22,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager"     // 群管
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"     // 拼音首字母缩写释义工具
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"     // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation" // 在线运行代码
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation" // 翻译
 
 	// 娱乐类
 	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"              // 制图

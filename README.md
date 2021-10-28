@@ -45,6 +45,7 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] /还原 xxx (在发送的群/用户还原xxx的开启状态到初始状态)
     - [x] /用法 xxx
     - [x] /服务列表
+    - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -108,6 +109,9 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] 摸[@xxx]
     - [x] 搓[@xxx]
     - 注：更多指令见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
+- **base16384加解密** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"`
+    - [x] 加密xxx
+    - [x] 解密xxx
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]

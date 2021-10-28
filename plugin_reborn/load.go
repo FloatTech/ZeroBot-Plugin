@@ -3,15 +3,14 @@ package reborn
 import (
 	"encoding/json"
 	"io"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 
 	wr "github.com/mroth/weightedrand"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 const (
@@ -31,7 +30,7 @@ var (
 
 func init() {
 	go func() {
-		time.Sleep(time.Second + time.Millisecond*time.Duration(rand.Intn(1000)))
+		process.SleepAbout1sTo2s()
 		err := os.MkdirAll(datapath, 0755)
 		if err != nil {
 			panic(err)

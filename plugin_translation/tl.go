@@ -13,6 +13,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 var (
@@ -57,7 +58,7 @@ func init() {
 			}
 			info := gjson.ParseBytes(rely)
 			repo := info.Get("data.0")
-			time.Sleep(time.Second)
+			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text(repo.Get("value.0")))
 		})
 }
