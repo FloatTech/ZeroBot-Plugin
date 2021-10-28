@@ -20,7 +20,7 @@ func init() {
 			str := ctx.State["regex_matched"].([]string)[1]
 			es, err := base14.UTF16be2utf8(base14.EncodeString(str))
 			if err == nil {
-				ctx.SendChain(message.Text(es))
+				ctx.SendChain(message.Text(helper.BytesToString(es)))
 			} else {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
