@@ -25,7 +25,7 @@ func init() {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
 		})
-	en.OnRegex("^解密([\u4e00-\u9fa5]*)$").SetBlock(true).ThirdPriority().
+	en.OnRegex("^解密([\u4e00-\u9fa5]*[\u3d01-\u3d06]?)$").SetBlock(true).ThirdPriority().
 		Handle(func(ctx *zero.Ctx) {
 			str := ctx.State["regex_matched"].([]string)[1]
 			es, err := base14.UTF82utf16be(helper.StringToBytes(str))
