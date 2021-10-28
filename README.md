@@ -163,6 +163,8 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
 - **投胎** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"`
     - [x] reborn
     - 注：本插件来源于[tgbot](https://github.com/YukariChiba/tgbot/blob/main/modules/Reborn.py)
+- **翻译** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation"`
+    - [x] >TL 你好
 - **TODO...**
 
 ## 使用方法
