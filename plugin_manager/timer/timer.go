@@ -48,6 +48,7 @@ func NewClock(pbfile string) (c Clock) {
 	c.pbfile = &pbfile
 	c.cron = cron.New()
 	c.entries = make(map[string]cron.EntryID)
+	c.cron.Start()
 	return
 }
 
@@ -56,15 +57,12 @@ func (c *Clock) RegisterTimer(ts *Timer, grp int64, save bool) bool {
 	key := ts.GetTimerInfo(grp)
 	t, ok := c.GetTimer(key)
 	if t != ts && ok { // 避免重复注册定时器
-		t.Enable = false
+		t.SetEn(false)
 	}
 	c.timersmu.Lock()
 	(*c.timers)[key] = ts
 	c.timersmu.Unlock()
-	if save {
-		c.SaveTimers()
-	}
-	logrus.Printf("[群管]注册计时器[%t]%s", ts.Enable, key)
+	logrus.Println("[群管]注册计时器", key)
 	if ts.Cron != "" {
 		var ctx *zero.Ctx
 		if ts.Selfid != 0 {
@@ -81,20 +79,27 @@ func (c *Clock) RegisterTimer(ts *Timer, grp int64, save bool) bool {
 			c.entmu.Lock()
 			c.entries[key] = eid
 			c.entmu.Unlock()
+			if save {
+				c.SaveTimers()
+			}
 			return true
 		}
+		ts.Alert = err.Error()
 	} else {
-		for ts.Enable {
+		if save {
+			c.SaveTimers()
+		}
+		for ts.En() {
 			nextdate := ts.nextWakeTime()
 			sleepsec := time.Until(nextdate)
 			logrus.Printf("[群管]计时器%s将睡眠%ds", key, sleepsec/time.Second)
 			time.Sleep(sleepsec)
-			if ts.Enable {
-				if ts.Month < 0 || ts.Month == int32(time.Now().Month()) {
-					if ts.Day < 0 || ts.Day == int32(time.Now().Day()) {
+			if ts.En() {
+				if ts.Month() < 0 || ts.Month() == time.Now().Month() {
+					if ts.Day() < 0 || ts.Day() == time.Now().Day() {
 						ts.judgeHM(grp)
-					} else if ts.Day == 0 {
-						if ts.Week < 0 || ts.Week == int32(time.Now().Weekday()) {
+					} else if ts.Day() == 0 {
+						if ts.Week() < 0 || ts.Week() == time.Now().Weekday() {
 							ts.judgeHM(grp)
 						}
 					}
@@ -116,7 +121,7 @@ func (c *Clock) CancelTimer(key string) bool {
 			delete(c.entries, key)
 			c.entmu.Unlock()
 		} else {
-			t.Enable = false
+			t.SetEn(false)
 		}
 		c.timersmu.Lock()
 		delete(*c.timers, key) // 避免重复取消

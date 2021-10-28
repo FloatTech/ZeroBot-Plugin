@@ -2,16 +2,11 @@ syntax = "proto3";
 package timer;
 
 message Timer {
-    bool enable = 1;
-    string alert = 2;
-    string url = 4;
-    int32 month = 8;
-    int32 day = 16;
-    int32 week = 32;
-    int32 hour = 64;
-    int32 minute = 128;
-    int64 selfid = 129;
-    string cron = 130;
+    string alert = 1;
+    string cron = 2;
+    int32 en1month4day5week3hour5min6 = 4;
+    int64 selfid = 8;
+    string url = 16;
 }
 
 message TimersMap {

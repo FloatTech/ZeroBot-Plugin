@@ -4,6 +4,7 @@ import (
 	"fmt"
 	io "io"
 	"os"
+	"time"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
@@ -50,15 +51,17 @@ func main() {
 		if loadTimers(os.Args[1]) {
 			timersmapnew.Timers = make(map[string]*Timer)
 			for s, t := range timersmap.Timers {
-				timersmapnew.Timers[s] = &Timer{
-					Enable: t.Enable,
-					Alert:  t.Alert,
-					Url:    t.Url,
-					Month:  t.Month,
-					Day:    t.Day,
-					Hour:   t.Hour,
-					Minute: t.Minute,
+				tm := &Timer{
+					Alert: t.Alert,
+					Url:   t.Url,
 				}
+				tm.SetMonth(time.Month(t.Month))
+				tm.SetDay(int(t.Day))
+				tm.SetHour(int(t.Hour))
+				tm.SetMinute(int(t.Minute))
+				tm.SetWeek(time.Weekday(t.Week))
+				tm.SetEn(t.Enable)
+				timersmapnew.Timers[s] = tm
 			}
 			saveTimers(os.Args[2])
 		}

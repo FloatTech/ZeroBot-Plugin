@@ -13,5 +13,4 @@ func (ts *Timer) sendmsg(grp int64, ctx *zero.Ctx) {
 	} else {
 		ctx.SendChain(atall, message.Text(ts.Alert), message.Image(ts.Url).Add("cache", "0"))
 	}
-	return
 }

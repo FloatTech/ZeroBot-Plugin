@@ -17,12 +17,12 @@ func firstWeek(date *time.Time, week time.Weekday) (d time.Time) {
 
 func (ts *Timer) nextWakeTime() (date time.Time) {
 	date = time.Now()
-	m := ts.Month
-	d := ts.Day
-	h := ts.Hour
-	mn := ts.Minute
-	w := ts.Week
-	unit := time.Duration(int(ts.Minute)-date.Minute()) * time.Minute
+	m := ts.Month()
+	d := ts.Day()
+	h := ts.Hour()
+	mn := ts.Minute()
+	w := ts.Week()
+	unit := time.Duration(ts.Minute()-date.Minute()) * time.Minute
 	logrus.Debugln("[timer] unit init:", unit)
 	if mn >= 0 {
 		switch {
@@ -49,39 +49,39 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	logrus.Debugln("[timer] unit:", unit)
 	stable := 0
 	if mn < 0 {
-		mn = int32(date.Minute())
+		mn = date.Minute()
 	}
 	if h < 0 {
-		h = int32(date.Hour())
+		h = date.Hour()
 	} else {
 		stable |= 0x8
 	}
 	if d < 0 {
-		d = int32(date.Day())
+		d = date.Day()
 	} else if d > 0 {
 		stable |= 0x4
 	} else {
-		d = int32(date.Day())
+		d = date.Day()
 		if w >= 0 {
 			stable |= 0x2
 		}
 	}
 	if m < 0 {
-		m = int32(date.Month())
+		m = date.Month()
 	} else {
 		stable |= 0x1
 	}
 	switch stable {
 	case 0b0101:
-		if ts.Day != int32(time.Now().Day()) || ts.Month != int32(time.Now().Month()) {
+		if ts.Day() != time.Now().Day() || ts.Month() != time.Now().Month() {
 			h = 0
 		}
 	case 0b1001:
-		if ts.Month != int32(time.Now().Month()) {
+		if ts.Month() != time.Now().Month() {
 			d = 0
 		}
 	case 0b0001:
-		if ts.Month != int32(time.Now().Month()) {
+		if ts.Month() != time.Now().Month() {
 			d = 0
 			h = 0
 		}
@@ -95,13 +95,13 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	}
 	logrus.Debugln("[timer] date after add:", date)
 	if time.Until(date) <= 0 {
-		if ts.Month < 0 {
-			if ts.Day > 0 || (ts.Day == 0 && ts.Week >= 0) {
+		if ts.Month() < 0 {
+			if ts.Day() > 0 || (ts.Day() == 0 && ts.Week() >= 0) {
 				date = date.AddDate(0, 1, 0)
-			} else if ts.Day < 0 || ts.Week < 0 {
-				if ts.Hour > 0 {
+			} else if ts.Day() < 0 || ts.Week() < 0 {
+				if ts.Hour() > 0 {
 					date = date.AddDate(0, 0, 1)
-				} else if ts.Minute > 0 {
+				} else if ts.Minute() > 0 {
 					date = date.Add(time.Hour)
 				}
 			}
@@ -132,7 +132,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		}
 	}
 	logrus.Debugln("[timer] date after s4:", date)
-	if stable&0x2 != 0 && int32(date.Weekday()) != w {
+	if stable&0x2 != 0 && date.Weekday() != w {
 		switch {
 		case stable*0x1 == 0:
 			date = date.AddDate(0, 1, 0)
@@ -149,8 +149,8 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 }
 
 func (ts *Timer) judgeHM(grp int64) {
-	if ts.Hour < 0 || ts.Hour == int32(time.Now().Hour()) {
-		if ts.Minute < 0 || ts.Minute == int32(time.Now().Minute()) {
+	if ts.Hour() < 0 || ts.Hour() == time.Now().Hour() {
+		if ts.Minute() < 0 || ts.Minute() == time.Now().Minute() {
 			if ts.Selfid != 0 {
 				ts.sendmsg(grp, zero.GetBot(ts.Selfid))
 			} else {

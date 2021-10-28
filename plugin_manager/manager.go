@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -256,11 +257,11 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, false)
-			if ts.Enable {
+			if ts.En() {
 				go clock.RegisterTimer(ts, ctx.Event.GroupID, true)
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
-				ctx.SendChain(message.Text("参数非法!"))
+				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
 			}
 		})
 	// 定时 cron 提醒
@@ -268,17 +269,22 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			var url, alert string
-			if len(dateStrs) == 3 {
-				url = dateStrs[1]
+			switch len(dateStrs) {
+			case 4:
+				url = dateStrs[2]
+				alert = dateStrs[3]
+			case 3:
 				alert = dateStrs[2]
-			} else {
-				alert = dateStrs[1]
+			default:
+				ctx.SendChain(message.Text("参数非法!"))
+				return
 			}
-			ts := timer.GetFilledCronTimer(dateStrs[0], alert, url, ctx.Event.SelfID)
+			logrus.Debugln("[manager] cron:", dateStrs[1])
+			ts := timer.GetFilledCronTimer(dateStrs[1], alert, url, ctx.Event.SelfID)
 			if clock.RegisterTimer(ts, ctx.Event.GroupID, true) {
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
-				ctx.SendChain(message.Text("参数非法!"))
+				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
 			}
 		})
 	// 取消定时
@@ -298,7 +304,7 @@ func init() { // 插件主体
 	zero.OnRegex(`^取消在"(.*)"的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := timer.Timer{Cron: dateStrs[0]}
+			ts := timer.Timer{Cron: dateStrs[1]}
 			ti := ts.GetTimerInfo(ctx.Event.GroupID)
 			ok := clock.CancelTimer(ti)
 			if ok {

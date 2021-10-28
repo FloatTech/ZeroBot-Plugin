@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/sirupsen/logrus"
@@ -14,7 +15,7 @@ func (ts *Timer) GetTimerInfo(grp int64) string {
 	if ts.Cron != "" {
 		return fmt.Sprintf("[%d]%s", grp, ts.Cron)
 	}
-	return fmt.Sprintf("[%d]%d月%d日%d周%d:%d", grp, ts.Month, ts.Day, ts.Week, ts.Hour, ts.Minute)
+	return fmt.Sprintf("[%d]%d月%d日%d周%d:%d", grp, ts.Month(), ts.Day(), ts.Week(), ts.Hour(), ts.Minute())
 }
 
 // GetFilledCronTimer 获得以cron填充好的ts
@@ -35,55 +36,60 @@ func GetFilledTimer(dateStrs []string, botqq int64, matchDateOnly bool) *Timer {
 	minuteStr := []rune(dateStrs[4])
 
 	var ts Timer
-	ts.Month = chineseNum2Int(monthStr)
-	if (ts.Month != -1 && ts.Month <= 0) || ts.Month > 12 { // 月份非法
-		logrus.Println("[群管]月份非法！")
+	mon := time.Month(chineseNum2Int(monthStr))
+	if (mon != -1 && mon <= 0) || mon > 12 { // 月份非法
+		ts.Alert = "月份非法！"
 		return &ts
 	}
+	ts.SetMonth(mon)
 	lenOfDW := len(dayWeekStr)
 	if lenOfDW == 4 { // 包括末尾的"日"
 		dayWeekStr = []rune{dayWeekStr[0], dayWeekStr[2]} // 去除中间的十
-		ts.Day = chineseNum2Int(dayWeekStr)
-		if (ts.Day != -1 && ts.Day <= 0) || ts.Day > 31 { // 日期非法
-			logrus.Println("[群管]日期非法1！")
+		d := chineseNum2Int(dayWeekStr)
+		if (d != -1 && d <= 0) || d > 31 { // 日期非法
+			ts.Alert = "日期非法1！"
 			return &ts
 		}
+		ts.SetDay(d)
 	} else if dayWeekStr[lenOfDW-1] == rune('日') { // xx日
 		dayWeekStr = dayWeekStr[:lenOfDW-1]
-		ts.Day = chineseNum2Int(dayWeekStr)
-		if (ts.Day != -1 && ts.Day <= 0) || ts.Day > 31 { // 日期非法
-			logrus.Println("[群管]日期非法2！")
+		d := chineseNum2Int(dayWeekStr)
+		if (d != -1 && d <= 0) || d > 31 { // 日期非法
+			ts.Alert = "日期非法2！"
 			return &ts
 		}
+		ts.SetDay(d)
 	} else if dayWeekStr[0] == rune('每') { // 每周
-		ts.Week = -1
+		ts.SetWeek(-1)
 	} else { // 周x
-		ts.Week = chineseNum2Int(dayWeekStr[1:])
-		if ts.Week == 7 { // 周天是0
-			ts.Week = 0
+		w := chineseNum2Int(dayWeekStr[1:])
+		if w == 7 { // 周天是0
+			w = 0
 		}
-		if ts.Week < 0 || ts.Week > 6 { // 星期非法
-			ts.Week = -11
-			logrus.Println("[群管]星期非法！")
+		if w < 0 || w > 6 { // 星期非法
+			ts.Alert = "星期非法！"
 			return &ts
 		}
+		ts.SetWeek(time.Weekday(w))
 	}
 	if len(hourStr) == 3 {
 		hourStr = []rune{hourStr[0], hourStr[2]} // 去除中间的十
 	}
-	ts.Hour = chineseNum2Int(hourStr)
-	if ts.Hour < -1 || ts.Hour > 23 { // 小时非法
-		logrus.Println("[群管]小时非法！")
+	h := chineseNum2Int(hourStr)
+	if h < -1 || h > 23 { // 小时非法
+		ts.Alert = "小时非法！"
 		return &ts
 	}
+	ts.SetHour(h)
 	if len(minuteStr) == 3 {
 		minuteStr = []rune{minuteStr[0], minuteStr[2]} // 去除中间的十
 	}
-	ts.Minute = chineseNum2Int(minuteStr)
-	if ts.Minute < -1 || ts.Minute > 59 { // 分钟非法
-		logrus.Println("[群管]分钟非法！")
+	min := chineseNum2Int(minuteStr)
+	if min < -1 || min > 59 { // 分钟非法
+		ts.Alert = "分钟非法！"
 		return &ts
 	}
+	ts.SetMinute(min)
 	if !matchDateOnly {
 		urlStr := dateStrs[5]
 		if urlStr != "" { // 是图片url
@@ -96,14 +102,14 @@ func GetFilledTimer(dateStrs []string, botqq int64, matchDateOnly bool) *Timer {
 			}
 		}
 		ts.Alert = dateStrs[6]
-		ts.Enable = true
+		ts.SetEn(true)
 	}
 	ts.Selfid = botqq
 	return &ts
 }
 
 // chineseNum2Int 汉字数字转int，仅支持-10～99，最多两位数，其中"每"解释为-1，"每二"为-2，以此类推
-func chineseNum2Int(rs []rune) int32 {
+func chineseNum2Int(rs []rune) int {
 	r := -1
 	l := len(rs)
 	mai := rune('每')
@@ -128,7 +134,7 @@ func chineseNum2Int(rs []rune) int32 {
 			r = ten + ge
 		}
 	}
-	return int32(r)
+	return r
 }
 
 // chineseChar2Int 处理单个字符的映射0~10
