@@ -30,10 +30,9 @@ func init() {
 			ctx.DeleteMessage(id)
 		})
 
-	zero.OnRegex("^●cd([\u4e00-\u9fa5]{4})$", zero.OnlyGroup).SetBlock(true).FirstPriority().
+	zero.OnRegex("^●cd([\u4e00-\u8e00]{4})$", zero.OnlyGroup).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			tok := ctx.State["regex_matched"].([]string)[1]
-			if isValidToken(tok) && time.Now().Unix()-startTime < 10 {
+			if isValidToken(ctx.State["regex_matched"].([]string)[1]) {
 				msg := ""
 				gid := ctx.Event.GroupID
 				ForEach(func(key string, manager *Control) bool {
@@ -54,17 +53,19 @@ func init() {
 			}
 		})
 
-	zero.OnRegex("^●cd●(.*)", zero.OnlyGroup).SetBlock(true).FirstPriority().
+	zero.OnRegex("^●cd●(([\u4e00-\u8e00]*[\u3d01-\u3d06]?))", zero.OnlyGroup).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			msg, err := b14.UTF82utf16be(helper.StringToBytes(ctx.State["regex_matched"].([]string)[1]))
-			if err == nil {
-				gid := ctx.Event.GroupID
-				for _, s := range strings.Split(b14.DecodeString(msg), "\xfe\xff") {
-					mu.RLock()
-					c, ok := managers[s]
-					mu.RUnlock()
-					if ok && c.IsEnabledIn(gid) {
-						c.Disable(gid)
+			if time.Now().Unix()-startTime < 10 {
+				msg, err := b14.UTF82utf16be(helper.StringToBytes(ctx.State["regex_matched"].([]string)[1]))
+				if err == nil {
+					gid := ctx.Event.GroupID
+					for _, s := range strings.Split(b14.DecodeString(msg), "\xfe\xff") {
+						mu.RLock()
+						c, ok := managers[s]
+						mu.RUnlock()
+						if ok && c.IsEnabledIn(gid) {
+							c.Disable(gid)
+						}
 					}
 				}
 			}
