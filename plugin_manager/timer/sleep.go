@@ -22,22 +22,22 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	h := ts.Hour()
 	mn := ts.Minute()
 	w := ts.Week()
-	unit := time.Duration(ts.Minute()-date.Minute()) * time.Minute
+	var unit time.Duration
 	logrus.Debugln("[timer] unit init:", unit)
 	if mn >= 0 {
 		switch {
 		case h < 0:
 			if unit <= time.Second {
-				unit += time.Hour
+				unit = time.Hour
 			}
 		case d < 0 || w < 0:
 			if unit <= time.Second {
-				unit += time.Hour * 24
+				unit = time.Hour * 24
 			}
 		case d == 0 && w >= 0:
 			delta := time.Hour * 24 * time.Duration(int(w)-int(date.Weekday()))
 			if delta < 0 {
-				delta += time.Hour * 24 * 7
+				delta = time.Hour * 24 * 7
 			}
 			unit += delta
 		case m < 0:

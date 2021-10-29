@@ -9,9 +9,11 @@ import (
 
 func TestNextWakeTime(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
-	ts := &Timer{
-		En1Month4Day5Week3Hour5Min6: 0xffffff,
-	}
+	ts := &Timer{}
+	ts.SetMonth(-1)
+	ts.SetWeek(6)
+	ts.SetHour(16)
+	ts.SetMinute(30)
 	t1 := time.Until(ts.nextWakeTime())
 	if t1 < 0 {
 		t.Log(t1)
