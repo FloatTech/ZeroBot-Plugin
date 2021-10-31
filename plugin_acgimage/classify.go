@@ -29,7 +29,7 @@ var (
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]int64)
 	block   = false
-	limit   = rate.NewManager(time.Minute, 1)
+	limit   = rate.NewManager(time.Minute, 5)
 )
 
 func init() { // 插件主体
