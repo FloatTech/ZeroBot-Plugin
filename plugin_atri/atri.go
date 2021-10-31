@@ -30,7 +30,7 @@ func init() { // 插件主体
 	zero.OnFullMatch("ATRI醒醒", zero.AdminPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			c, ok := control.Lookup(servicename)
-			if ok {
+			if ok && !c.IsEnabledIn(ctx.Event.GroupID) {
 				c.Enable(ctx.Event.GroupID)
 				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Text("嗯呜呜……夏生先生……？"))
@@ -39,7 +39,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("ATRI睡吧", zero.AdminPermission).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			c, ok := control.Lookup(servicename)
-			if ok {
+			if ok && c.IsEnabledIn(ctx.Event.GroupID) {
 				c.Disable(ctx.Event.GroupID)
 				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Text("Zzz……Zzz……"))
