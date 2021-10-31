@@ -5,10 +5,12 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FloatTech/AnimeAPI/classify"
 	"github.com/FloatTech/AnimeAPI/picture"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
@@ -27,6 +29,7 @@ var (
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]int64)
 	block   = false
+	limit   = rate.NewManager(time.Minute, 1)
 )
 
 func init() { // 插件主体
@@ -54,7 +57,7 @@ func init() { // 插件主体
 	// 有保护的随机图片
 	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).SetPriority(24).
 		Handle(func(ctx *zero.Ctx) {
-			if classify.CanVisit(5) {
+			if classify.CanVisit(5) && limit.Load(ctx.Event.UserID).Acquire() {
 				go func() {
 					class, lastvisit, dhash, comment := classify.Classify(randapi, false)
 					replyClass(ctx, dhash, class, false, lastvisit, comment)
