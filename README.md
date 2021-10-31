@@ -59,7 +59,7 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
 - **群管** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
-    - [x] 我要自闭 [分钟]
+    - [x] 我要自闭|禅定 x [分钟|小时|天]
     - [x] 开启全员禁言
     - [x] 解除全员禁言
     - [x] 升为管理[@xxx]
