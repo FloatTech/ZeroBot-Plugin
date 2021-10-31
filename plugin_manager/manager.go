@@ -173,18 +173,18 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("小黑屋释放成功~"))
 		})
 	// 自闭禁言
-	zero.OnRegex(`^我要自闭.*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	zero.OnRegex(`^(我要自闭|禅定).*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			duration := strToInt(ctx.State["regex_matched"].([]string)[1])
-			switch ctx.State["regex_matched"].([]string)[2] {
-			case "分钟":
-				//
-			case "小时":
+			duration := strToInt(ctx.State["regex_matched"].([]string)[2])
+			switch ctx.State["regex_matched"].([]string)[3] {
+			case "分钟", "min", "mins", "m":
+				break
+			case "小时", "hour", "hours", "h":
 				duration *= 60
-			case "天":
+			case "天", "day", "days", "d":
 				duration *= 60 * 24
 			default:
-				//
+				break
 			}
 			if duration >= 43200 {
 				duration = 43199 // qq禁言最大时长为一个月
