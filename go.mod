@@ -15,6 +15,7 @@ require (
 	github.com/mroth/weightedrand v0.4.1
 	github.com/shirou/gopsutil v3.21.9+incompatible
 	github.com/sirupsen/logrus v1.8.1
+	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.10.2
 	github.com/wdvxdr1123/ZeroBot v1.3.2
 	modernc.org/sqlite v1.13.3
