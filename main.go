@@ -108,7 +108,7 @@ func main() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(banner))
 		})
-	zero.Run(
+	zero.RunAndBlock(
 		zero.Config{
 			NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
 			CommandPrefix: "/",
@@ -119,5 +119,4 @@ func main() {
 			Driver:     []zero.Driver{driver.NewWebSocketClient(*url, *token)},
 		},
 	)
-	select {}
 }
