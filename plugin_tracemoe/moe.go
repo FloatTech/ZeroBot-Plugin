@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/FloatTech/AnimeAPI/picture"
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
