@@ -122,6 +122,8 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
     - [x] 以图搜图|搜索图片|以图识图[图片]
     - [x] 搜图[P站图片ID]
+- **搜番** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_tracemoe"`
+    - [x] 搜番|搜索番剧[图片]
 - **随机图片与AI点评** `github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)

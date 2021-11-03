@@ -17,10 +17,10 @@ var (
 func init() { // 插件主体
 	engine := control.Register("tracemoe", &control.Options{
 		DisableOnDefault: false,
-		Help:             "搜图\n- 搜番|搜索番剧[图片]",
+		Help:             "tracemoe\n- 搜番|搜索番剧[图片]",
 	})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).FirstPriority().
+	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).ThirdPriority().
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))
