@@ -78,7 +78,6 @@ func init() {
 			}
 			defer db.Close()
 			firstStepMessage := getAllFirstCategoryMessage(db)
-			log.Println(firstStepMessage)
 			ctx.SendChain(message.Text(firstStepMessage))
 			//步骤1，2，3，依次选择3个类别
 			step := 1
@@ -92,8 +91,14 @@ func init() {
 							ctx.SendChain(message.Text("请输入正确的序号"))
 						} else {
 							SecondStepMessage := getAllSecondCategoryMessageByFirstIndex(db, firstIndex)
-							ctx.SendChain(message.Text(SecondStepMessage))
-							step++
+							log.Println(SecondStepMessage)
+							if SecondStepMessage == "" {
+								ctx.SendChain(message.Text("你选择的序号没有内容，请重新选择"))
+							} else {
+								ctx.SendChain(message.Text(SecondStepMessage))
+								step++
+							}
+
 						}
 					} else if step == 2 {
 						secondIndex, err = strconv.Atoi(e.RawMessage)
@@ -103,8 +108,14 @@ func init() {
 							cancel()
 						} else {
 							ThirdStepMessage := getAllThirdCategoryMessageByFirstIndexAndSecondIndex(db, firstIndex, secondIndex)
-							ctx.SendChain(message.Text(ThirdStepMessage))
-							step++
+							log.Println(ThirdStepMessage)
+							if ThirdStepMessage == "" {
+								ctx.SendChain(message.Text("你选择的序号没有内容，请重新选择"))
+							} else {
+								ctx.SendChain(message.Text(ThirdStepMessage))
+								step++
+							}
+
 						}
 					} else if step == 3 {
 						thirdIndex, err = strconv.Atoi(e.RawMessage)
@@ -117,15 +128,22 @@ func init() {
 							reg := regexp.MustCompile(regStr)
 							recordUrl := tc.ThirdCategoryUrl
 							if recordUrl == "" {
-								recordUrl = "https://vtbkeyboard.moe/api/audio/672328094/破防嘉.mp3"
+								ctx.SendChain(message.Text("没有内容请重新选择"))
+								ctx.SendChain(message.Text(getAllFirstCategoryMessage(db)))
+								step = 1
+							} else {
+								if reg.MatchString(recordUrl) {
+									log.Println(reg.FindStringSubmatch(recordUrl)[1])
+									log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
+									recordUrl = strings.Replace(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]), -1)
+									recordUrl = strings.Replace(recordUrl, "+", "%20", -1)
+									log.Println(recordUrl)
+								}
+								ctx.SendChain(message.Record(recordUrl))
+								cancel()
+								return
 							}
-							if reg.MatchString(recordUrl) {
-								log.Println(reg.FindStringSubmatch(recordUrl)[1])
-								recordUrl = strings.Replace(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]), -1)
-							}
-							ctx.SendChain(message.Record(recordUrl))
-							cancel()
-							return
+
 						}
 					}
 				case <-time.After(time.Second * 60):
@@ -145,6 +163,9 @@ func getAllFirstCategoryMessage(db *gorm.DB) string {
 	if err != nil {
 		log.Println("数据库读取错误", err)
 	}
+	if rows == nil {
+		return ""
+	}
 	for rows.Next() {
 		db.ScanRows(rows, &fc)
 		log.Println(fc)
@@ -157,10 +178,16 @@ func getAllFirstCategoryMessage(db *gorm.DB) string {
 func getAllSecondCategoryMessageByFirstIndex(db *gorm.DB, firstIndex int) string {
 	SecondStepMessage := "请选择一个语录类别并发送序号:\n"
 	var sc SecondCategory
+	var count int
+	db.Model(&SecondCategory{}).Where("first_category_index = ?", firstIndex).Count(&count)
+	if count == 0 {
+		return ""
+	}
 	rows, err := db.Model(&SecondCategory{}).Where("first_category_index = ?", firstIndex).Rows()
 	if err != nil {
 		log.Println("数据库读取错误", err)
 	}
+
 	for rows.Next() {
 		db.ScanRows(rows, &sc)
 		log.Println(sc)
@@ -172,6 +199,11 @@ func getAllSecondCategoryMessageByFirstIndex(db *gorm.DB, firstIndex int) string
 //取得同一个vtb同个类别的所有语录
 func getAllThirdCategoryMessageByFirstIndexAndSecondIndex(db *gorm.DB, firstIndex, secondIndex int) string {
 	ThirdStepMessage := "请选择一个语录并发送序号:\n"
+	var count int
+	db.Model(&ThirdCategory{}).Where("first_category_index = ? and second_category_index = ?", firstIndex, secondIndex).Count(&count)
+	if count == 0 {
+		return ""
+	}
 	var tc ThirdCategory
 	rows, err := db.Model(&ThirdCategory{}).Where("first_category_index = ? and second_category_index = ?", firstIndex, secondIndex).Rows()
 	if err != nil {
