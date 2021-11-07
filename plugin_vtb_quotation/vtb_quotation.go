@@ -78,25 +78,35 @@ func init() {
 			}
 			defer db.Close()
 			firstStepMessage := getAllFirstCategoryMessage(db)
-			ctx.SendChain(message.Text(firstStepMessage))
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(firstStepMessage))
 			//步骤1，2，3，依次选择3个类别
 			step := 1
+			//错误次数
+			errorCount := 0
 			for {
 				select {
 				case e := <-echo: // 接收到需要复读的消息
+					//错误次数达到3次，结束命令
+					if errorCount == 3 {
+						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("输入错误太多,请重新发指令"))
+						cancel()
+						return
+					}
 					if step == 1 {
 						firstIndex, err = strconv.Atoi(e.RawMessage)
 						log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
-							ctx.SendChain(message.Text("请输入正确的序号"))
+							ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
+							errorCount++
 						} else {
 							SecondStepMessage := getAllSecondCategoryMessageByFirstIndex(db, firstIndex)
 							log.Println(SecondStepMessage)
 							if SecondStepMessage == "" {
-								ctx.SendChain(message.Text("你选择的序号没有内容，请重新选择"))
-								ctx.SendChain(message.Text(getAllFirstCategoryMessage(db)))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(getAllFirstCategoryMessage(db)))
+								errorCount++
 							} else {
-								ctx.SendChain(message.Text(SecondStepMessage))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(SecondStepMessage))
 								step++
 							}
 
@@ -105,16 +115,17 @@ func init() {
 						secondIndex, err = strconv.Atoi(e.RawMessage)
 						log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
-							ctx.SendChain(message.Text("请输入正确的序号"))
-							cancel()
+							ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
+							errorCount++
 						} else {
 							ThirdStepMessage := getAllThirdCategoryMessageByFirstIndexAndSecondIndex(db, firstIndex, secondIndex)
 							log.Println(ThirdStepMessage)
 							if ThirdStepMessage == "" {
-								ctx.SendChain(message.Text("你选择的序号没有内容，请重新选择"))
-								ctx.SendChain(message.Text(getAllSecondCategoryMessageByFirstIndex(db, firstIndex)))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(getAllSecondCategoryMessageByFirstIndex(db, firstIndex)))
+								errorCount++
 							} else {
-								ctx.SendChain(message.Text(ThirdStepMessage))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(ThirdStepMessage))
 								step++
 							}
 
@@ -123,15 +134,16 @@ func init() {
 						thirdIndex, err = strconv.Atoi(e.RawMessage)
 						log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
-							ctx.SendChain(message.Text("请输入正确的序号"))
-							cancel()
+							ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
+							errorCount++
 						} else {
 							tc := getThirdCategory(db, firstIndex, secondIndex, thirdIndex)
 							reg := regexp.MustCompile(regStr)
 							recordUrl := tc.ThirdCategoryUrl
 							if recordUrl == "" {
-								ctx.SendChain(message.Text("没有内容请重新选择"))
-								ctx.SendChain(message.Text(getAllFirstCategoryMessage(db)))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(getAllFirstCategoryMessage(db)))
+								errorCount++
 								step = 1
 							} else {
 								if reg.MatchString(recordUrl) {
@@ -141,6 +153,7 @@ func init() {
 									recordUrl = strings.Replace(recordUrl, "+", "%20", -1)
 									log.Println(recordUrl)
 								}
+								ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+tc.ThirdCategoryName))
 								ctx.SendChain(message.Record(recordUrl))
 								cancel()
 								return
@@ -149,7 +162,7 @@ func init() {
 						}
 					}
 				case <-time.After(time.Second * 60):
-					cancel() // 取消复读监听
+					cancel()
 					ctx.Send("vtb语录指令过期")
 					return
 				}
