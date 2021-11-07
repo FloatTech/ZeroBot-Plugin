@@ -94,6 +94,7 @@ func init() {
 							log.Println(SecondStepMessage)
 							if SecondStepMessage == "" {
 								ctx.SendChain(message.Text("你选择的序号没有内容，请重新选择"))
+								ctx.SendChain(message.Text(getAllFirstCategoryMessage(db)))
 							} else {
 								ctx.SendChain(message.Text(SecondStepMessage))
 								step++
@@ -111,6 +112,7 @@ func init() {
 							log.Println(ThirdStepMessage)
 							if ThirdStepMessage == "" {
 								ctx.SendChain(message.Text("你选择的序号没有内容，请重新选择"))
+								ctx.SendChain(message.Text(getAllSecondCategoryMessageByFirstIndex(db, firstIndex)))
 							} else {
 								ctx.SendChain(message.Text(ThirdStepMessage))
 								step++
