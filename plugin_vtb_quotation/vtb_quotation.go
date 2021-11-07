@@ -23,7 +23,7 @@ var (
 
 //第一品类
 type FirstCategory struct {
-	Id                 int    `db:"id"`
+	Id                 int    `gorm:"column:id"`
 	FirstCategoryIndex int    `gorm:"column:first_category_index"`
 	FirstCategoryName  string `gorm:"column:first_category_name"`
 	FirstCategoryUid   string `gorm:"column:first_category_uid"`
@@ -35,7 +35,7 @@ func (FirstCategory) TableName() string {
 
 //第二品类
 type SecondCategory struct {
-	Id                  int    `db:"id"`
+	Id                  int    `gorm:"column:id"`
 	SecondCategoryIndex int    `gorm:"column:second_category_index"`
 	FirstCategoryIndex  int    `gorm:"column:first_category_index"`
 	SecondCategoryName  string `gorm:"column:second_category_name"`
@@ -47,7 +47,7 @@ func (SecondCategory) TableName() string {
 
 //第三品类
 type ThirdCategory struct {
-	Id                  int    `db:"id"`
+	Id                  int    `gorm:"column:id"`
 	ThirdCategoryIndex  int    `gorm:"column:third_category_index"`
 	SecondCategoryIndex int    `gorm:"column:second_category_index"`
 	FirstCategoryIndex  int    `gorm:"column:first_category_index"`
