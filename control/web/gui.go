@@ -1,4 +1,4 @@
-package web
+package webctrl
 
 import (
 	"encoding/json"
@@ -36,8 +36,8 @@ var (
 type logWriter struct {
 }
 
-// initGui 初始化gui
-func initGui() {
+// InitGui 初始化gui
+func InitGui() {
 	// 将日志重定向到前端hook
 	writer := io.MultiWriter(l, os.Stderr)
 	log.SetOutput(writer)

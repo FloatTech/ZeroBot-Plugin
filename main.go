@@ -10,7 +10,7 @@ import (
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 
 	// 插件控制
-	// _ "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
+	// webctrl "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
 
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
@@ -74,10 +74,14 @@ func init() {
 	d := flag.Bool("d", false, "Enable debug level log and higher.")
 	w := flag.Bool("w", false, "Enable warning level log and higher.")
 	h := flag.Bool("h", false, "Display this help.")
+	// 解析命令行参数，输入 `-g` 即可启用 gui
+	// g := flag.Bool("g", false, "Enable web gui.")
+
 	// 直接写死 AccessToken 时，请更改下面第二个参数
 	token = flag.String("t", "", "Set AccessToken of WSClient.")
 	// 直接写死 URL 时，请更改下面第二个参数
 	url = flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
+
 	flag.Parse()
 	if *h {
 		printBanner()
@@ -92,6 +96,10 @@ func init() {
 			logrus.SetLevel(logrus.WarnLevel)
 		}
 	}
+	// 解析命令行参数，输入 `-g` 即可启用 gui
+	// if *g {
+	// 	webctrl.InitGui()
+	// }
 }
 
 func printBanner() {
