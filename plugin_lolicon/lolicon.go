@@ -4,6 +4,7 @@ package lolicon
 import (
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -49,7 +50,7 @@ func init() {
 						continue
 					}
 					url := json.Get("data.0.urls.original").Str
-					ctx.SendGroupMessage(0, message.Image(url))
+					ctx.SendGroupMessage(0, message.Image(strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")))
 					queue <- url
 				}
 			}()
