@@ -1,3 +1,4 @@
+// Package translation 翻译
 package translation
 
 import (
@@ -18,7 +19,7 @@ import (
 
 var (
 	prio   = 100
-	bucket = rate.NewManager(time.Minute, 20) //  接口回复
+	bucket = rate.NewManager(time.Minute, 20) // 接口回复
 )
 
 func tl(d string) ([]byte, error) {
