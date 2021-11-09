@@ -173,6 +173,7 @@ zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
     - [x] >TL 你好
 - **vtb语录** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation"`
     - [x] vtb语录
+    - [x] 随机vtb
 - **TODO...**
 
 ## 使用方法

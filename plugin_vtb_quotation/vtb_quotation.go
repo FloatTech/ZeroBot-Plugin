@@ -62,7 +62,8 @@ func (ThirdCategory) TableName() string {
 func init() {
 	engine := control.Register("vtbquotation", &control.Options{
 		DisableOnDefault: false,
-		Help:             "vtb语录\n",
+		Help: "vtb语录\n" +
+			"随机vtb\n",
 	})
 	engine.OnFullMatch("vtb语录").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -156,7 +157,7 @@ func init() {
 									recordUrl = strings.Replace(recordUrl, "+", "%20", -1)
 									log.Println(recordUrl)
 								}
-								ctx.SendChain(message.Reply(e.MessageID), message.Text("请欣赏"+tc.ThirdCategoryName))
+								ctx.SendChain(message.Reply(e.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
 								ctx.SendChain(message.Record(recordUrl))
 								cancel()
 								return
@@ -170,6 +171,21 @@ func init() {
 					return
 				}
 			}
+		})
+	engine.OnFullMatch("随机vtb").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			db, err := gorm.Open("sqlite3", "data/VtbQuotation/vtb.db")
+			if err != nil {
+				panic("failed to connect database")
+			}
+			defer db.Close()
+			tc := randomVtb(db)
+			fc := getFirstCategoryByFirstIndex(db, tc.FirstCategoryIndex)
+			if (tc != ThirdCategory{}) && (fc != FirstCategory{}) {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
+				ctx.SendChain(message.Record(tc.ThirdCategoryUrl))
+			}
+
 		})
 }
 
@@ -238,4 +254,16 @@ func getThirdCategory(db *gorm.DB, firstIndex, secondIndex, thirdIndex int) Thir
 	var tc ThirdCategory
 	db.Model(&ThirdCategory{}).Where("first_category_index = ? and second_category_index = ? and third_category_index = ?", firstIndex, secondIndex, thirdIndex).Take(&tc)
 	return tc
+}
+
+func randomVtb(db *gorm.DB) ThirdCategory {
+	var tc ThirdCategory
+	db.Model(&ThirdCategory{}).Take(&tc)
+	return tc
+}
+
+func getFirstCategoryByFirstIndex(db *gorm.DB, firstIndex int) FirstCategory {
+	var fc FirstCategory
+	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).Take(&fc)
+	return fc
 }
