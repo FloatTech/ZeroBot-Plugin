@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"math/rand"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -182,8 +183,17 @@ func init() {
 			tc := randomVtb(db)
 			fc := getFirstCategoryByFirstIndex(db, tc.FirstCategoryIndex)
 			if (tc != ThirdCategory{}) && (fc != FirstCategory{}) {
+				reg := regexp.MustCompile(regStr)
+				recordUrl := tc.ThirdCategoryUrl
+				if reg.MatchString(recordUrl) {
+					log.Println(reg.FindStringSubmatch(recordUrl)[1])
+					log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
+					recordUrl = strings.Replace(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]), -1)
+					recordUrl = strings.Replace(recordUrl, "+", "%20", -1)
+					log.Println(recordUrl)
+				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
-				ctx.SendChain(message.Record(tc.ThirdCategoryUrl))
+				ctx.SendChain(message.Record(recordUrl))
 			}
 
 		})
@@ -257,13 +267,19 @@ func getThirdCategory(db *gorm.DB, firstIndex, secondIndex, thirdIndex int) Thir
 }
 
 func randomVtb(db *gorm.DB) ThirdCategory {
+	rand.Seed(time.Now().UnixNano())
+	var count int
+	db.Model(&ThirdCategory{}).Count(&count)
+	log.Info("一共有", count, "个")
 	var tc ThirdCategory
-	db.Model(&ThirdCategory{}).Take(&tc)
+	db.Model(&ThirdCategory{}).Offset(rand.Intn(count)).Take(&tc)
+	log.Info(tc)
 	return tc
 }
 
 func getFirstCategoryByFirstIndex(db *gorm.DB, firstIndex int) FirstCategory {
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).Take(&fc)
+	log.Info(fc)
 	return fc
 }
