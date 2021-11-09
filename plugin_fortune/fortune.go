@@ -83,7 +83,7 @@ func init() {
 				dlmu.Lock()
 				if file.IsNotExist(mikuji) {
 					ctx.SendChain(message.Text("正在下载签文文件，请稍后..."))
-					err := file.DownloadTo(site+"运势签文.json", mikuji)
+					err := file.DownloadTo(site+"运势签文.json", mikuji, false)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
@@ -98,7 +98,7 @@ func init() {
 				dlmu.Lock()
 				if file.IsNotExist(ttf) {
 					ctx.SendChain(message.Text("正在下载字体文件，请稍后..."))
-					err := file.DownloadTo(site+"sakura.ttf", ttf)
+					err := file.DownloadTo(site+"sakura.ttf", ttf, false)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
@@ -126,7 +126,7 @@ func init() {
 					ctx.SendChain(message.Text("正在下载背景图片，请稍后..."))
 					zipfile := kind + ".zip"
 					zipcache := base + zipfile
-					err := file.DownloadTo(site+zipfile, zipcache)
+					err := file.DownloadTo(site+zipfile, zipcache, false)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
