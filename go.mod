@@ -18,6 +18,6 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.11.0
-	github.com/wdvxdr1123/ZeroBot v1.4.0
+	github.com/wdvxdr1123/ZeroBot v1.4.1
 	modernc.org/sqlite v1.13.3
 )
