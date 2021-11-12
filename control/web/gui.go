@@ -1,3 +1,7 @@
+// Package webctrl
+/*
+ * 一个用户webui的包，里面包含了webui所需的所有内容
+ */
 package webctrl
 
 import (
@@ -7,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 
 	manager "github.com/FloatTech/bot-manager"
 	// 依赖gin监听server
@@ -28,12 +33,27 @@ var (
 	logConn *websocket.Conn
 
 	l logWriter
+	// 存储请求事件，flag作为键，一个request对象作为值
+	requestData sync.Map
 )
 
 // logWriter
 // @Description:
 //
 type logWriter struct {
+}
+
+// request
+// @Description: 一个请求事件的结构体
+//
+type request struct {
+	RequestType string `json:"request_type"`
+	SubType     string `json:"sub_type"`
+	Type        string `json:"type"`
+	Comment     string `json:"comment"`
+	GroupID     int64  `json:"group_id"`
+	UserID      int64  `json:"user_id"`
+	Flag        string `json:"flag"`
 }
 
 // InitGui 初始化gui
@@ -94,6 +114,10 @@ func controller() {
 		})
 		context.JSON(200, datas)
 	})
+	// 获取所有请求
+	engine.POST("/get_requests", getRequests)
+	// 执行一个请求事件
+	engine.POST("handle_request", handelRequest)
 	// 链接日志
 	engine.GET("/get_log", getLogs)
 	// 获取前端标签
@@ -109,6 +133,40 @@ func controller() {
 	if err := engine.Run("127.0.0.1:3000"); err != nil {
 		log.Debugln("[gui] ", err.Error())
 	}
+}
+
+// handelRequest
+/**
+ * @Description: 处理一个请求
+ * @param context
+ */
+func handelRequest(context *gin.Context) {
+	var data map[string]interface{}
+	err := context.BindJSON(&data)
+	if err != nil {
+		context.JSON(404, nil)
+		return
+	}
+	r, ok := requestData.LoadAndDelete(data["flag"].(string))
+	if !ok {
+		context.JSON(404, "flag not found")
+	}
+	r.(request).Handle(data["approve"].(bool), data["reason"].(string))
+	context.JSON(200, "操作成功")
+}
+
+// getRequests
+/**
+ * @Description: 获取所有的请求
+ * @param context
+ */
+func getRequests(context *gin.Context) {
+	var data []interface{}
+	requestData.Range(func(key, value interface{}) bool {
+		data = append(data, value)
+		return true
+	})
+	context.JSON(200, data)
 }
 
 // updateAllPluginStatus
@@ -367,6 +425,29 @@ func messageHandle() {
 			}
 		}
 	})
+	// 直接注册一个request请求监听器，优先级设置为最高，设置不阻断事件传播
+	zero.OnRequest().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
+		typeName := ""
+		if ctx.Event.RequestType == "friend" {
+			typeName = "好友添加"
+		} else {
+			if ctx.Event.SubType == "add" {
+				typeName = "加群请求"
+			} else {
+				typeName = "群邀请"
+			}
+		}
+		r := request{
+			RequestType: ctx.Event.RequestType,
+			SubType:     ctx.Event.SubType,
+			Type:        typeName,
+			GroupID:     ctx.Event.GroupID,
+			UserID:      ctx.Event.UserID,
+			Flag:        ctx.Event.Flag,
+			Comment:     ctx.Event.Comment,
+		}
+		requestData.Store(ctx.Event.Flag, r)
+	})
 }
 
 // upgrade
@@ -449,6 +530,24 @@ func cors() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// Handle
+/**
+ * @Description: 提交一个请求
+ * @receiver r
+ * @param approve 是否通过
+ * @param reason 拒绝的理由
+ */
+func (r request) Handle(approve bool, reason string) {
+	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+		if r.RequestType == "friend" {
+			ctx.SetFriendAddRequest(r.Flag, approve, "")
+		} else {
+			ctx.SetGroupAddRequest(r.Flag, r.SubType, approve, reason)
+		}
+		return true
+	})
 }
 
 func (l logWriter) Write(p []byte) (n int, err error) {
