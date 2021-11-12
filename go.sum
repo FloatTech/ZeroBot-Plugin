@@ -7,6 +7,8 @@ github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4/go.mod h1:W7ag6hml1pZTNzRXKU74OMr
 github.com/FloatTech/ZeroBot-Plugin-Timer v1.4.3/go.mod h1:MVOQQ4e6AVGFm993blXXU4Sd6bAsLY2+Zb+/HMrEeEc=
 github.com/FloatTech/bot-manager v1.0.0 h1:d63J5htLhVBc2ITG09WBJI+qAB0ubPjYhfXl6hljBNk=
 github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
+github.com/FloatTech/bot-manager v1.0.1-0.20211112011524-85b9895271ed h1:GEOgDVbvaxXqZxgWE/y5JOlbMXrmq7n0M+m9g3md2To=
+github.com/FloatTech/bot-manager v1.0.1-0.20211112011524-85b9895271ed/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
 github.com/FloatTech/imgfactory v0.1.1 h1:ooL2+fV8yrMhv1ShGGKsN0Rm/flWoKnvqXaUD+dC3DQ=
 github.com/FloatTech/imgfactory v0.1.1/go.mod h1:ThDALab8aOuU6KVYESVWFqmjcqtm03e0SvGlTw6s+aw=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
