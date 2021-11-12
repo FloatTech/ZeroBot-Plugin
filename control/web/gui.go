@@ -54,6 +54,7 @@ type request struct {
 	GroupID     int64  `json:"group_id"`
 	UserID      int64  `json:"user_id"`
 	Flag        string `json:"flag"`
+	SelfID      int64  `json:"self_id"`
 }
 
 // InitGui 初始化gui
@@ -151,7 +152,8 @@ func handelRequest(context *gin.Context) {
 	if !ok {
 		context.JSON(404, "flag not found")
 	}
-	r.(request).Handle(data["approve"].(bool), data["reason"].(string))
+	r2 := r.(*request)
+	r2.handle(data["approve"].(bool), data["reason"].(string))
 	context.JSON(200, "操作成功")
 }
 
@@ -426,25 +428,27 @@ func messageHandle() {
 		}
 	})
 	// 直接注册一个request请求监听器，优先级设置为最高，设置不阻断事件传播
-	zero.OnRequest().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
-		typeName := ""
+	zero.OnRequest(func(ctx *zero.Ctx) bool {
 		if ctx.Event.RequestType == "friend" {
-			typeName = "好友添加"
+			ctx.State["type_name"] = "好友添加"
 		} else {
 			if ctx.Event.SubType == "add" {
-				typeName = "加群请求"
+				ctx.State["type_name"] = "加群请求"
 			} else {
-				typeName = "群邀请"
+				ctx.State["type_name"] = "群邀请"
 			}
 		}
-		r := request{
+		return true
+	}).SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
+		r := &request{
 			RequestType: ctx.Event.RequestType,
 			SubType:     ctx.Event.SubType,
-			Type:        typeName,
+			Type:        ctx.State["type_name"].(string),
 			GroupID:     ctx.Event.GroupID,
 			UserID:      ctx.Event.UserID,
 			Flag:        ctx.Event.Flag,
 			Comment:     ctx.Event.Comment,
+			SelfID:      ctx.Event.SelfID,
 		}
 		requestData.Store(ctx.Event.Flag, r)
 	})
@@ -532,22 +536,21 @@ func cors() gin.HandlerFunc {
 	}
 }
 
-// Handle
+// handle
 /**
  * @Description: 提交一个请求
  * @receiver r
  * @param approve 是否通过
  * @param reason 拒绝的理由
  */
-func (r request) Handle(approve bool, reason string) {
-	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-		if r.RequestType == "friend" {
-			ctx.SetFriendAddRequest(r.Flag, approve, "")
-		} else {
-			ctx.SetGroupAddRequest(r.Flag, r.SubType, approve, reason)
-		}
-		return true
-	})
+func (r *request) handle(approve bool, reason string) {
+	bot := zero.GetBot(r.SelfID)
+	if r.RequestType == "friend" {
+		bot.SetFriendAddRequest(r.Flag, approve, "")
+	} else {
+		bot.SetGroupAddRequest(r.Flag, r.SubType, approve, reason)
+	}
+	log.Debugln("[gui] ", "已处理", r.UserID, "的"+r.Type)
 }
 
 func (l logWriter) Write(p []byte) (n int, err error) {
