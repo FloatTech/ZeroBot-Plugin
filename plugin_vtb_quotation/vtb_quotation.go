@@ -17,29 +17,17 @@ import (
 )
 
 var (
-	db *gorm.DB
-
 	regStr = ".*/(.*)"
 )
 
-//第一品类
-type FirstCategory struct {
-	Id                 int    `gorm:"column:id"`
-	FirstCategoryIndex int    `gorm:"column:first_category_index"`
-	FirstCategoryName  string `gorm:"column:first_category_name"`
-	FirstCategoryUid   string `gorm:"column:first_category_uid"`
-}
-
-func (FirstCategory) TableName() string {
-	return "first_category"
-}
-
 //第二品类
 type SecondCategory struct {
-	Id                  int    `gorm:"column:id"`
-	SecondCategoryIndex int    `gorm:"column:second_category_index"`
-	FirstCategoryIndex  int    `gorm:"column:first_category_index"`
-	SecondCategoryName  string `gorm:"column:second_category_name"`
+	gorm.Model
+	SecondCategoryIndex       int64  `gorm:"column:second_category_index"`
+	FirstCategoryUid          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
+	SecondCategoryName        string `gorm:"column:second_category_name"`
+	SecondCategoryAuthor      string `gorm:"column:second_category_author"`
+	SecondCategoryDescription string `gorm:"column:second_category_description"`
 }
 
 func (SecondCategory) TableName() string {
@@ -48,18 +36,33 @@ func (SecondCategory) TableName() string {
 
 //第三品类
 type ThirdCategory struct {
-	Id                  int    `gorm:"column:id"`
-	ThirdCategoryIndex  int    `gorm:"column:third_category_index"`
-	SecondCategoryIndex int    `gorm:"column:second_category_index"`
-	FirstCategoryIndex  int    `gorm:"column:first_category_index"`
-	ThirdCategoryName   string `gorm:"column:third_category_name"`
-	ThirdCategoryUrl    string `gorm:"column:third_category_url"`
+	gorm.Model
+	ThirdCategoryIndex       int64  `gorm:"column:third_category_index"`
+	SecondCategoryIndex      int64  `gorm:"column:second_category_index"`
+	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	ThirdCategoryName        string `gorm:"column:third_category_name"`
+	ThirdCategoryPath        string `gorm:"column:third_category_path"`
+	ThirdCategoryAuthor      string `gorm:"column:third_category_author"`
+	ThirdCategoryDescription string `gorm:"column:third_category_description"`
 }
 
 func (ThirdCategory) TableName() string {
 	return "third_category"
 }
 
+//第一品类
+type FirstCategory struct {
+	gorm.Model
+	FirstCategoryIndex       int64  `gorm:"column:first_category_index"`
+	FirstCategoryName        string `gorm:"column:first_category_name"`
+	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	FirstCategoryDescription string `gorm:"column:first_category_description;type:varchar(1024)"`
+	FirstCategoryIconPath    string `gorm:"column:first_category_icon_path"`
+}
+
+func (FirstCategory) TableName() string {
+	return "first_category"
+}
 func init() {
 	engine := control.Register("vtbquotation", &control.Options{
 		DisableOnDefault: false,
@@ -144,7 +147,7 @@ func init() {
 						} else {
 							tc := getThirdCategory(db, firstIndex, secondIndex, thirdIndex)
 							reg := regexp.MustCompile(regStr)
-							recordUrl := tc.ThirdCategoryUrl
+							recordUrl := tc.ThirdCategoryPath
 							if recordUrl == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
 								ctx.SendChain(message.Reply(e.MessageID), message.Text(getAllFirstCategoryMessage(db)))
@@ -181,10 +184,10 @@ func init() {
 			}
 			defer db.Close()
 			tc := randomVtb(db)
-			fc := getFirstCategoryByFirstIndex(db, tc.FirstCategoryIndex)
+			fc := getFirstCategoryByFirstUid(db, tc.FirstCategoryUid)
 			if (tc != ThirdCategory{}) && (fc != FirstCategory{}) {
 				reg := regexp.MustCompile(regStr)
-				recordUrl := tc.ThirdCategoryUrl
+				recordUrl := tc.ThirdCategoryPath
 				if reg.MatchString(recordUrl) {
 					log.Println(reg.FindStringSubmatch(recordUrl)[1])
 					log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
@@ -213,7 +216,7 @@ func getAllFirstCategoryMessage(db *gorm.DB) string {
 	for rows.Next() {
 		db.ScanRows(rows, &fc)
 		log.Println(fc)
-		firstStepMessage = firstStepMessage + strconv.Itoa(fc.FirstCategoryIndex) + ". " + fc.FirstCategoryName + "\n"
+		firstStepMessage = firstStepMessage + strconv.FormatInt(fc.FirstCategoryIndex, 10) + ". " + fc.FirstCategoryName + "\n"
 	}
 	return firstStepMessage
 }
@@ -223,11 +226,13 @@ func getAllSecondCategoryMessageByFirstIndex(db *gorm.DB, firstIndex int) string
 	SecondStepMessage := "请选择一个语录类别并发送序号:\n"
 	var sc SecondCategory
 	var count int
-	db.Model(&SecondCategory{}).Where("first_category_index = ?", firstIndex).Count(&count)
+	var fc FirstCategory
+	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
+	db.Model(&SecondCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).Count(&count)
 	if count == 0 {
 		return ""
 	}
-	rows, err := db.Model(&SecondCategory{}).Where("first_category_index = ?", firstIndex).Rows()
+	rows, err := db.Model(&SecondCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).Rows()
 	if err != nil {
 		log.Println("数据库读取错误", err)
 	}
@@ -235,7 +240,7 @@ func getAllSecondCategoryMessageByFirstIndex(db *gorm.DB, firstIndex int) string
 	for rows.Next() {
 		db.ScanRows(rows, &sc)
 		log.Println(sc)
-		SecondStepMessage = SecondStepMessage + strconv.Itoa(sc.SecondCategoryIndex) + ". " + sc.SecondCategoryName + "\n"
+		SecondStepMessage = SecondStepMessage + strconv.FormatInt(sc.SecondCategoryIndex, 10) + ". " + sc.SecondCategoryName + "\n"
 	}
 	return SecondStepMessage
 }
@@ -243,26 +248,30 @@ func getAllSecondCategoryMessageByFirstIndex(db *gorm.DB, firstIndex int) string
 //取得同一个vtb同个类别的所有语录
 func getAllThirdCategoryMessageByFirstIndexAndSecondIndex(db *gorm.DB, firstIndex, secondIndex int) string {
 	ThirdStepMessage := "请选择一个语录并发送序号:\n"
+	var fc FirstCategory
+	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var count int
-	db.Model(&ThirdCategory{}).Where("first_category_index = ? and second_category_index = ?", firstIndex, secondIndex).Count(&count)
+	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUid, secondIndex).Count(&count)
 	if count == 0 {
 		return ""
 	}
 	var tc ThirdCategory
-	rows, err := db.Model(&ThirdCategory{}).Where("first_category_index = ? and second_category_index = ?", firstIndex, secondIndex).Rows()
+	rows, err := db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUid, secondIndex).Rows()
 	if err != nil {
 		log.Println("数据库读取错误", err)
 	}
 	for rows.Next() {
 		db.ScanRows(rows, &tc)
 		log.Println(tc)
-		ThirdStepMessage = ThirdStepMessage + strconv.Itoa(tc.ThirdCategoryIndex) + ". " + tc.ThirdCategoryName + "\n"
+		ThirdStepMessage = ThirdStepMessage + strconv.FormatInt(tc.ThirdCategoryIndex, 10) + ". " + tc.ThirdCategoryName + "\n"
 	}
 	return ThirdStepMessage
 }
 func getThirdCategory(db *gorm.DB, firstIndex, secondIndex, thirdIndex int) ThirdCategory {
+	var fc FirstCategory
+	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var tc ThirdCategory
-	db.Model(&ThirdCategory{}).Where("first_category_index = ? and second_category_index = ? and third_category_index = ?", firstIndex, secondIndex, thirdIndex).Take(&tc)
+	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?", fc.FirstCategoryUid, secondIndex, thirdIndex).Take(&tc)
 	return tc
 }
 
@@ -277,9 +286,9 @@ func randomVtb(db *gorm.DB) ThirdCategory {
 	return tc
 }
 
-func getFirstCategoryByFirstIndex(db *gorm.DB, firstIndex int) FirstCategory {
+func getFirstCategoryByFirstUid(db *gorm.DB, firstUid string) FirstCategory {
 	var fc FirstCategory
-	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).Take(&fc)
+	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUid).Take(&fc)
 	log.Info(fc)
 	return fc
 }
