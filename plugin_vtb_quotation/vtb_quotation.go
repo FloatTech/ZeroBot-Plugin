@@ -6,7 +6,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/cron"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/logoove/sqlite"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -23,7 +23,6 @@ var (
 )
 
 func init() {
-	cron.VtbDaily()
 	engine := control.Register("vtbquotation", &control.Options{
 		DisableOnDefault: false,
 		Help: "vtb语录\n" +

@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/logoove/sqlite"
 	log "github.com/sirupsen/logrus"
 
 	"math/rand"

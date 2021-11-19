@@ -11,7 +11,7 @@ import (
 func VtbDaily() {
 	log.Println("创建vtb数据库定时任务")
 	c := cron.New()
-	if err := c.AddFunc("0 0 2 * * ?", func() { VtbData() }); err != nil {
+	if err := c.AddFunc("0 0 4 * * ?", func() { VtbData() }); err != nil {
 		log.Println("定时任务有错误:", err)
 	} else {
 		log.Println("开启vtb数据库定时任务")
