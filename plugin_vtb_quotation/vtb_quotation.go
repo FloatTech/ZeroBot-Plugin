@@ -17,8 +17,7 @@ import (
 )
 
 var (
-	regStr   = ".*/(.*)"
-	AtriRule = true
+	regStr = ".*/(.*)"
 )
 
 var engine = control.Register("vtbquotation", &control.Options{
@@ -159,8 +158,4 @@ func init() {
 			}
 
 		})
-}
-
-func atriRule(ctx *zero.Ctx) bool {
-	return AtriRule
 }

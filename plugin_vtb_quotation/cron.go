@@ -9,6 +9,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
+var (
+	AtriRule = true
+)
+
 func init() {
 	engine.OnMessage(atriRule).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		log.Println("定时任务只创建一次")
@@ -38,4 +42,8 @@ func vtbData() {
 		secondVtb.DealVtbStr(vtbStr, v)
 	}
 	model.Db.Close()
+}
+
+func atriRule(ctx *zero.Ctx) bool {
+	return AtriRule
 }
