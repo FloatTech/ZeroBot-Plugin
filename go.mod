@@ -13,8 +13,9 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/guohuiyuan/gorm v1.9.18
+	github.com/jinzhu/gorm v1.9.16
 	github.com/mroth/weightedrand v0.4.1
+	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.10+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
