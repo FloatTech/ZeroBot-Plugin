@@ -12,12 +12,12 @@ import (
 )
 
 var (
-	Db *gorm.DB
+	Db   *gorm.DB
+	Path = "data/VtbQuotation/vtb.db"
 )
 
 func Init() {
 	var err error
-	Path := "data/VtbQuotation/vtb.db"
 	if _, err = os.Stat(Path); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(Path)

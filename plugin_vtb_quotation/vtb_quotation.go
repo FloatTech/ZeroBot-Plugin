@@ -3,7 +3,6 @@ package plugin_vtb_quotation
 import (
 	"fmt"
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/cron"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite"
@@ -22,18 +21,13 @@ var (
 	AtriRule = true
 )
 
+var engine = control.Register("vtbquotation", &control.Options{
+	DisableOnDefault: false,
+	Help: "vtb语录\n" +
+		"随机vtb\n",
+})
+
 func init() {
-	engine := control.Register("vtbquotation", &control.Options{
-		DisableOnDefault: false,
-		Help: "vtb语录\n" +
-			"随机vtb\n",
-	})
-	engine.OnMessage(atriRule).SetBlock(false).Handle(func(ctx *zero.Ctx) {
-		log.Println("定时任务只创建一次")
-		AtriRule = false
-		log.Println("开启vtb数据库日常更新")
-		cron.VtbDaily()
-	})
 	engine.OnFullMatch("vtb语录").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var firstIndex int

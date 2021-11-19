@@ -12,8 +12,9 @@ import (
 	"strings"
 )
 
+var vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
+
 func GetVtbListStr() string {
-	vtbUrl := "https://vtbkeyboard.moe/api/get_vtb_list"
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", vtbUrl, nil)
 	if err != nil {
