@@ -3,8 +3,8 @@ package plugin_vtb_quotation
 import (
 	"fmt"
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/guohuiyuan/gorm"
+	_ "github.com/guohuiyuan/gorm/dialects/sqlite"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -20,49 +20,6 @@ var (
 	regStr = ".*/(.*)"
 )
 
-//第二品类
-type SecondCategory struct {
-	gorm.Model
-	SecondCategoryIndex       int64  `gorm:"column:second_category_index"`
-	FirstCategoryUid          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
-	SecondCategoryName        string `gorm:"column:second_category_name"`
-	SecondCategoryAuthor      string `gorm:"column:second_category_author"`
-	SecondCategoryDescription string `gorm:"column:second_category_description"`
-}
-
-func (SecondCategory) TableName() string {
-	return "second_category"
-}
-
-//第三品类
-type ThirdCategory struct {
-	gorm.Model
-	ThirdCategoryIndex       int64  `gorm:"column:third_category_index"`
-	SecondCategoryIndex      int64  `gorm:"column:second_category_index"`
-	FirstCategoryUid         string `gorm:"column:first_category_uid"`
-	ThirdCategoryName        string `gorm:"column:third_category_name"`
-	ThirdCategoryPath        string `gorm:"column:third_category_path"`
-	ThirdCategoryAuthor      string `gorm:"column:third_category_author"`
-	ThirdCategoryDescription string `gorm:"column:third_category_description"`
-}
-
-func (ThirdCategory) TableName() string {
-	return "third_category"
-}
-
-//第一品类
-type FirstCategory struct {
-	gorm.Model
-	FirstCategoryIndex       int64  `gorm:"column:first_category_index"`
-	FirstCategoryName        string `gorm:"column:first_category_name"`
-	FirstCategoryUid         string `gorm:"column:first_category_uid"`
-	FirstCategoryDescription string `gorm:"column:first_category_description;type:varchar(1024)"`
-	FirstCategoryIconPath    string `gorm:"column:first_category_icon_path"`
-}
-
-func (FirstCategory) TableName() string {
-	return "first_category"
-}
 func init() {
 	engine := control.Register("vtbquotation", &control.Options{
 		DisableOnDefault: false,
@@ -200,6 +157,50 @@ func init() {
 			}
 
 		})
+}
+
+//第一品类
+type FirstCategory struct {
+	gorm.Model
+	FirstCategoryIndex       int64  `gorm:"column:first_category_index"`
+	FirstCategoryName        string `gorm:"column:first_category_name"`
+	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	FirstCategoryDescription string `gorm:"column:first_category_description;type:varchar(1024)"`
+	FirstCategoryIconPath    string `gorm:"column:first_category_icon_path"`
+}
+
+func (FirstCategory) TableName() string {
+	return "first_category"
+}
+
+//第二品类
+type SecondCategory struct {
+	gorm.Model
+	SecondCategoryIndex       int64  `gorm:"column:second_category_index"`
+	FirstCategoryUid          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
+	SecondCategoryName        string `gorm:"column:second_category_name"`
+	SecondCategoryAuthor      string `gorm:"column:second_category_author"`
+	SecondCategoryDescription string `gorm:"column:second_category_description"`
+}
+
+func (SecondCategory) TableName() string {
+	return "second_category"
+}
+
+//第三品类
+type ThirdCategory struct {
+	gorm.Model
+	ThirdCategoryIndex       int64  `gorm:"column:third_category_index"`
+	SecondCategoryIndex      int64  `gorm:"column:second_category_index"`
+	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	ThirdCategoryName        string `gorm:"column:third_category_name"`
+	ThirdCategoryPath        string `gorm:"column:third_category_path"`
+	ThirdCategoryAuthor      string `gorm:"column:third_category_author"`
+	ThirdCategoryDescription string `gorm:"column:third_category_description"`
+}
+
+func (ThirdCategory) TableName() string {
+	return "third_category"
 }
 
 //取出所有vtb
