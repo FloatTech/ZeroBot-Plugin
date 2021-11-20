@@ -1,15 +1,17 @@
 package firstVtb
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/utils"
-	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/utils"
 )
 
 var vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
@@ -70,7 +72,6 @@ func DealVtbListStr(vtbListStr string) []string {
 				})
 		}
 		uidList = append(uidList, fc.FirstCategoryUid)
-
 	}
 
 	log.Println(uidList)

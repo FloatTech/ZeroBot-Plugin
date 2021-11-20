@@ -2,18 +2,20 @@ package plugin_vtb_quotation
 
 import (
 	"fmt"
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
-	"github.com/jinzhu/gorm"
-	_ "github.com/logoove/sqlite"
-	log "github.com/sirupsen/logrus"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/logoove/sqlite"
+	log "github.com/sirupsen/logrus"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
 var (
@@ -73,7 +75,6 @@ func init() {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text(SecondStepMessage))
 								step++
 							}
-
 						}
 					} else if step == 2 {
 						secondIndex, err = strconv.Atoi(e.RawMessage)
@@ -93,7 +94,6 @@ func init() {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text(ThirdStepMessage))
 								step++
 							}
-
 						}
 					} else if step == 3 {
 						thirdIndex, err = strconv.Atoi(e.RawMessage)
@@ -124,7 +124,6 @@ func init() {
 								cancel()
 								return
 							}
-
 						}
 					}
 				case <-time.After(time.Second * 60):
@@ -156,6 +155,5 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
 				ctx.SendChain(message.Record(recordUrl))
 			}
-
 		})
 }

@@ -1,12 +1,13 @@
 package plugin_vtb_quotation
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/firstVtb"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/secondVtb"
 	"github.com/fumiama/cron"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/firstVtb"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/secondVtb"
 )
 
 var (

@@ -1,15 +1,17 @@
 package secondVtb
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/utils"
-	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/utils"
 )
 
 func GetVtbStr(uid string) string {
@@ -38,7 +40,6 @@ func GetVtbStr(uid string) string {
 	}
 	log.Println(vtbListStr)
 	return vtbListStr
-
 }
 
 func DealVtbStr(vtbStr, uid string) {
@@ -104,5 +105,4 @@ func DealVtbStr(vtbStr, uid string) {
 			}
 		}
 	}
-
 }
