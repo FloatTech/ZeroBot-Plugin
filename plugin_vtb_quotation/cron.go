@@ -4,7 +4,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/firstVtb"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/secondVtb"
-	"github.com/robfig/cron"
+	"github.com/fumiama/cron"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
@@ -25,7 +25,8 @@ func init() {
 func vtbDaily() {
 	log.Println("创建vtb数据库定时任务")
 	c := cron.New()
-	if err := c.AddFunc("0 0 4 * * ?", func() { vtbData() }); err != nil {
+	_, err := c.AddFunc("37 11 * * *", func() { vtbData() })
+	if err != nil {
 		log.Println("定时任务有错误:", err)
 	} else {
 		log.Println("开启vtb数据库定时任务")

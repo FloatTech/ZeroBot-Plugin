@@ -13,20 +13,20 @@ import (
 
 var (
 	Db   *gorm.DB
-	Path = "data/VtbQuotation/vtb.db"
+	path = "data/VtbQuotation/vtb.db"
 )
 
 func Init() {
 	var err error
-	if _, err = os.Stat(Path); err != nil || os.IsNotExist(err) {
+	if _, err = os.Stat(path); err != nil || os.IsNotExist(err) {
 		// 生成文件
-		f, err := os.Create(Path)
+		f, err := os.Create(path)
 		if err != nil {
 			return
 		}
 		defer f.Close()
 	}
-	Db, err = gorm.Open("sqlite3", Path)
+	Db, err = gorm.Open("sqlite3", path)
 	if err != nil {
 		panic("failed to connect database")
 	}
