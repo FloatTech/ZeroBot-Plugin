@@ -9,6 +9,7 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.2.1
+	github.com/fumiama/gofastTEA v0.0.3
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/gin-gonic/gin v1.7.5
 	github.com/golang/protobuf v1.5.2
