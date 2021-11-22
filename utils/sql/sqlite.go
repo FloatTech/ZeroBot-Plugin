@@ -20,7 +20,7 @@ type Sqlite struct {
 // 返回错误
 func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
 	if db.DB == nil {
-		database, err := sql.Open("sqlite", db.DBPath)
+		database, err := sql.Open("sqlite3", db.DBPath)
 		if err != nil {
 			return err
 		}

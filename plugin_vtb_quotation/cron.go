@@ -5,11 +5,15 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 func init() {
-	log.Println("[vtb/cron] 开启vtb数据库日常更新")
-	vtbDaily()
+	go func() {
+		process.SleepAbout1sTo2s()
+		log.Println("[vtb/cron] 开启vtb数据库日常更新")
+		vtbDaily()
+	}()
 }
 
 func vtbDaily() {
