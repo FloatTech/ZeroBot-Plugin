@@ -17,7 +17,8 @@ import (
 )
 
 const regStr = ".*/(.*)"
-const dbpath = "data/VtbQuotation/vtb.db"
+const dbpath = "data/VtbQuotation/"
+const dbfile = dbpath + "vtb.db"
 
 var engine = control.Register("vtbquotation", &control.Options{
 	DisableOnDefault: false,
@@ -33,7 +34,7 @@ func init() {
 			echo, cancel := ctx.FutureEvent("message",
 				ctx.CheckSession()). // 只复读开启复读模式的人的消息
 				Repeat()             // 不断监听复读
-			db, err := model.Open(dbpath)
+			db, err := model.Open(dbfile)
 			if err != nil {
 				logrus.Errorln(err)
 				return
@@ -133,7 +134,7 @@ func init() {
 		})
 	engine.OnFullMatch("随机vtb").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			db, err := model.Open(dbpath)
+			db, err := model.Open(dbfile)
 			if err != nil {
 				logrus.Errorln(err)
 				return

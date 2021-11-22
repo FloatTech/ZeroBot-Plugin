@@ -9,12 +9,13 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
-const pburl = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/" + dbpath
+const pburl = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/" + dbfile
 
 // 加载数据库
 func init() {
-	if !file.IsExist(dbpath) { // 如果没有数据库，则从 url 下载
-		f, err := os.Create(dbpath)
+	_ = os.MkdirAll(dbpath, 0755)
+	if !file.IsExist(dbfile) { // 如果没有数据库，则从 url 下载
+		f, err := os.Create(dbfile)
 		if err != nil {
 			panic(err)
 		}
