@@ -41,6 +41,10 @@ github.com/fumiama/go-base16384 v1.2.1 h1:6OGprW8g/95m2ocmryHi8mipZ7bx9StFMZDKEq
 github.com/fumiama/go-base16384 v1.2.1/go.mod h1:1HTC0QFL7BjS0DuO5Qm+fBYKQkHqmAapLbRpCxrhPXQ=
 github.com/fumiama/gofastTEA v0.0.3 h1:JKcNktWArLkJe88Y+zGmsQGhqlh8IzYqUnWy2ipylh0=
 github.com/fumiama/gofastTEA v0.0.3/go.mod h1:+sBZ05nCA2skZkursHNvyr8kULlEetrYTM2y5kA4rQc=
+github.com/fumiama/gofastTEA v0.0.4 h1:SOWEIXBkFekhaxZoLEFk/L3rOh2X1G5PeM2TLAZycaQ=
+github.com/fumiama/gofastTEA v0.0.4/go.mod h1:+sBZ05nCA2skZkursHNvyr8kULlEetrYTM2y5kA4rQc=
+github.com/fumiama/gofastTEA v0.0.5 h1:Pd/2eSfLl2V0CqZL8pnu1CIU8Fy4HYpLutpliXU70Ds=
+github.com/fumiama/gofastTEA v0.0.5/go.mod h1:+sBZ05nCA2skZkursHNvyr8kULlEetrYTM2y5kA4rQc=
 github.com/fumiama/gotracemoe v0.0.3 h1:iI5EbE9A3UUbfukG6+/soYPjp1S31eCNYf4tw7s6/Jc=
 github.com/fumiama/gotracemoe v0.0.3/go.mod h1:tyqahdUzHf0bQIAVY/GYmDWvYYe5ik1ZbhnGYh+zl40=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
