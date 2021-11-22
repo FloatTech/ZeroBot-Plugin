@@ -32,6 +32,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"   // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"        // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft" // MCSManager
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"      // 摸鱼
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"     // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"   // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"    // 投胎
