@@ -10,7 +10,7 @@ require (
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.2.1
 	github.com/fumiama/gotracemoe v0.0.3
-	github.com/gin-gonic/gin v1.7.4
+	github.com/gin-gonic/gin v1.7.5
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/jinzhu/gorm v1.9.16
@@ -21,5 +21,4 @@ require (
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.11.0
 	github.com/wdvxdr1123/ZeroBot v1.4.1
-	modernc.org/sqlite v1.13.3
 )
