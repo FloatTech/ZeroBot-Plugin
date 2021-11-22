@@ -20,13 +20,13 @@
 
 ## 命令行参数
 ```bash
-zerobot -h -t token -u url [-d|w] [-g] qq1 qq2 qq3 ...
+zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 ```
 - **-h**: 显示帮助
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
-- **-g**: 开启 [webgui](https://github.com/FloatTech/bot-manager)
+- **-g 监听地址:端口**: 在 http://监听地址:端口 上开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
 
 ## 功能

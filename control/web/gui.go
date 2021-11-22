@@ -58,12 +58,12 @@ type request struct {
 }
 
 // InitGui 初始化gui
-func InitGui() {
+func InitGui(addr string) {
 	// 将日志重定向到前端hook
 	writer := io.MultiWriter(l, os.Stderr)
 	log.SetOutput(writer)
 	// 监听后端
-	go controller()
+	go controller(addr)
 	// 注册消息handle
 	messageHandle()
 }
@@ -75,7 +75,7 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-func controller() {
+func controller(addr string) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -129,9 +129,9 @@ func controller() {
 	// 发送信息
 	engine.POST("/send_msg", sendMsg)
 	engine.GET("/data", upgrade)
-	log.Infoln("[gui] the webui is running http://127.0.0.1:3000")
+	log.Infoln("[gui] the webui is running on", addr)
 	log.Infoln("[gui] ", "you input the `ZeroBot-Plugin.exe -g` can disable the gui")
-	if err := engine.Run("127.0.0.1:3000"); err != nil {
+	if err := engine.Run(addr); err != nil {
 		log.Debugln("[gui] ", err.Error())
 	}
 }
