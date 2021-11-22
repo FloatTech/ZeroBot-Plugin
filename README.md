@@ -114,6 +114,9 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 解密xxx
     - [x] 用yyy加密xxx
     - [x] 用yyy解密xxx
+- **摸鱼** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"`
+    - [x] 添加摸鱼提醒
+    - [x] 删除摸鱼提醒
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
