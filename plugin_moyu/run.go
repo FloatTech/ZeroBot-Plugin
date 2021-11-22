@@ -1,4 +1,3 @@
-// Package acgimage 随机图片与AI点评
 package moyu
 
 import (
@@ -16,8 +15,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var Group = []int64{639865824}
-
 //开启的群
 type Kq struct {
 	GroupID []int64 `json:"群号"` //群号
@@ -25,7 +22,7 @@ type Kq struct {
 
 //默认
 var MY = Kq{
-	GroupID: []int64{111},
+	GroupID: []int64{639865824},
 }
 
 func init() { // 插件主体
@@ -36,8 +33,6 @@ func init() { // 插件主体
 			"- 删除提醒\n" +
 			"- 添加提醒\n",
 	})
-
-	//登录配置
 	os.MkdirAll("config/", 0777)
 	_, err := os.Stat(`config/moyu.json`)
 	if err == nil {
@@ -83,7 +78,7 @@ func init() { // 插件主体
 
 }
 
-// 定时任务每天晚上最后2分钟执行一次
+// 定时任务
 func FansDaily() {
 	c := cron.New()
 	_ = c.AddFunc("0 0 10 * * ?", func() { fansData() })
@@ -117,7 +112,7 @@ func fansData() {
 	}
 }
 
-// 获取两个时间相差的天数，0表同一天，正数表t1>t2，负数表t1<t2
+// 获取两个时间相差的天数
 func Moyu(text string, year int, month time.Month, day int) string {
 	currentTime := time.Now()
 	t1 := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
