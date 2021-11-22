@@ -29,6 +29,14 @@ var MY = Kq{
 }
 
 func init() { // 插件主体
+	FansDaily() // 摸鱼提醒
+	engine := control.Register("moyu", &control.Options{
+		DisableOnDefault: false,
+		Help: "moyu摸鱼提醒\n" +
+			"- 删除提醒\n" +
+			"- 添加提醒\n",
+	})
+
 	//登录配置
 	os.MkdirAll("config/", 0777)
 	_, err := os.Stat(`config/moyu.json`)
@@ -50,15 +58,6 @@ func init() { // 插件主体
 		out.WriteTo(fp)
 		time.Sleep(5 * time.Second)
 	}
-
-	FansDaily() // 开启提醒
-	engine := control.Register("moyu", &control.Options{
-		DisableOnDefault: false,
-		Help: "moyu\n" +
-			"- 删除提醒\n" +
-			"- 添加提醒\n",
-	})
-
 	engine.OnRegex(`^(添加|删除)提醒$`).
 		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
 		fp, _ := os.Create("config/moyu.json")
