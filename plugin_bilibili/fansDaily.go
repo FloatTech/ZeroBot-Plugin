@@ -32,7 +32,7 @@ func init() {
 // 定时任务每天晚上最后2分钟执行一次
 func fansDaily(groupID int64) {
 	c := cron.New()
-	_, err := c.AddFunc("0 58 23 * * ?", func() { fansData(groupID) })
+	_, err := c.AddFunc("58 23 * * *", func() { fansData(groupID) })
 	if err == nil {
 		c.Start()
 	}

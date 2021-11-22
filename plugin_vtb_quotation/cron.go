@@ -26,7 +26,7 @@ func init() {
 func vtbDaily() {
 	log.Println("创建vtb数据库定时任务")
 	c := cron.New()
-	_, err := c.AddFunc("37 11 * * *", func() { vtbData() })
+	_, err := c.AddFunc("0 4 * * *", func() { vtbData() })
 	if err != nil {
 		log.Println("定时任务有错误:", err)
 	} else {
