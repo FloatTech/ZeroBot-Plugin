@@ -31,7 +31,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text(s))
 		})
-	en.OnRegex(`^查询鬼东西(\d*)`).SetBlock(false).SetPriority(30).
+	en.OnRegex(`^查询鬼东西(\d*)`).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
@@ -50,13 +50,18 @@ func init() {
 			}
 			// 获取名字
 			var name string
+			var secondname string
 			if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
 				qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
-				name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
-			} else {
-				name = ctx.Event.Sender.NickName
+				secondname = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
 			}
-			text, err := w.Predict(name)
+			name = ctx.Event.Sender.NickName
+			var text string
+			if secondname != "" {
+				text, err = w.Predict(name, secondname)
+			} else {
+				text, err = w.Predict(name)
+			}
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
