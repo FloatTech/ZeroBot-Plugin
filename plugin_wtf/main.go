@@ -20,26 +20,30 @@ var (
 func init() {
 	en := control.Register("wtf", &control.Options{
 		DisableOnDefault: false,
-		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西xxx(@xxx)",
+		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",
 	})
 	en.OnFullMatch("鬼东西列表").SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
 			s := ""
-			i := 0
-			for k := range pathtable {
-				s += fmt.Sprintf("%02d. %s\n", i, k)
+			for i, w := range table {
+				s += fmt.Sprintf("%02d. %s\n", i, w.name)
 				i++
 			}
 			ctx.SendChain(message.Text(s))
 		})
-	en.OnRegex(`^查询鬼东西(.*)$`).SetBlock(false).SetPriority(30).
+	en.OnRegex(`^查询鬼东西(\d*)`).SetBlock(false).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
 				return
 			}
 			// 调用接口
-			w := NewWtf(ctx.State["regex_matched"].([]string)[1])
+			i, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			w := NewWtf(i)
 			if w == nil {
 				ctx.SendChain(message.Text("没有这项内容！"))
 				return
@@ -55,6 +59,7 @@ func init() {
 			text, err := w.Predict(name)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
 			// TODO: 可注入
 			ctx.Send(text)

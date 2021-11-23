@@ -151,7 +151,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] [回复]查重
 - **鬼东西** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"`
     - [x] 鬼东西列表
-    - [x] 查询鬼东西xxx(@xxx)
+    - [x] 查询鬼东西[序号][@xxx]
 - **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度 [身体检查]
     - [x] 清理缓存
