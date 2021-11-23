@@ -2,6 +2,7 @@ package moyu
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -20,7 +21,7 @@ func NewHoliday(name string, dur, year int, month time.Month, day int) *holiday 
 func (h *holiday) String() string {
 	d := time.Until(h.date)
 	if d >= 0 {
-		return "距离" + h.name + "还有: " + d.String()
+		return "距离" + h.name + "还有: " + strconv.FormatFloat(d.Hours()/24.0, 'f', 2, 64) + "天！"
 	} else if d+h.dur >= 0 {
 		return "好好享受 " + h.name + " 假期吧!"
 	} else {
