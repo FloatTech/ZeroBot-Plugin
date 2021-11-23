@@ -37,6 +37,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"   // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"    // 投胎
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"   // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"       // 鬼东西
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
