@@ -69,9 +69,9 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			soutujson := soutuapi(keyword)
-			pom1 := "https://i.pixiv.cat"
+			pom1 := "https://i.pixiv.re"
 			rannum := randintn(len(soutujson.Illusts))
-			pom2 := soutujson.Illusts[rannum].ImageUrls.Large[19:]
+			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
 			ctx.SendChain(message.Image(pom1 + pom2))
 		})
 }
