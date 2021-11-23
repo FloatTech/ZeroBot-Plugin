@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite"
@@ -18,7 +17,7 @@ import (
 
 type VtbDB gorm.DB
 
-func Init(dbpath string) *VtbDB {
+func Initialize(dbpath string) *VtbDB {
 	var err error
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
@@ -33,7 +32,7 @@ func Init(dbpath string) *VtbDB {
 		panic(err)
 	}
 	gdb.AutoMigrate(FirstCategory{}).AutoMigrate(SecondCategory{}).AutoMigrate(ThirdCategory{})
-	return (*VtbDB)(unsafe.Pointer(gdb))
+	return (*VtbDB)(gdb)
 }
 
 func Open(dbpath string) (*VtbDB, error) {
@@ -41,7 +40,7 @@ func Open(dbpath string) (*VtbDB, error) {
 	if err != nil {
 		return nil, err
 	} else {
-		return (*VtbDB)(unsafe.Pointer(db)), nil
+		return (*VtbDB)(db), nil
 	}
 }
 
@@ -91,7 +90,7 @@ func (ThirdCategory) TableName() string {
 
 // GetAllFirstCategoryMessage 取出所有vtb
 func (vdb *VtbDB) GetAllFirstCategoryMessage() string {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	firstStepMessage := "请选择一个vtb并发送序号:\n"
 	var fc FirstCategory
 	rows, err := db.Model(&FirstCategory{}).Rows()
@@ -111,7 +110,7 @@ func (vdb *VtbDB) GetAllFirstCategoryMessage() string {
 
 // GetAllSecondCategoryMessageByFirstIndex 取得同一个vtb所有语录类别
 func (vdb *VtbDB) GetAllSecondCategoryMessageByFirstIndex(firstIndex int) string {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	SecondStepMessage := "请选择一个语录类别并发送序号:\n"
 	var sc SecondCategory
 	var count int
@@ -136,7 +135,7 @@ func (vdb *VtbDB) GetAllSecondCategoryMessageByFirstIndex(firstIndex int) string
 
 // GetAllThirdCategoryMessageByFirstIndexAndSecondIndex 取得同一个vtb同个类别的所有语录
 func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex int) string {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	ThirdStepMessage := "请选择一个语录并发送序号:\n"
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
@@ -160,7 +159,7 @@ func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstInde
 
 // GetThirdCategory
 func (vdb *VtbDB) GetThirdCategory(firstIndex, secondIndex, thirdIndex int) ThirdCategory {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var tc ThirdCategory
@@ -169,7 +168,7 @@ func (vdb *VtbDB) GetThirdCategory(firstIndex, secondIndex, thirdIndex int) Thir
 }
 
 func (vdb *VtbDB) RandomVtb() ThirdCategory {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	rand.Seed(time.Now().UnixNano())
 	var count int
 	db.Model(&ThirdCategory{}).Count(&count)
@@ -181,7 +180,7 @@ func (vdb *VtbDB) RandomVtb() ThirdCategory {
 }
 
 func (vdb *VtbDB) GetFirstCategoryByFirstUid(firstUid string) FirstCategory {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUid).Take(&fc)
 	// logrus.Info(fc)
@@ -189,14 +188,14 @@ func (vdb *VtbDB) GetFirstCategoryByFirstUid(firstUid string) FirstCategory {
 }
 
 func (vdb *VtbDB) Close() error {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	return db.Close()
 }
 
 const vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
 
 func (vdb *VtbDB) GetVtbList() []string {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", vtbUrl, nil)
 	if err != nil {
@@ -256,7 +255,7 @@ func (vdb *VtbDB) GetVtbList() []string {
 }
 
 func (vdb *VtbDB) StoreVtb(uid string) {
-	db := (*gorm.DB)(unsafe.Pointer(vdb))
+	db := (*gorm.DB)(vdb)
 	vtbUrl := "https://vtbkeyboard.moe/api/get_vtb_page?uid=" + uid
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", vtbUrl, nil)

@@ -28,7 +28,7 @@ func vtbDaily() {
 }
 
 func vtbData() {
-	db := model.Init(dbfile)
+	db := model.Initialize(dbfile)
 	if db != nil {
 		for _, v := range db.GetVtbList() {
 			db.StoreVtb(v)
