@@ -45,11 +45,11 @@ func init() {
 				return
 			}
 			// 获取名字
-			name := ctx.State["args"].(string)
+			var name string
 			if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
 				qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
 				name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
-			} else if name == "" {
+			} else {
 				name = ctx.Event.Sender.NickName
 			}
 			text, err := w.Predict(name)
