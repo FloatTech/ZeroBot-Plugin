@@ -13,7 +13,7 @@ import (
 func init() { // 插件主体
 	// 定时任务每天10点执行一次
 	c := cron.New()
-	_, err := c.AddFunc("0 0 10 * * ?", func() { sendNotice() })
+	_, err := c.AddFunc("0 10 * * *", func() { sendNotice() })
 	if err != nil {
 		c.Start()
 	}
