@@ -133,17 +133,14 @@ func (db *Sqlite) Find(table string, objptr interface{}, condition string) error
 	if !rows.Next() {
 		return errors.New("sql.Find: null result")
 	}
-
+	err = rows.Scan(addrs(objptr)...)
 	for rows.Next() {
 		if err != nil {
 			return err
 		}
 		err = rows.Scan(addrs(objptr)...)
-		if err != nil {
-			return err
-		}
 	}
-	return nil
+	return err
 }
 
 // ListTables 列出所有表名
