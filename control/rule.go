@@ -177,6 +177,7 @@ func init() {
 					service, ok := Lookup(model.Args)
 					if !ok {
 						ctx.SendChain(message.Text("没有找到指定服务!"))
+						return
 					}
 					grp := ctx.Event.GroupID
 					if grp == 0 {
@@ -201,6 +202,7 @@ func init() {
 					service, ok := Lookup(model.Args)
 					if !ok {
 						ctx.SendChain(message.Text("没有找到指定服务!"))
+						return
 					}
 					grp := ctx.Event.GroupID
 					if grp == 0 {
@@ -218,6 +220,7 @@ func init() {
 						service, ok := Lookup(model.Args)
 						if !ok {
 							ctx.SendChain(message.Text("没有找到指定服务!"))
+							return
 						}
 						if service.options.Help != "" {
 							ctx.SendChain(message.Text(service.options.Help))
