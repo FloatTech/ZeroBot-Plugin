@@ -3,6 +3,7 @@ package sql
 
 import (
 	"database/sql"
+	"errors"
 	"reflect"
 	"strings"
 
@@ -128,6 +129,10 @@ func (db *Sqlite) Find(table string, objptr interface{}, condition string) error
 		return rows.Err()
 	}
 	defer rows.Close()
+
+	if !rows.Next() {
+		return errors.New("sql.Find: null result")
+	}
 
 	for rows.Next() {
 		if err != nil {
