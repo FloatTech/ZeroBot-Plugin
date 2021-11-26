@@ -103,7 +103,7 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 	m.RLock()
 	err = db.Find(m.service, &c, "WHERE gid = 0")
 	m.RUnlock()
-	if err == nil {
+	if err == nil && gid == 0 {
 		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.Disable)
 		return c.Disable == 0
 	}
