@@ -16,8 +16,7 @@ var engine = control.Register("bilibili", &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
 		"- >vup info [名字|uid]\n" +
-		"- >user info [名字|uid]\n" +
-		"- /开启粉丝日报",
+		"- >user info [名字|uid]",
 })
 
 // 查成分的

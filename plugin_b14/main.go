@@ -62,18 +62,6 @@ func init() {
 		})
 }
 
-// Slice is the runtime representation of a slice.
-// It cannot be used safely or portably and its representation may
-// change in a later release.
-//
-// Unlike reflect.SliceHeader, its Data field is sufficient to guarantee the
-// data it references will not be garbage collected.
-type slice struct {
-	Data unsafe.Pointer
-	Len  int
-	Cap  int
-}
-
 func getea(key string) tea.TEA {
 	kr := []rune(key)
 	if len(kr) > 4 {
@@ -83,8 +71,5 @@ func getea(key string) tea.TEA {
 			kr = append(kr, rune(4-len(kr)))
 		}
 	}
-	skr := *(*slice)(unsafe.Pointer(&kr))
-	skr.Len *= 4
-	skr.Cap *= 4
-	return tea.NewTeaCipher(*(*[]byte)(unsafe.Pointer(&skr)))
+	return *(*tea.TEA)(*(*unsafe.Pointer)(unsafe.Pointer(&kr)))
 }

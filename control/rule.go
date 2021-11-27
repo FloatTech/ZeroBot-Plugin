@@ -94,7 +94,6 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 		m.RLock()
 		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 		m.RUnlock()
-		logrus.Debugln("[control] db find gid =", c.GroupID)
 		if err == nil && gid == c.GroupID {
 			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
 			return c.Disable == 0
@@ -103,7 +102,7 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 	m.RLock()
 	err = db.Find(m.service, &c, "WHERE gid = 0")
 	m.RUnlock()
-	if err == nil {
+	if err == nil && c.GroupID == 0 {
 		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.Disable)
 		return c.Disable == 0
 	}
@@ -178,6 +177,7 @@ func init() {
 					service, ok := Lookup(model.Args)
 					if !ok {
 						ctx.SendChain(message.Text("没有找到指定服务!"))
+						return
 					}
 					grp := ctx.Event.GroupID
 					if grp == 0 {
@@ -202,6 +202,7 @@ func init() {
 					service, ok := Lookup(model.Args)
 					if !ok {
 						ctx.SendChain(message.Text("没有找到指定服务!"))
+						return
 					}
 					grp := ctx.Event.GroupID
 					if grp == 0 {
@@ -219,6 +220,7 @@ func init() {
 						service, ok := Lookup(model.Args)
 						if !ok {
 							ctx.SendChain(message.Text("没有找到指定服务!"))
+							return
 						}
 						if service.options.Help != "" {
 							ctx.SendChain(message.Text(service.options.Help))
