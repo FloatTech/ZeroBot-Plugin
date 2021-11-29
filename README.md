@@ -128,6 +128,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 设置本地setu绝对路径[xxx]
     - [x] 刷新所有本地setu
     - [x] 所有本地setu分类
+    - 注：刷新文件夹较慢，请耐心等待刷新完成，会提示“成功”。
 - **lolicon** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"`
     - [x] 来份萝莉
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
