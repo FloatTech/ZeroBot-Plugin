@@ -108,7 +108,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 爬[@xxx]
     - [x] 摸[@xxx]
     - [x] 搓[@xxx]
-    - 注：更多指令见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
+    - 注：更多指令见项目 --> https://github.com/FloatTech/ZeroBot-Plugin-Gif
 - **base16384加解密** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"`
     - [x] 加密xxx
     - [x] 解密xxx
