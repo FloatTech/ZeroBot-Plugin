@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
 	"sync"
 
 	"github.com/corona10/goimagehash"
@@ -64,7 +63,7 @@ func scanall(path string) error {
 	root := os.DirFS(path)
 	_ = db.Close()
 	_ = os.Remove(dbfile)
-	return filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
