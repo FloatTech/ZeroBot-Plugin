@@ -143,6 +143,11 @@ func (db *Sqlite) Find(table string, objptr interface{}, condition string) error
 	return err
 }
 
+// Pick 从 table 随机一行
+func (db *Sqlite) Pick(table string, objptr interface{}) error {
+	return db.Find(table, objptr, "ORDER BY RANDOM() limit 1")
+}
+
 // ListTables 列出所有表名
 // 返回所有表名+错误
 func (db *Sqlite) ListTables() (s []string, err error) {
