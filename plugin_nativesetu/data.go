@@ -99,9 +99,8 @@ func scanclass(root fs.FS, path, clsn string) error {
 	for _, d := range ds {
 		if !d.IsDir() {
 			relpath := path + "/" + d.Name()
-			fullpath := setupath + "/" + relpath
-			logrus.Debugln("[nsetu] read", fullpath)
-			f, e := os.ReadFile(fullpath)
+			logrus.Debugln("[nsetu] read", relpath)
+			f, e := fs.ReadFile(root, relpath)
 			if e != nil {
 				return e
 			}
