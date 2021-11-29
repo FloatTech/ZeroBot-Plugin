@@ -123,7 +123,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] > setu status
 - **本地涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"`
-    - [x] 来份本地[xxx]
+    - [x] 本地[xxx]
     - [x] 刷新本地[xxx]
     - [x] 设置本地setu绝对路径[xxx]
     - [x] 刷新所有本地setu

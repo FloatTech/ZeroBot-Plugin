@@ -1,7 +1,9 @@
 package nativesetu
 
 import (
+	"bytes"
 	"image"
+	"io"
 	"io/fs"
 	"os"
 	"sync"
@@ -9,6 +11,7 @@ import (
 	"github.com/corona10/goimagehash"
 	"github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+	"golang.org/x/image/webp"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
@@ -17,8 +20,9 @@ import (
 
 // setuclass holds setus in a folder, which is the class name.
 type setuclass struct {
-	ImgID uint64 `db:"imgid"` // ImgID 图片唯一 id (dhash)
+	ImgID int64  `db:"imgid"` // ImgID 图片唯一 id (dhash)
 	Name  string `db:"name"`  // Name 图片名
+	Path  string `db:"path"`  // Path 图片路径
 }
 
 var (
@@ -41,45 +45,71 @@ func init() {
 				logrus.Println("[nsetu] set setu dir to", setupath)
 			}
 		}
+		if file.IsExist(dbfile) {
+			err := db.Open()
+			if err == nil {
+				setuclasses, err = db.ListTables()
+			}
+			if err != nil {
+				logrus.Errorln("[nsetu]", err)
+			}
+		}
 	}()
 }
 
 func scanall(path string) error {
-	setuclasses = setuclasses[:0]
+	setuclasses = nil
 	model := &setuclass{}
 	root := os.DirFS(path)
-	return fs.WalkDir(root, "./", func(path string, d fs.DirEntry, err error) error {
+	_ = db.Close()
+	_ = os.Remove(dbfile)
+	return fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if d.IsDir() {
 			clsn := d.Name()
-			mu.Lock()
-			err = db.Create(clsn, model)
-			setuclasses = append(setuclasses, clsn)
-			mu.Unlock()
-			if err == nil {
-				err = scanclass(root, clsn)
-				if err != nil {
-					return err
+			if clsn != "." {
+				mu.Lock()
+				err = db.Create(clsn, model)
+				setuclasses = append(setuclasses, clsn)
+				mu.Unlock()
+				if err == nil {
+					err = scanclass(root, path, clsn)
+					if err != nil {
+						logrus.Errorln("[nsetu]", err)
+						return err
+					}
 				}
 			}
 		}
-		return err
+		return nil
 	})
 }
 
-func scanclass(root fs.FS, clsn string) error {
-	return fs.WalkDir(root, clsn, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+func scanclass(root fs.FS, path, clsn string) error {
+	ds, err := fs.ReadDir(root, path)
+	if err != nil {
+		return err
+	}
+	mu.Lock()
+	_ = db.Truncate(clsn)
+	mu.Unlock()
+	for _, d := range ds {
 		if !d.IsDir() {
-			f, e := os.Open(path)
+			relpath := path + "/" + d.Name()
+			fullpath := setupath + "/" + relpath
+			logrus.Debugln("[nsetu] read", fullpath)
+			f, e := os.ReadFile(fullpath)
 			if e != nil {
 				return e
 			}
-			img, _, e := image.Decode(f)
+			b := bytes.NewReader(f)
+			img, _, e := image.Decode(b)
+			if e != nil {
+				b.Seek(0, io.SeekStart)
+				img, e = webp.Decode(b)
+			}
 			if e != nil {
 				return e
 			}
@@ -87,10 +117,15 @@ func scanclass(root fs.FS, clsn string) error {
 			if e != nil {
 				return e
 			}
+			dhi := int64(dh.GetHash())
+			logrus.Debugln("[nsetu] insert", d.Name(), "with id", dhi, "into", clsn)
 			mu.Lock()
-			err = db.Insert(clsn, &setuclass{ImgID: dh.GetHash(), Name: d.Name()})
+			err = db.Insert(clsn, &setuclass{ImgID: dhi, Name: d.Name(), Path: relpath})
 			mu.Unlock()
+			if err != nil {
+				return err
+			}
 		}
-		return err
-	})
+	}
+	return nil
 }
