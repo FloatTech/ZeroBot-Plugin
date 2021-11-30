@@ -108,7 +108,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 爬[@xxx]
     - [x] 摸[@xxx]
     - [x] 搓[@xxx]
-    - 注：更多指令见项目 --> https://github.com/tdf1939/ZeroBot-Plugin-Gif
+    - 注：更多指令见项目 --> https://github.com/FloatTech/ZeroBot-Plugin-Gif
 - **base16384加解密** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"`
     - [x] 加密xxx
     - [x] 解密xxx
@@ -122,6 +122,13 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
     - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
     - [x] > setu status
+- **本地涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"`
+    - [x] 本地[xxx]
+    - [x] 刷新本地[xxx]
+    - [x] 设置本地setu绝对路径[xxx]
+    - [x] 刷新所有本地setu
+    - [x] 所有本地setu分类
+    - 注：刷新文件夹较慢，请耐心等待刷新完成，会提示“成功”。
 - **lolicon** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"`
     - [x] 来份萝莉
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`

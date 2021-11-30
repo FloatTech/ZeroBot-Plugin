@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	prio   = 100
+	prio   = 256
 	bucket = rate.NewManager(time.Minute, 20) // 青云客接口回复
 	engine *zero.Engine
 )

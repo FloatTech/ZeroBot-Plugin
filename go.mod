@@ -6,6 +6,7 @@ require (
 	github.com/FloatTech/AnimeAPI v1.1.10
 	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4
 	github.com/FloatTech/bot-manager v1.0.1-0.20211112011524-85b9895271ed
+	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.2.1
@@ -22,4 +23,5 @@ require (
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.11.0
 	github.com/wdvxdr1123/ZeroBot v1.4.1
+	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 )

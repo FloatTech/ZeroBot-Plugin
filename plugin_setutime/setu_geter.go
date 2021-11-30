@@ -20,6 +20,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/rule"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
@@ -112,7 +113,7 @@ func init() { // 插件主体
 			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
 			"- >setu status",
 	})
-	engine.OnRegex(`^来份(.*)$`, firstValueInList(pool.List)).SetBlock(true).SetPriority(20).
+	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool.List)).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
@@ -125,7 +126,7 @@ func init() { // 插件主体
 				for i := 0; i < times; i++ {
 					illust := &pixiv.Illust{}
 					// 查询出一张图片
-					if err := pool.DB.Find(imgtype, illust, "ORDER BY RANDOM() limit 1"); err != nil {
+					if err := pool.DB.Pick(imgtype, illust); err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
@@ -155,7 +156,7 @@ func init() { // 插件主体
 			}
 		})
 
-	engine.OnRegex(`^添加(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
+	engine.OnRegex(`^添加(.*?)(\d+)$`, rule.FirstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -186,7 +187,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("添加成功"))
 		})
 
-	engine.OnRegex(`^删除(.*?)(\d+)$`, firstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
+	engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -216,19 +217,6 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text(state))
 		})
-}
-
-// firstValueInList 判断正则匹配的第一个参数是否在列表中
-func firstValueInList(list []string) zero.Rule {
-	return func(ctx *zero.Ctx) bool {
-		first := ctx.State["regex_matched"].([]string)[1]
-		for i := range list {
-			if first == list[i] {
-				return true
-			}
-		}
-		return false
-	}
 }
 
 // size 返回缓冲池指定类型的现有大小
