@@ -161,10 +161,16 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 查询鬼东西[序号][@xxx]
     - 注：由于需要科学，默认注释。
 - **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
-    - [x] 查询计算机当前活跃度 [身体检查]
+    - [x] 查询计算机当前活跃度: [检查身体|自检|启动自检|系统状态]
     - [x] 清理缓存
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
+- **抽wife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"`
+    - [x] 抽wife[@xxx]
+    - [x] 添加wife[名字][图片]
+    - [x] 删除wife[名字]
+    - [x] [让|不让]所有人均可添加wife
+    - 注：不同群添加后不会重叠
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
     - [x] /mcstart xxx
 	- [x] /mcstop xxx
