@@ -53,8 +53,16 @@ func newctrl(service string, o *Options) *Control {
 // Enable enables a group to pass the Manager.
 // groupID == 0 (ALL) will operate on all grps.
 func (m *Control) Enable(groupID int64) {
+	var c grpcfg
+	m.RLock()
+	err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(groupID, 10))
+	m.RUnlock()
+	if err != nil {
+		c.GroupID = groupID
+	}
+	c.Disable = int64(uint64(c.Disable) & 0xffffffff_fffffffe)
 	m.Lock()
-	err := db.Insert(m.service, &grpcfg{groupID, 0})
+	err = db.Insert(m.service, &c)
 	m.Unlock()
 	if err != nil {
 		logrus.Errorf("[control] %v", err)
@@ -64,8 +72,16 @@ func (m *Control) Enable(groupID int64) {
 // Disable disables a group to pass the Manager.
 // groupID == 0 (ALL) will operate on all grps.
 func (m *Control) Disable(groupID int64) {
+	var c grpcfg
+	m.RLock()
+	err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(groupID, 10))
+	m.RUnlock()
+	if err != nil {
+		c.GroupID = groupID
+	}
+	c.Disable |= 1
 	m.Lock()
-	err := db.Insert(m.service, &grpcfg{groupID, 1})
+	err = db.Insert(m.service, &c)
 	m.Unlock()
 	if err != nil {
 		logrus.Errorf("[control] %v", err)
@@ -95,18 +111,60 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 		m.RUnlock()
 		if err == nil && gid == c.GroupID {
-			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable)
-			return c.Disable == 0
+			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable&1)
+			return c.Disable&1 == 0
 		}
 	}
 	m.RLock()
 	err = db.Find(m.service, &c, "WHERE gid = 0")
 	m.RUnlock()
 	if err == nil && c.GroupID == 0 {
-		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.Disable)
-		return c.Disable == 0
+		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.Disable&1)
+		return c.Disable&1 == 0
 	}
 	return !m.options.DisableOnDefault
+}
+
+// GetData 获取某个群的 63 字节配置信息
+func (m *Control) GetData(gid int64) int64 {
+	var c grpcfg
+	var err error
+	logrus.Debugln("[control] IsEnabledIn recv gid =", gid)
+	if gid != 0 {
+		m.RLock()
+		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
+		m.RUnlock()
+		if err == nil && gid == c.GroupID {
+			logrus.Debugf("[control] plugin %s of grp %d : %x", m.service, c.GroupID, c.Disable>>1)
+			return c.Disable >> 1
+		}
+	}
+	m.RLock()
+	err = db.Find(m.service, &c, "WHERE gid = 0")
+	m.RUnlock()
+	if err == nil && c.GroupID == 0 {
+		logrus.Debugf("[control] plugin %s of all : %x", m.service, c.Disable>>1)
+		return c.Disable >> 1
+	}
+	return 0
+}
+
+// SetData 为某个群设置低 63 位配置数据
+func (m *Control) SetData(groupID int64, data int64) {
+	var c grpcfg
+	m.RLock()
+	err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(groupID, 10))
+	m.RUnlock()
+	if err != nil {
+		c.GroupID = groupID
+	}
+	c.Disable |= data << 1
+	m.Lock()
+	err = db.Insert(m.service, &c)
+	m.Unlock()
+	if err != nil {
+		logrus.Errorf("[control] %v", err)
+	}
 }
 
 // Handler 返回 预处理器
