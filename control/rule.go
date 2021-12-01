@@ -150,21 +150,26 @@ func (m *Control) GetData(gid int64) int64 {
 }
 
 // SetData 为某个群设置低 63 位配置数据
-func (m *Control) SetData(groupID int64, data int64) {
+func (m *Control) SetData(groupID int64, data int64) error {
 	var c grpcfg
 	m.RLock()
 	err := db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(groupID, 10))
 	m.RUnlock()
 	if err != nil {
 		c.GroupID = groupID
+		if m.options.DisableOnDefault {
+			c.Disable = 1
+		}
 	}
 	c.Disable |= data << 1
+	logrus.Debugf("[control] set plugin %s of all : %x", m.service, data)
 	m.Lock()
 	err = db.Insert(m.service, &c)
 	m.Unlock()
 	if err != nil {
 		logrus.Errorf("[control] %v", err)
 	}
+	return err
 }
 
 // Handler 返回 预处理器

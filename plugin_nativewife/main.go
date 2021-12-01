@@ -3,6 +3,7 @@ package nativewife
 import (
 	"crypto/md5"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -30,7 +31,7 @@ func init() {
 	}
 	engine := control.Register("nwife", &control.Options{
 		DisableOnDefault: false,
-		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]",
+		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让|不让]所有人均可添加wife",
 	})
 	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
@@ -60,17 +61,18 @@ func init() {
 				r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
 				n := r.Intn(len(wifes))
 				wn := wifes[n].Name()
-				ctx.SendChain(message.Text(name, "\n的wife是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
+				ctx.SendChain(message.Text(name, "的wife是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
 			}
 		})
 	// 上传一张图
-	engine.OnKeyword("添加wife", zero.OnlyGroup, zero.AdminPermission, picture.MustGiven).SetBlock(true).SetPriority(20).
+	engine.OnKeyword("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
 				if elem.Type == "text" {
 					name = strings.ReplaceAll(elem.Data["text"], " ", "")
 					name = name[strings.LastIndex(name, "添加wife")+10:]
+					break
 				}
 			}
 			if name != "" {
@@ -81,12 +83,83 @@ func init() {
 				}
 				err = file.DownloadTo(url, grpfolder+"/"+name, true)
 				if err == nil {
-					ctx.SendChain(message.Text("成功！"))
+					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功！"))
 				} else {
-					ctx.SendChain(message.Text("错误：", err.Error()))
+					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("错误：", err.Error()))
 				}
 			} else {
-				ctx.SendChain(message.Text("没有找到wife的名字！"))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有找到wife的名字！"))
 			}
 		})
+	engine.OnPrefix("删除wife", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(20).
+		Handle(func(ctx *zero.Ctx) {
+			name := ""
+			for _, elem := range ctx.Event.Message {
+				if elem.Type == "text" {
+					name = strings.ReplaceAll(elem.Data["text"], " ", "")
+					name = name[strings.LastIndex(name, "删除wife")+10:]
+					break
+				}
+			}
+			if name != "" {
+				grpfolder := base + "/" + strconv.FormatInt(ctx.Event.GroupID, 36)
+				err = os.Remove(grpfolder + "/" + name)
+				if err == nil {
+					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功！"))
+				} else {
+					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("错误：", err.Error()))
+				}
+			} else {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有找到wife的名字！"))
+			}
+		})
+	engine.OnSuffix("所有人均可添加wife", zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).SetPriority(20).
+		Handle(func(ctx *zero.Ctx) {
+			text := ""
+			for _, elem := range ctx.Event.Message {
+				if elem.Type == "text" {
+					text = strings.ReplaceAll(elem.Data["text"], " ", "")
+					text = text[:strings.LastIndex(text, "所有人均可添加wife")]
+					break
+				}
+			}
+			var err error
+			switch text {
+			case "设置", "授予", "让":
+				err = setEveryoneCanAddWife(ctx.Event.GroupID, true)
+			case "取消", "撤销", "不让":
+				err = setEveryoneCanAddWife(ctx.Event.GroupID, false)
+			}
+			if err == nil {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功！"))
+			} else {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("错误：", err.Error()))
+			}
+		})
+}
+
+func chkAddWifePermission(ctx *zero.Ctx) bool {
+	gid := ctx.Event.GroupID
+	if gid > 0 {
+		m, ok := control.Lookup("nwife")
+		if ok {
+			data := m.GetData(gid)
+			if data&1 == 1 {
+				return true
+			}
+			return zero.AdminPermission(ctx)
+		}
+	}
+	return false
+}
+
+func setEveryoneCanAddWife(gid int64, canadd bool) error {
+	m, ok := control.Lookup("nwife")
+	if ok {
+		if canadd {
+			return m.SetData(gid, 1)
+		}
+		return m.SetData(gid, 0)
+	}
+	return errors.New("no such plugin")
 }
