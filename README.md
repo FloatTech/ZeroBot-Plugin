@@ -165,6 +165,10 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 清理缓存
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
+- **抽wife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"`
+    - [x] 抽wife[@xxx]
+    - [x] 添加wife[名字][图片]
+    - 注：不同群添加后不会重叠
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
     - [x] /mcstart xxx
 	- [x] /mcstop xxx
