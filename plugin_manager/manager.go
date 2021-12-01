@@ -361,7 +361,7 @@ func init() { // 插件主体
 	// 入群欢迎
 	zero.OnNotice().SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.NoticeType == "group_increase" {
+			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID!=ctx.Event.UserID {
 				word, ok := config.Welcome[uint64(ctx.Event.GroupID)]
 				if ok {
 					ctx.SendChain(message.Text(word))
