@@ -20,7 +20,7 @@ const (
 	// 服务名
 	servicename = "atri"
 	// ATRI 所有命令的优先级
-	prio = 2
+	prio = 5
 	// ATRI 表情的 codechina 镜像
 	res = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/plugin_atri/"
 )

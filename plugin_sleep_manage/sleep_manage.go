@@ -1,0 +1,78 @@
+package plugin_sleep_manage
+
+import (
+	"fmt"
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
+	log "github.com/sirupsen/logrus"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+	"time"
+)
+
+const dbpath = "data/SleepManage/"
+const dbfile = dbpath + "sleepmanage.db"
+const prio = 4
+
+var engine = control.Register("sleepmanage", &control.Options{
+	DisableOnDefault: false,
+	Help:             "sleepmanage\n- 早安\n- 晚安\n",
+})
+
+func init() {
+	engine.OnFullMatch("早安", isMorning).SetBlock(true).SetPriority(prio).
+		Handle(func(ctx *zero.Ctx) {
+			db, err := model.Open(dbfile)
+			if err != nil {
+				log.Errorln(err)
+				return
+			}
+			position, getUpTime := db.GetUp(ctx.Event.GroupID, ctx.Event.UserID)
+			log.Println(position, getUpTime)
+			hour, minute, second := timeChange(getUpTime)
+			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("早安成功！你是今天第%d个起床的", position)))
+			} else {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("早安成功！你的睡眠时长为%d时%d分%d秒,你是今天第%d个起床的", hour, minute, second, position)))
+			}
+			db.Close()
+
+		})
+	engine.OnFullMatch("晚安", isEvening).SetBlock(true).SetPriority(prio).
+		Handle(func(ctx *zero.Ctx) {
+			db, err := model.Open(dbfile)
+			if err != nil {
+				log.Errorln(err)
+				return
+			}
+			position, sleepTime := db.Sleep(ctx.Event.GroupID, ctx.Event.UserID)
+			log.Println(position, sleepTime)
+			hour, minute, second := timeChange(sleepTime)
+			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("晚安成功！你是今天第%d个睡觉的", position)))
+			} else {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("晚安成功！你的清醒时长为%d时%d分%d秒,你是今天第%d个睡觉的", hour, minute, second, position)))
+			}
+			db.Close()
+
+		})
+}
+
+func timeChange(time time.Duration) (hour, minute, second int64) {
+	hour = int64(time) / (1000 * 1000 * 1000 * 60 * 60)
+	minute = (int64(time) - hour*(1000*1000*1000*60*60)) / (1000 * 1000 * 1000 * 60)
+	second = (int64(time) - hour*(1000*1000*1000*60*60) - minute*(1000*1000*1000*60)) / (1000 * 1000 * 1000)
+	return hour, minute, second
+}
+
+//只统计6点到12点的早安
+func isMorning(ctx *zero.Ctx) bool {
+	now := time.Now().Hour()
+	return now >= 6 && now <= 12
+}
+
+//只统计21点到凌晨3点的晚安
+func isEvening(ctx *zero.Ctx) bool {
+	now := time.Now().Hour()
+	return now >= 21 || now <= 3
+}
