@@ -59,7 +59,7 @@ func (sdb *SleepDB) Sleep(groupId, userId int64) (position int, awakeTime time.D
 	db := (*gorm.DB)(sdb)
 	now := time.Now()
 
-	today := now.Add(-time.Hour*time.Duration(now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
+	today := now.Add(-time.Hour*time.Duration(3+now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
 	st := SleepManage{
 		GroupId:   groupId,
 		UserId:    userId,
@@ -87,7 +87,7 @@ func (sdb *SleepDB) Sleep(groupId, userId int64) (position int, awakeTime time.D
 func (sdb *SleepDB) GetUp(groupId, userId int64) (position int, sleepTime time.Duration) {
 	db := (*gorm.DB)(sdb)
 	now := time.Now()
-	today := now.Add(-time.Hour*time.Duration(now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
+	today := now.Add(-time.Hour*time.Duration(-6+now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
 	st := SleepManage{
 		GroupId:   groupId,
 		UserId:    userId,
