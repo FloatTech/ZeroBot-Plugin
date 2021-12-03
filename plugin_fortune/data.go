@@ -6,6 +6,8 @@ import (
 	"os"
 	"sync"
 
+	"github.com/RomiChan/protobuf/proto"
+
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
@@ -23,7 +25,7 @@ func loadcfg(name string) error {
 			data, err1 := io.ReadAll(f)
 			if err1 == nil {
 				if len(data) > 0 {
-					return conf.Unmarshal(data)
+					return proto.Unmarshal(data, &conf)
 				}
 			}
 			return err1
@@ -36,7 +38,7 @@ func loadcfg(name string) error {
 
 func savecfg(name string) error {
 	name = base + name
-	data, err := conf.Marshal()
+	data, err := proto.Marshal(&conf)
 	if err == nil {
 		if file.IsExist(base) {
 			f, err1 := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
