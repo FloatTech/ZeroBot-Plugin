@@ -3,6 +3,7 @@ package manager
 
 import (
 	"fmt"
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"io"
 	"math/rand"
 	"os"
@@ -58,6 +59,10 @@ var (
 	limit  = rate.NewManager(time.Minute*5, 2)
 	clock  timer.Clock
 )
+var engine = control.Register("manager", &control.Options{
+	DisableOnDefault: false,
+	Help:             hint + "\n- 群管系统",
+})
 
 func init() { // 插件主体
 	loadConfig()
@@ -66,12 +71,12 @@ func init() { // 插件主体
 		clock = timer.NewClock(timerfile)
 	}()
 	// 菜单
-	zero.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
+	engine.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(hint))
 		})
 	// 升为管理
-	zero.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupAdmin(
 				ctx.Event.GroupID,
@@ -86,7 +91,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text(nickname + " 升为了管理~"))
 		})
 	// 取消管理
-	zero.OnRegex(`^取消管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^取消管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupAdmin(
 				ctx.Event.GroupID,
@@ -101,7 +106,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("残念~ " + nickname + " 暂时失去了管理员的资格"))
 		})
 	// 踢出群聊
-	zero.OnRegex(`^踢出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^踢出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupKick(
 				ctx.Event.GroupID,
@@ -116,7 +121,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("残念~ " + nickname + " 被放逐"))
 		})
 	// 退出群聊
-	zero.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupLeave(
 				strToInt(ctx.State["regex_matched"].([]string)[1]), // 要退出的群的群号
@@ -124,7 +129,7 @@ func init() { // 插件主体
 			)
 		})
 	// 开启全体禁言
-	zero.OnRegex(`^开启全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^开启全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupWholeBan(
 				ctx.Event.GroupID,
@@ -133,7 +138,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("全员自闭开始~"))
 		})
 	// 解除全员禁言
-	zero.OnRegex(`^解除全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^解除全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupWholeBan(
 				ctx.Event.GroupID,
@@ -142,7 +147,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("全员自闭结束~"))
 		})
 	// 禁言
-	zero.OnRegex(`^禁言.*?(\d+).*?\s(\d+)(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^禁言.*?(\d+).*?\s(\d+)(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			duration := strToInt(ctx.State["regex_matched"].([]string)[2])
 			switch ctx.State["regex_matched"].([]string)[3] {
@@ -166,7 +171,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("小黑屋收留成功~"))
 		})
 	// 解除禁言
-	zero.OnRegex(`^解除禁言.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^解除禁言.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupBan(
 				ctx.Event.GroupID,
@@ -176,7 +181,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("小黑屋释放成功~"))
 		})
 	// 自闭禁言
-	zero.OnRegex(`^(我要自闭|禅定).*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^(我要自闭|禅定).*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			duration := strToInt(ctx.State["regex_matched"].([]string)[2])
 			switch ctx.State["regex_matched"].([]string)[3] {
@@ -200,7 +205,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("那我就不手下留情了~"))
 		})
 	// 修改名片
-	zero.OnRegex(`^修改名片.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^修改名片.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupCard(
 				ctx.Event.GroupID,
@@ -210,7 +215,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 修改头衔
-	zero.OnRegex(`^修改头衔.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^修改头衔.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
@@ -220,7 +225,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 申请头衔
-	zero.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
@@ -230,7 +235,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！不错的头衔呢~"))
 		})
 	// 群聊转发
-	zero.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			// 对CQ码进行反转义
 			content := ctx.State["regex_matched"].([]string)[2]
@@ -243,7 +248,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 		})
 	// 私聊转发
-	zero.OnRegex(`^私聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^私聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			// 对CQ码进行反转义
 			content := ctx.State["regex_matched"].([]string)[2]
@@ -256,7 +261,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("📧 --> " + ctx.State["regex_matched"].([]string)[1]))
 		})
 	// 定时提醒
-	zero.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, false)
@@ -268,7 +273,7 @@ func init() { // 插件主体
 			}
 		})
 	// 定时 cron 提醒
-	zero.OnRegex(`^在"(.*)"时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^在"(.*)"时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			var url, alert string
@@ -291,7 +296,7 @@ func init() { // 插件主体
 			}
 		})
 	// 取消定时
-	zero.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, true)
@@ -304,7 +309,7 @@ func init() { // 插件主体
 			}
 		})
 	// 取消 cron 定时
-	zero.OnRegex(`^取消在"(.*)"的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^取消在"(.*)"的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.Timer{Cron: dateStrs[1]}
@@ -317,12 +322,12 @@ func init() { // 插件主体
 			}
 		})
 	// 列出本群所有定时
-	zero.OnFullMatch("列出所有提醒", zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnFullMatch("列出所有提醒", zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(clock.ListTimers(ctx.Event.GroupID)))
 		})
 	// 随机点名
-	zero.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).SetPriority(40).
+	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("少女祈祷中......"))
@@ -360,7 +365,7 @@ func init() { // 插件主体
 			)
 		})
 	// 入群欢迎
-	zero.OnNotice().SetBlock(false).FirstPriority().
+	engine.OnNotice().SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID != ctx.Event.UserID {
 				word, ok := config.Welcome[ctx.Event.GroupID]
@@ -408,14 +413,16 @@ func init() { // 插件主体
 			}
 		})
 	// 退群提醒
-	zero.OnNotice().SetBlock(false).SetPriority(40).
+	engine.OnNotice().SetBlock(false).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
-				ctx.SendChain(message.Text("有人跑路了~"))
+				userid := ctx.Event.UserID
+				nickname := ctx.GetStrangerInfo(userid, false).Get("nickname").String()
+				ctx.SendChain(message.Text(nickname, "(", userid, ")", "离开了我们~"))
 			}
 		})
 	// 设置欢迎语
-	zero.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			config.Welcome[ctx.Event.GroupID] = ctx.State["regex_matched"].([]string)[1]
 			if saveConfig() == nil {
@@ -425,7 +432,7 @@ func init() { // 插件主体
 			}
 		})
 	// 入群验证开关
-	zero.OnRegex(`^(.*)入群验证$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^(.*)入群验证$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			option := ctx.State["regex_matched"].([]string)[1]
 			switch option {
@@ -443,7 +450,7 @@ func init() { // 插件主体
 			}
 		})
 	// 运行 CQ 码
-	zero.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(0).
+	engine.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(0).
 		Handle(func(ctx *zero.Ctx) {
 			var cmd = ctx.State["regex_matched"].([]string)[1]
 			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
