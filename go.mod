@@ -6,6 +6,7 @@ require (
 	github.com/FloatTech/AnimeAPI v1.1.10
 	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4
 	github.com/FloatTech/bot-manager v1.0.1-0.20211112011524-85b9895271ed
+	github.com/RomiChan/protobuf v0.0.0-20211202142450-893e94b43c21
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
@@ -13,7 +14,6 @@ require (
 	github.com/fumiama/gofastTEA v0.0.5
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/gin-gonic/gin v1.7.5
-	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/jinzhu/gorm v1.9.16
 	github.com/logoove/sqlite v1.13.0

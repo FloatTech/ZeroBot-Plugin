@@ -28,13 +28,13 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			rand.Seed(time.Now().UnixNano())
 			// 绕过第一行发病
-			ctx.SendChain(message.Text((*data.Array)[rand.Intn(len(*data.Array)-1)+1]))
+			ctx.SendChain(message.Text(data.RandText()))
 		})
 	// 逆天
 	engine.OnFullMatch("发大病").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 第一行是发病
-			ctx.SendChain(message.Text((*data.Array)[0]))
+			ctx.SendChain(message.Text(data.HentaiText()))
 		})
 	// 增加小作文
 	engine.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).SetBlock(true).

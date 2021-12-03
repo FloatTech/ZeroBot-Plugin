@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/RomiChan/protobuf/proto"
 	"github.com/fumiama/cron"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -134,7 +135,7 @@ func (c *Clock) CancelTimer(key string) bool {
 // SaveTimers 保存当前计时器
 func (c *Clock) SaveTimers() error {
 	c.timersmu.RLock()
-	data, err := c.timersmap.Marshal()
+	data, err := proto.Marshal(&c.timersmap)
 	c.timersmu.RUnlock()
 	if err == nil {
 		c.timersmu.Lock()
@@ -152,10 +153,10 @@ func (c *Clock) SaveTimers() error {
 }
 
 // ListTimers 列出本群所有计时器
-func (c *Clock) ListTimers(grpID uint64) []string {
+func (c *Clock) ListTimers(grpID int64) []string {
 	// 数组默认长度为map长度,后面append时,不需要重新申请内存和拷贝,效率很高
 	if c.timers != nil {
-		g := strconv.FormatUint(grpID, 10)
+		g := strconv.FormatInt(grpID, 10)
 		c.timersmu.RLock()
 		keys := make([]string, 0, len(*c.timers))
 		for k := range *c.timers {
@@ -189,7 +190,7 @@ func (c *Clock) loadTimers(pbfile string) {
 			data, err := io.ReadAll(f)
 			if err == nil {
 				if len(data) > 0 {
-					err = c.timersmap.Unmarshal(data)
+					err = proto.Unmarshal(data, &c.timersmap)
 					if err == nil {
 						for str, t := range c.timersmap.Timers {
 							grp, err := strconv.ParseInt(str[1:strings.Index(str, "]")], 10, 64)

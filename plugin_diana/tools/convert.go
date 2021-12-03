@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/RomiChan/protobuf/proto"
+
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_diana/data"
 )
 
@@ -36,7 +38,7 @@ func main() {
 		panic(err)
 	}
 
-	data, _ := compo.Marshal()
+	data, _ := proto.Marshal(&compo)
 	f, err1 := os.OpenFile(os.Args[2], os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err1 == nil {
 		defer f.Close()

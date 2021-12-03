@@ -5,10 +5,12 @@ import (
 	"crypto/md5"
 	"errors"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"sync"
 
+	"github.com/RomiChan/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
@@ -24,8 +26,6 @@ const (
 
 var (
 	compo Composition
-	// Array 小作文数组指针
-	Array = &compo.Array
 	// m 小作文保存锁
 	m sync.Mutex
 	// md5s 验证重复
@@ -41,10 +41,10 @@ func init() {
 		}
 		err1 := LoadText()
 		if err1 == nil {
-			arrl := len(*Array)
+			arrl := len(compo.Array)
 			log.Printf("[Diana]读取%d条小作文", arrl)
 			md5s = make([]*[16]byte, arrl)
-			for i, t := range *Array {
+			for i, t := range compo.Array {
 				m := md5.Sum(helper.StringToBytes(t))
 				md5s[i] = &m
 			}
@@ -63,7 +63,7 @@ func LoadText() error {
 			data, err1 := io.ReadAll(f)
 			if err1 == nil {
 				if len(data) > 0 {
-					return compo.Unmarshal(data)
+					return proto.Unmarshal(data, &compo)
 				}
 			}
 			return err1
@@ -82,7 +82,7 @@ func LoadText() error {
 				data, err := io.ReadAll(resp.Body)
 				if err == nil && len(data) > 0 {
 					_, _ = f.Write(data)
-					return compo.Unmarshal(data)
+					return proto.Unmarshal(data, &compo)
 				}
 				return err
 			}
@@ -106,6 +106,16 @@ func AddText(txt string) error {
 	return nil
 }
 
+// RandText 随机小作文
+func RandText() string {
+	return (compo.Array)[rand.Intn(len(compo.Array)-1)+1]
+}
+
+// HentaiText 发大病
+func HentaiText() string {
+	return (compo.Array)[0]
+}
+
 func isin(sum *[16]byte) bool {
 	for _, t := range md5s {
 		if *t == *sum {
@@ -117,7 +127,7 @@ func isin(sum *[16]byte) bool {
 
 // savecompo 同步保存作文
 func savecompo() error {
-	data, err := compo.Marshal()
+	data, err := proto.Marshal(&compo)
 	if err == nil {
 		if file.IsExist(datapath) {
 			f, err1 := os.OpenFile(pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)

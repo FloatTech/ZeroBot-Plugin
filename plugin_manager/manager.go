@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RomiChan/protobuf/proto"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -318,7 +319,7 @@ func init() { // 插件主体
 	// 列出本群所有定时
 	zero.OnFullMatch("列出所有提醒", zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(clock.ListTimers(uint64(ctx.Event.GroupID))))
+			ctx.SendChain(message.Text(clock.ListTimers(ctx.Event.GroupID)))
 		})
 	// 随机点名
 	zero.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).SetPriority(40).
@@ -361,14 +362,14 @@ func init() { // 插件主体
 	// 入群欢迎
 	zero.OnNotice().SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID!=ctx.Event.UserID {
-				word, ok := config.Welcome[uint64(ctx.Event.GroupID)]
+			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID != ctx.Event.UserID {
+				word, ok := config.Welcome[ctx.Event.GroupID]
 				if ok {
 					ctx.SendChain(message.Text(word))
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
-				enable, ok1 := config.Checkin[uint64(ctx.Event.GroupID)]
+				enable, ok1 := config.Checkin[ctx.Event.GroupID]
 				if ok1 && enable {
 					uid := ctx.Event.UserID
 					a := rand.Intn(100)
@@ -416,7 +417,7 @@ func init() { // 插件主体
 	// 设置欢迎语
 	zero.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			config.Welcome[uint64(ctx.Event.GroupID)] = ctx.State["regex_matched"].([]string)[1]
+			config.Welcome[ctx.Event.GroupID] = ctx.State["regex_matched"].([]string)[1]
 			if saveConfig() == nil {
 				ctx.SendChain(message.Text("记住啦!"))
 			} else {
@@ -429,9 +430,9 @@ func init() { // 插件主体
 			option := ctx.State["regex_matched"].([]string)[1]
 			switch option {
 			case "开启":
-				config.Checkin[uint64(ctx.Event.GroupID)] = true
+				config.Checkin[ctx.Event.GroupID] = true
 			case "关闭":
-				config.Checkin[uint64(ctx.Event.GroupID)] = false
+				config.Checkin[ctx.Event.GroupID] = false
 			default:
 				return
 			}
@@ -467,15 +468,15 @@ func loadConfig() {
 				data, err1 := io.ReadAll(f)
 				if err1 == nil {
 					if len(data) > 0 {
-						if config.Unmarshal(data) == nil {
+						if proto.Unmarshal(data, &config) == nil {
 							return
 						}
 					}
 				}
 			}
 		}
-		config.Checkin = make(map[uint64]bool)
-		config.Welcome = make(map[uint64]string)
+		config.Checkin = make(map[int64]bool)
+		config.Welcome = make(map[int64]string)
 	} else {
 		panic(mkdirerr)
 	}
@@ -483,7 +484,7 @@ func loadConfig() {
 
 // saveConfig 保存设置，无此文件则新建
 func saveConfig() error {
-	data, err := config.Marshal()
+	data, err := proto.Marshal(&config)
 	if err != nil {
 		return err
 	} else if file.IsExist(datapath) {
