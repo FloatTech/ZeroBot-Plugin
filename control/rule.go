@@ -215,6 +215,25 @@ func copyMap(m map[string]*Control) map[string]*Control {
 	return ret
 }
 
+func TotalHelp(gid int64) (msg string) {
+	msg += `---服务列表---`
+	i := 0
+	ForEach(func(key string, manager *Control) bool {
+		service, _ := Lookup(key)
+		help := service.options.Help
+		i++
+		msg += "\n" + strconv.Itoa(i) + `: `
+		if manager.IsEnabledIn(gid) {
+			msg += "●" + key
+		} else {
+			msg += "○" + key
+		}
+		msg += "\n" + help
+		return true
+	})
+	return msg
+}
+
 func userOrGrpAdmin(ctx *zero.Ctx) bool {
 	if zero.OnlyGroup(ctx) {
 		return zero.AdminPermission(ctx)

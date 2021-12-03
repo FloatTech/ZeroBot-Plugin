@@ -17,7 +17,7 @@ func init() {
 		DisableOnDefault: false,
 		Help: "choose\n" +
 			"- 选择可口可乐还是百事可乐\n" +
-			"- 选择肯德基还是麦当劳还是必胜客\n",
+			"- 选择肯德基还是麦当劳还是必胜客",
 	})
 	engine.OnPrefix("选择").SetBlock(true).FirstPriority().Handle(handle)
 }

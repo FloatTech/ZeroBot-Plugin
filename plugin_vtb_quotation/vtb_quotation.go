@@ -22,7 +22,7 @@ const dbfile = dbpath + "vtb.db"
 
 var engine = control.Register("vtbquotation", &control.Options{
 	DisableOnDefault: false,
-	Help:             "vtbquotation\n- vtb语录\n- 随机vtb\n",
+	Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb",
 })
 
 func init() {

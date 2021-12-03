@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"os"
 	"strings"
 
@@ -119,8 +120,9 @@ func printBanner() {
 func main() {
 	printBanner()
 	// 帮助
-	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
+	zero.OnFullMatchGroup([]string{"/help", ".help", "help", "帮助", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text(control.TotalHelp(ctx.Event.GroupID)))
 			ctx.SendChain(message.Text(banner))
 		})
 	zero.RunAndBlock(

@@ -16,7 +16,7 @@ const prio = 4
 
 var engine = control.Register("sleepmanage", &control.Options{
 	DisableOnDefault: false,
-	Help:             "sleepmanage\n- 早安\n- 晚安\n",
+	Help:             "sleepmanage\n- 早安\n- 晚安",
 })
 
 func init() {
