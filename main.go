@@ -23,7 +23,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager"      // 群管
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"      // 拼音首字母缩写释义工具
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"      // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage" //统计睡眠时间
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage" // 统计睡眠时间
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation"  // 翻译
 
 	// 娱乐类

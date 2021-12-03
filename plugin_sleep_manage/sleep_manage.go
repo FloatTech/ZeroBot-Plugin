@@ -20,7 +20,7 @@ var engine = control.Register("sleepmanage", &control.Options{
 })
 
 func init() {
-	engine.OnFullMatch("早安", isMorning).SetBlock(true).SetPriority(prio).
+	engine.OnFullMatch("早安", isMorning, zero.OnlyGroup).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
@@ -29,7 +29,7 @@ func init() {
 			}
 			position, getUpTime := db.GetUp(ctx.Event.GroupID, ctx.Event.UserID)
 			log.Println(position, getUpTime)
-			hour, minute, second := timeChange(getUpTime)
+			hour, minute, second := timeDuration(getUpTime)
 			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("早安成功！你是今天第%d个起床的", position)))
 			} else {
@@ -38,7 +38,7 @@ func init() {
 			db.Close()
 
 		})
-	engine.OnFullMatch("晚安", isEvening).SetBlock(true).SetPriority(prio).
+	engine.OnFullMatch("晚安", isEvening, zero.OnlyGroup).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
@@ -47,7 +47,7 @@ func init() {
 			}
 			position, sleepTime := db.Sleep(ctx.Event.GroupID, ctx.Event.UserID)
 			log.Println(position, sleepTime)
-			hour, minute, second := timeChange(sleepTime)
+			hour, minute, second := timeDuration(sleepTime)
 			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("晚安成功！你是今天第%d个睡觉的", position)))
 			} else {
@@ -58,7 +58,7 @@ func init() {
 		})
 }
 
-func timeChange(time time.Duration) (hour, minute, second int64) {
+func timeDuration(time time.Duration) (hour, minute, second int64) {
 	hour = int64(time) / (1000 * 1000 * 1000 * 60 * 60)
 	minute = (int64(time) - hour*(1000*1000*1000*60*60)) / (1000 * 1000 * 1000 * 60)
 	second = (int64(time) - hour*(1000*1000*1000*60*60) - minute*(1000*1000*1000*60)) / (1000 * 1000 * 1000)
