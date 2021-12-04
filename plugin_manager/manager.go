@@ -3,7 +3,6 @@ package manager
 
 import (
 	"fmt"
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"io"
 	"math/rand"
 	"os"
@@ -18,6 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"

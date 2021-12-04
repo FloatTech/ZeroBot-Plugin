@@ -2,7 +2,6 @@
 package chat
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"math/rand"
 	"strconv"
 	"time"
@@ -10,6 +9,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var poke = rate.NewManager(time.Minute*5, 8) // 戳一戳

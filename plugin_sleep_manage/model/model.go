@@ -1,11 +1,12 @@
 package model
 
 import (
+	"os"
+	"time"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"time"
 )
 
 type SleepDB gorm.DB
