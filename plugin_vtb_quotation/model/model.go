@@ -194,32 +194,35 @@ func (vdb *VtbDB) Close() error {
 
 const vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
 
-func (vdb *VtbDB) GetVtbList() []string {
+func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	db := (*gorm.DB)(vdb)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", vtbUrl, nil)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	// 自定义Header
 	req.Header.Set("User-Agent", randua())
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	// logrus.Println(string(bytes))
 	vtbListStr, err := strconv.Unquote(strings.Replace(strconv.Quote(string(bytes)), `\\u`, `\u`, -1))
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	// logrus.Println(vtbListStr)
-	uidList := make([]string, 0)
 	count := gjson.Get(vtbListStr, "#").Int()
 	for i := int64(0); i < count; i++ {
 		item := gjson.Get(vtbListStr, strconv.FormatInt(i, 10))
@@ -261,23 +264,27 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 	req, err := http.NewRequest("GET", vtbUrl, nil)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	// 自定义Header
 	req.Header.Set("User-Agent", randua())
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	//logrus.Println(string(bytes))
 	vtbStr, err := strconv.Unquote(strings.Replace(strconv.Quote(string(bytes)), `\\u`, `\u`, -1))
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	// logrus.Println(vtbListStr)
 	secondCount := gjson.Get(vtbStr, "data.voices.#").Int()
