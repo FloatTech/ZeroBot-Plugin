@@ -215,25 +215,6 @@ func copyMap(m map[string]*Control) map[string]*Control {
 	return ret
 }
 
-func TotalHelp(gid int64) (msg string) {
-	msg += `---服务列表---`
-	i := 0
-	ForEach(func(key string, manager *Control) bool {
-		service, _ := Lookup(key)
-		help := service.options.Help
-		i++
-		msg += "\n" + strconv.Itoa(i) + `: `
-		if manager.IsEnabledIn(gid) {
-			msg += "●" + key
-		} else {
-			msg += "○" + key
-		}
-		msg += "\n" + help
-		return true
-	})
-	return msg
-}
-
 func userOrGrpAdmin(ctx *zero.Ctx) bool {
 	if zero.OnlyGroup(ctx) {
 		return zero.AdminPermission(ctx)
@@ -327,6 +308,42 @@ func init() {
 							return true
 						})
 						ctx.SendChain(message.Text(msg))
+					})
+
+				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, zero.OnlyGroup).
+					Handle(func(ctx *zero.Ctx) {
+						var m message.Message
+						m = append(m,
+							message.CustomNode(
+								ctx.Event.Sender.NickName,
+								ctx.Event.UserID,
+								"---服务详情---",
+							))
+						i := 0
+						ForEach(func(key string, manager *Control) bool {
+							service, _ := Lookup(key)
+							help := service.options.Help
+							i++
+							msg := strconv.Itoa(i) + `: `
+							if manager.IsEnabledIn(ctx.Event.GroupID) {
+								msg += "●" + key
+							} else {
+								msg += "○" + key
+							}
+							msg += "\n" + help
+							m = append(m,
+								message.CustomNode(
+									ctx.Event.Sender.NickName,
+									ctx.Event.UserID,
+									msg,
+								))
+							return true
+						})
+
+						ctx.SendGroupForwardMessage(
+							ctx.Event.GroupID,
+							m,
+						)
 					})
 			}
 		}

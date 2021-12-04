@@ -39,7 +39,7 @@ const (
 		"- 修改头衔@QQ XXX\n" +
 		"- 申请头衔 XXX\n" +
 		"- 踢出群聊@QQ\n" +
-		"- 退出群聊 1234\n" +
+		"- 退出群聊 1234@bot\n" +
 		"- 群聊转发 1234 XXX\n" +
 		"- 私聊转发 0000 XXX\n" +
 		"- 在MM月dd日的hh点mm分时(用http://url)提醒大家XXX\n" +
@@ -61,7 +61,7 @@ var (
 )
 var engine = control.Register("manager", &control.Options{
 	DisableOnDefault: false,
-	Help:             hint + "\n- 群管系统",
+	Help:             hint,
 })
 
 func init() { // 插件主体
@@ -70,11 +70,6 @@ func init() { // 插件主体
 		time.Sleep(time.Second + time.Millisecond*time.Duration(rand.Intn(1000)))
 		clock = timer.NewClock(timerfile)
 	}()
-	// 菜单
-	engine.OnFullMatch("群管系统", zero.AdminPermission).SetBlock(true).FirstPriority().
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(hint))
-		})
 	// 升为管理
 	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
@@ -121,7 +116,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("残念~ " + nickname + " 被放逐"))
 		})
 	// 退出群聊
-	engine.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
+	engine.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SetGroupLeave(
 				strToInt(ctx.State["regex_matched"].([]string)[1]), // 要退出的群的群号
@@ -458,6 +453,17 @@ func init() { // 插件主体
 			// 可注入，权限为主人
 			ctx.Send(cmd)
 		})
+	// 自动同意加好友，被邀请入群(从qingyunke移过来，先注释)
+	/*
+		engine.OnRequest().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.RequestType == "friend" {
+				ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
+			}
+			if ctx.Event.RequestType == "group" && ctx.Event.SubType == "invite" {
+				ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "我爱你，mua~")
+			}
+		})
+	*/
 }
 
 func strToInt(str string) int64 {
