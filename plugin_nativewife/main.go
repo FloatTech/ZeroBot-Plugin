@@ -33,7 +33,7 @@ func init() {
 		DisableOnDefault: false,
 		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让|不让]所有人均可添加wife",
 	})
-	engine.OnFullMatch("抽wife", zero.OnlyGroup).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			grpf := strconv.FormatInt(ctx.Event.GroupID, 36)
 			wifes, err := os.ReadDir(base + "/" + grpf)
@@ -65,7 +65,7 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnKeyword("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
