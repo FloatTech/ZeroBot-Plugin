@@ -33,7 +33,7 @@ func init() {
 		DisableOnDefault: false,
 		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让|不让]所有人均可添加wife",
 	})
-	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).SetPriority(20).
+	engine.OnFullMatch("抽wife", zero.OnlyGroup).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			grpf := strconv.FormatInt(ctx.Event.GroupID, 36)
 			wifes, err := os.ReadDir(base + "/" + grpf)
@@ -72,6 +72,8 @@ func init() {
 				if elem.Type == "text" {
 					name = strings.ReplaceAll(elem.Data["text"], " ", "")
 					name = name[strings.LastIndex(name, "添加wife")+10:]
+					name = strings.ReplaceAll(name, "/", "")
+					name = strings.ReplaceAll(name, "\\", "")
 					break
 				}
 			}
@@ -98,6 +100,8 @@ func init() {
 				if elem.Type == "text" {
 					name = strings.ReplaceAll(elem.Data["text"], " ", "")
 					name = name[strings.LastIndex(name, "删除wife")+10:]
+					name = strings.ReplaceAll(name, "/", "")
+					name = strings.ReplaceAll(name, "\\", "")
 					break
 				}
 			}

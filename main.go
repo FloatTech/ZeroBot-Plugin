@@ -80,8 +80,8 @@ func init() {
 	d := flag.Bool("d", false, "Enable debug level log and higher.")
 	w := flag.Bool("w", false, "Enable warning level log and higher.")
 	h := flag.Bool("h", false, "Display this help.")
-	// 解析命令行参数，输入 `-g 监听地址:端口` 即可启用 gui
-	// g := flag.String("g", "127.0.0.1:3000", "Enable web gui.")
+	// 解析命令行参数，输入 `-g 监听地址:端口` 指定 gui 访问地址，默认 127.0.0.1:3000
+	// g := flag.String("g", "127.0.0.1:3000", "Set web gui listening address.")
 
 	// 直接写死 AccessToken 时，请更改下面第二个参数
 	token = flag.String("t", "", "Set AccessToken of WSClient.")
@@ -102,10 +102,8 @@ func init() {
 			logrus.SetLevel(logrus.WarnLevel)
 		}
 	}
-	// 解析命令行参数，输入 `-g` 即可启用 gui
-	// if *g {
-	// 	webctrl.InitGui(*g)
-	// }
+	// 启用 gui
+	// webctrl.InitGui(*g)
 }
 
 func printBanner() {
@@ -121,8 +119,7 @@ func main() {
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("可发送\"/服务详情\"等指令,查看bot功能"))
-			ctx.SendChain(message.Text(banner))
+			ctx.SendChain(message.Text(banner, "\n可发送\"/服务详情\"查看 bot 功能"))
 		})
 	zero.RunAndBlock(
 		zero.Config{
