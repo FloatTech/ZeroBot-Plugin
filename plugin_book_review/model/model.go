@@ -1,10 +1,11 @@
 package model
 
 import (
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite"

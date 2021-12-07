@@ -1,12 +1,14 @@
 package plugin_book_review
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 const dburl = "https://codechina.csdn.net/anto_july/bookreview/-/raw/master/bookreview.db"
