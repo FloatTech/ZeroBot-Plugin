@@ -60,7 +60,7 @@ type request struct {
 // InitGui 初始化gui
 func InitGui(addr string) {
 	// 将日志重定向到前端hook
-	writer := io.MultiWriter(l, os.Stderr)
+	writer := io.MultiWriter(l, os.Stdout)
 	log.SetOutput(writer)
 	// 监听后端
 	go controller(addr)
