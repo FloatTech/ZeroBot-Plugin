@@ -1,10 +1,12 @@
 package plugin_sleep_manage
 
 import (
+	"os"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func init() {

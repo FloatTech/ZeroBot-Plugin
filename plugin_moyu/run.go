@@ -22,7 +22,7 @@ func init() { // 插件主体
 		DisableOnDefault: true,
 		Help: "moyu\n" +
 			"- 添加摸鱼提醒\n" +
-			"- 删除摸鱼提醒\n",
+			"- 删除摸鱼提醒",
 	}).OnFullMatch("删除摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup("moyu")

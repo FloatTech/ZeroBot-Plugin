@@ -45,6 +45,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] /还原 xxx (在发送的群/用户还原xxx的开启状态到初始状态)
     - [x] /用法 xxx
     - [x] /服务列表
+    - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"`
     - [x] [BOT名字]
@@ -54,7 +55,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 群温度
     - [x] 设置温度[正整数]
 - **ATRI** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"`
-    - [x] 具体指令看代码
+    - [x] 具体指令看 /用法 atri
     - 注：本插件基于 [ATRI](https://github.com/Kyomotoi/ATRI) ，为 Golang 移植版
 - **群管** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager"`
     - [x] 禁言[@xxx][分钟]
@@ -68,7 +69,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 修改头衔[@xxx][xxx]
     - [x] 申请头衔[xxx]
     - [x] 踢出群聊[@xxx]
-    - [x] 退出群聊[群号]
+    - [x] 退出群聊[群号]@Bot
     - [x] *入群欢迎
     - [x] *退群通知
     - [x] 设置欢迎语[欢迎~]
@@ -145,6 +146,8 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_fortune`
     - [x] 运势|抽签
     - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]
+- **睡眠管理** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage`
+    - [x] 早安|晚安
 - **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
     - [x] 求签|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`

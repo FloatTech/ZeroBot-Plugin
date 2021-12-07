@@ -23,22 +23,23 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager"      // 群管
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"      // 拼音首字母缩写释义工具
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"      // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage" //统计睡眠时间
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage" // 统计睡眠时间
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation"  // 翻译
 
 	// 娱乐类
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"    // 鬼东西
-	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"              // 制图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"  // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"    // 选择困难症帮手
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"   // 运势
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"        // 炉石
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft" // MCSManager
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"      // 摸鱼
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"     // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"   // 浅草寺求签
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"    // 投胎
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"   // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"                // 制图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"    // 服务器监控
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review" // 哀伤雪刃吧推书记录
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"      // 选择困难症帮手
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"     // 运势
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"          // 炉石
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"   // MCSManager
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"        // 摸鱼
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"       // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"     // 浅草寺求签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"      // 投胎
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"     // 测定
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
@@ -121,6 +122,7 @@ func main() {
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text("可发送\"/服务详情\"等指令,查看bot功能"))
 			ctx.SendChain(message.Text(banner))
 		})
 	zero.RunAndBlock(

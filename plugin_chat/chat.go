@@ -9,13 +9,20 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var poke = rate.NewManager(time.Minute*5, 8) // 戳一戳
 
+var engine = control.Register("chat", &control.Options{
+	DisableOnDefault: false,
+	Help:             "chat\n- [BOT名字]\n- [戳一戳BOT]\n- 空调开\n- 空调关\n- 群温度\n- 设置温度[正整数]",
+})
+
 func init() { // 插件主体
 	// 被喊名字
-	zero.OnFullMatch("", zero.OnlyToMe).SetBlock(false).FirstPriority().
+	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
@@ -29,7 +36,7 @@ func init() { // 插件主体
 			))
 		})
 	// 戳一戳
-	zero.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).FirstPriority().
+	engine.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
 			switch {
@@ -48,18 +55,18 @@ func init() { // 插件主体
 	// 群空调
 	var AirConditTemp = map[int64]int{}
 	var AirConditSwitch = map[int64]bool{}
-	zero.OnFullMatch("空调开").SetBlock(true).FirstPriority().
+	engine.OnFullMatch("空调开").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			AirConditSwitch[ctx.Event.GroupID] = true
 			ctx.SendChain(message.Text("❄️哔~"))
 		})
-	zero.OnFullMatch("空调关").SetBlock(true).FirstPriority().
+	engine.OnFullMatch("空调关").SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			AirConditSwitch[ctx.Event.GroupID] = false
 			delete(AirConditTemp, ctx.Event.GroupID)
 			ctx.SendChain(message.Text("💤哔~"))
 		})
-	zero.OnRegex(`设置温度(\d+)`).SetBlock(true).FirstPriority().
+	engine.OnRegex(`设置温度(\d+)`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if _, exist := AirConditTemp[ctx.Event.GroupID]; !exist {
 				AirConditTemp[ctx.Event.GroupID] = 26
@@ -78,7 +85,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	zero.OnFullMatch(`群温度`).SetBlock(true).FirstPriority().
+	engine.OnFullMatch(`群温度`).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if _, exist := AirConditTemp[ctx.Event.GroupID]; !exist {
 				AirConditTemp[ctx.Event.GroupID] = 26
