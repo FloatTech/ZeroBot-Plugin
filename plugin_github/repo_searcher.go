@@ -47,25 +47,50 @@ func init() { // 插件主体
 			// 发送结果
 			switch ctx.State["regex_matched"].([]string)[1] {
 			case "-p ": // 图片模式
-				ctx.SendChain(message.Image(
-					"https://opengraph.githubassets.com/0/"+repo.Get("full_name").Str,
-				).Add("cache", 0))
-			default:
-				ctx.SendChain(message.Text(
-					repo.Get("full_name").Str, "\n",
-					"Description: ",
-					repo.Get("description").Str, "\n",
-					"Star/Fork/Issue: ",
-					repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
-					"Language: ",
-					notnull(repo.Get("language").Str, "None"), "\n",
-					"License: ",
-					notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
-					"Last pushed: ",
-					repo.Get("pushed_at").Str, "\n",
-					"Jump: ",
-					repo.Get("html_url").Str, "\n",
-				))
+				ctx.SendChain(
+					message.Image(
+						"https://opengraph.githubassets.com/0/"+repo.Get("full_name").Str,
+					).Add("cache", 0),
+				)
+			case "-t ": // 文字模式
+				ctx.SendChain(
+					message.Text(
+						repo.Get("full_name").Str, "\n",
+						"Description: ",
+						repo.Get("description").Str, "\n",
+						"Star/Fork/Issue: ",
+						repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
+						"Language: ",
+						notnull(repo.Get("language").Str, "None"), "\n",
+						"License: ",
+						notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
+						"Last pushed: ",
+						repo.Get("pushed_at").Str, "\n",
+						"Jump: ",
+						repo.Get("html_url").Str, "\n",
+					),
+				)
+			default: // 文字模式
+				ctx.SendChain(
+					message.Text(
+						repo.Get("full_name").Str, "\n",
+						"Description: ",
+						repo.Get("description").Str, "\n",
+						"Star/Fork/Issue: ",
+						repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
+						"Language: ",
+						notnull(repo.Get("language").Str, "None"), "\n",
+						"License: ",
+						notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
+						"Last pushed: ",
+						repo.Get("pushed_at").Str, "\n",
+						"Jump: ",
+						repo.Get("html_url").Str, "\n",
+					),
+					message.Image(
+						"https://opengraph.githubassets.com/0/"+repo.Get("full_name").Str,
+					).Add("cache", 0),
+				)
 			}
 		})
 }

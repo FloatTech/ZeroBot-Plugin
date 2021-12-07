@@ -65,13 +65,15 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnKeyword("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
 				if elem.Type == "text" {
 					name = strings.ReplaceAll(elem.Data["text"], " ", "")
 					name = name[strings.LastIndex(name, "添加wife")+10:]
+					name = strings.ReplaceAll(name, "/", "")
+					name = strings.ReplaceAll(name, "\\", "")
 					break
 				}
 			}
@@ -98,6 +100,8 @@ func init() {
 				if elem.Type == "text" {
 					name = strings.ReplaceAll(elem.Data["text"], " ", "")
 					name = name[strings.LastIndex(name, "删除wife")+10:]
+					name = strings.ReplaceAll(name, "/", "")
+					name = strings.ReplaceAll(name, "\\", "")
 					break
 				}
 			}
