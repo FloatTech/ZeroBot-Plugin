@@ -9,9 +9,14 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
+const dbpath = "data/BookReview/"
+const dbfile = dbpath + "bookreview.db"
 const dburl = "https://codechina.csdn.net/anto_july/bookreview/-/raw/master/bookreview.db"
+
+var db = &sql.Sqlite{DBPath: dbfile}
 
 // 加载数据库
 func init() {
@@ -34,11 +39,14 @@ func init() {
 					data, err := io.ReadAll(resp.Body)
 					if err == nil && len(data) > 0 {
 						_, _ = f.Write(data)
-						return
 					}
 					panic(err)
 				}
 			}
+			panic(err)
+		}
+		err := db.Create("book_review", &book{})
+		if err != nil {
 			panic(err)
 		}
 	}()
