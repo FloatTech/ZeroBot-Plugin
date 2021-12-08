@@ -7,11 +7,11 @@ type book struct {
 
 // 暂时随机选择一个书评
 func getBookReviewByKeyword(keyword string) (b book) {
-	db.Find("book_review", &b, "where book_review LIKE %"+keyword+"%")
+	db.Find("bookreview", &b, "where book_review LIKE %"+keyword+"%")
 	return
 }
 
 func getRandomBookReview() (b book) {
-	db.Pick("book_review", &b)
+	db.Pick("bookreview", &b)
 	return
 }
