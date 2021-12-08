@@ -13,7 +13,8 @@ func init() {
 		Help:             "哀伤雪刃推书记录\n- 书评[xxx]\n- 随机书评",
 	})
 
-	engine.OnRegex("^书评(.{1,25})$").SetBlock(true).
+	// 中文、英文、数字但不包括下划线等符号
+	engine.OnRegex("^书评([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
 			ctx.SendChain(message.Text(b.BookReview))
