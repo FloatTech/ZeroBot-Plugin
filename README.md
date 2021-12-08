@@ -152,8 +152,8 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 求签|占卜
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >vup info [名字|uid]
-	- [x] >user info [名字|uid]
-	- [x] /开启粉丝日报
+    - [x] >user info [名字|uid]
+    - [x] /开启粉丝日报
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"`
     - [x] 小作文
     - [x] 发大病
@@ -176,15 +176,15 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - 注：不同群添加后不会重叠
 - **minecraft** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"`
     - [x] /mcstart xxx
-	- [x] /mcstop xxx
-	- [x] /mclist servername
+    - [x] /mcstop xxx
+    - [x] /mclist servername
     - 注：此功能实现依赖[MCSManager](https://github.com/Suwings/MCSManager)项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
 - **炉石** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"`
     - [x] 搜卡[xxxx]
     - [x] [卡组代码xxx]
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
 - **青云客** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"`
-	- [x] @Bot 任意文本(任意一句话回复)
+    - [x] @Bot 任意文本(任意一句话回复)
 - **关键字搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"`
     - [x] 来张 [xxx]
 - **拼音首字母释义工具** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"`
@@ -199,6 +199,9 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 - **vtb语录** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation"`
     - [x] vtb语录
     - [x] 随机vtb
+- **书评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"`
+    - [x] 书评[关键字]
+    - [x] 随机书评
 - **TODO...**
 
 ## 使用方法

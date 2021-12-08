@@ -102,7 +102,7 @@ func (sdb *SleepDB) GetUp(groupId, userId int64) (position int, sleepTime time.D
 		sleepTime = now.Sub(st.SleepTime)
 		db.Debug().Model(&SleepManage{}).Where("group_id = ? and user_id = ?", groupId, userId).Update(
 			map[string]interface{}{
-				"get_up_time": now,
+				"sleep_time": now,
 			})
 	}
 	db.Debug().Model(&SleepManage{}).Where("group_id = ? and sleep_time <= ? and sleep_time >= ?", groupId, now, today).Count(&position)

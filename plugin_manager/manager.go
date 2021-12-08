@@ -413,7 +413,7 @@ func init() { // 插件主体
 			if ctx.Event.NoticeType == "group_decrease" {
 				userid := ctx.Event.UserID
 				nickname := ctx.GetStrangerInfo(userid, false).Get("nickname").String()
-				ctx.SendChain(message.Text(nickname, "(", userid, ")", "离开了我们~"))
+				ctx.SendChain(message.Text(nickname, "(", userid, ")", "离开了我们..."))
 			}
 		})
 	// 设置欢迎语
