@@ -46,9 +46,14 @@ func init() {
 				}
 			}
 		}
-		err := db.Create("book_review", &book{})
+		err := db.Create("bookreview", &book{})
 		if err != nil {
 			panic(err)
 		}
+		n, err := db.Count("bookreview")
+		if err != nil {
+			panic(err)
+		}
+		log.Printf("[bookreview]读取%d条书评", n)
 	}()
 }

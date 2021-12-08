@@ -1,7 +1,8 @@
 package plugin_book_review
 
 type book struct {
-	BookReview string `db:"book_review"`
+	Id         uint64 `db:"id"`
+	BookReview string `db:"bookreview"`
 }
 
 // 暂时随机选择一个书评
