@@ -12,8 +12,8 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 )
 
-const dbpath = "data/SleepManage/"
-const dbfile = dbpath + "sleepmanage.db"
+const dbpath = "data/sleep/"
+const dbfile = dbpath + "manage.db"
 const prio = 4
 
 var engine = control.Register("sleepmanage", &control.Options{
