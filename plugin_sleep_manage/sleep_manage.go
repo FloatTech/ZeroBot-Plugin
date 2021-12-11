@@ -75,6 +75,7 @@ func isMorning(ctx *zero.Ctx) bool {
 
 // 只统计21点到凌晨3点的晚安
 func isEvening(ctx *zero.Ctx) bool {
-	now := time.Now().Hour()
-	return now >= 21 || now <= 3
+	//now := time.Now().Hour()
+	//return now >= 21 || now <= 3
+	return true
 }

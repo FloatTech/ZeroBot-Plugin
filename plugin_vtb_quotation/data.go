@@ -2,9 +2,10 @@ package vtbquotation
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
