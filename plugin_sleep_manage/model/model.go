@@ -58,8 +58,12 @@ func (SleepManage) TableName() string {
 func (sdb *SleepDB) Sleep(groupId, userId int64) (position int, awakeTime time.Duration) {
 	db := (*gorm.DB)(sdb)
 	now := time.Now()
-
-	today := now.Add(-time.Hour*time.Duration(3+now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
+	var today time.Time
+	if now.Hour() >= 21 {
+		today = now.Add(-time.Hour*time.Duration(-21+now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
+	} else if now.Hour() <= 3 {
+		today = now.Add(-time.Hour*time.Duration(3+now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))
+	}
 	st := SleepManage{
 		GroupId:   groupId,
 		UserId:    userId,
