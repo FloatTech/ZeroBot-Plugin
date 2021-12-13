@@ -4,9 +4,7 @@ package data
 import (
 	"crypto/md5"
 	"errors"
-	"io"
 	"math/rand"
-	"net/http"
 	"os"
 	"sync"
 
@@ -21,7 +19,6 @@ import (
 const (
 	datapath = "data/Diana"
 	pbfile   = datapath + "/text.pb"
-	pburl    = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/" + pbfile
 )
 
 var (
@@ -56,41 +53,11 @@ func init() {
 
 // LoadText 加载小作文
 func LoadText() error {
-	if file.IsExist(pbfile) {
-		f, err := os.Open(pbfile)
-		if err == nil {
-			defer f.Close()
-			data, err1 := io.ReadAll(f)
-			if err1 == nil {
-				if len(data) > 0 {
-					return proto.Unmarshal(data, &compo)
-				}
-			}
-			return err1
-		}
-	} else { // 如果没有小作文，则从 url 下载
-		f, err := os.Create(pbfile)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		resp, err := http.Get(pburl)
-		if err == nil {
-			defer resp.Body.Close()
-			if resp.ContentLength > 0 {
-				log.Printf("[Diana]从镜像下载小作文%d字节...", resp.ContentLength)
-				data, err := io.ReadAll(resp.Body)
-				if err == nil && len(data) > 0 {
-					_, _ = f.Write(data)
-					return proto.Unmarshal(data, &compo)
-				}
-				return err
-			}
-			return nil
-		}
+	data, err := file.GetLazyData(pbfile, true, false)
+	if err != nil {
 		return err
 	}
-	return nil
+	return proto.Unmarshal(data, &compo)
 }
 
 // AddText 添加小作文

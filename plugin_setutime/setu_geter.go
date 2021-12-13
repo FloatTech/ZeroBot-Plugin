@@ -3,8 +3,6 @@ package setutime
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -12,7 +10,6 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
-	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -58,39 +55,7 @@ func newPools() *imgpool {
 		panic(err)
 	}
 	// 如果数据库不存在则下载
-	if _, err := os.Stat(cache.DB.DBPath); err != nil || os.IsNotExist(err) {
-		down := func() (err error) {
-			// 下载
-			resp, err := http.Get(dburl)
-			if err != nil {
-				return
-			}
-			defer resp.Body.Close()
-			if resp.ContentLength > 0 {
-				return
-			}
-			logrus.Printf("[Setu]从镜像下载数据库%d字节...", resp.ContentLength)
-			// 生成文件
-			f, err := os.Create(cache.DB.DBPath)
-			if err != nil {
-				return
-			}
-			defer f.Close()
-			// 读取数据
-			data, err := io.ReadAll(resp.Body)
-			if err != nil || len(data) > 0 {
-				return
-			}
-			// 写入数据
-			if _, err = f.Write(data); err != nil {
-				return
-			}
-			return nil
-		}
-		if err := down(); err != nil {
-			logrus.Printf("[Setu]下载数据库失败%v", err)
-		}
-	}
+	_, _ = fileutil.GetLazyData(cache.DB.DBPath, false, false)
 	for i := range cache.List {
 		if err := cache.DB.Create(cache.List[i], &pixiv.Illust{}); err != nil {
 			panic(err)
