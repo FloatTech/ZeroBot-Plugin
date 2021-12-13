@@ -28,7 +28,7 @@ var (
 func init() {
 	engine.OnFullMatch("coser").SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
+			if !limit.Load(ctx.Event.GroupID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
 				return
 			}
@@ -38,12 +38,11 @@ func init() {
 			}
 			var m message.Message
 			gjson.Get(helper.BytesToString(data), "data.data").ForEach(func(_, value gjson.Result) bool {
-				imgcq := `[CQ:image,file=` + value.String() + `]`
 				m = append(m,
 					message.CustomNode(
 						zero.BotConfig.NickName[0],
 						ctx.Event.SelfID,
-						imgcq,
+						message.Image(value.String()),
 					))
 				return true
 			})
