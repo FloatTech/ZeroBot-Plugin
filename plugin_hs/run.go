@@ -85,8 +85,8 @@ func init() {
 			sk = append(
 				sk,
 				message.CustomNode(
-					ctx.Event.Sender.NickName,
-					ctx.Event.UserID,
+					zero.BotConfig.NickName[0],
+					ctx.Event.SelfID,
 					imgcq, // 图片
 				),
 			)

@@ -32,6 +32,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"    // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review" // 哀伤雪刃吧推书记录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"      // 选择困难症帮手
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"       // 三次元小姐姐
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"     // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"          // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"   // MCSManager

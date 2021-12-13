@@ -315,8 +315,8 @@ func init() {
 						var m message.Message
 						m = append(m,
 							message.CustomNode(
-								ctx.Event.Sender.NickName,
-								ctx.Event.UserID,
+								zero.BotConfig.NickName[0],
+								ctx.Event.SelfID,
 								"---服务详情---",
 							))
 						i := 0
@@ -333,17 +333,19 @@ func init() {
 							msg += "\n" + help
 							m = append(m,
 								message.CustomNode(
-									ctx.Event.Sender.NickName,
-									ctx.Event.UserID,
+									zero.BotConfig.NickName[0],
+									ctx.Event.SelfID,
 									msg,
 								))
 							return true
 						})
 
-						ctx.SendGroupForwardMessage(
+						if id := ctx.SendGroupForwardMessage(
 							ctx.Event.GroupID,
 							m,
-						)
+						).Int(); id == 0 {
+							ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+						}
 					})
 			}
 		}
