@@ -38,7 +38,7 @@ func init() {
 				log.Println("err为:", err)
 			}
 			var m message.Message
-			text := gjson.Get(helper.BytesToString(data), "data.title").String()
+			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
 			m = append(m,
 				message.CustomNode(
 					zero.BotConfig.NickName[0],
