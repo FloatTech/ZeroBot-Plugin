@@ -38,7 +38,6 @@ func init() {
 						ctx.Event.SelfID,
 						imgcq,
 					))
-				ctx.Send(imgcq)
 				return true
 			})
 
