@@ -2,13 +2,17 @@ package omikuji
 
 import "strconv"
 
-type signature struct {
-	Id   uint64 `db:"id"`
+type kuji struct {
+	Id   uint8  `db:"id"`
 	Text string `db:"text"`
 }
 
 // 返回一个解签
-func getSignatureById(id int) (s signature) {
-	db.Find("signature", &s, "where id = "+strconv.Itoa(id))
-	return
+func getKujiByBango(id uint8) string {
+	var s kuji
+	err := db.Find("kuji", &s, "where id = "+strconv.Itoa(int(id)))
+	if err != nil {
+		return err.Error()
+	}
+	return s.Text
 }

@@ -1,21 +1,21 @@
 package omikuji
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 	"io"
 	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
 const (
-	dbpath = "data/omikuji/"
-	dbfile = dbpath + "signature.db"
-	dburl  = "https://codechina.csdn.net/anto_july/bookreview/-/raw/master/signature.db?inline=false"
+	dbpath = "data/Omikuji/"
+	dbfile = dbpath + "kuji.db"
+	dburl  = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/" + dbfile
 )
 
 var db = &sql.Sqlite{DBPath: dbfile}
@@ -51,15 +51,15 @@ func init() {
 				}
 			}
 		}
-		err := db.Create("signature", &signature{})
+		err := db.Create("kuji", &kuji{})
 		if err != nil {
 			panic(err)
 		}
-		n, err := db.Count("signature")
+		n, err := db.Count("kuji")
 		if err != nil {
 			panic(err)
 		}
-		log.Printf("[signature]读取%d条签文", n)
+		log.Printf("[kuji]读取%d条签文", n)
 	}()
 
 }

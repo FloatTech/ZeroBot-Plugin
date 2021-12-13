@@ -27,37 +27,30 @@ var (
 )
 
 func init() { // 插件主体
-
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			userId := ctx.Event.UserID
-			today, err := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
-			if err != nil {
-				log.Errorln("string转化为int64格式有问题:", err)
-			}
-			seed := userId + today
-			rand.Seed(seed)
-			miku := rand.Intn(100) + 1
+			miku := bangoToday(ctx.Event.UserID)
 			ctx.SendChain(
-				message.At(userId),
+				message.At(ctx.Event.UserID),
 				message.Image(fmt.Sprintf(bed, miku, 0)),
 				message.Image(fmt.Sprintf(bed, miku, 1)),
 			)
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			userId := ctx.Event.UserID
-			today, err := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
-			if err != nil {
-				log.Errorln("string转化为int64格式有问题:", err)
-			}
-			seed := userId + today
-			rand.Seed(seed)
-			miku := rand.Intn(100) + 1
-			s := getSignatureById(miku)
 			ctx.SendChain(
-				message.At(userId),
-				message.Text(s.Text),
+				message.At(ctx.Event.UserID),
+				message.Text(getKujiByBango(bangoToday(ctx.Event.UserID))),
 			)
 		})
+}
+
+func bangoToday(uid int64) uint8 {
+	today, err := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
+	if err != nil {
+		log.Errorln("string转化为int64格式有问题:", err)
+	}
+	seed := uid + today
+	r := rand.New(rand.NewSource(seed))
+	return uint8(r.Intn(100) + 1)
 }
