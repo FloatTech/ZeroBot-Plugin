@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
 	"unsafe"
 
 	reg "github.com/fumiama/go-registry"
@@ -19,6 +20,7 @@ const (
 
 var (
 	registry = reg.NewRegReader("reilia.eastasia.azurecontainer.io:32664", "fumiama")
+	lzmu     sync.Mutex
 )
 
 func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, error) {
@@ -29,6 +31,7 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 
 	logrus.Infoln("[file]检查懒加载文件:", path)
 	u := dataurl + path
+	lzmu.Lock()
 	err := registry.Connect()
 	if err != nil {
 		logrus.Errorln("[file]无法连接到md5验证服务器，请自行确保下载文件的正确性:", err)
@@ -42,6 +45,7 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 			_ = registry.Close()
 		}
 	}
+	lzmu.Unlock()
 
 	if IsExist(path) {
 		data, err = os.ReadFile(path)
