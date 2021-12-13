@@ -3,8 +3,10 @@ package plugin_coser
 import (
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+	"time"
 
 	"github.com/tidwall/gjson"
 
@@ -20,11 +22,16 @@ var (
 	prio     = 20
 	ua       = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
 	coserURL = "http://ovooa.com/API/cosplay/api.php"
+	limit    = rate.NewManager(time.Minute, 5)
 )
 
 func init() {
 	engine.OnFullMatch("coser").SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
+			if !limit.Load(ctx.Event.UserID).Acquire() {
+				ctx.SendChain(message.Text("请稍后重试0x0..."))
+				return
+			}
 			data, err := web.ReqWith(coserURL, "GET", "", ua)
 			if err != nil {
 				log.Println("err为:", err)
