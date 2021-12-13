@@ -221,13 +221,13 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) ，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
 
-### 本地运行
+### 本地直接运行
 
-1. 下载安装 [Go](https://studygolang.com/dl) 环境
+1. 下载安装最新 [Go](https://studygolang.com/dl) 环境
 2. 下载本项目[压缩包](https://github.com/FloatTech/ZeroBot-Plugin/archive/master.zip)，本地解压
 3. 编辑 main.go 文件，内容按需修改
-4. 双击 build.bat 文件 或 直接双击 run.bat 文件
-5. 运行 OneBot 框架，并同时运行本插件
+4. 运行 OneBot 框架
+5. `Windows`下双击 run.bat 文件，`Linux`下使用 run.sh 运行本插件
 
 ### 编译运行
 
@@ -243,7 +243,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 
 #### 本地编译/交叉编译
 
-1. 下载安装 [Go](https://studygolang.com/dl) 环境
+1. 下载安装最新 [Go](https://studygolang.com/dl) 环境
 2. clone 并进入本项目，下载所需包
 
 ```bash
@@ -256,11 +256,15 @@ go mod tidy
 ```
 
 3. 编辑 main.go 文件，内容按需修改
-4. 按照平台输入命令编译，下面举了两个不太常见的例子
+4. 按照平台输入命令编译，下面举了一些例子
 
 ```bash
 # 本机平台
 go build -ldflags "-s -w" -o zerobot
+# x64 Linux 平台 如各种云服务器
+GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o zerobot
+# x64 Windows 平台 如大多数家用电脑
+GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o zerobot.exe
 # armv6 Linux 平台 如树莓派 zero W
 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 # mips Linux 平台 如 路由器 wndr4300
