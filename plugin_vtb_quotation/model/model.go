@@ -237,7 +237,6 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 		logrus.Println(fc)
 
 		if err := db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).First(&fc).Error; err != nil {
-
 			if gorm.IsRecordNotFoundError(err) {
 				db.Debug().Model(&FirstCategory{}).Create(&fc) // newUser not user
 			}
@@ -330,7 +329,6 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 
 			if err := db.Debug().Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?",
 				uid, secondIndex, thirdIndex).First(&tc).Error; err != nil {
-
 				if gorm.IsRecordNotFoundError(err) {
 					db.Debug().Model(&ThirdCategory{}).Create(&tc) // newUser not user
 				}

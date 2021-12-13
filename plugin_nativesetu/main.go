@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/rule"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/rule"
 )
 
 const (

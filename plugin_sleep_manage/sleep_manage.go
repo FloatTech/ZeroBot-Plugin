@@ -38,7 +38,6 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("早安成功！你的睡眠时长为%d时%d分%d秒,你是今天第%d个起床的", hour, minute, second, position)))
 			}
 			db.Close()
-
 		})
 	engine.OnFullMatch("晚安", isEvening, zero.OnlyGroup).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
@@ -56,7 +55,6 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("晚安成功！你的清醒时长为%d时%d分%d秒,你是今天第%d个睡觉的", hour, minute, second, position)))
 			}
 			db.Close()
-
 		})
 }
 

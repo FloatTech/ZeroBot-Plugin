@@ -16,11 +16,9 @@ func init() {
 			if err := recover(); err != nil { //产生了panic异常
 				log.Println(err)
 			}
-
 		}() //别忘了(), 调用此匿名函数
 		process.SleepAbout1sTo2s()
 		_ = os.MkdirAll(dbpath, 0755)
 		model.Initialize(dbfile)
 	}()
-
 }

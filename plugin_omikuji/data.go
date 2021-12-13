@@ -37,5 +37,4 @@ func init() {
 		}
 		log.Printf("[kuji]读取%d条签文", n)
 	}()
-
 }

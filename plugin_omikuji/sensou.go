@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
