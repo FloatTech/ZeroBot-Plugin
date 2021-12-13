@@ -32,11 +32,19 @@ func init() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
 				return
 			}
+			ctx.SendChain(message.Text("少女祈祷中......"))
 			data, err := web.ReqWith(coserURL, "GET", "", ua)
 			if err != nil {
 				log.Println("err为:", err)
 			}
 			var m message.Message
+			text := gjson.Get(helper.BytesToString(data), "data.title").String()
+			m = append(m,
+				message.CustomNode(
+					zero.BotConfig.NickName[0],
+					ctx.Event.SelfID,
+					text,
+				))
 			gjson.Get(helper.BytesToString(data), "data.data").ForEach(func(_, value gjson.Result) bool {
 				imgcq := `[CQ:image,file=` + value.String() + `]`
 				m = append(m,
