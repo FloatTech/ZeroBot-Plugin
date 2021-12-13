@@ -18,6 +18,15 @@
 
 </div>
 
+本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
+| 项目地址 | 平台 | 核心作者 | 备注 |
+| --- | --- | --- | --- |
+| [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |  |
+| [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
+| [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
+
+如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文文件，运行后按提示登录即可。
+
 ## 命令行参数
 ```bash
 zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
@@ -207,16 +216,6 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 
 ## 使用方法
 
-本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
-| 项目地址 | 平台 | 核心作者 | 备注 |
-| --- | --- | --- | --- |
-| [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |  |
-| [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |  |
-| [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |  |
-
-如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文文件，运行后按提示登录即可。
-
-
 ### 使用稳定版/测试版 (推荐)
 
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) ，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
@@ -267,7 +266,7 @@ GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o zerobot
 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o zerobot.exe
 # armv6 Linux 平台 如树莓派 zero W
 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
-# mips Linux 平台 如 路由器 wndr4300
+# （由于引入了github.com/logoove/sqlite，本项不再可用）mips Linux 平台 如 路由器 wndr4300
 GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot
 ```
 
