@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 	"unsafe"
 
 	reg "github.com/fumiama/go-registry"
@@ -32,7 +33,7 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 	logrus.Infoln("[file]检查懒加载文件:", path)
 	u := dataurl + path
 	lzmu.Lock()
-	err := registry.Connect()
+	err := registry.ConnectIn(time.Second * 4)
 	if err != nil {
 		logrus.Errorln("[file]无法连接到md5验证服务器，请自行确保下载文件的正确性:", err)
 	} else {
