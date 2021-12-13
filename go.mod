@@ -24,5 +24,6 @@ require (
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.12.1
 	github.com/wdvxdr1123/ZeroBot v1.4.1
+	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 )
