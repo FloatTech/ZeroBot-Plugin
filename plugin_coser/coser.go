@@ -48,12 +48,10 @@ func init() {
 				return true
 			})
 
-			if id := ctx.SendGroupForwardMessage(
+			ctx.SendGroupForwardMessage(
 				ctx.Event.GroupID,
 				m,
-			).Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
+			)
 
 		})
 }
