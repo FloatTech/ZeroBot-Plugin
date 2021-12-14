@@ -13,8 +13,6 @@ import (
 	// webctrl "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
 
 	// 词库类
-	"github.com/fumiama/go-registry"
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
@@ -60,6 +58,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation" // vtb语录
 
 	// 以下为内置依赖，勿动
+	"github.com/fumiama/go-registry"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
