@@ -30,9 +30,9 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 	var filemd5 *[16]byte
 	var ms string
 
-	logrus.Infoln("[file]检查懒加载文件:", path)
 	u := dataurl + path
 	lzmu.Lock()
+	logrus.Infoln("[file]检查懒加载文件:", path)
 	err := registry.ConnectIn(time.Second * 4)
 	if err != nil {
 		logrus.Errorln("[file]无法连接到md5验证服务器，请自行确保下载文件的正确性:", err)

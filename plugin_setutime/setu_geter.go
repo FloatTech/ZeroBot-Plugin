@@ -17,6 +17,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/rule"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
@@ -32,10 +33,6 @@ type imgpool struct {
 	Pool  map[string][]*pixiv.Illust
 	Form  int64
 }
-
-const (
-	dburl = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/data/SetuTime/SetuTime.db"
-)
 
 // NewPoolsCache 返回一个缓冲池对象
 func newPools() *imgpool {
@@ -65,11 +62,15 @@ func newPools() *imgpool {
 }
 
 var (
-	pool  = newPools()
+	pool  *imgpool
 	limit = rate.NewManager(time.Minute*1, 5)
 )
 
 func init() { // 插件主体
+	go func() {
+		process.SleepAbout1sTo2s()
+		pool = newPools()
+	}()
 	engine := control.Register("setutime", &control.Options{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
