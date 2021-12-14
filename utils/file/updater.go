@@ -43,9 +43,9 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 		} else {
 			filemd5 = (*[16]byte)(*(*unsafe.Pointer)(unsafe.Pointer(&ms)))
 			logrus.Infoln("[file]从验证服务器获得文件md5:", hex.EncodeToString(filemd5[:]))
-			_ = registry.Close()
 		}
 	}
+	_ = registry.Close()
 	lzmu.Unlock()
 
 	if IsExist(path) {
