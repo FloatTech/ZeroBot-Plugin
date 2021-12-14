@@ -294,7 +294,7 @@ func init() {
 
 				zero.OnCommandGroup([]string{"服务列表", "service_list"}, userOrGrpAdmin).
 					Handle(func(ctx *zero.Ctx) {
-						msg := `---服务列表---`
+						msg := "--------服务列表--------\n发送\"/用法 name\"查看详情"
 						i := 0
 						gid := ctx.Event.GroupID
 						ForEach(func(key string, manager *Control) bool {
