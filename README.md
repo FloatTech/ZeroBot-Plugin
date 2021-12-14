@@ -218,7 +218,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 
 ### 使用稳定版/测试版 (推荐)
 
-可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) ，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
+可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 或 [Package](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp)，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
 
 ### 本地直接运行
 
