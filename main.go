@@ -16,6 +16,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
+	"github.com/fumiama/go-registry"
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"          // base16384加解密
@@ -74,6 +75,7 @@ var (
 	banner = strings.Join(contents, "\n")
 	token  *string
 	url    *string
+	reg    = registry.NewRegReader("reilia.eastasia.azurecontainer.io:32664", "fumiama")
 )
 
 func init() {
@@ -120,7 +122,22 @@ func main() {
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(banner, "\n可发送\"/服务详情\"查看 bot 功能"))
+			ctx.SendChain(message.Text(banner, "\n可发送\"/服务列表\"查看 bot 功能"))
+		})
+	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).FirstPriority().
+		Handle(func(ctx *zero.Ctx) {
+			err := reg.Connect()
+			defer reg.Close()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			text, err := reg.Get("ZeroBot-Plugin/kanban")
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Text(text))
 		})
 	zero.RunAndBlock(
 		zero.Config{
