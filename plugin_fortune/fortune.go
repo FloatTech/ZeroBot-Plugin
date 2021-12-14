@@ -35,20 +35,16 @@ var (
 	// 				公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师
 	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师"}
 	// 映射底图与 index
-	index = make(map[string]uint32)
+	index = make(map[string]uint8)
 	// 下载锁
 	dlmu sync.Mutex
 )
 
 func init() {
-	err := loadcfg("cfg.pb")
-	if err != nil {
-		panic(err)
-	}
 	for i, s := range table {
-		index[s] = uint32(i)
+		index[s] = uint8(i)
 	}
-	err = os.MkdirAll(base, 0755)
+	err := os.MkdirAll(base, 0755)
 	if err != nil {
 		panic(err)
 	}
@@ -68,12 +64,16 @@ func init() {
 			}
 			i, ok := index[ctx.State["regex_matched"].([]string)[1]]
 			if ok {
-				conf.Kind[gid] = i
-				savecfg("cfg.pb")
-				ctx.SendChain(message.Text("设置成功~"))
-			} else {
-				ctx.SendChain(message.Text("没有这个底图哦～"))
+				c, ok := control.Lookup("fortune")
+				if ok {
+					c.SetData(gid, int64(i)&0xff)
+					ctx.SendChain(message.Text("设置成功~"))
+					return
+				}
+				ctx.SendChain(message.Text("设置失败!"))
+				return
 			}
+			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
 	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).SecondPriority().
 		Handle(func(ctx *zero.Ctx) {
@@ -115,8 +115,12 @@ func init() {
 				gid = -ctx.Event.UserID
 			}
 			logrus.Debugln("[fortune]gid:", ctx.Event.GroupID, "uid:", ctx.Event.UserID)
-			if v, ok := conf.Kind[gid]; ok {
-				kind = table[v]
+			c, ok := control.Lookup("fortune")
+			if ok {
+				v := uint8(c.GetData(gid) & 0xff)
+				if int(v) < len(table) {
+					kind = table[v]
+				}
 			}
 			// 检查背景图片是否存在
 			folder := base + kind
