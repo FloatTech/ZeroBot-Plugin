@@ -51,15 +51,16 @@ func init() {
 					message.CustomNode(
 						zero.BotConfig.NickName[0],
 						ctx.Event.SelfID,
-						imgcq,
-					))
+						imgcq),
+				)
 				return true
 			})
 
-			ctx.SendGroupForwardMessage(
+			if id := ctx.SendGroupForwardMessage(
 				ctx.Event.GroupID,
-				m,
-			)
+				m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 
 		})
 }
