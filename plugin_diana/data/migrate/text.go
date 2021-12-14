@@ -6,9 +6,10 @@ import (
 	"os"
 	"unsafe"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 	"github.com/RomiChan/protobuf/proto"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
 type Composition struct {
