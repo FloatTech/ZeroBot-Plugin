@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	engine.OnFullMatch("coser").SetBlock(true).SetPriority(prio).
+	engine.OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.GroupID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
