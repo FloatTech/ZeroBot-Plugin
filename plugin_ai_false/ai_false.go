@@ -2,13 +2,14 @@
 package aifalse
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"time"
 
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/disk"
-	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/mem"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 
@@ -25,9 +26,9 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
-				"* CPU占用率: ", cpuPercent(), "%\n",
-				"* RAM占用率: ", memPercent(), "%\n",
-				"* 硬盘活动率: ", diskPercent(), "%",
+				"* CPU占用: ", cpuPercent(), "%\n",
+				"* RAM占用: ", memPercent(), "%\n",
+				"* 硬盘使用: ", diskPercent(),
 			),
 			)
 		})
@@ -52,8 +53,12 @@ func memPercent() float64 {
 	return math.Round(memInfo.UsedPercent)
 }
 
-func diskPercent() float64 {
+func diskPercent() string {
 	parts, _ := disk.Partitions(true)
-	diskInfo, _ := disk.Usage(parts[0].Mountpoint)
-	return math.Round(diskInfo.UsedPercent)
+	msg := ""
+	for i, p := range parts {
+		diskInfo, _ := disk.Usage(p.Mountpoint)
+		msg += fmt.Sprintf("\n  - 分区%d(%dM) %f %%", i, diskInfo.Total/1024/1024, math.Round(diskInfo.UsedPercent))
+	}
+	return msg
 }
