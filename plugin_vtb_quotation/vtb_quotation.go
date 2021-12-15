@@ -42,7 +42,9 @@ func init() {
 			defer db.Close()
 			defer cancel()
 			firstStepMessage := db.GetAllFirstCategoryMessage()
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(firstStepMessage))
+			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(firstStepMessage)); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 			// 步骤0，1，2，依次选择3个类别
 			step := 0
 			// 错误次数

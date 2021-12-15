@@ -310,13 +310,13 @@ func init() {
 						ctx.SendChain(message.Text(msg))
 					})
 
-				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin).
+				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin, zero.OnlyGroup).
 					Handle(func(ctx *zero.Ctx) {
 						var m message.Message
 						m = append(m,
 							message.CustomNode(
-								ctx.Event.Sender.NickName,
-								ctx.Event.UserID,
+								zero.BotConfig.NickName[0],
+								ctx.Event.SelfID,
 								"---服务详情---",
 							))
 						i := 0
@@ -333,17 +333,19 @@ func init() {
 							msg += "\n" + help
 							m = append(m,
 								message.CustomNode(
-									ctx.Event.Sender.NickName,
-									ctx.Event.UserID,
+									zero.BotConfig.NickName[0],
+									ctx.Event.SelfID,
 									msg,
 								))
 							return true
 						})
 
-						ctx.SendGroupForwardMessage(
+						if id := ctx.SendGroupForwardMessage(
 							ctx.Event.GroupID,
 							m,
-						)
+						).Get("message_id").Int(); id == 0 {
+							ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+						}
 					})
 			}
 		}
