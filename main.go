@@ -113,8 +113,23 @@ func printBanner() {
 	fmt.Print(
 		"\n======================[ZeroBot-Plugin]======================",
 		"\n", banner, "\n",
+		"----------------------[ZeroBot-公告栏]----------------------",
+		"\n", getKanban(), "\n",
 		"============================================================\n",
 	)
+}
+
+func getKanban() string {
+	err := reg.Connect()
+	defer reg.Close()
+	if err != nil {
+		return err.Error()
+	}
+	text, err := reg.Get("ZeroBot-Plugin/kanban")
+	if err != nil {
+		return err.Error()
+	}
+	return text
 }
 
 func main() {
@@ -126,18 +141,7 @@ func main() {
 		})
 	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
-			err := reg.Connect()
-			defer reg.Close()
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			text, err := reg.Get("ZeroBot-Plugin/kanban")
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			ctx.SendChain(message.Text(text))
+			ctx.SendChain(message.Text(getKanban()))
 		})
 	zero.RunAndBlock(
 		zero.Config{
