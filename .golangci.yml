@@ -10,10 +10,6 @@ linters-settings:
     disabled-checks:
       - exitAfterDefer
 
-  gofumpt:
-    # Select the Go version to target. The default is `1.15`.
-    lang-version: "1.17"
-
   forbidigo:
     # Forbid the following identifiers
     forbid:
@@ -22,13 +18,13 @@ linters-settings:
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-  fast: true
+  disable-all: true
+  fast: false
   enable:
     - bodyclose
     - deadcode
     - depguard
     - dogsled
-    - dupl
     - errcheck
     - exportloopref
     - exhaustive
@@ -43,7 +39,7 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - misspell
+    #- misspell
     - nolintlint
     - rowserrcheck
     - staticcheck
@@ -58,23 +54,9 @@ linters:
     - prealloc
     - predeclared
     - asciicheck
+    - revive
     - forbidigo
     - makezero
-    - revive
-    #- interfacer
-
-  # don't enable:
-  # - scopelint
-  # - gochecknoglobals
-  # - gocognit
-  # - godot
-  # - godox
-  # - goerr113
-  # - interfacer
-  # - maligned
-  # - nestif
-  # - testpackage
-  # - wsl
 
 run:
   # default concurrency is a available CPU number.
@@ -95,4 +77,4 @@ issues:
   fix: true
   exclude-use-default: false
   exclude:
-    - "Error return value of .((os.)?std(out|err)..*|.*Close|.*Flush|os.Remove(All)?|.*print(f|ln)?|os.(Un)?Setenv). is not check"
+    - "Error return value of .((os.)?std(out|err)..*|.*Close|.*Seek|.*Flush|os.Remove(All)?|.*print(f|ln)?|os.(Un)?Setenv). is not check"
