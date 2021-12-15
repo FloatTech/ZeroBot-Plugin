@@ -56,9 +56,9 @@ func memPercent() float64 {
 func diskPercent() string {
 	parts, _ := disk.Partitions(true)
 	msg := ""
-	for i, p := range parts {
+	for _, p := range parts {
 		diskInfo, _ := disk.Usage(p.Mountpoint)
-		msg += fmt.Sprintf("\n  - 分区%d(%dM) %f %%", i, diskInfo.Total/1024/1024, math.Round(diskInfo.UsedPercent))
+		msg += fmt.Sprintf("\n  - %s(%dM) %d%%", p.Mountpoint, diskInfo.Total/1024/1024, uint(math.Round(diskInfo.UsedPercent)))
 	}
 	return msg
 }
