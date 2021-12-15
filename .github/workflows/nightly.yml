@@ -1,4 +1,4 @@
-name: CI
+name: 最新版
 
 on: [push, pull_request]
 

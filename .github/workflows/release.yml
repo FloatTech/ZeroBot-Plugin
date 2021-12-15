@@ -1,4 +1,4 @@
-name: compile
+name: 发行版
 on:
   push:
     tags:
