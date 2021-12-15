@@ -97,7 +97,6 @@ func init() {
 		).Get("message_id").Int(); id == 0 {
 			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 		}
-
 	})
 	// 卡组
 	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).

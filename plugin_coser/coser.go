@@ -1,8 +1,9 @@
 package plugin_coser
 
 import (
-	"github.com/tidwall/gjson"
 	"time"
+
+	"github.com/tidwall/gjson"
 
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -61,6 +62,5 @@ func init() {
 				m).Get("message_id").Int(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
-
 		})
 }
