@@ -16,3 +16,11 @@ func Min(a, b int) int {
 	}
 	return a
 }
+
+// Abs 返回绝对值，该函数将被内联
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

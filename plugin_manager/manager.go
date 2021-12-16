@@ -3,15 +3,12 @@ package manager
 
 import (
 	"fmt"
-	"io"
 	"math/rand"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/RomiChan/protobuf/proto"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -19,15 +16,15 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
 const (
-	datapath  = "data/manager/"
-	confile   = datapath + "config.pb"
-	timerfile = datapath + "timers.pb"
-	hint      = "====群管====\n" +
+	datapath = "data/manager/"
+	confile  = datapath + "config.db"
+	hint     = "====群管====\n" +
 		"- 禁言@QQ 1分钟\n" +
 		"- 解除禁言 @QQ\n" +
 		"- 我要自闭 1分钟\n" +
@@ -55,20 +52,22 @@ const (
 )
 
 var (
-	config Config
-	limit  = rate.NewManager(time.Minute*5, 2)
-	clock  timer.Clock
+	db    = &sql.Sqlite{DBPath: confile}
+	limit = rate.NewManager(time.Minute*5, 2)
+	clock timer.Clock
 )
+
 var engine = control.Register("manager", &control.Options{
 	DisableOnDefault: false,
 	Help:             hint,
 })
 
 func init() { // 插件主体
-	loadConfig()
 	go func() {
-		time.Sleep(time.Second + time.Millisecond*time.Duration(rand.Intn(1000)))
-		clock = timer.NewClock(timerfile)
+		process.SleepAbout1sTo2s()
+		clock = timer.NewClock(db)
+		db.Create("welcome", &Welcome{})
+		db.Create("member", &Member{})
 	}()
 	// 升为管理
 	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
@@ -363,46 +362,50 @@ func init() { // 插件主体
 	engine.OnNotice().SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID != ctx.Event.UserID {
-				word, ok := config.Welcome[ctx.Event.GroupID]
-				if ok {
-					ctx.SendChain(message.Text(word))
+				var w Welcome
+				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+				if err == nil {
+					ctx.SendChain(message.Text(w.Msg))
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
-				enable, ok1 := config.Checkin[ctx.Event.GroupID]
-				if ok1 && enable {
-					uid := ctx.Event.UserID
-					a := rand.Intn(100)
-					b := rand.Intn(100)
-					r := a + b
-					ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("考你一道题：%d+%d=?\n如果60秒之内答不上来，%s就要把你踢出去了哦~", a, b, zero.BotConfig.NickName[0])))
-					// 匹配发送者进行验证
-					rule := func(ctx *zero.Ctx) bool {
-						for _, elem := range ctx.Event.Message {
-							if elem.Type == "text" {
-								text := strings.ReplaceAll(elem.Data["text"], " ", "")
-								ans, err := strconv.Atoi(text)
-								if err == nil {
-									if ans != r {
-										ctx.SendChain(message.Text("答案不对哦，再想想吧~"))
-										return false
+				c, ok := control.Lookup("manager")
+				if ok {
+					enable := c.GetData(ctx.Event.GroupID)&1 == 1
+					if enable {
+						uid := ctx.Event.UserID
+						a := rand.Intn(100)
+						b := rand.Intn(100)
+						r := a + b
+						ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("考你一道题：%d+%d=?\n如果60秒之内答不上来，%s就要把你踢出去了哦~", a, b, zero.BotConfig.NickName[0])))
+						// 匹配发送者进行验证
+						rule := func(ctx *zero.Ctx) bool {
+							for _, elem := range ctx.Event.Message {
+								if elem.Type == "text" {
+									text := strings.ReplaceAll(elem.Data["text"], " ", "")
+									ans, err := strconv.Atoi(text)
+									if err == nil {
+										if ans != r {
+											ctx.SendChain(message.Text("答案不对哦，再想想吧~"))
+											return false
+										}
+										return true
 									}
-									return true
 								}
 							}
+							return false
 						}
-						return false
-					}
-					next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule)
-					recv, cancel := next.Repeat()
-					select {
-					case <-time.After(time.Minute):
-						ctx.SendChain(message.Text("拜拜啦~"))
-						ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
-						cancel()
-					case <-recv:
-						cancel()
-						ctx.SendChain(message.Text("答对啦~"))
+						next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule)
+						recv, cancel := next.Repeat()
+						select {
+						case <-time.After(time.Minute):
+							ctx.SendChain(message.Text("拜拜啦~"))
+							ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
+							cancel()
+						case <-recv:
+							cancel()
+							ctx.SendChain(message.Text("答对啦~"))
+						}
 					}
 				}
 			}
@@ -419,30 +422,66 @@ func init() { // 插件主体
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			config.Welcome[ctx.Event.GroupID] = ctx.State["regex_matched"].([]string)[1]
-			if saveConfig() == nil {
+			w := &Welcome{
+				GrpID: ctx.Event.GroupID,
+				Msg:   ctx.State["regex_matched"].([]string)[1],
+			}
+			err := db.Insert("welcome", w)
+			if err == nil {
 				ctx.SendChain(message.Text("记住啦!"))
 			} else {
-				ctx.SendChain(message.Text("出错啦!"))
+				ctx.SendChain(message.Text("出错啦: ", err))
 			}
 		})
-	// 入群验证开关
+	// 入群后验证开关
 	engine.OnRegex(`^(.*)入群验证$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			option := ctx.State["regex_matched"].([]string)[1]
-			switch option {
-			case "开启":
-				config.Checkin[ctx.Event.GroupID] = true
-			case "关闭":
-				config.Checkin[ctx.Event.GroupID] = false
-			default:
+			c, ok := control.Lookup("manager")
+			if ok {
+				data := c.GetData(ctx.Event.GroupID)
+				switch option {
+				case "开启", "打开", "启用":
+					data |= 1
+				case "关闭", "关掉", "禁用":
+					data &= 0x7fffffff_fffffffe
+				default:
+					return
+				}
+				err := c.SetData(ctx.Event.GroupID, data)
+				if err == nil {
+					ctx.SendChain(message.Text("已", option))
+					return
+				}
+				ctx.SendChain(message.Text("出错啦: ", err))
 				return
 			}
-			if saveConfig() == nil {
-				ctx.SendChain(message.Text("已", option))
-			} else {
-				ctx.SendChain(message.Text("出错啦!"))
+			ctx.SendChain(message.Text("找不到服务!"))
+		})
+	// 加群 gist 验证开关
+	engine.OnRegex(`^(.*)gist加群自动审批$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
+		Handle(func(ctx *zero.Ctx) {
+			option := ctx.State["regex_matched"].([]string)[1]
+			c, ok := control.Lookup("manager")
+			if ok {
+				data := c.GetData(ctx.Event.GroupID)
+				switch option {
+				case "开启", "打开", "启用":
+					data |= 0x10
+				case "关闭", "关掉", "禁用":
+					data &= 0x7fffffff_fffffffd
+				default:
+					return
+				}
+				err := c.SetData(ctx.Event.GroupID, data)
+				if err == nil {
+					ctx.SendChain(message.Text("已", option))
+					return
+				}
+				ctx.SendChain(message.Text("出错啦: ", err))
+				return
 			}
+			ctx.SendChain(message.Text("找不到服务!"))
 		})
 	// 运行 CQ 码
 	engine.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(0).
@@ -453,61 +492,33 @@ func init() { // 插件主体
 			// 可注入，权限为主人
 			ctx.Send(cmd)
 		})
-	// 自动同意加好友，被邀请入群(从qingyunke移过来，先注释)
-	/*
-		engine.OnRequest().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.RequestType == "friend" {
-				ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
+	// 根据 gist 自动同意加群
+	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5，内容为一行，是当前unix时间戳。
+	// 然后请将您的用户名和gist哈希按照username/gisthash的格式填写到回答即可。
+	engine.OnRequest().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
+		/*if ctx.Event.RequestType == "friend" {
+			ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
+		}*/
+		c, ok := control.Lookup("manager")
+		if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 && ctx.Event.RequestType == "group" && ctx.Event.SubType == "add" {
+			// gist 文件名是群号的 ascii 编码的 md5
+			// gist 内容是当前 uinx 时间戳，在 10 分钟内视为有效
+			ans := ctx.Event.Comment[strings.Index(ctx.Event.Comment, "答案：")+len("答案："):]
+			divi := strings.Index(ans, "/")
+			ghun := ans[:divi]
+			hash := ans[divi+1:]
+			logrus.Infoln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
+			ok, reason := checkNewUser(ctx.Event.UserID, ctx.Event.GroupID, ghun, hash)
+			if ok {
+				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", true, "")
+			} else {
+				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", false, reason)
 			}
-			if ctx.Event.RequestType == "group" && ctx.Event.SubType == "invite" {
-				ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "我爱你，mua~")
-			}
-		})
-	*/
+		}
+	})
 }
 
 func strToInt(str string) int64 {
 	val, _ := strconv.ParseInt(str, 10, 64)
 	return val
-}
-
-// loadConfig 加载设置，没有则手动初始化
-func loadConfig() {
-	mkdirerr := os.MkdirAll(datapath, 0755)
-	if mkdirerr == nil {
-		if file.IsExist(confile) {
-			f, err := os.Open(confile)
-			if err == nil {
-				data, err1 := io.ReadAll(f)
-				if err1 == nil {
-					if len(data) > 0 {
-						if proto.Unmarshal(data, &config) == nil {
-							return
-						}
-					}
-				}
-			}
-		}
-		config.Checkin = make(map[int64]bool)
-		config.Welcome = make(map[int64]string)
-	} else {
-		panic(mkdirerr)
-	}
-}
-
-// saveConfig 保存设置，无此文件则新建
-func saveConfig() error {
-	data, err := proto.Marshal(&config)
-	if err != nil {
-		return err
-	} else if file.IsExist(datapath) {
-		f, err1 := os.OpenFile(confile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-		if err1 != nil {
-			return err1
-		}
-		defer f.Close()
-		_, err2 := f.Write(data)
-		return err2
-	}
-	return nil
 }

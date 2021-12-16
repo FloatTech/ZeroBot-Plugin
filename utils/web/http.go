@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"io"
 	"net/http"
 )
@@ -20,6 +21,21 @@ func ReqWith(url string, method string, referer string, ua string) (data []byte,
 			data, err = io.ReadAll(response.Body)
 			response.Body.Close()
 		}
+	}
+	return
+}
+
+func GetData(url string) (data []byte, err error) {
+	var response *http.Response
+	response, err = http.Get(url)
+	if err == nil {
+		if response.ContentLength <= 0 {
+			err = errors.New("web.GetData: empty body")
+			response.Body.Close()
+			return
+		}
+		data, err = io.ReadAll(response.Body)
+		response.Body.Close()
 	}
 	return
 }

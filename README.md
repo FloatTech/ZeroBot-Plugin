@@ -91,11 +91,12 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 列出所有提醒
     - [x] 翻牌
     - [x] [开启|关闭]入群验证
-    - [ ] 同意入群请求
+    - [x] [开启|关闭]gist加群自动审批
     - [ ] 同意好友请求
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
     - [x] run[xxx]
+    - 注：使用gist加群自动审批，请在群介绍添加以下说明，同时开启`需要回答问题并由管理员审核`：加群请在github新建一个gist，其文件名为本群群号的字符串的md5，内容为一行，是当前unix时间戳。然后请将您的用户名和gist哈希按照username/gisthash的格式填写到回答即可。
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_github"`
     - [x] >github [xxx]
     - [x] >github -p [xxx]

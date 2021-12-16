@@ -37,8 +37,8 @@ var (
 	}
 )
 
-func NewClock(dbfile string) (c Clock) {
-	c.loadTimers(dbfile)
+func NewClock(db *sql.Sqlite) (c Clock) {
+	c.loadTimers(db)
 	c.cron = cron.New()
 	c.entries = make(map[uint32]cron.EntryID)
 	c.cron.Start()
@@ -167,9 +167,9 @@ func (c *Clock) AddTimer(t *Timer) (err error) {
 	return
 }
 
-func (c *Clock) loadTimers(dbfile string) {
-	if file.IsExist(dbfile) {
-		c.db.DBPath = dbfile
+func (c *Clock) loadTimers(db *sql.Sqlite) {
+	if file.IsExist(db.DBPath) {
+		c.db = db
 		err := c.db.Create("timer", &Timer{})
 		if err == nil {
 			var t Timer
