@@ -10,6 +10,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -18,22 +19,27 @@ var (
 	engine = control.Register("qqinfo", &control.Options{
 		DisableOnDefault: false,
 		Help: "qq信息\n" +
-			"- qq信息[@xxx]\n",
+			"- qq信息[@xxx]|qq信息[qq号]\n",
 	})
-	limit = rate.NewManager(time.Minute*5, 5)
+	limit = rate.NewManager(time.Minute, 20)
 	ua    = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
+	qqReg = `\d+`
 )
 
 func init() {
 	engine.OnPrefix("qq信息").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.UserID).Acquire() {
+		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			ctx.SendChain(message.Text("请稍后重试0x0..."))
 			return
 		}
 		var uid int64
 		var text string
+		reg := regexp.MustCompile(qqReg)
 		if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
 			uid, _ = strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
+		} else if reg.MatchString(ctx.Event.RawMessage) {
+			result := reg.FindAllString(ctx.Event.RawMessage, -1)
+			uid, _ = strconv.ParseInt(result[0], 10, 64)
 		} else if uid == 0 {
 			uid = ctx.Event.UserID
 		}

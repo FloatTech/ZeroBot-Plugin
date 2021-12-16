@@ -216,7 +216,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 - **coser** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser" `
     - [x] coser
 - **qq信息** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qqinfo"`
-    - [x] qq信息[@xxx]
+    - [x] qq信息[@xxx]|qq信息[qq号]
 - **TODO...**
 
 ## 使用方法
