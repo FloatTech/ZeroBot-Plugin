@@ -493,8 +493,8 @@ func init() { // 插件主体
 			ctx.Send(cmd)
 		})
 	// 根据 gist 自动同意加群
-	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5，内容为一行，是当前unix时间戳。
-	// 然后请将您的用户名和gist哈希按照username/gisthash的格式填写到回答即可。
+	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳。
+	// 然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
 	engine.OnRequest().SetBlock(false).FirstPriority().Handle(func(ctx *zero.Ctx) {
 		/*if ctx.Event.RequestType == "friend" {
 			ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
