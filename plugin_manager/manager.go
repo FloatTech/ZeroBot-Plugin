@@ -505,6 +505,10 @@ func init() { // 插件主体
 			// gist 内容是当前 uinx 时间戳，在 10 分钟内视为有效
 			ans := ctx.Event.Comment[strings.Index(ctx.Event.Comment, "答案：")+len("答案："):]
 			divi := strings.Index(ans, "/")
+			if divi <= 0 {
+				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", false, "格式错误!")
+				return
+			}
 			ghun := ans[:divi]
 			hash := ans[divi+1:]
 			logrus.Infoln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
