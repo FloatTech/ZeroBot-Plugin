@@ -25,7 +25,7 @@ var (
 )
 
 func init() {
-	engine.OnPrefix("qqinfo").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
+	engine.OnPrefix("qq信息").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.UserID).Acquire() {
 			ctx.SendChain(message.Text("请稍后重试0x0..."))
 			return
