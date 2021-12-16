@@ -1,3 +1,4 @@
+// Package b14coder base16384 与 tea 加解密
 package b14coder
 
 import (

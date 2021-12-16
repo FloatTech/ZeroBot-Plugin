@@ -75,6 +75,7 @@ func (db *Sqlite) Create(table string, objptr interface{}) (err error) {
 }
 
 // Insert 插入数据集
+// 如果 PK 存在会覆盖
 // 默认结构体的第一个元素为主键
 // 返回错误
 func (db *Sqlite) Insert(table string, objptr interface{}) error {
@@ -133,7 +134,67 @@ func (db *Sqlite) Insert(table string, objptr interface{}) error {
 	return stmt.Close()
 }
 
-// Find 查询数据库
+// InsertUnique 插入数据集
+// 如果 PK 存在会报错
+// 默认结构体的第一个元素为主键
+// 返回错误
+func (db *Sqlite) InsertUnique(table string, objptr interface{}) error {
+	rows, err := db.DB.Query("SELECT * FROM " + table + " limit 1;")
+	if err != nil {
+		return err
+	}
+	if rows.Err() != nil {
+		return rows.Err()
+	}
+	tags, _ := rows.Columns()
+	rows.Close()
+	var (
+		vals = values(objptr)
+		top  = len(tags) - 1
+		cmd  = []string{}
+	)
+	cmd = append(cmd, "INSERT INTO")
+	cmd = append(cmd, table)
+	for i := range tags {
+		switch i {
+		default:
+			cmd = append(cmd, tags[i])
+			cmd = append(cmd, ",")
+		case 0:
+			cmd = append(cmd, "(")
+			cmd = append(cmd, tags[i])
+			cmd = append(cmd, ",")
+		case top:
+			cmd = append(cmd, tags[i])
+			cmd = append(cmd, ")")
+		}
+	}
+	for i := range tags {
+		switch i {
+		default:
+			cmd = append(cmd, "?")
+			cmd = append(cmd, ",")
+		case 0:
+			cmd = append(cmd, "VALUES (")
+			cmd = append(cmd, "?")
+			cmd = append(cmd, ",")
+		case top:
+			cmd = append(cmd, "?")
+			cmd = append(cmd, ")")
+		}
+	}
+	stmt, err := db.DB.Prepare(strings.Join(cmd, " ") + ";")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(vals...)
+	if err != nil {
+		return err
+	}
+	return stmt.Close()
+}
+
+// Find 查询数据库，写入最后一条结果到 objptr
 // condition 可为"WHERE id = 0"
 // 默认字段与结构体元素顺序一致
 // 返回错误
@@ -160,6 +221,68 @@ func (db *Sqlite) Find(table string, objptr interface{}, condition string) error
 			return err
 		}
 		err = rows.Scan(addrs(objptr)...)
+	}
+	return err
+}
+
+// CanFind 查询数据库是否有 condition
+// condition 可为"WHERE id = 0"
+// 默认字段与结构体元素顺序一致
+// 返回错误
+func (db *Sqlite) CanFind(table string, condition string) bool {
+	var cmd = []string{}
+	cmd = append(cmd, "SELECT * FROM")
+	cmd = append(cmd, table)
+	cmd = append(cmd, condition)
+	rows, err := db.DB.Query(strings.Join(cmd, " ") + ";")
+	if err != nil {
+		return false
+	}
+	if rows.Err() != nil {
+		return false
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return false
+	}
+	_ = rows.Close()
+	return true
+}
+
+// FindFor 查询数据库，用函数 f 遍历结果
+// condition 可为"WHERE id = 0"
+// 默认字段与结构体元素顺序一致
+// 返回错误
+func (db *Sqlite) FindFor(table string, objptr interface{}, condition string, f func() error) error {
+	var cmd = []string{}
+	cmd = append(cmd, "SELECT * FROM")
+	cmd = append(cmd, table)
+	cmd = append(cmd, condition)
+	rows, err := db.DB.Query(strings.Join(cmd, " ") + ";")
+	if err != nil {
+		return err
+	}
+	if rows.Err() != nil {
+		return rows.Err()
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return errors.New("sql.FindFor: null result")
+	}
+	err = rows.Scan(addrs(objptr)...)
+	if err == nil {
+		err = f()
+	}
+	for rows.Next() {
+		if err != nil {
+			return err
+		}
+		err = rows.Scan(addrs(objptr)...)
+		if err == nil {
+			err = f()
+		}
 	}
 	return err
 }

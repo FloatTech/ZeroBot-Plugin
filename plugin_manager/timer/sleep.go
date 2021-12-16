@@ -56,11 +56,12 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	} else {
 		stable |= 0x8
 	}
-	if d < 0 {
+	switch {
+	case d < 0:
 		d = date.Day()
-	} else if d > 0 {
+	case d > 0:
 		stable |= 0x4
-	} else {
+	default:
 		d = date.Day()
 		if w >= 0 {
 			stable |= 0x2
@@ -148,14 +149,14 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	return date
 }
 
-func (ts *Timer) judgeHM(grp int64) {
+func (ts *Timer) judgeHM() {
 	if ts.Hour() < 0 || ts.Hour() == time.Now().Hour() {
 		if ts.Minute() < 0 || ts.Minute() == time.Now().Minute() {
 			if ts.Selfid != 0 {
-				ts.sendmsg(grp, zero.GetBot(ts.Selfid))
+				ts.sendmsg(ts.GrpId, zero.GetBot(ts.Selfid))
 			} else {
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) (_ bool) {
-					ts.sendmsg(grp, ctx)
+					ts.sendmsg(ts.GrpId, ctx)
 					return
 				})
 			}

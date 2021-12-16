@@ -2,34 +2,28 @@
 package timer
 
 import (
-	"io"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/RomiChan/protobuf/proto"
 	"github.com/fumiama/cron"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
 type Clock struct {
-	// 记录每个定时器以便取消
-	timersmap TimersMap
-	// 定时器map
-	timers   *(map[string]*Timer)
+	db       *sql.Sqlite
+	timers   *(map[uint32]*Timer)
 	timersmu sync.RWMutex
-	// 定时器存储位置
-	pbfile *string
 	// cron 定时器
 	cron *cron.Cron
 	// entries key <-> cron
-	entries map[string]cron.EntryID
+	entries map[uint32]cron.EntryID
 	entmu   sync.Mutex
 }
 
@@ -43,26 +37,27 @@ var (
 	}
 )
 
-func NewClock(pbfile string) (c Clock) {
-	c.loadTimers(pbfile)
-	c.timers = &c.timersmap.Timers
-	c.pbfile = &pbfile
+func NewClock(dbfile string) (c Clock) {
+	c.loadTimers(dbfile)
 	c.cron = cron.New()
-	c.entries = make(map[string]cron.EntryID)
+	c.entries = make(map[uint32]cron.EntryID)
 	c.cron.Start()
 	return
 }
 
 // RegisterTimer 注册计时器
-func (c *Clock) RegisterTimer(ts *Timer, grp int64, save bool) bool {
-	key := ts.GetTimerInfo(grp)
+func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
+	var key uint32
+	if save {
+		key = ts.GetTimerID()
+		ts.Id = key
+	} else {
+		key = ts.Id
+	}
 	t, ok := c.GetTimer(key)
 	if t != ts && ok { // 避免重复注册定时器
 		t.SetEn(false)
 	}
-	c.timersmu.Lock()
-	(*c.timers)[key] = ts
-	c.timersmu.Unlock()
 	logrus.Println("[群管]注册计时器", key)
 	if ts.Cron != "" {
 		var ctx *zero.Ctx
@@ -75,33 +70,33 @@ func (c *Clock) RegisterTimer(ts *Timer, grp int64, save bool) bool {
 				return false
 			})
 		}
-		eid, err := c.cron.AddFunc(ts.Cron, func() { ts.sendmsg(grp, ctx) })
+		eid, err := c.cron.AddFunc(ts.Cron, func() { ts.sendmsg(ts.GrpId, ctx) })
 		if err == nil {
 			c.entmu.Lock()
 			c.entries[key] = eid
 			c.entmu.Unlock()
 			if save {
-				c.SaveTimers()
+				err = c.AddTimer(ts)
 			}
-			return true
+			return err == nil
 		}
 		ts.Alert = err.Error()
 	} else {
 		if save {
-			c.SaveTimers()
+			_ = c.AddTimer(ts)
 		}
 		for ts.En() {
 			nextdate := ts.nextWakeTime()
 			sleepsec := time.Until(nextdate)
-			logrus.Printf("[群管]计时器%s将睡眠%ds", key, sleepsec/time.Second)
+			logrus.Printf("[群管]计时器%08x将睡眠%ds", key, sleepsec/time.Second)
 			time.Sleep(sleepsec)
 			if ts.En() {
 				if ts.Month() < 0 || ts.Month() == time.Now().Month() {
 					if ts.Day() < 0 || ts.Day() == time.Now().Day() {
-						ts.judgeHM(grp)
+						ts.judgeHM()
 					} else if ts.Day() == 0 {
 						if ts.Week() < 0 || ts.Week() == time.Now().Weekday() {
-							ts.judgeHM(grp)
+							ts.judgeHM()
 						}
 					}
 				}
@@ -112,8 +107,8 @@ func (c *Clock) RegisterTimer(ts *Timer, grp int64, save bool) bool {
 }
 
 // CancelTimer 取消计时器
-func (c *Clock) CancelTimer(key string) bool {
-	t, ok := (*c.timers)[key]
+func (c *Clock) CancelTimer(key uint32) bool {
+	t, ok := c.GetTimer(key)
 	if ok {
 		if t.Cron != "" {
 			c.entmu.Lock()
@@ -126,41 +121,22 @@ func (c *Clock) CancelTimer(key string) bool {
 		}
 		c.timersmu.Lock()
 		delete(*c.timers, key) // 避免重复取消
+		e := c.db.Del("timer", "where id = "+strconv.Itoa(int(key)))
 		c.timersmu.Unlock()
-		_ = c.SaveTimers()
+		return e == nil
 	}
-	return ok
-}
-
-// SaveTimers 保存当前计时器
-func (c *Clock) SaveTimers() error {
-	c.timersmu.RLock()
-	data, err := proto.Marshal(&c.timersmap)
-	c.timersmu.RUnlock()
-	if err == nil {
-		c.timersmu.Lock()
-		defer c.timersmu.Unlock()
-		f, err1 := os.OpenFile(*c.pbfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-		if err1 != nil {
-			return err1
-		} else {
-			_, err2 := f.Write(data)
-			f.Close()
-			return err2
-		}
-	}
-	return err
+	return false
 }
 
 // ListTimers 列出本群所有计时器
 func (c *Clock) ListTimers(grpID int64) []string {
 	// 数组默认长度为map长度,后面append时,不需要重新申请内存和拷贝,效率很高
 	if c.timers != nil {
-		g := strconv.FormatInt(grpID, 10)
 		c.timersmu.RLock()
 		keys := make([]string, 0, len(*c.timers))
-		for k := range *c.timers {
-			if strings.Contains(k, g) {
+		for _, v := range *c.timers {
+			if v.GrpId == grpID {
+				k := v.GetTimerInfo()
 				start := strings.Index(k, "]")
 				msg := strings.ReplaceAll(k[start+1:]+"\n", "-1", "每")
 				msg = strings.ReplaceAll(msg, "月0日0周", "月周天")
@@ -176,35 +152,32 @@ func (c *Clock) ListTimers(grpID int64) []string {
 	}
 }
 
-func (c *Clock) GetTimer(key string) (t *Timer, ok bool) {
+func (c *Clock) GetTimer(key uint32) (t *Timer, ok bool) {
 	c.timersmu.RLock()
 	t, ok = (*c.timers)[key]
 	c.timersmu.RUnlock()
 	return
 }
 
-func (c *Clock) loadTimers(pbfile string) {
-	if file.IsExist(pbfile) {
-		f, err := os.Open(pbfile)
+func (c *Clock) AddTimer(t *Timer) (err error) {
+	c.timersmu.Lock()
+	(*c.timers)[t.Id] = t
+	err = c.db.Insert("timer", t)
+	c.timersmu.Unlock()
+	return
+}
+
+func (c *Clock) loadTimers(dbfile string) {
+	if file.IsExist(dbfile) {
+		c.db.DBPath = dbfile
+		err := c.db.Create("timer", &Timer{})
 		if err == nil {
-			data, err := io.ReadAll(f)
-			if err == nil {
-				if len(data) > 0 {
-					err = proto.Unmarshal(data, &c.timersmap)
-					if err == nil {
-						for str, t := range c.timersmap.Timers {
-							grp, err := strconv.ParseInt(str[1:strings.Index(str, "]")], 10, 64)
-							if err == nil {
-								go c.RegisterTimer(t, grp, false)
-							}
-						}
-						return
-					}
-					logrus.Errorln("[群管]读取定时器文件失败，将在下一次保存时覆盖原文件。err:", err)
-					logrus.Errorln("[群管]如不希望被覆盖，请运行源码plugin_manager/timers/migrate下的程序将timers.pb刷新为新版")
-				}
-			}
+			var t Timer
+			c.db.FindFor("timer", &t, "", func() error {
+				tescape := t
+				go c.RegisterTimer(&tescape, false)
+				return nil
+			})
 		}
 	}
-	c.timersmap.Timers = make(map[string]*Timer)
 }

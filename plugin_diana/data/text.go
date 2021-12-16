@@ -3,8 +3,8 @@ package data
 
 import (
 	"crypto/md5"
+	"encoding/binary"
 	"os"
-	"unsafe"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -56,8 +56,8 @@ func LoadText() error {
 // AddText 添加小作文
 func AddText(txt string) error {
 	s := md5.Sum(helper.StringToBytes(txt))
-	i := *(*int64)(unsafe.Pointer(&s))
-	return db.Insert("text", &Text{Id: i, Data: txt})
+	i := binary.LittleEndian.Uint64(s[:8])
+	return db.Insert("text", &Text{Id: int64(i), Data: txt})
 }
 
 // RandText 随机小作文

@@ -2,9 +2,9 @@ package main
 
 import (
 	"crypto/md5"
+	"encoding/binary"
 	"fmt"
 	"os"
-	"unsafe"
 
 	"github.com/RomiChan/protobuf/proto"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -37,7 +37,7 @@ func main() {
 		}
 		for _, d := range compo.Array {
 			s := md5.Sum(helper.StringToBytes(d))
-			i := *(*int64)(unsafe.Pointer(&s))
+			i := int64(binary.LittleEndian.Uint64(s[:8]))
 			fmt.Printf("[Diana]id: %d\n", i)
 			err = db.Insert("text", &Text{
 				Id:   i,

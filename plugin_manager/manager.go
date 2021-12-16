@@ -259,9 +259,9 @@ func init() { // 插件主体
 	engine.OnRegex(`^在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, false)
+			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, ctx.Event.GroupID, false)
 			if ts.En() {
-				go clock.RegisterTimer(ts, ctx.Event.GroupID, true)
+				go clock.RegisterTimer(ts, true)
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -283,8 +283,8 @@ func init() { // 插件主体
 				return
 			}
 			logrus.Debugln("[manager] cron:", dateStrs[1])
-			ts := timer.GetFilledCronTimer(dateStrs[1], alert, url, ctx.Event.SelfID)
-			if clock.RegisterTimer(ts, ctx.Event.GroupID, true) {
+			ts := timer.GetFilledCronTimer(dateStrs[1], alert, url, ctx.Event.SelfID, ctx.Event.GroupID)
+			if clock.RegisterTimer(ts, true) {
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -294,8 +294,8 @@ func init() { // 插件主体
 	engine.OnRegex(`^取消在(.{1,2})月(.{1,3}日|每?周.?)的(.{1,3})点(.{1,3})分的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, true)
-			ti := ts.GetTimerInfo(ctx.Event.GroupID)
+			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, ctx.Event.GroupID, true)
+			ti := ts.GetTimerID()
 			ok := clock.CancelTimer(ti)
 			if ok {
 				ctx.SendChain(message.Text("取消成功~"))
@@ -307,8 +307,8 @@ func init() { // 插件主体
 	engine.OnRegex(`^取消在"(.*)"的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := timer.Timer{Cron: dateStrs[1]}
-			ti := ts.GetTimerInfo(ctx.Event.GroupID)
+			ts := timer.Timer{Cron: dateStrs[1], GrpId: ctx.Event.GroupID}
+			ti := ts.GetTimerID()
 			ok := clock.CancelTimer(ti)
 			if ok {
 				ctx.SendChain(message.Text("取消成功~"))
