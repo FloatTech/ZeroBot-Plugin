@@ -176,7 +176,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - 注：由于需要科学，默认注释。
 - **AIfalse** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"`
     - [x] 查询计算机当前活跃度: [检查身体|自检|启动自检|系统状态]
-    - [x] 清理缓存
+    - [x] 清理缓存 (仅适用于 gocq 且需要 bot 的运行目录和 gocq 相同)
     - [ ] 简易语音
     - [ ] 爬图合成 [@xxx]
 - **抽wife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"`
