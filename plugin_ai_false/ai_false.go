@@ -58,7 +58,10 @@ func diskPercent() string {
 	msg := ""
 	for _, p := range parts {
 		diskInfo, _ := disk.Usage(p.Mountpoint)
-		msg += fmt.Sprintf("\n  - %s(%dM) %d%%", p.Mountpoint, diskInfo.Total/1024/1024, uint(math.Round(diskInfo.UsedPercent)))
+		pc := uint(math.Round(diskInfo.UsedPercent))
+		if pc > 0 {
+			msg += fmt.Sprintf("\n  - %s(%dM) %d%%", p.Mountpoint, diskInfo.Total/1024/1024, pc)
+		}
 	}
 	return msg
 }
