@@ -39,7 +39,7 @@ var (
 	gCurCookieJar *cookiejar.Jar
 	engine        = control.Register("novel", &control.Options{
 		DisableOnDefault: false,
-		Help:             "铅笔小说网搜索\n- 小说[关键字]",
+		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	})
 	limit = rate.NewManager(time.Minute, 5)
 )
