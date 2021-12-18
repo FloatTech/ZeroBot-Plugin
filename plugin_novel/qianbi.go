@@ -52,7 +52,7 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Text("少女祈祷中......"))
-			login()
+			login(username, password)
 			searchKey := ctx.State["regex_matched"].([]string)[1]
 			searchHtml := search(searchKey)
 			var m message.Message
@@ -123,15 +123,16 @@ func init() {
 		})
 }
 
-func login() {
+func login(username, password string) {
 	gCurCookies = nil
 	gCurCookieJar, _ = cookiejar.New(nil)
-	enc := mahonia.NewEncoder("GBK")
-	usernameGbk := enc.ConvertString(username)
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
-	loginReq, err := http.NewRequest("POST", loginURL, strings.NewReader(fmt.Sprintf("username=%s&password=%s&usecookie=315360000&action=login&submit=%s", url.QueryEscape(usernameGbk), url.QueryEscape(password), submit)))
+	enc := mahonia.NewEncoder("GBK")
+	usernameGbk := enc.ConvertString(username)
+	passwordGbk := enc.ConvertString(password)
+	loginReq, err := http.NewRequest("POST", loginURL, strings.NewReader(fmt.Sprintf("username=%s&password=%s&usecookie=315360000&action=login&submit=%s", url.QueryEscape(usernameGbk), url.QueryEscape(passwordGbk), submit)))
 	if err != nil {
 		log.Println("err:", err)
 	}
