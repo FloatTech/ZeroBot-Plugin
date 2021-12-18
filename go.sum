@@ -1,6 +1,4 @@
 github.com/FloatTech/AnimeAPI v1.1.9/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
-github.com/FloatTech/AnimeAPI v1.1.10 h1:fYkv65P1HBukHi3GpzYulGx/xLshEL9635QXALDryf0=
-github.com/FloatTech/AnimeAPI v1.1.10/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
 github.com/FloatTech/AnimeAPI v1.1.11 h1:uuV4v5qweh0mI0E2KMiG5XGt0pKboV/EFAlIfSJxIi8=
 github.com/FloatTech/AnimeAPI v1.1.11/go.mod h1:CC+vF30UGBlcIUxwFOcXIEHoJ4r7c5x2iLQsnUCVdDI=
 github.com/FloatTech/ZeroBot-Plugin v1.1.5/go.mod h1:kWuUARvU7gs4xLggi8Sy37ja2GRL6k0X6kewe5TiZRs=
@@ -20,6 +18,8 @@ github.com/antchfx/htmlquery v1.2.3 h1:sP3NFDneHx2stfNXCKbhHFo8XgNjCACnU/4AO5gWz
 github.com/antchfx/htmlquery v1.2.3/go.mod h1:B0ABL+F5irhhMWg54ymEZinzMSi0Kt3I2if0BLYa3V0=
 github.com/antchfx/xpath v1.1.6 h1:6sVh6hB5T6phw1pFpHRQ+C4bd8sNI+O58flqtg7h0R0=
 github.com/antchfx/xpath v1.1.6/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNYhvtNk=
+github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394 h1:OYA+5W64v3OgClL+IrOD63t4i/RW7RqrAVl9LTZ9UqQ=
+github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394/go.mod h1:Q8n74mJTIgjX4RBBcHnJ05h//6/k6foqmgE45jTQtxg=
 github.com/corona10/goimagehash v1.0.3 h1:NZM518aKLmoNluluhfHGxT3LGOnrojrxhGn63DR/CZA=
 github.com/corona10/goimagehash v1.0.3/go.mod h1:VkvE0mLn84L4aF8vCb6mafVajEb6QYMHl2ZJLn0mOGI=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
