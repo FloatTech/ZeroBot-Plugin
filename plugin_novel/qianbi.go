@@ -1,4 +1,5 @@
-package plugin_novel
+// Package novel 铅笔小说搜索插件
+package novel
 
 import (
 	"fmt"
@@ -35,7 +36,6 @@ const (
 )
 
 var (
-	gCurCookies   []*http.Cookie
 	gCurCookieJar *cookiejar.Jar
 	engine        = control.Register("novel", &control.Options{
 		DisableOnDefault: false,
@@ -58,13 +58,13 @@ func init() {
 			var m message.Message
 			doc, err := htmlquery.Parse(strings.NewReader(searchHtml))
 			if err != nil {
-				log.Println("err:", err)
+				log.Errorln("[novel]", err)
 			}
 			htmlTitle := htmlquery.InnerText(htmlquery.FindOne(doc, "/html/head/title"))
 			if htmlTitle == websiteTitle {
 				list, err := htmlquery.QueryAll(doc, "//dl[@id='nr']")
 				if err != nil {
-					log.Println("err:", err)
+					log.Errorln("[novel]", err)
 				}
 				if len(list) != 0 {
 					for _, v := range list {
@@ -126,39 +126,37 @@ func init() {
 }
 
 func login(username, password string) {
-	gCurCookies = nil
 	gCurCookieJar, _ = cookiejar.New(nil)
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
 	usernameData, err := encode.Utf8ToGbk(helper.StringToBytes(username))
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	usernameGbk := helper.BytesToString(usernameData)
 	passwordData, err := encode.Utf8ToGbk(helper.StringToBytes(password))
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	passwordGbk := helper.BytesToString(passwordData)
 	loginReq, err := http.NewRequest("POST", loginURL, strings.NewReader(fmt.Sprintf("username=%s&password=%s&usecookie=315360000&action=login&submit=%s", url.QueryEscape(usernameGbk), url.QueryEscape(passwordGbk), submit)))
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	loginReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	loginReq.Header.Set("User-Agent", ua)
 	loginResp, err := client.Do(loginReq)
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	defer loginResp.Body.Close()
-	gCurCookies = gCurCookieJar.Cookies(loginReq.URL)
 }
 
 func search(searchKey string) (searchHtml string) {
 	searchKeyData, err := encode.Utf8ToGbk(helper.StringToBytes(searchKey))
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	searchKeyGbk := helper.BytesToString(searchKeyData)
 	client := &http.Client{
@@ -166,21 +164,23 @@ func search(searchKey string) (searchHtml string) {
 	}
 	searchReq, err := http.NewRequest("POST", searchURL, strings.NewReader(fmt.Sprintf("searchkey=%s&searchtype=all", url.QueryEscape(searchKeyGbk))))
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	searchReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	searchReq.Header.Set("User-Agent", ua)
 	searchResp, err := client.Do(searchReq)
 	if err != nil {
-		log.Println("err:", err)
+		log.Errorln("[novel]", err)
 	}
 	defer searchResp.Body.Close()
 	searchData, err := ioutil.ReadAll(searchResp.Body)
 	if err != nil {
-		log.Printf("get response for url=%s got error=%s\n", searchURL, err.Error())
+		log.Errorf("[novel] get response for url=%s got error=%s\n", searchURL, err.Error())
 	}
-	gCurCookies = gCurCookieJar.Cookies(searchReq.URL)
 	searchData, err = encode.GbkToUtf8(searchData)
+	if err != nil {
+		log.Errorln("[novel]", err)
+	}
 	searchHtml = helper.BytesToString(searchData)
 	return searchHtml
 }
