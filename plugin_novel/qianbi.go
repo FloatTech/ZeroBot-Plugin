@@ -19,7 +19,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/encode"
+	ub "github.com/FloatTech/ZeroBot-Plugin/utils/binary"
 )
 
 const (
@@ -130,12 +130,12 @@ func login(username, password string) {
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
-	usernameData, err := encode.Utf8ToGbk(helper.StringToBytes(username))
+	usernameData, err := ub.UTF82GBK(helper.StringToBytes(username))
 	if err != nil {
 		log.Errorln("[novel]", err)
 	}
 	usernameGbk := helper.BytesToString(usernameData)
-	passwordData, err := encode.Utf8ToGbk(helper.StringToBytes(password))
+	passwordData, err := ub.UTF82GBK(helper.StringToBytes(password))
 	if err != nil {
 		log.Errorln("[novel]", err)
 	}
@@ -154,7 +154,7 @@ func login(username, password string) {
 }
 
 func search(searchKey string) (searchHtml string) {
-	searchKeyData, err := encode.Utf8ToGbk(helper.StringToBytes(searchKey))
+	searchKeyData, err := ub.UTF82GBK(helper.StringToBytes(searchKey))
 	if err != nil {
 		log.Errorln("[novel]", err)
 	}
@@ -177,7 +177,7 @@ func search(searchKey string) (searchHtml string) {
 	if err != nil {
 		log.Errorf("[novel] get response for url=%s got error=%s\n", searchURL, err.Error())
 	}
-	searchData, err = encode.GbkToUtf8(searchData)
+	searchData, err = ub.GBK2UTF8(searchData)
 	if err != nil {
 		log.Errorln("[novel]", err)
 	}
