@@ -1,3 +1,4 @@
+// Package web 网络处理相关
 package web
 
 import (
@@ -6,6 +7,7 @@ import (
 	"net/http"
 )
 
+// ReqWith 使用自定义请求头获取数据
 func ReqWith(url string, method string, referer string, ua string) (data []byte, err error) {
 	client := &http.Client{}
 	// 提交请求
@@ -25,6 +27,7 @@ func ReqWith(url string, method string, referer string, ua string) (data []byte,
 	return
 }
 
+// GetData 获取数据
 func GetData(url string) (data []byte, err error) {
 	var response *http.Response
 	response, err = http.Get(url)
