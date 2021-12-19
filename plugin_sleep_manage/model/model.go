@@ -1,3 +1,4 @@
+// Package model 睡眠管理数据库
 package model
 
 import (

@@ -97,15 +97,17 @@ type dataQYK struct {
 	Content string `json:"content"`
 }
 
+const (
+	qykURL = "http://api.qingyunke.com/api.php"
+	key    = "free"
+	appid  = "0"
+)
+
 // 青云客取消息
 func getMessage(msg string) (string, error) {
-	qykUrl := "http://api.qingyunke.com/api.php"
-	key := "free"
-	appid := "0"
-	qykUrl = fmt.Sprintf(qykUrl+"?key=%s&appid=%s&msg=%s", key, appid, url.QueryEscape(msg))
-
+	u := fmt.Sprintf(qykURL+"?key=%s&appid=%s&msg=%s", key, appid, url.QueryEscape(msg))
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", qykUrl, nil)
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", err
 	}

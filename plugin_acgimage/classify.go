@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	datapath = file.BOT_PATH + "/data/acgimage/"
+	datapath = file.BOTPATH + "/data/acgimage/"
 	cacheuri = "file:///" + datapath + "cache"
 	// r18有一定保护，一般不会发出图片
 	randapi = "&loli=true&r18=true"

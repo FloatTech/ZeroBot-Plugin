@@ -1,3 +1,4 @@
+// Package rule zb 规则扩展
 package rule
 
 import zero "github.com/wdvxdr1123/ZeroBot"

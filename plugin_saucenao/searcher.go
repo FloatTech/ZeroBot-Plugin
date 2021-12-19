@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	datapath = file.BOT_PATH + "/data/saucenao/"
+	datapath = file.BOTPATH + "/data/saucenao/"
 )
 
 func init() { // 插件主体

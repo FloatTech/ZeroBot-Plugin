@@ -217,7 +217,7 @@ func (p *imgpool) pop(imgtype string) (illust *pixiv.Illust) {
 
 func file(i *pixiv.Illust) string {
 	filename := fmt.Sprint(i.Pid)
-	filepath := fileutil.BOT_PATH + `/` + pool.Path + filename
+	filepath := fileutil.BOTPATH + `/` + pool.Path + filename
 	if _, err := os.Stat(filepath + ".jpg"); err == nil || os.IsExist(err) {
 		return `file:///` + filepath + ".jpg"
 	}

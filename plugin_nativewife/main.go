@@ -22,7 +22,7 @@ import (
 
 const base = "data/nwife"
 
-var baseuri = "file:///" + file.BOT_PATH + "/" + base
+var baseuri = "file:///" + file.BOTPATH + "/" + base
 
 func init() {
 	err := os.MkdirAll(base, 0755)

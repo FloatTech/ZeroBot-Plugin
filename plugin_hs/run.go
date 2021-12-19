@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	cachedir = file.BOT_PATH + "/data/hs/"
+	cachedir = file.BOTPATH + "/data/hs/"
 	reqconf  = [...]string{"GET", "https://hs.fbigame.com",
 		"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
 )

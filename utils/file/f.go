@@ -2,8 +2,8 @@ package file
 
 import "os"
 
-// BOT_PATH BOT当前路径
-var BOT_PATH = Pwd()
+// BOTPATH BOT当前路径
+var BOTPATH = Pwd()
 
 // IsExist 文件/路径存在
 func IsExist(path string) bool {

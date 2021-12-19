@@ -1,4 +1,5 @@
-package plugin_coser
+// Package coser images
+package coser
 
 import (
 	"time"

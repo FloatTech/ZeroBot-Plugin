@@ -366,10 +366,10 @@ func (db *Sqlite) Count(table string) (num int, err error) {
 		return num, rows.Err()
 	}
 	if rows.Next() {
-		rows.Scan(&num)
+		err = rows.Scan(&num)
 	}
 	rows.Close()
-	return num, nil
+	return num, err
 }
 
 // tags 反射 返回结构体对象的 tag 数组

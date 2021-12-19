@@ -1,4 +1,5 @@
-package plugin_sleep_manage
+// Package sleepmanage 睡眠管理
+package sleepmanage
 
 import (
 	"fmt"
