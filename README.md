@@ -211,10 +211,12 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] vtb语录
     - [x] 随机vtb
 - **书评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"`
-    - [x] 书评[关键字]
+    - [x] 书评[xxx]
     - [x] 随机书评
 - **coser** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser" `
     - [x] coser
+- **novel** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel" `
+    - [x] 小说[xxx]
 - **TODO...**
 
 ## 使用方法
