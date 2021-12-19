@@ -82,7 +82,7 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	if len(data) <= 0 {
+	if len(data) == 0 {
 		return nil, errors.New("read body len <= 0")
 	}
 	if filemd5 != nil {

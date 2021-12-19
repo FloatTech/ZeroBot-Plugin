@@ -1,7 +1,4 @@
-// Package webctrl
-/*
- * 一个用户webui的包，里面包含了webui所需的所有内容
- */
+// Package webctrl 包含 webui 所需的所有内容
 package webctrl
 
 import (
