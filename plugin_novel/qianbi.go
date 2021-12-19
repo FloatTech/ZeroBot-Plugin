@@ -10,14 +10,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/encode"
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/encode"
 )
 
 const (
@@ -121,7 +122,6 @@ func init() {
 				text := fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n", bookName, category, author, status, description, updateTime, latestChapter, webpageURL, downloadURL)
 				ctx.SendChain(message.Text(text))
 			}
-
 		})
 }
 
@@ -153,7 +153,6 @@ func login(username, password string) {
 	}
 	defer loginResp.Body.Close()
 	gCurCookies = gCurCookieJar.Cookies(loginReq.URL)
-
 }
 
 func search(searchKey string) (searchHtml string) {
