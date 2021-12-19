@@ -13,7 +13,6 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/encode"
 	"github.com/antchfx/htmlquery"
-	"github.com/axgle/mahonia"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -97,11 +96,14 @@ func init() {
 					}
 				} else {
 					text := htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@id='tipss']"))
+					text = strings.Replace(text, " ", "", -1)
+					text = strings.Replace(text, "本站", websiteURL, -1)
 					ctx.SendChain(message.Text(text))
 				}
 			} else if htmlTitle == errorTitle {
 				ctx.SendChain(message.Text(errorTitle))
 				text := htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@style='text-align: center;padding:10px']"))
+				text = strings.Replace(text, " ", "", -1)
 				ctx.SendChain(message.Text(text))
 			} else {
 				bookName := htmlquery.SelectAttr(htmlquery.FindOne(doc, "//meta[@property='og:novel:book_name']"), "content")
@@ -129,9 +131,16 @@ func login(username, password string) {
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
-	enc := mahonia.NewEncoder("GBK")
-	usernameGbk := enc.ConvertString(username)
-	passwordGbk := enc.ConvertString(password)
+	usernameData, err := encode.Utf8ToGbk(helper.StringToBytes(username))
+	if err != nil {
+		log.Println("err:", err)
+	}
+	usernameGbk := helper.BytesToString(usernameData)
+	passwordData, err := encode.Utf8ToGbk(helper.StringToBytes(password))
+	if err != nil {
+		log.Println("err:", err)
+	}
+	passwordGbk := helper.BytesToString(passwordData)
 	loginReq, err := http.NewRequest("POST", loginURL, strings.NewReader(fmt.Sprintf("username=%s&password=%s&usecookie=315360000&action=login&submit=%s", url.QueryEscape(usernameGbk), url.QueryEscape(passwordGbk), submit)))
 	if err != nil {
 		log.Println("err:", err)
@@ -148,8 +157,11 @@ func login(username, password string) {
 }
 
 func search(searchKey string) (searchHtml string) {
-	enc := mahonia.NewEncoder("GBK")
-	searchKeyGbk := enc.ConvertString(searchKey)
+	searchKeyData, err := encode.Utf8ToGbk(helper.StringToBytes(searchKey))
+	if err != nil {
+		log.Println("err:", err)
+	}
+	searchKeyGbk := helper.BytesToString(searchKeyData)
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
@@ -169,6 +181,7 @@ func search(searchKey string) (searchHtml string) {
 		log.Printf("get response for url=%s got error=%s\n", searchURL, err.Error())
 	}
 	gCurCookies = gCurCookieJar.Cookies(searchReq.URL)
-	searchHtml = encode.ConvertToString(helper.BytesToString(searchData), "gbk", "utf-8")
+	searchData, err = encode.GbkToUtf8(searchData)
+	searchHtml = helper.BytesToString(searchData)
 	return searchHtml
 }

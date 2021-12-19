@@ -7,7 +7,6 @@ require (
 	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.4
 	github.com/FloatTech/bot-manager v1.0.1-0.20211112011524-85b9895271ed
 	github.com/antchfx/htmlquery v1.2.3
-	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
@@ -26,4 +25,5 @@ require (
 	github.com/tidwall/gjson v1.12.1
 	github.com/wdvxdr1123/ZeroBot v1.4.1
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
+	golang.org/x/text v0.3.6
 )
