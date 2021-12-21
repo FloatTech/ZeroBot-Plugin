@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	dataurl = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/"
+	dataurl = "https://gitcode.net/u011570312/ZeroBot-Plugin/-/raw/master/"
 )
 
 var (

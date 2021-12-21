@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	bed = "https://codechina.csdn.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
+	bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
 )
 
 var (

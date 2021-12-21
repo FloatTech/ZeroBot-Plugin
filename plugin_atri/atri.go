@@ -22,7 +22,7 @@ const (
 	// ATRI 所有命令的优先级
 	prio = 15
 	// ATRI 表情的 codechina 镜像
-	res = "https://codechina.csdn.net/u011570312/ZeroBot-Plugin/-/raw/master/plugin_atri/"
+	res = "https://gitcode.net/u011570312/ZeroBot-Plugin/-/raw/master/plugin_atri/"
 )
 
 func init() { // 插件主体
