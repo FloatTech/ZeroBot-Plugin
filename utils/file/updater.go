@@ -38,7 +38,7 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 	} else {
 		ms, err = registry.Get(path)
 		if err != nil || len(ms) != 16 {
-			logrus.Errorln("[file]获取md5失败，请自行确保下载文件 %s 的正确性:", path, err)
+			logrus.Errorln("[file]获取md5失败，请自行确保下载文件", path, "的正确性:", err)
 		} else {
 			filemd5 = (*[16]byte)(*(*unsafe.Pointer)(unsafe.Pointer(&ms)))
 			logrus.Infoln("[file]从验证服务器获得文件md5:", hex.EncodeToString(filemd5[:]))

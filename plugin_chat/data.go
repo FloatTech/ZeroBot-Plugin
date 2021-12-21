@@ -6,6 +6,7 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/sirupsen/logrus"
 )
 
 type kimo = map[string]*[]string
@@ -22,6 +23,7 @@ func initChatList(postinit func()) {
 		for k := range kimomap {
 			chatList = append(chatList, k)
 		}
+		logrus.Infoln("[chat]加载", len(chatList), "条kimoi")
 		postinit()
 	}()
 }
