@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	"github.com/sirupsen/logrus"
 )
 
 type kimo = map[string]*[]string
