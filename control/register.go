@@ -9,7 +9,7 @@ var enmap = make(map[string]*zero.Engine)
 // Register 注册插件控制器
 func Register(service string, o *Options) *zero.Engine {
 	engine := zero.New()
-	engine.UsePreHandler(newctrl(service, o).Handler())
+	engine.UsePreHandler(newctrl(service, o).Handler)
 	enmap[service] = engine
 	return engine
 }

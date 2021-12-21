@@ -2,6 +2,9 @@
 package control
 
 import (
+	"crypto/md5"
+	"encoding/binary"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -11,6 +14,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
@@ -44,6 +48,10 @@ func newctrl(service string, o *Options) *Control {
 	managers[service] = m
 	mu.Unlock()
 	err := db.Create(service, &grpcfg{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.Create(service+"ban", &ban{})
 	if err != nil {
 		panic(err)
 	}
@@ -125,6 +133,78 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 	return !m.options.DisableOnDefault
 }
 
+// Ban 禁止某人在某群使用本插件
+func (m *Control) Ban(uid, gid int64) {
+	var err error
+	var digest [16]byte
+	logrus.Debugln("[control] Ban recv gid =", gid, "uid =", uid)
+	if gid != 0 { // 特定群
+		digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_%d", uid, gid)))
+		m.RLock()
+		err = db.Insert(m.service+"ban", &ban{ID: int64(binary.LittleEndian.Uint64(digest[:8])), UserID: uid, GroupID: gid})
+		m.RUnlock()
+		if err == nil {
+			logrus.Debugf("[control] plugin %s is banned in grp %d for usr %d.", m.service, gid, uid)
+			return
+		}
+	}
+	// 所有群
+	digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_all", uid)))
+	m.RLock()
+	err = db.Insert(m.service+"ban", &ban{ID: int64(binary.LittleEndian.Uint64(digest[:8])), UserID: uid, GroupID: 0})
+	m.RUnlock()
+	if err == nil {
+		logrus.Debugf("[control] plugin %s is banned in all grp for usr %d.", m.service, uid)
+	}
+}
+
+// Permit 允许某人在某群使用本插件
+func (m *Control) Permit(uid, gid int64) {
+	var digest [16]byte
+	logrus.Debugln("[control] Permit recv gid =", gid, "uid =", uid)
+	if gid != 0 { // 特定群
+		digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_%d", uid, gid)))
+		m.RLock()
+		_ = db.Del(m.service+"ban", "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
+		m.RUnlock()
+		logrus.Debugf("[control] plugin %s is permitted in grp %d for usr %d.", m.service, gid, uid)
+		return
+	}
+	// 所有群
+	digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_all", uid)))
+	m.RLock()
+	_ = db.Del(m.service+"ban", "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
+	m.RUnlock()
+	logrus.Debugf("[control] plugin %s is permitted in all grp for usr %d.", m.service, uid)
+}
+
+// IsBannedIn 某人是否在某群被 ban
+func (m *Control) IsBannedIn(uid, gid int64) bool {
+	var b ban
+	var err error
+	var digest [16]byte
+	logrus.Debugln("[control] IsBannedIn recv gid =", gid, "uid =", uid)
+	if gid != 0 {
+		digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_%d", uid, gid)))
+		m.RLock()
+		err = db.Find(m.service+"ban", &b, "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
+		m.RUnlock()
+		if err == nil && gid == b.GroupID && uid == b.UserID {
+			logrus.Debugf("[control] plugin %s is banned in grp %d for usr %d.", m.service, b.GroupID, b.UserID)
+			return true
+		}
+	}
+	digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_all", uid)))
+	m.RLock()
+	err = db.Find(m.service+"ban", &b, "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
+	m.RUnlock()
+	if err == nil && b.GroupID == 0 && uid == b.UserID {
+		logrus.Debugf("[control] plugin %s is banned in all grp for usr %d.", m.service, b.UserID)
+		return true
+	}
+	return false
+}
+
 // GetData 获取某个群的 63 字节配置信息
 func (m *Control) GetData(gid int64) int64 {
 	var c grpcfg
@@ -173,21 +253,19 @@ func (m *Control) SetData(groupID int64, data int64) error {
 }
 
 // Handler 返回 预处理器
-func (m *Control) Handler() zero.Rule {
-	return func(ctx *zero.Ctx) bool {
-		ctx.State["manager"] = m
-		grp := ctx.Event.GroupID
-		if grp == 0 {
-			// 个人用户
-			grp = -ctx.Event.UserID
-		}
-		logrus.Debugln("[control] handler get gid =", grp)
-		return m.IsEnabledIn(grp)
+func (m *Control) Handler(ctx *zero.Ctx) bool {
+	ctx.State["manager"] = m
+	grp := ctx.Event.GroupID
+	if grp == 0 {
+		// 个人用户
+		return m.IsEnabledIn(-ctx.Event.UserID)
 	}
+	logrus.Debugln("[control] handler get gid =", grp)
+	return m.IsEnabledIn(grp) && !m.IsBannedIn(ctx.Event.UserID, grp)
 }
 
 // Lookup returns a Manager by the service name, if
-// not exist, it will returns nil.
+// not exist, it will return nil.
 func Lookup(service string) (*Control, bool) {
 	mu.RLock()
 	m, ok := managers[service]
@@ -274,6 +352,47 @@ func init() {
 					}
 					service.Reset(grp)
 					ctx.SendChain(message.Text("已还原服务的默认启用状态: " + model.Args))
+				})
+
+				zero.OnCommandGroup([]string{
+					"禁止", "ban", "允许", "permit",
+					"全局禁止", "banall", "全局允许", "permitall",
+				}, zero.OnlyGroup, zero.AdminPermission).Handle(func(ctx *zero.Ctx) {
+					model := extension.CommandModel{}
+					_ = ctx.Parse(&model)
+					args := strings.Split(model.Args, " ")
+					if len(args) >= 2 {
+						service, ok := Lookup(args[0])
+						if !ok {
+							ctx.SendChain(message.Text("没有找到指定服务!"))
+							return
+						}
+						grp := ctx.Event.GroupID
+						if strings.Contains(model.Command, "全局") || strings.Contains(model.Command, "all") {
+							grp = 0
+						}
+						msg := "**" + args[0] + "报告**"
+						if strings.Contains(model.Command, "允许") || strings.Contains(model.Command, "permit") {
+							for _, usr := range args[1:] {
+								uid, err := strconv.ParseInt(usr, 10, 64)
+								if err == nil {
+									service.Permit(uid, grp)
+									msg += "\n+ 已允许" + usr
+								}
+							}
+						} else {
+							for _, usr := range args[1:] {
+								uid, err := strconv.ParseInt(usr, 10, 64)
+								if err == nil {
+									service.Ban(uid, grp)
+									msg += "\n- 已禁止" + usr
+								}
+							}
+						}
+						ctx.SendChain(message.Text(msg))
+						return
+					}
+					ctx.SendChain(message.Text("参数错误!"))
 				})
 
 				zero.OnCommandGroup([]string{"用法", "usage"}, userOrGrpAdmin).

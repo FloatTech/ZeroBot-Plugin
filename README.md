@@ -52,6 +52,8 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] /全局启用 xxx
     - [x] /全局禁用 xxx
     - [x] /还原 xxx (在发送的群/用户还原xxx的开启状态到初始状态)
+    - [x] /禁止 service qq1 qq2... (禁止 qqs 使用服务 service)
+    - [x] /允许 service qq1 qq2... (重新允许 qqs 使用服务 service)
     - [x] /用法 xxx
     - [x] /服务列表
     - [x] /服务详情
