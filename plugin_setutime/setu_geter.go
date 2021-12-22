@@ -67,17 +67,17 @@ var (
 )
 
 func init() { // 插件主体
+	engine := control.Register("setutime", &control.Options{
+		DisableOnDefault: false,
+		Help: "涩图\n" +
+			"- 来份[涩图/二次元/风景/车万]\n" +
+			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
+			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
+			"- >setu status",
+	})
 	go func() {
 		process.SleepAbout1sTo2s()
 		pool = newPools()
-		engine := control.Register("setutime", &control.Options{
-			DisableOnDefault: false,
-			Help: "涩图\n" +
-				"- 来份[涩图/二次元/风景/车万]\n" +
-				"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
-				"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
-				"- >setu status",
-		})
 		engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool.List)).SetBlock(true).SetPriority(20).
 			Handle(func(ctx *zero.Ctx) {
 				if !limit.Load(ctx.Event.UserID).Acquire() {
