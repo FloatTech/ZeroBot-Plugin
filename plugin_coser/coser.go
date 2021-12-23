@@ -43,16 +43,16 @@ func init() {
 			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
 			m = append(m,
 				message.CustomNode(
-					zero.BotConfig.NickName[0],
-					ctx.Event.SelfID,
+					ctx.Event.Sender.NickName,
+					ctx.Event.UserID,
 					text,
 				))
 			gjson.Get(helper.BytesToString(data), "data.data").ForEach(func(_, value gjson.Result) bool {
 				imgcq := `[CQ:image,file=` + value.String() + `]`
 				m = append(m,
 					message.CustomNode(
-						zero.BotConfig.NickName[0],
-						ctx.Event.SelfID,
+						ctx.Event.Sender.NickName,
+						ctx.Event.UserID,
 						imgcq),
 				)
 				return true
