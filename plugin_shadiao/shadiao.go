@@ -22,6 +22,7 @@ const (
 	yduanziReferer  = "http://www.yduanzi.com/?utm_source=shadiao.app"
 	loveliveReferer = "https://lovelive.tools/"
 	zuanReferer     = "https://zuanbot.com/"
+	prio            = 10
 )
 
 var (

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	engine.OnFullMatch("骂我").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatch("骂我").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}
@@ -19,7 +19,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		ctx.SendChain(message.At(ctx.Event.UserID), message.Text(helper.BytesToString(data)))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(helper.BytesToString(data)))
 	})
 	engine.OnRegex(`^骂他.*?(\d+)`, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {

@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	engine.OnFullMatch("来碗绿茶").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatch("来碗绿茶").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}
@@ -22,7 +22,7 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
 	})
 
-	engine.OnFullMatch("渣我").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatch("渣我").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}
