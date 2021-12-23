@@ -1,4 +1,4 @@
-// Package shadiao 基于 https://shadiao.app/# 的j接口
+// Package shadiao 来源于 https://shadiao.app/# 的接口
 package shadiao
 
 import (
