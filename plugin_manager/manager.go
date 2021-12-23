@@ -515,6 +515,8 @@ func init() { // 插件主体
 			ok, reason := checkNewUser(ctx.Event.UserID, ctx.Event.GroupID, ghun, hash)
 			if ok {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", true, "")
+				process.SleepAbout1sTo2s()
+				ctx.SetGroupCard(ctx.Event.GroupID, ctx.Event.UserID, ghun)
 			} else {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", false, reason)
 			}
