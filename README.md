@@ -221,8 +221,8 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 - **小说** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel" `
     - [x] 小说[xxx]
 - **沙雕app插件** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"`
-    - [x] 骂他[@xxx]|骂他[qq号]
-    - [x] 骂我
+    - [x] 骂他[@xxx]|骂他[qq号] (停用)
+    - [x] 骂我 (停用)
     - [x] 哄我
     - [x] 渣我
     - [x] 来碗绿茶
