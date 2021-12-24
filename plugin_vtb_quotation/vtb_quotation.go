@@ -116,8 +116,8 @@ func init() {
 								if reg.MatchString(recordUrl) {
 									// log.Println(reg.FindStringSubmatch(recordUrl)[1])
 									// log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
-									recordUrl = strings.Replace(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]), -1)
-									recordUrl = strings.Replace(recordUrl, "+", "%20", -1)
+									recordUrl = strings.ReplaceAll(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
+									recordUrl = strings.ReplaceAll(recordUrl, "+", "%20")
 									// log.Println(recordUrl)
 								}
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
@@ -149,8 +149,8 @@ func init() {
 				if reg.MatchString(recordUrl) {
 					// log.Println(reg.FindStringSubmatch(recordUrl)[1])
 					// log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
-					recordUrl = strings.Replace(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]), -1)
-					recordUrl = strings.Replace(recordUrl, "+", "%20", -1)
+					recordUrl = strings.ReplaceAll(recordUrl, reg.FindStringSubmatch(recordUrl)[1], url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
+					recordUrl = strings.ReplaceAll(recordUrl, "+", "%20")
 					// log.Println(recordUrl)
 				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))

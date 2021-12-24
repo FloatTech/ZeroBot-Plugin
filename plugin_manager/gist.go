@@ -33,7 +33,7 @@ func checkNewUser(qq, gid int64, ghun, hash string) (bool, string) {
 			// 600s 内验证成功
 			ok := math.Abs(int(time.Now().Unix()-st)) < 600
 			if ok {
-				_ = db.Insert("member", &Member{QQ: qq, Ghun: ghun})
+				_ = db.Insert("member", &member{QQ: qq, Ghun: ghun})
 				return true, ""
 			}
 			return false, "时间戳超时"

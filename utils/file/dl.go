@@ -29,9 +29,9 @@ func DownloadTo(url, file string, chkcrt bool) error {
 		f, err = os.Create(file)
 		if err == nil {
 			_, err = io.Copy(f, resp.Body)
-			resp.Body.Close()
 			f.Close()
 		}
+		resp.Body.Close()
 	}
 	return err
 }

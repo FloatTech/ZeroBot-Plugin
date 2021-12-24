@@ -18,12 +18,12 @@ for(i=0; i<a.length; i++) {
 
 const apiprefix = "https://wtf.hiigara.net/api/run/"
 
-type Wtf struct {
+type wtf struct {
 	name string
 	path string
 }
 
-var table = [...]*Wtf{
+var table = [...]*wtf{
 	{"你的意义是什么?", "mRIFuS"},
 	{"【ABO】性別和信息素", "KXyy9"},
 	{"测测cp", "ZoGXQd"},
@@ -114,7 +114,7 @@ var table = [...]*Wtf{
 	{"你的蘿莉控程度全國排名", "IIWh9k"},
 }
 
-func NewWtf(index int) *Wtf {
+func newWtf(index int) *wtf {
 	if index >= 0 && index < len(table) {
 		return table[index]
 	}
@@ -128,7 +128,7 @@ type result struct {
 	Msg string `json:"msg"`
 }
 
-func (w *Wtf) Predict(names ...string) (string, error) {
+func (w *wtf) predict(names ...string) (string, error) {
 	name := ""
 	for _, n := range names {
 		name += "/" + url.QueryEscape(n)

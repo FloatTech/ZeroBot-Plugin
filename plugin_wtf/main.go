@@ -1,3 +1,4 @@
+// Package wtf 鬼东西
 package wtf
 
 import (
@@ -27,7 +28,6 @@ func init() {
 			s := ""
 			for i, w := range table {
 				s += fmt.Sprintf("%02d. %s\n", i, w.name)
-				i++
 			}
 			ctx.SendChain(message.Text(s))
 		})
@@ -43,7 +43,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			w := NewWtf(i)
+			w := newWtf(i)
 			if w == nil {
 				ctx.SendChain(message.Text("没有这项内容！"))
 				return
@@ -58,9 +58,9 @@ func init() {
 			name = ctx.Event.Sender.NickName
 			var text string
 			if secondname != "" {
-				text, err = w.Predict(name, secondname)
+				text, err = w.predict(name, secondname)
 			} else {
-				text, err = w.Predict(name)
+				text, err = w.predict(name)
 			}
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))

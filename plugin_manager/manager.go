@@ -66,8 +66,14 @@ func init() { // 插件主体
 	go func() {
 		process.SleepAbout1sTo2s()
 		clock = timer.NewClock(db)
-		db.Create("welcome", &Welcome{})
-		db.Create("member", &Member{})
+		err := db.Create("welcome", &welcome{})
+		if err != nil {
+			panic(err)
+		}
+		err = db.Create("member", &member{})
+		if err != nil {
+			panic(err)
+		}
 	}()
 	// 升为管理
 	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).SetPriority(40).
@@ -362,7 +368,7 @@ func init() { // 插件主体
 	engine.OnNotice().SetBlock(false).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID != ctx.Event.UserID {
-				var w Welcome
+				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
 					ctx.SendChain(message.Text(w.Msg))
@@ -422,7 +428,7 @@ func init() { // 插件主体
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
-			w := &Welcome{
+			w := &welcome{
 				GrpID: ctx.Event.GroupID,
 				Msg:   ctx.State["regex_matched"].([]string)[1],
 			}

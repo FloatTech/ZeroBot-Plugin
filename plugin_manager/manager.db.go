@@ -1,11 +1,11 @@
 package manager
 
-type Welcome struct {
+type welcome struct {
 	GrpID int64  `db:"gid"`
 	Msg   string `db:"msg"`
 }
 
-type Member struct {
+type member struct {
 	QQ int64 `db:"qq"`
 	// github username
 	Ghun string `db:"ghun"`

@@ -1,3 +1,4 @@
+// Package moyu 摸鱼
 package moyu
 
 import (

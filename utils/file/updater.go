@@ -23,6 +23,7 @@ var (
 	lzmu     sync.Mutex
 )
 
+// GetLazyData 获取懒加载数据
 func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, error) {
 	var data []byte
 	var resp *http.Response

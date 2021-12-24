@@ -1,3 +1,4 @@
+// Package nativesetu 本地setu
 package nativesetu
 
 import (
