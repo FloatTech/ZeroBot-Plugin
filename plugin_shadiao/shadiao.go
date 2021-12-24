@@ -2,9 +2,11 @@
 package shadiao
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"time"
+
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 const (
