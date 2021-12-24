@@ -117,7 +117,7 @@ func init() { // 插件主体
 				key := ctx.MessageString()
 				val := *kimomap[key]
 				text := val[rand.Intn(len(val))]
-				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(text))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
 			})
 	})
 }

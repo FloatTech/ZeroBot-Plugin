@@ -220,8 +220,15 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] coser
 - **小说** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel" `
     - [x] 小说[xxx]
-- **骂人** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"`
-    - [x] 骂他[@xxx]|骂他[qq号]
+- **沙雕app插件** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"`
+    - [x] 骂他[@xxx]|骂他[qq号] (停用)
+    - [x] 骂我 (停用)
+    - [x] 哄我
+    - [x] 渣我
+    - [x] 来碗绿茶
+    - [x] 发个朋友圈
+    - [x] 来碗毒鸡汤
+    - [x] 讲个段子
 - **笑话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"`
     - [x] 讲个笑话[@xxx]|讲个笑话[qq号]
 - **TODO...**

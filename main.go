@@ -33,7 +33,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review" // 哀伤雪刃吧推书记录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"      // 选择困难症帮手
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"       // 三次元小姐姐
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"       // 骂人
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"     // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"       // 笑话
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"          // 炉石
@@ -43,6 +42,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel"       // 铅笔小说网搜索
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"     // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"      // 投胎
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"     // 沙雕app
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"     // 测定
 
 	// b站相关
