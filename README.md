@@ -231,6 +231,8 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 讲个段子
 - **笑话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"`
     - [x] 讲个笑话[@xxx]|讲个笑话[qq号]
+- **抽象话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua"`
+    - [x] 抽象翻译[xxx]
 - **TODO...**
 
 ## 使用方法

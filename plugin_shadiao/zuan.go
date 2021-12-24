@@ -1,7 +1,7 @@
 package shadiao
 
+/*
 func init() {
-	/*
 		engine.OnFullMatch("骂我").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.GroupID).Acquire() {
 				return
@@ -25,5 +25,5 @@ func init() {
 				}
 				ctx.SendChain(message.At(math.Str2Int64(ctx.State["regex_matched"].([]string)[1])), message.Text(helper.BytesToString(data)))
 			})
-	*/
 }
+*/
