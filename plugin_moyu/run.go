@@ -59,6 +59,13 @@ func init() { // 插件主体
 func sendNotice() {
 	m, ok := control.Lookup("moyu")
 	if ok {
+		if holidaymap == nil {
+			ok = false
+			if registry.Connect() != nil {
+				return
+			}
+			holidaymap = make(map[string]*Holiday, 32)
+		}
 		zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 			for _, g := range ctx.GetGroupList().Array() {
 				grp := g.Get("group_id").Int()
@@ -69,19 +76,19 @@ func sendNotice() {
 							message.Text("上午好，摸鱼人！\n工作再累，一定不要忘记摸鱼哦！有事没事起身去茶水间，去厕所，去廊道走走别老在工位上坐着，钱是老板的,但命是自己的。\n"),
 							message.Text(weekend()),
 							message.Text("\n"),
-							message.Text(NewHoliday("元旦", 1, 2022, 1, 1)),
+							message.Text(GetHoliday("元旦")),
 							message.Text("\n"),
-							message.Text(NewHoliday("春节", 7, 2022, 1, 31)),
+							message.Text(GetHoliday("春节")),
 							message.Text("\n"),
-							message.Text(NewHoliday("清明节", 1, 2022, 4, 3)),
+							message.Text(GetHoliday("清明节")),
 							message.Text("\n"),
-							message.Text(NewHoliday("劳动节", 1, 2022, 4, 30)),
+							message.Text(GetHoliday("劳动节")),
 							message.Text("\n"),
-							message.Text(NewHoliday("端午节", 1, 2022, 6, 3)),
+							message.Text(GetHoliday("端午节")),
 							message.Text("\n"),
-							message.Text(NewHoliday("中秋节", 1, 2022, 9, 10)),
+							message.Text(GetHoliday("中秋节")),
 							message.Text("\n"),
-							message.Text(NewHoliday("国庆节", 7, 2022, 10, 1)),
+							message.Text(GetHoliday("国庆节")),
 							message.Text("\n"),
 							message.Text("上班是帮老板赚钱，摸鱼是赚老板的钱！最后，祝愿天下所有摸鱼人，都能愉快的渡过每一天…"),
 						},
@@ -90,5 +97,8 @@ func sendNotice() {
 			}
 			return true
 		})
+		if !ok {
+			_ = registry.Close()
+		}
 	}
 }

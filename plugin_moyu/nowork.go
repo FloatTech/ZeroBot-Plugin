@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	reg "github.com/fumiama/go-registry"
+	"github.com/sirupsen/logrus"
 )
 
 // Holiday 节日
@@ -16,6 +19,31 @@ type Holiday struct {
 // NewHoliday 节日名 天数 年 月 日
 func NewHoliday(name string, dur, year int, month time.Month, day int) *Holiday {
 	return &Holiday{name: name, date: time.Date(year, month, day, 0, 0, 0, 0, time.Local), dur: time.Duration(dur) * time.Hour * 24}
+}
+
+var (
+	registry   = reg.NewRegReader("reilia.eastasia.azurecontainer.io:32664", "fumiama")
+	holidaymap map[string]*Holiday
+)
+
+// GetHoliday 从 reg 服务器获取节日
+func GetHoliday(name string) *Holiday {
+	var dur, year int
+	var month time.Month
+	var day int
+	h, ok := holidaymap[name]
+	if ok {
+		return h
+	}
+	ret, err := registry.Get("holiday/" + name)
+	if err != nil {
+		return NewHoliday(name+err.Error(), 0, 0, 0, 0)
+	}
+	fmt.Sscanf(ret, "%d_%d_%d_%d", &dur, &year, &month, &day)
+	logrus.Debugln("[moyu]获取节日:", name, dur, year, month, day)
+	h = NewHoliday(name, dur, year, month, day)
+	holidaymap[name] = h
+	return h
 }
 
 // 获取两个时间相差
