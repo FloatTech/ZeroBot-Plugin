@@ -4,6 +4,7 @@ package manager
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -65,6 +66,7 @@ var engine = control.Register("manager", &control.Options{
 func init() { // 插件主体
 	go func() {
 		process.SleepAbout1sTo2s()
+		_ = os.MkdirAll(datapath, 0755)
 		clock = timer.NewClock(db)
 		err := db.Create("welcome", &welcome{})
 		if err != nil {
