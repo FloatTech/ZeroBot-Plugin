@@ -28,22 +28,23 @@ import (
 
 	// 娱乐类
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"    // 鬼东西
-	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"                // 制图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"    // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review" // 哀伤雪刃吧推书记录
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"      // 选择困难症帮手
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"       // 三次元小姐姐
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"     // 运势
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"       // 笑话
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"          // 炉石
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"   // MCSManager
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"        // 摸鱼
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"       // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel"       // 铅笔小说网搜索
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"     // 浅草寺求签
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"      // 投胎
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"     // 沙雕app
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"     // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"                 // 制图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"     // 服务器监控
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"  // 哀伤雪刃吧推书记录
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"       // 选择困难症帮手
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua" // 说抽象话
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"        // 三次元小姐姐
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"      // 运势
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"        // 笑话
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"    // MCSManager
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"         // 摸鱼
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"        // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel"        // 铅笔小说网搜索
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"      // 浅草寺求签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"       // 投胎
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"      // 沙雕app
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"      // 测定
 
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
