@@ -96,6 +96,7 @@ func init() { // 插件主体
 }
 
 // notnull 如果传入文本为空，则返回默认值
+//nolint: unparam
 func notnull(text, defstr string) string {
 	if text == "" {
 		return defstr

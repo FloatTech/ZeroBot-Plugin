@@ -21,7 +21,7 @@ func (ts *Timer) GetTimerInfo() string {
 	return fmt.Sprintf("[%d]%d月%d日%d周%d:%d", ts.GrpId, ts.Month(), ts.Day(), ts.Week(), ts.Hour(), ts.Minute())
 }
 
-// GetTimerInfo 获得标准化 ID
+// GetTimerID 获得标准化 ID
 func (ts *Timer) GetTimerID() uint32 {
 	key := ts.GetTimerInfo()
 	m := md5.Sum(helper.StringToBytes(key))
@@ -155,13 +155,12 @@ func chineseNum2Int(rs []rune) int {
 func chineseChar2Int(c rune) int {
 	if c == rune('日') || c == rune('天') { // 周日/周天
 		return 7
-	} else {
-		match := []rune("零一二三四五六七八九十")
-		for i, m := range match {
-			if c == m {
-				return i
-			}
-		}
-		return 0
 	}
+	match := []rune("零一二三四五六七八九十")
+	for i, m := range match {
+		if c == m {
+			return i
+		}
+	}
+	return 0
 }

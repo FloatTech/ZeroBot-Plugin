@@ -7,36 +7,36 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
-const (
-	prio = 10
-)
-
-var (
-	engine = control.Register("chouxianghua", &control.Options{
-		DisableOnDefault: false,
-		Help:             "抽象话\n- 抽象翻译\n",
-	})
-)
+const prio = 10
 
 func init() {
-	engine.OnRegex("^抽象翻译([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).SetPriority(prio).
+	control.Register("chouxianghua", &control.Options{
+		DisableOnDefault: false,
+		Help:             "抽象话\n- 抽象翻译xxx\n",
+	}).OnRegex("^抽象翻译([\u4E00-\u9FA5A-Za-z0-9]+)$").SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-			cxresult := chouXiang(ctx.State["regex_matched"].([]string)[1])
-			ctx.SendChain(message.Text(cxresult))
+			r := cx(ctx.State["regex_matched"].([]string)[1])
+			ctx.SendChain(message.Text(r))
 		})
 }
 
-func chouXiang(s string) (cxresult string) {
+func cx(s string) (r string) {
 	h := []rune(s)
 	for i := 0; i < len(h); i++ {
-		if i < len(h)-1 && (getEmojiByPronunciation(getPronunciationByWord(string(h[i])).Pronunciation+getPronunciationByWord(string(h[i+1])).Pronunciation).Emoji != "") {
-			cxresult += getEmojiByPronunciation(getPronunciationByWord(string(h[i])).Pronunciation + getPronunciationByWord(string(h[i+1])).Pronunciation).Emoji
-			i++
-		} else if getEmojiByPronunciation(getPronunciationByWord(string(h[i])).Pronunciation).Emoji != "" {
-			cxresult += getEmojiByPronunciation(getPronunciationByWord(string(h[i])).Pronunciation).Emoji
-		} else {
-			cxresult += string(h[i])
+		if i < len(h)-1 {
+			e := getEmojiByPronun(getPronunByDWord(h[i], h[i+1]))
+			if e != "" {
+				r += e
+				i++
+				continue
+			}
 		}
+		e := getEmojiByPronun(getPinyinByWord(string(h[i])))
+		if e != "" {
+			r += e
+			continue
+		}
+		r += string(h[i])
 	}
 	return
 }

@@ -24,7 +24,7 @@ func init() {
 		// os.RemoveAll(dbpath)
 		_ = os.MkdirAll(dbpath, 0755)
 		_, _ = file.GetLazyData(dbfile, false, true)
-		err := db.Create("pinyin", &Pinyin{})
+		err := db.Create("pinyin", &pinyin{})
 		if err != nil {
 			panic(err)
 		}

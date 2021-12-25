@@ -1,4 +1,4 @@
-package plugin_book_review
+package bookreview
 
 import (
 	"os"

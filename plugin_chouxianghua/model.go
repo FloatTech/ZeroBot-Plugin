@@ -1,20 +1,26 @@
 package chouxianghua
 
-type Pinyin struct {
-	Word          string `db:"word"`
-	Pronunciation string `db:"pronunciation"`
+type pinyin struct {
+	Word   string `db:"word"`
+	Pronun string `db:"pronunciation"`
 }
-type Emoji struct {
-	Pronunciation string `db:"pronunciation"`
-	Emoji         string `db:"emoji"`
+type emoji struct {
+	Pronun string `db:"pronunciation"`
+	Emoji  string `db:"emoji"`
 }
 
-func getPronunciationByWord(word string) (p Pinyin) {
+func getPinyinByWord(word string) string {
+	var p pinyin
 	db.Find("pinyin", &p, "where word = '"+word+"'")
-	return
+	return p.Pronun
 }
 
-func getEmojiByPronunciation(pronunciation string) (e Emoji) {
-	db.Find("emoji", &e, "where pronunciation = '"+pronunciation+"'")
-	return
+func getPronunByDWord(w0, w1 rune) string {
+	return getPinyinByWord(string(w0)) + getPinyinByWord(string(w1))
+}
+
+func getEmojiByPronun(pronun string) string {
+	var e emoji
+	db.Find("emoji", &e, "where pronunciation = '"+pronun+"'")
+	return e.Emoji
 }

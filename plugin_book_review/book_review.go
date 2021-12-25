@@ -1,4 +1,4 @@
-package plugin_book_review
+package bookreview
 
 import (
 	zero "github.com/wdvxdr1123/ZeroBot"
