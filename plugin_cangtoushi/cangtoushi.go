@@ -40,7 +40,6 @@ var (
 func init() {
 	engine.OnRegex("藏头诗([\u4E00-\u9FA5]{3,10})").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
-		log.Println("kw:", kw)
 		login()
 		data, err := search(kw, "7", "0")
 		if err != nil {
@@ -77,17 +76,15 @@ func login() {
 		log.Errorln("[cangtoushi]:", err)
 	}
 	data, err := io.ReadAll(response.Body)
-	response.Body.Close()
 	if err != nil {
 		log.Errorln("[cangtoushi]:", err)
 	}
+	response.Body.Close()
 	doc, err := htmlquery.Parse(strings.NewReader(helper.BytesToString(data)))
 	if err != nil {
 		log.Errorln("[cangtoushi]:", err)
 	}
 	csrf = htmlquery.SelectAttr(htmlquery.FindOne(doc, "//input[@name='_csrf']"), "value")
-	log.Println("csrf:", csrf)
-	//csrf = strings.Replace(csrf,"=","%3D",-1)
 }
 
 func search(kw, zishu, position string) (data []byte, err error) {
@@ -96,21 +93,22 @@ func search(kw, zishu, position string) (data []byte, err error) {
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
-	// 提交请求
-	var request *http.Request
-	request, err = http.NewRequest("POST", searchURL, strings.NewReader(postStr))
-	if err == nil {
-		// 增加header选项
-		request.Header.Add("Referer", referer)
-		request.Header.Add("User-Agent", ua)
-		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		var response *http.Response
-		response, err = client.Do(request)
-		if err == nil {
-			data, err = io.ReadAll(response.Body)
-			response.Body.Close()
-		}
+	request, err := http.NewRequest("POST", searchURL, strings.NewReader(postStr))
+	if err != nil {
+		log.Errorln("[cangtoushi]:", err)
 	}
+	request.Header.Add("Referer", referer)
+	request.Header.Add("User-Agent", ua)
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	response, err := client.Do(request)
+	if err != nil {
+		log.Errorln("[cangtoushi]:", err)
+	}
+	data, err = io.ReadAll(response.Body)
+	if err != nil {
+		log.Errorln("[cangtoushi]:", err)
+	}
+	response.Body.Close()
 	return
 }
 
