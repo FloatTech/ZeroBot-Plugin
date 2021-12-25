@@ -24,13 +24,16 @@ var (
 )
 
 // GetLazyData 获取懒加载数据
+// 传入的 path 的前缀 data/
+// 在验证完 md5 后将被删去
+// 以便进行下载
 func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, error) {
 	var data []byte
 	var resp *http.Response
 	var filemd5 *[16]byte
 	var ms string
 
-	u := dataurl + path
+	u := dataurl + path[5:]
 	lzmu.Lock()
 	logrus.Infoln("[file]检查懒加载文件:", path)
 	err := registry.Connect()
