@@ -13,7 +13,7 @@ func init() {
 	control.Register("chouxianghua", &control.Options{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx\n",
-	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\u4E00-\u9FA5A-Za-z0-9“”，；、。《》=？\\x22])+)$").SetBlock(true).SetPriority(prio).
+	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			r := cx(ctx.State["regex_matched"].([]string)[1])
 			ctx.SendChain(message.Text(r))
