@@ -35,6 +35,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"       // 选择困难症帮手
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua" // 说抽象话
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"        // 三次元小姐姐
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cpstory"      // cp短打
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"      // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"        // 笑话
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
