@@ -234,7 +234,7 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 - **抽象话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua"`
     - [x] 抽象翻译[xxx]
 - **绝绝子** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"`
-    - [x] 喝奶茶绝绝子|吃饭绝绝子
+    - [x] 喝奶茶绝绝子|绝绝子吃饭
 - **藏头诗** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"`
     - [x] 藏头诗[xxx]
     - [x] 藏尾诗[xxx]

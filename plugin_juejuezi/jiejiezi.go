@@ -27,7 +27,7 @@ var (
 	engine = control.Register("juejuezi", &control.Options{
 		DisableOnDefault: false,
 		Help: "绝绝子生成器\n" +
-			"- 喝奶茶绝绝子|吃饭绝绝子",
+			"- 喝奶茶绝绝子|绝绝子吃饭",
 	})
 	limit = rate.NewManager(time.Minute, 20)
 )
@@ -37,7 +37,7 @@ func init() {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}
-		toDealStr := []rune(strings.Replace(ctx.ExtractPlainText(), "绝绝子", "", -1))
+		toDealStr := []rune(strings.ReplaceAll(ctx.ExtractPlainText(), "绝绝子", ""))
 		if len(toDealStr) < 2 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("不要只输入绝绝子"))
 		} else if len(toDealStr) == 2 {

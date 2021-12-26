@@ -45,7 +45,7 @@ func init() {
 		if err != nil {
 			log.Errorln("[cangtoushi]:", err)
 		}
-		text := dealHtml(helper.BytesToString(data))
+		text := dealHTML(helper.BytesToString(data))
 		ctx.SendChain(message.Text(text))
 	})
 
@@ -56,7 +56,7 @@ func init() {
 		if err != nil {
 			log.Errorln("[cangtoushi]:", err)
 		}
-		text := dealHtml(helper.BytesToString(data))
+		text := dealHTML(helper.BytesToString(data))
 		ctx.SendChain(message.Text(text))
 	})
 }
@@ -112,13 +112,13 @@ func search(kw, zishu, position string) (data []byte, err error) {
 	return
 }
 
-func dealHtml(data string) (text string) {
+func dealHTML(data string) (text string) {
 	doc, err := htmlquery.Parse(strings.NewReader(data))
 	if err != nil {
 		log.Errorln("[cangtoushi]:", err)
 	}
 	text = htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@class='card']/div[@class='card']"))
-	text = strings.Replace(text, " ", "", -1)
+	text = strings.ReplaceAll(text, " ", "")
 	text = strings.Replace(text, "\n", "", 1)
 	return text
 }
