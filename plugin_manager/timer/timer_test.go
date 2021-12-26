@@ -27,7 +27,7 @@ func TestNextWakeTime(t *testing.T) {
 func TestClock(t *testing.T) {
 	db := &sql.Sqlite{DBPath: "test.db"}
 	c := NewClock(db)
-	c.AddTimer(GetFilledTimer([]string{"", "12", "-1", "12", "0", "", "test"}, 0, 0, false))
+	c.AddTimerIntoDB(GetFilledTimer([]string{"", "12", "-1", "12", "0", "", "test"}, 0, 0, false))
 	t.Log(c.ListTimers(0))
 	t.Fail()
 }

@@ -78,15 +78,19 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
 			c.entries[key] = eid
 			c.entmu.Unlock()
 			if save {
-				err = c.AddTimer(ts)
+				err = c.AddTimerIntoDB(ts)
+			}
+			if err == nil {
+				err = c.AddTimerIntoMap(ts)
 			}
 			return err == nil
 		}
 		ts.Alert = err.Error()
 	} else {
 		if save {
-			_ = c.AddTimer(ts)
+			_ = c.AddTimerIntoDB(ts)
 		}
+		_ = c.AddTimerIntoMap(ts)
 		for ts.En() {
 			nextdate := ts.nextWakeTime()
 			sleepsec := time.Until(nextdate)
@@ -161,11 +165,18 @@ func (c *Clock) GetTimer(key uint32) (t *Timer, ok bool) {
 	return
 }
 
-// AddTimer 添加定时器
-func (c *Clock) AddTimer(t *Timer) (err error) {
+// AddTimerIntoDB 添加定时器
+func (c *Clock) AddTimerIntoDB(t *Timer) (err error) {
+	c.timersmu.Lock()
+	err = c.db.Insert("timer", t)
+	c.timersmu.Unlock()
+	return
+}
+
+// AddTimerIntoMap 添加定时器到缓存
+func (c *Clock) AddTimerIntoMap(t *Timer) (err error) {
 	c.timersmu.Lock()
 	(*c.timers)[t.ID] = t
-	err = c.db.Insert("timer", t)
 	c.timersmu.Unlock()
 	return
 }
