@@ -1,3 +1,4 @@
+// Package tracemoe 搜番
 package tracemoe
 
 import (

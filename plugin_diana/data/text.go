@@ -21,8 +21,8 @@ const (
 
 var db = sql.Sqlite{DBPath: dbfile}
 
-type Text struct {
-	Id   int64  `db:"id"`
+type text struct {
+	ID   int64  `db:"id"`
 	Data string `db:"data"`
 }
 
@@ -35,7 +35,7 @@ func init() {
 		}
 		err = LoadText()
 		if err == nil {
-			err = db.Create("text", &Text{})
+			err = db.Create("text", &text{})
 			if err != nil {
 				panic(err)
 			}
@@ -57,12 +57,12 @@ func LoadText() error {
 func AddText(txt string) error {
 	s := md5.Sum(helper.StringToBytes(txt))
 	i := binary.LittleEndian.Uint64(s[:8])
-	return db.Insert("text", &Text{Id: int64(i), Data: txt})
+	return db.Insert("text", &text{ID: int64(i), Data: txt})
 }
 
 // RandText 随机小作文
 func RandText() string {
-	var t Text
+	var t text
 	err := db.Pick("text", &t)
 	if err != nil {
 		return err.Error()
@@ -72,7 +72,7 @@ func RandText() string {
 
 // HentaiText 发大病
 func HentaiText() string {
-	var t Text
+	var t text
 	err := db.Find("text", &t, "where id = -3802576048116006195")
 	if err != nil {
 		return err.Error()

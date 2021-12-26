@@ -1,10 +1,3 @@
-/*
- * @Author: Kanri
- * @Date: 2021-10-15 21:23:14
- * @LastEditors: Kanri
- * @LastEditTime: 2021-10-15 21:42:51
- * @Description:
- */
 // Package shindan 基于 https://shindanmaker.com 的测定小功能
 package shindan
 

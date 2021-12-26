@@ -54,14 +54,15 @@ func init() {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			login(username, password)
 			searchKey := ctx.State["regex_matched"].([]string)[1]
-			searchHtml := search(searchKey)
+			searchHTML := search(searchKey)
 			var m message.Message
-			doc, err := htmlquery.Parse(strings.NewReader(searchHtml))
+			doc, err := htmlquery.Parse(strings.NewReader(searchHTML))
 			if err != nil {
 				log.Errorln("[novel]", err)
 			}
 			htmlTitle := htmlquery.InnerText(htmlquery.FindOne(doc, "/html/head/title"))
-			if htmlTitle == websiteTitle {
+			switch htmlTitle {
+			case websiteTitle:
 				list, err := htmlquery.QueryAll(doc, "//dl[@id='nr']")
 				if err != nil {
 					log.Errorln("[novel]", err)
@@ -97,16 +98,16 @@ func init() {
 					}
 				} else {
 					text := htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@id='tipss']"))
-					text = strings.Replace(text, " ", "", -1)
-					text = strings.Replace(text, "本站", websiteURL, -1)
+					text = strings.ReplaceAll(text, " ", "")
+					text = strings.ReplaceAll(text, "本站", websiteURL)
 					ctx.SendChain(message.Text(text))
 				}
-			} else if htmlTitle == errorTitle {
+			case errorTitle:
 				ctx.SendChain(message.Text(errorTitle))
 				text := htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@style='text-align: center;padding:10px']"))
-				text = strings.Replace(text, " ", "", -1)
+				text = strings.ReplaceAll(text, " ", "")
 				ctx.SendChain(message.Text(text))
-			} else {
+			default:
 				bookName := htmlquery.SelectAttr(htmlquery.FindOne(doc, "//meta[@property='og:novel:book_name']"), "content")
 				category := htmlquery.SelectAttr(htmlquery.FindOne(doc, "//meta[@property='og:novel:category']"), "content")
 				author := htmlquery.SelectAttr(htmlquery.FindOne(doc, "//meta[@property='og:novel:author']"), "content")
@@ -153,7 +154,7 @@ func login(username, password string) {
 	defer loginResp.Body.Close()
 }
 
-func search(searchKey string) (searchHtml string) {
+func search(searchKey string) (searchHTML string) {
 	searchKeyData, err := ub.UTF82GBK(helper.StringToBytes(searchKey))
 	if err != nil {
 		log.Errorln("[novel]", err)
@@ -181,6 +182,6 @@ func search(searchKey string) (searchHtml string) {
 	if err != nil {
 		log.Errorln("[novel]", err)
 	}
-	searchHtml = helper.BytesToString(searchData)
-	return searchHtml
+	searchHTML = helper.BytesToString(searchData)
+	return searchHTML
 }

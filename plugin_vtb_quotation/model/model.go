@@ -96,12 +96,18 @@ func (vdb *VtbDB) GetAllFirstCategoryMessage() string {
 	rows, err := db.Model(&FirstCategory{}).Rows()
 	if err != nil {
 		logrus.Errorln("[vtb/model]数据库读取错误", err)
+		return ""
 	}
 	if rows == nil {
 		return ""
 	}
+	defer rows.Close()
 	for rows.Next() {
-		db.ScanRows(rows, &fc)
+		err = db.ScanRows(rows, &fc)
+		if err != nil {
+			logrus.Errorln("[vtb/model]数据库读取错误", err)
+			return ""
+		}
 		// logrus.Println(fc)
 		firstStepMessage = firstStepMessage + strconv.FormatInt(fc.FirstCategoryIndex, 10) + ". " + fc.FirstCategoryName + "\n"
 	}

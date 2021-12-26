@@ -1,3 +1,4 @@
+// Package binary 数据处理
 package binary
 
 import (
