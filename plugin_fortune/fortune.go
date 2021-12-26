@@ -66,11 +66,15 @@ func init() {
 			if ok {
 				c, ok := control.Lookup("fortune")
 				if ok {
-					c.SetData(gid, int64(i)&0xff)
+					err = c.SetData(gid, int64(i)&0xff)
+					if err != nil {
+						ctx.SendChain(message.Text("设置失败:", err))
+						return
+					}
 					ctx.SendChain(message.Text("设置成功~"))
 					return
 				}
-				ctx.SendChain(message.Text("设置失败!"))
+				ctx.SendChain(message.Text("设置失败: 找不到插件"))
 				return
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))

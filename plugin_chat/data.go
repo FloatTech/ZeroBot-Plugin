@@ -20,7 +20,10 @@ func initChatList(postinit func()) {
 		if err != nil {
 			panic(err)
 		}
-		json.Unmarshal(data, &kimomap)
+		err = json.Unmarshal(data, &kimomap)
+		if err != nil {
+			panic(err)
+		}
 		for k := range kimomap {
 			chatList = append(chatList, k)
 		}

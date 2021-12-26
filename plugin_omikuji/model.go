@@ -3,7 +3,7 @@ package omikuji
 import "strconv"
 
 type kuji struct {
-	Id   uint8  `db:"id"`
+	ID   uint8  `db:"id"`
 	Text string `db:"text"`
 }
 

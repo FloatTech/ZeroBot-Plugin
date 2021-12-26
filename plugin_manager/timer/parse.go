@@ -16,9 +16,9 @@ import (
 // GetTimerInfo 获得标准化定时字符串
 func (ts *Timer) GetTimerInfo() string {
 	if ts.Cron != "" {
-		return fmt.Sprintf("[%d]%s", ts.GrpId, ts.Cron)
+		return fmt.Sprintf("[%d]%s", ts.GrpID, ts.Cron)
 	}
-	return fmt.Sprintf("[%d]%d月%d日%d周%d:%d", ts.GrpId, ts.Month(), ts.Day(), ts.Week(), ts.Hour(), ts.Minute())
+	return fmt.Sprintf("[%d]%d月%d日%d周%d:%d", ts.GrpID, ts.Month(), ts.Day(), ts.Week(), ts.Hour(), ts.Minute())
 }
 
 // GetTimerID 获得标准化 ID
@@ -33,9 +33,9 @@ func GetFilledCronTimer(croncmd string, alert string, img string, botqq, gid int
 	var ts Timer
 	ts.Alert = alert
 	ts.Cron = croncmd
-	ts.Url = img
-	ts.Selfid = botqq
-	ts.GrpId = gid
+	ts.URL = img
+	ts.SelfID = botqq
+	ts.GrpID = gid
 	return &ts
 }
 
@@ -105,10 +105,10 @@ func GetFilledTimer(dateStrs []string, botqq, grp int64, matchDateOnly bool) *Ti
 	if !matchDateOnly {
 		urlStr := dateStrs[5]
 		if urlStr != "" { // 是图片url
-			ts.Url = urlStr[3:] // utf-8下用为3字节
-			logrus.Println("[群管]" + ts.Url)
-			if !strings.HasPrefix(ts.Url, "http") {
-				ts.Url = "illegal"
+			ts.URL = urlStr[3:] // utf-8下用为3字节
+			logrus.Println("[群管]" + ts.URL)
+			if !strings.HasPrefix(ts.URL, "http") {
+				ts.URL = "illegal"
 				logrus.Println("[群管]url非法！")
 				return &ts
 			}
@@ -116,8 +116,8 @@ func GetFilledTimer(dateStrs []string, botqq, grp int64, matchDateOnly bool) *Ti
 		ts.Alert = dateStrs[6]
 		ts.SetEn(true)
 	}
-	ts.Selfid = botqq
-	ts.GrpId = grp
+	ts.SelfID = botqq
+	ts.GrpID = grp
 	return &ts
 }
 

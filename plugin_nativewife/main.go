@@ -81,7 +81,11 @@ func init() {
 				url := ctx.State["image_url"].([]string)[0]
 				grpfolder := base + "/" + strconv.FormatInt(ctx.Event.GroupID, 36)
 				if file.IsNotExist(grpfolder) {
-					os.Mkdir(grpfolder, 0755)
+					err = os.Mkdir(grpfolder, 0755)
+					if err != nil {
+						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("错误：", err.Error()))
+						return
+					}
 				}
 				err = file.DownloadTo(url, grpfolder+"/"+name, true)
 				if err == nil {

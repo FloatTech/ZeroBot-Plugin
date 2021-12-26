@@ -12,10 +12,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
+// Clock 时钟
 type Clock struct {
 	db       *sql.Sqlite
 	timers   *(map[uint32]*Timer)
@@ -37,10 +37,12 @@ var (
 	}
 )
 
+// NewClock 添加一个新时钟
 func NewClock(db *sql.Sqlite) (c Clock) {
 	c.loadTimers(db)
 	c.cron = cron.New()
 	c.entries = make(map[uint32]cron.EntryID)
+	c.timers = &map[uint32]*Timer{}
 	c.cron.Start()
 	return
 }
@@ -50,9 +52,9 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
 	var key uint32
 	if save {
 		key = ts.GetTimerID()
-		ts.Id = key
+		ts.ID = key
 	} else {
-		key = ts.Id
+		key = ts.ID
 	}
 	t, ok := c.GetTimer(key)
 	if t != ts && ok { // 避免重复注册定时器
@@ -61,16 +63,16 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
 	logrus.Println("[群管]注册计时器", key)
 	if ts.Cron != "" {
 		var ctx *zero.Ctx
-		if ts.Selfid != 0 {
-			ctx = zero.GetBot(ts.Selfid)
+		if ts.SelfID != 0 {
+			ctx = zero.GetBot(ts.SelfID)
 		} else {
 			zero.RangeBot(func(id int64, c *zero.Ctx) bool {
 				ctx = c
-				ts.Selfid = id
+				ts.SelfID = id
 				return false
 			})
 		}
-		eid, err := c.cron.AddFunc(ts.Cron, func() { ts.sendmsg(ts.GrpId, ctx) })
+		eid, err := c.cron.AddFunc(ts.Cron, func() { ts.sendmsg(ts.GrpID, ctx) })
 		if err == nil {
 			c.entmu.Lock()
 			c.entries[key] = eid
@@ -135,7 +137,7 @@ func (c *Clock) ListTimers(grpID int64) []string {
 		c.timersmu.RLock()
 		keys := make([]string, 0, len(*c.timers))
 		for _, v := range *c.timers {
-			if v.GrpId == grpID {
+			if v.GrpID == grpID {
 				k := v.GetTimerInfo()
 				start := strings.Index(k, "]")
 				msg := strings.ReplaceAll(k[start+1:]+"\n", "-1", "每")
@@ -147,11 +149,11 @@ func (c *Clock) ListTimers(grpID int64) []string {
 		}
 		c.timersmu.RUnlock()
 		return keys
-	} else {
-		return nil
 	}
+	return nil
 }
 
+// GetTimer 获得定时器
 func (c *Clock) GetTimer(key uint32) (t *Timer, ok bool) {
 	c.timersmu.RLock()
 	t, ok = (*c.timers)[key]
@@ -159,25 +161,24 @@ func (c *Clock) GetTimer(key uint32) (t *Timer, ok bool) {
 	return
 }
 
+// AddTimer 添加定时器
 func (c *Clock) AddTimer(t *Timer) (err error) {
 	c.timersmu.Lock()
-	(*c.timers)[t.Id] = t
+	(*c.timers)[t.ID] = t
 	err = c.db.Insert("timer", t)
 	c.timersmu.Unlock()
 	return
 }
 
 func (c *Clock) loadTimers(db *sql.Sqlite) {
-	if file.IsExist(db.DBPath) {
-		c.db = db
-		err := c.db.Create("timer", &Timer{})
-		if err == nil {
-			var t Timer
-			c.db.FindFor("timer", &t, "", func() error {
-				tescape := t
-				go c.RegisterTimer(&tescape, false)
-				return nil
-			})
-		}
+	c.db = db
+	err := c.db.Create("timer", &Timer{})
+	if err == nil {
+		var t Timer
+		_ = c.db.FindFor("timer", &t, "", func() error {
+			tescape := t
+			go c.RegisterTimer(&tescape, false)
+			return nil
+		})
 	}
 }
