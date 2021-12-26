@@ -17,6 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 )
 
@@ -49,13 +50,7 @@ func init() {
 				ctx.SendChain(message.Text("大家的wife都是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
 			default:
 				// 获取名字
-				name := ctx.State["args"].(string)
-				if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
-					qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
-					name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
-				} else if name == "" {
-					name = ctx.Event.Sender.NickName
-				}
+				name := ctxext.NickName(ctx)
 				now := time.Now()
 				s := md5.Sum(helper.StringToBytes(fmt.Sprintf("%s%d%d%d", name, now.Year(), now.Month(), now.Day())))
 				r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))

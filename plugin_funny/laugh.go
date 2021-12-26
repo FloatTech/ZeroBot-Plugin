@@ -1,7 +1,6 @@
 package funny
 
 import (
-	"strconv"
 	"strings"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
 )
 
@@ -29,19 +29,7 @@ func init() {
 			return
 		}
 		// 获取名字
-		name := ctx.State["args"].(string)
-		if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
-			qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
-			name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("card").String()
-			if name == "" {
-				name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").String()
-			}
-		} else if name == "" {
-			name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("card").String()
-			if name == "" {
-				name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("nickname").String()
-			}
-		}
+		name := ctxext.NickName(ctx)
 		var j joke
 		err := db.Pick("jokes", &j)
 		if err != nil {

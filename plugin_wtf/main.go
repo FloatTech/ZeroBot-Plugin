@@ -31,7 +31,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text(s))
 		})
-	en.OnRegex(`^查询鬼东西(\d*)`).SetBlock(true).SetPriority(30).
+	en.OnRegex(`^查询鬼东西(\d*)`, zero.OnlyGroup).SetBlock(true).SetPriority(30).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))

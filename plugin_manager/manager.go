@@ -17,6 +17,7 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
@@ -423,11 +424,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
 				userid := ctx.Event.UserID
-				nickname := ctx.GetGroupMemberInfo(ctx.Event.GroupID, userid, false).Get("card").String()
-				if nickname == "" {
-					nickname = ctx.GetGroupMemberInfo(ctx.Event.GroupID, userid, false).Get("nickname").String()
-				}
-				ctx.SendChain(message.Text(nickname, "(", userid, ")", "离开了我们..."))
+				ctx.SendChain(message.Text(ctxext.CardOrNickName(ctx, userid), "(", userid, ")", "离开了我们..."))
 			}
 		})
 	// 设置欢迎语

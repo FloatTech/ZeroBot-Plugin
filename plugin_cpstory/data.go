@@ -24,7 +24,7 @@ func init() {
 		// os.RemoveAll(dbpath)
 		_ = os.MkdirAll(dbpath, 0755)
 		_, _ = file.GetLazyData(dbfile, false, true)
-		err := db.Create("cp_story", &CpStory{})
+		err := db.Create("cp_story", &cpstory{})
 		if err != nil {
 			panic(err)
 		}
