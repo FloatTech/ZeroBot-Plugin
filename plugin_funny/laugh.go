@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	engine = control.Register("curse", &control.Options{
+	engine = control.Register("funny", &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx]|讲个笑话[qq号]\n",
@@ -32,9 +32,15 @@ func init() {
 		name := ctx.State["args"].(string)
 		if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
 			qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
-			name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
+			name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("card").String()
+			if name == "" {
+				name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").String()
+			}
 		} else if name == "" {
-			name = ctx.Event.Sender.NickName
+			name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("card").String()
+			if name == "" {
+				name = ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("nickname").String()
+			}
 		}
 		var j joke
 		err := db.Pick("jokes", &j)
