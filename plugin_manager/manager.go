@@ -314,7 +314,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^取消在"(.*)"的提醒`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).SetPriority(40).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
-			ts := timer.Timer{Cron: dateStrs[1], GrpId: ctx.Event.GroupID}
+			ts := timer.Timer{Cron: dateStrs[1], GrpID: ctx.Event.GroupID}
 			ti := ts.GetTimerID()
 			ok := clock.CancelTimer(ti)
 			if ok {

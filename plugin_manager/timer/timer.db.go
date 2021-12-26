@@ -6,15 +6,16 @@ import (
 
 // Timer 计时器
 type Timer struct {
-	Id                          uint32 `db:"id"`
+	ID                          uint32 `db:"id"`
 	En1Month4Day5Week3Hour5Min6 int32  `db:"emdwhm"`
-	Selfid                      int64  `db:"sid"`
-	GrpId                       int64  `db:"gid"`
+	SelfID                      int64  `db:"sid"`
+	GrpID                       int64  `db:"gid"`
 	Alert                       string `db:"alert"`
 	Cron                        string `db:"cron"`
-	Url                         string `db:"url"`
+	URL                         string `db:"url"`
 }
 
+// InsertInto 插入自身
 func (t *Timer) InsertInto(db *sql.Sqlite) error {
 	return db.Insert("timer", t)
 }

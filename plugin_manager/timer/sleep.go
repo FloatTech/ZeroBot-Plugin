@@ -152,11 +152,11 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 func (ts *Timer) judgeHM() {
 	if ts.Hour() < 0 || ts.Hour() == time.Now().Hour() {
 		if ts.Minute() < 0 || ts.Minute() == time.Now().Minute() {
-			if ts.Selfid != 0 {
-				ts.sendmsg(ts.GrpId, zero.GetBot(ts.Selfid))
+			if ts.SelfID != 0 {
+				ts.sendmsg(ts.GrpID, zero.GetBot(ts.SelfID))
 			} else {
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) (_ bool) {
-					ts.sendmsg(ts.GrpId, ctx)
+					ts.sendmsg(ts.GrpID, ctx)
 					return
 				})
 			}

@@ -1,3 +1,4 @@
+// Package bookreview 书评
 package bookreview
 
 import (
