@@ -1,3 +1,4 @@
+// Package cangtoushi 藏头诗
 package cangtoushi
 
 import (
@@ -7,12 +8,10 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
@@ -29,16 +28,15 @@ const (
 
 var (
 	gCurCookieJar *cookiejar.Jar
-	engine        = control.Register("cangtoushi", &control.Options{
+	csrf          string
+)
+
+func init() {
+	engine := control.Register("cangtoushi", &control.Options{
 		DisableOnDefault: false,
 		Help: "藏头诗\n" +
 			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",
 	})
-	limit = rate.NewManager(time.Minute, 20)
-	csrf  string
-)
-
-func init() {
 	engine.OnRegex("藏头诗([\u4E00-\u9FA5]{3,10})").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
 		login()

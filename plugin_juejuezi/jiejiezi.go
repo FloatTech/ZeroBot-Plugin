@@ -1,3 +1,4 @@
+// Package juejuezi 绝绝子
 package juejuezi
 
 import (
@@ -8,7 +9,6 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -26,29 +26,29 @@ const (
 )
 
 var (
-	engine = control.Register("juejuezi", &control.Options{
-		DisableOnDefault: false,
-		Help: "绝绝子生成器\n" +
-			"- 喝奶茶绝绝子|绝绝子吃饭",
-	})
 	limit = rate.NewManager(time.Minute, 20)
 )
 
 func init() {
-	engine.OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	control.Register("juejuezi", &control.Options{
+		DisableOnDefault: false,
+		Help: "绝绝子生成器\n" +
+			"- 喝奶茶绝绝子|绝绝子吃饭",
+	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}
 		toDealStr := []rune(strings.ReplaceAll(ctx.ExtractPlainText(), "绝绝子", ""))
-		if len(toDealStr) < 2 {
+		switch len(toDealStr) {
+		case 0, 1:
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("不要只输入绝绝子"))
-		} else if len(toDealStr) == 2 {
+		case 2:
 			data, err := juejuezi(string(toDealStr[0]), string(toDealStr[1]))
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 			}
 			ctx.SendChain(message.Text(gjson.Get(helper.BytesToString(data), "text").String()))
-		} else {
+		default:
 			params := ctx.GetWordSlices(string(toDealStr)).Get("slices").Array()
 			data, err := juejuezi(params[0].String(), params[1].String())
 			if err != nil {
