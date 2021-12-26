@@ -37,9 +37,8 @@ func Open(dbpath string) (*SleepDB, error) {
 	db, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, err
-	} else {
-		return (*SleepDB)(db), nil
 	}
+	return (*SleepDB)(db), nil
 }
 
 // Close 关闭

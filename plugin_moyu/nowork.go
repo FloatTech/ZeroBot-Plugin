@@ -46,7 +46,7 @@ func GetHoliday(name string) *Holiday {
 	return h
 }
 
-// 获取两个时间相差
+// String 获取两个时间相差
 func (h *Holiday) String() string {
 	d := time.Until(h.date)
 	switch {

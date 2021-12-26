@@ -10,13 +10,15 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/logoove/sqlite"
+	_ "github.com/logoove/sqlite" // import sql
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
 
+// VtbDB vtb 数据库
 type VtbDB gorm.DB
 
+// Initialize ...
 func Initialize(dbpath string) *VtbDB {
 	var err error
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
@@ -35,6 +37,7 @@ func Initialize(dbpath string) *VtbDB {
 	return (*VtbDB)(gdb)
 }
 
+// Open ...
 func Open(dbpath string) (*VtbDB, error) {
 	db, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
@@ -54,6 +57,7 @@ type FirstCategory struct {
 	FirstCategoryIconPath    string `gorm:"column:first_category_icon_path"`
 }
 
+// TableName ...
 func (FirstCategory) TableName() string {
 	return "first_category"
 }
@@ -68,6 +72,7 @@ type SecondCategory struct {
 	SecondCategoryDescription string `gorm:"column:second_category_description"`
 }
 
+// TableName ...
 func (SecondCategory) TableName() string {
 	return "second_category"
 }
@@ -84,6 +89,7 @@ type ThirdCategory struct {
 	ThirdCategoryDescription string `gorm:"column:third_category_description"`
 }
 
+// TableName ...
 func (ThirdCategory) TableName() string {
 	return "third_category"
 }
@@ -163,7 +169,7 @@ func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstInde
 	return ThirdStepMessage
 }
 
-// GetThirdCategory
+// GetThirdCategory ...
 func (vdb *VtbDB) GetThirdCategory(firstIndex, secondIndex, thirdIndex int) ThirdCategory {
 	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
@@ -173,6 +179,7 @@ func (vdb *VtbDB) GetThirdCategory(firstIndex, secondIndex, thirdIndex int) Thir
 	return tc
 }
 
+// RandomVtb ...
 func (vdb *VtbDB) RandomVtb() ThirdCategory {
 	db := (*gorm.DB)(vdb)
 	rand.Seed(time.Now().UnixNano())
@@ -185,6 +192,7 @@ func (vdb *VtbDB) RandomVtb() ThirdCategory {
 	return tc
 }
 
+// GetFirstCategoryByFirstUid ...
 func (vdb *VtbDB) GetFirstCategoryByFirstUid(firstUid string) FirstCategory {
 	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
@@ -193,6 +201,7 @@ func (vdb *VtbDB) GetFirstCategoryByFirstUid(firstUid string) FirstCategory {
 	return fc
 }
 
+// Close ...
 func (vdb *VtbDB) Close() error {
 	db := (*gorm.DB)(vdb)
 	return db.Close()
@@ -200,6 +209,7 @@ func (vdb *VtbDB) Close() error {
 
 const vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
 
+// GetVtbList ...
 func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	db := (*gorm.DB)(vdb)
 	client := &http.Client{}
@@ -261,6 +271,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	return uidList
 }
 
+// StoreVtb ...
 func (vdb *VtbDB) StoreVtb(uid string) {
 	db := (*gorm.DB)(vdb)
 	vtbUrl := "https://vtbkeyboard.moe/api/get_vtb_page?uid=" + uid
