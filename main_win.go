@@ -4,6 +4,9 @@
 package main
 
 import (
+	"bytes"
+	"strings"
+
 	"github.com/sirupsen/logrus"
 )
 
