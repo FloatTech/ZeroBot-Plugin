@@ -5,7 +5,6 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	easy "github.com/t-tomalak/logrus-easy-formatter"
 )
 
 func init() {
