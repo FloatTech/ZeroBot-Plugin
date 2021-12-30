@@ -37,7 +37,7 @@ func (f LogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 
 	buf.WriteByte('[')
 	buf.WriteString(strings.ToUpper(entry.Level.String()))
-	buf.WriteString("]: ")
+	buf.WriteString("] ")
 	buf.WriteString(entry.Message)
 	buf.WriteString(" \n")
 
