@@ -49,7 +49,6 @@ func Txt2img(text string, width, fontSize int) (base64Bytes []byte, err error) {
 			canvas.DrawString(v, float64(width/2), float64((i+2)*fontSize))
 		}
 	}
-	canvas.SavePNG("text.png")
 	// 转成 base64
 	buffer := new(bytes.Buffer)
 	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
