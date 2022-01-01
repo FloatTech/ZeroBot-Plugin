@@ -313,7 +313,7 @@ func init() {
 				zero.OnCommandGroup([]string{
 					"启用", "enable", "禁用", "disable",
 					"全局启用", "enableall", "全局禁用", "disableall",
-				}, userOrGrpAdmin).Handle(func(ctx *zero.Ctx) {
+				}, userOrGrpAdmin).SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
 					model := extension.CommandModel{}
 					_ = ctx.Parse(&model)
 					service, ok := Lookup(model.Args)
@@ -338,7 +338,7 @@ func init() {
 					}
 				})
 
-				zero.OnCommandGroup([]string{"还原", "reset"}, userOrGrpAdmin).Handle(func(ctx *zero.Ctx) {
+				zero.OnCommandGroup([]string{"还原", "reset"}, userOrGrpAdmin).SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
 					model := extension.CommandModel{}
 					_ = ctx.Parse(&model)
 					service, ok := Lookup(model.Args)
@@ -358,7 +358,7 @@ func init() {
 				zero.OnCommandGroup([]string{
 					"禁止", "ban", "允许", "permit",
 					"全局禁止", "banall", "全局允许", "permitall",
-				}, zero.OnlyGroup, zero.AdminPermission).Handle(func(ctx *zero.Ctx) {
+				}, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
 					model := extension.CommandModel{}
 					_ = ctx.Parse(&model)
 					args := strings.Split(model.Args, " ")
@@ -396,7 +396,7 @@ func init() {
 					ctx.SendChain(message.Text("参数错误!"))
 				})
 
-				zero.OnCommandGroup([]string{"用法", "usage"}, userOrGrpAdmin).
+				zero.OnCommandGroup([]string{"用法", "usage"}, userOrGrpAdmin).SetBlock(true).FirstPriority().
 					Handle(func(ctx *zero.Ctx) {
 						model := extension.CommandModel{}
 						_ = ctx.Parse(&model)
@@ -412,7 +412,7 @@ func init() {
 						}
 					})
 
-				zero.OnCommandGroup([]string{"服务列表", "service_list"}, userOrGrpAdmin).
+				zero.OnCommandGroup([]string{"服务列表", "service_list"}, userOrGrpAdmin).SetBlock(true).FirstPriority().
 					Handle(func(ctx *zero.Ctx) {
 						msg := "--------服务列表--------\n发送\"/用法 name\"查看详情"
 						i := 0
@@ -430,7 +430,7 @@ func init() {
 						ctx.SendChain(message.Text(msg))
 					})
 
-				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin).
+				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin).SetBlock(true).FirstPriority().
 					Handle(func(ctx *zero.Ctx) {
 						text := "---服务详情---\n"
 						i := 0
