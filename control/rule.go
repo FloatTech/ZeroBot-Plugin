@@ -430,7 +430,7 @@ func init() {
 						ctx.SendChain(message.Text(msg))
 					})
 
-				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin, zero.OnlyGroup).
+				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin).
 					Handle(func(ctx *zero.Ctx) {
 						text := "---服务详情---\n"
 						i := 0
