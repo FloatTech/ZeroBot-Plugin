@@ -2,8 +2,11 @@
 package bookreview
 
 import (
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
+	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
@@ -18,12 +21,24 @@ func init() {
 	engine.OnRegex("^书评([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
-			ctx.SendChain(message.Text(b.BookReview))
+			data, err := txt2img.Txt2img(b.BookReview, 40, 20)
+			if err != nil {
+				log.Println("err:", err)
+			}
+			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 
 	engine.OnFullMatch("随机书评").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			br := getRandomBookReview()
-			ctx.SendChain(message.Text(br.BookReview))
+			data, err := txt2img.Txt2img(br.BookReview, 40, 20)
+			if err != nil {
+				log.Println("err:", err)
+			}
+			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 }

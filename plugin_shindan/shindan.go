@@ -2,6 +2,9 @@
 package shindan
 
 import (
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
+	log "github.com/sirupsen/logrus"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/shindanmaker"
@@ -47,7 +50,18 @@ func handle(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR: ", err))
 	}
 	// TODO: 可注入
-	ctx.Send(text)
+	switch ctx.State["id"].(int64) {
+	case 587874, 162207:
+		data, err := txt2img.Txt2img(text, 40, 20)
+		if err != nil {
+			log.Errorln("[shindan]:", err)
+		}
+		if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
+			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+		}
+	default:
+		ctx.Send(text)
+	}
 }
 
 // 传入 shindanmaker id

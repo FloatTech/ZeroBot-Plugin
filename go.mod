@@ -18,6 +18,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/jinzhu/gorm v1.9.16
 	github.com/logoove/sqlite v1.13.0
+	github.com/mattn/go-runewidth v0.0.13
 	github.com/mroth/weightedrand v0.4.1
 	github.com/shirou/gopsutil/v3 v3.21.11
 	github.com/sirupsen/logrus v1.8.1
@@ -52,6 +53,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect

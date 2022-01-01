@@ -5,6 +5,8 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"fmt"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -431,13 +433,7 @@ func init() {
 
 				zero.OnCommandGroup([]string{"服务详情", "service_detail"}, userOrGrpAdmin, zero.OnlyGroup).
 					Handle(func(ctx *zero.Ctx) {
-						var m message.Message
-						m = append(m,
-							message.CustomNode(
-								zero.BotConfig.NickName[0],
-								ctx.Event.SelfID,
-								"---服务详情---",
-							))
+						text := "---服务详情---\n"
 						i := 0
 						ForEach(func(key string, manager *Control) bool {
 							service, _ := Lookup(key)
@@ -450,19 +446,14 @@ func init() {
 								msg += "○" + key
 							}
 							msg += "\n" + help
-							m = append(m,
-								message.CustomNode(
-									zero.BotConfig.NickName[0],
-									ctx.Event.SelfID,
-									msg,
-								))
+							text += msg + "\n\n"
 							return true
 						})
-
-						if id := ctx.SendGroupForwardMessage(
-							ctx.Event.GroupID,
-							m,
-						).Get("message_id").Int(); id == 0 {
+						data, err := txt2img.Txt2img(text, 40, 20)
+						if err != nil {
+							log.Println("err:", err)
+						}
+						if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
 							ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 						}
 					})
