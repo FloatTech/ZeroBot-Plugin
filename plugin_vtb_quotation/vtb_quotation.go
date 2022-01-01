@@ -22,7 +22,7 @@ const (
 	regStr   = ".*/(.*)"
 	dbpath   = "data/VtbQuotation/"
 	dbfile   = dbpath + "vtb.db"
-	fontpath = "data/font/"
+	fontpath = "data/Font/"
 	fontfile = "simhei.ttf"
 )
 

@@ -12,7 +12,7 @@ import (
 
 const (
 	whitespace = "\t\n\r\x0b\x0c"
-	fontPath   = "data/font/simhei.ttf"
+	fontPath   = "data/Font/simhei.ttf"
 )
 
 func Txt2img(text string, width, fontSize int) (base64Bytes []byte, err error) {
