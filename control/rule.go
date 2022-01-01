@@ -6,13 +6,12 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -75,7 +74,7 @@ func (m *Control) Enable(groupID int64) {
 	err = db.Insert(m.service, &c)
 	m.Unlock()
 	if err != nil {
-		logrus.Errorf("[control] %v", err)
+		log.Errorf("[control] %v", err)
 	}
 }
 
@@ -94,7 +93,7 @@ func (m *Control) Disable(groupID int64) {
 	err = db.Insert(m.service, &c)
 	m.Unlock()
 	if err != nil {
-		logrus.Errorf("[control] %v", err)
+		log.Errorf("[control] %v", err)
 	}
 }
 
@@ -106,7 +105,7 @@ func (m *Control) Reset(groupID int64) {
 		err := db.Del(m.service, "WHERE gid = "+strconv.FormatInt(groupID, 10))
 		m.Unlock()
 		if err != nil {
-			logrus.Errorf("[control] %v", err)
+			log.Errorf("[control] %v", err)
 		}
 	}
 }
@@ -115,13 +114,13 @@ func (m *Control) Reset(groupID int64) {
 func (m *Control) IsEnabledIn(gid int64) bool {
 	var c grpcfg
 	var err error
-	logrus.Debugln("[control] IsEnabledIn recv gid =", gid)
+	log.Debugln("[control] IsEnabledIn recv gid =", gid)
 	if gid != 0 {
 		m.RLock()
 		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 		m.RUnlock()
 		if err == nil && gid == c.GroupID {
-			logrus.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable&1)
+			log.Debugf("[control] plugin %s of grp %d : %d", m.service, c.GroupID, c.Disable&1)
 			return c.Disable&1 == 0
 		}
 	}
@@ -129,7 +128,7 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 	err = db.Find(m.service, &c, "WHERE gid = 0")
 	m.RUnlock()
 	if err == nil && c.GroupID == 0 {
-		logrus.Debugf("[control] plugin %s of all : %d", m.service, c.Disable&1)
+		log.Debugf("[control] plugin %s of all : %d", m.service, c.Disable&1)
 		return c.Disable&1 == 0
 	}
 	return !m.options.DisableOnDefault
@@ -139,14 +138,14 @@ func (m *Control) IsEnabledIn(gid int64) bool {
 func (m *Control) Ban(uid, gid int64) {
 	var err error
 	var digest [16]byte
-	logrus.Debugln("[control] Ban recv gid =", gid, "uid =", uid)
+	log.Debugln("[control] Ban recv gid =", gid, "uid =", uid)
 	if gid != 0 { // 特定群
 		digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_%d", uid, gid)))
 		m.RLock()
 		err = db.Insert(m.service+"ban", &ban{ID: int64(binary.LittleEndian.Uint64(digest[:8])), UserID: uid, GroupID: gid})
 		m.RUnlock()
 		if err == nil {
-			logrus.Debugf("[control] plugin %s is banned in grp %d for usr %d.", m.service, gid, uid)
+			log.Debugf("[control] plugin %s is banned in grp %d for usr %d.", m.service, gid, uid)
 			return
 		}
 	}
@@ -156,20 +155,20 @@ func (m *Control) Ban(uid, gid int64) {
 	err = db.Insert(m.service+"ban", &ban{ID: int64(binary.LittleEndian.Uint64(digest[:8])), UserID: uid, GroupID: 0})
 	m.RUnlock()
 	if err == nil {
-		logrus.Debugf("[control] plugin %s is banned in all grp for usr %d.", m.service, uid)
+		log.Debugf("[control] plugin %s is banned in all grp for usr %d.", m.service, uid)
 	}
 }
 
 // Permit 允许某人在某群使用本插件
 func (m *Control) Permit(uid, gid int64) {
 	var digest [16]byte
-	logrus.Debugln("[control] Permit recv gid =", gid, "uid =", uid)
+	log.Debugln("[control] Permit recv gid =", gid, "uid =", uid)
 	if gid != 0 { // 特定群
 		digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_%d", uid, gid)))
 		m.RLock()
 		_ = db.Del(m.service+"ban", "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
 		m.RUnlock()
-		logrus.Debugf("[control] plugin %s is permitted in grp %d for usr %d.", m.service, gid, uid)
+		log.Debugf("[control] plugin %s is permitted in grp %d for usr %d.", m.service, gid, uid)
 		return
 	}
 	// 所有群
@@ -177,7 +176,7 @@ func (m *Control) Permit(uid, gid int64) {
 	m.RLock()
 	_ = db.Del(m.service+"ban", "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
 	m.RUnlock()
-	logrus.Debugf("[control] plugin %s is permitted in all grp for usr %d.", m.service, uid)
+	log.Debugf("[control] plugin %s is permitted in all grp for usr %d.", m.service, uid)
 }
 
 // IsBannedIn 某人是否在某群被 ban
@@ -185,14 +184,14 @@ func (m *Control) IsBannedIn(uid, gid int64) bool {
 	var b ban
 	var err error
 	var digest [16]byte
-	logrus.Debugln("[control] IsBannedIn recv gid =", gid, "uid =", uid)
+	log.Debugln("[control] IsBannedIn recv gid =", gid, "uid =", uid)
 	if gid != 0 {
 		digest = md5.Sum(helper.StringToBytes(fmt.Sprintf("%d_%d", uid, gid)))
 		m.RLock()
 		err = db.Find(m.service+"ban", &b, "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
 		m.RUnlock()
 		if err == nil && gid == b.GroupID && uid == b.UserID {
-			logrus.Debugf("[control] plugin %s is banned in grp %d for usr %d.", m.service, b.GroupID, b.UserID)
+			log.Debugf("[control] plugin %s is banned in grp %d for usr %d.", m.service, b.GroupID, b.UserID)
 			return true
 		}
 	}
@@ -201,7 +200,7 @@ func (m *Control) IsBannedIn(uid, gid int64) bool {
 	err = db.Find(m.service+"ban", &b, "WHERE id = "+strconv.FormatInt(int64(binary.LittleEndian.Uint64(digest[:8])), 10))
 	m.RUnlock()
 	if err == nil && b.GroupID == 0 && uid == b.UserID {
-		logrus.Debugf("[control] plugin %s is banned in all grp for usr %d.", m.service, b.UserID)
+		log.Debugf("[control] plugin %s is banned in all grp for usr %d.", m.service, b.UserID)
 		return true
 	}
 	return false
@@ -211,13 +210,13 @@ func (m *Control) IsBannedIn(uid, gid int64) bool {
 func (m *Control) GetData(gid int64) int64 {
 	var c grpcfg
 	var err error
-	logrus.Debugln("[control] IsEnabledIn recv gid =", gid)
+	log.Debugln("[control] IsEnabledIn recv gid =", gid)
 	if gid != 0 {
 		m.RLock()
 		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 		m.RUnlock()
 		if err == nil && gid == c.GroupID {
-			logrus.Debugf("[control] plugin %s of grp %d : %x", m.service, c.GroupID, c.Disable>>1)
+			log.Debugf("[control] plugin %s of grp %d : %x", m.service, c.GroupID, c.Disable>>1)
 			return c.Disable >> 1
 		}
 	}
@@ -225,7 +224,7 @@ func (m *Control) GetData(gid int64) int64 {
 	err = db.Find(m.service, &c, "WHERE gid = 0")
 	m.RUnlock()
 	if err == nil && c.GroupID == 0 {
-		logrus.Debugf("[control] plugin %s of all : %x", m.service, c.Disable>>1)
+		log.Debugf("[control] plugin %s of all : %x", m.service, c.Disable>>1)
 		return c.Disable >> 1
 	}
 	return 0
@@ -244,12 +243,12 @@ func (m *Control) SetData(groupID int64, data int64) error {
 		}
 	}
 	c.Disable |= data << 1
-	logrus.Debugf("[control] set plugin %s of all : %x", m.service, data)
+	log.Debugf("[control] set plugin %s of all : %x", m.service, data)
 	m.Lock()
 	err = db.Insert(m.service, &c)
 	m.Unlock()
 	if err != nil {
-		logrus.Errorf("[control] %v", err)
+		log.Errorf("[control] %v", err)
 	}
 	return err
 }
@@ -262,7 +261,7 @@ func (m *Control) Handler(ctx *zero.Ctx) bool {
 		// 个人用户
 		return m.IsEnabledIn(-ctx.Event.UserID)
 	}
-	logrus.Debugln("[control] handler get gid =", grp)
+	log.Debugln("[control] handler get gid =", grp)
 	return m.IsEnabledIn(grp) && !m.IsBannedIn(ctx.Event.UserID, grp)
 }
 
@@ -451,7 +450,7 @@ func init() {
 						})
 						data, err := txt2img.Txt2img(text, 40, 20)
 						if err != nil {
-							log.Println("err:", err)
+							log.Errorf("[control] %v", err)
 						}
 						if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
 							ctx.SendChain(message.Text("ERROR: 可能被风控了"))
