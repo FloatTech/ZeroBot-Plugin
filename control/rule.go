@@ -10,8 +10,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
@@ -19,6 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 )
 
 var (

@@ -5,12 +5,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-func (ts *Timer) sendmsg(grp int64, ctx *zero.Ctx) {
+func (t *Timer) sendmsg(grp int64, ctx *zero.Ctx) {
 	ctx.Event = new(zero.Event)
 	ctx.Event.GroupID = grp
-	if ts.URL == "" {
-		ctx.SendChain(atall, message.Text(ts.Alert))
+	if t.URL == "" {
+		ctx.SendChain(atall, message.Text(t.Alert))
 	} else {
-		ctx.SendChain(atall, message.Text(ts.Alert), message.Image(ts.URL).Add("cache", "0"))
+		ctx.SendChain(atall, message.Text(t.Alert), message.Image(t.URL).Add("cache", "0"))
 	}
 }

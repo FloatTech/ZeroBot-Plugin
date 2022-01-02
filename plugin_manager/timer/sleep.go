@@ -89,7 +89,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	}
 	logrus.Debugln("[timer] stable:", stable)
 	logrus.Debugln("[timer] m:", m, "d:", d, "h:", h, "mn:", mn, "w:", w)
-	date = time.Date(date.Year(), time.Month(m), int(d), int(h), int(mn), date.Second(), date.Nanosecond(), date.Location())
+	date = time.Date(date.Year(), time.Month(m), d, h, mn, date.Second(), date.Nanosecond(), date.Location())
 	logrus.Debugln("[timer] date original:", date)
 	if unit > 0 {
 		date = date.Add(unit)
@@ -111,7 +111,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		}
 	}
 	logrus.Debugln("[timer] date after fix:", date)
-	if stable&0x8 != 0 && date.Hour() != int(h) {
+	if stable&0x8 != 0 && date.Hour() != h {
 		switch {
 		case stable&0x4 == 0:
 			date = date.AddDate(0, 0, 1).Add(-time.Hour)
@@ -124,7 +124,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		}
 	}
 	logrus.Debugln("[timer] date after s8:", date)
-	if stable&0x4 != 0 && date.Day() != int(d) {
+	if stable&0x4 != 0 && date.Day() != d {
 		switch {
 		case stable*0x1 == 0:
 			date = date.AddDate(0, 1, -1)

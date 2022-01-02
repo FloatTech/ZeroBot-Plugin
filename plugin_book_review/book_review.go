@@ -7,9 +7,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 )
 
 func init() {

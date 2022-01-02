@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -22,6 +20,7 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	ub "github.com/FloatTech/ZeroBot-Plugin/utils/binary"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 )
 
 const (
