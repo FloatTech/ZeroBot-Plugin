@@ -3,16 +3,6 @@ package mockingbird
 
 import (
 	"bytes"
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"
-	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
-	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
-	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -20,6 +10,18 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	qingyunke "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"
+	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
 )
 
 const (
@@ -58,7 +60,6 @@ func init() {
 			fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)
 			// 回复
 			ctx.SendChain(message.Record("file:///" + fileutil.BOTPATH + "/" + cachePath + fileName))
-
 		})
 }
 

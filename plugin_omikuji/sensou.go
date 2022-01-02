@@ -3,11 +3,13 @@ package omikuji
 
 import (
 	"fmt"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 
 	log "github.com/sirupsen/logrus"
 

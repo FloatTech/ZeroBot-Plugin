@@ -2,10 +2,12 @@
 package shindan
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"time"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 
 	"github.com/FloatTech/AnimeAPI/shindanmaker"
 	zero "github.com/wdvxdr1123/ZeroBot"

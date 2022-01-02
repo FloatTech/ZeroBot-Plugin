@@ -3,7 +3,6 @@ package novel
 
 import (
 	"fmt"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -11,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"

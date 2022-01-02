@@ -5,11 +5,12 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"fmt"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"

@@ -4,14 +4,16 @@ package txt2img
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	"github.com/fogleman/gg"
-	"github.com/mattn/go-runewidth"
-	log "github.com/sirupsen/logrus"
 	"image/jpeg"
 	"os"
 	"strings"
+
+	"github.com/fogleman/gg"
+	"github.com/mattn/go-runewidth"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 const (
