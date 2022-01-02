@@ -211,20 +211,11 @@ func (m *Control) GetData(gid int64) int64 {
 	var c grpcfg
 	var err error
 	log.Debugln("[control] IsEnabledIn recv gid =", gid)
-	if gid != 0 {
-		m.RLock()
-		err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
-		m.RUnlock()
-		if err == nil && gid == c.GroupID {
-			log.Debugf("[control] plugin %s of grp %d : %x", m.service, c.GroupID, c.Disable>>1)
-			return c.Disable >> 1
-		}
-	}
 	m.RLock()
-	err = db.Find(m.service, &c, "WHERE gid = 0")
+	err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 	m.RUnlock()
-	if err == nil && c.GroupID == 0 {
-		log.Debugf("[control] plugin %s of all : %x", m.service, c.Disable>>1)
+	if err == nil && gid == c.GroupID {
+		log.Debugf("[control] plugin %s of grp %d : %x", m.service, c.GroupID, c.Disable>>1)
 		return c.Disable >> 1
 	}
 	return 0
