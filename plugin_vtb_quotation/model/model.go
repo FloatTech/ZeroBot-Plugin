@@ -1,3 +1,4 @@
+// Package model vtb数据库操作
 package model
 
 import (

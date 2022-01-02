@@ -1,3 +1,4 @@
+// Package vtbquotation vtb经典语录
 package vtbquotation
 
 import (
