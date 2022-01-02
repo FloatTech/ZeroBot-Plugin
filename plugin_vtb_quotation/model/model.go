@@ -169,10 +169,10 @@ func (vdb *VtbDB) RandomVtb() ThirdCategory {
 }
 
 // GetFirstCategoryByFirstUID ...
-func (vdb *VtbDB) GetFirstCategoryByFirstUID(firstUid string) FirstCategory {
+func (vdb *VtbDB) GetFirstCategoryByFirstUID(firstUID string) FirstCategory {
 	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
-	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUid).Take(&fc)
+	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUID).Take(&fc)
 	return fc
 }
 
