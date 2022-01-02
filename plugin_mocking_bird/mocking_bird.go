@@ -42,7 +42,7 @@ var (
 )
 
 func init() {
-	engine.OnMessage(zero.OnlyToMe).SetBlock(true).SetPriority(prio).
+	engine.OnMessage(zero.OnlyToMe, getAcquire).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			// 调用青云客接口
@@ -52,29 +52,12 @@ func init() {
 				return
 			}
 			// 挑出 face 表情
-			textReply, faceReply := qingyunke.DealReply(reply)
+			textReply, _ := qingyunke.DealReply(reply)
 			// 拟声器生成音频
-			if limit.Load(ctx.Event.UserID).Acquire() {
-				syntPath := getSyntPath()
-				fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)
-				// 回复
-				ctx.SendChain(message.Record("file:///" + fileutil.BOTPATH + "/" + cachePath + fileName))
-			} else {
-				if ctx.Event.MessageType == "group" {
-					if faceReply != -1 {
-						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply), message.Face(faceReply))
-					} else {
-						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply))
-					}
-				}
-				if ctx.Event.MessageType == "private" {
-					if faceReply != -1 {
-						ctx.SendChain(message.Text(textReply), message.Face(faceReply))
-					} else {
-						ctx.SendChain(message.Text(textReply))
-					}
-				}
-			}
+			syntPath := getSyntPath()
+			fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)
+			// 回复
+			ctx.SendChain(message.Record("file:///" + fileutil.BOTPATH + "/" + cachePath + fileName))
 
 		})
 }
@@ -149,4 +132,8 @@ func getWav(text, syntPath, vocoder string, uid int64) (fileName string) {
 		log.Errorln("[mockingbird]:", err)
 	}
 	return
+}
+
+func getAcquire(ctx *zero.Ctx) bool {
+	return limit.Load(ctx.Event.UserID).Acquire()
 }
