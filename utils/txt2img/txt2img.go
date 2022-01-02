@@ -29,8 +29,28 @@ func init() {
 	}()
 }
 
+// RenderToBase64 文字转base64
+func RenderToBase64(text string, width, fontSize int) (base64Bytes []byte, err error) {
+	canvas, err := Render(text, width, fontSize)
+	if err != nil {
+		log.Println("err:", err)
+		return nil, err
+	}
+	// 转成 base64
+	buffer := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
+	var opt jpeg.Options
+	opt.Quality = 70
+	if err = jpeg.Encode(encoder, canvas.Image(), &opt); err != nil {
+		return nil, err
+	}
+	encoder.Close()
+	base64Bytes = buffer.Bytes()
+	return
+}
+
 // Render 文字转图片
-func Render(text string, width, fontSize int) (base64Bytes []byte, err error) {
+func Render(text string, width, fontSize int) (canvas *gg.Context, err error) {
 	buff := make([]string, 0)
 	line := ""
 	count := 0
@@ -52,28 +72,18 @@ func Render(text string, width, fontSize int) (base64Bytes []byte, err error) {
 		}
 	}
 
-	canvas := gg.NewContext((fontSize+3)*width/2, (len(buff)+2)*fontSize)
+	canvas = gg.NewContext((fontSize+3)*width/2, (len(buff)+2)*fontSize)
 	canvas.SetRGB(1, 1, 1)
 	canvas.Clear()
 	canvas.SetRGB(0, 0, 0)
 	if err = canvas.LoadFontFace(fontfile, float64(fontSize)); err != nil {
 		log.Println("err:", err)
+		return nil, err
 	}
 	for i, v := range buff {
 		if v != "" {
 			canvas.DrawString(v, float64(width/2), float64((i+2)*fontSize))
 		}
 	}
-	// 转成 base64
-	buffer := new(bytes.Buffer)
-	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
-	var opt jpeg.Options
-	opt.Quality = 70
-	err = jpeg.Encode(encoder, canvas.Image(), &opt)
-	if err != nil {
-		return nil, err
-	}
-	encoder.Close()
-	base64Bytes = buffer.Bytes()
 	return
 }

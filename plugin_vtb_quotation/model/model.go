@@ -42,9 +42,8 @@ func Open(dbpath string) (*VtbDB, error) {
 	db, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, err
-	} else {
-		return (*VtbDB)(db), nil
 	}
+	return (*VtbDB)(db), nil
 }
 
 // FirstCategory 第一品类
