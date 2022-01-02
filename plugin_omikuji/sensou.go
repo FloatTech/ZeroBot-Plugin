@@ -3,6 +3,8 @@ package omikuji
 
 import (
 	"fmt"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"math/rand"
 	"strconv"
 	"time"
@@ -39,10 +41,13 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(
-				message.At(ctx.Event.UserID),
-				message.Text(getKujiByBango(bangoToday(ctx.Event.UserID))),
-			)
+			KujiBytes, err := txt2img.Txt2img(getKujiByBango(bangoToday(ctx.Event.UserID)), 40, 20)
+			if err != nil {
+				log.Errorln("[omikuji]:", err)
+			}
+			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(KujiBytes))); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 }
 
