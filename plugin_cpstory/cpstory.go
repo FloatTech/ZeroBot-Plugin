@@ -1,3 +1,4 @@
+// Package cpstory cp短打
 package cpstory
 
 import (
