@@ -41,23 +41,13 @@ func init() { // 插件主体
 			}
 			msg := ctx.ExtractPlainText()
 			// 调用青云客接口
-			reply, err := getMessage(msg)
+			reply, err := GetMessage(msg)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			// 挑出 face 表情
-			reg := regexp.MustCompile(`\{face:(\d+)\}(.*)`)
-			faceReply := -1
-			var textReply string
-			if reg.MatchString(reply) {
-				faceReply, _ = strconv.Atoi(reg.FindStringSubmatch(reply)[1])
-				textReply = reg.FindStringSubmatch(reply)[2]
-			} else {
-				textReply = reply
-			}
-			textReply = strings.ReplaceAll(textReply, "菲菲", zero.BotConfig.NickName[0])
-			textReply = strings.ReplaceAll(textReply, "{br}", "\n")
+			textReply, faceReply := DealReply(reply)
 			// 回复
 			time.Sleep(time.Second * 1)
 			if ctx.Event.MessageType == "group" {
@@ -104,7 +94,7 @@ const (
 )
 
 // 青云客取消息
-func getMessage(msg string) (string, error) {
+func GetMessage(msg string) (string, error) {
 	u := fmt.Sprintf(qykURL+"?key=%s&appid=%s&msg=%s", key, appid, url.QueryEscape(msg))
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", u, nil)
@@ -131,6 +121,20 @@ func getMessage(msg string) (string, error) {
 		return "", err
 	}
 	return dataQYK.Content, nil
+}
+
+func DealReply(reply string) (textReply string, faceReply int) {
+	reg := regexp.MustCompile(`\{face:(\d+)\}(.*)`)
+	faceReply = -1
+	if reg.MatchString(reply) {
+		faceReply, _ = strconv.Atoi(reg.FindStringSubmatch(reply)[1])
+		textReply = reg.FindStringSubmatch(reply)[2]
+	} else {
+		textReply = reply
+	}
+	textReply = strings.ReplaceAll(textReply, "菲菲", zero.BotConfig.NickName[0])
+	textReply = strings.ReplaceAll(textReply, "{br}", "\n")
+	return
 }
 
 func getAgent() string {
