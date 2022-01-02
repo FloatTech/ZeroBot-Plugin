@@ -129,10 +129,10 @@ func printBanner() {
 
 func getKanban() string {
 	err := reg.Connect()
-	defer reg.Close()
 	if err != nil {
 		return err.Error()
 	}
+	defer reg.Close()
 	text, err := reg.Get("ZeroBot-Plugin/kanban")
 	if err != nil {
 		return err.Error()
