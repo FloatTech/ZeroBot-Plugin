@@ -52,7 +52,7 @@ type FirstCategory struct {
 	gorm.Model
 	FirstCategoryIndex       int64  `gorm:"column:first_category_index"`
 	FirstCategoryName        string `gorm:"column:first_category_name"`
-	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	FirstCategoryUID         string `gorm:"column:first_category_uid"`
 	FirstCategoryDescription string `gorm:"column:first_category_description;type:varchar(1024)"`
 	FirstCategoryIconPath    string `gorm:"column:first_category_icon_path"`
 }
@@ -66,7 +66,7 @@ func (FirstCategory) TableName() string {
 type SecondCategory struct {
 	gorm.Model
 	SecondCategoryIndex       int64  `gorm:"column:second_category_index"`
-	FirstCategoryUid          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
+	FirstCategoryUID          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
 	SecondCategoryName        string `gorm:"column:second_category_name"`
 	SecondCategoryAuthor      string `gorm:"column:second_category_author"`
 	SecondCategoryDescription string `gorm:"column:second_category_description"`
@@ -82,7 +82,7 @@ type ThirdCategory struct {
 	gorm.Model
 	ThirdCategoryIndex       int64  `gorm:"column:third_category_index"`
 	SecondCategoryIndex      int64  `gorm:"column:second_category_index"`
-	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	FirstCategoryUID         string `gorm:"column:first_category_uid"`
 	ThirdCategoryName        string `gorm:"column:third_category_name"`
 	ThirdCategoryPath        string `gorm:"column:third_category_path"`
 	ThirdCategoryAuthor      string `gorm:"column:third_category_author"`
@@ -118,7 +118,7 @@ func (vdb *VtbDB) GetAllSecondCategoryMessageByFirstIndex(firstIndex int) string
 	var count int
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
-	err := db.Debug().Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUid).Count(&count).Error
+	err := db.Debug().Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUID).Count(&count).Error
 	if err != nil || count == 0 {
 		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
@@ -137,7 +137,7 @@ func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstInde
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var count int
 	var tcl []ThirdCategory
-	err := db.Debug().Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUid, secondIndex).Count(&count).Error
+	err := db.Debug().Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUID, secondIndex).Count(&count).Error
 	if err != nil || count == 0 {
 		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
@@ -154,7 +154,7 @@ func (vdb *VtbDB) GetThirdCategory(firstIndex, secondIndex, thirdIndex int) Thir
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var tc ThirdCategory
-	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?", fc.FirstCategoryUid, secondIndex, thirdIndex).Take(&tc)
+	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?", fc.FirstCategoryUID, secondIndex, thirdIndex).Take(&tc)
 	return tc
 }
 
@@ -182,13 +182,13 @@ func (vdb *VtbDB) Close() error {
 	return db.Close()
 }
 
-const vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
+const vtbURL = "https://vtbkeyboard.moe/api/get_vtb_list"
 
 // GetVtbList ...
 func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	db := (*gorm.DB)(vdb)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", vtbUrl, nil)
+	req, err := http.NewRequest("GET", vtbURL, nil)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -223,16 +223,16 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 			FirstCategoryName:        item.Get("name").String(),
 			FirstCategoryDescription: item.Get("description").String(),
 			FirstCategoryIconPath:    item.Get("icon_path").String(),
-			FirstCategoryUid:         item.Get("uid").String(),
+			FirstCategoryUID:         item.Get("uid").String(),
 		}
 		log.Println(fc)
 
-		if err := db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).First(&fc).Error; err != nil {
+		if err := db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).First(&fc).Error; err != nil {
 			if gorm.IsRecordNotFoundError(err) {
 				db.Debug().Model(&FirstCategory{}).Create(&fc) // newUser not user
 			}
 		} else {
-			db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).Update(
+			db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).Update(
 				map[string]interface{}{
 					"first_category_index":       i,
 					"first_category_name":        item.Get("name").String(),
@@ -240,7 +240,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 					"first_category_icon_path":   item.Get("icon_path").String(),
 				})
 		}
-		uidList = append(uidList, fc.FirstCategoryUid)
+		uidList = append(uidList, fc.FirstCategoryUID)
 	}
 
 	return uidList
@@ -287,7 +287,7 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 			SecondCategoryIndex:       secondIndex,
 			SecondCategoryAuthor:      secondItem.Get("author").String(),
 			SecondCategoryDescription: secondItem.Get("categoryDescription.zh-CN").String(),
-			FirstCategoryUid:          uid,
+			FirstCategoryUID:          uid,
 		}
 
 		if err := db.Debug().Model(&SecondCategory{}).Where("first_category_uid = ? and second_category_index = ?", uid, secondIndex).First(&sc).Error; err != nil {
@@ -312,7 +312,7 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 				ThirdCategoryName:        thirdItem.Get("name").String(),
 				ThirdCategoryIndex:       thirdIndex,
 				ThirdCategoryDescription: thirdItem.Get("description.zh-CN").String(),
-				FirstCategoryUid:         uid,
+				FirstCategoryUID:         uid,
 				SecondCategoryIndex:      secondIndex,
 				ThirdCategoryPath:        thirdItem.Get("path").String(),
 				ThirdCategoryAuthor:      thirdItem.Get("author").String(),

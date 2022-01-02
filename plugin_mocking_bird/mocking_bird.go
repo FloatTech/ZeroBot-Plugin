@@ -120,9 +120,13 @@ func getWav(text, syntPath, vocoder string, uid int64) (fileName string) {
 	}
 	// Check the response
 	if res.StatusCode != http.StatusOK {
-		log.Errorf("bad status: %s", res.Status)
+		log.Errorf("[mocking_bird]bad status: %s", res.Status)
 	}
+	defer res.Body.Close()
 	data, _ := ioutil.ReadAll(res.Body)
-	ioutil.WriteFile(cachePath+fileName, data, 0666)
+	err = ioutil.WriteFile(cachePath+fileName, data, 0666)
+	if err != nil {
+		log.Errorln("[mocking_bird]:", err)
+	}
 	return
 }

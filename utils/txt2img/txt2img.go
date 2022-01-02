@@ -1,3 +1,4 @@
+// Package txt2img 文字转图片
 package txt2img
 
 import (

@@ -179,7 +179,7 @@ func init() {
 				return
 			}
 			tc := db.RandomVtb()
-			fc := db.GetFirstCategoryByFirstUid(tc.FirstCategoryUid)
+			fc := db.GetFirstCategoryByFirstUid(tc.FirstCategoryUID)
 			if (tc != model.ThirdCategory{}) && (fc != model.FirstCategory{}) {
 				reg := regexp.MustCompile(regStr)
 				recURL := tc.ThirdCategoryPath
