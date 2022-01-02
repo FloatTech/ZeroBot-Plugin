@@ -11,9 +11,10 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 	reg "github.com/fumiama/go-registry"
 	"github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 const (
