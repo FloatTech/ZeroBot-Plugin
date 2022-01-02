@@ -1,3 +1,4 @@
+// Package funny 冷笑话
 package funny
 
 import (
