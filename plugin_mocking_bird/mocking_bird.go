@@ -24,7 +24,7 @@ const (
 	prio            = 250
 	dbpath          = "data/MockingBird/"
 	cachePath       = dbpath + "cache/"
-	dbfile          = dbpath + "你觉得嘞.wav"
+	dbfile          = dbpath + "降噪3.wav"
 	baseURL         = "http://aaquatri.com/sound/"
 	synthesizersURL = baseURL + "api/synthesizers/"
 	synthesizeURL   = baseURL + "api/synthesize"
