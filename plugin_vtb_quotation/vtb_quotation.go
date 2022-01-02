@@ -1,3 +1,4 @@
+// Package vtbquotation vtb经典语录
 package vtbquotation
 
 import (
@@ -8,17 +9,21 @@ import (
 	"time"
 
 	_ "github.com/logoove/sqlite" // use sql
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
 )
 
-const regStr = ".*/(.*)"
-const dbpath = "data/VtbQuotation/"
-const dbfile = dbpath + "vtb.db"
+const (
+	regStr = ".*/(.*)"
+	dbpath = "data/VtbQuotation/"
+	dbfile = dbpath + "vtb.db"
+)
 
 var engine = control.Register("vtbquotation", &control.Options{
 	DisableOnDefault: false,
@@ -36,13 +41,16 @@ func init() {
 				Repeat()             // 不断监听复读
 			db, err := model.Open(dbfile)
 			if err != nil {
-				logrus.Errorln(err)
+				log.Errorln("[vtb]:", err)
 				return
 			}
 			defer db.Close()
 			defer cancel()
-			firstStepMessage := db.GetAllFirstCategoryMessage()
-			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(firstStepMessage)); id == 0 {
+			firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), 40, 20)
+			if err != nil {
+				log.Errorln("[vtb]:", err)
+			}
+			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			// 步骤0，1，2，依次选择3个类别
@@ -66,14 +74,26 @@ func init() {
 							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							SecondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
-							// log.Println(SecondStepMessage)
-							if SecondStepMessage == "" {
+							secondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
+							// log.Println(secondStepMessage)
+							if secondStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								ctx.SendChain(message.Reply(e.MessageID), message.Text(db.GetAllFirstCategoryMessage()))
+								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), 40, 20)
+								if err != nil {
+									log.Errorln("[vtb]:", err)
+								}
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id == 0 {
+									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								}
 								errorCount++
 							} else {
-								ctx.SendChain(message.Reply(e.MessageID), message.Text(SecondStepMessage))
+								secondStepMessageBytes, err := txt2img.RenderToBase64(secondStepMessage, 40, 20)
+								if err != nil {
+									log.Errorln("[vtb]:", err)
+								}
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id == 0 {
+									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								}
 								step++
 							}
 						}
@@ -85,14 +105,26 @@ func init() {
 							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							ThirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
-							// log.Println(ThirdStepMessage)
-							if ThirdStepMessage == "" {
+							thirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
+							// log.Println(thirdStepMessage)
+							if thirdStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								ctx.SendChain(message.Reply(e.MessageID), message.Text(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)))
+								secondStepMessageBytes, err := txt2img.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), 40, 20)
+								if err != nil {
+									log.Errorln("[vtb]:", err)
+								}
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id == 0 {
+									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								}
 								errorCount++
 							} else {
-								ctx.SendChain(message.Reply(e.MessageID), message.Text(ThirdStepMessage))
+								thirdStepMessageBytes, err := txt2img.RenderToBase64(thirdStepMessage, 40, 20)
+								if err != nil {
+									log.Errorln("[vtb]:", err)
+								}
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id == 0 {
+									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								}
 								step++
 							}
 						}
@@ -109,7 +141,13 @@ func init() {
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
-								ctx.SendChain(message.Reply(e.MessageID), message.Text(db.GetAllFirstCategoryMessage()))
+								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), 40, 20)
+								if err != nil {
+									log.Errorln("[vtb]:", err)
+								}
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id == 0 {
+									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								}
 								errorCount++
 								step = 1
 							} else {
@@ -138,20 +176,17 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
-				logrus.Errorln(err)
+				log.Errorln("[vtb]:", err)
 				return
 			}
 			tc := db.RandomVtb()
-			fc := db.GetFirstCategoryByFirstUid(tc.FirstCategoryUid)
+			fc := db.GetFirstCategoryByFirstUID(tc.FirstCategoryUID)
 			if (tc != model.ThirdCategory{}) && (fc != model.FirstCategory{}) {
 				reg := regexp.MustCompile(regStr)
 				recURL := tc.ThirdCategoryPath
 				if reg.MatchString(recURL) {
-					// log.Println(reg.FindStringSubmatch(recordUrl)[1])
-					// log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
 					recURL = strings.ReplaceAll(recURL, reg.FindStringSubmatch(recURL)[1], url.QueryEscape(reg.FindStringSubmatch(recURL)[1]))
 					recURL = strings.ReplaceAll(recURL, "+", "%20")
-					// log.Println(recordUrl)
 				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
 				ctx.SendChain(message.Record(recURL))

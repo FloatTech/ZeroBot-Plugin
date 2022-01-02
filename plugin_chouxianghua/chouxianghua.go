@@ -1,3 +1,4 @@
+// Package chouxianghua 抽象话转化
 package chouxianghua
 
 import (
@@ -12,7 +13,7 @@ const prio = 10
 func init() {
 	control.Register("chouxianghua", &control.Options{
 		DisableOnDefault: false,
-		Help:             "抽象话\n- 抽象翻译xxx\n",
+		Help:             "抽象话\n- 抽象翻译xxx",
 	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			r := cx(ctx.State["regex_matched"].([]string)[1])

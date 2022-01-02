@@ -1,3 +1,4 @@
+// Package model vtb数据库操作
 package model
 
 import (
@@ -11,7 +12,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite" // import sql
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
 
@@ -42,9 +43,8 @@ func Open(dbpath string) (*VtbDB, error) {
 	db, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, err
-	} else {
-		return (*VtbDB)(db), nil
 	}
+	return (*VtbDB)(db), nil
 }
 
 // FirstCategory 第一品类
@@ -52,7 +52,7 @@ type FirstCategory struct {
 	gorm.Model
 	FirstCategoryIndex       int64  `gorm:"column:first_category_index"`
 	FirstCategoryName        string `gorm:"column:first_category_name"`
-	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	FirstCategoryUID         string `gorm:"column:first_category_uid"`
 	FirstCategoryDescription string `gorm:"column:first_category_description;type:varchar(1024)"`
 	FirstCategoryIconPath    string `gorm:"column:first_category_icon_path"`
 }
@@ -66,7 +66,7 @@ func (FirstCategory) TableName() string {
 type SecondCategory struct {
 	gorm.Model
 	SecondCategoryIndex       int64  `gorm:"column:second_category_index"`
-	FirstCategoryUid          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
+	FirstCategoryUID          string `gorm:"column:first_category_uid;association_foreignkey:first_category_uid"`
 	SecondCategoryName        string `gorm:"column:second_category_name"`
 	SecondCategoryAuthor      string `gorm:"column:second_category_author"`
 	SecondCategoryDescription string `gorm:"column:second_category_description"`
@@ -82,7 +82,7 @@ type ThirdCategory struct {
 	gorm.Model
 	ThirdCategoryIndex       int64  `gorm:"column:third_category_index"`
 	SecondCategoryIndex      int64  `gorm:"column:second_category_index"`
-	FirstCategoryUid         string `gorm:"column:first_category_uid"`
+	FirstCategoryUID         string `gorm:"column:first_category_uid"`
 	ThirdCategoryName        string `gorm:"column:third_category_name"`
 	ThirdCategoryPath        string `gorm:"column:third_category_path"`
 	ThirdCategoryAuthor      string `gorm:"column:third_category_author"`
@@ -98,24 +98,14 @@ func (ThirdCategory) TableName() string {
 func (vdb *VtbDB) GetAllFirstCategoryMessage() string {
 	db := (*gorm.DB)(vdb)
 	firstStepMessage := "请选择一个vtb并发送序号:\n"
-	var fc FirstCategory
-	rows, err := db.Model(&FirstCategory{}).Rows()
+	var fcl []FirstCategory
+	err := db.Debug().Model(&FirstCategory{}).Find(&fcl).Error
 	if err != nil {
-		logrus.Errorln("[vtb/model]数据库读取错误", err)
+		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
 	}
-	if rows == nil {
-		return ""
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err = db.ScanRows(rows, &fc)
-		if err != nil {
-			logrus.Errorln("[vtb/model]数据库读取错误", err)
-			return ""
-		}
-		// logrus.Println(fc)
-		firstStepMessage = firstStepMessage + strconv.FormatInt(fc.FirstCategoryIndex, 10) + ". " + fc.FirstCategoryName + "\n"
+	for _, v := range fcl {
+		firstStepMessage += strconv.FormatInt(v.FirstCategoryIndex, 10) + ". " + v.FirstCategoryName + "\n"
 	}
 	return firstStepMessage
 }
@@ -123,50 +113,39 @@ func (vdb *VtbDB) GetAllFirstCategoryMessage() string {
 // GetAllSecondCategoryMessageByFirstIndex 取得同一个vtb所有语录类别
 func (vdb *VtbDB) GetAllSecondCategoryMessageByFirstIndex(firstIndex int) string {
 	db := (*gorm.DB)(vdb)
-	SecondStepMessage := "请选择一个语录类别并发送序号:\n"
-	var sc SecondCategory
+	secondStepMessage := "请选择一个语录类别并发送序号:\n"
+	var scl []SecondCategory
 	var count int
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
-	db.Model(&SecondCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).Count(&count)
-	if count == 0 {
+	err := db.Debug().Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUID).Count(&count).Error
+	if err != nil || count == 0 {
+		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
 	}
-	rows, err := db.Model(&SecondCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).Rows()
-	if err != nil {
-		logrus.Errorln("[vtb/model]数据库读取错误", err)
+	for _, v := range scl {
+		secondStepMessage += strconv.FormatInt(v.SecondCategoryIndex, 10) + ". " + v.SecondCategoryName + "\n"
 	}
-
-	for rows.Next() {
-		db.ScanRows(rows, &sc)
-		// logrus.Println(sc)
-		SecondStepMessage = SecondStepMessage + strconv.FormatInt(sc.SecondCategoryIndex, 10) + ". " + sc.SecondCategoryName + "\n"
-	}
-	return SecondStepMessage
+	return secondStepMessage
 }
 
 // GetAllThirdCategoryMessageByFirstIndexAndSecondIndex 取得同一个vtb同个类别的所有语录
 func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex int) string {
 	db := (*gorm.DB)(vdb)
-	ThirdStepMessage := "请选择一个语录并发送序号:\n"
+	thirdStepMessage := "请选择一个语录并发送序号:\n"
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var count int
-	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUid, secondIndex).Count(&count)
-	if count == 0 {
+	var tcl []ThirdCategory
+	err := db.Debug().Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUID, secondIndex).Count(&count).Error
+	if err != nil || count == 0 {
+		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
 	}
-	var tc ThirdCategory
-	rows, err := db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUid, secondIndex).Rows()
-	if err != nil {
-		logrus.Errorln("[vtb/model]数据库读取错误", err)
+	for _, v := range tcl {
+		thirdStepMessage = thirdStepMessage + strconv.FormatInt(v.ThirdCategoryIndex, 10) + ". " + v.ThirdCategoryName + "\n"
 	}
-	for rows.Next() {
-		db.ScanRows(rows, &tc)
-		// logrus.Println(tc)
-		ThirdStepMessage = ThirdStepMessage + strconv.FormatInt(tc.ThirdCategoryIndex, 10) + ". " + tc.ThirdCategoryName + "\n"
-	}
-	return ThirdStepMessage
+	return thirdStepMessage
 }
 
 // GetThirdCategory ...
@@ -175,7 +154,7 @@ func (vdb *VtbDB) GetThirdCategory(firstIndex, secondIndex, thirdIndex int) Thir
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var tc ThirdCategory
-	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?", fc.FirstCategoryUid, secondIndex, thirdIndex).Take(&tc)
+	db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?", fc.FirstCategoryUID, secondIndex, thirdIndex).Take(&tc)
 	return tc
 }
 
@@ -184,20 +163,16 @@ func (vdb *VtbDB) RandomVtb() ThirdCategory {
 	db := (*gorm.DB)(vdb)
 	rand.Seed(time.Now().UnixNano())
 	var count int
-	db.Model(&ThirdCategory{}).Count(&count)
-	// logrus.Info("一共有", count, "个")
 	var tc ThirdCategory
-	db.Model(&ThirdCategory{}).Offset(rand.Intn(count)).Take(&tc)
-	// logrus.Info(tc)
+	db.Model(&ThirdCategory{}).Count(&count).Offset(rand.Intn(count)).Take(&tc)
 	return tc
 }
 
-// GetFirstCategoryByFirstUid ...
-func (vdb *VtbDB) GetFirstCategoryByFirstUid(firstUid string) FirstCategory {
+// GetFirstCategoryByFirstUID ...
+func (vdb *VtbDB) GetFirstCategoryByFirstUID(firstUID string) FirstCategory {
 	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
-	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUid).Take(&fc)
-	// logrus.Info(fc)
+	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUID).Take(&fc)
 	return fc
 }
 
@@ -207,57 +182,57 @@ func (vdb *VtbDB) Close() error {
 	return db.Close()
 }
 
-const vtbUrl = "https://vtbkeyboard.moe/api/get_vtb_list"
+const vtbURL = "https://vtbkeyboard.moe/api/get_vtb_list"
 
 // GetVtbList ...
 func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	db := (*gorm.DB)(vdb)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", vtbUrl, nil)
+	req, err := http.NewRequest("GET", vtbURL, nil)
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 	// 自定义Header
 	req.Header.Set("User-Agent", randua())
 	resp, err := client.Do(req)
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 
-	vtbListStr, err := strconv.Unquote(strings.Replace(strconv.Quote(string(bytes)), `\\u`, `\u`, -1))
+	vtbListStr, err := strconv.Unquote(strings.ReplaceAll(strconv.Quote(string(bytes)), `\\u`, `\u`))
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 
 	count := gjson.Get(vtbListStr, "#").Int()
 	for i := int64(0); i < count; i++ {
 		item := gjson.Get(vtbListStr, strconv.FormatInt(i, 10))
-		logrus.Println(item)
+		log.Println(item)
 		fc := FirstCategory{
 			FirstCategoryIndex:       i,
 			FirstCategoryName:        item.Get("name").String(),
 			FirstCategoryDescription: item.Get("description").String(),
 			FirstCategoryIconPath:    item.Get("icon_path").String(),
-			FirstCategoryUid:         item.Get("uid").String(),
+			FirstCategoryUID:         item.Get("uid").String(),
 		}
-		logrus.Println(fc)
+		log.Println(fc)
 
-		if err := db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).First(&fc).Error; err != nil {
+		if err := db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).First(&fc).Error; err != nil {
 			if gorm.IsRecordNotFoundError(err) {
 				db.Debug().Model(&FirstCategory{}).Create(&fc) // newUser not user
 			}
 		} else {
-			db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUid).Update(
+			db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).Update(
 				map[string]interface{}{
 					"first_category_index":       i,
 					"first_category_name":        item.Get("name").String(),
@@ -265,7 +240,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 					"first_category_icon_path":   item.Get("icon_path").String(),
 				})
 		}
-		uidList = append(uidList, fc.FirstCategoryUid)
+		uidList = append(uidList, fc.FirstCategoryUID)
 	}
 
 	return uidList
@@ -274,45 +249,45 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 // StoreVtb ...
 func (vdb *VtbDB) StoreVtb(uid string) {
 	db := (*gorm.DB)(vdb)
-	vtbUrl := "https://vtbkeyboard.moe/api/get_vtb_page?uid=" + uid
+	vtbURL := "https://vtbkeyboard.moe/api/get_vtb_page?uid=" + uid
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", vtbUrl, nil)
+	req, err := http.NewRequest("GET", vtbURL, nil)
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 	// 自定义Header
 	req.Header.Set("User-Agent", randua())
 	resp, err := client.Do(req)
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 
-	vtbStr, err := strconv.Unquote(strings.Replace(strconv.Quote(string(bytes)), `\\u`, `\u`, -1))
+	vtbStr, err := strconv.Unquote(strings.ReplaceAll(strconv.Quote(string(bytes)), `\\u`, `\u`))
 	if err != nil {
-		logrus.Errorln(err)
+		log.Errorln(err)
 		return
 	}
 
 	secondCount := gjson.Get(vtbStr, "data.voices.#").Int()
-	logrus.Println("二级品类一共有", secondCount)
+	log.Println("二级品类一共有", secondCount)
 	for secondIndex := int64(0); secondIndex < secondCount; secondIndex++ {
 		secondItem := gjson.Get(vtbStr, "data.voices."+strconv.FormatInt(secondIndex, 10))
-		logrus.Println(secondItem)
+		log.Println(secondItem)
 		sc := SecondCategory{
 			SecondCategoryName:        secondItem.Get("categoryName").String(),
 			SecondCategoryIndex:       secondIndex,
 			SecondCategoryAuthor:      secondItem.Get("author").String(),
 			SecondCategoryDescription: secondItem.Get("categoryDescription.zh-CN").String(),
-			FirstCategoryUid:          uid,
+			FirstCategoryUID:          uid,
 		}
 
 		if err := db.Debug().Model(&SecondCategory{}).Where("first_category_uid = ? and second_category_index = ?", uid, secondIndex).First(&sc).Error; err != nil {
@@ -329,20 +304,20 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 				})
 		}
 		thirdCount := secondItem.Get("voiceList.#").Int()
-		logrus.Println("三级品类一共有", thirdCount)
+		log.Println("三级品类一共有", thirdCount)
 		for thirdIndex := int64(0); thirdIndex < thirdCount; thirdIndex++ {
 			thirdItem := secondItem.Get("voiceList." + strconv.FormatInt(thirdIndex, 10))
-			logrus.Println(thirdItem)
+			log.Println(thirdItem)
 			tc := ThirdCategory{
 				ThirdCategoryName:        thirdItem.Get("name").String(),
 				ThirdCategoryIndex:       thirdIndex,
 				ThirdCategoryDescription: thirdItem.Get("description.zh-CN").String(),
-				FirstCategoryUid:         uid,
+				FirstCategoryUID:         uid,
 				SecondCategoryIndex:      secondIndex,
 				ThirdCategoryPath:        thirdItem.Get("path").String(),
 				ThirdCategoryAuthor:      thirdItem.Get("author").String(),
 			}
-			logrus.Println(tc)
+			log.Println(tc)
 
 			if err := db.Debug().Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?",
 				uid, secondIndex, thirdIndex).First(&tc).Error; err != nil {

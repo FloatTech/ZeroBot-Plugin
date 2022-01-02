@@ -41,6 +41,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"     // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"    // MCSManager
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_mocking_bird" // 拟声鸟
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"         // 摸鱼
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"        // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel"        // 铅笔小说网搜索
@@ -141,7 +142,7 @@ func getKanban() string {
 }
 
 func main() {
-	printBanner()
+	// printBanner()
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
