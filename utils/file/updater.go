@@ -11,6 +11,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 	reg "github.com/fumiama/go-registry"
 	"github.com/sirupsen/logrus"
 )
@@ -47,24 +48,24 @@ func GetLazyData(path string, isReturnDataBytes, isDataMustEqual bool) ([]byte, 
 			connerr = registry.ConnectIn(time.Second * 4)
 			if connerr == nil {
 				isconnected = true
-				processes.Add(1)
 				go func() {
+					process.SleepAbout1sTo2s()
 					processes.Wait()
 					_ = registry.Close()
 					isconnected = false
+					logrus.Infoln("[file]关闭到md5验证服务器的连接")
 				}()
 			} else {
 				logrus.Warnln("[file]连接md5验证服务器失败:", connerr)
 			}
 		}
 		connmu.Unlock()
-	} else {
-		processes.Add(1)
 	}
 
 	if connerr != nil {
 		logrus.Warnln("[file]无法连接到md5验证服务器，请自行确保下载文件", path, "的正确性")
 	} else {
+		processes.Add(1)
 		getmu.Lock()
 		ms, err = registry.Get(path)
 		getmu.Unlock()
