@@ -28,6 +28,7 @@ func init() {
 	}()
 }
 
+// Render 文字转图片
 func Render(text string, width, fontSize int) (base64Bytes []byte, err error) {
 	buff := make([]string, 0)
 	line := ""
@@ -42,7 +43,7 @@ func Render(text string, width, fontSize int) (base64Bytes []byte, err error) {
 		}
 		if count <= width {
 			line += c
-			count = count + runewidth.StringWidth(c)
+			count += runewidth.StringWidth(c)
 		} else {
 			buff = append(buff, line)
 			line = c

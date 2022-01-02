@@ -1,3 +1,4 @@
+// Package mocking_bird 拟声鸟
 package mocking_bird
 
 import (

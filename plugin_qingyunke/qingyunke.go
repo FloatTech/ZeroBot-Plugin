@@ -93,7 +93,7 @@ const (
 	appid  = "0"
 )
 
-// 青云客取消息
+// GetMessage 青云客取消息
 func GetMessage(msg string) (string, error) {
 	u := fmt.Sprintf(qykURL+"?key=%s&appid=%s&msg=%s", key, appid, url.QueryEscape(msg))
 	client := &http.Client{}
@@ -123,6 +123,7 @@ func GetMessage(msg string) (string, error) {
 	return dataQYK.Content, nil
 }
 
+// DealReply 处理青云客返回文本
 func DealReply(reply string) (textReply string, faceReply int) {
 	reg := regexp.MustCompile(`\{face:(\d+)\}(.*)`)
 	faceReply = -1
