@@ -448,7 +448,7 @@ func init() {
 							text += msg + "\n\n"
 							return true
 						})
-						data, err := txt2img.Txt2img(text, 40, 20)
+						data, err := txt2img.Render(text, 40, 20)
 						if err != nil {
 							log.Errorf("[control] %v", err)
 						}

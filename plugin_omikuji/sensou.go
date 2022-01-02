@@ -41,11 +41,11 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			KujiBytes, err := txt2img.Txt2img(getKujiByBango(bangoToday(ctx.Event.UserID)), 40, 20)
+			kujiBytes, err := txt2img.Render(getKujiByBango(bangoToday(ctx.Event.UserID)), 40, 20)
 			if err != nil {
 				log.Errorln("[omikuji]:", err)
 			}
-			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(KujiBytes))); id == 0 {
+			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})

@@ -86,7 +86,7 @@ func init() {
 						downloadURL := websiteURL + "/modules/article/txtarticle.php?id=" + id
 						text += fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n字数:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n\n", bookName, category, author, status, wordNumbers, description, updateTime, latestChapter, webpageURL, downloadURL)
 					}
-					data, err := txt2img.Txt2img(text, 40, 20)
+					data, err := txt2img.Render(text, 40, 20)
 					if err != nil {
 						log.Println("err:", err)
 					}
@@ -118,7 +118,7 @@ func init() {
 				webpageURL := websiteURL + "/book/" + id + "/"
 				downloadURL := websiteURL + "/modules/article/txtarticle.php?id=" + id
 				text := fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n", bookName, category, author, status, description, updateTime, latestChapter, webpageURL, downloadURL)
-				data, err := txt2img.Txt2img(text, 40, 20)
+				data, err := txt2img.Render(text, 40, 20)
 				if err != nil {
 					log.Println("err:", err)
 				}

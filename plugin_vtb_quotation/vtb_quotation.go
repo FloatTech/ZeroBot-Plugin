@@ -19,11 +19,9 @@ import (
 )
 
 const (
-	regStr   = ".*/(.*)"
-	dbpath   = "data/VtbQuotation/"
-	dbfile   = dbpath + "vtb.db"
-	fontpath = "data/Font/"
-	fontfile = "simhei.ttf"
+	regStr = ".*/(.*)"
+	dbpath = "data/VtbQuotation/"
+	dbfile = dbpath + "vtb.db"
 )
 
 var engine = control.Register("vtbquotation", &control.Options{
@@ -47,7 +45,7 @@ func init() {
 			}
 			defer db.Close()
 			defer cancel()
-			firstStepImageBytes, err := txt2img.Txt2img(db.GetAllFirstCategoryMessage(), 40, 20)
+			firstStepImageBytes, err := txt2img.Render(db.GetAllFirstCategoryMessage(), 40, 20)
 			if err != nil {
 				log.Errorln("[vtb]:", err)
 			}
@@ -75,11 +73,11 @@ func init() {
 							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							SecondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
-							// log.Println(SecondStepMessage)
-							if SecondStepMessage == "" {
+							secondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
+							// log.Println(secondStepMessage)
+							if secondStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := txt2img.Txt2img(db.GetAllFirstCategoryMessage(), 40, 20)
+								firstStepImageBytes, err := txt2img.Render(db.GetAllFirstCategoryMessage(), 40, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -88,11 +86,11 @@ func init() {
 								}
 								errorCount++
 							} else {
-								SecondStepMessageBytes, err := txt2img.Txt2img(SecondStepMessage, 40, 20)
+								secondStepMessageBytes, err := txt2img.Render(secondStepMessage, 40, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(SecondStepMessageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								step++
@@ -106,24 +104,24 @@ func init() {
 							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							ThirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
-							// log.Println(ThirdStepMessage)
-							if ThirdStepMessage == "" {
+							thirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
+							// log.Println(thirdStepMessage)
+							if thirdStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								SecondStepMessageBytes, err := txt2img.Txt2img(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), 40, 20)
+								secondStepMessageBytes, err := txt2img.Render(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), 40, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(SecondStepMessageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								errorCount++
 							} else {
-								ThirdStepMessageBytes, err := txt2img.Txt2img(ThirdStepMessage, 40, 20)
+								thirdStepMessageBytes, err := txt2img.Render(thirdStepMessage, 40, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(ThirdStepMessageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								step++
@@ -142,7 +140,7 @@ func init() {
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := txt2img.Txt2img(db.GetAllFirstCategoryMessage(), 40, 20)
+								firstStepImageBytes, err := txt2img.Render(db.GetAllFirstCategoryMessage(), 40, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}

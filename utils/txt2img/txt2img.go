@@ -3,19 +3,32 @@ package txt2img
 import (
 	"bytes"
 	"encoding/base64"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 	"github.com/fogleman/gg"
 	"github.com/mattn/go-runewidth"
 	log "github.com/sirupsen/logrus"
 	"image/jpeg"
+	"os"
 	"strings"
 )
 
 const (
 	whitespace = "\t\n\r\x0b\x0c"
-	fontPath   = "data/Font/regular.ttf"
+	fontpath   = "data/Font/"
+	fontfile   = fontpath + "regular.ttf"
 )
 
-func Txt2img(text string, width, fontSize int) (base64Bytes []byte, err error) {
+// 加载数据库
+func init() {
+	go func() {
+		process.SleepAbout1sTo2s()
+		_ = os.MkdirAll(fontpath, 0755)
+		_, _ = file.GetLazyData(fontfile, false, true)
+	}()
+}
+
+func Render(text string, width, fontSize int) (base64Bytes []byte, err error) {
 	buff := make([]string, 0)
 	line := ""
 	count := 0
@@ -41,7 +54,7 @@ func Txt2img(text string, width, fontSize int) (base64Bytes []byte, err error) {
 	canvas.SetRGB(1, 1, 1)
 	canvas.Clear()
 	canvas.SetRGB(0, 0, 0)
-	if err = canvas.LoadFontFace(fontPath, float64(fontSize)); err != nil {
+	if err = canvas.LoadFontFace(fontfile, float64(fontSize)); err != nil {
 		log.Println("err:", err)
 	}
 	for i, v := range buff {
