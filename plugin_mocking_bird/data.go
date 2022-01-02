@@ -1,4 +1,4 @@
-package mocking_bird
+package mockingbird
 
 import (
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
@@ -18,6 +18,6 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		logrus.Infoln("[mocking_bird]加载实例音频")
+		logrus.Infoln("[mockingbird]加载实例音频")
 	}()
 }

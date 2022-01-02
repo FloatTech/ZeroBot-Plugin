@@ -179,16 +179,13 @@ func init() {
 				return
 			}
 			tc := db.RandomVtb()
-			fc := db.GetFirstCategoryByFirstUid(tc.FirstCategoryUID)
+			fc := db.GetFirstCategoryByFirstUID(tc.FirstCategoryUID)
 			if (tc != model.ThirdCategory{}) && (fc != model.FirstCategory{}) {
 				reg := regexp.MustCompile(regStr)
 				recURL := tc.ThirdCategoryPath
 				if reg.MatchString(recURL) {
-					// log.Println(reg.FindStringSubmatch(recordUrl)[1])
-					// log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
 					recURL = strings.ReplaceAll(recURL, reg.FindStringSubmatch(recURL)[1], url.QueryEscape(reg.FindStringSubmatch(recURL)[1]))
 					recURL = strings.ReplaceAll(recURL, "+", "%20")
-					// log.Println(recordUrl)
 				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
 				ctx.SendChain(message.Record(recURL))

@@ -168,8 +168,8 @@ func (vdb *VtbDB) RandomVtb() ThirdCategory {
 	return tc
 }
 
-// GetFirstCategoryByFirstUid ...
-func (vdb *VtbDB) GetFirstCategoryByFirstUid(firstUid string) FirstCategory {
+// GetFirstCategoryByFirstUID ...
+func (vdb *VtbDB) GetFirstCategoryByFirstUID(firstUid string) FirstCategory {
 	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUid).Take(&fc)
@@ -249,9 +249,9 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 // StoreVtb ...
 func (vdb *VtbDB) StoreVtb(uid string) {
 	db := (*gorm.DB)(vdb)
-	vtbUrl := "https://vtbkeyboard.moe/api/get_vtb_page?uid=" + uid
+	vtbURL := "https://vtbkeyboard.moe/api/get_vtb_page?uid=" + uid
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", vtbUrl, nil)
+	req, err := http.NewRequest("GET", vtbURL, nil)
 	if err != nil {
 		log.Errorln(err)
 		return

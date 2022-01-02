@@ -22,7 +22,7 @@ func init() {
 			return
 		}
 		text := gjson.Get(helper.BytesToString(data), "duanzi").String()
-		text = strings.Replace(text, "<br>", "\n", -1)
+		text = strings.ReplaceAll(text, "<br>", "\n")
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
 	})
 }
