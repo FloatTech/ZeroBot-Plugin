@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"io"
@@ -36,6 +37,7 @@ var (
 		DisableOnDefault: false,
 		Help:             "拟声鸟\n- @Bot 任意文本(任意一句话回复)",
 	})
+	limit       = rate.NewManager(time.Second*10, 1)
 	vocoderList = []string{"WaveRNN", "HifiGAN"}
 )
 
@@ -50,12 +52,30 @@ func init() {
 				return
 			}
 			// 挑出 face 表情
-			textReply, _ := qingyunke.DealReply(reply)
+			textReply, faceReply := qingyunke.DealReply(reply)
 			// 拟声器生成音频
-			syntPath := getSyntPath()
-			fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)
-			// 回复
-			ctx.SendChain(message.Record("file:///" + fileutil.BOTPATH + "/" + cachePath + fileName))
+			if limit.Load(ctx.Event.UserID).Acquire() {
+				syntPath := getSyntPath()
+				fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)
+				// 回复
+				ctx.SendChain(message.Record("file:///" + fileutil.BOTPATH + "/" + cachePath + fileName))
+			} else {
+				if ctx.Event.MessageType == "group" {
+					if faceReply != -1 {
+						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply), message.Face(faceReply))
+					} else {
+						ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(textReply))
+					}
+				}
+				if ctx.Event.MessageType == "private" {
+					if faceReply != -1 {
+						ctx.SendChain(message.Text(textReply), message.Face(faceReply))
+					} else {
+						ctx.SendChain(message.Text(textReply))
+					}
+				}
+			}
+
 		})
 }
 
