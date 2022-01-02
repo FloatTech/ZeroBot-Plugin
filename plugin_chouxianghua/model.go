@@ -11,7 +11,7 @@ type emoji struct {
 
 func getPinyinByWord(word string) string {
 	var p pinyin
-	db.Find("pinyin", &p, "where word = '"+word+"'")
+	_ = db.Find("pinyin", &p, "where word = '"+word+"'")
 	return p.Pronun
 }
 
@@ -21,6 +21,6 @@ func getPronunByDWord(w0, w1 rune) string {
 
 func getEmojiByPronun(pronun string) string {
 	var e emoji
-	db.Find("emoji", &e, "where pronunciation = '"+pronun+"'")
+	_ = db.Find("emoji", &e, "where pronunciation = '"+pronun+"'")
 	return e.Emoji
 }
