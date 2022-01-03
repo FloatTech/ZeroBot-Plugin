@@ -24,7 +24,7 @@ func TestSetHoliday(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = SetHoliday("元旦", 1, 2022, 1, 1)
+	err = SetHoliday("元旦", 1, 2023, 1, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
