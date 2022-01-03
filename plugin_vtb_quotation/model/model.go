@@ -115,11 +115,10 @@ func (vdb *VtbDB) GetAllSecondCategoryMessageByFirstIndex(firstIndex int) string
 	db := (*gorm.DB)(vdb)
 	secondStepMessage := "请选择一个语录类别并发送序号:\n"
 	var scl []SecondCategory
-	var count int
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
-	err := db.Debug().Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUID).Count(&count).Error
-	if err != nil || count == 0 {
+	err := db.Debug().Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUID).Error
+	if err != nil || len(scl) == 0 {
 		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
 	}
@@ -135,10 +134,9 @@ func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstInde
 	thirdStepMessage := "请选择一个语录并发送序号:\n"
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
-	var count int
 	var tcl []ThirdCategory
-	err := db.Debug().Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUID, secondIndex).Count(&count).Error
-	if err != nil || count == 0 {
+	err := db.Debug().Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUID, secondIndex).Error
+	if err != nil || len(tcl) == 0 {
 		log.Errorln("[vtb/model]数据库读取错误", err)
 		return ""
 	}
@@ -172,7 +170,7 @@ func (vdb *VtbDB) RandomVtb() ThirdCategory {
 func (vdb *VtbDB) GetFirstCategoryByFirstUID(firstUID string) FirstCategory {
 	db := (*gorm.DB)(vdb)
 	var fc FirstCategory
-	db.Model(FirstCategory{}).Where("first_category_uid = ?", firstUID).Take(&fc)
+	db.Model(FirstCategory{}).Take(&fc, "first_category_uid = ?", firstUID)
 	return fc
 }
 
@@ -227,7 +225,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 		}
 		log.Println(fc)
 
-		if err := db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).First(&fc).Error; err != nil {
+		if err := db.Debug().Model(&FirstCategory{}).First(&fc, "first_category_uid = ?", fc.FirstCategoryUID).Error; err != nil {
 			if gorm.IsRecordNotFoundError(err) {
 				db.Debug().Model(&FirstCategory{}).Create(&fc) // newUser not user
 			}
@@ -290,7 +288,7 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 			FirstCategoryUID:          uid,
 		}
 
-		if err := db.Debug().Model(&SecondCategory{}).Where("first_category_uid = ? and second_category_index = ?", uid, secondIndex).First(&sc).Error; err != nil {
+		if err := db.Debug().Model(&SecondCategory{}).First(&sc, "first_category_uid = ? and second_category_index = ?", uid, secondIndex).Error; err != nil {
 			// error handling...
 			if gorm.IsRecordNotFoundError(err) {
 				db.Debug().Model(&SecondCategory{}).Create(&sc) // newUser not user
@@ -319,8 +317,8 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 			}
 			log.Println(tc)
 
-			if err := db.Debug().Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?",
-				uid, secondIndex, thirdIndex).First(&tc).Error; err != nil {
+			if err := db.Debug().Model(&ThirdCategory{}).First(&tc, "first_category_uid = ? and second_category_index = ? and third_category_index = ?",
+				uid, secondIndex, thirdIndex).Error; err != nil {
 				if gorm.IsRecordNotFoundError(err) {
 					db.Debug().Model(&ThirdCategory{}).Create(&tc) // newUser not user
 				}
