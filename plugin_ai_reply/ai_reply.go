@@ -30,8 +30,11 @@ const (
 )
 
 type AIReply interface {
+	// DealQuestion 把椛椛替换为各api接口的bot名字
 	DealQuestion(preMsg string) (msg string)
+	// GetReply 取得回复消息
 	GetReply(msg string) (reply string)
+	// DealReply 处理回复消息
 	DealReply(reply string) (textReply string, faceReply int)
 }
 
@@ -85,6 +88,9 @@ func init() { // 插件主体
 			} else if strings.Contains(param, "小爱") {
 				Mode = 2
 				ctx.SendChain(message.Text("设置为小爱回复"))
+			} else if strings.Contains(param, "夸克") {
+				Mode = 3
+				ctx.SendChain(message.Text("设置为夸克回复"))
 			} else {
 				ctx.SendChain(message.Text("设置失败"))
 			}

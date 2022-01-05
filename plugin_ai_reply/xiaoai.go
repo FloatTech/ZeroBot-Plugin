@@ -29,6 +29,7 @@ func (*XiaoAiReply) GetReply(msg string) (reply string) {
 	// 自定义Header
 	req.Header.Set("User-Agent", getAgent())
 	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("Host", "81.70.100.130")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Errorln("[aireply-xiaoai]:", err)
