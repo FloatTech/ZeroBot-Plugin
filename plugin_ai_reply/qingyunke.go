@@ -16,11 +16,13 @@ import (
 
 type QYKReply struct{}
 
+// DealQuestion 把椛椛替换为菲菲
 func (*QYKReply) DealQuestion(preMsg string) (msg string) {
 	msg = strings.ReplaceAll(preMsg, zero.BotConfig.NickName[0], qykBotName)
 	return msg
 }
 
+// GetReply 取得回复消息
 func (*QYKReply) GetReply(msg string) (reply string) {
 	u := fmt.Sprintf(qykURL, url.QueryEscape(msg))
 	client := &http.Client{}
@@ -49,6 +51,7 @@ func (*QYKReply) GetReply(msg string) (reply string) {
 	return
 }
 
+// DealReply 处理回复消息
 func (*QYKReply) DealReply(reply string) (textReply string, faceReply int) {
 	reg := regexp.MustCompile(`\{face:(\d+)\}(.*)`)
 	faceReply = -1

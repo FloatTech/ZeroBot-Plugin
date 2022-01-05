@@ -13,11 +13,13 @@ import (
 
 type XiaoAiReply struct{}
 
+// DealQuestion 把椛椛替换为小爱
 func (*XiaoAiReply) DealQuestion(preMsg string) (msg string) {
 	msg = strings.ReplaceAll(preMsg, zero.BotConfig.NickName[0], xiaoaiBotName)
 	return msg
 }
 
+// GetReply 取得回复消息
 func (*XiaoAiReply) GetReply(msg string) (reply string) {
 	u := fmt.Sprintf(xiaoaiURL, url.QueryEscape(msg))
 	client := &http.Client{}
@@ -46,6 +48,7 @@ func (*XiaoAiReply) GetReply(msg string) (reply string) {
 	return
 }
 
+// DealReply 处理回复消息
 func (*XiaoAiReply) DealReply(reply string) (textReply string, faceReply int) {
 	textReply = strings.ReplaceAll(reply, xiaoaiBotName, zero.BotConfig.NickName[0])
 	textReply = strings.ReplaceAll(textReply, "小米智能助理", "电子宠物")

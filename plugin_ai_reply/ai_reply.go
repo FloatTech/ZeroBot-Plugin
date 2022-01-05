@@ -29,6 +29,7 @@ const (
 	xiaoaiBotName = "小爱"
 )
 
+// AIReply 公用智能回复类
 type AIReply interface {
 	// DealQuestion 把椛椛替换为各api接口的bot名字
 	DealQuestion(preMsg string) (msg string)
@@ -38,6 +39,7 @@ type AIReply interface {
 	DealReply(reply string) (textReply string, faceReply int)
 }
 
+// NewAIReply 智能回复简单工厂
 func NewAIReply(mode int) AIReply {
 	if mode == 1 {
 		return &QYKReply{}
@@ -88,9 +90,6 @@ func init() { // 插件主体
 			} else if strings.Contains(param, "小爱") {
 				Mode = 2
 				ctx.SendChain(message.Text("设置为小爱回复"))
-			} else if strings.Contains(param, "夸克") {
-				Mode = 3
-				ctx.SendChain(message.Text("设置为夸克回复"))
 			} else {
 				ctx.SendChain(message.Text("设置失败"))
 			}
