@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// XiaoAiReply 小爱回复类
 type XiaoAiReply struct{}
 
 // DealQuestion 把椛椛替换为小爱

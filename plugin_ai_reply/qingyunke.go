@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// QYKReply 青云客回复类
 type QYKReply struct{}
 
 // DealQuestion 把椛椛替换为菲菲

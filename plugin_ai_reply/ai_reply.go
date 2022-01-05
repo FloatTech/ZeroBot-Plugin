@@ -7,7 +7,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"math/rand"
-	"strings"
 	"time"
 )
 
@@ -19,6 +18,7 @@ var (
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]\n- ",
 	})
+	// Mode 智能回复模式(1. 青云客，2. 小爱)
 	Mode = 1
 )
 
@@ -84,13 +84,14 @@ func init() { // 插件主体
 	engine.OnPrefix(`设置回复模式`).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
-			if strings.Contains(param, "青云客") {
+			switch param {
+			case "青云客":
 				Mode = 1
 				ctx.SendChain(message.Text("设置为青云客回复"))
-			} else if strings.Contains(param, "小爱") {
+			case "小爱":
 				Mode = 2
 				ctx.SendChain(message.Text("设置为小爱回复"))
-			} else {
+			default:
 				ctx.SendChain(message.Text("设置失败"))
 			}
 		})
