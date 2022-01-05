@@ -52,6 +52,9 @@ func (*XiaoAiReply) GetReply(msg string) (reply string) {
 // DealReply 处理回复消息
 func (*XiaoAiReply) DealReply(reply string) (textReply string, faceReply int) {
 	textReply = strings.ReplaceAll(reply, xiaoaiBotName, zero.BotConfig.NickName[0])
+	if textReply == "" {
+		textReply = zero.BotConfig.NickName[0] + "听不懂你的话了，能再说一遍吗"
+	}
 	textReply = strings.ReplaceAll(textReply, "小米智能助理", "电子宠物")
 	faceReply = -1
 	return
