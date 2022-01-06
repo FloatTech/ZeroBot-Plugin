@@ -84,7 +84,7 @@ var (
 	banner = strings.Join(contents, "\n")
 	token  *string
 	url    *string
-	reg    = registry.NewRegReader("reilia.eastasia.azurecontainer.io:32664", "fumiama")
+	reg    = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
 )
 
 func init() {
