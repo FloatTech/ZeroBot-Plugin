@@ -24,3 +24,11 @@ func Abs(x int) int {
 	}
 	return x
 }
+
+// Abs64 返回绝对值，该函数将被内联
+func Abs64(x int64) int64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

@@ -10,6 +10,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
@@ -87,7 +88,7 @@ func isValidToken(tok string) (yes bool) {
 	if err == nil {
 		timebytes := make([]byte, 1, 8)
 		timebytes = append(timebytes, b14.Decode(s)...)
-		yes = time.Now().Unix()-int64(binary.BigEndian.Uint64(timebytes)) < 10
+		yes = math.Abs64(time.Now().Unix()-int64(binary.BigEndian.Uint64(timebytes))) < 10
 	}
 	return
 }
