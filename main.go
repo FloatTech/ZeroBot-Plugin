@@ -13,9 +13,9 @@ import (
 	// webctrl "github.com/FloatTech/ZeroBot-Plugin/control/web" // web 后端控制
 
 	// 词库类
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"      // ATRI词库
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"      // 基础词库
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke" // 青云客
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"     // ATRI词库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"     // 基础词库
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"          // base16384加解密

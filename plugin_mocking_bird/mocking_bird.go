@@ -19,7 +19,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
-	qingyunke "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"
+	aireply "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply"
 	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
 )
@@ -47,14 +47,12 @@ func init() {
 	engine.OnMessage(zero.OnlyToMe, getAcquire).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
-			// 调用青云客接口
-			reply, err := qingyunke.GetMessage(msg)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
+			AIReply := aireply.NewAIReply(aireply.GetReplyMode(ctx))
+			// 把消息里的椛椛替换成对应接口机器人的名字
+			msg = AIReply.DealQuestion(msg)
+			reply := AIReply.GetReply(msg)
 			// 挑出 face 表情
-			textReply, _ := qingyunke.DealReply(reply)
+			textReply, _ := AIReply.DealReply(reply)
 			// 拟声器生成音频
 			syntPath := getSyntPath()
 			fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)

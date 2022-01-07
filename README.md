@@ -197,8 +197,9 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
     - [x] 搜卡[xxxx]
     - [x] [卡组代码xxx]
     - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
-- **青云客** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_qingyunke"`
+- **人工智能回复** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply"`
     - [x] @Bot 任意文本(任意一句话回复)
+    - [x] 设置回复模式[青云客|小爱]
 - **关键字搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"`
     - [x] 来张 [xxx]
 - **拼音首字母释义工具** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nbnhhsh"`
