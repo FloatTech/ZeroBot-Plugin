@@ -2,13 +2,14 @@ package aireply
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 // XiaoAiReply 小爱回复类

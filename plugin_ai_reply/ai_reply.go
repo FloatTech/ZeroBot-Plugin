@@ -3,13 +3,15 @@ package aireply
 
 import (
 	"errors"
-	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"math/rand"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"math/rand"
-	"time"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var (
