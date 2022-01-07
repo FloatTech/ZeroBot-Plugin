@@ -121,9 +121,9 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 
 	var img message.MessageSegment
 	if web.IsSupportIPv6 {
-		img = message.Image(apiheadv6 + b14 + ".webp")
+		img = message.Image(apiheadv6 + dhash + ".webp")
 	} else {
-		img = message.Image(apihead + b14)
+		img = message.Image(apihead + dhash)
 	}
 
 	if class > 5 {
