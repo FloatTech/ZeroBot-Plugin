@@ -47,7 +47,7 @@ func init() {
 	engine.OnMessage(zero.OnlyToMe, getAcquire).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
-			AIReply := aireply.NewAIReply(aireply.Mode)
+			AIReply := aireply.NewAIReply(aireply.GetReplyMode(ctx))
 			// 把消息里的椛椛替换成对应接口机器人的名字
 			msg = AIReply.DealQuestion(msg)
 			reply := AIReply.GetReply(msg)

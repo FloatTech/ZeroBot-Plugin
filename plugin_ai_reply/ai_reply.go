@@ -2,6 +2,7 @@
 package aireply
 
 import (
+	"errors"
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -11,22 +12,22 @@ import (
 )
 
 var (
-	prio   = 256
 	bucket = rate.NewManager(time.Minute, 20) // 青云客接口回复
-	engine = control.Register("aireply", &control.Options{
+	engine = control.Register(serviceName, &control.Options{
 		DisableOnDefault: false,
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]\n- ",
 	})
-	// Mode 智能回复模式(1. 青云客，2. 小爱)
-	Mode = 1
+	modeMap = map[string]int64{"青云客": 1, "小爱": 2}
 )
 
 const (
+	serviceName   = "aireply"
 	qykURL        = "http://api.qingyunke.com/api.php?key=free&appid=0&msg=%s"
 	qykBotName    = "菲菲"
 	xiaoaiURL     = "http://81.70.100.130/api/xiaoai.php?msg=%s&n=text"
 	xiaoaiBotName = "小爱"
+	prio          = 256
 )
 
 // AIReply 公用智能回复类
@@ -40,30 +41,30 @@ type AIReply interface {
 }
 
 // NewAIReply 智能回复简单工厂
-func NewAIReply(mode int) AIReply {
+func NewAIReply(mode int64) AIReply {
 	if mode == 1 {
 		return &QYKReply{}
 	} else if mode == 2 {
 		return &XiaoAiReply{}
 	}
-	return nil
+	return &QYKReply{}
 }
 
 func init() { // 插件主体
 	// 回复 @和包括名字
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).SetPriority(prio).
 		Handle(func(ctx *zero.Ctx) {
-			AIReply := NewAIReply(Mode)
+			aireply := NewAIReply(GetReplyMode(ctx))
 			if !bucket.Load(ctx.Event.UserID).Acquire() {
 				// 频繁触发，不回复
 				return
 			}
 			msg := ctx.ExtractPlainText()
 			// 把消息里的椛椛替换成对应接口机器人的名字
-			msg = AIReply.DealQuestion(msg)
-			reply := AIReply.GetReply(msg)
+			msg = aireply.DealQuestion(msg)
+			reply := aireply.GetReply(msg)
 			// 挑出 face 表情
-			textReply, faceReply := AIReply.DealReply(reply)
+			textReply, faceReply := aireply.DealReply(reply)
 			// 回复
 			time.Sleep(time.Second * 1)
 			if ctx.Event.MessageType == "group" {
@@ -86,15 +87,40 @@ func init() { // 插件主体
 			param := ctx.State["args"].(string)
 			switch param {
 			case "青云客":
-				Mode = 1
+				setReplyMode(ctx, modeMap["青云客"])
 				ctx.SendChain(message.Text("设置为青云客回复"))
 			case "小爱":
-				Mode = 2
+				setReplyMode(ctx, modeMap["小爱"])
 				ctx.SendChain(message.Text("设置为小爱回复"))
 			default:
 				ctx.SendChain(message.Text("设置失败"))
 			}
 		})
+}
+
+func setReplyMode(ctx *zero.Ctx, mode int64) error {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	m, ok := control.Lookup(serviceName)
+	if ok {
+		return m.SetData(gid, mode)
+	}
+	return errors.New("no such plugin")
+}
+
+// GetReplyMode 取得回复模式
+func GetReplyMode(ctx *zero.Ctx) (mode int64) {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	m, ok := control.Lookup(serviceName)
+	if ok {
+		mode = m.GetData(gid)
+	}
+	return mode
 }
 
 func getAgent() string {
