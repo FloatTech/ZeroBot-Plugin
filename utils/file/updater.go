@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	registry      = reg.NewRegReader("reilia.eastasia.azurecontainer.io:32664", "fumiama")
+	registry      = reg.NewRegReader("reilia.fumiama.top:32664", "fumiama")
 	connmu, getmu sync.Mutex
 	processes     sync.WaitGroup
 	connerr       error

@@ -15,13 +15,13 @@ func firstWeek(date *time.Time, week time.Weekday) (d time.Time) {
 	return
 }
 
-func (ts *Timer) nextWakeTime() (date time.Time) {
+func (t *Timer) nextWakeTime() (date time.Time) {
 	date = time.Now()
-	m := ts.Month()
-	d := ts.Day()
-	h := ts.Hour()
-	mn := ts.Minute()
-	w := ts.Week()
+	m := t.Month()
+	d := t.Day()
+	h := t.Hour()
+	mn := t.Minute()
+	w := t.Week()
 	var unit time.Duration
 	logrus.Debugln("[timer] unit init:", unit)
 	if mn >= 0 {
@@ -74,35 +74,35 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	}
 	switch stable {
 	case 0b0101:
-		if ts.Day() != time.Now().Day() || ts.Month() != time.Now().Month() {
+		if t.Day() != time.Now().Day() || t.Month() != time.Now().Month() {
 			h = 0
 		}
 	case 0b1001:
-		if ts.Month() != time.Now().Month() {
+		if t.Month() != time.Now().Month() {
 			d = 0
 		}
 	case 0b0001:
-		if ts.Month() != time.Now().Month() {
+		if t.Month() != time.Now().Month() {
 			d = 0
 			h = 0
 		}
 	}
 	logrus.Debugln("[timer] stable:", stable)
 	logrus.Debugln("[timer] m:", m, "d:", d, "h:", h, "mn:", mn, "w:", w)
-	date = time.Date(date.Year(), time.Month(m), d, h, mn, date.Second(), date.Nanosecond(), date.Location())
+	date = time.Date(date.Year(), m, d, h, mn, date.Second(), date.Nanosecond(), date.Location())
 	logrus.Debugln("[timer] date original:", date)
 	if unit > 0 {
 		date = date.Add(unit)
 	}
 	logrus.Debugln("[timer] date after add:", date)
 	if time.Until(date) <= 0 {
-		if ts.Month() < 0 {
-			if ts.Day() > 0 || (ts.Day() == 0 && ts.Week() >= 0) {
+		if t.Month() < 0 {
+			if t.Day() > 0 || (t.Day() == 0 && t.Week() >= 0) {
 				date = date.AddDate(0, 1, 0)
-			} else if ts.Day() < 0 || ts.Week() < 0 {
-				if ts.Hour() > 0 {
+			} else if t.Day() < 0 || t.Week() < 0 {
+				if t.Hour() > 0 {
 					date = date.AddDate(0, 0, 1)
-				} else if ts.Minute() > 0 {
+				} else if t.Minute() > 0 {
 					date = date.Add(time.Hour)
 				}
 			}
@@ -140,7 +140,7 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 		default:
 			date = date.AddDate(1, 0, 0)
 		}
-		date = firstWeek(&date, time.Weekday(w))
+		date = firstWeek(&date, w)
 	}
 	logrus.Debugln("[timer] date after s2:", date)
 	if time.Until(date) <= 0 {
@@ -149,14 +149,14 @@ func (ts *Timer) nextWakeTime() (date time.Time) {
 	return date
 }
 
-func (ts *Timer) judgeHM() {
-	if ts.Hour() < 0 || ts.Hour() == time.Now().Hour() {
-		if ts.Minute() < 0 || ts.Minute() == time.Now().Minute() {
-			if ts.SelfID != 0 {
-				ts.sendmsg(ts.GrpID, zero.GetBot(ts.SelfID))
+func (t *Timer) judgeHM() {
+	if t.Hour() < 0 || t.Hour() == time.Now().Hour() {
+		if t.Minute() < 0 || t.Minute() == time.Now().Minute() {
+			if t.SelfID != 0 {
+				t.sendmsg(t.GrpID, zero.GetBot(t.SelfID))
 			} else {
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) (_ bool) {
-					ts.sendmsg(ts.GrpID, ctx)
+					t.sendmsg(t.GrpID, ctx)
 					return
 				})
 			}
