@@ -215,7 +215,7 @@ func (m *Control) GetData(gid int64) int64 {
 	err = db.Find(m.service, &c, "WHERE gid = "+strconv.FormatInt(gid, 10))
 	m.RUnlock()
 	if err == nil && gid == c.GroupID {
-		log.Debugf("[control] plugin %s of grp %d : %x", m.service, c.GroupID, c.Disable>>1)
+		log.Debugf("[control] plugin %s of grp %d : 0x%x", m.service, c.GroupID, c.Disable>>1)
 		return c.Disable >> 1
 	}
 	return 0
@@ -233,8 +233,9 @@ func (m *Control) SetData(groupID int64, data int64) error {
 			c.Disable = 1
 		}
 	}
+	c.Disable &= 1
 	c.Disable |= data << 1
-	log.Debugf("[control] set plugin %s of all : %x", m.service, data)
+	log.Debugf("[control] set plugin %s of grp %d : 0x%x", m.service, c.GroupID, data)
 	m.Lock()
 	err = db.Insert(m.service, &c)
 	m.Unlock()
