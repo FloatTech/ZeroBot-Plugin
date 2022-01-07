@@ -4,6 +4,7 @@ package aireply
 import (
 	"errors"
 	"github.com/FloatTech/ZeroBot-Plugin/control"
+	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -87,10 +88,14 @@ func init() { // 插件主体
 			param := ctx.State["args"].(string)
 			switch param {
 			case "青云客":
-				setReplyMode(ctx, modeMap["青云客"])
+				if err := setReplyMode(ctx, modeMap["青云客"]); err != nil {
+					log.Errorln("[aireply]:", err)
+				}
 				ctx.SendChain(message.Text("设置为青云客回复"))
 			case "小爱":
-				setReplyMode(ctx, modeMap["小爱"])
+				if err := setReplyMode(ctx, modeMap["小爱"]); err != nil {
+					log.Errorln("[aireply]:", err)
+				}
 				ctx.SendChain(message.Text("设置为小爱回复"))
 			default:
 				ctx.SendChain(message.Text("设置失败"))
