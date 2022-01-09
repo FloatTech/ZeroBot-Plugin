@@ -90,6 +90,7 @@ func Render(text string, width, fontSize int) (canvas *gg.Context, err error) {
 	return
 }
 
+// CanvasToBase64 gg内容转为base64
 func CanvasToBase64(canvas *gg.Context) (base64Bytes []byte, err error) {
 	buffer := new(bytes.Buffer)
 	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
