@@ -63,7 +63,9 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
 				return
 			}
-			SDB.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
+			if err := SDB.InsertOrUpdateSignInCountByUID(uid, si.Count+1); err != nil {
+				log.Errorln("[score]:", err)
+			}
 			back, err := gg.LoadImage(picFile)
 			if err != nil {
 				log.Errorln("[score]:", err)
@@ -167,17 +169,19 @@ func getLevel(count int) int {
 }
 
 func initPic(picFile string) {
-	data, err := web.ReqWith(backgroundURL, "GET", referer, ua)
-	if err != nil {
-		log.Errorln("[score]:", err)
-	}
-	picURL := gjson.Get(string(data), "pic").String()
-	data, err = web.ReqWith(picURL, "GET", "", ua)
-	if err != nil {
-		log.Errorln("[score]:", err)
-	}
-	err = os.WriteFile(picFile, data, 0666)
-	if err != nil {
-		log.Errorln("[score]:", err)
+	if file.IsNotExist(picFile) {
+		data, err := web.ReqWith(backgroundURL, "GET", referer, ua)
+		if err != nil {
+			log.Errorln("[score]:", err)
+		}
+		picURL := gjson.Get(string(data), "pic").String()
+		data, err = web.ReqWith(picURL, "GET", "", ua)
+		if err != nil {
+			log.Errorln("[score]:", err)
+		}
+		err = os.WriteFile(picFile, data, 0666)
+		if err != nil {
+			log.Errorln("[score]:", err)
+		}
 	}
 }
