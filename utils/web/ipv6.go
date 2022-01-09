@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// IsSupportIPv6 ipv6分流
 var IsSupportIPv6 = func() bool {
 	resp, err := http.Get("http://v6.ipv6-test.com/json/widgetdata.php?callback=?")
 	if err != nil {

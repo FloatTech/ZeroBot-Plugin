@@ -126,7 +126,7 @@ func getWav(text, syntPath, vocoder string, uid int64) (fileName string) {
 	}
 	defer res.Body.Close()
 	data, _ := ioutil.ReadAll(res.Body)
-	err = ioutil.WriteFile(cachePath+fileName, data, 0666)
+	err = os.WriteFile(cachePath+fileName, data, 0666)
 	if err != nil {
 		log.Errorln("[mockingbird]:", err)
 	}

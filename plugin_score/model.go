@@ -7,9 +7,10 @@ import (
 	"time"
 )
 
-// ScoreDB 分数数据库
-type ScoreDB gorm.DB
+// DB 分数数据库
+type DB gorm.DB
 
+// Score 分数结构体
 type Score struct {
 	UID   int64 `gorm:"column:uid;primary_key"`
 	Score int   `gorm:"column:score;default:0"`
@@ -20,10 +21,10 @@ func (Score) TableName() string {
 	return "score"
 }
 
+// SignIn 签到结构体
 type SignIn struct {
 	UID       int64 `gorm:"column:uid;primary_key"`
-	Count     int   `gorm:"column:count"`
-	CreatedAt time.Time
+	Count     int   `gorm:"column:count;default:0"`
 	UpdatedAt time.Time
 }
 
@@ -32,7 +33,8 @@ func (SignIn) TableName() string {
 	return "sign_in"
 }
 
-func Initialize(dbpath string) *ScoreDB {
+// Initialize 初始化ScoreDB数据库
+func Initialize(dbpath string) *DB {
 	var err error
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
@@ -47,33 +49,33 @@ func Initialize(dbpath string) *ScoreDB {
 		panic(err)
 	}
 	gdb.AutoMigrate(&Score{}).AutoMigrate(&SignIn{})
-	return (*ScoreDB)(gdb)
+	return (*DB)(gdb)
 }
 
 // Open ...
-func Open(dbpath string) (*ScoreDB, error) {
+func Open(dbpath string) (*DB, error) {
 	db, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, err
 	}
-	return (*ScoreDB)(db), nil
+	return (*DB)(db), nil
 }
 
 // Close ...
-func (sdb *ScoreDB) Close() error {
+func (sdb *DB) Close() error {
 	db := (*gorm.DB)(sdb)
 	return db.Close()
 }
 
 // GetScoreByUID 取得分数
-func (sdb *ScoreDB) GetScoreByUID(uid int64) (s Score) {
+func (sdb *DB) GetScoreByUID(uid int64) (s Score) {
 	db := (*gorm.DB)(sdb)
 	db.Debug().Model(&Score{}).FirstOrCreate(&s, "uid = ? ", uid)
 	return s
 }
 
 // InsertOrUpdateScoreByUID 插入或更新分数
-func (sdb *ScoreDB) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
+func (sdb *DB) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 	db := (*gorm.DB)(sdb)
 	s := Score{
 		UID:   uid,
@@ -94,14 +96,14 @@ func (sdb *ScoreDB) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 }
 
 // GetSignInByUID 取得签到次数
-func (sdb *ScoreDB) GetSignInByUID(uid int64) (si SignIn) {
+func (sdb *DB) GetSignInByUID(uid int64) (si SignIn) {
 	db := (*gorm.DB)(sdb)
 	db.Debug().Model(&SignIn{}).FirstOrCreate(&si, "uid = ? ", uid)
 	return si
 }
 
 // InsertOrUpdateSignInCountByUID 插入或更新签到次数
-func (sdb *ScoreDB) InsertOrUpdateSignInCountByUID(uid int64, count int) (err error) {
+func (sdb *DB) InsertOrUpdateSignInCountByUID(uid int64, count int) (err error) {
 	db := (*gorm.DB)(sdb)
 	si := SignIn{
 		UID:   uid,

@@ -14,8 +14,9 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"io/ioutil"
+	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -34,7 +35,9 @@ var (
 		DisableOnDefault: false,
 		Help:             "签到得分\n- 签到\n- 获得签到背景[@xxx]|获得签到背景",
 	})
-	levelArray = []int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
+	levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
+	// 下载锁
+	mu sync.Mutex
 )
 
 func init() {
@@ -46,11 +49,15 @@ func init() {
 			si := SDB.GetSignInByUID(uid)
 			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
 			if file.IsNotExist(picFile) {
+				mu.Lock()
 				initPic(picFile)
+				mu.Unlock()
 			}
 			siUpdateTimeStr := si.UpdatedAt.Format("20060102")
 			if siUpdateTimeStr != today {
-				SDB.InsertOrUpdateSignInCountByUID(uid, 0)
+				if err := SDB.InsertOrUpdateSignInCountByUID(uid, 0); err != nil {
+					log.Errorln("[score]:", err)
+				}
 			}
 			if si.Count >= signinMax && siUpdateTimeStr == today {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
@@ -86,7 +93,9 @@ func init() {
 				score = ScoreMax
 				ctx.SendChain(message.At(uid), message.Text("你获得的小熊饼干已经达到上限"))
 			}
-			SDB.InsertOrUpdateScoreByUID(uid, score)
+			if err := SDB.InsertOrUpdateScoreByUID(uid, score); err != nil {
+				log.Println("[score]:", err)
+			}
 			level := getLevel(score)
 			canvas.DrawString("当前小熊饼干:"+strconv.FormatInt(int64(score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
 			canvas.DrawString("LEVEL:"+strconv.FormatInt(int64(level), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.5)
@@ -121,7 +130,9 @@ func init() {
 			}
 			picFile := cachePath + uidStr + time.Now().Format("20060102") + ".png"
 			if file.IsNotExist(picFile) {
+				mu.Lock()
 				initPic(picFile)
+				mu.Unlock()
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
 		})
@@ -165,7 +176,7 @@ func initPic(picFile string) {
 	if err != nil {
 		log.Errorln("[score]:", err)
 	}
-	err = ioutil.WriteFile(picFile, data, 0666)
+	err = os.WriteFile(picFile, data, 0666)
 	if err != nil {
 		log.Errorln("[score]:", err)
 	}
