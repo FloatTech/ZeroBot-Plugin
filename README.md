@@ -242,6 +242,9 @@ zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
 - **cp短打** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_cpstory"`
     - [x] 组cp[@xxx][@xxx]
     - [x] 组cp大老师 雪乃
+- **签到得分** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"`
+    - [x] 签到
+    - [x] 获得签到背景[@xxx]|获得签到背景
 - **TODO...**
 
 ## 使用方法
