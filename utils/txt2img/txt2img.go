@@ -18,16 +18,21 @@ import (
 
 const (
 	whitespace = "\t\n\r\x0b\x0c"
-	fontpath   = "data/Font/"
-	fontfile   = fontpath + "regular.ttf"
+	// FontPath 通用字体路径
+	FontPath = "data/Font/"
+	// FontFile 苹方字体
+	FontFile = FontPath + "regular.ttf"
+	// BoldFontFile 粗体苹方字体
+	BoldFontFile = FontPath + "regular-bold.ttf"
 )
 
 // 加载数据库
 func init() {
 	go func() {
 		process.SleepAbout1sTo2s()
-		_ = os.MkdirAll(fontpath, 0755)
-		_, _ = file.GetLazyData(fontfile, false, true)
+		_ = os.MkdirAll(FontPath, 0755)
+		_, _ = file.GetLazyData(FontFile, false, true)
+		_, _ = file.GetLazyData(BoldFontFile, false, true)
 	}()
 }
 
@@ -35,19 +40,14 @@ func init() {
 func RenderToBase64(text string, width, fontSize int) (base64Bytes []byte, err error) {
 	canvas, err := Render(text, width, fontSize)
 	if err != nil {
-		log.Println("err:", err)
+		log.Println("[txt2img]:", err)
 		return nil, err
 	}
-	// 转成 base64
-	buffer := new(bytes.Buffer)
-	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
-	var opt jpeg.Options
-	opt.Quality = 70
-	if err = jpeg.Encode(encoder, canvas.Image(), &opt); err != nil {
+	base64Bytes, err = CanvasToBase64(canvas)
+	if err != nil {
+		log.Println("[txt2img]:", err)
 		return nil, err
 	}
-	encoder.Close()
-	base64Bytes = buffer.Bytes()
 	return
 }
 
@@ -78,8 +78,8 @@ func Render(text string, width, fontSize int) (canvas *gg.Context, err error) {
 	canvas.SetRGB(1, 1, 1)
 	canvas.Clear()
 	canvas.SetRGB(0, 0, 0)
-	if err = canvas.LoadFontFace(fontfile, float64(fontSize)); err != nil {
-		log.Println("err:", err)
+	if err = canvas.LoadFontFace(FontFile, float64(fontSize)); err != nil {
+		log.Println("[txt2img]:", err)
 		return nil, err
 	}
 	for i, v := range buff {
@@ -87,5 +87,18 @@ func Render(text string, width, fontSize int) (canvas *gg.Context, err error) {
 			canvas.DrawString(v, float64(width/2), float64((i+2)*fontSize))
 		}
 	}
+	return
+}
+
+func CanvasToBase64(canvas *gg.Context) (base64Bytes []byte, err error) {
+	buffer := new(bytes.Buffer)
+	encoder := base64.NewEncoder(base64.StdEncoding, buffer)
+	var opt jpeg.Options
+	opt.Quality = 70
+	if err = jpeg.Encode(encoder, canvas.Image(), &opt); err != nil {
+		return nil, err
+	}
+	encoder.Close()
+	base64Bytes = buffer.Bytes()
 	return
 }

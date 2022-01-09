@@ -20,7 +20,7 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/control"
 	aireply "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply"
-	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
 )
 
@@ -57,7 +57,7 @@ func init() {
 			syntPath := getSyntPath()
 			fileName := getWav(textReply, syntPath, vocoderList[1], ctx.Event.UserID)
 			// 回复
-			ctx.SendChain(message.Record("file:///" + fileutil.BOTPATH + "/" + cachePath + fileName))
+			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + cachePath + fileName))
 		})
 }
 
