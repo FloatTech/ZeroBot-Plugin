@@ -10,7 +10,7 @@ import (
 
 const (
 	cachePath = dbpath + "cache/"
-	dbpath    = "data/Score/"
+	dbpath    = "data/score/"
 	dbfile    = dbpath + "score.db"
 )
 

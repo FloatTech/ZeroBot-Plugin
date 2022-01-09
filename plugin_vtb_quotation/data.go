@@ -12,6 +12,6 @@ func init() {
 	go func() {
 		process.SleepAbout1sTo2s()
 		_ = os.MkdirAll(dbpath, 0755)
-		_, _ = file.GetLazyData(dbfile, false, true)
+		_, _ = file.GetLazyData(dbfile, false, false)
 	}()
 }
