@@ -1,10 +1,11 @@
 package score
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/logoove/sqlite" // import sql
 	"os"
 	"time"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/logoove/sqlite" // import sql
 )
 
 // DB 分数数据库

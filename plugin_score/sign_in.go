@@ -3,21 +3,23 @@ package score
 
 import (
 	"fmt"
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
+	"os"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/fogleman/gg"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"os"
-	"strconv"
-	"sync"
-	"time"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
 )
 
 const (

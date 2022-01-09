@@ -1,9 +1,11 @@
 package score
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	log "github.com/sirupsen/logrus"
 	"os"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 const (
