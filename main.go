@@ -142,7 +142,7 @@ func getKanban() string {
 }
 
 func main() {
-	// printBanner()
+	printBanner()
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
 		Handle(func(ctx *zero.Ctx) {
