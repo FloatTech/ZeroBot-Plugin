@@ -74,7 +74,7 @@ func Render(text string, width, fontSize int) (canvas *gg.Context, err error) {
 		}
 	}
 
-	canvas = gg.NewContext((fontSize+3)*width/2, (len(buff)+2)*fontSize)
+	canvas = gg.NewContext((fontSize+4)*width/2, (len(buff)+2)*fontSize)
 	canvas.SetRGB(1, 1, 1)
 	canvas.Clear()
 	canvas.SetRGB(0, 0, 0)
