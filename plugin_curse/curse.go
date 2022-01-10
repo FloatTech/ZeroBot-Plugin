@@ -1,4 +1,4 @@
-// Package curse
+// Package curse 骂人插件(求骂,自卫)
 package curse
 
 import (
@@ -19,7 +19,7 @@ const (
 var (
 	engine = control.Register("curse", &control.Options{
 		DisableOnDefault: false,
-		Help:             "骂人(只能骂自己,关键词互喷)\n- 骂我\n- 大力骂我\n- @bot 他妈|公交车|你妈|操|屎|去死|快死|日|逼|尼玛|艾滋|癌症|有病|戴套|啊对对对|烦你",
+		Help:             "骂人(求骂,自卫)\n- 骂我\n- 大力骂我\n- @bot 他妈|公交车|你妈|操|屎|去死|快死|日|逼|尼玛|艾滋|癌症|有病|戴套|啊对对对|烦你",
 	})
 	limit = rate.NewManager(time.Minute, 30)
 )
