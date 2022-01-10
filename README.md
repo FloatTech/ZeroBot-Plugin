@@ -28,15 +28,19 @@
 > 如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文件或前往 [Packages](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp) 页面使用`docker`，运行后按提示登录即可。
 
 ## 命令行参数
+> `[]`代表是可选参数
 ```bash
-zerobot -h -t token -u url [-d|w] [-g 监听地址:端口] qq1 qq2 qq3 ...
+zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地址:端口] [qq1 qq2 qq3 ...] [&]
 ```
 - **-h**: 显示帮助
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
+- **-n nickname**: 设置默认昵称，默认为`椛椛`
+- **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-g 监听地址:端口**: 在 http://监听地址:端口 上开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
+- **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 
 ## 功能
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。

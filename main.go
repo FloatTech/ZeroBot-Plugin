@@ -82,9 +82,12 @@ var (
 		"* Copyright © 2020 - 2021 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
+	nicks  = []string{"ATRI", "atri", "亚托莉", "アトリ"}
 	banner = strings.Join(contents, "\n")
 	token  *string
 	url    *string
+	adana  *string
+	prefix *string
 	reg    = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
 )
 
@@ -100,6 +103,9 @@ func init() {
 	token = flag.String("t", "", "Set AccessToken of WSClient.")
 	// 直接写死 URL 时，请更改下面第二个参数
 	url = flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
+	// 默认昵称
+	adana = flag.String("n", "椛椛", "Set default nickname.")
+	prefix = flag.String("p", "/", "Set command prefix.")
 
 	flag.Parse()
 	if *h {
@@ -155,12 +161,11 @@ func main() {
 		})
 	zero.RunAndBlock(
 		zero.Config{
-			NickName:      []string{"椛椛", "ATRI", "atri", "亚托莉", "アトリ"},
-			CommandPrefix: "/",
+			NickName:      append([]string{*adana}, nicks...),
+			CommandPrefix: *prefix,
 			// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
-			// "12345678", "87654321"：通过代码写死的方式添加主人账号
-			// flag.Args()：通过命令行参数的方式添加主人账号，无需修改下方任何代码
-			SuperUsers: append([]string{"12345678", "87654321"}, flag.Args()...),
+			// SuperUsers: []string{"12345678", "87654321"}, // 通过代码写死的方式添加主人账号
+			SuperUsers: flag.Args(), // 通过命令行参数的方式添加主人账号
 			Driver:     []zero.Driver{driver.NewWebSocketClient(*url, *token)},
 		},
 	)
