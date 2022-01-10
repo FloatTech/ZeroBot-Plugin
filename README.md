@@ -249,6 +249,10 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **签到得分** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"`
     - [x] 签到
     - [x] 获得签到背景[@xxx]|获得签到背景
+- **骂人** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"`
+    - [x] 骂我
+    - [x] 大力骂我
+    - [x] @bot 他妈|公交车|你妈|操|屎|去死|快死|日|逼|尼玛|艾滋|癌症|有病|戴套|啊对对对|烦你
 - **TODO...**
 
 ## 使用方法
