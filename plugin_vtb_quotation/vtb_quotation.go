@@ -14,9 +14,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 	control "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/txt2img"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
 const (

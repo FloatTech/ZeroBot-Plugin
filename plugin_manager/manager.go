@@ -15,12 +15,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 	control "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/sql"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 )
 
 const (

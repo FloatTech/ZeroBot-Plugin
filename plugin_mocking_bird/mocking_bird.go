@@ -18,10 +18,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	aireply "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply"
 	control "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
+
+	aireply "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply"
 )
 
 const (
