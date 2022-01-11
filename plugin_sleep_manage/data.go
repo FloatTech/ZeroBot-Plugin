@@ -5,8 +5,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 	"github.com/FloatTech/zbputils/process"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 )
 
 func init() {

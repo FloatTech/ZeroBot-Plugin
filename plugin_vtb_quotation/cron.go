@@ -4,8 +4,9 @@ import (
 	"github.com/fumiama/cron"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 	"github.com/FloatTech/zbputils/process"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
 func init() {
