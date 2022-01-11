@@ -4,9 +4,8 @@ package shadiao
 import (
 	"time"
 
+	control "github.com/FloatTech/zbpctrl"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 const (

@@ -10,8 +10,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/rule"
+	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/rule"
 )
 
 const (

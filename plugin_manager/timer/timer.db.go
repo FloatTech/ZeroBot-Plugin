@@ -1,7 +1,7 @@
 package timer
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
+	"github.com/FloatTech/zbputils/sql"
 )
 
 // Timer 计时器

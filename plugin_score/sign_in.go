@@ -15,11 +15,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/txt2img"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
+	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/web"
 )
 
 const (

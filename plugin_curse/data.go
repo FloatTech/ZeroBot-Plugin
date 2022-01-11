@@ -5,9 +5,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/sql"
 )
 
 const (

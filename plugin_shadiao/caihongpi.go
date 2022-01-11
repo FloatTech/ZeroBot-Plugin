@@ -5,7 +5,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
+	"github.com/FloatTech/zbputils/web"
 )
 
 func init() {

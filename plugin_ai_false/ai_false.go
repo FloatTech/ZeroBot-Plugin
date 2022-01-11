@@ -7,11 +7,10 @@ import (
 	"os"
 	"time"
 
+	control "github.com/FloatTech/zbpctrl"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

@@ -4,13 +4,12 @@ package b14coder
 import (
 	"unsafe"
 
+	control "github.com/FloatTech/zbpctrl"
 	base14 "github.com/fumiama/go-base16384"
 	tea "github.com/fumiama/gofastTEA"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 func init() {

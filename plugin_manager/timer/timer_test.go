@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
+	"github.com/FloatTech/zbputils/sql"
 	"github.com/sirupsen/logrus"
 )
 

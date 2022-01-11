@@ -21,9 +21,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
+	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/math"
 )
 
 var (

@@ -13,9 +13,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"golang.org/x/image/webp"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/sql"
 )
 
 // setuclass holds setus in a folder, which is the class name.

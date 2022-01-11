@@ -7,8 +7,8 @@ import (
 	wr "github.com/mroth/weightedrand"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/process"
 )
 
 const (

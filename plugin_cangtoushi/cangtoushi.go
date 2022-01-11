@@ -9,13 +9,12 @@ import (
 	"net/url"
 	"strings"
 
+	control "github.com/FloatTech/zbpctrl"
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 const (

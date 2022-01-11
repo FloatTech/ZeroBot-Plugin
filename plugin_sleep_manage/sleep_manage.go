@@ -9,8 +9,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
+	control "github.com/FloatTech/zbpctrl"
 )
 
 const dbpath = "data/sleep/"

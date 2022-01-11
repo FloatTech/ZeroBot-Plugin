@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/FloatTech/zbputils/process"
 )
 
 func init() {

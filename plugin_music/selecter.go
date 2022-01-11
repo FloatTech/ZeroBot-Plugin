@@ -11,12 +11,11 @@ import (
 	"strings"
 	"time"
 
+	control "github.com/FloatTech/zbpctrl"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 var limit = rate.NewManager(time.Minute*3, 5)

@@ -12,8 +12,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/web"
+	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/web"
 )
 
 var (

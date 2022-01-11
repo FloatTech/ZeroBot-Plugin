@@ -17,9 +17,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/ctxext"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
+	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 )
 
 const base = "data/nwife"

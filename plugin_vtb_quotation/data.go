@@ -3,8 +3,8 @@ package vtbquotation
 import (
 	"os"
 
-	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/process"
 )
 
 // 加载数据库

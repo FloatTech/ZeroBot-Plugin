@@ -14,12 +14,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	fileutil "github.com/FloatTech/ZeroBot-Plugin/utils/file"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/math"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/rule"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
+	control "github.com/FloatTech/zbpctrl"
+	fileutil "github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/math"
+	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/rule"
+	"github.com/FloatTech/zbputils/sql"
 )
 
 // Pools 图片缓冲池

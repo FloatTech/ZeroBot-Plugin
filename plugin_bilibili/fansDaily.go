@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	control "github.com/FloatTech/zbpctrl"
 	"github.com/fumiama/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/ZeroBot-Plugin/control"
 )
 
 type follower struct {

@@ -12,8 +12,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/process"
 )
 
 const (
