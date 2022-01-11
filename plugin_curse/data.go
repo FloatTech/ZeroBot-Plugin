@@ -1,11 +1,13 @@
 package curse
 
 import (
+	"os"
+
+	"github.com/sirupsen/logrus"
+
 	"github.com/FloatTech/ZeroBot-Plugin/utils/file"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 	"github.com/FloatTech/ZeroBot-Plugin/utils/sql"
-	"github.com/sirupsen/logrus"
-	"os"
 )
 
 const (

@@ -2,12 +2,14 @@
 package curse
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/control"
-	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
+	"time"
+
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"time"
+
+	"github.com/FloatTech/ZeroBot-Plugin/control"
+	"github.com/FloatTech/ZeroBot-Plugin/utils/process"
 )
 
 const (
