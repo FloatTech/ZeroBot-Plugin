@@ -89,7 +89,6 @@ func getReplyMode(ctx *zero.Ctx) (name string) {
 		if int(index) < len(modes) {
 			return modes[index]
 		}
-
 	}
 	return "青云客"
 }
