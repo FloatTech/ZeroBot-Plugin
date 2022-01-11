@@ -122,7 +122,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 抽老婆[@xxx]
 - **AIWife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"`
     - [x] waifu|随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
-- **gif** `import _ "github.com/tdf1939/ZeroBot-Plugin-Gif/plugin_gif"`
+- **gif** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_gif"`
     - [x] 爬[@xxx]
     - [x] 摸[@xxx]
     - [x] 搓[@xxx]

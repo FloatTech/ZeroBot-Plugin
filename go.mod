@@ -4,9 +4,8 @@ go 1.17
 
 require (
 	github.com/FloatTech/AnimeAPI v1.2.0
-	github.com/FloatTech/ZeroBot-Plugin-Gif v0.2.6
-	github.com/FloatTech/zbpctrl v1.2.3-add1
-	github.com/FloatTech/zbputils v1.2.3-add1
+	github.com/FloatTech/zbpctrl v1.2.3-add2
+	github.com/FloatTech/zbputils v1.2.3-add2
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
@@ -26,7 +25,6 @@ require (
 )
 
 require (
-	github.com/FloatTech/imgfactory v0.1.1 // indirect
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect

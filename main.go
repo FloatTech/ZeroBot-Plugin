@@ -28,7 +28,6 @@ import (
 
 	// 娱乐类
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"    // 鬼东西
-	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"                 // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"     // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"  // 哀伤雪刃吧推书记录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"   // 藏头诗
@@ -39,6 +38,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"        // 骂人
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"      // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"        // 笑话
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_gif"          // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"     // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"    // MCSManager
