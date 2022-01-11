@@ -22,6 +22,7 @@ type follower struct {
 	AreaRank int    `json:"areaRank"`
 }
 
+// hahah
 // 开启日报推送
 func init() {
 	fansDaily()
