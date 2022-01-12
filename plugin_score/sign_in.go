@@ -112,7 +112,7 @@ func init() {
 			canvas.SetRGB255(102, 102, 102)
 			canvas.Fill()
 			canvas.DrawString(fmt.Sprintf("%d/%d", score, nextLevelScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
-			canvasBase64, err := txt2img.TxtCanvas{canvas}.ToBase64()
+			canvasBase64, err := txt2img.TxtCanvas{Canvas: canvas}.ToBase64()
 			if err != nil {
 				log.Println("[score]:", err)
 			}
