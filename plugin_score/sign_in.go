@@ -49,11 +49,17 @@ func init() {
 			siUpdateTimeStr := si.UpdatedAt.Format("20060102")
 			if siUpdateTimeStr != today {
 				if err := sdb.InsertOrUpdateSignInCountByUID(uid, 0); err != nil {
-					log.Errorln("[score]:", err)
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
 			}
+
+			drawedFile := cachePath + strconv.FormatInt(uid, 10) + today + "signin.png"
 			if si.Count >= signinMax && siUpdateTimeStr == today {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
+				if file.IsExist(drawedFile) {
+					ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+				}
 				return
 			}
 
@@ -61,11 +67,13 @@ func init() {
 			initPic(picFile)
 
 			if err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1); err != nil {
-				log.Errorln("[score]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			back, err := gg.LoadImage(picFile)
 			if err != nil {
-				log.Errorln("[score]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			canvas := gg.NewContext(back.Bounds().Size().X, int(float64(back.Bounds().Size().Y)*1.7))
 			canvas.SetRGB(1, 1, 1)
@@ -75,14 +83,16 @@ func init() {
 			monthWord := now.Format("01/02")
 			hourWord := getHourWord(now)
 			if err = canvas.LoadFontFace(txt2img.BoldFontFile, float64(back.Bounds().Size().X)*0.1); err != nil {
-				log.Println("[score]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			canvas.SetRGB(0, 0, 0)
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
 			nickName := ctxext.CardOrNickName(ctx, uid)
 			if err = canvas.LoadFontFace(txt2img.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
-				log.Println("[score]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			add := 1
 			canvas.DrawString(nickName+fmt.Sprintf(" 小熊饼干+%d", add), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
@@ -93,7 +103,8 @@ func init() {
 				ctx.SendChain(message.At(uid), message.Text("你获得的小熊饼干已经达到上限"))
 			}
 			if err := sdb.InsertOrUpdateScoreByUID(uid, score); err != nil {
-				log.Println("[score]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			level := getLevel(score)
 			canvas.DrawString("当前小熊饼干:"+strconv.FormatInt(int64(score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
@@ -112,11 +123,25 @@ func init() {
 			canvas.SetRGB255(102, 102, 102)
 			canvas.Fill()
 			canvas.DrawString(fmt.Sprintf("%d/%d", score, nextLevelScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
-			canvasBase64, err := txt2img.TxtCanvas{Canvas: canvas}.ToBase64()
+
+			f, err := os.Open(drawedFile)
+			txtc := txt2img.TxtCanvas{Canvas: canvas}
 			if err != nil {
-				log.Println("[score]:", err)
+				log.Errorln("[score]", err)
+				canvasBase64, err := txtc.ToBase64()
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + helper.BytesToString(canvasBase64)))
+				return
 			}
-			ctx.SendChain(message.Image("base64://" + helper.BytesToString(canvasBase64)))
+			_, err = txtc.WriteTo(f)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 	engine.OnPrefix("获得签到背景", zero.OnlyGroup).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {
@@ -168,16 +193,16 @@ func initPic(picFile string) {
 	if file.IsNotExist(picFile) {
 		data, err := web.ReqWith(backgroundURL, "GET", referer, ua)
 		if err != nil {
-			log.Errorln("[score]:", err)
+			log.Errorln("[score]", err)
 		}
 		picURL := gjson.Get(string(data), "pic").String()
 		data, err = web.ReqWith(picURL, "GET", "", ua)
 		if err != nil {
-			log.Errorln("[score]:", err)
+			log.Errorln("[score]", err)
 		}
 		err = os.WriteFile(picFile, data, 0666)
 		if err != nil {
-			log.Errorln("[score]:", err)
+			log.Errorln("[score]", err)
 		}
 	}
 }
