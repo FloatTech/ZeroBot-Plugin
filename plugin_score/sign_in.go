@@ -116,7 +116,7 @@ func init() {
 			canvas.Fill()
 			canvas.DrawString(fmt.Sprintf("%d/%d", score, nextLevelScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
 
-			f, err := os.Open(drawedFile)
+			f, err := os.Create(drawedFile)
 			txtc := txt2img.TxtCanvas{Canvas: canvas}
 			if err != nil {
 				log.Errorln("[score]", err)
@@ -129,6 +129,7 @@ func init() {
 				return
 			}
 			_, err = txtc.WriteTo(f)
+			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
