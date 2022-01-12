@@ -4,7 +4,7 @@ package shadiao
 import (
 	"time"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 )
 

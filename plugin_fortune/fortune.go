@@ -21,7 +21,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 )
@@ -90,6 +90,7 @@ func init() {
 					err := file.DownloadTo(site+"运势签文.json", mikuji, false)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
+						dlmu.Unlock()
 						return
 					}
 					ctx.SendChain(message.Text("下载签文文件完毕"))
@@ -105,6 +106,7 @@ func init() {
 					err := file.DownloadTo(site+"sakura.ttf", ttf, false)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
+						dlmu.Unlock()
 						return
 					}
 					ctx.SendChain(message.Text("下载字体文件完毕"))
@@ -137,12 +139,14 @@ func init() {
 					err := file.DownloadTo(site+zipfile, zipcache, false)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
+						dlmu.Unlock()
 						return
 					}
 					ctx.SendChain(message.Text("下载背景图片完毕"))
 					err = unpack(zipcache, folder+"/")
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
+						dlmu.Unlock()
 						return
 					}
 					ctx.SendChain(message.Text("解压背景图片完毕"))

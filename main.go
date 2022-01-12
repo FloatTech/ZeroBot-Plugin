@@ -10,7 +10,7 @@ import (
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 
 	// 插件控制
-	// webctrl "github.com/FloatTech/zbpctrl/web" // web 后端控制
+	// webctrl "github.com/FloatTech/zbputils/control/web" // web 后端控制
 
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
@@ -28,7 +28,6 @@ import (
 
 	// 娱乐类
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"    // 鬼东西
-	_ "github.com/FloatTech/ZeroBot-Plugin-Gif"                 // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"     // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"  // 哀伤雪刃吧推书记录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"   // 藏头诗
@@ -39,10 +38,10 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"        // 骂人
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"      // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"        // 笑话
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_gif"          // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"     // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"    // MCSManager
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_mocking_bird" // 拟声鸟
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"         // 摸鱼
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"        // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel"        // 铅笔小说网搜索

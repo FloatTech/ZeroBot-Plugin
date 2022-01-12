@@ -14,7 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	fileutil "github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"

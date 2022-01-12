@@ -14,7 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
