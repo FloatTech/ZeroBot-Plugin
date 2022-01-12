@@ -48,10 +48,7 @@ func init() {
 			si := sdb.GetSignInByUID(uid)
 			siUpdateTimeStr := si.UpdatedAt.Format("20060102")
 			if siUpdateTimeStr != today {
-				if err := sdb.InsertOrUpdateSignInCountByUID(uid, 0); err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-					return
-				}
+				_ = sdb.InsertOrUpdateSignInCountByUID(uid, 0)
 			}
 
 			drawedFile := cachePath + strconv.FormatInt(uid, 10) + today + "signin.png"
@@ -66,10 +63,8 @@ func init() {
 			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
 			initPic(picFile)
 
-			if err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1); err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
+			_ = sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
+
 			back, err := gg.LoadImage(picFile)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
@@ -102,10 +97,7 @@ func init() {
 				score = SCOREMAX
 				ctx.SendChain(message.At(uid), message.Text("你获得的小熊饼干已经达到上限"))
 			}
-			if err := sdb.InsertOrUpdateScoreByUID(uid, score); err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
+			_ = sdb.InsertOrUpdateScoreByUID(uid, score)
 			level := getLevel(score)
 			canvas.DrawString("当前小熊饼干:"+strconv.FormatInt(int64(score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
 			canvas.DrawString("LEVEL:"+strconv.FormatInt(int64(level), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.5)
