@@ -8,7 +8,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_diana/data"
 )

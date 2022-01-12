@@ -14,8 +14,8 @@ const (
 	dbfile    = dbpath + "score.db"
 )
 
-// SDB 得分数据库
-var SDB *DB
+// sdb 得分数据库
+var sdb *scoredb
 
 // 加载数据库
 func init() {
@@ -24,7 +24,7 @@ func init() {
 		_ = os.MkdirAll(dbpath, 0755)
 		os.RemoveAll(cachePath)
 		_ = os.MkdirAll(cachePath, 0755)
-		SDB = Initialize(dbfile)
+		sdb = initialize(dbfile)
 		log.Println("[score]加载score数据库")
 	}()
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/fogleman/gg"
@@ -15,7 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/txt2img"
@@ -28,8 +27,8 @@ const (
 	referer       = "https://iw233.cn/main.html"
 	ua            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 	signinMax     = 1
-	// ScoreMax 分数上限定为120
-	ScoreMax = 120
+	// SCOREMAX 分数上限定为120
+	SCOREMAX = 120
 )
 
 var (
@@ -38,8 +37,6 @@ var (
 		Help:             "签到得分\n- 签到\n- 获得签到背景[@xxx]|获得签到背景",
 	})
 	levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
-	// 下载锁
-	mu sync.Mutex
 )
 
 func init() {
@@ -48,16 +45,10 @@ func init() {
 			uid := ctx.Event.UserID
 			now := time.Now()
 			today := now.Format("20060102")
-			si := SDB.GetSignInByUID(uid)
-			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
-			if file.IsNotExist(picFile) {
-				mu.Lock()
-				initPic(picFile)
-				mu.Unlock()
-			}
+			si := sdb.GetSignInByUID(uid)
 			siUpdateTimeStr := si.UpdatedAt.Format("20060102")
 			if siUpdateTimeStr != today {
-				if err := SDB.InsertOrUpdateSignInCountByUID(uid, 0); err != nil {
+				if err := sdb.InsertOrUpdateSignInCountByUID(uid, 0); err != nil {
 					log.Errorln("[score]:", err)
 				}
 			}
@@ -65,7 +56,11 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
 				return
 			}
-			if err := SDB.InsertOrUpdateSignInCountByUID(uid, si.Count+1); err != nil {
+
+			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
+			initPic(picFile)
+
+			if err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1); err != nil {
 				log.Errorln("[score]:", err)
 			}
 			back, err := gg.LoadImage(picFile)
@@ -91,13 +86,13 @@ func init() {
 			}
 			add := 1
 			canvas.DrawString(nickName+fmt.Sprintf(" 小熊饼干+%d", add), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
-			score := SDB.GetScoreByUID(uid).Score
+			score := sdb.GetScoreByUID(uid).Score
 			score += add
-			if score > ScoreMax {
-				score = ScoreMax
+			if score > SCOREMAX {
+				score = SCOREMAX
 				ctx.SendChain(message.At(uid), message.Text("你获得的小熊饼干已经达到上限"))
 			}
-			if err := SDB.InsertOrUpdateScoreByUID(uid, score); err != nil {
+			if err := sdb.InsertOrUpdateScoreByUID(uid, score); err != nil {
 				log.Println("[score]:", err)
 			}
 			level := getLevel(score)
@@ -110,14 +105,14 @@ func init() {
 			if level < 10 {
 				nextLevelScore = levelArray[level+1]
 			} else {
-				nextLevelScore = ScoreMax
+				nextLevelScore = SCOREMAX
 			}
 			canvas.SetRGB255(0, 0, 0)
 			canvas.DrawRectangle(float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.55, float64(back.Bounds().Size().X)*0.6*float64(score)/float64(nextLevelScore), float64(back.Bounds().Size().Y)*0.1)
 			canvas.SetRGB255(102, 102, 102)
 			canvas.Fill()
 			canvas.DrawString(fmt.Sprintf("%d/%d", score, nextLevelScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
-			canvasBase64, err := txt2img.CanvasToBase64(canvas)
+			canvasBase64, err := txt2img.TxtCanvas{canvas}.ToBase64()
 			if err != nil {
 				log.Println("[score]:", err)
 			}
@@ -134,9 +129,8 @@ func init() {
 			}
 			picFile := cachePath + uidStr + time.Now().Format("20060102") + ".png"
 			if file.IsNotExist(picFile) {
-				mu.Lock()
-				initPic(picFile)
-				mu.Unlock()
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请先签到！"))
+				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
 		})

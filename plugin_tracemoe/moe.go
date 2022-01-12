@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/FloatTech/AnimeAPI/picture"
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

@@ -10,7 +10,7 @@ import (
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 
 	// 插件控制
-	// webctrl "github.com/FloatTech/zbpctrl/web" // web 后端控制
+	// webctrl "github.com/FloatTech/zbputils/control/web" // web 后端控制
 
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复

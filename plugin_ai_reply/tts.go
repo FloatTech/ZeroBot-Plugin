@@ -8,7 +8,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/aireply"
 	"github.com/FloatTech/AnimeAPI/mockingbird"
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 )
 
 const ttsprio = 250
