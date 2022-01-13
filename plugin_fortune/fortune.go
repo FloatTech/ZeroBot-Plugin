@@ -23,6 +23,7 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/txt2img"
 )
 
 var (
@@ -146,22 +147,30 @@ func init() {
 
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
-			if file.IsExist(cachefile) {
-				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
-				return
-			}
 
-			dlmu.Lock()
-			// 绘制背景
-			err = draw(background, title, text, cachefile)
-			dlmu.Unlock()
+			var data []byte
+			switch file.IsExist(cachefile) {
+			case true:
+				data, err = os.ReadFile(cachefile)
+				if err == nil {
+					break
+				}
+				_ = os.Remove(cachefile)
+				fallthrough
+			case false:
+				dlmu.Lock()
+				// 绘制背景
+				data, err = draw(background, title, text)
+				dlmu.Unlock()
+			}
 
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			_ = os.WriteFile(cachefile, data, 0644)
 			// 发送图片
-			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
+			ctx.SendChain(message.Image("base64://" + helper.BytesToString(data)))
 		})
 }
 
@@ -205,20 +214,20 @@ func randtext(seed int64) (string, string, error) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, text, cachefile string) error {
+func draw(back image.Image, title, text string) ([]byte, error) {
 	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
 	canvas.DrawImage(back, 0, 0)
 	// 写标题
 	canvas.SetRGB(1, 1, 1)
 	if err := canvas.LoadFontFace(font, 45); err != nil {
-		return err
+		return nil, err
 	}
 	sw, _ := canvas.MeasureString(title)
 	canvas.DrawString(title, 140-sw/2, 112)
 	// 写正文
 	canvas.SetRGB(0, 0, 0)
 	if err := canvas.LoadFontFace(font, 23); err != nil {
-		return err
+		return nil, err
 	}
 	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
@@ -246,7 +255,7 @@ func draw(back image.Image, title, text, cachefile string) error {
 			}
 		}
 	}
-	return canvas.SavePNG(cachefile)
+	return txt2img.TxtCanvas{Canvas: canvas}.ToBase64()
 }
 
 func offest(total, now int, distance float64) float64 {
