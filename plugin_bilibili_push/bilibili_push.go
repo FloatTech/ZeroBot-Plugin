@@ -16,7 +16,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -31,6 +30,7 @@ const (
 	tURL            = "https://t.bilibili.com/"
 	liveURL         = "https://live.bilibili.com/"
 	prio            = 10
+	serviceName     = "bilibilipush"
 )
 
 var (
@@ -56,26 +56,35 @@ var (
 
 func init() {
 	bilibiliPushDaily()
-	en := control.Register("bilibilipush", &control.Options{
-		DisableOnDefault: true,
+	en := control.Register(serviceName, &control.Options{
+		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
 			"- 添加订阅[uid]\n" +
 			"- 取消订阅[uid]\n" +
 			"- 取消动态订阅[uid]\n" +
 			"- 取消直播订阅[uid]\n",
 	})
-	en.OnPrefix("添加订阅", zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		buid, err := strconv.ParseInt(ctx.State["args"].(string), 10, 64)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请正确输入b站的uid,它是一个数字"))
-			return
+	en.OnRegex(`^添加订阅(\d+)$`, zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+		m, ok := control.Lookup(serviceName)
+		if ok {
+			if ok {
+				if m.IsEnabledIn(ctx.Event.GroupID) {
+					ctx.Send(message.Text("已启用！"))
+				} else {
+					m.Enable(ctx.Event.GroupID)
+					ctx.Send(message.Text("添加成功！"))
+				}
+			} else {
+				ctx.Send(message.Text("找不到该服务！"))
+			}
 		}
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		name := bdb.getBilibiliUpName(buid)
 		var status int
 		if name == "" {
 			status, name = checkBuid(buid)
 			if status != 0 {
-				msg, ok := uidErrorMsg[int(status)]
+				msg, ok := uidErrorMsg[status]
 				if !ok {
 					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
@@ -84,31 +93,27 @@ func init() {
 			}
 		}
 		if ctx.Event.GroupID != 0 {
-			if err = subscribe(buid, ctx.Event.GroupID); err != nil {
+			if err := subscribe(buid, ctx.Event.GroupID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 			}
 		} else {
-			if err = subscribe(buid, -ctx.Event.UserID); err != nil {
+			if err := subscribe(buid, -ctx.Event.UserID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 			}
 		}
 	})
-	en.OnPrefix("取消订阅").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		buid, err := strconv.ParseInt(ctx.State["args"].(string), 10, 64)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请正确输入b站的uid,它是一个数字"))
-			return
-		}
+	en.OnRegex(`^取消订阅(\d+)$`, zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		name := bdb.getBilibiliUpName(buid)
 		var status int
 		if name == "" {
 			status, name = checkBuid(buid)
 			if status != 0 {
-				msg, ok := uidErrorMsg[int(status)]
+				msg, ok := uidErrorMsg[status]
 				if !ok {
 					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
@@ -117,31 +122,27 @@ func init() {
 			}
 		}
 		if ctx.Event.GroupID != 0 {
-			if err = unsubscribe(buid, ctx.Event.GroupID); err != nil {
+			if err := unsubscribe(buid, ctx.Event.GroupID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 			}
 		} else {
-			if err = unsubscribe(buid, -ctx.Event.UserID); err != nil {
+			if err := unsubscribe(buid, -ctx.Event.UserID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 			}
 		}
 	})
-	en.OnPrefix("取消动态订阅").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		buid, err := strconv.ParseInt(ctx.State["args"].(string), 10, 64)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请正确输入b站的uid,它是一个数字"))
-			return
-		}
+	en.OnRegex(`^取消动态订阅(\d+)$`, zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		name := bdb.getBilibiliUpName(buid)
 		var status int
 		if name == "" {
 			status, name = checkBuid(buid)
 			if status != 0 {
-				msg, ok := uidErrorMsg[int(status)]
+				msg, ok := uidErrorMsg[status]
 				if !ok {
 					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
@@ -150,30 +151,26 @@ func init() {
 			}
 		}
 		if ctx.Event.GroupID != 0 {
-			if err = unsubscribeDynamic(buid, ctx.Event.GroupID); err != nil {
+			if err := unsubscribeDynamic(buid, ctx.Event.GroupID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 			}
 		} else {
-			if err = unsubscribeDynamic(buid, -ctx.Event.UserID); err != nil {
+			if err := unsubscribeDynamic(buid, -ctx.Event.UserID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 				ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 			}
 		}
 	})
-	en.OnPrefix("取消直播订阅").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		buid, err := strconv.ParseInt(ctx.State["args"].(string), 10, 64)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请正确输入b站的uid"))
-			return
-		}
+	en.OnRegex(`^取消直播订阅(\d+)$`, zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		name := bdb.getBilibiliUpName(buid)
 		var status int
 		if name == "" {
 			status, name = checkBuid(buid)
 			if status != 0 {
-				msg, ok := uidErrorMsg[int(status)]
+				msg, ok := uidErrorMsg[status]
 				if !ok {
 					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
@@ -182,13 +179,13 @@ func init() {
 			}
 		}
 		if ctx.Event.GroupID != 0 {
-			if err = unsubscribeLive(buid, ctx.Event.GroupID); err != nil {
+			if err := unsubscribeLive(buid, ctx.Event.GroupID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 			}
 		} else {
-			if err = unsubscribeLive(buid, -ctx.Event.UserID); err != nil {
+			if err := unsubscribeLive(buid, -ctx.Event.UserID); err != nil {
 				log.Errorln("[bilibilipush]:", err)
 			} else {
 				ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
@@ -207,7 +204,7 @@ func bilibiliPushDaily() {
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
-	log.Println("开启bilibilipush定时任务")
+	log.Println("开启bilibilipush推送")
 	c.Start()
 }
 
@@ -303,10 +300,9 @@ func getLiveList(uids ...int64) string {
 
 func sendDynamic() {
 	time.Sleep(time.Second * 10)
-	uids := bdb.getAllBuid()
+	uids := bdb.getAllBuidByDynamic()
 	for _, buid := range uids {
 		cardList := getUserDynamicCard(buid)
-		log.Println("已获得", len(cardList))
 		if len(cardList) == 0 {
 			return
 		}
@@ -321,15 +317,33 @@ func sendDynamic() {
 				ct := v.Get("desc.timestamp").Int()
 				log.Println(ct, t)
 				if ct > t && ct > time.Now().Unix()-600 {
-					cId := v.Get("desc.dynamic_id").String()
-					data := helper.BytesToString(getDynamicScreenshot(cId))
-					log.Println(data)
-					cType := v.Get("desc.type").Int()
-					log.Println("cType", cType)
-					cName := v.Get("desc.user_profile.info.uname").String()
-					log.Println("card", v.Get("card").String())
-					cDesc := v.Get("card.user.description").String()
-					log.Println(fmt.Sprintf("%s%s\n%s\n%s", cName, typeMsg[cType], tURL+cId, cDesc))
+					m, ok := control.Lookup(serviceName)
+					if ok {
+						groupList := bdb.getAllGroupByBuidAndDynamic(buid)
+						cId := v.Get("desc.dynamic_id").String()
+						cType := v.Get("desc.type").Int()
+						cName := v.Get("desc.user_profile.info.uname").String()
+						var msg []message.MessageSegment
+						msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
+						msg = append(msg, message.Image("base64://"+helper.BytesToString(getDynamicScreenshot(cId))))
+						msg = append(msg, message.Text("\n"+tURL+cId))
+
+						zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+							for _, gid := range groupList {
+								if m.IsEnabledIn(gid) {
+									if gid > 0 {
+										ctx.SendGroupMessage(gid, msg)
+									} else if gid < 0 {
+										ctx.SendPrivateMessage(-gid, msg)
+									} else {
+										log.Errorln("[bilibilipush]:gid为0")
+									}
+								}
+							}
+							return true
+						})
+
+					}
 				}
 			}
 		}
@@ -339,7 +353,7 @@ func sendDynamic() {
 
 func sendLive() {
 	time.Sleep(time.Second * 10)
-	uids := bdb.getAllBuid()
+	uids := bdb.getAllBuidByLive()
 	gjson.Get(getLiveList(uids...), "data").ForEach(func(key, value gjson.Result) bool {
 		newStatus := int(value.Get("live_status").Int())
 		if newStatus == 2 {
@@ -351,18 +365,38 @@ func sendLive() {
 		}
 		oldStatus := liveStatus[key.Int()]
 		if newStatus != oldStatus && newStatus == 1 {
-			roomId := value.Get("short_id").Int()
-			if roomId == 0 {
-				roomId = value.Get("room_id").Int()
+			m, ok := control.Lookup(serviceName)
+			if ok {
+				groupList := bdb.getAllGroupByBuidAndLive(key.Int())
+				roomId := value.Get("short_id").Int()
+				if roomId == 0 {
+					roomId = value.Get("room_id").Int()
+				}
+				lURL := liveURL + strconv.FormatInt(roomId, 10)
+				lName := value.Get("uname").String()
+				lTitle := value.Get("title").String()
+				lCover := value.Get("cover_from_user").String()
+				if lCover == "" {
+					lCover = value.Get("keyframe").String()
+				}
+				text := fmt.Sprintf("%s 正在直播:\n%s\n%s\n%s", lName, lTitle, lCover, lURL)
+				zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+					for _, gid := range groupList {
+						if m.IsEnabledIn(gid) {
+							if gid > 0 {
+								ctx.SendGroupMessage(gid, message.Text(text))
+							} else if gid < 0 {
+								ctx.SendPrivateMessage(-gid, message.Text(text))
+							} else {
+								log.Errorln("[bilibilipush]:gid为0")
+							}
+						}
+					}
+					return true
+				})
+
 			}
-			lURL := liveURL + strconv.FormatInt(roomId, 10)
-			lName := value.Get("uname").String()
-			lTitle := value.Get("title").String()
-			lCover := value.Get("cover_from_user").String()
-			if lCover == "" {
-				lCover = value.Get("keyframe").String()
-			}
-			fmt.Printf("%s 正在直播:\n%s\n%s\n%s", lName, lTitle, lCover, lURL)
+
 		}
 		return true
 	})
@@ -371,7 +405,6 @@ func sendLive() {
 func getDynamicScreenshot(burl string) (imageBuf []byte) {
 	// Start Chrome
 	// Remove the 2nd param if you don't need debug information logged
-	filename := burl + ".png"
 	burl = tURL + burl
 	ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithDebugf(log.Printf))
 	defer cancel()
@@ -384,12 +417,8 @@ func getDynamicScreenshot(burl string) (imageBuf []byte) {
 		chromedp.SetAttributeValue(`div.bb-comment`, "style", "display:none;", chromedp.ByQuery),
 		chromedp.Screenshot(`.card`, &imageBuf, chromedp.NodeVisible, chromedp.ByQuery),
 	}); err != nil {
-		log.Fatal(err)
+		log.Errorln("[bilibilipush]:", err)
 	}
 
-	// Write our image to file
-	if err := ioutil.WriteFile(filename, imageBuf, 0644); err != nil {
-		log.Fatal(err)
-	}
 	return imageBuf
 }

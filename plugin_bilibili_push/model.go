@@ -2,11 +2,9 @@ package bilibilipush
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite" // import sql
 	"os"
-	"reflect"
 )
 
 // bilibilipushdb bili推送数据库
@@ -75,7 +73,6 @@ func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interfa
 	bp := bilibilipush{}
 	data, _ := json.Marshal(&bpMap)
 	_ = json.Unmarshal(data, &bp)
-	fmt.Println(bp, reflect.TypeOf(bp))
 	if err = db.Debug().Model(&bilibilipush{}).First(&bp, "bilibili_uid = ? and group_id = ?", bp.BilibiliUID, bp.GroupID).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			err = db.Debug().Model(&bilibilipush{}).Create(&bp).Error
@@ -86,29 +83,52 @@ func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interfa
 	return
 }
 
-// getAllGroupByBuid 取得订阅了某up的所有群聊
-func (bdb *bilibilipushdb) getAllGroupByBuid(buid int64) (bpl []bilibilipush) {
-	db := (*gorm.DB)(bdb)
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and (live_disable = 0 or dynamic_disable = 0)", buid)
-	return
-}
-
-func (bdb *bilibilipushdb) getAllGroupByBuidAndLive(buid int64) (buidList []int64) {
+func (bdb *bilibilipushdb) getAllBuidByLive() (buidList []int64) {
 	db := (*gorm.DB)(bdb)
 	var bpl []bilibilipush
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and live_disable = 0", buid)
+	db.Debug().Model(&bilibilipush{}).Find(&bpl, "live_disable = 0")
+	temp := make(map[int64]bool)
 	for _, v := range bpl {
-		buidList = append(buidList, v.BilibiliUID)
+		_, ok := temp[v.BilibiliUID]
+		if !ok {
+			buidList = append(buidList, v.BilibiliUID)
+			temp[v.BilibiliUID] = true
+		}
 	}
 	return
 }
 
-func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (buidList []int64) {
+func (bdb *bilibilipushdb) getAllBuidByDynamic() (buidList []int64) {
+	db := (*gorm.DB)(bdb)
+	var bpl []bilibilipush
+	db.Debug().Model(&bilibilipush{}).Find(&bpl, "dynamic_disable = 0")
+	temp := make(map[int64]bool)
+	for _, v := range bpl {
+		_, ok := temp[v.BilibiliUID]
+		if !ok {
+			buidList = append(buidList, v.BilibiliUID)
+			temp[v.BilibiliUID] = true
+		}
+	}
+	return
+}
+
+func (bdb *bilibilipushdb) getAllGroupByBuidAndLive(buid int64) (groupList []int64) {
+	db := (*gorm.DB)(bdb)
+	var bpl []bilibilipush
+	db.Debug().Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and live_disable = 0", buid)
+	for _, v := range bpl {
+		groupList = append(groupList, v.GroupID)
+	}
+	return
+}
+
+func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (groupList []int64) {
 	db := (*gorm.DB)(bdb)
 	var bpl []bilibilipush
 	db.Debug().Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and dynamic_disable = 0", buid)
 	for _, v := range bpl {
-		buidList = append(buidList, v.BilibiliUID)
+		groupList = append(groupList, v.GroupID)
 	}
 	return
 }
