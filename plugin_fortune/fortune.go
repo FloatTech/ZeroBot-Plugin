@@ -7,14 +7,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"image"
-	"io"
 	"math/rand"
 	"os"
 	"strconv"
 	"sync"
 	"time"
 
-	"github.com/fogleman/gg"
+	"github.com/fogleman/gg" // 注册了 jpg png gif
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -24,7 +23,6 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/txt2img"
 )
 
 var (
@@ -154,17 +152,8 @@ func init() {
 			}
 
 			dlmu.Lock()
-			f, err := os.Create(cachefile)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				_ = f.Close()
-				_ = os.Remove(cachefile)
-				dlmu.Unlock()
-				return
-			}
 			// 绘制背景
-			err = draw(background, title, text, f)
-			_ = f.Close()
+			err = draw(background, title, text, cachefile)
 			dlmu.Unlock()
 
 			if err != nil {
@@ -216,23 +205,22 @@ func randtext(seed int64) (string, string, error) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, text string, dst io.Writer) error {
-	var txtc txt2img.TxtCanvas
-	txtc.Canvas = gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
-	txtc.Canvas.DrawImage(back, 0, 0)
+func draw(back image.Image, title, text, cachefile string) error {
+	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
+	canvas.DrawImage(back, 0, 0)
 	// 写标题
-	txtc.Canvas.SetRGB(1, 1, 1)
-	if err := txtc.Canvas.LoadFontFace(font, 45); err != nil {
+	canvas.SetRGB(1, 1, 1)
+	if err := canvas.LoadFontFace(font, 45); err != nil {
 		return err
 	}
-	sw, _ := txtc.Canvas.MeasureString(title)
-	txtc.Canvas.DrawString(title, 140-sw/2, 112)
+	sw, _ := canvas.MeasureString(title)
+	canvas.DrawString(title, 140-sw/2, 112)
 	// 写正文
-	txtc.Canvas.SetRGB(0, 0, 0)
-	if err := txtc.Canvas.LoadFontFace(font, 23); err != nil {
+	canvas.SetRGB(0, 0, 0)
+	if err := canvas.LoadFontFace(font, 23); err != nil {
 		return err
 	}
-	tw, th := txtc.Canvas.MeasureString("测")
+	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
 	r := []rune(text)
 	xsum := rowsnum(len(r), 9)
@@ -242,7 +230,7 @@ func draw(back image.Image, title, text string, dst io.Writer) error {
 			xnow := rowsnum(i+1, 9)
 			ysum := math.Min(len(r)-(xnow-1)*9, 9)
 			ynow := i%9 + 1
-			txtc.Canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(ysum, ynow, th)+320.0)
+			canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(ysum, ynow, th)+320.0)
 		}
 	case 2:
 		div := rowsnum(len(r), 2)
@@ -252,14 +240,13 @@ func draw(back image.Image, title, text string, dst io.Writer) error {
 			ynow := i%div + 1
 			switch xnow {
 			case 1:
-				txtc.Canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow, th)+320.0)
+				canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow, th)+320.0)
 			case 2:
-				txtc.Canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow+(9-ysum), th)+320.0)
+				canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow+(9-ysum), th)+320.0)
 			}
 		}
 	}
-	_, err := txtc.WriteTo(dst)
-	return err
+	return canvas.SavePNG(cachefile)
 }
 
 func offest(total, now int, distance float64) float64 {
