@@ -154,12 +154,14 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 搜图[P站图片ID]
 - **搜番** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_tracemoe"`
     - [x] 搜番|搜索番剧[图片]
-- **随机图片与AI点评** `github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage`
+- **随机图片与AI点评** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
     - [x] 设置随机图片网址[url]
     - [x] 太涩了(撤回最近发的图)
     - [x] 评价图片(发送一张图片让bot评分)
+- **DeepDanbooru二次元图标签识别** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_danbooru`
+    - [x] 鉴赏图片[图片]
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_fortune`
     - [x] 运势|抽签
     - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]

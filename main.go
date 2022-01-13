@@ -58,6 +58,7 @@ import (
 	// 二次元图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"      // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"        // 随机老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_danbooru"      // d
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"  // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"    // 本地涩图
