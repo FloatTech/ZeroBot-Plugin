@@ -10,7 +10,6 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/fogleman/gg" // 注册了 jpg png gif
@@ -40,8 +39,6 @@ var (
 	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师"}
 	// 映射底图与 index
 	index = make(map[string]uint8)
-	// 下载锁
-	dlmu sync.Mutex
 	// 签文
 	omikujis []map[string]string
 )
@@ -158,10 +155,8 @@ func init() {
 				_ = os.Remove(cachefile)
 				fallthrough
 			case false:
-				dlmu.Lock()
 				// 绘制背景
 				data, err = draw(background, title, text)
-				dlmu.Unlock()
 			}
 
 			if err != nil {
