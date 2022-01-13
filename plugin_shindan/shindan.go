@@ -52,7 +52,7 @@ func handle(ctx *zero.Ctx) {
 	// TODO: 可注入
 	switch ctx.State["id"].(int64) {
 	case 587874, 162207:
-		data, err := txt2img.RenderToBase64(text, 40, 20)
+		data, err := txt2img.RenderToBase64(text, txt2img.FontFile, 400, 20)
 		if err != nil {
 			log.Errorln("[shindan]:", err)
 		}

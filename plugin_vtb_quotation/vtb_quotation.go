@@ -47,7 +47,7 @@ func init() {
 			}
 			defer db.Close()
 			defer cancel()
-			firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), 40, 20)
+			firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), txt2img.FontFile, 400, 20)
 			if err != nil {
 				log.Errorln("[vtb]:", err)
 			}
@@ -79,7 +79,7 @@ func init() {
 							// log.Println(secondStepMessage)
 							if secondStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), 40, 20)
+								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), txt2img.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -88,7 +88,7 @@ func init() {
 								}
 								errorCount++
 							} else {
-								secondStepMessageBytes, err := txt2img.RenderToBase64(secondStepMessage, 40, 20)
+								secondStepMessageBytes, err := txt2img.RenderToBase64(secondStepMessage, txt2img.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -110,7 +110,7 @@ func init() {
 							// log.Println(thirdStepMessage)
 							if thirdStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								secondStepMessageBytes, err := txt2img.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), 40, 20)
+								secondStepMessageBytes, err := txt2img.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), txt2img.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -119,7 +119,7 @@ func init() {
 								}
 								errorCount++
 							} else {
-								thirdStepMessageBytes, err := txt2img.RenderToBase64(thirdStepMessage, 40, 20)
+								thirdStepMessageBytes, err := txt2img.RenderToBase64(thirdStepMessage, txt2img.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -142,7 +142,7 @@ func init() {
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), 40, 20)
+								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), txt2img.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}

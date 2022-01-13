@@ -40,7 +40,7 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetPriority(10).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			kujiBytes, err := txt2img.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), 40, 20)
+			kujiBytes, err := txt2img.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), txt2img.FontFile, 400, 20)
 			if err != nil {
 				log.Errorln("[omikuji]:", err)
 			}
