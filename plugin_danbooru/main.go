@@ -19,6 +19,7 @@ import (
 const cachefile = "data/danbooru/"
 
 func init() { // 插件主体
+	_ = os.RemoveAll(cachefile)
 	err := os.MkdirAll(cachefile, 0755)
 	if err != nil {
 		panic(err)
