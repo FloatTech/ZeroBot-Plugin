@@ -76,7 +76,7 @@ func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 	if err = db.Debug().Model(&scoretable{}).First(&s, "uid = ? ", uid).Error; err != nil {
 		// error handling...
 		if gorm.IsRecordNotFoundError(err) {
-			db.Debug().Model(&scoretable{}).Create(&s) // newUser not user
+			err = db.Debug().Model(&scoretable{}).Create(&s).Error // newUser not user
 		}
 	} else {
 		err = db.Debug().Model(&scoretable{}).Where("uid = ? ", uid).Update(
