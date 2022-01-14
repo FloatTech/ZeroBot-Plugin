@@ -410,7 +410,7 @@ func sendLive() {
 					return true
 				})
 			}
-		} else {
+		} else if newStatus != oldStatus {
 			liveStatus[key.Int()] = newStatus
 		}
 		return true
