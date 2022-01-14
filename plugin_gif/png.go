@@ -1,4 +1,4 @@
-package plugin_gif
+package gif
 
 import (
 	"image"
@@ -39,28 +39,31 @@ func (cc *context) other(value ...string) string {
 	// 加载图片
 	im := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	var a *image.NRGBA
-	if value[0] == "上翻" || value[0] == "下翻" {
+
+	switch value[0] {
+	case "上翻", "下翻":
 		a = im.FlipV().Im
-	} else if value[0] == "左翻" || value[0] == "右翻" {
+	case "左翻", "右翻":
 		a = im.FlipH().Im
-	} else if value[0] == "反色" {
+	case "反色":
 		a = im.Invert().Im
-	} else if value[0] == "灰度" {
+	case "灰度":
 		a = im.Grayscale().Im
-	} else if value[0] == "负片" {
+	case "负片":
 		a = im.Invert().Grayscale().Im
-	} else if value[0] == "浮雕" {
+	case "浮雕":
 		a = im.Convolve3x3().Im
-	} else if value[0] == "打码" {
+	case "打码":
 		a = im.Blur(10).Im
-	} else if value[0] == "旋转" {
+	case "旋转":
 		r, _ := strconv.ParseFloat(value[1], 64)
 		a = img.Rotate(im.Im, r, 0, 0).Im
-	} else if value[0] == "变形" {
+	case "变形":
 		w, _ := strconv.Atoi(value[1])
 		h, _ := strconv.Atoi(value[2])
 		a = img.Size(im.Im, w, h).Im
 	}
+
 	_ = img.SavePng(a, name)
 	return "file:///" + name
 }

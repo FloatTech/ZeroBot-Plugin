@@ -1,4 +1,4 @@
-package plugin_gif
+package gif
 
 import (
 	"os"
@@ -33,11 +33,11 @@ func dlblock(name string) string {
 	return target
 }
 
-func dlrange(prefix string, suffix string, end int) *[]chan *string {
+func dlrange(prefix string, end int) *[]chan *string {
 	c := make([]chan *string, end)
 	for i := range c {
 		c[i] = make(chan *string)
-		go dlchan(prefix+strconv.Itoa(i)+suffix, &c[i])
+		go dlchan(prefix+"/"+strconv.Itoa(i)+".png", &c[i])
 	}
 	return &c
 }
