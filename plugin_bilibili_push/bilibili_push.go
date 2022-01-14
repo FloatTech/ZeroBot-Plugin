@@ -7,11 +7,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/txt2img"
 	"github.com/FloatTech/zbputils/web"
 	"github.com/chromedp/chromedp"
-	"github.com/fumiama/cron"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -59,7 +59,7 @@ var (
 )
 
 func init() {
-	bilibiliPushDaily()
+	go bilibiliPushDaily()
 	en := control.Register(serviceName, &control.Options{
 		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
@@ -70,7 +70,7 @@ func init() {
 			"- 推送列表",
 	})
 
-	en.OnRegex(`^添加订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -97,7 +97,7 @@ func init() {
 		}
 
 	})
-	en.OnRegex(`^取消订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -124,7 +124,7 @@ func init() {
 		}
 
 	})
-	en.OnRegex(`^取消动态订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消动态订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -151,7 +151,7 @@ func init() {
 		}
 
 	})
-	en.OnRegex(`^取消直播订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消直播订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -178,7 +178,7 @@ func init() {
 		}
 
 	})
-	en.OnFullMatch("推送列表", userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("推送列表", ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
@@ -216,25 +216,14 @@ func init() {
 	})
 }
 
-func userOrGrpAdmin(ctx *zero.Ctx) bool {
-	if zero.OnlyGroup(ctx) {
-		return zero.AdminPermission(ctx)
-	}
-	return zero.OnlyToMe(ctx)
-}
-
 func bilibiliPushDaily() {
-	c := cron.New()
-	_, err := c.AddFunc("* * * * *", sendDynamic)
-	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
+	t := time.NewTicker(time.Second * 10)
+	defer t.Stop()
+	for range t.C {
+		log.Println("-----bilibilipush拉取推送信息-----")
+		sendDynamic()
+		sendLive()
 	}
-	_, err = c.AddFunc("* * * * *", sendLive)
-	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
-	}
-	log.Println("开启bilibilipush推送")
-	c.Start()
 }
 
 func checkBuid(buid int64) (status int, name string) {
@@ -339,20 +328,17 @@ func sendDynamic() {
 			lastTime[buid] = cardList[0].Get("desc.timestamp").Int()
 			return
 		} else {
-			for i, v := range cardList {
-				if i >= 5 {
-					break
-				}
-				ct := v.Get("desc.timestamp").Int()
+			for i := len(cardList) - 1; i >= 0; i-- {
+				ct := cardList[i].Get("desc.timestamp").Int()
 				log.Println(ct, t)
 				if ct > t && ct > time.Now().Unix()-600 {
 					lastTime[buid] = ct
 					m, ok := control.Lookup(serviceName)
 					if ok {
 						groupList := bdb.getAllGroupByBuidAndDynamic(buid)
-						cId := v.Get("desc.dynamic_id").String()
-						cType := v.Get("desc.type").Int()
-						cName := v.Get("desc.user_profile.info.uname").String()
+						cId := cardList[i].Get("desc.dynamic_id").String()
+						cType := cardList[i].Get("desc.type").Int()
+						cName := cardList[i].Get("desc.user_profile.info.uname").String()
 						screenshotFile := cachePath + cId + ".png"
 						initDynamicScreenshot(cId)
 						var msg []message.MessageSegment

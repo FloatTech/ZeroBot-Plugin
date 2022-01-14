@@ -22,7 +22,7 @@ func init() {
 		_ = os.MkdirAll(dbpath, 0755)
 		os.RemoveAll(cachePath)
 		_ = os.MkdirAll(cachePath, 0755)
-		bdb = Initialize(dbfile)
+		bdb = initialize(dbfile)
 		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()
 }

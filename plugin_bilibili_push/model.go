@@ -33,8 +33,8 @@ func (bilibiliup) TableName() string {
 	return "bilibili_up"
 }
 
-// Initialize 初始化ScoreDB数据库
-func Initialize(dbpath string) *bilibilipushdb {
+// initialize 初始化ScoreDB数据库
+func initialize(dbpath string) *bilibilipushdb {
 	var err error
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
@@ -52,8 +52,8 @@ func Initialize(dbpath string) *bilibilipushdb {
 	return (*bilibilipushdb)(gdb)
 }
 
-// Open ...
-func Open(dbpath string) (*bilibilipushdb, error) {
+// open ...
+func open(dbpath string) (*bilibilipushdb, error) {
 	db, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func Open(dbpath string) (*bilibilipushdb, error) {
 	return (*bilibilipushdb)(db), nil
 }
 
-// Close ...
-func (bdb *bilibilipushdb) Close() error {
+// close ...
+func (bdb *bilibilipushdb) close() error {
 	db := (*gorm.DB)(bdb)
 	return db.Close()
 }
@@ -133,9 +133,9 @@ func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (groupList []
 	return
 }
 
-func (bdb *bilibilipushdb) getAllPushByGroup(groupId int64) (bpl []bilibilipush) {
+func (bdb *bilibilipushdb) getAllPushByGroup(groupID int64) (bpl []bilibilipush) {
 	db := (*gorm.DB)(bdb)
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "group_id = ? and (live_disable = 0 or dynamic_disable = 0)", groupId)
+	db.Debug().Model(&bilibilipush{}).Find(&bpl, "group_id = ? and (live_disable = 0 or dynamic_disable = 0)", groupID)
 	return
 }
 
@@ -146,13 +146,6 @@ func (bdb *bilibilipushdb) insertBilibiliUp(buid int64, name string) {
 		Name:        name,
 	}
 	db.Debug().Model(&bilibiliup{}).Create(bu)
-}
-
-func (bdb *bilibilipushdb) getBilibiliUpName(buid int64) string {
-	db := (*gorm.DB)(bdb)
-	bu := bilibiliup{}
-	db.Debug().Model(&bilibiliup{}).First(&bu, "bilibili_uid = ?", buid)
-	return bu.Name
 }
 
 func (bdb *bilibilipushdb) updateAllUp() {
