@@ -7,14 +7,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"image"
-	"io"
 	"math/rand"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
-	"github.com/fogleman/gg"
+	"github.com/fogleman/gg" // 注册了 jpg png gif
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -41,8 +39,6 @@ var (
 	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师"}
 	// 映射底图与 index
 	index = make(map[string]uint8)
-	// 下载锁
-	dlmu sync.Mutex
 	// 签文
 	omikujis []map[string]string
 )
@@ -148,31 +144,28 @@ func init() {
 
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
-			if file.IsExist(cachefile) {
-				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
-				return
-			}
 
-			dlmu.Lock()
-			f, err := os.Create(cachefile)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				_ = f.Close()
+			var data []byte
+			switch file.IsExist(cachefile) {
+			case true:
+				data, err = os.ReadFile(cachefile)
+				if err == nil {
+					break
+				}
 				_ = os.Remove(cachefile)
-				dlmu.Unlock()
-				return
+				fallthrough
+			case false:
+				// 绘制背景
+				data, err = draw(background, title, text)
 			}
-			// 绘制背景
-			err = draw(background, title, text, f)
-			_ = f.Close()
-			dlmu.Unlock()
 
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			_ = os.WriteFile(cachefile, data, 0644)
 			// 发送图片
-			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
+			ctx.SendChain(message.Image("base64://" + helper.BytesToString(data)))
 		})
 }
 
@@ -216,23 +209,22 @@ func randtext(seed int64) (string, string, error) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, text string, dst io.Writer) error {
-	var txtc txt2img.TxtCanvas
-	txtc.Canvas = gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
-	txtc.Canvas.DrawImage(back, 0, 0)
+func draw(back image.Image, title, text string) ([]byte, error) {
+	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
+	canvas.DrawImage(back, 0, 0)
 	// 写标题
-	txtc.Canvas.SetRGB(1, 1, 1)
-	if err := txtc.Canvas.LoadFontFace(font, 45); err != nil {
-		return err
+	canvas.SetRGB(1, 1, 1)
+	if err := canvas.LoadFontFace(font, 45); err != nil {
+		return nil, err
 	}
-	sw, _ := txtc.Canvas.MeasureString(title)
-	txtc.Canvas.DrawString(title, 140-sw/2, 112)
+	sw, _ := canvas.MeasureString(title)
+	canvas.DrawString(title, 140-sw/2, 112)
 	// 写正文
-	txtc.Canvas.SetRGB(0, 0, 0)
-	if err := txtc.Canvas.LoadFontFace(font, 23); err != nil {
-		return err
+	canvas.SetRGB(0, 0, 0)
+	if err := canvas.LoadFontFace(font, 23); err != nil {
+		return nil, err
 	}
-	tw, th := txtc.Canvas.MeasureString("测")
+	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
 	r := []rune(text)
 	xsum := rowsnum(len(r), 9)
@@ -242,7 +234,7 @@ func draw(back image.Image, title, text string, dst io.Writer) error {
 			xnow := rowsnum(i+1, 9)
 			ysum := math.Min(len(r)-(xnow-1)*9, 9)
 			ynow := i%9 + 1
-			txtc.Canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(ysum, ynow, th)+320.0)
+			canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(ysum, ynow, th)+320.0)
 		}
 	case 2:
 		div := rowsnum(len(r), 2)
@@ -252,14 +244,13 @@ func draw(back image.Image, title, text string, dst io.Writer) error {
 			ynow := i%div + 1
 			switch xnow {
 			case 1:
-				txtc.Canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow, th)+320.0)
+				canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow, th)+320.0)
 			case 2:
-				txtc.Canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow+(9-ysum), th)+320.0)
+				canvas.DrawString(string(o), -offest(xsum, xnow, tw)+115, offest(9, ynow+(9-ysum), th)+320.0)
 			}
 		}
 	}
-	_, err := txtc.WriteTo(dst)
-	return err
+	return txt2img.TxtCanvas{Canvas: canvas}.ToBase64()
 }
 
 func offest(total, now int, distance float64) float64 {

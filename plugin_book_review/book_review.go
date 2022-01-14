@@ -21,7 +21,7 @@ func init() {
 	engine.OnRegex("^书评([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
-			data, err := txt2img.RenderToBase64(b.BookReview, 40, 20)
+			data, err := txt2img.RenderToBase64(b.BookReview, txt2img.FontFile, 400, 20)
 			if err != nil {
 				log.Println("err:", err)
 			}
@@ -33,7 +33,7 @@ func init() {
 	engine.OnFullMatch("随机书评").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			br := getRandomBookReview()
-			data, err := txt2img.RenderToBase64(br.BookReview, 40, 20)
+			data, err := txt2img.RenderToBase64(br.BookReview, txt2img.FontFile, 400, 20)
 			if err != nil {
 				log.Println("err:", err)
 			}

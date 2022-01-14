@@ -3,7 +3,6 @@ package nativesetu
 import (
 	"bytes"
 	"image"
-	"io"
 	"io/fs"
 	"os"
 	"sync"
@@ -11,7 +10,7 @@ import (
 	"github.com/corona10/goimagehash"
 	"github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"golang.org/x/image/webp"
+	_ "golang.org/x/image/webp"
 
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
@@ -105,10 +104,6 @@ func scanclass(root fs.FS, path, clsn string) error {
 			}
 			b := bytes.NewReader(f)
 			img, _, e := image.Decode(b)
-			if e != nil {
-				b.Seek(0, io.SeekStart)
-				img, e = webp.Decode(b)
-			}
 			if e != nil {
 				return e
 			}

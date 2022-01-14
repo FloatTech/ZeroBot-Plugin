@@ -37,10 +37,11 @@ func init() { // 插件主体
 			// 回复
 			time.Sleep(time.Second * 1)
 			if ctx.Event.MessageType == "group" {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), reply)
+				reply = append(reply, message.Reply(ctx.Event.MessageID))
+				ctx.Send(reply)
 				return
 			}
-			ctx.SendChain(reply)
+			ctx.Send(reply)
 		})
 	engine.OnPrefix(`设置回复模式`).SetBlock(true).SetPriority(20).
 		Handle(func(ctx *zero.Ctx) {

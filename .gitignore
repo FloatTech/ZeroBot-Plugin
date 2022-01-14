@@ -1,15 +1,3 @@
-data/SetuTime/cache
-data/control
-data/SetuTime/search
-data/manager
-data/acgimage
-data/saucenao
-data/fortune
-data/hs
-data/nsetu
-data/nwife
-data/sleep
-data/score
 plugins/*.so
 plugins/*.dll
 .idea/
