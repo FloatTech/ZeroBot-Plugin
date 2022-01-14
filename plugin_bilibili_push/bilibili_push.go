@@ -329,7 +329,6 @@ func getLiveList(uids ...int64) string {
 }
 
 func sendDynamic() {
-	time.Sleep(time.Second * 10)
 	uids := bdb.getAllBuidByDynamic()
 	for _, buid := range uids {
 		cardList := getUserDynamicCard(buid)
@@ -385,7 +384,6 @@ func sendDynamic() {
 }
 
 func sendLive() {
-	time.Sleep(time.Second * 10)
 	uids := bdb.getAllBuidByLive()
 	gjson.Get(getLiveList(uids...), "data").ForEach(func(key, value gjson.Result) bool {
 		newStatus := int(value.Get("live_status").Int())
