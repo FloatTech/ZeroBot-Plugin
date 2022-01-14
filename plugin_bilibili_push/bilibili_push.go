@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
 	"github.com/chromedp/chromedp"
 	"github.com/fumiama/cron"
@@ -16,6 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -64,20 +66,43 @@ func init() {
 			"- 取消动态订阅[uid]\n" +
 			"- 取消直播订阅[uid]\n",
 	})
-	en.OnRegex(`^添加订阅(\d+)$`, zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		m, ok := control.Lookup(serviceName)
-		if ok {
+	en.OnFullMatch("添加b站推送", zero.AdminPermission).SetBlock(true).SetPriority(prio).
+		Handle(func(ctx *zero.Ctx) {
+			m, ok := control.Lookup(serviceName)
 			if ok {
-				if m.IsEnabledIn(ctx.Event.GroupID) {
+				gid := ctx.Event.GroupID
+				if gid == 0 {
+					gid = -ctx.Event.UserID
+				}
+				if m.IsEnabledIn(gid) {
 					ctx.Send(message.Text("已启用！"))
 				} else {
-					m.Enable(ctx.Event.GroupID)
+					m.Enable(gid)
 					ctx.Send(message.Text("添加成功！"))
 				}
 			} else {
 				ctx.Send(message.Text("找不到该服务！"))
 			}
-		}
+		})
+	en.OnFullMatch("删除b站推送", zero.AdminPermission).SetBlock(true).SetPriority(prio).
+		Handle(func(ctx *zero.Ctx) {
+			m, ok := control.Lookup(serviceName)
+			if ok {
+				gid := ctx.Event.GroupID
+				if gid == 0 {
+					gid = -ctx.Event.UserID
+				}
+				if m.IsEnabledIn(gid) {
+					m.Disable(gid)
+					ctx.Send(message.Text("删除成功！"))
+				} else {
+					ctx.Send(message.Text("未启用！"))
+				}
+			} else {
+				ctx.Send(message.Text("找不到该服务！"))
+			}
+		})
+	en.OnRegex(`^添加订阅(\d+)$`, zero.AdminPermission).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		name := bdb.getBilibiliUpName(buid)
 		var status int
@@ -323,10 +348,12 @@ func sendDynamic() {
 						cId := v.Get("desc.dynamic_id").String()
 						cType := v.Get("desc.type").Int()
 						cName := v.Get("desc.user_profile.info.uname").String()
+						screenshotFile := cachePath + cId + ".png"
+						initDynamicScreenshot(cId)
 						var msg []message.MessageSegment
-						msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
-						msg = append(msg, message.Image("base64://"+helper.BytesToString(getDynamicScreenshot(cId))))
-						msg = append(msg, message.Text("\n"+tURL+cId))
+						msg = append(msg, message.Text(cName+typeMsg[cType]))
+						msg = append(msg, message.Image("file:///"+file.BOTPATH+"/"+screenshotFile))
+						msg = append(msg, message.Text(tURL+cId))
 
 						zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 							for _, gid := range groupList {
@@ -364,7 +391,9 @@ func sendLive() {
 			return true
 		}
 		oldStatus := liveStatus[key.Int()]
+		log.Println("newStatus:", newStatus, "oldStatus", oldStatus)
 		if newStatus != oldStatus && newStatus == 1 {
+			liveStatus[key.Int()] = newStatus
 			m, ok := control.Lookup(serviceName)
 			if ok {
 				groupList := bdb.getAllGroupByBuidAndLive(key.Int())
@@ -402,23 +431,25 @@ func sendLive() {
 	})
 }
 
-func getDynamicScreenshot(burl string) (imageBuf []byte) {
-	// Start Chrome
-	// Remove the 2nd param if you don't need debug information logged
-	burl = tURL + burl
-	ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithDebugf(log.Printf))
-	defer cancel()
+func initDynamicScreenshot(dynamicId string) {
+	screenshotFile := cachePath + dynamicId + ".png"
+	if file.IsNotExist(screenshotFile) {
+		var imageBuf []byte
+		dynamicURL := tURL + dynamicId
+		ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithDebugf(log.Printf))
+		defer cancel()
 
-	// Run Tasks
-	// List of actions to run in sequence (which also fills our image buffer)
-	if err := chromedp.Run(ctx, chromedp.Tasks{
-		chromedp.Navigate(burl),
-		chromedp.SetAttributeValue(`div.unlogin-popover-avatar`, "style", "display:none;", chromedp.ByQuery),
-		chromedp.SetAttributeValue(`div.bb-comment`, "style", "display:none;", chromedp.ByQuery),
-		chromedp.Screenshot(`.card`, &imageBuf, chromedp.NodeVisible, chromedp.ByQuery),
-	}); err != nil {
-		log.Errorln("[bilibilipush]:", err)
+		if err := chromedp.Run(ctx, chromedp.Tasks{
+			chromedp.Navigate(dynamicURL),
+			chromedp.SetAttributeValue(`div.unlogin-popover-avatar`, "style", "display:none;", chromedp.ByQuery),
+			chromedp.SetAttributeValue(`div.bb-comment`, "style", "display:none;", chromedp.ByQuery),
+			chromedp.Screenshot(`.card`, &imageBuf, chromedp.NodeVisible, chromedp.ByQuery),
+		}); err != nil {
+			log.Errorln("[bilibilipush]:", err)
+		}
+
+		if err := ioutil.WriteFile(screenshotFile, imageBuf, 0644); err != nil {
+			log.Errorln("[bilibilipush]:", err)
+		}
 	}
-
-	return imageBuf
 }

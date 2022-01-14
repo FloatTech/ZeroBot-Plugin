@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	dbpath = "data/bilibilipush/"
-	dbfile = dbpath + "push.db"
+	cachePath = dbpath + "cache/"
+	dbpath    = "data/bilibilipush/"
+	dbfile    = dbpath + "push.db"
 )
 
 // bdb bilibili推送数据库
