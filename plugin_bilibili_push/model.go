@@ -53,21 +53,6 @@ func initialize(dbpath string) *bilibilipushdb {
 	return (*bilibilipushdb)(gdb)
 }
 
-// open ...
-func open(dbpath string) (*bilibilipushdb, error) {
-	db, err := gorm.Open("sqlite3", dbpath)
-	if err != nil {
-		return nil, err
-	}
-	return (*bilibilipushdb)(db), nil
-}
-
-// close ...
-func (bdb *bilibilipushdb) close() error {
-	db := (*gorm.DB)(bdb)
-	return db.Close()
-}
-
 // insertOrUpdateLiveAndDynamic 插入或更新数据库
 func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interface{}) (err error) {
 	db := (*gorm.DB)(bdb)
