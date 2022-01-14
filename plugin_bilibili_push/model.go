@@ -133,6 +133,12 @@ func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (groupList []
 	return
 }
 
+func (bdb *bilibilipushdb) getAllPushByGroup(groupId int64) (bpl []bilibilipush) {
+	db := (*gorm.DB)(bdb)
+	db.Debug().Model(&bilibilipush{}).Find(&bpl, "group_id = ? and (live_disable = 0 or dynamic_disable = 0)", groupId)
+	return
+}
+
 func (bdb *bilibilipushdb) insertBilibiliUp(buid int64, name string) {
 	db := (*gorm.DB)(bdb)
 	bu := bilibiliup{
@@ -149,12 +155,11 @@ func (bdb *bilibilipushdb) getBilibiliUpName(buid int64) string {
 	return bu.Name
 }
 
-func (bdb *bilibilipushdb) getAllBuid() (buidList []int64) {
+func (bdb *bilibilipushdb) updateAllUp() {
 	db := (*gorm.DB)(bdb)
 	var bul []bilibiliup
 	db.Debug().Model(&bilibiliup{}).Find(&bul)
 	for _, v := range bul {
-		buidList = append(buidList, v.BilibiliUID)
+		upMap[v.BilibiliUID] = v.Name
 	}
-	return
 }
