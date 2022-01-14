@@ -331,7 +331,6 @@ func sendDynamic() {
 		}
 		for i := len(cardList) - 1; i >= 0; i-- {
 			ct := cardList[i].Get("desc.timestamp").Int()
-			log.Println(ct, t)
 			if ct > t && ct > time.Now().Unix()-600 {
 				lastTime[buid] = ct
 				m, ok := control.Lookup(serviceName)
@@ -382,7 +381,6 @@ func sendLive() {
 			return true
 		}
 		oldStatus := liveStatus[key.Int()]
-		log.Println("newStatus:", newStatus, "oldStatus", oldStatus)
 		if newStatus != oldStatus && newStatus == 1 {
 			liveStatus[key.Int()] = newStatus
 			m, ok := control.Lookup(serviceName)
