@@ -345,11 +345,12 @@ func sendDynamic() {
 					zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 						for _, gid := range groupList {
 							if m.IsEnabledIn(gid) {
-								if gid > 0 {
+								switch {
+								case gid > 0:
 									ctx.SendGroupMessage(gid, msg)
-								} else if gid < 0 {
+								case gid < 0:
 									ctx.SendPrivateMessage(-gid, msg)
-								} else {
+								default:
 									log.Errorln("[bilibilipush]:gid为0")
 								}
 							}
@@ -398,11 +399,12 @@ func sendLive() {
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 					for _, gid := range groupList {
 						if m.IsEnabledIn(gid) {
-							if gid > 0 {
+							switch {
+							case gid > 0:
 								ctx.SendGroupMessage(gid, msg)
-							} else if gid < 0 {
+							case gid < 0:
 								ctx.SendPrivateMessage(-gid, msg)
-							} else {
+							default:
 								log.Errorln("[bilibilipush]:gid为0")
 							}
 						}
