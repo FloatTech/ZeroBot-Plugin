@@ -65,207 +65,154 @@ func init() {
 			"- 添加订阅[uid]\n" +
 			"- 取消订阅[uid]\n" +
 			"- 取消动态订阅[uid]\n" +
-			"- 取消直播订阅[uid]\n",
+			"- 取消直播订阅[uid]\n" +
+			"- 推送列表",
 	})
-	en.OnFullMatch("添加b站推送", userOrGrpAdmin).SetBlock(true).SetPriority(prio).
-		Handle(func(ctx *zero.Ctx) {
-			m, ok := control.Lookup(serviceName)
-			if ok {
-				gid := ctx.Event.GroupID
-				if gid == 0 {
-					gid = -ctx.Event.UserID
-				}
-				if m.IsEnabledIn(gid) {
-					ctx.Send(message.Text("已启用！"))
-				} else {
-					m.Enable(gid)
-					ctx.Send(message.Text("添加成功！"))
-				}
-			} else {
-				ctx.Send(message.Text("找不到该服务！"))
-			}
-		})
-	en.OnFullMatch("删除b站推送", userOrGrpAdmin).SetBlock(true).SetPriority(prio).
-		Handle(func(ctx *zero.Ctx) {
-			m, ok := control.Lookup(serviceName)
-			if ok {
-				gid := ctx.Event.GroupID
-				if gid == 0 {
-					gid = -ctx.Event.UserID
-				}
-				if m.IsEnabledIn(gid) {
-					m.Disable(gid)
-					ctx.Send(message.Text("删除成功！"))
-				} else {
-					ctx.Send(message.Text("未启用！"))
-				}
-			} else {
-				ctx.Send(message.Text("找不到该服务！"))
-			}
-		})
-	en.OnRegex(`^添加订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		_, ok := control.Lookup(serviceName)
-		if ok {
-			buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			var name string
-			if name, ok = upMap[buid]; !ok {
-				var status int
-				status, name = checkBuid(buid)
-				if status != 0 {
-					msg, ok := uidErrorMsg[status]
-					if !ok {
-						msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
-					}
-					ctx.SendChain(message.Text(msg))
-					return
-				}
-			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			if err := subscribe(buid, gid); err != nil {
-				log.Errorln("[bilibilipush]:", err)
-			} else {
-				ctx.SendChain(message.Text("已添加" + name + "的订阅"))
-			}
 
-		} else {
-			ctx.Send(message.Text("找不到该服务！"))
+	en.OnRegex(`^添加订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		var name string
+		var ok bool
+		if name, ok = upMap[buid]; !ok {
+			var status int
+			status, name = checkBuid(buid)
+			if status != 0 {
+				msg, ok := uidErrorMsg[status]
+				if !ok {
+					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
+				}
+				ctx.SendChain(message.Text(msg))
+				return
+			}
 		}
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		if err := subscribe(buid, gid); err != nil {
+			log.Errorln("[bilibilipush]:", err)
+		} else {
+			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
+		}
+
 	})
 	en.OnRegex(`^取消订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		_, ok := control.Lookup(serviceName)
-		if ok {
-			buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			var name string
-			if name, ok = upMap[buid]; !ok {
-				var status int
-				status, name = checkBuid(buid)
-				if status != 0 {
-					msg, ok := uidErrorMsg[status]
-					if !ok {
-						msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
-					}
-					ctx.SendChain(message.Text(msg))
-					return
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		var name string
+		var ok bool
+		if name, ok = upMap[buid]; !ok {
+			var status int
+			status, name = checkBuid(buid)
+			if status != 0 {
+				msg, ok := uidErrorMsg[status]
+				if !ok {
+					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
+				ctx.SendChain(message.Text(msg))
+				return
 			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			if err := unsubscribe(buid, gid); err != nil {
-				log.Errorln("[bilibilipush]:", err)
-			} else {
-				ctx.SendChain(message.Text("已取消" + name + "的订阅"))
-			}
-
-		} else {
-			ctx.Send(message.Text("找不到该服务！"))
 		}
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		if err := unsubscribe(buid, gid); err != nil {
+			log.Errorln("[bilibilipush]:", err)
+		} else {
+			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
+		}
+
 	})
 	en.OnRegex(`^取消动态订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		_, ok := control.Lookup(serviceName)
-		if ok {
-			buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			var name string
-			if name, ok = upMap[buid]; !ok {
-				var status int
-				status, name = checkBuid(buid)
-				if status != 0 {
-					msg, ok := uidErrorMsg[status]
-					if !ok {
-						msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
-					}
-					ctx.SendChain(message.Text(msg))
-					return
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		var name string
+		var ok bool
+		if name, ok = upMap[buid]; !ok {
+			var status int
+			status, name = checkBuid(buid)
+			if status != 0 {
+				msg, ok := uidErrorMsg[status]
+				if !ok {
+					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
+				ctx.SendChain(message.Text(msg))
+				return
 			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			if err := unsubscribeDynamic(buid, gid); err != nil {
-				log.Errorln("[bilibilipush]:", err)
-			} else {
-				ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
-			}
-
-		} else {
-			ctx.Send(message.Text("找不到该服务！"))
 		}
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		if err := unsubscribeDynamic(buid, gid); err != nil {
+			log.Errorln("[bilibilipush]:", err)
+		} else {
+			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
+		}
+
 	})
 	en.OnRegex(`^取消直播订阅(\d+)$`, userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		_, ok := control.Lookup(serviceName)
-		if ok {
-			buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			var name string
-			if name, ok = upMap[buid]; !ok {
-				var status int
-				status, name = checkBuid(buid)
-				if status != 0 {
-					msg, ok := uidErrorMsg[status]
-					if !ok {
-						msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
-					}
-					ctx.SendChain(message.Text(msg))
-					return
+		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		var name string
+		var ok bool
+		if name, ok = upMap[buid]; !ok {
+			var status int
+			status, name = checkBuid(buid)
+			if status != 0 {
+				msg, ok := uidErrorMsg[status]
+				if !ok {
+					msg = "未知错误，请私聊反馈给" + zero.BotConfig.NickName[0]
 				}
+				ctx.SendChain(message.Text(msg))
+				return
 			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			if err := unsubscribeLive(buid, gid); err != nil {
-				log.Errorln("[bilibilipush]:", err)
-			} else {
-				ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
-			}
-		} else {
-			ctx.Send(message.Text("找不到该服务！"))
 		}
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		if err := unsubscribeLive(buid, gid); err != nil {
+			log.Errorln("[bilibilipush]:", err)
+		} else {
+			ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
+		}
+
 	})
 	en.OnFullMatch("推送列表", userOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		_, ok := control.Lookup(serviceName)
-		if ok {
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			bpl := bdb.getAllPushByGroup(gid)
-			fmt.Println(bpl)
-			msg := "-------------推送列表-------------"
-			for _, v := range bpl {
-				if _, ok := upMap[v.BilibiliUID]; !ok {
-					bdb.updateAllUp()
-					fmt.Println(upMap)
-				}
-				msg += fmt.Sprintf("\nuid:%-12d 动态：", v.BilibiliUID)
-				if v.DynamicDisable == 0 {
-					msg += "●"
-				} else {
-					msg += "○"
-				}
-				msg += " 直播："
-				if v.LiveDisable == 0 {
-					msg += "●"
-				} else {
-					msg += "○"
-				}
-				msg += " up主：" + upMap[v.BilibiliUID]
-			}
-			ctx.SendChain(message.Text(msg))
-			/*data,err := txt2img.RenderToBase64(msg,40,20)
-			if err!=nil{
-				log.Errorln("[bilibilipush]:", err)
-			}
-			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}*/
-		} else {
-			ctx.Send(message.Text("找不到该服务！"))
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
 		}
+		bpl := bdb.getAllPushByGroup(gid)
+		fmt.Println(bpl)
+		msg := "-------------推送列表-------------"
+		for _, v := range bpl {
+			if _, ok := upMap[v.BilibiliUID]; !ok {
+				bdb.updateAllUp()
+				fmt.Println(upMap)
+			}
+			msg += fmt.Sprintf("\nuid:%-12d 动态：", v.BilibiliUID)
+			if v.DynamicDisable == 0 {
+				msg += "●"
+			} else {
+				msg += "○"
+			}
+			msg += " 直播："
+			if v.LiveDisable == 0 {
+				msg += "●"
+			} else {
+				msg += "○"
+			}
+			msg += " up主：" + upMap[v.BilibiliUID]
+		}
+		ctx.SendChain(message.Text(msg))
+		/*data,err := txt2img.RenderToBase64(msg,40,20)
+		if err!=nil{
+			log.Errorln("[bilibilipush]:", err)
+		}
+		if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
+			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+		}*/
+
 	})
 }
 
