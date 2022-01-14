@@ -18,7 +18,7 @@ func (cc *context) mo() string {
 		img.LoadFirstFrame(*<-(*c)[3], 0, 0).InsertBottom(tou, 85, 75, 27, 37).Im,
 		img.LoadFirstFrame(*<-(*c)[4], 0, 0).InsertBottom(tou, 90, 70, 22, 42).Im,
 	}
-	img.SaveGif(img.MergeGif(1, mo), name)
+	_ = img.SaveGif(img.MergeGif(1, mo), name)
 	return "file:///" + name
 }
 
@@ -38,7 +38,7 @@ func (cc *context) cuo() string {
 		img.LoadFirstFrame(*<-(*c)[3], 0, 0).InsertBottomC(m3.Im, 0, 0, 75, 130).Im,
 		img.LoadFirstFrame(*<-(*c)[4], 0, 0).InsertBottomC(m4.Im, 0, 0, 75, 130).Im,
 	}
-	img.SaveGif(img.MergeGif(5, cuo), name)
+	_ = img.SaveGif(img.MergeGif(5, cuo), name)
 	return "file:///" + name
 }
 
@@ -51,7 +51,7 @@ func (cc *context) qiao() string {
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 40, 33, 57, 52).Im,
 		img.LoadFirstFrame(*<-(*c)[1], 0, 0).InsertUp(tou, 38, 36, 58, 50).Im,
 	}
-	img.SaveGif(img.MergeGif(1, qiao), name)
+	_ = img.SaveGif(img.MergeGif(1, qiao), name)
 	return "file:///" + name
 }
 
@@ -65,7 +65,7 @@ func (cc *context) chi() string {
 		img.LoadFirstFrame(*<-(*c)[1], 0, 0).InsertBottom(tou, 0, 0, 1, 38).Im,
 		img.LoadFirstFrame(*<-(*c)[2], 0, 0).InsertBottom(tou, 0, 0, 1, 38).Im,
 	}
-	img.SaveGif(img.MergeGif(1, chi), name)
+	_ = img.SaveGif(img.MergeGif(1, chi), name)
 	return "file:///" + name
 }
 
@@ -83,7 +83,7 @@ func (cc *context) ceng() string {
 		img.LoadFirstFrame(*<-(*c)[4], 0, 0).InsertUp(tou, 75, 77, 56, 110).InsertUp(img.Rotate(tou2, -66, 132, 80).Im, 0, 0, 78, 40).Im,
 		img.LoadFirstFrame(*<-(*c)[5], 0, 0).InsertUp(tou, 75, 77, 62, 102).InsertUp(tou2, 71, 100, 110, 94).Im,
 	}
-	img.SaveGif(img.MergeGif(8, ceng), name)
+	_ = img.SaveGif(img.MergeGif(8, ceng), name)
 	return "file:///" + name
 }
 
@@ -110,7 +110,7 @@ func (cc *context) ken() string {
 		img.LoadFirstFrame(*<-(*c)[14], 0, 0).Im,
 		img.LoadFirstFrame(*<-(*c)[15], 0, 0).Im,
 	}
-	img.SaveGif(img.MergeGif(7, ken), name)
+	_ = img.SaveGif(img.MergeGif(7, ken), name)
 	return "file:///" + name
 }
 
@@ -123,7 +123,7 @@ func (cc *context) pai() string {
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 0, 0, 1, 47).Im,
 		img.LoadFirstFrame(*<-(*c)[1], 0, 0).InsertUp(tou, 0, 0, 1, 67).Im,
 	}
-	img.SaveGif(img.MergeGif(1, pai), name)
+	_ = img.SaveGif(img.MergeGif(1, pai), name)
 	return "file:///" + name
 }
 
@@ -136,7 +136,7 @@ func (cc *context) chong() string {
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 30, 30, 15, 53).Im,
 		img.LoadFirstFrame(*<-(*c)[1], 0, 0).InsertUp(tou, 30, 30, 40, 53).Im,
 	}
-	img.SaveGif(img.MergeGif(1, chong), name)
+	_ = img.SaveGif(img.MergeGif(1, chong), name)
 	return "file:///" + name
 }
 
@@ -155,6 +155,6 @@ func (cc *context) diu() string {
 		img.LoadFirstFrame(*<-(*c)[6], 0, 0).InsertUp(tou, 35, 35, 259, 31).Im,
 		img.LoadFirstFrame(*<-(*c)[7], 0, 0).InsertUp(tou, 175, 175, -50, 220).Im,
 	}
-	img.SaveGif(img.MergeGif(7, diu), name)
+	_ = img.SaveGif(img.MergeGif(7, diu), name)
 	return "file:///" + name
 }

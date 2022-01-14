@@ -136,12 +136,7 @@ func init() {
 			}
 
 			// 随机获取签文
-			title, text, err := randtext(seed)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-
+			title, text := randtext(seed)
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
@@ -197,10 +192,10 @@ func randimage(path string, seed int64) (im image.Image, index int, err error) {
 // @param file 文件路径
 // @param seed 随机数种子
 // @return 签名 & 签文 & 错误信息
-func randtext(seed int64) (string, string, error) {
+func randtext(seed int64) (string, string) {
 	rand.Seed(seed)
 	r := rand.Intn(len(omikujis))
-	return omikujis[r]["title"], omikujis[r]["content"], nil
+	return omikujis[r]["title"], omikujis[r]["content"]
 }
 
 // @function draw 绘制运势图
