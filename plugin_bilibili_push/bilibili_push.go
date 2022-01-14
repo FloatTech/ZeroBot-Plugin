@@ -184,7 +184,7 @@ func init() {
 		}
 		bpl := bdb.getAllPushByGroup(gid)
 		fmt.Println(bpl)
-		msg := "-------------推送列表-------------"
+		msg := "--------推送列表--------"
 		for _, v := range bpl {
 			if _, ok := upMap[v.BilibiliUID]; !ok {
 				bdb.updateAllUp()
