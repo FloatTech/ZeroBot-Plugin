@@ -16,7 +16,7 @@ func (cc *context) pa() string {
 	rand := rand.Intn(60) + 1
 	dc := img.LoadFirstFrame(dlblock(`pa/`+strconv.Itoa(rand)+`.png`), 0, 0).
 		InsertBottom(tou, 100, 100, 0, 400).Im
-	img.SavePng(dc, name)
+	_ = img.SavePng(dc, name)
 	return "file:///" + name
 }
 
@@ -29,7 +29,7 @@ func (cc *context) si() string {
 	dc := img.LoadFirstFrame(dlblock(`si/0.png`), 0, 0).
 		InsertBottom(im1.Im, im1.W, im1.H, -3, 370).
 		InsertBottom(im2.Im, im2.W, im2.H, 653, 310).Im
-	img.SavePng(dc, name)
+	_ = img.SavePng(dc, name)
 	return "file:///" + name
 }
 
@@ -61,6 +61,6 @@ func (cc *context) other(value ...string) string {
 		h, _ := strconv.Atoi(value[2])
 		a = img.Size(im.Im, w, h).Im
 	}
-	img.SavePng(a, name)
+	_ = img.SavePng(a, name)
 	return "file:///" + name
 }

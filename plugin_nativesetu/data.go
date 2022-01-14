@@ -10,7 +10,7 @@ import (
 	"github.com/corona10/goimagehash"
 	"github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	_ "golang.org/x/image/webp"
+	_ "golang.org/x/image/webp" // import webp decoding
 
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
