@@ -2,9 +2,10 @@ package bilibilipush
 
 import (
 	"encoding/json"
+	"os"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/logoove/sqlite" // import sql
-	"os"
 )
 
 // bilibilipushdb bili推送数据库

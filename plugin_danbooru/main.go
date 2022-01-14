@@ -49,7 +49,7 @@ func init() { // 插件主体
 				digest := md5.Sum(helper.StringToBytes(url))
 				f := cachefile + hex.EncodeToString(digest[:])
 				if file.IsNotExist(f) {
-					t.Canvas.SavePNG(f)
+					_ = t.Canvas.SavePNG(f)
 				}
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + f))
 			}

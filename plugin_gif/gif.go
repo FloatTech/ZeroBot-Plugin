@@ -1,4 +1,4 @@
-package plugin_gif
+package gif
 
 import (
 	"image"
@@ -8,8 +8,8 @@ import (
 
 // 摸
 func (cc *context) mo() string {
-	name := cc.usrdir + `摸.gif`
-	c := dlrange(`mo/`, `.png`, 5)
+	name := cc.usrdir + "摸.gif"
+	c := dlrange("mo", 5)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0).Circle(0).Im
 	mo := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertBottom(tou, 80, 80, 32, 32).Im,
@@ -24,8 +24,8 @@ func (cc *context) mo() string {
 
 // 搓
 func (cc *context) cuo() string {
-	name := cc.usrdir + `搓.gif`
-	c := dlrange(`cuo/`, `.png`, 5)
+	name := cc.usrdir + "搓.gif"
+	c := dlrange("cuo", 5)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 110, 110).Circle(0).Im
 	m1 := img.Rotate(tou, 72, 0, 0)
 	m2 := img.Rotate(tou, 144, 0, 0)
@@ -44,8 +44,8 @@ func (cc *context) cuo() string {
 
 // 敲
 func (cc *context) qiao() string {
-	name := cc.usrdir + `敲.gif`
-	c := dlrange(`qiao/`, `.png`, 2)
+	name := cc.usrdir + "敲.gif"
+	c := dlrange("qiao", 2)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 40, 40).Circle(0).Im
 	qiao := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 40, 33, 57, 52).Im,
@@ -57,8 +57,8 @@ func (cc *context) qiao() string {
 
 // 吃
 func (cc *context) chi() string {
-	name := cc.usrdir + `吃.gif`
-	c := dlrange(`chi/`, `.png`, 3)
+	name := cc.usrdir + "吃.gif"
+	c := dlrange("chi", 3)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 32, 32).Im
 	chi := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertBottom(tou, 0, 0, 1, 38).Im,
@@ -71,8 +71,8 @@ func (cc *context) chi() string {
 
 // 蹭
 func (cc *context) ceng() string {
-	name := cc.usrdir + `蹭.gif`
-	c := dlrange(`ceng/`, `.png`, 6)
+	name := cc.usrdir + "蹭.gif"
+	c := dlrange("ceng", 6)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 100, 100).Circle(0).Im
 	tou2 := img.LoadFirstFrame(cc.headimgsdir[1], 100, 100).Circle(0).Im
 	ceng := []*image.NRGBA{
@@ -89,8 +89,8 @@ func (cc *context) ceng() string {
 
 // 啃
 func (cc *context) ken() string {
-	name := cc.usrdir + `啃.gif`
-	c := dlrange(`ken/`, `.png`, 16)
+	name := cc.usrdir + "啃.gif"
+	c := dlrange("ken", 16)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 100, 100).Im
 	ken := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertBottom(tou, 90, 90, 105, 150).Im,
@@ -116,8 +116,8 @@ func (cc *context) ken() string {
 
 // 拍
 func (cc *context) pai() string {
-	name := cc.usrdir + `拍.gif`
-	c := dlrange(`pai/`, `.png`, 2)
+	name := cc.usrdir + "拍.gif"
+	c := dlrange("pai", 2)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 30, 30).Circle(0).Im
 	pai := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 0, 0, 1, 47).Im,
@@ -129,8 +129,8 @@ func (cc *context) pai() string {
 
 // 冲
 func (cc *context) chong() string {
-	name := cc.usrdir + `冲.gif`
-	c := dlrange(`xqe/`, `.png`, 2)
+	name := cc.usrdir + "冲.gif"
+	c := dlrange("xqe", 2)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0).Circle(0).Im
 	chong := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 30, 30, 15, 53).Im,
@@ -142,8 +142,8 @@ func (cc *context) chong() string {
 
 // 丢
 func (cc *context) diu() string {
-	name := cc.usrdir + `丢.gif`
-	c := dlrange(`diu/`, `.png`, 8)
+	name := cc.usrdir + "丢.gif"
+	c := dlrange("diu", 8)
 	tou := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0).Circle(0).Im
 	diu := []*image.NRGBA{
 		img.LoadFirstFrame(*<-(*c)[0], 0, 0).InsertUp(tou, 32, 32, 108, 36).Im,

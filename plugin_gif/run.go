@@ -1,5 +1,5 @@
-// Package plugin_gif 制图
-package plugin_gif
+// Package gif 制图
+package gif
 
 import (
 	"math/rand"

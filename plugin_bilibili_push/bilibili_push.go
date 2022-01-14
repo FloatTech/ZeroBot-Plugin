@@ -6,6 +6,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -17,11 +23,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 const (
@@ -95,7 +96,6 @@ func init() {
 		} else {
 			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 		}
-
 	})
 	en.OnRegex(`^取消订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
@@ -122,7 +122,6 @@ func init() {
 		} else {
 			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 		}
-
 	})
 	en.OnRegex(`^取消动态订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
@@ -149,7 +148,6 @@ func init() {
 		} else {
 			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 		}
-
 	})
 	en.OnRegex(`^取消直播订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
@@ -176,7 +174,6 @@ func init() {
 		} else {
 			ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 		}
-
 	})
 	en.OnFullMatch("推送列表", ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -212,7 +209,6 @@ func init() {
 		if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
 			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 		}
-
 	})
 }
 
@@ -360,13 +356,10 @@ func sendDynamic() {
 						}
 						return true
 					})
-
 				}
 			}
-
 		}
 	}
-
 }
 
 func sendLive() {
@@ -416,9 +409,7 @@ func sendLive() {
 					}
 					return true
 				})
-
 			}
-
 		}
 		return true
 	})

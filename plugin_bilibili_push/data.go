@@ -1,9 +1,10 @@
 package bilibilipush
 
 import (
+	"os"
+
 	"github.com/FloatTech/zbputils/process"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 const (
