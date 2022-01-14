@@ -205,7 +205,7 @@ func init() {
 			}
 			msg += " up主：" + upMap[v.BilibiliUID]
 		}
-		data, err := txt2img.RenderToBase64(msg, txt2img.FontFile, 400, 20)
+		data, err := txt2img.RenderToBase64(msg, txt2img.FontFile, 600, 20)
 		if err != nil {
 			log.Errorln("[bilibilipush]:", err)
 		}
