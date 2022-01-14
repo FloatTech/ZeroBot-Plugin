@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/txt2img"
 	"github.com/FloatTech/zbputils/web"
 	"github.com/chromedp/chromedp"
 	"github.com/fumiama/cron"
@@ -204,14 +205,13 @@ func init() {
 			}
 			msg += " up主：" + upMap[v.BilibiliUID]
 		}
-		ctx.SendChain(message.Text(msg))
-		/*data,err := txt2img.RenderToBase64(msg,40,20)
-		if err!=nil{
+		data, err := txt2img.RenderToBase64(msg, txt2img.FontFile, 400, 20)
+		if err != nil {
 			log.Errorln("[bilibilipush]:", err)
 		}
 		if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
 			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-		}*/
+		}
 
 	})
 }
@@ -412,14 +412,18 @@ func sendLive() {
 				if lCover == "" {
 					lCover = value.Get("keyframe").String()
 				}
-				text := fmt.Sprintf("%s 正在直播:\n%s\n%s\n%s", lName, lTitle, lCover, lURL)
+				var msg []message.MessageSegment
+				msg = append(msg, message.Text(lName+" 正在直播:\n"))
+				msg = append(msg, message.Text(lTitle))
+				msg = append(msg, message.Image(lCover))
+				msg = append(msg, message.Text(lURL))
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 					for _, gid := range groupList {
 						if m.IsEnabledIn(gid) {
 							if gid > 0 {
-								ctx.SendGroupMessage(gid, message.Text(text))
+								ctx.SendGroupMessage(gid, msg)
 							} else if gid < 0 {
-								ctx.SendPrivateMessage(-gid, message.Text(text))
+								ctx.SendPrivateMessage(-gid, msg)
 							} else {
 								log.Errorln("[bilibilipush]:gid为0")
 							}
