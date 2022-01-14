@@ -324,46 +324,47 @@ func sendDynamic() {
 		if len(cardList) == 0 {
 			return
 		}
-		if t, ok := lastTime[buid]; !ok {
+		t, ok := lastTime[buid]
+		if !ok {
 			lastTime[buid] = cardList[0].Get("desc.timestamp").Int()
 			return
-		} else {
-			for i := len(cardList) - 1; i >= 0; i-- {
-				ct := cardList[i].Get("desc.timestamp").Int()
-				log.Println(ct, t)
-				if ct > t && ct > time.Now().Unix()-600 {
-					lastTime[buid] = ct
-					m, ok := control.Lookup(serviceName)
-					if ok {
-						groupList := bdb.getAllGroupByBuidAndDynamic(buid)
-						cId := cardList[i].Get("desc.dynamic_id").String()
-						cType := cardList[i].Get("desc.type").Int()
-						cName := cardList[i].Get("desc.user_profile.info.uname").String()
-						screenshotFile := cachePath + cId + ".png"
-						initDynamicScreenshot(cId)
-						var msg []message.MessageSegment
-						msg = append(msg, message.Text(cName+typeMsg[cType]))
-						msg = append(msg, message.Image("file:///"+file.BOTPATH+"/"+screenshotFile))
-						msg = append(msg, message.Text(tURL+cId))
+		}
+		for i := len(cardList) - 1; i >= 0; i-- {
+			ct := cardList[i].Get("desc.timestamp").Int()
+			log.Println(ct, t)
+			if ct > t && ct > time.Now().Unix()-600 {
+				lastTime[buid] = ct
+				m, ok := control.Lookup(serviceName)
+				if ok {
+					groupList := bdb.getAllGroupByBuidAndDynamic(buid)
+					cID := cardList[i].Get("desc.dynamic_id").String()
+					cType := cardList[i].Get("desc.type").Int()
+					cName := cardList[i].Get("desc.user_profile.info.uname").String()
+					screenshotFile := cachePath + cID + ".png"
+					initDynamicScreenshot(cID)
+					var msg []message.MessageSegment
+					msg = append(msg, message.Text(cName+typeMsg[cType]))
+					msg = append(msg, message.Image("file:///"+file.BOTPATH+"/"+screenshotFile))
+					msg = append(msg, message.Text(tURL+cID))
 
-						zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-							for _, gid := range groupList {
-								if m.IsEnabledIn(gid) {
-									if gid > 0 {
-										ctx.SendGroupMessage(gid, msg)
-									} else if gid < 0 {
-										ctx.SendPrivateMessage(-gid, msg)
-									} else {
-										log.Errorln("[bilibilipush]:gid为0")
-									}
+					zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+						for _, gid := range groupList {
+							if m.IsEnabledIn(gid) {
+								if gid > 0 {
+									ctx.SendGroupMessage(gid, msg)
+								} else if gid < 0 {
+									ctx.SendPrivateMessage(-gid, msg)
+								} else {
+									log.Errorln("[bilibilipush]:gid为0")
 								}
 							}
-							return true
-						})
+						}
+						return true
+					})
 
-					}
 				}
 			}
+
 		}
 	}
 
@@ -387,11 +388,11 @@ func sendLive() {
 			m, ok := control.Lookup(serviceName)
 			if ok {
 				groupList := bdb.getAllGroupByBuidAndLive(key.Int())
-				roomId := value.Get("short_id").Int()
-				if roomId == 0 {
-					roomId = value.Get("room_id").Int()
+				roomID := value.Get("short_id").Int()
+				if roomID == 0 {
+					roomID = value.Get("room_id").Int()
 				}
-				lURL := liveURL + strconv.FormatInt(roomId, 10)
+				lURL := liveURL + strconv.FormatInt(roomID, 10)
 				lName := value.Get("uname").String()
 				lTitle := value.Get("title").String()
 				lCover := value.Get("cover_from_user").String()
@@ -425,11 +426,11 @@ func sendLive() {
 	})
 }
 
-func initDynamicScreenshot(dynamicId string) {
-	screenshotFile := cachePath + dynamicId + ".png"
+func initDynamicScreenshot(dynamicID string) {
+	screenshotFile := cachePath + dynamicID + ".png"
 	if file.IsNotExist(screenshotFile) {
 		var imageBuf []byte
-		dynamicURL := tURL + dynamicId
+		dynamicURL := tURL + dynamicID
 		ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithDebugf(log.Printf))
 		defer cancel()
 
