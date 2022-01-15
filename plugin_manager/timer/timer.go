@@ -39,10 +39,10 @@ var (
 
 // NewClock 添加一个新时钟
 func NewClock(db *sql.Sqlite) (c Clock) {
-	c.loadTimers(db)
 	c.cron = cron.New()
 	c.entries = make(map[uint32]cron.EntryID)
 	c.timers = &map[uint32]*Timer{}
+	c.loadTimers(db)
 	c.cron.Start()
 	return
 }
