@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	prio     = 300
+	prio     = 250
 	minLevel = "min"
 	maxLevel = "max"
 )
