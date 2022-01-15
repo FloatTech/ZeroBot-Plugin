@@ -22,7 +22,7 @@ func init() {
 	limit := rate.NewManager(time.Minute, 30)
 	engine := control.Register("curse", &control.Options{
 		DisableOnDefault: true,
-		Help:             "骂人(求骂,自卫)\n- 骂我\n- 大力骂我\n- @bot 他妈|公交车|你妈|操|屎|去死|快死|日|逼|尼玛|艾滋|癌症|有病|戴套|啊对对对|烦你|你爹|屮|tui|cnm",
+		Help:             "骂人(求骂,自卫)\n- 骂我\n- 大力骂我",
 	})
 
 	engine.OnFullMatch("骂我").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {

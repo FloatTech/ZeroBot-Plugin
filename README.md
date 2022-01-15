@@ -228,8 +228,6 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **小说** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_novel" `
     - [x] 小说[xxx]
 - **沙雕app插件** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"`
-    - [x] 骂他[@xxx]|骂他[qq号] (停用)
-    - [x] 骂我 (停用)
     - [x] 哄我
     - [x] 渣我
     - [x] 来碗绿茶
@@ -254,7 +252,6 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **骂人** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"`
     - [x] 骂我
     - [x] 大力骂我
-    - [x] @bot 他妈|公交车|你妈|操|屎|去死|快死|日|逼|尼玛|艾滋|癌症|有病|戴套|啊对对对|烦你|你爹|屮|tui|cnm
 - **b站推送** `_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push"`
     - [x] 添加订阅[uid]
     - [x] 取消订阅[uid]
