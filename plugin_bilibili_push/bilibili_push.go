@@ -26,15 +26,15 @@ import (
 )
 
 const (
-	ua              = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
-	referer         = "https://www.bilibili.com/"
-	infoURL         = "https://api.bilibili.com/x/space/acc/info?mid=%d"
-	userDynamicsURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=%d&offset_dynamic_id=0&need_top=0"
-	liveListURL     = "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids"
-	tURL            = "https://t.bilibili.com/"
-	liveURL         = "https://live.bilibili.com/"
-	prio            = 10
-	serviceName     = "bilibilipush"
+	ua             = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
+	referer        = "https://www.bilibili.com/"
+	infoURL        = "https://api.bilibili.com/x/space/acc/info?mid=%d"
+	userDynamicURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=%d&offset_dynamic_id=0&need_top=0"
+	liveListURL    = "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids"
+	tURL           = "https://t.bilibili.com/"
+	liveURL        = "https://live.bilibili.com/"
+	prio           = 10
+	serviceName    = "bilibilipush"
 )
 
 var (
@@ -281,7 +281,7 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 }
 
 func getUserDynamicCard(buid int64) (cardList []gjson.Result) {
-	data, err := web.ReqWith(fmt.Sprintf(userDynamicsURL, buid), "GET", referer, ua)
+	data, err := web.ReqWith(fmt.Sprintf(userDynamicURL, buid), "GET", referer, ua)
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
@@ -345,11 +345,12 @@ func sendDynamic() {
 					zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 						for _, gid := range groupList {
 							if m.IsEnabledIn(gid) {
-								if gid > 0 {
+								switch {
+								case gid > 0:
 									ctx.SendGroupMessage(gid, msg)
-								} else if gid < 0 {
+								case gid < 0:
 									ctx.SendPrivateMessage(-gid, msg)
-								} else {
+								default:
 									log.Errorln("[bilibilipush]:gid为0")
 								}
 							}
@@ -398,11 +399,12 @@ func sendLive() {
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 					for _, gid := range groupList {
 						if m.IsEnabledIn(gid) {
-							if gid > 0 {
+							switch {
+							case gid > 0:
 								ctx.SendGroupMessage(gid, msg)
-							} else if gid < 0 {
+							case gid < 0:
 								ctx.SendPrivateMessage(-gid, msg)
-							} else {
+							default:
 								log.Errorln("[bilibilipush]:gid为0")
 							}
 						}
@@ -410,6 +412,8 @@ func sendLive() {
 					return true
 				})
 			}
+		} else if newStatus != oldStatus {
+			liveStatus[key.Int()] = newStatus
 		}
 		return true
 	})
