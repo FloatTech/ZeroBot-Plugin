@@ -1,7 +1,7 @@
 // Package order 各个插件的优先级
 package order
 
-//nolint: revive
+
 const (
 	PrioChat = iota * 10
 	PrioSleepManage
