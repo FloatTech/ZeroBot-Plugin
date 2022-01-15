@@ -21,7 +21,11 @@ var (
 )
 
 func init() { // 插件主体
-	os.RemoveAll(datapath)           // 清除缓存图片
+	_ = os.RemoveAll(datapath) // 清除缓存图片
+	err := os.MkdirAll(datapath, 0755)
+	if err != nil {
+		panic(err)
+	}
 	rand.Seed(time.Now().UnixNano()) // 设置种子
 	control.Register("gif", &control.Options{
 		DisableOnDefault: false,

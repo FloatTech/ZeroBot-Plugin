@@ -34,6 +34,9 @@ func dlblock(name string) string {
 }
 
 func dlrange(prefix string, end int) *[]chan *string {
+	if file.IsNotExist(datapath + `materials/` + prefix) {
+		_ = os.MkdirAll(datapath+`materials/`+prefix, 0755)
+	}
 	c := make([]chan *string, end)
 	for i := range c {
 		c[i] = make(chan *string)
