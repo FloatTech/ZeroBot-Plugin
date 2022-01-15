@@ -8,8 +8,9 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/aireply"
 	"github.com/FloatTech/AnimeAPI/mockingbird"
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 func init() {

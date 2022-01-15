@@ -18,10 +18,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	ub "github.com/FloatTech/zbputils/binary"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/txt2img"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (

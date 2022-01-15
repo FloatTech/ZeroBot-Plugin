@@ -10,10 +10,11 @@ import (
 	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
