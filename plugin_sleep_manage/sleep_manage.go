@@ -11,20 +11,20 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 )
 
 const dbpath = "data/sleep/"
 const dbfile = dbpath + "manage.db"
-const prio = 4
 
-var engine = control.Register("sleepmanage", &control.Options{
+var engine = control.Register("sleepmanage", order.PrioSleepManage, &control.Options{
 	DisableOnDefault: false,
 	Help:             "sleepmanage\n- 早安\n- 晚安",
 })
 
 func init() {
-	engine.OnFullMatch("早安", isMorning, zero.OnlyGroup).SetBlock(true).SetPriority(prio).
+	engine.OnFullMatch("早安", isMorning, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
@@ -41,7 +41,7 @@ func init() {
 			}
 			db.Close()
 		})
-	engine.OnFullMatch("晚安", isEvening, zero.OnlyGroup).SetBlock(true).SetPriority(prio).
+	engine.OnFullMatch("晚安", isEvening, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {

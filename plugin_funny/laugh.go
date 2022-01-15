@@ -9,13 +9,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/sql"
 )
 
 var (
-	engine = control.Register("funny", &control.Options{
+	engine = control.Register("funny", order.PrioFunny, &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx]|讲个笑话[qq号]",
@@ -25,7 +26,7 @@ var (
 )
 
 func init() {
-	engine.OnPrefix("讲个笑话").SetBlock(true).FirstPriority().Handle(func(ctx *zero.Ctx) {
+	engine.OnPrefix("讲个笑话").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}

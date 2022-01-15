@@ -13,12 +13,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/process"
 )
 
 var (
-	prio   = 100
 	bucket = rate.NewManager(time.Minute, 20) // 接口回复
 )
 
@@ -42,11 +42,11 @@ func tl(d string) ([]byte, error) {
 }
 
 func init() {
-	control.Register("translation", &control.Options{
+	control.Register("translation", order.PrioTranslation, &control.Options{
 		DisableOnDefault: false,
 		Help: "翻译\n" +
 			">TL 你好",
-	}).OnRegex(`^>TL\s(-.{1,10}? )?(.*)$`).SetBlock(true).SetPriority(prio).
+	}).OnRegex(`^>TL\s(-.{1,10}? )?(.*)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !bucket.Load(ctx.Event.UserID).Acquire() {
 				// 频繁触发，不回复

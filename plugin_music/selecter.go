@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -21,14 +22,14 @@ import (
 var limit = rate.NewManager(time.Minute*3, 5)
 
 func init() {
-	control.Register("music", &control.Options{
+	control.Register("music", order.PrioMusic, &control.Options{
 		DisableOnDefault: false,
 		Help: "点歌\n" +
 			"- 点歌[xxx]\n" +
 			"- 网易点歌[xxx]\n" +
 			"- 酷我点歌[xxx]\n" +
 			"- 酷狗点歌[xxx]",
-	}).OnRegex("^(.{0,2})点歌(.{1,25})$").SetBlock(true).FirstPriority().
+	}).OnRegex("^(.{0,2})点歌(.{1,25})$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))

@@ -7,13 +7,18 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	zero.OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).
+	control.Register("nbnhhsh", order.PrioNBNHHSH, &control.Options{
+		DisableOnDefault: false,
+		Help:             "拼音首字母释义工具\n- ?? [缩写]",
+	}).OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			ctx.SendChain(message.Text(keyword + ": " + strings.Join(getValue(keyword), ", ")))

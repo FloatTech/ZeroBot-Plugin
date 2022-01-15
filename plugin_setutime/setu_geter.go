@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -67,7 +68,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("setutime", &control.Options{
+	engine := control.Register("setutime", order.PrioSetuTime, &control.Options{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +
@@ -78,7 +79,7 @@ func init() { // 插件主体
 	go func() {
 		process.SleepAbout1sTo2s()
 		pool = newPools()
-		engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool.List)).SetBlock(true).SetPriority(20).
+		engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool.List)).SetBlock(true).
 			Handle(func(ctx *zero.Ctx) {
 				if !limit.Load(ctx.Event.UserID).Acquire() {
 					ctx.SendChain(message.Text("请稍后重试0x0..."))
@@ -121,7 +122,7 @@ func init() { // 插件主体
 				}
 			})
 
-		engine.OnRegex(`^添加(.*?)(\d+)$`, rule.FirstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(21).
+		engine.OnRegex(`^添加(.*?)(\d+)$`, rule.FirstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).
 			Handle(func(ctx *zero.Ctx) {
 				var (
 					imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -152,7 +153,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("添加成功"))
 			})
 
-		engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).SetPriority(22).
+		engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool.List), zero.SuperUserPermission).SetBlock(true).
 			Handle(func(ctx *zero.Ctx) {
 				var (
 					imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -167,7 +168,7 @@ func init() { // 插件主体
 			})
 
 		// 查询数据库涩图数量
-		engine.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).SetPriority(23).
+		engine.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).
 			Handle(func(ctx *zero.Ctx) {
 				state := []string{"[SetuTime]"}
 				for i := range pool.List {

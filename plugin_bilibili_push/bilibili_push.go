@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -33,7 +34,6 @@ const (
 	liveListURL    = "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids"
 	tURL           = "https://t.bilibili.com/"
 	liveURL        = "https://live.bilibili.com/"
-	prio           = 10
 	serviceName    = "bilibilipush"
 )
 
@@ -61,7 +61,7 @@ var (
 
 func init() {
 	go bilibiliPushDaily()
-	en := control.Register(serviceName, &control.Options{
+	en := control.Register(serviceName, order.PrioBilibiliPush, &control.Options{
 		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
 			"- 添加订阅[uid]\n" +
@@ -71,7 +71,7 @@ func init() {
 			"- 推送列表",
 	})
 
-	en.OnRegex(`^添加订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -97,7 +97,7 @@ func init() {
 			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -123,7 +123,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消动态订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消动态订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -149,7 +149,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 		}
 	})
-	en.OnRegex(`^取消直播订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消直播订阅(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -175,7 +175,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 		}
 	})
-	en.OnFullMatch("推送列表", ctxext.UserOrGrpAdmin).SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("推送列表", ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID

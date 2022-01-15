@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -17,12 +18,12 @@ import (
 )
 
 func init() { // 插件主体
-	control.Register("github", &control.Options{
+	control.Register("github", order.PrioGithub, &control.Options{
 		DisableOnDefault: false,
 		Help: "GitHub仓库搜索\n" +
 			"- >github [xxx]\n" +
 			"- >github -p [xxx]",
-	}).OnRegex(`^>github\s(-.{1,10}? )?(.*)$`).SetBlock(true).FirstPriority().
+	}).OnRegex(`^>github\s(-.{1,10}? )?(.*)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 发送请求
 			header := http.Header{

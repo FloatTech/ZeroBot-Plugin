@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -25,7 +26,7 @@ type follower struct {
 // 开启日报推送
 func init() {
 	fansDaily()
-	en := control.Register("fansdaily", &control.Options{
+	en := control.Register("fansdaily", order.PrioFansDaily, &control.Options{
 		DisableOnDefault: true,
 		Help:             "fansdaily\n- /开启粉丝日报\n- /关闭粉丝日报",
 	})

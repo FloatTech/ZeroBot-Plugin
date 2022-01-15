@@ -9,6 +9,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/danbooru"
 	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/saucenao"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -24,13 +25,13 @@ func init() { // 插件主体
 	if err != nil {
 		panic(err)
 	}
-	engine := control.Register("danbooru", &control.Options{
+	engine := control.Register("danbooru", order.PrioDanbooru, &control.Options{
 		DisableOnDefault: false,
 		Help: "二次元图片标签识别\n" +
 			"- 鉴赏图片[图片]",
 	})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"鉴赏图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).SetPriority(23).
+	engine.OnKeywordGroup([]string{"鉴赏图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {

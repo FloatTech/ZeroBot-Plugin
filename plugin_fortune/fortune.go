@@ -18,6 +18,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
@@ -69,13 +70,13 @@ func init() {
 		panic(err)
 	}
 	// 插件主体
-	en := control.Register("fortune", &control.Options{
+	en := control.Register("fortune", order.PrioFortune, &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势|抽签\n" +
 			"- 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师]",
 	})
-	en.OnRegex(`^设置底图(.*)`).SetBlock(true).SecondPriority().
+	en.OnRegex(`^设置底图(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			if gid <= 0 {
@@ -99,7 +100,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
-	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).SecondPriority().
+	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取该群背景类型，默认车万
 			kind := "车万"

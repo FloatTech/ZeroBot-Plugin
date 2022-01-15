@@ -18,6 +18,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	ub "github.com/FloatTech/zbputils/binary"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/txt2img"
@@ -38,7 +39,7 @@ const (
 
 var (
 	gCurCookieJar *cookiejar.Jar
-	engine        = control.Register("novel", &control.Options{
+	engine        = control.Register("novel", order.PrioNovel, &control.Options{
 		DisableOnDefault: false,
 		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	})

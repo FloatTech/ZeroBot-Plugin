@@ -7,12 +7,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/txt2img"
 )
 
 func init() {
-	engine := control.Register("bookreview", &control.Options{
+	engine := control.Register("bookreview", order.PrioBookReview, &control.Options{
 		DisableOnDefault: false,
 		Help:             "哀伤雪刃推书记录\n- 书评[xxx]\n- 随机书评",
 	})

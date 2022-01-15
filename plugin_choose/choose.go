@@ -6,19 +6,20 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	engine := control.Register("choose", &control.Options{
+	engine := control.Register("choose", order.PrioChoose, &control.Options{
 		DisableOnDefault: false,
 		Help: "choose\n" +
 			"- 选择可口可乐还是百事可乐\n" +
 			"- 选择肯德基还是麦当劳还是必胜客",
 	})
-	engine.OnPrefix("选择").SetBlock(true).FirstPriority().Handle(handle)
+	engine.OnPrefix("选择").SetBlock(true).Handle(handle)
 }
 func handle(ctx *zero.Ctx) {
 	rawOptions := strings.Split(ctx.State["args"].(string), "还是")

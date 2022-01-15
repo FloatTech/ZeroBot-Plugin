@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/shindanmaker"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -22,7 +23,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("shindan", &control.Options{
+	engine := control.Register("shindan", order.PrioShinDan, &control.Options{
 		DisableOnDefault: false,
 		Help: "shindan\n" +
 			"- 今天是什么少女[@xxx]\n" +
@@ -30,10 +31,10 @@ func init() {
 			"- 卖萌[@xxx]\n" +
 			"- 抽老婆[@xxx]",
 	})
-	engine.OnPrefix("异世界转生", number(587874)).SetBlock(true).FirstPriority().Handle(handle)
-	engine.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).FirstPriority().Handle(handle)
-	engine.OnPrefix("卖萌", number(360578)).SetBlock(true).FirstPriority().Handle(handle)
-	engine.OnPrefix("抽老婆", number(1075116)).SetBlock(true).FirstPriority().Handle(handle)
+	engine.OnPrefix("异世界转生", number(587874)).SetBlock(true).Handle(handle)
+	engine.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).Handle(handle)
+	engine.OnPrefix("卖萌", number(360578)).SetBlock(true).Handle(handle)
+	engine.OnPrefix("抽老婆", number(1075116)).SetBlock(true).Handle(handle)
 }
 
 // shindanmaker 处理函数

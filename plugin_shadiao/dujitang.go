@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	engine.OnFullMatch("来碗毒鸡汤").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatch("来碗毒鸡汤").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -92,7 +93,7 @@ var (
 )
 
 func init() {
-	control.Register("runcode", &control.Options{
+	control.Register("runcode", order.PrioRuncode, &control.Options{
 		DisableOnDefault: false,
 		Help: "在线代码运行: \n" +
 			">runcode [language] [code block]\n" +
@@ -103,7 +104,7 @@ func init() {
 			"JavaScript || TypeScript || PHP || Shell \n" +
 			"Kotlin  || Rust || Erlang || Ruby || Swift \n" +
 			"R || VB || Py2 || Perl || Pascal || Scala",
-	}).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).SecondPriority().
+	}).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))

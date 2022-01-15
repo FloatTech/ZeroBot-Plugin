@@ -8,6 +8,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/classify"
 	"github.com/FloatTech/AnimeAPI/picture"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -31,7 +32,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("acgimage", &control.Options{
+	engine := control.Register("acgimage", order.PrioACGImage, &control.Options{
 		DisableOnDefault: false,
 		Help: "随机图片与AI点评\n" +
 			"- 随机图片(评级大于6的图将私发)\n" +
@@ -40,7 +41,7 @@ func init() { // 插件主体
 			"- 太涩了(撤回最近发的图)\n" +
 			"- 评价图片(发送一张图片让bot评分)",
 	})
-	engine.OnRegex(`^设置随机图片网址(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).SetPriority(20).
+	engine.OnRegex(`^设置随机图片网址(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]
 			if !strings.HasPrefix(url, "http") {
@@ -51,7 +52,7 @@ func init() { // 插件主体
 			}
 		})
 	// 有保护的随机图片
-	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).SetPriority(24).
+	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if limit.Load(ctx.Event.UserID).Acquire() {
 				class, dhash, comment, _ := classify.Classify(randapi, true)
@@ -61,7 +62,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("你太快啦!"))
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
-	engine.OnFullMatch("直接随机", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(24).
+	engine.OnFullMatch("直接随机", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if block {
 				ctx.SendChain(message.Text("请稍后再试哦"))
@@ -78,7 +79,7 @@ func init() { // 插件主体
 			}
 		})
 	// 撤回最后的直接随机图片
-	engine.OnFullMatch("太涩了").SetBlock(true).SetPriority(24).
+	engine.OnFullMatch("太涩了").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			msg, ok := msgof[ctx.Event.GroupID]
 			if ok {
@@ -87,7 +88,7 @@ func init() { // 插件主体
 			}
 		})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).SetPriority(24).
+	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
@@ -96,7 +97,7 @@ func init() { // 插件主体
 				break
 			}
 		})
-	engine.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).SetPriority(20).
+	engine.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			dhash := ctx.State["regex_matched"].([]string)[1]
 			if len(dhash) == 5*3 {

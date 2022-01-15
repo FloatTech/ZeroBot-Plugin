@@ -17,6 +17,7 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/txt2img"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
@@ -26,7 +27,7 @@ const (
 	dbfile = dbpath + "vtb.db"
 )
 
-var engine = control.Register("vtbquotation", &control.Options{
+var engine = control.Register("vtbquotation", order.PrioVtbQuotation, &control.Options{
 	DisableOnDefault: false,
 	Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb",
 })

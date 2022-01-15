@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -60,7 +61,7 @@ type resultjson struct {
 }
 
 func init() {
-	control.Register("imgfinder", &control.Options{
+	control.Register("imgfinder", order.PrioImageFinder, &control.Options{
 		DisableOnDefault: false,
 		Help: "关键字搜图\n" +
 			"- 来张 [xxx]",

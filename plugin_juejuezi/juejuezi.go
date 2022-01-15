@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
@@ -19,7 +20,6 @@ import (
 
 const (
 	juejueziURL = "https://www.offjuan.com/api/juejuezi/text"
-	prio        = 15
 	referer     = "https://juejuezi.offjuan.com/"
 	ua          = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 )
@@ -29,11 +29,11 @@ var (
 )
 
 func init() {
-	control.Register("juejuezi", &control.Options{
+	control.Register("juejuezi", order.PrioJueJueZi, &control.Options{
 		DisableOnDefault: false,
 		Help: "绝绝子生成器\n" +
 			"- 喝奶茶绝绝子|绝绝子吃饭",
-	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}

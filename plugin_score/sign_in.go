@@ -14,6 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -22,7 +23,6 @@ import (
 )
 
 const (
-	prio          = 5
 	backgroundURL = "https://iw233.cn/API/pc.php?type=json"
 	referer       = "https://iw233.cn/main.html"
 	ua            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
@@ -32,7 +32,7 @@ const (
 )
 
 var (
-	engine = control.Register("score", &control.Options{
+	engine = control.Register("score", order.PrioScore, &control.Options{
 		DisableOnDefault: false,
 		Help:             "签到得分\n- 签到\n- 获得签到背景[@xxx]|获得签到背景",
 	})
@@ -40,7 +40,7 @@ var (
 )
 
 func init() {
-	engine.OnFullMatch("签到").SetBlock(true).SetPriority(prio).
+	engine.OnFullMatch("签到").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()
@@ -136,7 +136,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	engine.OnPrefix("获得签到背景", zero.OnlyGroup).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("获得签到背景", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
 			var uidStr string

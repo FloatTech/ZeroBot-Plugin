@@ -4,6 +4,7 @@ package moyu
 import (
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/cron"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -18,12 +19,12 @@ func init() { // 插件主体
 		c.Start()
 	}
 
-	control.Register("moyu", &control.Options{
+	control.Register("moyu", order.PrioMoyu, &control.Options{
 		DisableOnDefault: true,
 		Help: "moyu\n" +
 			"- 添加摸鱼提醒\n" +
 			"- 删除摸鱼提醒",
-	}).OnFullMatch("删除摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(20).
+	}).OnFullMatch("删除摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup("moyu")
 			if ok {
@@ -38,7 +39,7 @@ func init() { // 插件主体
 			}
 		})
 
-	zero.OnFullMatch("添加摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(20).
+	zero.OnFullMatch("添加摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup("moyu")
 			if ok {

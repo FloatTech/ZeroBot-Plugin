@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/FloatTech/AnimeAPI/picture"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -16,12 +17,12 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("tracemoe", &control.Options{
+	engine := control.Register("tracemoe", order.PrioTraceMoe, &control.Options{
 		DisableOnDefault: false,
 		Help:             "tracemoe\n- 搜番|搜索番剧[图片]",
 	})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).ThirdPriority().
+	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))

@@ -10,6 +10,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/rule"
 )
@@ -25,7 +26,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", &control.Options{
+	engine := control.Register("nativesetu", order.PrioNativeSetu, &control.Options{
 		DisableOnDefault: false,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +
@@ -34,7 +35,7 @@ func init() {
 			"- 刷新所有本地setu\n" +
 			"- 所有本地setu分类",
 	})
-	engine.OnRegex(`^本地(.*)$`, func(ctx *zero.Ctx) bool { return rule.FirstValueInList(setuclasses)(ctx) }).SetBlock(true).SetPriority(36).
+	engine.OnRegex(`^本地(.*)$`, func(ctx *zero.Ctx) bool { return rule.FirstValueInList(setuclasses)(ctx) }).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -48,7 +49,7 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, func(ctx *zero.Ctx) bool { return rule.FirstValueInList(setuclasses)(ctx) }, zero.SuperUserPermission).SetBlock(true).SetPriority(36).
+	engine.OnRegex(`^刷新本地(.*)$`, func(ctx *zero.Ctx) bool { return rule.FirstValueInList(setuclasses)(ctx) }, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := scanclass(os.DirFS(setupath), imgtype, imgtype)
@@ -58,7 +59,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
-	engine.OnRegex(`^设置本地setu绝对路径(.*)$`, zero.SuperUserPermission).SetBlock(true).SetPriority(36).
+	engine.OnRegex(`^设置本地setu绝对路径(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setupath = ctx.State["regex_matched"].([]string)[1]
 			err := os.WriteFile(cfgfile, helper.StringToBytes(setupath), 0644)
@@ -68,7 +69,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
-	engine.OnFullMatch("刷新所有本地setu", zero.SuperUserPermission).SetBlock(true).SetPriority(36).
+	engine.OnFullMatch("刷新所有本地setu", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			err := scanall(setupath)
 			if err == nil {
@@ -77,7 +78,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
-	engine.OnFullMatch("所有本地setu分类").SetBlock(true).SetPriority(36).
+	engine.OnFullMatch("所有本地setu分类").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			msg := "所有本地setu分类"
 			mu.RLock()

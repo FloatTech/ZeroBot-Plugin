@@ -5,13 +5,14 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var engine = control.Register("bilibili", &control.Options{
+var engine = control.Register("bilibili", order.PrioBilibili, &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
 		"- >vup info [名字|uid]\n" +

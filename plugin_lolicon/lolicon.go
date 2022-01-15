@@ -11,6 +11,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/math"
 )
@@ -25,7 +26,7 @@ var (
 )
 
 func init() {
-	control.Register("lolicon", &control.Options{
+	control.Register("lolicon", order.PrioLolicon, &control.Options{
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
 			"- 来份萝莉",

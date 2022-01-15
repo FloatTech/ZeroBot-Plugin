@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
@@ -18,7 +19,7 @@ import (
 
 const api = "http://your.addr:23333/api/start_server/%s/?apikey=apikey"
 
-var engine = control.Register("minecraft", &control.Options{
+var engine = control.Register("minecraft", order.PrioMinecraft, &control.Options{
 	DisableOnDefault: false,
 	Help: "minecraft\n" +
 		"- /mcstart xxx\n" +

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -14,20 +15,19 @@ import (
 
 const (
 	serviceName = "aireply"
-	prio        = 256
 )
 
 var modes = [...]string{"青云客", "小爱"}
 
 func init() { // 插件主体
 	bucket := rate.NewManager(time.Minute, 20) // 接口回复限速器
-	engine := control.Register(serviceName, &control.Options{
+	engine := control.Register(serviceName, order.PrioAIReply, &control.Options{
 		DisableOnDefault: false,
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]\n- ",
 	})
 	// 回复 @和包括名字
-	engine.OnMessage(zero.OnlyToMe).SetBlock(true).SetPriority(prio).
+	engine.OnMessage(zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			aireply := aireply.NewAIReply(getReplyMode(ctx))
 			if !bucket.Load(ctx.Event.UserID).Acquire() {
@@ -44,7 +44,7 @@ func init() { // 插件主体
 			}
 			ctx.Send(reply)
 		})
-	engine.OnPrefix(`设置回复模式`).SetBlock(true).SetPriority(20).
+	engine.OnPrefix(`设置回复模式`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
 			err := setReplyMode(ctx, param)

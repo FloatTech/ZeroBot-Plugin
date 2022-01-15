@@ -12,23 +12,22 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/web"
 )
 
 var (
-	engine = control.Register("coser", &control.Options{
-		DisableOnDefault: false,
-		Help:             "三次元小姐姐\n- coser",
-	})
-	prio     = 20
 	ua       = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
 	coserURL = "http://ovooa.com/API/cosplay/api.php"
 	limit    = rate.NewManager(time.Minute, 5)
 )
 
 func init() {
-	engine.OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).SetPriority(prio).
+	control.Register("coser", order.PrioCoser, &control.Options{
+		DisableOnDefault: false,
+		Help:             "三次元小姐姐\n- coser",
+	}).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.GroupID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))

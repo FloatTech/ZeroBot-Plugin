@@ -2,18 +2,17 @@
 package chouxianghua
 
 import (
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const prio = 10
-
 func init() {
-	control.Register("chouxianghua", &control.Options{
+	control.Register("chouxianghua", order.PrioChouXiangHua, &control.Options{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx",
-	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).SetPriority(prio).
+	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r := cx(ctx.State["regex_matched"].([]string)[1])
 			ctx.SendChain(message.Text(r))

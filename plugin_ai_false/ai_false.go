@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
@@ -17,7 +18,7 @@ import (
 )
 
 func init() { // 插件主体
-	engine := control.Register("aifalse", &control.Options{
+	engine := control.Register("aifalse", order.PrioAIFalse, &control.Options{
 		DisableOnDefault: false,
 		Help: "AIfalse\n" +
 			"- 查询计算机当前活跃度: [检查身体|自检|启动自检|系统状态]",

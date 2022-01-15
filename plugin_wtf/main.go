@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
@@ -18,11 +19,11 @@ var (
 )
 
 func init() {
-	en := control.Register("wtf", &control.Options{
+	en := control.Register("wtf", order.PrioWtf, &control.Options{
 		DisableOnDefault: false,
 		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",
 	})
-	en.OnFullMatch("鬼东西列表").SetBlock(true).SetPriority(30).
+	en.OnFullMatch("鬼东西列表").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			s := ""
 			for i, w := range table {
@@ -30,7 +31,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text(s))
 		})
-	en.OnRegex(`^查询鬼东西(\d*)`, zero.OnlyGroup).SetBlock(true).SetPriority(30).
+	en.OnRegex(`^查询鬼东西(\d*)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))

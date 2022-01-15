@@ -4,6 +4,7 @@ package shadiao
 import (
 	"time"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 )
@@ -21,11 +22,10 @@ const (
 	pyqReferer      = "https://pyq.shadiao.app/"
 	yduanziReferer  = "http://www.yduanzi.com/?utm_source=shadiao.app"
 	loveliveReferer = "https://lovelive.tools/"
-	prio            = 10
 )
 
 var (
-	engine = control.Register("shadiao", &control.Options{
+	engine = control.Register("shadiao", order.PrioShaDiao, &control.Options{
 		DisableOnDefault: false,
 		Help: "沙雕app\n" +
 			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子",

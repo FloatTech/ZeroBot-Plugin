@@ -12,6 +12,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
@@ -49,7 +50,7 @@ func init() {
 		panic(err)
 	}
 
-	engine := control.Register("hs", &control.Options{
+	engine := control.Register("hs", order.PrioHS, &control.Options{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +
@@ -57,7 +58,7 @@ func init() {
 			"- 更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp",
 	})
 	engine.OnRegex(`^搜卡(.+)$`).
-		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
+		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]
 		g := sh(List)
 		t := int(gjson.Get(g, `list.#`).Int())
@@ -100,7 +101,7 @@ func init() {
 	})
 	// 卡组
 	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
-		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
+		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		fmt.Print("成功")
 		List := ctx.State["regex_matched"].([]string)[1]
 		ctx.SendChain(
