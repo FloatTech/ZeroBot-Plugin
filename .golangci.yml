@@ -64,6 +64,8 @@ run:
   deadline: 5m
   issues-exit-code: 1
   tests: false
+  skip-dirs:
+    - order
 
 # output configuration options
 output:
