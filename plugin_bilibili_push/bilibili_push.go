@@ -3,21 +3,17 @@ package bilibilipush
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/txt2img"
 	"github.com/FloatTech/zbputils/web"
-	"github.com/chromedp/chromedp"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -43,8 +39,8 @@ var (
 	typeMsg  = map[int64]string{
 		0:   "发布了新动态",
 		1:   "转发了一条动态",
-		2:   "发布了新动态",
-		4:   "发布了新动态",
+		2:   "有图营业",
+		4:   "无图营业",
 		8:   "发布了新投稿",
 		16:  "发布了短视频",
 		64:  "发布了新专栏",
@@ -333,15 +329,150 @@ func sendDynamic() {
 				m, ok := control.Lookup(serviceName)
 				if ok {
 					groupList := bdb.getAllGroupByBuidAndDynamic(buid)
-					cID := cardList[i].Get("desc.dynamic_id").String()
-					cType := cardList[i].Get("desc.type").Int()
-					cName := cardList[i].Get("desc.user_profile.info.uname").String()
-					screenshotFile := cachePath + cID + ".png"
-					initDynamicScreenshot(cID)
 					var msg []message.MessageSegment
-					msg = append(msg, message.Text(cName+typeMsg[cType]))
-					msg = append(msg, message.Image("file:///"+file.BOTPATH+"/"+screenshotFile))
-					msg = append(msg, message.Text(tURL+cID))
+					cType := cardList[i].Get("desc.type").Int()
+					cardStr := cardList[i].Get("card").String()
+					switch cType {
+					case 0:
+						cName := cardList[i].Get("desc.user_profile.info.uname").String()
+						cTime := time.Unix(cardList[i].Get("desc.timestamp").Int(), 0).Format("2006-01-02 15:04:05")
+						msg = append(msg, message.Text(cName+"在"+cTime+typeMsg[cType]+"\n"))
+					case 1:
+						cName := gjson.Get(cardStr, "user.uname").String()
+						msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
+						cContent := gjson.Get(cardStr, "item.content").String()
+						msg = append(msg, message.Text(cContent+"\n"))
+						msg = append(msg, message.Text("转发的内容：\n"))
+						cOrigType := gjson.Get(cardStr, "item.orig_type").Int()
+						cOrigin := gjson.Get(cardStr, "origin").String()
+						switch cOrigType {
+						case 1:
+							cName := gjson.Get(cOrigin, "user.uname").String()
+							msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
+						case 2:
+							cName := gjson.Get(cOrigin, "user.name").String()
+							cUploadTime := time.Unix(gjson.Get(cOrigin, "item.upload_time").Int(), 0).Format("2006-01-02 15:04:05")
+							msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cType]+"\n"))
+							cDescription := gjson.Get(cOrigin, "item.description")
+							msg = append(msg, message.Text(cDescription))
+							if gjson.Get(cOrigin, "item.pictures.#").Int() != 0 {
+								gjson.Get(cOrigin, "item.pictures").ForEach(func(_, v gjson.Result) bool {
+									msg = append(msg, message.Image(v.Get("img_src").String()))
+									return true
+								})
+							}
+						case 4:
+							cName := gjson.Get(cOrigin, "user.uname").String()
+							cTimestamp := time.Unix(gjson.Get(cOrigin, "item.timestamp").Int(), 0).Format("2006-01-02 15:04:05")
+							msg = append(msg, message.Text(cName+"在"+cTimestamp+typeMsg[cType]+"\n"))
+							cContent := gjson.Get(cOrigin, "item.content").String()
+							msg = append(msg, message.Text(cContent+"\n"))
+						case 8:
+							cName := gjson.Get(cOrigin, "owner.name").String()
+							cTime := time.Unix(gjson.Get(cOrigin, "ctime").Int(), 0).Format("2006-01-02 15:04:05")
+							msg = append(msg, message.Text(cName+"在"+cTime+typeMsg[cType]+"\n"))
+							cTitle := gjson.Get(cOrigin, "title").String()
+							msg = append(msg, message.Text(cTitle))
+							cPic := gjson.Get(cOrigin, "pic").String()
+							msg = append(msg, message.Image(cPic))
+							cDesc := gjson.Get(cOrigin, "desc").String()
+							msg = append(msg, message.Text(cDesc+"\n"))
+							cShareSubtitle := gjson.Get(cOrigin, "share_subtitle").String()
+							msg = append(msg, message.Text(cShareSubtitle+"\n"))
+							cShortLink := gjson.Get(cOrigin, "short_link").String()
+							msg = append(msg, message.Text("视频链接："+cShortLink+"\n"))
+						case 16:
+							cName := gjson.Get(cOrigin, "user.name").String()
+							cUploadTime := gjson.Get(cOrigin, "item.upload_time").String()
+							msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cType]+"\n"))
+							cDescription := gjson.Get(cOrigin, "item.description")
+							msg = append(msg, message.Text(cDescription))
+							cCover := gjson.Get(cOrigin, "item.cover.default").String()
+							msg = append(msg, message.Image(cCover))
+						case 64:
+							cName := gjson.Get(cOrigin, "author.name").String()
+							cPublishTime := time.Unix(gjson.Get(cOrigin, "publish_time").Int(), 0).Format("2006-01-02 15:04:05")
+							msg = append(msg, message.Text(cName+"在"+cPublishTime+typeMsg[cType]+"\n"))
+							cTitle := gjson.Get(cOrigin, "title").String()
+							msg = append(msg, message.Text(cTitle+"\n"))
+							cSummary := gjson.Get(cOrigin, "summary").String()
+							msg = append(msg, message.Text(cSummary))
+							cBannerURL := gjson.Get(cOrigin, "banner_url").String()
+							msg = append(msg, message.Image(cBannerURL))
+						case 256:
+							cUpper := gjson.Get(cOrigin, "upper").String()
+							cTime := time.UnixMilli(gjson.Get(cOrigin, "ctime").Int()).Format("2006-01-02 15:04:05")
+							msg = append(msg, message.Text(cUpper+"在"+cTime+typeMsg[cType]+"\n"))
+							cTitle := gjson.Get(cOrigin, "title").String()
+							msg = append(msg, message.Text(cTitle))
+							cCover := gjson.Get(cOrigin, "cover").String()
+							msg = append(msg, message.Image(cCover))
+						default:
+							msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cType, 10)+"\n"))
+						}
+					case 2:
+						cName := gjson.Get(cardStr, "user.name").String()
+						cUploadTime := time.Unix(gjson.Get(cardStr, "item.upload_time").Int(), 0).Format("2006-01-02 15:04:05")
+						msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cType]+"\n"))
+						cDescription := gjson.Get(cardStr, "item.description")
+						msg = append(msg, message.Text(cDescription))
+						if gjson.Get(cardStr, "item.pictures.#").Int() != 0 {
+							gjson.Get(cardStr, "item.pictures").ForEach(func(_, v gjson.Result) bool {
+								msg = append(msg, message.Image(v.Get("img_src").String()))
+								return true
+							})
+						}
+					case 4:
+						cName := gjson.Get(cardStr, "user.uname").String()
+						cTimestamp := time.Unix(gjson.Get(cardStr, "item.timestamp").Int(), 0).Format("2006-01-02 15:04:05")
+						msg = append(msg, message.Text(cName+"在"+cTimestamp+typeMsg[cType]+"\n"))
+						cContent := gjson.Get(cardStr, "item.content").String()
+						msg = append(msg, message.Text(cContent+"\n"))
+					case 8:
+						cName := gjson.Get(cardStr, "owner.name").String()
+						cTime := time.Unix(gjson.Get(cardStr, "ctime").Int(), 0).Format("2006-01-02 15:04:05")
+						msg = append(msg, message.Text(cName+"在"+cTime+typeMsg[cType]+"\n"))
+						cTitle := gjson.Get(cardStr, "title").String()
+						msg = append(msg, message.Text(cTitle))
+						cPic := gjson.Get(cardStr, "pic").String()
+						msg = append(msg, message.Image(cPic))
+						cDesc := gjson.Get(cardStr, "desc").String()
+						msg = append(msg, message.Text(cDesc+"\n"))
+						cShareSubtitle := gjson.Get(cardStr, "share_subtitle").String()
+						msg = append(msg, message.Text(cShareSubtitle+"\n"))
+						cShortLink := gjson.Get(cardStr, "short_link").String()
+						msg = append(msg, message.Text("视频链接："+cShortLink+"\n"))
+					case 16:
+						cName := gjson.Get(cardStr, "user.name").String()
+						cUploadTime := gjson.Get(cardStr, "item.upload_time").String()
+						msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cType]+"\n"))
+						cDescription := gjson.Get(cardStr, "item.description")
+						msg = append(msg, message.Text(cDescription))
+						cCover := gjson.Get(cardStr, "item.cover.default").String()
+						msg = append(msg, message.Image(cCover))
+					case 64:
+						cName := gjson.Get(cardStr, "author.name").String()
+						cPublishTime := time.Unix(gjson.Get(cardStr, "publish_time").Int(), 0).Format("2006-01-02 15:04:05")
+						msg = append(msg, message.Text(cName+"在"+cPublishTime+typeMsg[cType]+"\n"))
+						cTitle := gjson.Get(cardStr, "title").String()
+						msg = append(msg, message.Text(cTitle+"\n"))
+						cSummary := gjson.Get(cardStr, "summary").String()
+						msg = append(msg, message.Text(cSummary))
+						cBannerURL := gjson.Get(cardStr, "banner_url").String()
+						msg = append(msg, message.Image(cBannerURL))
+					case 256:
+						cUpper := gjson.Get(cardStr, "upper").String()
+						cTime := time.UnixMilli(gjson.Get(cardStr, "ctime").Int()).Format("2006-01-02 15:04:05")
+						msg = append(msg, message.Text(cUpper+"在"+cTime+typeMsg[cType]+"\n"))
+						cTitle := gjson.Get(cardStr, "title").String()
+						msg = append(msg, message.Text(cTitle))
+						cCover := gjson.Get(cardStr, "cover").String()
+						msg = append(msg, message.Image(cCover))
+					default:
+						msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cType, 10)+"\n"))
+					}
+					cID := cardList[i].Get("desc.dynamic_id").String()
+					msg = append(msg, message.Text("动态链接：", tURL+cID))
 
 					zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 						for _, gid := range groupList {
@@ -393,10 +524,10 @@ func sendLive() {
 					lCover = value.Get("keyframe").String()
 				}
 				var msg []message.MessageSegment
-				msg = append(msg, message.Text(lName+" 正在直播:\n"))
+				msg = append(msg, message.Text(lName+" 正在直播：\n"))
 				msg = append(msg, message.Text(lTitle))
 				msg = append(msg, message.Image(lCover))
-				msg = append(msg, message.Text(lURL))
+				msg = append(msg, message.Text("直播链接：", lURL))
 				zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 					for _, gid := range groupList {
 						if m.IsEnabledIn(gid) {
@@ -418,27 +549,4 @@ func sendLive() {
 		}
 		return true
 	})
-}
-
-func initDynamicScreenshot(dynamicID string) {
-	screenshotFile := cachePath + dynamicID + ".png"
-	if file.IsNotExist(screenshotFile) {
-		var imageBuf []byte
-		dynamicURL := tURL + dynamicID
-		ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithDebugf(log.Printf))
-		defer cancel()
-
-		if err := chromedp.Run(ctx, chromedp.Tasks{
-			chromedp.Navigate(dynamicURL),
-			chromedp.SetAttributeValue(`div.unlogin-popover-avatar`, "style", "display:none;", chromedp.ByQuery),
-			chromedp.SetAttributeValue(`div.bb-comment`, "style", "display:none;", chromedp.ByQuery),
-			chromedp.Screenshot(`.card`, &imageBuf, chromedp.NodeVisible, chromedp.ByQuery),
-		}); err != nil {
-			log.Errorln("[bilibilipush]:", err)
-		}
-
-		if err := ioutil.WriteFile(screenshotFile, imageBuf, 0644); err != nil {
-			log.Errorln("[bilibilipush]:", err)
-		}
-	}
 }
