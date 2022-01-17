@@ -120,13 +120,7 @@ func init() {
 				webpageURL := websiteURL + "/book/" + id + "/"
 				downloadURL := websiteURL + "/modules/article/txtarticle.php?id=" + id
 				text := fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n", bookName, category, author, status, description, updateTime, latestChapter, webpageURL, downloadURL)
-				data, err := txt2img.RenderToBase64(text, txt2img.FontFile, 400, 20)
-				if err != nil {
-					log.Println("err:", err)
-				}
-				if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
-					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-				}
+				ctx.SendChain(message.Text(text))
 			}
 		})
 }
