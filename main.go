@@ -51,9 +51,9 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"      // 测定
 
 	// b站相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push" // b站推送（需要安装chrome浏览器）
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana" // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"      // 查询b站用户信息
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push" // b站推送
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"         // 嘉心糖发病
 
 	// 二次元图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"      // 随机图片与AI点评
