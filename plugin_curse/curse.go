@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	prio     = 250
 	minLevel = "min"
 	maxLevel = "max"
 )
