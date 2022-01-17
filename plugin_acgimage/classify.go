@@ -15,6 +15,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 )
 
@@ -63,7 +64,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("你太快啦!"))
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
-	engine.OnFullMatch("直接随机", zero.OnlyPublic, zero.AdminPermission).SetBlock(true).
+	engine.OnFullMatch("直接随机", ctxext.UserOrGrpAdmin).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if block {
 				ctx.SendChain(message.Text("请稍后再试哦"))
@@ -80,7 +81,7 @@ func init() { // 插件主体
 			}
 		})
 	// 撤回最后的直接随机图片
-	engine.OnFullMatch("太涩了").SetBlock(true).
+	engine.OnFullMatch("太涩了", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			msg, ok := msgof[ctx.Event.GroupID]
 			if ok {
@@ -132,6 +133,7 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 		if dhash != "" && !isupload {
 			ctx.SendChain(message.Text(comment + "\n给你点提示哦：" + b14))
 			ctx.Event.GroupID = 0
+			ctx.Event.DetailType = "private"
 			ctx.SendChain(img)
 			return
 		}
