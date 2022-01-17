@@ -118,7 +118,7 @@ func init() { // 插件主体
 					}
 				}
 				// 从缓冲池里抽一张
-				if id := ctx.SendChain(message.Image(file(pool.pop(imgtype)))); id == 0 {
+				if id := ctx.SendChain(message.Image(file(pool.pop(imgtype)))); id.ID() == 0 {
 					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 				}
 			})
@@ -142,7 +142,7 @@ func init() { // 插件主体
 					return
 				}
 				// 发送到发送者
-				if id := ctx.SendChain(message.Image(file(illust))); id == 0 {
+				if id := ctx.SendChain(message.Image(file(illust))); id.ID() == 0 {
 					ctx.SendChain(message.Text("ERROR: 可能被风控，发送失败"))
 					return
 				}

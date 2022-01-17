@@ -27,7 +27,7 @@ const (
 var (
 	// r18有一定保护，一般不会发出图片
 	randapi = "&loli=true&r18=true"
-	msgof   = make(map[int64]int64)
+	msgof   = make(map[int64]message.MessageID)
 	block   = false
 	limit   = rate.NewManager(time.Minute, 5)
 )
@@ -53,7 +53,7 @@ func init() { // 插件主体
 			}
 		})
 	// 有保护的随机图片
-	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatch("随机图片", zero.OnlyPublic).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if limit.Load(ctx.Event.UserID).Acquire() {
 				class, dhash, comment, _ := classify.Classify(randapi, true)
@@ -63,7 +63,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("你太快啦!"))
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
-	engine.OnFullMatch("直接随机", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnFullMatch("直接随机", zero.OnlyPublic, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if block {
 				ctx.SendChain(message.Text("请稍后再试哦"))
@@ -89,7 +89,7 @@ func init() { // 插件主体
 			}
 		})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, picture.CmdMatch, picture.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyPublic, picture.CmdMatch, picture.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
@@ -111,7 +111,7 @@ func init() { // 插件主体
 		})
 }
 
-func setLastMsg(id int64, msg int64) {
+func setLastMsg(id int64, msg message.MessageID) {
 	msgof[id] = msg
 }
 

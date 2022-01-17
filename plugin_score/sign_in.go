@@ -41,7 +41,7 @@ var (
 )
 
 func init() {
-	engine.OnFullMatch("签到").SetBlock(true).
+	engine.OnFullMatch("签到", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()

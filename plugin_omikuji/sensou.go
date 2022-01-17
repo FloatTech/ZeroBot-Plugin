@@ -46,7 +46,7 @@ func init() { // 插件主体
 			if err != nil {
 				log.Errorln("[omikuji]:", err)
 			}
-			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id == 0 {
+			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})

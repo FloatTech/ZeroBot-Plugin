@@ -38,7 +38,7 @@ func init() { // 插件主体
 			reply := aireply.Talk(ctx.ExtractPlainText())
 			// 回复
 			time.Sleep(time.Second * 1)
-			if ctx.Event.MessageType == "group" {
+			if zero.OnlyPublic(ctx) {
 				reply = append(reply, message.Reply(ctx.Event.MessageID))
 				ctx.Send(reply)
 				return

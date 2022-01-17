@@ -52,7 +52,7 @@ func init() {
 			if err != nil {
 				log.Errorln("[vtb]:", err)
 			}
-			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id == 0 {
+			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			// 步骤0，1，2，依次选择3个类别
@@ -84,7 +84,7 @@ func init() {
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								errorCount++
@@ -93,7 +93,7 @@ func init() {
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								step++
@@ -115,7 +115,7 @@ func init() {
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								errorCount++
@@ -124,7 +124,7 @@ func init() {
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								step++
@@ -147,7 +147,7 @@ func init() {
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
-								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id == 0 {
+								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 								}
 								errorCount++
