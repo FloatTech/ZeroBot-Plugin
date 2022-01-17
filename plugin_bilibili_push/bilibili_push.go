@@ -37,7 +37,6 @@ const (
 var (
 	lastTime = map[int64]int64{}
 	typeMsg  = map[int64]string{
-		0:   "发布了新动态",
 		1:   "转发了一条动态",
 		2:   "有图营业",
 		4:   "无图营业",
@@ -348,11 +347,11 @@ func sendDynamic() {
 						switch cOrigType {
 						case 1:
 							cName := gjson.Get(cOrigin, "user.uname").String()
-							msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cName+typeMsg[cOrigType]+"\n"))
 						case 2:
 							cName := gjson.Get(cOrigin, "user.name").String()
 							cUploadTime := time.Unix(gjson.Get(cOrigin, "item.upload_time").Int(), 0).Format("2006-01-02 15:04:05")
-							msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cOrigType]+"\n"))
 							cDescription := gjson.Get(cOrigin, "item.description")
 							msg = append(msg, message.Text(cDescription))
 							if gjson.Get(cOrigin, "item.pictures.#").Int() != 0 {
@@ -364,13 +363,13 @@ func sendDynamic() {
 						case 4:
 							cName := gjson.Get(cOrigin, "user.uname").String()
 							cTimestamp := time.Unix(gjson.Get(cOrigin, "item.timestamp").Int(), 0).Format("2006-01-02 15:04:05")
-							msg = append(msg, message.Text(cName+"在"+cTimestamp+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cName+"在"+cTimestamp+typeMsg[cOrigType]+"\n"))
 							cContent := gjson.Get(cOrigin, "item.content").String()
 							msg = append(msg, message.Text(cContent+"\n"))
 						case 8:
 							cName := gjson.Get(cOrigin, "owner.name").String()
 							cTime := time.Unix(gjson.Get(cOrigin, "ctime").Int(), 0).Format("2006-01-02 15:04:05")
-							msg = append(msg, message.Text(cName+"在"+cTime+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cName+"在"+cTime+typeMsg[cOrigType]+"\n"))
 							cTitle := gjson.Get(cOrigin, "title").String()
 							msg = append(msg, message.Text(cTitle))
 							cPic := gjson.Get(cOrigin, "pic").String()
@@ -384,7 +383,7 @@ func sendDynamic() {
 						case 16:
 							cName := gjson.Get(cOrigin, "user.name").String()
 							cUploadTime := gjson.Get(cOrigin, "item.upload_time").String()
-							msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cName+"在"+cUploadTime+typeMsg[cOrigType]+"\n"))
 							cDescription := gjson.Get(cOrigin, "item.description")
 							msg = append(msg, message.Text(cDescription))
 							cCover := gjson.Get(cOrigin, "item.cover.default").String()
@@ -392,7 +391,7 @@ func sendDynamic() {
 						case 64:
 							cName := gjson.Get(cOrigin, "author.name").String()
 							cPublishTime := time.Unix(gjson.Get(cOrigin, "publish_time").Int(), 0).Format("2006-01-02 15:04:05")
-							msg = append(msg, message.Text(cName+"在"+cPublishTime+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cName+"在"+cPublishTime+typeMsg[cOrigType]+"\n"))
 							cTitle := gjson.Get(cOrigin, "title").String()
 							msg = append(msg, message.Text(cTitle+"\n"))
 							cSummary := gjson.Get(cOrigin, "summary").String()
@@ -402,13 +401,13 @@ func sendDynamic() {
 						case 256:
 							cUpper := gjson.Get(cOrigin, "upper").String()
 							cTime := time.UnixMilli(gjson.Get(cOrigin, "ctime").Int()).Format("2006-01-02 15:04:05")
-							msg = append(msg, message.Text(cUpper+"在"+cTime+typeMsg[cType]+"\n"))
+							msg = append(msg, message.Text(cUpper+"在"+cTime+typeMsg[cOrigType]+"\n"))
 							cTitle := gjson.Get(cOrigin, "title").String()
 							msg = append(msg, message.Text(cTitle))
 							cCover := gjson.Get(cOrigin, "cover").String()
 							msg = append(msg, message.Image(cCover))
 						default:
-							msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cType, 10)+"\n"))
+							msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cOrigType, 10)+"\n"))
 						}
 					case 2:
 						cName := gjson.Get(cardStr, "user.name").String()

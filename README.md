@@ -258,7 +258,6 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 取消动态订阅[uid]
     - [x] 取消直播订阅[uid]
     - [x] 推送列表
-    - 注: linux下要想动态图片显示正常，需要下载chrome浏览器，并安装字体，具体看https://www.yuque.com/xiangrikuidezhongzi/zerobot/qrwxth
 - **TODO...**
 
 ## 使用方法
