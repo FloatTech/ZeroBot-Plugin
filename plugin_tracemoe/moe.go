@@ -20,7 +20,7 @@ var (
 func init() { // 插件主体
 	engine := control.Register("tracemoe", order.PrioTraceMoe, &control.Options{
 		DisableOnDefault: false,
-		Help:             "tracemoe\n- 搜番|搜索番剧[图片]",
+		Help:             "tracemoe\n- 搜番 | 搜索番剧[图片]",
 	})
 	// 以图搜图
 	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).

@@ -35,7 +35,7 @@ const (
 var (
 	engine = control.Register("score", order.PrioScore, &control.Options{
 		DisableOnDefault: false,
-		Help:             "签到得分\n- 签到\n- 获得签到背景[@xxx]|获得签到背景",
+		Help:             "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景",
 	})
 	levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 )

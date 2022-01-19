@@ -24,7 +24,7 @@ func init() { // 插件主体
 	control.Register("aiwife", order.PrioAIWife, &control.Options{
 		DisableOnDefault: false,
 		Help: "AIWife\n" +
-			"- waifu|随机waifu",
+			"- waifu | 随机waifu",
 	}).OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100000) + 1

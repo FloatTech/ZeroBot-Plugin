@@ -22,7 +22,7 @@ func init() { // 插件主体
 	engine := control.Register("aifalse", order.PrioAIFalse, &control.Options{
 		DisableOnDefault: false,
 		Help: "AIfalse\n" +
-			"- 查询计算机当前活跃度: [检查身体|自检|启动自检|系统状态]",
+			"- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]",
 	})
 	engine.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

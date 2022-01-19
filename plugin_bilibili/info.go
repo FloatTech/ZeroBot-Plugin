@@ -16,8 +16,8 @@ import (
 var engine = control.Register("bilibili", order.PrioBilibili, &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
-		"- >vup info [名字|uid]\n" +
-		"- >user info [名字|uid]",
+		"- >vup info [名字 | uid]\n" +
+		"- >user info [名字 | uid]",
 })
 
 // 查成分的
