@@ -33,7 +33,7 @@ func init() { // 插件主体
 	engine := control.Register("saucenao", order.PrioSauceNao, &control.Options{
 		DisableOnDefault: false,
 		Help: "搜图\n" +
-			"- 以图搜图|搜索图片|以图识图[图片]\n" +
+			"- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +
 			"- 搜图[P站图片ID]",
 	})
 	// 根据 PID 搜图

@@ -20,7 +20,7 @@ var (
 	engine = control.Register("funny", order.PrioFunny, &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
-			"- 讲个笑话[@xxx]|讲个笑话[qq号]",
+			"- 讲个笑话[@xxx] | 讲个笑话[qq号]",
 	})
 	limit = rate.NewManager(time.Minute, 20)
 	db    = &sql.Sqlite{DBPath: dbfile}
