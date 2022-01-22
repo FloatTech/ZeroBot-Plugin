@@ -1,8 +1,8 @@
-github.com/FloatTech/AnimeAPI v1.2.4-beta17 h1:oc6MBl0fNV80KAfDa0on+PZRTQ3tBvswCvQVRHBuynI=
-github.com/FloatTech/AnimeAPI v1.2.4-beta17/go.mod h1:aKJNGX/M2tmPT0ECmPHnn2ZGzvGkjaZXLpKtcrbKU7Y=
+github.com/FloatTech/AnimeAPI v1.2.4-beta18 h1:H+ypB76HHhZibLzSPkmVCa/E9r995M913MIezmZ0SNM=
+github.com/FloatTech/AnimeAPI v1.2.4-beta18/go.mod h1:rhYvzqLH2YTKBOk7DfJsXsdZlnxhpBP3HvctwqlLykM=
 github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
-github.com/FloatTech/zbputils v1.2.4-beta6 h1:r6NtdVznx42QVNgJ46ldIw4YmyQDrciyKufwflgKU7Q=
-github.com/FloatTech/zbputils v1.2.4-beta6/go.mod h1:yQwwXUoFhJeU+CkaDXia1E+k4iBqxIiobE3n3Vy/R3w=
+github.com/FloatTech/zbputils v1.2.4-beta7 h1:DofQTSVEBU1BQnLb4GahNZqsqVqoj4Lu5GDJa2rJW9o=
+github.com/FloatTech/zbputils v1.2.4-beta7/go.mod h1:mPVpKu2scTyBiitNmzCrxGc9aIKs9rwfb6iqz/+heck=
 github.com/Mrs4s/MiraiGo v0.0.0-20211120033824-43b23f4e6fcb h1:Rkj28fqIwGx/EgBzRYtpmJRfH6wqVn7cNdc7aJ0QE4M=
 github.com/Mrs4s/MiraiGo v0.0.0-20211120033824-43b23f4e6fcb/go.mod h1:imVKbfKqqeit+C/eaWGb4MKQ3z3gN6pRpBU5RMtp5so=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
@@ -145,8 +145,8 @@ github.com/ugorji/go v1.1.7/go.mod h1:kZn38zHttfInRq0xu/PH0az30d+z6vm202qpg1oXVM
 github.com/ugorji/go/codec v1.1.7/go.mod h1:Ax+UKWsSmolVDwsd+7N3ZtXu+yMGCf907BLYF3GoBXY=
 github.com/wdvxdr1123/ZeroBot v1.3.2/go.mod h1:i2DIqQjtjE+3gvVi9r9sc+QpNaUuyTXx/HNXXayIpwI=
 github.com/wdvxdr1123/ZeroBot v1.4.1/go.mod h1:7t9m4vDZPwWAmzKlhP6IvUoisOIiqNdm/3AJgiY3+ew=
-github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220118054520-51ea28a32e7e h1:byscElf065gJ/fKtwryXMouZvNwVkxtqOTZXizTwLi8=
-github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220118054520-51ea28a32e7e/go.mod h1:7t9m4vDZPwWAmzKlhP6IvUoisOIiqNdm/3AJgiY3+ew=
+github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220122162257-bc71c479f3d1 h1:x56lA0u6hSRpD1YJ/4BDiLydJ8qp5mF50xYS8ZlbkWU=
+github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220122162257-bc71c479f3d1/go.mod h1:7t9m4vDZPwWAmzKlhP6IvUoisOIiqNdm/3AJgiY3+ew=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
