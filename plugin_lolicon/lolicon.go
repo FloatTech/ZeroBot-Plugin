@@ -52,7 +52,8 @@ func init() {
 						continue
 					}
 					url := json.Get("data.0.urls.original").Str
-					ctx.SendGroupMessage(0, message.Image(strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")))
+					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
+					ctx.SendGroupMessage(0, message.Image(url))
 					queue <- url
 				}
 			}()
