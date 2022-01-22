@@ -14,10 +14,11 @@ import (
 
 	// 词库类
 	"github.com/FloatTech/AnimeAPI/imgpool"
+	"github.com/FloatTech/zbputils/control"
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"     // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"     // 基础词库
-	"github.com/FloatTech/zbputils/control"
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"          // base16384加解密
