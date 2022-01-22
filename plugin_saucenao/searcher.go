@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/FloatTech/AnimeAPI/ascii2d"
-	"github.com/FloatTech/AnimeAPI/picture"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
 	"github.com/sirupsen/logrus"
@@ -17,6 +16,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 )
 
@@ -86,7 +86,7 @@ func init() { // 插件主体
 			}
 		})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, picture.CmdMatch, picture.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))

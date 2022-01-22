@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/classify"
-	"github.com/FloatTech/AnimeAPI/picture"
+	"github.com/FloatTech/AnimeAPI/imgpool"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -90,7 +90,7 @@ func init() { // 插件主体
 			}
 		})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyPublic, picture.CmdMatch, picture.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyPublic, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
@@ -103,11 +103,22 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			dhash := ctx.State["regex_matched"].([]string)[1]
 			if len(dhash) == 5*3 {
+				var u string
 				if web.IsSupportIPv6 {
-					ctx.SendChain(message.Image(apiheadv6 + dhash + ".webp"))
+					u = apiheadv6 + dhash + ".webp"
 				} else {
-					ctx.SendChain(message.Image(apihead + dhash))
+					u = apihead + dhash
 				}
+
+				m, err := imgpool.NewImage(ctx, dhash, u)
+				var img message.MessageSegment
+				if err != nil {
+					img = message.Image(u)
+				} else {
+					img = message.Image(m.String())
+				}
+
+				ctx.SendChain(img)
 			}
 		})
 }
@@ -122,11 +133,19 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 		return
 	}
 
-	var img message.MessageSegment
+	var u string
 	if web.IsSupportIPv6 {
-		img = message.Image(apiheadv6 + dhash + ".webp")
+		u = apiheadv6 + dhash + ".webp"
 	} else {
-		img = message.Image(apihead + dhash)
+		u = apihead + dhash
+	}
+
+	m, err := imgpool.NewImage(ctx, b14, u)
+	var img message.MessageSegment
+	if err != nil {
+		img = message.Image(u)
+	} else {
+		img = message.Image(m.String())
 	}
 
 	if class > 5 {

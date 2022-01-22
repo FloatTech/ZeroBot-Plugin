@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/picture"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -63,7 +62,7 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).
+	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {

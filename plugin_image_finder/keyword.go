@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -73,7 +75,13 @@ func init() {
 			pom1 := "https://i.pixiv.re"
 			rannum := randintn(len(soutujson.Illusts))
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
-			ctx.SendChain(message.Image(pom1 + pom2))
+			u := pom1 + pom2
+			m, err := imgpool.NewImage(ctx, strconv.Itoa(soutujson.Illusts[rannum].ID), u)
+			if err != nil {
+				ctx.SendChain(message.Image(u))
+				return
+			}
+			ctx.SendChain(message.Image(m.String()))
 		})
 }
 

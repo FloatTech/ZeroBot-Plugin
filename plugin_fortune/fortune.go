@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"image"
+	"io"
 	"math/rand"
 	"os"
 	"strconv"
@@ -18,10 +19,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
-	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -57,7 +58,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	process.SleepAbout1sTo2s()
 	data, err := file.GetLazyData(omikujson, true, false)
 	if err != nil {
 		panic(err)
@@ -142,27 +142,32 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			var data []byte
-			switch file.IsExist(cachefile) {
-			case true:
-				data, err = os.ReadFile(cachefile)
-				if err == nil {
-					break
+			m, err := imgpool.NewImage(ctx, cachefile, cachefile)
+			if err != nil {
+				if file.IsNotExist(cachefile) {
+					f, err := os.Create(cachefile)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					_, err = draw(background, title, text, f)
+					f.Close()
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+				} else {
+					m, err = imgpool.NewImage(ctx, cachefile, cachefile)
 				}
-				_ = os.Remove(cachefile)
-				fallthrough
-			case false:
-				// 绘制背景
-				data, err = draw(background, title, text)
 			}
 
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			_ = os.WriteFile(cachefile, data, 0644)
+
 			// 发送图片
-			ctx.SendChain(message.Image("base64://" + helper.BytesToString(data)))
+			ctx.SendChain(message.Image(m.String()))
 		})
 }
 
@@ -206,20 +211,20 @@ func randtext(seed int64) (string, string) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, text string) ([]byte, error) {
+func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
 	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
 	canvas.DrawImage(back, 0, 0)
 	// 写标题
 	canvas.SetRGB(1, 1, 1)
 	if err := canvas.LoadFontFace(font, 45); err != nil {
-		return nil, err
+		return -1, err
 	}
 	sw, _ := canvas.MeasureString(title)
 	canvas.DrawString(title, 140-sw/2, 112)
 	// 写正文
 	canvas.SetRGB(0, 0, 0)
 	if err := canvas.LoadFontFace(font, 23); err != nil {
-		return nil, err
+		return -1, err
 	}
 	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
@@ -247,7 +252,7 @@ func draw(back image.Image, title, text string) ([]byte, error) {
 			}
 		}
 	}
-	return txt2img.TxtCanvas{Canvas: canvas}.ToBase64()
+	return txt2img.TxtCanvas{Canvas: canvas}.WriteTo(f)
 }
 
 func offest(total, now int, distance float64) float64 {

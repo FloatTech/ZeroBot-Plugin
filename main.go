@@ -13,9 +13,11 @@ import (
 	// webctrl "github.com/FloatTech/zbputils/control/web" // web 后端控制
 
 	// 词库类
+	"github.com/FloatTech/AnimeAPI/imgpool"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"     // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"     // 基础词库
+	"github.com/FloatTech/zbputils/control"
 
 	// 实用类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"          // base16384加解密
@@ -84,13 +86,14 @@ var (
 		"* Copyright © 2020 - 2021 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
-	nicks  = []string{"ATRI", "atri", "亚托莉", "アトリ"}
-	banner = strings.Join(contents, "\n")
-	token  *string
-	url    *string
-	adana  *string
-	prefix *string
-	reg    = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
+	nicks   = []string{"ATRI", "atri", "亚托莉", "アトリ"}
+	banner  = strings.Join(contents, "\n")
+	token   *string
+	url     *string
+	adana   *string
+	prefix  *string
+	poolkey *string
+	reg     = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
 )
 
 func init() {
@@ -108,6 +111,7 @@ func init() {
 	// 默认昵称
 	adana = flag.String("n", "椛椛", "Set default nickname.")
 	prefix = flag.String("p", "/", "Set command prefix.")
+	poolkey = flag.String("pk", "", "Set imgpool key and enable listening.")
 
 	flag.Parse()
 	if *h {
@@ -123,6 +127,11 @@ func init() {
 			logrus.SetLevel(logrus.WarnLevel)
 		}
 	}
+
+	if *poolkey != "" {
+		imgpool.RegisterListener(*poolkey, control.Register("imgpool", 1, &control.Options{}))
+	}
+
 	// 启用 gui
 	// webctrl.InitGui(*g)
 }

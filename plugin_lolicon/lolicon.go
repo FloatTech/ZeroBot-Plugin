@@ -11,6 +11,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/math"
 
@@ -53,8 +54,13 @@ func init() {
 					}
 					url := json.Get("data.0.urls.original").Str
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
-					ctx.SendGroupMessage(0, message.Image(url))
-					queue <- url
+					id := json.Get("data.0.pid").String()
+					m, err := imgpool.NewImage(ctx, id, url)
+					if err == nil {
+						queue <- m.String()
+					} else {
+						queue <- url
+					}
 				}
 			}()
 			select {
