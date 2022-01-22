@@ -26,7 +26,7 @@ var (
 	engine = control.Register("omikuji", order.PrioOmikuji, &control.Options{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
-			"- 求签|占卜\n- 解签",
+			"- 求签 | 占卜\n- 解签",
 	})
 )
 

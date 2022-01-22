@@ -33,7 +33,7 @@ func init() {
 	control.Register("juejuezi", order.PrioJueJueZi, &control.Options{
 		DisableOnDefault: false,
 		Help: "绝绝子生成器\n" +
-			"- 喝奶茶绝绝子|绝绝子吃饭",
+			"- 喝奶茶绝绝子 | 绝绝子吃饭",
 	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
