@@ -152,7 +152,7 @@ func init() {
 						return
 					}
 					_, err = draw(background, title, text, f)
-					f.Close()
+					_ = f.Close()
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
