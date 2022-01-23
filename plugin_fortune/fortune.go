@@ -142,7 +142,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := imgpool.NewImage(ctx, cachefile, cachefile)
+			m, err := imgpool.NewImage(ctx, cachefile, file.BOTPATH+"/"+cachefile)
 			if err != nil {
 				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {
@@ -158,7 +158,7 @@ func init() {
 						return
 					}
 				}
-				m, err = imgpool.NewImage(ctx, cachefile, cachefile)
+				m, err = imgpool.NewImage(ctx, cachefile, file.BOTPATH+"/"+cachefile)
 			}
 
 			if err != nil {
