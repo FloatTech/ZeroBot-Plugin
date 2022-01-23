@@ -144,6 +144,7 @@ func init() {
 
 			m, err := imgpool.NewImage(ctx, cachefile, cachefile)
 			if err != nil {
+				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {
 					f, err := os.Create(cachefile)
 					if err != nil {
@@ -156,9 +157,8 @@ func init() {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
-				} else {
-					m, err = imgpool.NewImage(ctx, cachefile, cachefile)
 				}
+				m, err = imgpool.NewImage(ctx, cachefile, cachefile)
 			}
 
 			if err != nil {
