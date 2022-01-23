@@ -28,7 +28,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
-var (
+const (
 	// 底图缓存位置
 	images = "data/Fortune/"
 	// 基础文件位置
@@ -37,6 +37,9 @@ var (
 	font = "data/Font/sakura.ttf"
 	// 生成图缓存位置
 	cache = images + "cache/"
+)
+
+var (
 	// 底图类型列表：车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌
 	// 				公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师
 	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘"}
@@ -54,6 +57,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	_ = os.RemoveAll(cache)
 	err = os.MkdirAll(cache, 0755)
 	if err != nil {
 		panic(err)
