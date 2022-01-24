@@ -52,7 +52,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"        // 分数
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"      // 沙雕app
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"      // 测定
-
+        _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wangyiyun"    // 网易云音乐热评
 	// b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push" // b站推送
