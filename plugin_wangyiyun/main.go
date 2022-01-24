@@ -17,7 +17,7 @@ const(
     )
     
 func init() { 
-    engine := control.Register("wangyiyun", &control.Options{
+    engine := control.Register("wangyiyun",order.PrioWangYiYun, &control.Options{
         
 		DisableOnDefault: false,
 		Help:           "wangyiyun \n- 来份网易云热评",
