@@ -17,7 +17,7 @@ const(
     )
     
 func init() { 
-    engine := control.Register("wangyiyun",order.Priowangyiyun, &control.Options{
+    engine := control.Register("wangyiyun", &control.Options{
         
 		DisableOnDefault: false,
 		Help:           "wangyiyun \n- 来份网易云热评",
@@ -27,9 +27,6 @@ func init() {
     
 	engine.OnFullMatch("来份网易云热评").SetBlock(true).
 	Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.GroupID).Acquire() {
-			return
-		}
 		data, err := web.ReqWith(wangyiyunURL, "GET", wangyiyunReferer, ua)
 		
 		if err != nil {
