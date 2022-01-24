@@ -5,10 +5,11 @@ import
     
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
+    control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/web"
 	
 )
+
 const(
     wangyiyunURL = "http://ovooa.com/API/wyrp/api.php?type=text"
     wangyiyunReferer = "http://ovooa.com/"
@@ -16,17 +17,21 @@ const(
     )
     
 func init() { 
-    engine := control.Register("wangyiyun",, order.Priowangyiyun, &control.Options
-    {
+    engine := control.Register("wangyiyun",order.Priowangyiyun, &control.Options{
+        
 		DisableOnDefault: false,
-		help: "wangyiyun \n- 来份网易云热评",
+		Help:           "wangyiyun \n- 来份网易云热评",
+        
     })
+
     
-	engine.OnFullMatch("来份网易云热评").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatch("来份网易云热评").SetBlock(true).
+	Handle(func(ctx *zero.Ctx) {
 		if !limit.Load(ctx.Event.GroupID).Acquire() {
 			return
 		}
 		data, err := web.ReqWith(wangyiyunURL, "GET", wangyiyunReferer, ua)
+		
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
