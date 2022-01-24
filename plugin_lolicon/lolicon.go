@@ -55,7 +55,7 @@ func init() {
 					}
 					url := json.Get("data.0.urls.original").Str
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
-					name := url[strings.LastIndex(url, "/")+1:]
+					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
 					m, err := imgpool.GetImage(ctx, name)
 					if err != nil {
 						m, err = imgpool.NewImage(ctx, name, url)
