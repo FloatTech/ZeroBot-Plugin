@@ -19,7 +19,7 @@ const(
     )
     
 var(
-    engine := control.Register("wangyiyun",order.PrioWangYiYun, &control.Options{
+    engine = control.Register("wangyiyun",order.PrioWangYiYun, &control.Options{
         
 		DisableOnDefault: false,
 		Help:           "wangyiyun \n- 来份网易云热评",
