@@ -23,6 +23,7 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -146,7 +147,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := imgpool.NewImage(ctx, cachefile, file.BOTPATH+"/"+cachefile)
+			m, err := imgpool.GetImage(ctx, cachefile)
 			if err != nil {
 				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {
@@ -163,6 +164,11 @@ func init() {
 					}
 				}
 				m, err = imgpool.NewImage(ctx, cachefile, file.BOTPATH+"/"+cachefile)
+				process.SleepAbout1sTo2s() // 防止风控
+				if err != nil {
+					ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
+					return
+				}
 			}
 
 			if err != nil {

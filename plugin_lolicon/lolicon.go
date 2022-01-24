@@ -14,6 +14,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/math"
+	"github.com/FloatTech/zbputils/process"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
@@ -54,7 +55,12 @@ func init() {
 					}
 					url := json.Get("data.0.urls.original").Str
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
-					m, err := imgpool.NewImage(ctx, url[:strings.LastIndex(url, "/")+1], url)
+					name := url[strings.LastIndex(url, "/")+1:]
+					m, err := imgpool.GetImage(ctx, name)
+					if err != nil {
+						m, err = imgpool.NewImage(ctx, name, url)
+						process.SleepAbout1sTo2s()
+					}
 					if err == nil {
 						queue <- m.String()
 					} else {

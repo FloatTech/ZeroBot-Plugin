@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/imgpool"
@@ -76,7 +76,7 @@ func init() {
 			rannum := randintn(len(soutujson.Illusts))
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
 			u := pom1 + pom2
-			m, err := imgpool.NewImage(ctx, strconv.Itoa(soutujson.Illusts[rannum].ID), u)
+			m, err := imgpool.NewImage(ctx, u[strings.LastIndex(u, "/")+1:], u)
 			if err != nil {
 				ctx.SendChain(message.Image(u))
 				return
