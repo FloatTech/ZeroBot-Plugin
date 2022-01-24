@@ -245,7 +245,7 @@ func download(i *pixiv.Illust, filedir string) /*(string, */ error /*)*/ {
 		return /*filepath + ".gif",*/ nil
 	}
 	// 下载最大分辨率为 1200 的图片
-	link := i.ImageUrls
+	link := i.ImageUrls[0]
 	link = strings.ReplaceAll(link, "img-original", "img-master")
 	link = strings.ReplaceAll(link, "_p0", "_p0_master1200")
 	link = strings.ReplaceAll(link, ".png", ".jpg")

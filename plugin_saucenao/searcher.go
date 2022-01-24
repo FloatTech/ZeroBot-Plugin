@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/FloatTech/AnimeAPI/ascii2d"
+	"github.com/FloatTech/AnimeAPI/imgpool"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
 	"github.com/sirupsen/logrus"
@@ -49,22 +50,32 @@ func init() { // 插件主体
 			}
 			if illust.Pid > 0 {
 				name := strconv.FormatInt(illust.Pid, 10)
-				filepath := datapath + name
-				switch {
-				case file.IsExist(filepath + ".jpg"):
-					filepath = "file:///" + filepath + ".jpg"
-				case file.IsExist(filepath + ".png"):
-					filepath = "file:///" + filepath + ".png"
-				case file.IsExist(filepath + ".gif"):
-					filepath = "file:///" + filepath + ".gif"
-				default:
-					filepath = ""
-				}
-				if filepath == "" {
-					logrus.Debug("[sausenao]开始下载", name)
-					filepath, err = pixiv.Download(illust.ImageUrls, datapath, name)
-					if err == nil {
-						filepath = "file:///" + filepath
+				var imgs message.Message
+				for i, u := range illust.ImageUrls {
+					n := name + "_p" + strconv.Itoa(i)
+					filepath := datapath + n
+					f := ""
+					switch {
+					case file.IsExist(filepath + ".jpg"):
+						f = filepath + ".jpg"
+					case file.IsExist(filepath + ".png"):
+						f = filepath + ".png"
+					case file.IsExist(filepath + ".gif"):
+						f = filepath + ".gif"
+					default:
+						logrus.Debugln("[sausenao]开始下载", n)
+						filepath, err = pixiv.Download(u, datapath, n)
+						if err == nil {
+							f = filepath
+						}
+					}
+					if f != "" {
+						m, err := imgpool.NewImage(ctx, n, f)
+						if err == nil {
+							imgs = append(imgs, message.Image(m.String()))
+						} else {
+							imgs = append(imgs, message.Image("file:///"+f))
+						}
 					}
 				}
 				txt := message.Text(
@@ -74,9 +85,9 @@ func init() { // 插件主体
 					"画师ID：", illust.UserId, "\n",
 					"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
-				if filepath != "" {
+				if imgs != nil {
 					// 发送搜索结果
-					ctx.SendChain(message.Image(filepath), message.Text("\n"), txt)
+					ctx.Send(append(imgs, message.Text("\n"), txt))
 				} else {
 					// 图片下载失败，仅发送文字结果
 					ctx.SendChain(txt)
