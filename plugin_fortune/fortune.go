@@ -21,9 +21,9 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
-	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -147,7 +147,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := imgpool.GetImage(ctx, cachefile)
+			m, err := imgpool.GetImage(cachefile)
 			if err != nil {
 				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {
@@ -163,21 +163,16 @@ func init() {
 						return
 					}
 				}
-				m, err = imgpool.NewImage(ctx, cachefile, file.BOTPATH+"/"+cachefile)
-				process.SleepAbout1sTo2s() // 防止风控
-				if err != nil {
+				m.SetFile(file.BOTPATH + "/" + cachefile)
+				err = m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
+				if err != nil && err.Error() == "send image error" {
 					ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
 					return
 				}
+			} else {
+				// 发送图片
+				ctx.SendChain(message.Image(m.String()))
 			}
-
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-
-			// 发送图片
-			ctx.SendChain(message.Image(m.String()))
 		})
 }
 

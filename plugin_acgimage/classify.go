@@ -8,15 +8,15 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/classify"
 	"github.com/FloatTech/AnimeAPI/imgpool"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/web"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
-
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 )
 
 const (
@@ -54,7 +54,7 @@ func init() { // 插件主体
 			}
 		})
 	// 有保护的随机图片
-	engine.OnFullMatch("随机图片", zero.OnlyPublic).SetBlock(true).
+	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if limit.Load(ctx.Event.UserID).Acquire() {
 				class, dhash, comment, _ := classify.Classify(randapi, true)
@@ -110,15 +110,10 @@ func init() { // 插件主体
 					u = apihead + dhash
 				}
 
-				m, err := imgpool.NewImage(ctx, dhash, u)
-				var img message.MessageSegment
-				if err != nil {
-					img = message.Image(u)
-				} else {
-					img = message.Image(m.String())
+				_, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
+				if err != nil && err.Error() == "send image error" {
+					ctx.SendChain(message.Image(u))
 				}
-
-				ctx.SendChain(img)
 			}
 		})
 }
@@ -128,6 +123,11 @@ func setLastMsg(id int64, msg message.MessageID) {
 }
 
 func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload bool) {
+	if isupload {
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(comment))
+		return
+	}
+
 	b14, err := url.QueryUnescape(dhash)
 	if err != nil {
 		return
@@ -140,28 +140,27 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 		u = apihead + dhash
 	}
 
-	m, err := imgpool.NewImage(ctx, b14, u)
-	var img message.MessageSegment
-	if err != nil {
-		img = message.Image(u)
+	var send ctxext.NoCtxSendMsg
+	if class > 5 {
+		send = ctxext.SendTo(ctx, ctx.Event.UserID)
 	} else {
-		img = message.Image(m.String())
+		send = func(msg interface{}) int64 {
+			return ctx.Send(append(msg.(message.Message), message.Text(comment))).ID()
+		}
 	}
 
 	if class > 5 {
-		if dhash != "" && !isupload {
+		if dhash != "" {
 			ctx.SendChain(message.Text(comment + "\n给你点提示哦：" + b14))
-			ctx.Event.GroupID = 0
-			ctx.Event.DetailType = "private"
-			ctx.SendChain(img)
 			return
 		}
 		ctx.SendChain(message.Text(comment))
-		return
 	}
-	if isupload {
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(comment))
-		return
+
+	_, err = imgpool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
+	if err != nil && err.Error() == "send image error" {
+		logrus.Debugln("[acgimage]", err)
+		img := message.Image(u)
+		ctx.SendChain(img, message.Text(comment))
 	}
-	ctx.SendChain(img, message.Text(comment))
 }

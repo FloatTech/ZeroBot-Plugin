@@ -11,6 +11,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -76,12 +77,10 @@ func init() {
 			rannum := randintn(len(soutujson.Illusts))
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
 			u := pom1 + pom2
-			m, err := imgpool.NewImage(ctx, u[strings.LastIndex(u, "/")+1:], u)
-			if err != nil {
+			_, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), u[strings.LastIndex(u, "/")+1:], u)
+			if err != nil && err.Error() == "send image error" {
 				ctx.SendChain(message.Image(u))
-				return
 			}
-			ctx.SendChain(message.Image(m.String()))
 		})
 }
 

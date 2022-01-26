@@ -10,15 +10,15 @@ import (
 	"github.com/FloatTech/AnimeAPI/imgpool"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
-
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 )
 
 var (
@@ -70,10 +70,12 @@ func init() { // 插件主体
 						}
 					}
 					if f != "" {
-						m, err := imgpool.NewImage(ctx, n, f)
+						m, err := imgpool.NewImage(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx), n, f)
 						if err == nil {
 							imgs = append(imgs, message.Image(m.String()))
+							process.SleepAbout1sTo2s()
 						} else {
+							logrus.Debugln("[saucenao]", err)
 							imgs = append(imgs, message.Image("file:///"+f))
 						}
 					}
