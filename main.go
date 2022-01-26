@@ -13,9 +13,6 @@ import (
 	// webctrl "github.com/FloatTech/zbputils/control/web" // web 后端控制
 
 	// 词库类
-	"github.com/FloatTech/AnimeAPI/imgpool"
-	"github.com/FloatTech/zbputils/control"
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"     // ATRI词库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chat"     // 基础词库
@@ -74,6 +71,8 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation" // vtb语录
 
 	// 以下为内置依赖，勿动
+	"github.com/FloatTech/AnimeAPI/imgpool"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/go-registry"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
