@@ -11,7 +11,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
-	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -143,24 +142,19 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 	var send ctxext.NoCtxSendMsg
 	if class > 5 {
 		send = ctxext.SendTo(ctx, ctx.Event.UserID)
+		if dhash != "" {
+			ctx.SendChain(message.Text(comment + "\n给你点提示哦：" + b14))
+		} else {
+			ctx.SendChain(message.Text(comment))
+		}
 	} else {
 		send = func(msg interface{}) int64 {
 			return ctx.Send(append(msg.(message.Message), message.Text(comment))).ID()
 		}
 	}
 
-	if class > 5 {
-		if dhash != "" {
-			ctx.SendChain(message.Text(comment + "\n给你点提示哦：" + b14))
-			return
-		}
-		ctx.SendChain(message.Text(comment))
-	}
-
 	_, err = imgpool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
-	if err != nil && err.Error() == "send image error" {
-		logrus.Debugln("[acgimage]", err)
-		img := message.Image(u)
-		ctx.SendChain(img, message.Text(comment))
+	if err != nil && err.Error() == "send image error" && class <= 5 {
+		ctx.SendChain(message.Image(u), message.Text(comment))
 	}
 }
