@@ -164,15 +164,17 @@ func init() {
 					}
 				}
 				m.SetFile(file.BOTPATH + "/" + cachefile)
-				err = m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
-				if err != nil && err.Error() == "send image error" {
-					ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
+				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-			} else {
-				// 发送图片
-				ctx.SendChain(message.Image(m.String()))
+				if hassent {
+					return
+				}
 			}
+			// 发送图片
+			ctx.SendChain(message.Image(m.String()))
 		})
 }
 

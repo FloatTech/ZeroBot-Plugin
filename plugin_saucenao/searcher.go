@@ -3,7 +3,6 @@ package saucenao
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/FloatTech/AnimeAPI/ascii2d"
@@ -21,16 +20,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
-var (
-	datapath = file.BOTPATH + "/data/saucenao/"
-)
-
 func init() { // 插件主体
-	_ = os.RemoveAll(datapath)
-	err := os.MkdirAll(datapath, 0755)
-	if err != nil {
-		panic(err)
-	}
 	engine := control.Register("saucenao", order.PrioSauceNao, &control.Options{
 		DisableOnDefault: false,
 		Help: "搜图\n" +
@@ -51,10 +41,15 @@ func init() { // 插件主体
 			if illust.Pid > 0 {
 				name := strconv.FormatInt(illust.Pid, 10)
 				var imgs message.Message
-				for i, u := range illust.ImageUrls {
+				for i := range illust.ImageUrls {
 					n := name + "_p" + strconv.Itoa(i)
-					filepath := datapath + n
+					filepath := file.BOTPATH + "/" + pixiv.CacheDir + n
 					f := ""
+					m, err := imgpool.GetImage(n)
+					if err == nil {
+						imgs = append(imgs, message.Image(m.String()))
+						continue
+					}
 					switch {
 					case file.IsExist(filepath + ".jpg"):
 						f = filepath + ".jpg"
@@ -64,16 +59,19 @@ func init() { // 插件主体
 						f = filepath + ".gif"
 					default:
 						logrus.Debugln("[sausenao]开始下载", n)
-						filepath, err = pixiv.Download(u, datapath, n)
+						filepath, err = illust.DownloadToCache(i, n)
 						if err == nil {
 							f = filepath
 						}
 					}
 					if f != "" {
-						m, err := imgpool.NewImage(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx), n, f)
+						m.SetFile(f)
+						hassent, err := m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						if err == nil {
 							imgs = append(imgs, message.Image(m.String()))
-							process.SleepAbout1sTo2s()
+							if hassent {
+								process.SleepAbout1sTo2s()
+							}
 						} else {
 							logrus.Debugln("[saucenao]", err)
 							imgs = append(imgs, message.Image("file:///"+f))

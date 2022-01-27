@@ -109,9 +109,9 @@ func init() { // 插件主体
 					u = apihead + dhash
 				}
 
-				_, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
-				if err != nil && err.Error() == "send image error" {
-					ctx.SendChain(message.Image(u))
+				m, hassent, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
+				if err == nil && !hassent {
+					ctx.SendChain(message.Image(m.String()))
 				}
 			}
 		})
@@ -153,8 +153,8 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 		}
 	}
 
-	_, err = imgpool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
-	if err != nil && err.Error() == "send image error" && class <= 5 {
-		ctx.SendChain(message.Image(u), message.Text(comment))
+	m, hassent, err := imgpool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
+	if err == nil && !hassent {
+		send(message.Message{message.Image(m.String())})
 	}
 }

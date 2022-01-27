@@ -3,7 +3,6 @@ package setutime
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -41,18 +40,12 @@ type imgpool struct {
 func newPools() *imgpool {
 	cache := &imgpool{
 		DB:    &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
-		Path:  "data/SetuTime/cache/",
+		Path:  pixiv.CacheDir,
 		Group: 0,
 		List:  []string{"涩图", "二次元", "风景", "车万"}, // 可以自己加类别，得自己加图片进数据库
 		Max:   10,
 		Pool:  map[string][]*pixiv.Illust{},
 		Form:  0,
-	}
-	// 每次启动清理缓存
-	os.RemoveAll(cache.Path)
-	err := os.MkdirAll(cache.Path, 0755)
-	if err != nil {
-		panic(err)
 	}
 	// 如果数据库不存在则下载
 	_, _ = fileutil.GetLazyData(cache.DB.DBPath, false, false)
@@ -131,7 +124,7 @@ func init() { // 插件主体
 				return
 			}
 			// 下载插画
-			if err := download(illust, pool.Path); err != nil {
+			if _, err := illust.DownloadToCache(0, strconv.FormatInt(id, 10)+"_p0"); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -198,12 +191,13 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 	m, err := imagepool.GetImage(n)
 	if err != nil {
 		// 下载图片
-		if err = download(illust, pool.Path); err != nil {
+		f := ""
+		if f, err = illust.DownloadToCache(0, n); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m.SetFile(strings.ReplaceAll(n, "_p0", ""))
-		_ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+		m.SetFile(fileutil.BOTPATH + "/" + f)
+		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 	}
 	p.Lock.Lock()
 	p.Pool[imgtype] = append(p.Pool[imgtype], illust)
@@ -228,7 +222,7 @@ func file(i *pixiv.Illust) string {
 	if err == nil {
 		return m.String()
 	}
-	filename := fmt.Sprint(i.Pid)
+	filename := fmt.Sprint(i.Pid) + "_p0"
 	filepath := fileutil.BOTPATH + `/` + pool.Path + filename
 	if fileutil.IsExist(filepath + ".jpg") {
 		return `file:///` + filepath + ".jpg"
@@ -240,20 +234,4 @@ func file(i *pixiv.Illust) string {
 		return `file:///` + filepath + ".gif"
 	}
 	return ""
-}
-
-func download(i *pixiv.Illust, filedir string) error {
-	filename := fmt.Sprint(i.Pid)
-	filepath := filedir + filename
-	if fileutil.IsExist(filepath+".jpg") || fileutil.IsExist(filepath+".png") || fileutil.IsExist(filepath+".gif") {
-		return nil
-	}
-	// 下载最大分辨率为 1200 的图片
-	link := i.ImageUrls[0]
-	link = strings.ReplaceAll(link, "img-original", "img-master")
-	link = strings.ReplaceAll(link, "_p0", "_p0_master1200")
-	link = strings.ReplaceAll(link, ".png", ".jpg")
-	// 下载
-	_, err1 := pixiv.Download(link, filedir, filename)
-	return err1
 }

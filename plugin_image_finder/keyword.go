@@ -77,9 +77,9 @@ func init() {
 			rannum := randintn(len(soutujson.Illusts))
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
 			u := pom1 + pom2
-			_, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), u[strings.LastIndex(u, "/")+1:], u)
-			if err != nil && err.Error() == "send image error" {
-				ctx.SendChain(message.Image(u))
+			m, hassent, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), u[strings.LastIndex(u, "/")+1:], u)
+			if err == nil && !hassent {
+				ctx.SendChain(message.Image(m.String()))
 			}
 		})
 }
