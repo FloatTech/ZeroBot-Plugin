@@ -61,7 +61,7 @@ func init() { // 插件主体
 						logrus.Debugln("[sausenao]开始下载", n)
 						filepath, err = illust.DownloadToCache(i, n)
 						if err == nil {
-							f = filepath
+							f = file.BOTPATH + "/" + filepath
 						}
 					}
 					if f != "" {
