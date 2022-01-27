@@ -4,6 +4,7 @@ package setutime
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -61,6 +62,7 @@ func init() { // 插件主体
 			max:  10,
 			pool: map[string][]*pixiv.Illust{},
 		}
+		_ = os.MkdirAll("data/SetuTime", 0755)
 		// 如果数据库不存在则下载
 		_, _ = fileutil.GetLazyData(cache.db.DBPath, false, false)
 		err := cache.db.Open()
