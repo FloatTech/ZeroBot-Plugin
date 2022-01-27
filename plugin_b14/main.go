@@ -2,6 +2,7 @@
 package b14coder
 
 import (
+	"strings"
 	"unsafe"
 
 	control "github.com/FloatTech/zbputils/control"
@@ -22,7 +23,7 @@ func init() {
 	})
 	en.OnRegex(`^加密(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			str := ctx.State["regex_matched"].([]string)[1]
+			str := strings.Trim(ctx.State["regex_matched"].([]string)[1], " ")
 			es, err := base14.UTF16be2utf8(base14.EncodeString(str))
 			if err == nil {
 				ctx.SendChain(message.Text(helper.BytesToString(es)))
@@ -42,7 +43,7 @@ func init() {
 		})
 	en.OnRegex(`^用(.*)加密(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
+			key, str := ctx.State["regex_matched"].([]string)[1], strings.Trim(ctx.State["regex_matched"].([]string)[2], " ")
 			t := getea(key)
 			es, err := base14.UTF16be2utf8(base14.Encode(t.Encrypt(helper.StringToBytes(str))))
 			if err == nil {

@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fogleman/gg" // 注册了 jpg png gif
@@ -89,7 +90,7 @@ func init() {
 				// 个人用户设为负数
 				gid = -ctx.Event.UserID
 			}
-			i, ok := index[ctx.State["regex_matched"].([]string)[1]]
+			i, ok := index[strings.Trim(ctx.State["regex_matched"].([]string)[1], " ")]
 			if ok {
 				c, ok := control.Lookup("fortune")
 				if ok {
