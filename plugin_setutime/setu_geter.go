@@ -35,9 +35,9 @@ type imgpool struct {
 	pool map[string][]*pixiv.Illust
 }
 
-func (i *imgpool) list() (l []string) {
+func (p *imgpool) list() (l []string) {
 	var err error
-	l, err = i.db.ListTables()
+	l, err = p.db.ListTables()
 	if err != nil {
 		l = []string{"涩图", "二次元", "风景", "车万"}
 	}
