@@ -2,7 +2,7 @@
 package b14coder
 
 import (
-	"strings"
+	"regexp"
 	"unsafe"
 
 	control "github.com/FloatTech/zbputils/control"
@@ -21,9 +21,9 @@ func init() {
 		Help: "base16384加解密\n" +
 			"- 加密xxx\n- 解密xxx\n- 用yyy加密xxx\n- 用yyy解密xxx",
 	})
-	en.OnRegex(`^加密(.*)`).SetBlock(true).
+	en.OnRegex(`^加密\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			str := strings.Trim(ctx.State["regex_matched"].([]string)[1], " ")
+			str := ctx.State["regex_matched"].([]string)[1]
 			es, err := base14.UTF16be2utf8(base14.EncodeString(str))
 			if err == nil {
 				ctx.SendChain(message.Text(helper.BytesToString(es)))
@@ -31,9 +31,12 @@ func init() {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
 		})
-	en.OnRegex("^解密([\u4e00-\u8e00]*[\u3d01-\u3d06]?)$").SetBlock(true).
+	en.OnRegex(`^解密\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			re := regexp.MustCompile("^([\u4e00-\u8e00]*[\u3d01-\u3d06]?)$")
 			str := ctx.State["regex_matched"].([]string)[1]
+			str = re.FindAllString(str, -1)[0]
+			ctx.SendChain(message.Text(str))
 			es, err := base14.UTF82utf16be(helper.StringToBytes(str))
 			if err == nil {
 				ctx.SendChain(message.Text(base14.DecodeString(es)))
@@ -41,9 +44,9 @@ func init() {
 				ctx.SendChain(message.Text("解密失败!"))
 			}
 		})
-	en.OnRegex(`^用(.*)加密(.*)`).SetBlock(true).
+	en.OnRegex(`^用(.*)加密\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			key, str := ctx.State["regex_matched"].([]string)[1], strings.Trim(ctx.State["regex_matched"].([]string)[2], " ")
+			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
 			t := getea(key)
 			es, err := base14.UTF16be2utf8(base14.Encode(t.Encrypt(helper.StringToBytes(str))))
 			if err == nil {
@@ -52,9 +55,11 @@ func init() {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
 		})
-	en.OnRegex("^用(.*)解密([\u4e00-\u8e00]*[\u3d01-\u3d06]?)$").SetBlock(true).
+	en.OnRegex(`^用(.*)解密\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			re := regexp.MustCompile("^([\u4e00-\u8e00]*[\u3d01-\u3d06]?)$")
 			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
+			str = re.FindAllString(str, -1)[0]
 			t := getea(key)
 			es, err := base14.UTF82utf16be(helper.StringToBytes(str))
 			if err == nil {
