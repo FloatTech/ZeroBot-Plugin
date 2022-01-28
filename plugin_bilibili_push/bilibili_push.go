@@ -67,7 +67,7 @@ func init() {
 			"- 推送列表",
 	})
 
-	en.OnRegex(`^添加订阅\s(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -93,7 +93,7 @@ func init() {
 			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消订阅\s(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -119,7 +119,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消动态订阅\s(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消动态订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -145,7 +145,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 		}
 	})
-	en.OnRegex(`^取消直播订阅\s(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消直播订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool

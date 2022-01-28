@@ -2,7 +2,6 @@
 package b14coder
 
 import (
-	"regexp"
 	"unsafe"
 
 	control "github.com/FloatTech/zbputils/control"
@@ -31,12 +30,9 @@ func init() {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
 		})
-	en.OnRegex(`^解密\s?(.*)`).SetBlock(true).
+	en.OnRegex(`^解密\s?([一-踀]*[㴁-㴆]?)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			re := regexp.MustCompile("^([\u4e00-\u8e00]*[\u3d01-\u3d06]?)$")
 			str := ctx.State["regex_matched"].([]string)[1]
-			str = re.FindAllString(str, -1)[0]
-			ctx.SendChain(message.Text(str))
 			es, err := base14.UTF82utf16be(helper.StringToBytes(str))
 			if err == nil {
 				ctx.SendChain(message.Text(base14.DecodeString(es)))
@@ -55,11 +51,9 @@ func init() {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
 		})
-	en.OnRegex(`^用(.*)解密\s?(.*)`).SetBlock(true).
+	en.OnRegex(`^用(.*)解密\s?([一-踀]*[㴁-㴆]?)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			re := regexp.MustCompile("^([\u4e00-\u8e00]*[\u3d01-\u3d06]?)$")
 			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
-			str = re.FindAllString(str, -1)[0]
 			t := getea(key)
 			es, err := base14.UTF82utf16be(helper.StringToBytes(str))
 			if err == nil {

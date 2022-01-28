@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"regexp"
 	"strings"
 
 	control "github.com/FloatTech/zbputils/control"
@@ -38,10 +37,8 @@ func init() {
 		Help: "藏头诗\n" +
 			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",
 	})
-	engine.OnRegex(`藏头诗\s?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		re := regexp.MustCompile("^([\u4E00-\u9FA5]{3,10})$")
+	engine.OnRegex(`藏头诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
-		kw = re.FindAllString(kw, -1)[0]
 		login()
 		data, err := search(kw, "7", "0")
 		if err != nil {
@@ -51,10 +48,8 @@ func init() {
 		ctx.SendChain(message.Text(text))
 	})
 
-	engine.OnRegex(`藏尾诗\s?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		re := regexp.MustCompile("^([\u4E00-\u9FA5]{3,10})$")
+	engine.OnRegex(`藏尾诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
-		kw = re.FindAllString(kw, -1)[0]
 		login()
 		data, err := search(kw, "7", "2")
 		if err != nil {
