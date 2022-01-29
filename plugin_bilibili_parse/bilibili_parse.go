@@ -24,7 +24,7 @@ func init() {
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA",
 	})
 
-	engine.OnRegex(bilibiliRe).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(bilibiliRe).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		bilibiliURL := ctx.State["regex_matched"].([]string)[0]
 		m := parseURL(bilibiliURL)
 		if len(m) != 0 {
