@@ -1,3 +1,4 @@
+// Package bilibiliparse b站视频链接解析
 package bilibiliparse
 
 import (
