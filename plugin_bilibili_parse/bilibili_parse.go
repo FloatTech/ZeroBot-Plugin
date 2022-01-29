@@ -43,7 +43,6 @@ func parseURL(bilibiliURL string) (m []message.MessageSegment) {
 	if !re.MatchString(videoURL) {
 		return
 	}
-	videoURL = "https://b23.tv/" + re.FindStringSubmatch(videoURL)[1]
 	title := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/h1/span/text()").Data
 	m = append(m, message.Text(title+"\n"))
 	view := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='view']/text()").Data
@@ -59,6 +58,5 @@ func parseURL(bilibiliURL string) (m []message.MessageSegment) {
 	collect := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='collect']/text()").Data
 	share := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='share']/text()").Data
 	m = append(m, message.Text("收藏：", strings.TrimSpace(collect)+"分享：", strings.TrimSpace(share)+"\n"))
-	m = append(m, message.Text("视频链接：", videoURL+"\n"))
 	return
 }
