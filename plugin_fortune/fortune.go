@@ -21,9 +21,9 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
-	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -82,7 +82,7 @@ func init() {
 			"- 运势 | 抽签\n" +
 			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘]",
 	})
-	en.OnRegex(`^设置底图(.*)`).SetBlock(true).
+	en.OnRegex(`^设置底图\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			if gid <= 0 {
@@ -147,7 +147,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := imgpool.GetImage(ctx, cachefile)
+			m, err := imgpool.GetImage(cachefile)
 			if err != nil {
 				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {
@@ -163,19 +163,16 @@ func init() {
 						return
 					}
 				}
-				m, err = imgpool.NewImage(ctx, cachefile, file.BOTPATH+"/"+cachefile)
-				process.SleepAbout1sTo2s() // 防止风控
+				m.SetFile(file.BOTPATH + "/" + cachefile)
+				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
 				if err != nil {
-					ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + cachefile))
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				if hassent {
 					return
 				}
 			}
-
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-
 			// 发送图片
 			ctx.SendChain(message.Image(m.String()))
 		})

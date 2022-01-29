@@ -13,6 +13,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
@@ -56,9 +57,10 @@ func init() {
 					url := json.Get("data.0.urls.original").Str
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
 					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
-					m, err := imgpool.GetImage(ctx, name)
+					m, err := imgpool.GetImage(name)
 					if err != nil {
-						m, err = imgpool.NewImage(ctx, name, url)
+						m.SetFile(url)
+						_, err = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						process.SleepAbout1sTo2s()
 					}
 					if err == nil {
@@ -69,7 +71,7 @@ func init() {
 				}
 			}()
 			select {
-			case <-time.After(time.Second * 10):
+			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 			case url := <-queue:
 				ctx.SendChain(message.Image(url))
