@@ -260,6 +260,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 推送列表
 - **网易云音乐热评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wangyiyun"`
     - [x] 来份网易云热评
+- **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse"`
+    - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA
 - **TODO...**
 
 ## 使用方法

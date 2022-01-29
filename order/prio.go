@@ -12,6 +12,7 @@ const (
 	PrioAIWife
 	PrioBase14
 	PrioBilibili
+	PrioBiliBiliParse
 	PrioBilibiliPush
 	PrioBookReview
 	PrioCangTouShi
