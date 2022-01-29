@@ -37,7 +37,7 @@ func init() {
 		Help: "藏头诗\n" +
 			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",
 	})
-	engine.OnRegex("藏头诗([\u4E00-\u9FA5]{3,10})").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`藏头诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
 		login()
 		data, err := search(kw, "7", "0")
@@ -48,7 +48,7 @@ func init() {
 		ctx.SendChain(message.Text(text))
 	})
 
-	engine.OnRegex("藏尾诗([\u4E00-\u9FA5]{3,10})").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`藏尾诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
 		login()
 		data, err := search(kw, "7", "2")
