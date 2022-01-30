@@ -38,6 +38,8 @@ const (
 	PrioNativeWife
 	PrioNBNHHSH
 	PrioNovel
+	PrioNSFW
+	PrioNSFWAuto
 	PrioOmikuji
 	PrioReborn
 	PrioRuncode

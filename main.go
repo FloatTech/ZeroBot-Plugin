@@ -67,6 +67,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"    // 本地涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"    // 本地老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"          // nsfw图片识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"      // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"      // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_tracemoe"      // 搜番

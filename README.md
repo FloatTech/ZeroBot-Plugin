@@ -147,6 +147,9 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 刷新所有本地setu
     - [x] 所有本地setu分类
     - 注：刷新文件夹较慢，请耐心等待刷新完成，会提示“成功”。
+- **nsfw图片识别** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"`
+    - [x] nsfw打分[图片]
+    - [x] 当图片属于非 neutral 类别时自动发送评价(默认禁用，启用输入 /启用 nsfwauto)
 - **lolicon** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"`
     - [x] 来份萝莉
 - **搜图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"`
