@@ -28,12 +28,12 @@ func init() {
 		bilibiliURL := ctx.State["regex_matched"].([]string)[0]
 		m := parseURL(bilibiliURL)
 		if len(m) != 0 {
-			ctx.SendChain(m...)
+			ctx.Send(m)
 		}
 	})
 }
 
-func parseURL(bilibiliURL string) (m []message.MessageSegment) {
+func parseURL(bilibiliURL string) (m message.Message) {
 	doc, err := htmlquery.LoadURL(bilibiliURL)
 	if err != nil {
 		log.Errorln("[bilibiliparse]:访问的链接为", bilibiliURL, ",错误为", err)
