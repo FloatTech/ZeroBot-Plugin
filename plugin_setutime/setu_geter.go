@@ -35,7 +35,7 @@ type imgpool struct {
 	pool map[string][]*pixiv.Illust
 }
 
-func (p *imgpool) list() (l []string) {
+func (p *imgpool) List() (l []string) {
 	var err error
 	l, err = p.db.ListTables()
 	if err != nil {
@@ -44,7 +44,32 @@ func (p *imgpool) list() (l []string) {
 	return l
 }
 
+var pool *imgpool
+
 func init() { // 插件主体
+	_ = os.MkdirAll("data/SetuTime", 0755)
+
+	go func() {
+		process.SleepAbout1sTo2s()
+		pool = &imgpool{
+			db:   &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+			path: pixiv.CacheDir,
+			max:  10,
+			pool: map[string][]*pixiv.Illust{},
+		}
+		// 如果数据库不存在则下载
+		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
+		err := pool.db.Open()
+		if err != nil {
+			panic(err)
+		}
+		for _, imgtype := range pool.List() {
+			if err := pool.db.Create(imgtype, &pixiv.Illust{}); err != nil {
+				panic(err)
+			}
+		}
+	}()
+
 	limit := rate.NewManager(time.Minute*1, 5)
 	engine := control.Register("setutime", order.PrioSetuTime, &control.Options{
 		DisableOnDefault: false,
@@ -54,29 +79,7 @@ func init() { // 插件主体
 			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
 			"- >setu status",
 	})
-	process.SleepAbout1sTo2s()
-	pool := func() *imgpool {
-		cache := &imgpool{
-			db:   &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
-			path: pixiv.CacheDir,
-			max:  10,
-			pool: map[string][]*pixiv.Illust{},
-		}
-		_ = os.MkdirAll("data/SetuTime", 0755)
-		// 如果数据库不存在则下载
-		_, _ = fileutil.GetLazyData(cache.db.DBPath, false, false)
-		err := cache.db.Open()
-		if err != nil {
-			panic(err)
-		}
-		for _, imgtype := range cache.list() {
-			if err := cache.db.Create(imgtype, &pixiv.Illust{}); err != nil {
-				panic(err)
-			}
-		}
-		return cache
-	}()
-	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool.list())).SetBlock(true).
+	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
@@ -114,7 +117,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool.list()), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -132,7 +135,7 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
-			for _, imgtype := range pool.list() {
+			for _, imgtype := range pool.List() {
 				num, err := pool.db.Count(imgtype)
 				if err != nil {
 					num = 0
