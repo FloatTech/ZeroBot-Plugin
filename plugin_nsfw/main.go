@@ -41,7 +41,7 @@ func init() {
 				if err != nil {
 					return
 				}
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p[0]))))
+				autojudge(ctx, p[0])
 			}
 		})
 }
@@ -66,4 +66,32 @@ func judge(p nsfw.Picture) string {
 		c += " hso"
 	}
 	return c
+}
+
+func autojudge(ctx *zero.Ctx, p nsfw.Picture) {
+	if p.Neutral > 0.3 {
+		return
+	}
+	c := ""
+	if p.Drawings > 0.3 {
+		c = "二次元"
+	} else {
+		c = "三次元"
+	}
+	i := 0
+	if p.Hentai > 0.3 {
+		c += " hentai"
+		i++
+	}
+	if p.Porn > 0.3 {
+		c += " porn"
+		i++
+	}
+	if p.Sexy > 0.3 {
+		c += " hso"
+		i++
+	}
+	if i > 0 {
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(c)))
+	}
 }
