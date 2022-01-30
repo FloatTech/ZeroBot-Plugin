@@ -13,10 +13,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	_ "golang.org/x/image/webp" // import webp decoding
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/sql"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 // setuclass holds setus in a folder, which is the class name.
