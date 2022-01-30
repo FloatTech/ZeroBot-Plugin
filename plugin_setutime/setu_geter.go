@@ -44,19 +44,18 @@ func (p *imgpool) List() (l []string) {
 	return l
 }
 
-var pool *imgpool
+var pool = &imgpool{
+	db:   &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+	path: pixiv.CacheDir,
+	max:  10,
+	pool: map[string][]*pixiv.Illust{},
+}
 
 func init() { // 插件主体
 	_ = os.MkdirAll("data/SetuTime", 0755)
 
 	go func() {
 		process.SleepAbout1sTo2s()
-		pool = &imgpool{
-			db:   &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
-			path: pixiv.CacheDir,
-			max:  10,
-			pool: map[string][]*pixiv.Illust{},
-		}
 		// 如果数据库不存在则下载
 		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
 		err := pool.db.Open()

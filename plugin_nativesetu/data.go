@@ -25,7 +25,7 @@ type setuclass struct {
 	Path  string `db:"path"`  // Path 图片路径
 }
 
-var ns *nsetu
+var ns = &nsetu{db: &sql.Sqlite{DBPath: dbfile}}
 
 func init() {
 	go func() {
@@ -41,7 +41,6 @@ func init() {
 				logrus.Println("[nsetu] set setu dir to", setupath)
 			}
 		}
-		ns = &nsetu{db: &sql.Sqlite{DBPath: dbfile}}
 	}()
 }
 
