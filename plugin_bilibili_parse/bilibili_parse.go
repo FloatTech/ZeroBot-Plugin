@@ -2,14 +2,16 @@
 package bilibiliparse
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"regexp"
+	"strings"
+
 	"github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"regexp"
-	"strings"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 var (
