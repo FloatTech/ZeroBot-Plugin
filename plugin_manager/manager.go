@@ -68,6 +68,7 @@ var engine = control.Register("manager", order.PrioManager, &control.Options{
 
 func init() { // 插件主体
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		_ = os.MkdirAll(datapath, 0755)
 		clock = timer.NewClock(db)

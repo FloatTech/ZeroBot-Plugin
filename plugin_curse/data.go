@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/sql"
@@ -22,6 +23,7 @@ var (
 // 加载数据库
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		_ = os.MkdirAll(dbpath, 0755)
 		_, err := file.GetLazyData(dbfile, false, true)

@@ -13,6 +13,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 	_ "golang.org/x/image/webp" // import webp decoding
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/sql"
@@ -29,6 +30,7 @@ var ns = &nsetu{db: &sql.Sqlite{DBPath: dbfile}}
 
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		err := os.MkdirAll(datapath, 0755)
 		if err != nil {

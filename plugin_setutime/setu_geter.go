@@ -55,6 +55,7 @@ func init() { // 插件主体
 	_ = os.MkdirAll("data/SetuTime", 0755)
 
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		// 如果数据库不存在则下载
 		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)

@@ -7,6 +7,7 @@ import (
 	wr "github.com/mroth/weightedrand"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 )
@@ -27,6 +28,7 @@ var (
 
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		err := os.MkdirAll(datapath, 0755)
 		if err != nil {
