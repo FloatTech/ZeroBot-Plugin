@@ -69,6 +69,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"    // 本地老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"          // nsfw图片识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"      // 以图搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_scale"         // 叔叔的AI二次元图片放大
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"      // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_tracemoe"      // 搜番
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation" // vtb语录

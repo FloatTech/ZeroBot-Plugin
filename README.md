@@ -167,6 +167,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 评价图片(发送一张图片让bot评分)
 - **DeepDanbooru二次元图标签识别** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_danbooru`
     - [x] 鉴赏图片[图片]
+- **叔叔的AI二次元图片放大** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_scale"`
+    - [x] 放大图片[图片]
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_fortune`
     - [x] 运势 | 抽签
     - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘]

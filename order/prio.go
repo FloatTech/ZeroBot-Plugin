@@ -44,6 +44,7 @@ const (
 	PrioReborn
 	PrioRuncode
 	PrioSauceNao
+	PrioScale
 	PrioScore
 	PrioSetuTime
 	PrioShaDiao

@@ -16,7 +16,7 @@ func init() {
 		Help:             "nsfw图片识别\n- nsfw打分[图片]",
 	})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"nsfw打分"}, zero.OnlyPublic, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"nsfw打分"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
@@ -51,7 +51,7 @@ func judge(p nsfw.Picture) string {
 		return "普通哦"
 	}
 	c := ""
-	if p.Drawings > 0.3 {
+	if p.Drawings > 0.3 || p.Neutral < 0.3 {
 		c = "二次元"
 	} else {
 		c = "三次元"
