@@ -1,8 +1,8 @@
-github.com/FloatTech/AnimeAPI v1.2.5-beta2 h1:O8PGLzLLQNGNtJoq+gkpvkEe2JdaZ3vP9pD4+0ASPPk=
-github.com/FloatTech/AnimeAPI v1.2.5-beta2/go.mod h1:tWU3xDvkSqnFD8SCTS5oko1UhkVlrNLK6PmN0ea6n6Q=
+github.com/FloatTech/AnimeAPI v1.2.5-beta6 h1:H91PtZI74fKYoQ9yEb11/n2ltw+TQuPaGthzQl4EKVk=
+github.com/FloatTech/AnimeAPI v1.2.5-beta6/go.mod h1:vKbLI2uuJJLZceI6cqNgr/4PWLNHMEhCop83DrdVwpU=
 github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
-github.com/FloatTech/zbputils v1.2.5-beta1 h1:wptmjPpsaoK77igPKFmdUB86AWPyNyuEtT7LNYt2t4U=
-github.com/FloatTech/zbputils v1.2.5-beta1/go.mod h1:1VE4gxnrr+uRz/TDPgx3GT8GmVayoF5e0wolBQU3t+k=
+github.com/FloatTech/zbputils v1.2.5-beta6 h1:WLJLAvqloLuPqTZdbChnXlufMSQMKYFZ2xVHAW8CmEM=
+github.com/FloatTech/zbputils v1.2.5-beta6/go.mod h1:1VE4gxnrr+uRz/TDPgx3GT8GmVayoF5e0wolBQU3t+k=
 github.com/Mrs4s/MiraiGo v0.0.0-20211120033824-43b23f4e6fcb h1:Rkj28fqIwGx/EgBzRYtpmJRfH6wqVn7cNdc7aJ0QE4M=
 github.com/Mrs4s/MiraiGo v0.0.0-20211120033824-43b23f4e6fcb/go.mod h1:imVKbfKqqeit+C/eaWGb4MKQ3z3gN6pRpBU5RMtp5so=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
