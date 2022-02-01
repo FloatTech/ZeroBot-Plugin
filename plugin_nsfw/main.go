@@ -4,6 +4,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/nsfw"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -37,10 +38,12 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
+				process.SleepAbout1sTo2s()
 				p, err := nsfw.Classify(url...)
 				if err != nil {
 					return
 				}
+				process.SleepAbout1sTo2s()
 				autojudge(ctx, p[0])
 			}
 		})
