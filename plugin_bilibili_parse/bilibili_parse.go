@@ -57,7 +57,7 @@ func parseURL(bilibiliURL string) (m message.Message) {
 	m = append(m, message.Image(image))
 	like := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='like']/text()").Data
 	coin := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='coin']/text()").Data
-	m = append(m, message.Text("点赞：", strings.TrimSpace(like)+"投币：", strings.TrimSpace(coin)+"\n"))
+	m = append(m, message.Text("\n点赞：", strings.TrimSpace(like)+"投币：", strings.TrimSpace(coin)+"\n"))
 	collect := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='collect']/text()").Data
 	share := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='share']/text()").Data
 	m = append(m, message.Text("收藏：", strings.TrimSpace(collect)+"分享：", strings.TrimSpace(share)+"\n"))

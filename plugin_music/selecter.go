@@ -30,7 +30,7 @@ func init() {
 			"- 网易点歌[xxx]\n" +
 			"- 酷我点歌[xxx]\n" +
 			"- 酷狗点歌[xxx]",
-	}).OnRegex("^(.{0,2})点歌(.{1,25})$").SetBlock(true).
+	}).OnRegex(`^(.{0,2})点歌\s?(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !limit.Load(ctx.Event.UserID).Acquire() {
 				ctx.SendChain(message.Text("请稍后重试0x0..."))
