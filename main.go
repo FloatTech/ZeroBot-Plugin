@@ -52,7 +52,9 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_wangyiyun"    // 网易云音乐热评
 
 	// b站相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"       // 查询b站用户信息
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse" // b站视频链接解析
+
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push" // b站推送
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana" // 嘉心糖发病
 
@@ -65,7 +67,9 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"    // 本地涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"    // 本地老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"          // nsfw图片识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"      // 以图搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_scale"         // 叔叔的AI二次元图片放大
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"      // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_tracemoe"      // 搜番
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation" // vtb语录
@@ -76,12 +80,14 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 var (
 	contents = []string{
 		"* OneBot + ZeroBot + Golang",
-		"* Version 1.2.4 - 2022-01-14 20:05:43 +0800 CST",
+		"* Version 1.2.5 - 2022-01-30 20:06:00 +0800 CST",
 		"* Copyright © 2020 - 2021 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
@@ -153,6 +159,7 @@ func getKanban() string {
 }
 
 func main() {
+	order.Wait()
 	printBanner()
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).

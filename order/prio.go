@@ -12,6 +12,7 @@ const (
 	PrioAIWife
 	PrioBase14
 	PrioBilibili
+	PrioBiliBiliParse
 	PrioBilibiliPush
 	PrioBookReview
 	PrioCangTouShi
@@ -37,10 +38,13 @@ const (
 	PrioNativeWife
 	PrioNBNHHSH
 	PrioNovel
+	PrioNSFW
+	PrioNSFWAuto
 	PrioOmikuji
 	PrioReborn
 	PrioRuncode
 	PrioSauceNao
+	PrioScale
 	PrioScore
 	PrioSetuTime
 	PrioShaDiao
@@ -48,10 +52,10 @@ const (
 	PrioTraceMoe
 	PrioTranslation
 	PrioVtbQuotation
+	PrioWangYiYun
 	PrioWtf
 
 	PrioCurse
 	PrioMockingBird
 	PrioAIReply
-        PrioWangYiYun
 )

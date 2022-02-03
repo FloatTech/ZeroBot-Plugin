@@ -8,6 +8,8 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/sql"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const dbpath = "data/BookReview/"
@@ -18,6 +20,7 @@ var db = &sql.Sqlite{DBPath: dbfile}
 // 加载数据库
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		// os.RemoveAll(dbpath)
 		_ = os.MkdirAll(dbpath, 0755)

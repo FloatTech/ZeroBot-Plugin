@@ -8,6 +8,8 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/txt2img"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
@@ -22,6 +24,7 @@ var sdb *scoredb
 // 加载数据库
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		_, err := file.GetLazyData(txt2img.BoldFontFile, false, true)
 		if err != nil {

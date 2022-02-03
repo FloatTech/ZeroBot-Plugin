@@ -36,13 +36,13 @@ func init() {
 			"- 刷新所有本地setu\n" +
 			"- 所有本地setu分类",
 	})
-	engine.OnRegex(`^本地(.*)$`, func(ctx *zero.Ctx) bool { return rule.FirstValueInList(setuclasses)(ctx) }).SetBlock(true).
+	engine.OnRegex(`^本地(.*)$`, rule.FirstValueInList(ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
-			mu.RLock()
-			err := db.Pick(imgtype, sc)
-			mu.RUnlock()
+			ns.mu.RLock()
+			err := ns.db.Pick(imgtype, sc)
+			ns.mu.RUnlock()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
@@ -50,10 +50,10 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, func(ctx *zero.Ctx) bool { return rule.FirstValueInList(setuclasses)(ctx) }, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, rule.FirstValueInList(ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
-			err := scanclass(os.DirFS(setupath), imgtype, imgtype)
+			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
@@ -72,7 +72,7 @@ func init() {
 		})
 	engine.OnFullMatch("刷新所有本地setu", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			err := scanall(setupath)
+			err := ns.scanall(setupath)
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
@@ -82,9 +82,9 @@ func init() {
 	engine.OnFullMatch("所有本地setu分类").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			msg := "所有本地setu分类"
-			mu.RLock()
-			for i, c := range setuclasses {
-				n, err := db.Count(c)
+			ns.mu.RLock()
+			for i, c := range ns.List() {
+				n, err := ns.db.Count(c)
 				if err == nil {
 					msg += fmt.Sprintf("\n%02d. %s(%d)", i, c, n)
 				} else {
@@ -92,7 +92,7 @@ func init() {
 					logrus.Errorln("[nsetu]", err)
 				}
 			}
-			mu.RUnlock()
+			ns.mu.RUnlock()
 			ctx.SendChain(message.Text(msg))
 		})
 }

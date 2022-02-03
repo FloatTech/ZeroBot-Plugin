@@ -5,6 +5,7 @@ import (
 	"image"
 	"io/fs"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/corona10/goimagehash"
@@ -15,6 +16,8 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/sql"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 // setuclass holds setus in a folder, which is the class name.
@@ -24,14 +27,11 @@ type setuclass struct {
 	Path  string `db:"path"`  // Path 图片路径
 }
 
-var (
-	setuclasses []string
-	db          = &sql.Sqlite{DBPath: dbfile}
-	mu          sync.RWMutex
-)
+var ns = &nsetu{db: &sql.Sqlite{DBPath: dbfile}}
 
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		err := os.MkdirAll(datapath, 0755)
 		if err != nil {
@@ -44,24 +44,32 @@ func init() {
 				logrus.Println("[nsetu] set setu dir to", setupath)
 			}
 		}
-		if file.IsExist(dbfile) {
-			err := db.Open()
-			if err == nil {
-				setuclasses, err = db.ListTables()
-			}
-			if err != nil {
-				logrus.Errorln("[nsetu]", err)
-			}
-		}
 	}()
 }
 
-func scanall(path string) error {
-	setuclasses = nil
+type nsetu struct {
+	db *sql.Sqlite
+	mu sync.RWMutex
+}
+
+func (n *nsetu) List() (l []string) {
+	if file.IsExist(n.db.DBPath) {
+		err := n.db.Open()
+		if err == nil {
+			l, err = n.db.ListTables()
+		}
+		if err != nil {
+			logrus.Errorln("[nsetu]", err)
+		}
+	}
+	return
+}
+
+func (n *nsetu) scanall(path string) error {
 	model := &setuclass{}
 	root := os.DirFS(path)
-	_ = db.Close()
-	_ = os.Remove(dbfile)
+	_ = n.db.Close()
+	_ = os.Remove(n.db.DBPath)
 	return fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -69,12 +77,11 @@ func scanall(path string) error {
 		if d.IsDir() {
 			clsn := d.Name()
 			if clsn != "." {
-				mu.Lock()
-				err = db.Create(clsn, model)
-				setuclasses = append(setuclasses, clsn)
-				mu.Unlock()
+				n.mu.Lock()
+				err = n.db.Create(clsn, model)
+				n.mu.Unlock()
 				if err == nil {
-					err = scanclass(root, path, clsn)
+					err = n.scanclass(root, path, clsn)
 					if err != nil {
 						logrus.Errorln("[nsetu]", err)
 						return err
@@ -86,17 +93,21 @@ func scanall(path string) error {
 	})
 }
 
-func scanclass(root fs.FS, path, clsn string) error {
+func (n *nsetu) scanclass(root fs.FS, path, clsn string) error {
 	ds, err := fs.ReadDir(root, path)
 	if err != nil {
 		return err
 	}
-	mu.Lock()
-	_ = db.Truncate(clsn)
-	mu.Unlock()
+	n.mu.Lock()
+	_ = n.db.Truncate(clsn)
+	n.mu.Unlock()
 	for _, d := range ds {
-		if !d.IsDir() {
-			relpath := path + "/" + d.Name()
+		nm := d.Name()
+		ln := strings.ToLower(nm)
+		if !d.IsDir() &&
+			(strings.HasSuffix(ln, ".jpg") || strings.HasSuffix(ln, ".jpeg") ||
+				strings.HasSuffix(ln, ".png") || strings.HasSuffix(ln, ".gif") || strings.HasSuffix(ln, ".webp")) {
+			relpath := path + "/" + nm
 			logrus.Debugln("[nsetu] read", relpath)
 			f, e := fs.ReadFile(root, relpath)
 			if e != nil {
@@ -112,10 +123,10 @@ func scanclass(root fs.FS, path, clsn string) error {
 				return e
 			}
 			dhi := int64(dh.GetHash())
-			logrus.Debugln("[nsetu] insert", d.Name(), "with id", dhi, "into", clsn)
-			mu.Lock()
-			err = db.Insert(clsn, &setuclass{ImgID: dhi, Name: d.Name(), Path: relpath})
-			mu.Unlock()
+			logrus.Debugln("[nsetu] insert", nm, "with id", dhi, "into", clsn)
+			n.mu.Lock()
+			err = n.db.Insert(clsn, &setuclass{ImgID: dhi, Name: nm, Path: relpath})
+			n.mu.Unlock()
 			if err != nil {
 				return err
 			}
