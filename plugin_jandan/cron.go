@@ -19,7 +19,7 @@ func init() {
 	go func() {
 		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
-		log.Println("[jandan/cron] 开启vtb数据库日常更新")
+		log.Println("[jandan/cron] 开启jandan数据库日常更新")
 		jandanDaily()
 	}()
 }
