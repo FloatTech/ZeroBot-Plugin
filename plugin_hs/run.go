@@ -71,7 +71,6 @@ func init() {
 		for i := 0; i < t && i < 5; i++ {
 			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
 			cachefile := cachedir + cid
-			imgcq := `[CQ:image,file=` + "file:///" + cachefile + `]`
 			if file.IsNotExist(cachefile) {
 				data, err := web.ReqWith(
 					`https://res.fbigame.com/hs/v13/`+cid+`.png?auth_key=`+
@@ -81,7 +80,7 @@ func init() {
 					err = os.WriteFile(cachefile, data, 0644)
 				}
 				if err != nil {
-					imgcq = err.Error()
+					continue
 				}
 			}
 			sk = append(
@@ -89,7 +88,7 @@ func init() {
 				message.CustomNode(
 					zero.BotConfig.NickName[0],
 					ctx.Event.SelfID,
-					imgcq, // 图片
+					[]message.MessageSegment{message.Image("file:///" + cachefile)}, // 图片
 				),
 			)
 		}

@@ -97,7 +97,7 @@ func init() { // 插件主体
 			}
 		})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))
@@ -109,34 +109,55 @@ func init() { // 插件主体
 					// 返回SauceNAO的结果
 					ctx.SendChain(
 						message.Text("我有把握是这个！"),
-						message.Image(result.Thumbnail),
+						message.Image(result[0].Thumbnail),
 						message.Text(
 							"\n",
-							"相似度：", result.Similarity, "\n",
-							"标题：", result.Title, "\n",
-							"插画ID：", result.PixivID, "\n",
-							"画师：", result.MemberName, "\n",
-							"画师ID：", result.MemberID, "\n",
-							"直链：", "https://pixivel.moe/detail?id=", result.PixivID,
+							"相似度：", result[0].Similarity, "\n",
+							"标题：", result[0].Title, "\n",
+							"插画ID：", result[0].PixivID, "\n",
+							"画师：", result[0].MemberName, "\n",
+							"画师ID：", result[0].MemberID, "\n",
+							"直链：", "https://pixivel.moe/detail?id=", result[0].PixivID,
 						),
 					)
 					continue
 				}
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
-				} else {
-					// 返回Ascii2d的结果
-					ctx.SendChain(
-						message.Text(
-							"大概是这个？", "\n",
-							"标题：", result.Title, "\n",
-							"插画ID：", result.Pid, "\n",
-							"画师：", result.UserName, "\n",
-							"画师ID：", result.UserId, "\n",
-							"直链：", "https://pixivel.moe/detail?id=", result.Pid,
-						),
-					)
 					continue
+				} else {
+					var msg message.Message = []message.MessageSegment{
+						message.CustomNode(
+							ctx.Event.Sender.Name(),
+							ctx.Event.UserID,
+							"ascii2d搜图结果",
+						)}
+					for i := 0; i < len(result) && i < 5; i++ {
+						msg = append(
+							msg,
+							message.CustomNode(
+								ctx.Event.Sender.Name(),
+								ctx.Event.UserID,
+								[]message.MessageSegment{
+									message.Image(result[i].Thumb),
+									message.Text(fmt.Sprintf(
+										"标题：%s\n图源：%s\n画师：%s\n画师链接：%s\n图片链接：%s",
+										result[i].Name,
+										result[i].Type,
+										result[i].AuthNm,
+										result[i].Author,
+										result[i].Link,
+									)),
+								},
+							),
+						)
+					}
+					if id := ctx.SendGroupForwardMessage(
+						ctx.Event.GroupID,
+						msg,
+					).Get("message_id").Int(); id == 0 {
+						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+					}
 				}
 			}
 		})
