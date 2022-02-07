@@ -48,12 +48,13 @@ func init() {
 					text,
 				))
 			gjson.Get(helper.BytesToString(data), "data.data").ForEach(func(_, value gjson.Result) bool {
-				imgcq := `[CQ:image,file=` + value.String() + `]`
 				m = append(m,
 					message.CustomNode(
 						ctx.Event.Sender.NickName,
 						ctx.Event.UserID,
-						imgcq),
+						[]message.MessageSegment{
+							message.Image(value.String()),
+						}),
 				)
 				return true
 			})

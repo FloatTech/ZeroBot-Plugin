@@ -41,7 +41,7 @@ func init() { // 插件主体
 				if err != nil {
 					name = "未知图片"
 				} else {
-					name = r.Title
+					name = r[0].Title
 				}
 				t, err := danbooru.TagURL(name, url)
 				if err != nil {
