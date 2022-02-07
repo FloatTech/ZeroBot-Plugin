@@ -56,8 +56,8 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				f.Write(data)
-				f.Close()
+				_, _ = f.Write(data)
+				_ = f.Close()
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + n))
 			}
 		})
