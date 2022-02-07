@@ -24,6 +24,7 @@ const (
 	PrioDiana
 	PrioFansDaily
 	PrioFortune
+	PrioJandan
 	PrioFunny
 	PrioGIF
 	PrioGithub

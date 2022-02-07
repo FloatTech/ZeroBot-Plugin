@@ -227,6 +227,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **vtb语录** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation"`
     - [x] vtb语录
     - [x] 随机vtb
+    - [x] 更新vtb
 - **书评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"`
     - [x] 书评[xxx]
     - [x] 随机书评
@@ -252,7 +253,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 藏尾诗[xxx]
 - **cp短打** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_cpstory"`
     - [x] 组cp[@xxx][@xxx]
-    - [x] 组cp大老师 雪乃
+    - [x] 磕cp大老师 雪乃
 - **签到得分** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"`
     - [x] 签到
     - [x] 获得签到背景[@xxx] | 获得签到背景
@@ -269,6 +270,9 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 来份网易云热评
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse"`
     - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA
+- **煎蛋网无聊图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_jandan"`
+    - [x] 来份屌图
+    - [x] 更新屌图
 - **TODO...**
 
 ## 使用方法

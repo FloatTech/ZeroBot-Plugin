@@ -29,7 +29,7 @@ const (
 
 var engine = control.Register("vtbquotation", order.PrioVtbQuotation, &control.Options{
 	DisableOnDefault: false,
-	Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb",
+	Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
 })
 
 func init() {
@@ -194,5 +194,11 @@ func init() {
 				ctx.SendChain(message.Record(recURL))
 			}
 			db.Close()
+		})
+	engine.OnFullMatch("更新vtb").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			ctx.Send("少女祈祷中......")
+			vtbData()
+			ctx.Send("vtb数据库已更新")
 		})
 }
