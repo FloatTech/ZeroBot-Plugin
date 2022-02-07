@@ -22,7 +22,7 @@ var engine = control.Register("bilibili", order.PrioBilibili, &control.Options{
 
 // 查成分的
 func init() {
-	engine.OnRegex(`^>user info\s(.{1,25})$`).SetBlock(true).
+	engine.OnRegex(`^>(?:user|vup)\s?info\s?(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			rest, err := uid(keyword)
