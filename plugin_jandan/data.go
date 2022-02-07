@@ -27,6 +27,6 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		log.Printf("[picture]读取%d张图片", n)
+		log.Printf("[jandan]读取%d张图片", n)
 	}()
 }

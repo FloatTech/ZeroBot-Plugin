@@ -5,8 +5,8 @@ import (
 )
 
 type picture struct {
-	ID         uint64 `gorm:"column:id;primary_key"`
-	PictureURL string `gorm:"column:picture_url"`
+	ID         uint64 `db:"id"`
+	PictureURL string `db:"picture_url"`
 }
 
 func getRandomPicture() (p picture, err error) {
