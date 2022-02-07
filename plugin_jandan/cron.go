@@ -36,14 +36,15 @@ func jandanDaily() {
 }
 
 func travelWebpage() {
-	db.Del("picture", "where 1 = 1")
+	err := db.Del("picture", "where 1 = 1")
+	log.Errorln("[jandan]:", err)
 	chanPicture = make(chan string, 100000)
 	webpageURL := jandanPictureURL
 	doc, err := htmlquery.LoadURL(webpageURL)
 	if err != nil {
 		log.Errorln("[jandan]:", err)
 	}
-	re := regexp.MustCompile("\\d+")
+	re := regexp.MustCompile(`\d+`)
 	pageTotal, err = strconv.Atoi(re.FindString(htmlquery.FindOne(doc, "//*[@id='comments']/div[2]/div/span[@class='current-comment-page']/text()").Data))
 	if err != nil {
 		log.Errorln("[jandan]:", err)
@@ -76,7 +77,10 @@ func scorePicture() {
 			ID:         uint64(id),
 			PictureURL: pictureURL,
 		}
-		db.Insert("picture", &p)
+		err := db.Insert("picture", &p)
+		if err != nil {
+			log.Errorln("[jandan]:", err)
+		}
 		id++
 	}
 }
