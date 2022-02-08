@@ -195,7 +195,7 @@ func init() {
 			}
 			db.Close()
 		})
-	engine.OnFullMatch("更新vtb").SetBlock(true).
+	engine.OnFullMatch("更新vtb", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
 			vtbData()
