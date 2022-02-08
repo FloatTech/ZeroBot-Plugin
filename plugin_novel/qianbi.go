@@ -9,17 +9,16 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	ub "github.com/FloatTech/zbputils/binary"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -44,16 +43,11 @@ var (
 		DisableOnDefault: false,
 		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	})
-	limit = rate.NewManager(time.Minute, 5)
 )
 
 func init() {
-	engine.OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
+	engine.OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.GroupID).Acquire() {
-				ctx.SendChain(message.Text("请稍后重试0x0..."))
-				return
-			}
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			login(username, password)
 			searchKey := ctx.State["regex_matched"].([]string)[1]

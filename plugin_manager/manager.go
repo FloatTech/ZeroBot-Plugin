@@ -12,7 +12,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
@@ -57,7 +56,6 @@ const (
 
 var (
 	db    = &sql.Sqlite{DBPath: confile}
-	limit = rate.NewManager(time.Minute*5, 2)
 	clock timer.Clock
 )
 
@@ -333,12 +331,8 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text(clock.ListTimers(ctx.Event.GroupID)))
 		})
 	// 随机点名
-	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("少女祈祷中......"))
-				return
-			}
 			// 无缓存获取群员列表
 			list := ctx.CallAction("get_group_member_list", zero.Params{
 				"group_id": ctx.Event.GroupID,

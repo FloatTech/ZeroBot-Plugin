@@ -4,15 +4,13 @@ package acgimage
 import (
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/FloatTech/AnimeAPI/classify"
-	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/imgpool"
 	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -29,7 +27,6 @@ var (
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]message.MessageID)
 	block   = false
-	limit   = rate.NewManager(time.Minute, 5)
 )
 
 func init() { // 插件主体
@@ -53,14 +50,10 @@ func init() { // 插件主体
 			}
 		})
 	// 有保护的随机图片
-	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatch("随机图片", zero.OnlyGroup).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if limit.Load(ctx.Event.UserID).Acquire() {
-				class, dhash, comment, _ := classify.Classify(randapi, true)
-				replyClass(ctx, class, dhash, comment, false)
-				return
-			}
-			ctx.SendChain(message.Text("你太快啦!"))
+			class, dhash, comment, _ := classify.Classify(randapi, true)
+			replyClass(ctx, class, dhash, comment, false)
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
 	engine.OnFullMatch("直接随机", ctxext.UserOrGrpAdmin).SetBlock(true).

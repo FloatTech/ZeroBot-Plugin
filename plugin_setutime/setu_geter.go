@@ -10,17 +10,16 @@ import (
 	"sync"
 	"time"
 
-	imagepool "github.com/FloatTech/AnimeAPI/imgpool"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
+	imagepool "github.com/FloatTech/zbputils/imgpool"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/rule"
 	"github.com/FloatTech/zbputils/sql"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -70,7 +69,6 @@ func init() { // 插件主体
 		}
 	}()
 
-	limit := rate.NewManager(time.Minute*1, 5)
 	engine := control.Register("setutime", order.PrioSetuTime, &control.Options{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
@@ -79,12 +77,8 @@ func init() { // 插件主体
 			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
 			"- >setu status",
 	})
-	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool)).SetBlock(true).
+	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("请稍后重试0x0..."))
-				return
-			}
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go pool.fill(ctx, imgtype)

@@ -1,8 +1,8 @@
-github.com/FloatTech/AnimeAPI v1.2.5-beta10 h1:C4gvZ4VbVjNUA8WBgNnq0ra0YG1uNyL8VmHGFdpZ1Tc=
-github.com/FloatTech/AnimeAPI v1.2.5-beta10/go.mod h1:QXGkLikmx2G4nVL24RwLdfcA8Hd54SdfCqVqu/Znd5A=
+github.com/FloatTech/AnimeAPI v1.2.5-beta14 h1:CyP0YTrSkXgOAmunr9s5TpVoZxhc5Nrz6tkKv+avUNk=
+github.com/FloatTech/AnimeAPI v1.2.5-beta14/go.mod h1:jsUR1c9voZPgBZybMEZl+LpnOtKZFhN9NZKMvHjbT6M=
 github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
-github.com/FloatTech/zbputils v1.2.5-beta7 h1:5mgJaYa8fTx/PQp+oL13pJGQ6GEjkUDg1r1T2ECAiac=
-github.com/FloatTech/zbputils v1.2.5-beta7/go.mod h1:3XY4b7OJuQD2zUOaBc1EzDdpXvx3YM4FvpUKZNwgreA=
+github.com/FloatTech/zbputils v1.2.5-beta12 h1:+MtcwLP5/IaLAX3dMOzHFbv5cNBLlb5BRk2LNFAfEF0=
+github.com/FloatTech/zbputils v1.2.5-beta12/go.mod h1:1j71Sna0RnprP3ywDNTblRzITNYCb2FGN2yxl1G4zg0=
 github.com/Mrs4s/MiraiGo v0.0.0-20211120033824-43b23f4e6fcb h1:Rkj28fqIwGx/EgBzRYtpmJRfH6wqVn7cNdc7aJ0QE4M=
 github.com/Mrs4s/MiraiGo v0.0.0-20211120033824-43b23f4e6fcb/go.mod h1:imVKbfKqqeit+C/eaWGb4MKQ3z3gN6pRpBU5RMtp5so=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
@@ -166,8 +166,8 @@ github.com/ugorji/go/codec v1.1.7/go.mod h1:Ax+UKWsSmolVDwsd+7N3ZtXu+yMGCf907BLY
 github.com/ugorji/go/codec v1.2.6/go.mod h1:V6TCNZ4PHqoHGFZuSG1W8nrCzzdgA2DozYxWFFpvxTw=
 github.com/wdvxdr1123/ZeroBot v1.3.2/go.mod h1:i2DIqQjtjE+3gvVi9r9sc+QpNaUuyTXx/HNXXayIpwI=
 github.com/wdvxdr1123/ZeroBot v1.4.1/go.mod h1:7t9m4vDZPwWAmzKlhP6IvUoisOIiqNdm/3AJgiY3+ew=
-github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220207114459-068919ac2b02 h1:Tm5gEjJpm0M2sY6RegimsrRekqNBD26qZjYwTx5Gt6s=
-github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220207114459-068919ac2b02/go.mod h1:NwXIp7PgjV+kUALMXJ4v4/3QcsRSOodtjhLekuPXFog=
+github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220208041536-d463c1c92bb4 h1:T/m7vDUFKdLd0xfSZHVPQGaRZ73nwPzidLW7hTn25mg=
+github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220208041536-d463c1c92bb4/go.mod h1:NwXIp7PgjV+kUALMXJ4v4/3QcsRSOodtjhLekuPXFog=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=

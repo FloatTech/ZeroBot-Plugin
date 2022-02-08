@@ -6,14 +6,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 )
 
 func init() {
-	engine.OnFullMatch("来碗绿茶").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.GroupID).Acquire() {
-			return
-		}
+	engine.OnFullMatch("来碗绿茶").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		data, err := web.ReqWith(chayiURL, "GET", loveliveReferer, ua)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -23,10 +21,7 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
 	})
 
-	engine.OnFullMatch("渣我").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.GroupID).Acquire() {
-			return
-		}
+	engine.OnFullMatch("渣我").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		data, err := web.ReqWith(ganhaiURL, "GET", loveliveReferer, ua)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
