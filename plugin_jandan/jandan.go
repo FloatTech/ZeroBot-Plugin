@@ -4,14 +4,19 @@ package jandan
 import (
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/control"
-	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"math/rand"
+	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
 const (
 	jandanPictureURL = "http://jandan.net/pic"
+)
+
+var (
+	pictureList []string
 )
 
 func init() {
@@ -22,12 +27,8 @@ func init() {
 
 	engine.OnFullMatch("来份屌图").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			p, err := getRandomPicture()
-			if err != nil {
-				log.Errorln("[jandan]:", err)
-				ctx.SendChain(message.Text("数据库更新中"))
-			}
-			ctx.SendChain(message.Image(p.PictureURL))
+			rand.Seed(time.Now().Unix())
+			ctx.SendChain(message.Image(pictureList[rand.Intn(len(pictureList))]))
 		})
 
 	engine.OnFullMatch("更新屌图", zero.SuperUserPermission).SetBlock(true).

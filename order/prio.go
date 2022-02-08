@@ -24,12 +24,12 @@ const (
 	PrioDiana
 	PrioFansDaily
 	PrioFortune
-	PrioJandan
 	PrioFunny
 	PrioGIF
 	PrioGithub
 	PrioHS
 	PrioImageFinder
+	PrioJandan
 	PrioJueJueZi
 	PrioLolicon
 	PrioMinecraft

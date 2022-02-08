@@ -1,7 +1,6 @@
 package jandan
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/antchfx/htmlquery"
 	"github.com/fumiama/cron"
@@ -11,17 +10,18 @@ import (
 )
 
 var (
-	chanPicture chan string
+	chanPicture = make(chan string, 100000)
 	pageTotal   int
 )
 
 func init() {
 	go func() {
-		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
+		scorePicture()
 		log.Println("[jandan/cron] 开启jandan数据库日常更新")
 		jandanDaily()
 	}()
+	travelWebpage()
 }
 
 func jandanDaily() {
@@ -36,9 +36,7 @@ func jandanDaily() {
 }
 
 func travelWebpage() {
-	err := db.Del("picture", "where 1 = 1")
-	log.Errorln("[jandan]:", err)
-	chanPicture = make(chan string, 100000)
+	pictureList = pictureList[0:0]
 	webpageURL := jandanPictureURL
 	doc, err := htmlquery.LoadURL(webpageURL)
 	if err != nil {
@@ -49,7 +47,6 @@ func travelWebpage() {
 	if err != nil {
 		log.Errorln("[jandan]:", err)
 	}
-	go scorePicture()
 	for i := 0; i < pageTotal; i++ {
 		doc, err = htmlquery.LoadURL(webpageURL)
 		if err != nil {
@@ -71,16 +68,7 @@ func travelWebpage() {
 }
 
 func scorePicture() {
-	id := 1
 	for pictureURL := range chanPicture {
-		p := picture{
-			ID:         uint64(id),
-			PictureURL: pictureURL,
-		}
-		err := db.Insert("picture", &p)
-		if err != nil {
-			log.Errorln("[jandan]:", err)
-		}
-		id++
+		pictureList = append(pictureList, pictureURL)
 	}
 }
