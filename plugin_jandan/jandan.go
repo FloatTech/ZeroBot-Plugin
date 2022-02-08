@@ -2,11 +2,13 @@
 package jandan
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/order"
-	"github.com/FloatTech/zbputils/control"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"math/rand"
 	"time"
+
+	"github.com/FloatTech/zbputils/control"
+	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
