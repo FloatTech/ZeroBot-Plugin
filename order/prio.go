@@ -29,6 +29,7 @@ const (
 	PrioGithub
 	PrioHS
 	PrioImageFinder
+	PrioJandan
 	PrioJueJueZi
 	PrioLolicon
 	PrioMinecraft

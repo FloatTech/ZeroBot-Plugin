@@ -39,6 +39,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"        // 笑话
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_gif"          // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_jandan"       // 煎蛋网无聊图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"     // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"    // MCSManager
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"         // 摸鱼
