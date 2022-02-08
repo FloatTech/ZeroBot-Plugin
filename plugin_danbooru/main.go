@@ -11,6 +11,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/writer"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -51,7 +52,7 @@ func init() { // 插件主体
 				digest := md5.Sum(helper.StringToBytes(url))
 				f := cachefile + hex.EncodeToString(digest[:])
 				if file.IsNotExist(f) {
-					_ = t.Canvas.SavePNG(f)
+					_ = writer.SavePNG2Path(f, t)
 				}
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + f))
 			}

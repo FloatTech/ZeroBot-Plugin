@@ -14,7 +14,7 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
@@ -43,7 +43,7 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			kujiBytes, err := txt2img.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), txt2img.FontFile, 400, 20)
+			kujiBytes, err := text.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), text.FontFile, 400, 20)
 			if err != nil {
 				log.Errorln("[omikuji]:", err)
 			}

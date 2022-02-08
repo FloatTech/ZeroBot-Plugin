@@ -8,7 +8,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
@@ -23,7 +23,7 @@ func init() {
 	engine.OnRegex("^书评([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
-			data, err := txt2img.RenderToBase64(b.BookReview, txt2img.FontFile, 400, 20)
+			data, err := text.RenderToBase64(b.BookReview, text.FontFile, 400, 20)
 			if err != nil {
 				log.Println("err:", err)
 			}
@@ -35,7 +35,7 @@ func init() {
 	engine.OnFullMatch("随机书评").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			br := getRandomBookReview()
-			data, err := txt2img.RenderToBase64(br.BookReview, txt2img.FontFile, 400, 20)
+			data, err := text.RenderToBase64(br.BookReview, text.FontFile, 400, 20)
 			if err != nil {
 				log.Println("err:", err)
 			}

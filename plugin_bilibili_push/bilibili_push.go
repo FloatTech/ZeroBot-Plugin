@@ -12,7 +12,7 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
@@ -198,7 +198,7 @@ func init() {
 			}
 			msg += " up主：" + upMap[v.BilibiliUID]
 		}
-		data, err := txt2img.RenderToBase64(msg, txt2img.FontFile, 600, 20)
+		data, err := text.RenderToBase64(msg, text.FontFile, 600, 20)
 		if err != nil {
 			log.Errorln("[bilibilipush]:", err)
 		}

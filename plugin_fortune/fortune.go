@@ -22,9 +22,9 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/imgpool"
 	"github.com/FloatTech/zbputils/math"
-	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
@@ -218,7 +218,7 @@ func randtext(seed int64) (string, string) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
+func draw(back image.Image, title, txt string, f io.Writer) (int64, error) {
 	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
 	canvas.DrawImage(back, 0, 0)
 	// 写标题
@@ -235,7 +235,7 @@ func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
 	}
 	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
-	r := []rune(text)
+	r := []rune(txt)
 	xsum := rowsnum(len(r), 9)
 	switch xsum {
 	default:
@@ -259,7 +259,7 @@ func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
 			}
 		}
 	}
-	return txt2img.TxtCanvas{Canvas: canvas}.WriteTo(f)
+	return writer.WriteTo(canvas.Image(), f)
 }
 
 func offest(total, now int, distance float64) float64 {

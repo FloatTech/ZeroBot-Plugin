@@ -14,11 +14,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/sql"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"

@@ -19,7 +19,7 @@ import (
 	ub "github.com/FloatTech/zbputils/binary"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
@@ -64,7 +64,7 @@ func init() {
 					log.Errorln("[novel]", err)
 				}
 				if len(list) != 0 {
-					text := ""
+					txt := ""
 					for _, v := range list {
 						bookName := htmlquery.InnerText(htmlquery.FindOne(v, "/dd[1]/h3/a[1]"))
 						category := htmlquery.InnerText(htmlquery.FindOne(v, "/dt/span[1]"))
@@ -80,9 +80,9 @@ func init() {
 
 						webpageURL := websiteURL + "/book/" + id + "/"
 						downloadURL := websiteURL + "/modules/article/txtarticle.php?id=" + id
-						text += fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n字数:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n\n", bookName, category, author, status, wordNumbers, description, updateTime, latestChapter, webpageURL, downloadURL)
+						txt += fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n字数:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n\n", bookName, category, author, status, wordNumbers, description, updateTime, latestChapter, webpageURL, downloadURL)
 					}
-					data, err := txt2img.RenderToBase64(text, txt2img.FontFile, 400, 20)
+					data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 					if err != nil {
 						log.Println("err:", err)
 					}

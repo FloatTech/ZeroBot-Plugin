@@ -6,8 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
@@ -26,11 +26,11 @@ func init() {
 	go func() {
 		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
-		_, err := file.GetLazyData(txt2img.BoldFontFile, false, true)
+		_, err := file.GetLazyData(text.BoldFontFile, false, true)
 		if err != nil {
 			panic(err)
 		}
-		_, err = file.GetLazyData(txt2img.FontFile, false, true)
+		_, err = file.GetLazyData(text.FontFile, false, true)
 		if err != nil {
 			panic(err)
 		}

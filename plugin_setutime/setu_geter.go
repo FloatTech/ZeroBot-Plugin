@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
+	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
@@ -18,7 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/rule"
-	"github.com/FloatTech/zbputils/sql"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 

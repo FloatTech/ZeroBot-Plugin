@@ -4,9 +4,9 @@ import (
 	"os"
 	"sync"
 
+	sql "github.com/FloatTech/sqlite"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/sql"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"

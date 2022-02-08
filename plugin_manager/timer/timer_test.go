@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FloatTech/zbputils/sql"
+	sql "github.com/FloatTech/sqlite"
 	"github.com/sirupsen/logrus"
 )
 

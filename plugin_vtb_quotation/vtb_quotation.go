@@ -15,7 +15,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
@@ -48,7 +48,7 @@ func init() {
 			}
 			defer db.Close()
 			defer cancel()
-			firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), txt2img.FontFile, 400, 20)
+			firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
 			if err != nil {
 				log.Errorln("[vtb]:", err)
 			}
@@ -80,7 +80,7 @@ func init() {
 							// log.Println(secondStepMessage)
 							if secondStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), txt2img.FontFile, 400, 20)
+								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -89,7 +89,7 @@ func init() {
 								}
 								errorCount++
 							} else {
-								secondStepMessageBytes, err := txt2img.RenderToBase64(secondStepMessage, txt2img.FontFile, 400, 20)
+								secondStepMessageBytes, err := text.RenderToBase64(secondStepMessage, text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -111,7 +111,7 @@ func init() {
 							// log.Println(thirdStepMessage)
 							if thirdStepMessage == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								secondStepMessageBytes, err := txt2img.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), txt2img.FontFile, 400, 20)
+								secondStepMessageBytes, err := text.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -120,7 +120,7 @@ func init() {
 								}
 								errorCount++
 							} else {
-								thirdStepMessageBytes, err := txt2img.RenderToBase64(thirdStepMessage, txt2img.FontFile, 400, 20)
+								thirdStepMessageBytes, err := text.RenderToBase64(thirdStepMessage, text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}
@@ -143,7 +143,7 @@ func init() {
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := txt2img.RenderToBase64(db.GetAllFirstCategoryMessage(), txt2img.FontFile, 400, 20)
+								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
 								}

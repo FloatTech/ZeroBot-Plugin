@@ -9,9 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	sql "github.com/FloatTech/sqlite"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/sql"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
 )

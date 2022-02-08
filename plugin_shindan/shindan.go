@@ -12,7 +12,7 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
 )
 
 func init() {
@@ -35,14 +35,14 @@ func handle(ctx *zero.Ctx) {
 	// 获取名字
 	name := ctxext.NickName(ctx)
 	// 调用接口
-	text, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
+	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 	}
 	// TODO: 可注入
 	switch ctx.State["id"].(int64) {
 	case 587874, 162207:
-		data, err := txt2img.RenderToBase64(text, txt2img.FontFile, 400, 20)
+		data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 		if err != nil {
 			log.Errorln("[shindan]:", err)
 		}
@@ -50,7 +50,7 @@ func handle(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 		}
 	default:
-		ctx.Send(text)
+		ctx.Send(txt)
 	}
 }
 

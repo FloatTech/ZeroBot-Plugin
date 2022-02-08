@@ -17,7 +17,8 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/img/text"
+	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/web"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -78,7 +79,7 @@ func init() {
 
 			monthWord := now.Format("01/02")
 			hourWord := getHourWord(now)
-			if err = canvas.LoadFontFace(txt2img.BoldFontFile, float64(back.Bounds().Size().X)*0.1); err != nil {
+			if err = canvas.LoadFontFace(text.BoldFontFile, float64(back.Bounds().Size().X)*0.1); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
@@ -86,7 +87,7 @@ func init() {
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
 			nickName := ctxext.CardOrNickName(ctx, uid)
-			if err = canvas.LoadFontFace(txt2img.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
+			if err = canvas.LoadFontFace(text.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
@@ -118,10 +119,9 @@ func init() {
 			canvas.DrawString(fmt.Sprintf("%d/%d", score, nextLevelScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
 
 			f, err := os.Create(drawedFile)
-			txtc := txt2img.TxtCanvas{Canvas: canvas}
 			if err != nil {
 				log.Errorln("[score]", err)
-				canvasBase64, err := txtc.ToBase64()
+				canvasBase64, err := writer.ToBase64(canvas.Image())
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
@@ -129,7 +129,7 @@ func init() {
 				ctx.SendChain(message.Image("base64://" + helper.BytesToString(canvasBase64)))
 				return
 			}
-			_, err = txtc.WriteTo(f)
+			_, err = writer.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
