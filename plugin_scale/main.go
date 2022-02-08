@@ -28,7 +28,7 @@ func init() {
 	engine := control.Register("scale", order.PrioScale, &control.Options{
 		DisableOnDefault: false,
 		Help:             "叔叔的AI二次元图片放大\n- 放大图片[图片]",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	// 上传一张图进行评价
 	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

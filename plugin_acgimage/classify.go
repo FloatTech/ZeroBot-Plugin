@@ -38,7 +38,7 @@ func init() { // 插件主体
 			"- 设置随机图片网址[url]\n" +
 			"- 太涩了(撤回最近发的图)\n" +
 			"- 评价图片(发送一张图片让bot评分)",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnRegex(`^设置随机图片网址(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]

@@ -13,6 +13,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
 
@@ -57,7 +58,7 @@ func init() {
 			"- 搜卡[xxxx]\n" +
 			"- [卡组代码xxx]\n" +
 			"- 更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnRegex(`^搜卡(.+)$`).
 		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]

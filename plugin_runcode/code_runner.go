@@ -104,7 +104,7 @@ func init() {
 			"JavaScript || TypeScript || PHP || Shell \n" +
 			"Kotlin  || Rust || Erlang || Ruby || Swift \n" +
 			"R || VB || Py2 || Perl || Pascal || Scala",
-	}).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).
+	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			language := ctx.State["regex_matched"].([]string)[1]
 			language = strings.ToLower(language)

@@ -13,6 +13,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/txt2img"
 
 	"github.com/FloatTech/ZeroBot-Plugin/order"
@@ -27,7 +28,7 @@ var (
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 )
 
 func init() { // 插件主体

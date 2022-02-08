@@ -25,7 +25,7 @@ func init() {
 	control.Register("coser", order.PrioCoser, &control.Options{
 		DisableOnDefault: false,
 		Help:             "三次元小姐姐\n- coser",
-	}).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			data, err := web.ReqWith(coserURL, "GET", "", ua)

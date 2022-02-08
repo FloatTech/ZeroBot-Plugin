@@ -16,7 +16,7 @@ func init() {
 	engine := control.Register("nsfw", order.PrioNSFW, &control.Options{
 		DisableOnDefault: false,
 		Help:             "nsfw图片识别\n- nsfw打分[图片]",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	// 上传一张图进行评价
 	engine.OnKeywordGroup([]string{"nsfw打分"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
