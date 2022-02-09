@@ -1,9 +1,9 @@
 package plugin_record
 
 import (
-	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/sqlite"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/sql"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"os"
@@ -18,26 +18,26 @@ const (
 )
 
 type msg struct {
-	MsgID int64  `db:"messages_id"`
-	QQ    int64  `db:"qq"`
-	Un    string `db:"username"`
-	Msg   string `db:"messages"`
-	Ts    int64  `db:"timestamp"`
-	Tm    string `db:"datetime"`
+	MsgID interface{} `db:"messages_id"`
+	QQ    int64       `db:"qq"`
+	Un    string      `db:"username"`
+	Msg   string      `db:"messages"`
+	Ts    int64       `db:"timestamp"`
+	Tm    string      `db:"datetime"`
 }
 
 var (
 	db = &sql.Sqlite{DBPath: confile}
 )
 
-var engine = control.Register("record", &control.Options{
+var engine = control.Register("record", order.AcquirePrio(), &control.Options{
 	DisableOnDefault: false,
 	Help:             hint,
 })
 
 func init() { // 插件主体
 	go func() {
-		engine.OnMessage(zero.OnlyGroup).ThirdPriority().
+		engine.OnMessage(zero.OnlyGroup).
 			Handle(func(ctx *zero.Ctx) {
 				process.SleepAbout1sTo2s()
 				_ = os.MkdirAll(datapath, 0755)

@@ -1,6 +1,6 @@
 package asoul
 
-import control "github.com/FloatTech/zbpctrl"
+import control "github.com/FloatTech/zbputils/control"
 
 const (
 	datapath = "data/vtbs1/"
@@ -80,7 +80,7 @@ type vdInfo struct {
 	} `json:"data"`
 }
 
-var engine = control.Register("asoul", &control.Options{
+var engine = control.Register("asoul", order.AcquirePrio(), &control.Options{
 	DisableOnDefault: false,
 	Help: "=======asoul相关功能=======\n" +
 		"- 小作文\n" +

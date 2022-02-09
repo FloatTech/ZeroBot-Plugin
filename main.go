@@ -51,8 +51,8 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"       // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"       // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"         // 随机老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_asoul"          // asoul相关功能
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"            // base16384加解密
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"       // 查询b站用户信息
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse" // b站视频链接解析
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"    // 哀伤雪刃吧推书记录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"     // 藏头诗
