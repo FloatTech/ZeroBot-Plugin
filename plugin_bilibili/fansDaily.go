@@ -13,7 +13,17 @@ import (
 	"github.com/FloatTech/zbputils/control/order"
 )
 
-// hahah
+type follower struct {
+	Mid      int    `json:"mid"`
+	Uname    string `json:"uname"`
+	Video    int    `json:"video"`
+	Roomid   int    `json:"roomid"`
+	Rise     int    `json:"rise"`
+	Follower int    `json:"follower"`
+	GuardNum int    `json:"guardNum"`
+	AreaRank int    `json:"areaRank"`
+}
+
 // 开启日报推送
 func init() {
 	fansDaily()
