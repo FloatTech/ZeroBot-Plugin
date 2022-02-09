@@ -17,11 +17,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("music", order.PrioMusic, &control.Options{
+	control.Register("music", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "点歌\n" +
 			"- 点歌[xxx]\n" +

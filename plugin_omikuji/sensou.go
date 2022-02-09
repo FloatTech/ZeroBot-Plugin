@@ -16,22 +16,17 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-const (
-	bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
-)
+const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
 
-var (
-	engine = control.Register("omikuji", order.PrioOmikuji, &control.Options{
+func init() { // 插件主体
+	engine := control.Register("omikuji", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",
 	}).ApplySingle(ctxext.DefaultSingle)
-)
-
-func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := bangoToday(ctx.Event.UserID)

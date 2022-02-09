@@ -15,7 +15,7 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func tl(d string) ([]byte, error) {
@@ -38,7 +38,7 @@ func tl(d string) ([]byte, error) {
 }
 
 func init() {
-	control.Register("translation", order.PrioTranslation, &control.Options{
+	control.Register("translation", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "翻译\n" +
 			">TL 你好",

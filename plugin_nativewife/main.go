@@ -16,7 +16,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -32,7 +32,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	engine := control.Register("nwife", order.PrioNativeWife, &control.Options{
+	engine := control.Register("nwife", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让 | 不让]所有人均可添加wife",
 	})
@@ -62,7 +62,7 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, ctxext.MustGiven).SetBlock(true).
+	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, ctxext.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {

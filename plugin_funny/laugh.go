@@ -11,20 +11,17 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-var (
-	engine = control.Register("funny", order.PrioFunny, &control.Options{
+var db = &sql.Sqlite{DBPath: dbfile}
+
+func init() {
+	control.Register("funny", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx] | 讲个笑话[qq号]",
-	})
-	db = &sql.Sqlite{DBPath: dbfile}
-)
-
-func init() {
-	engine.OnPrefix("讲个笑话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	}).OnPrefix("讲个笑话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		// 获取名字
 		name := ctxext.NickName(ctx)
 		var j joke

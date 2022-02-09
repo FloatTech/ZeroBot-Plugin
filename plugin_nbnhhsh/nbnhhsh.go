@@ -12,11 +12,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("nbnhhsh", order.PrioNBNHHSH, &control.Options{
+	control.Register("nbnhhsh", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "拼音首字母释义工具\n- ?? [缩写]",
 	}).OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).

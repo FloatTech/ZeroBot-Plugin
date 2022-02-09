@@ -17,8 +17,8 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -27,12 +27,11 @@ const (
 	dbfile = dbpath + "vtb.db"
 )
 
-var engine = control.Register("vtbquotation", order.PrioVtbQuotation, &control.Options{
-	DisableOnDefault: false,
-	Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
-})
-
 func init() {
+	engine := control.Register("vtbquotation", order.AcquirePrio(), &control.Options{
+		DisableOnDefault: false,
+		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
+	})
 	engine.OnFullMatch("vtb语录").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var firstIndex int

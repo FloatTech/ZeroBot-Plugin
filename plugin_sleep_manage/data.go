@@ -5,8 +5,8 @@ import (
 
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {

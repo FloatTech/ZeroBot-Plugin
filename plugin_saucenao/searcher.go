@@ -11,17 +11,17 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/imgpool"
+	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() { // 插件主体
-	engine := control.Register("saucenao", order.PrioSauceNao, &control.Options{
+	engine := control.Register("saucenao", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "搜图\n" +
 			"- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +
@@ -45,7 +45,7 @@ func init() { // 插件主体
 					n := name + "_p" + strconv.Itoa(i)
 					filepath := file.BOTPATH + "/" + pixiv.CacheDir + n
 					f := ""
-					m, err := imgpool.GetImage(n)
+					m, err := pool.GetImage(n)
 					if err == nil {
 						imgs = append(imgs, message.Image(m.String()))
 						continue
@@ -97,7 +97,7 @@ func init() { // 插件主体
 			}
 		})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))

@@ -20,8 +20,8 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -59,12 +59,12 @@ var (
 	clock timer.Clock
 )
 
-var engine = control.Register("manager", order.PrioManager, &control.Options{
-	DisableOnDefault: false,
-	Help:             hint,
-})
-
 func init() { // 插件主体
+	engine := control.Register("manager", order.AcquirePrio(), &control.Options{
+		DisableOnDefault: false,
+		Help:             hint,
+	})
+
 	go func() {
 		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
@@ -79,6 +79,7 @@ func init() { // 插件主体
 			panic(err)
 		}
 	}()
+
 	// 升为管理
 	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

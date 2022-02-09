@@ -22,11 +22,11 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/img/writer"
-	"github.com/FloatTech/zbputils/imgpool"
 	"github.com/FloatTech/zbputils/math"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -76,7 +76,7 @@ func init() {
 		panic(err)
 	}
 	// 插件主体
-	en := control.Register("fortune", order.PrioFortune, &control.Options{
+	en := control.Register("fortune", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
@@ -147,7 +147,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := imgpool.GetImage(cachefile)
+			m, err := pool.GetImage(cachefile)
 			if err != nil {
 				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {

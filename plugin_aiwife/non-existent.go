@@ -11,7 +11,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 
 func init() { // 插件主体
 	rand.Seed(time.Now().UnixNano())
-	control.Register("aiwife", order.PrioAIWife, &control.Options{
+	control.Register("aiwife", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "AIWife\n" +
 			"- waifu | 随机waifu",
