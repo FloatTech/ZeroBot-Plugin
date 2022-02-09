@@ -12,8 +12,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/txt2img"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
@@ -21,15 +24,15 @@ const (
 )
 
 var (
-	engine = control.Register("omikuji", &control.Options{
+	engine = control.Register("omikuji", order.PrioOmikuji, &control.Options{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
-			"- 求签|占卜\n- 解签",
-	})
+			"- 求签 | 占卜\n- 解签",
+	}).ApplySingle(ctxext.DefaultSingle)
 )
 
 func init() { // 插件主体
-	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetPriority(10).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := bangoToday(ctx.Event.UserID)
 			ctx.SendChain(
@@ -38,13 +41,13 @@ func init() { // 插件主体
 				message.Image(fmt.Sprintf(bed, miku, 1)),
 			)
 		})
-	engine.OnFullMatchGroup([]string{"解签"}).SetPriority(10).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"解签"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			kujiBytes, err := txt2img.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), 40, 20)
+			kujiBytes, err := text.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), text.FontFile, 400, 20)
 			if err != nil {
 				log.Errorln("[omikuji]:", err)
 			}
-			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id == 0 {
+			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})

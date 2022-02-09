@@ -1,5 +1,5 @@
-// Package plugin_gif 制图
-package plugin_gif
+// Package gif 制图
+package gif
 
 import (
 	"math/rand"
@@ -8,9 +8,12 @@ import (
 	"strings"
 	"time"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 var (
@@ -21,13 +24,17 @@ var (
 )
 
 func init() { // 插件主体
-	os.RemoveAll(datapath)           // 清除缓存图片
+	_ = os.RemoveAll(datapath) // 清除缓存图片
+	err := os.MkdirAll(datapath, 0755)
+	if err != nil {
+		panic(err)
+	}
 	rand.Seed(time.Now().UnixNano()) // 设置种子
-	control.Register("gif", &control.Options{
+	control.Register("gif", order.PrioGIF, &control.Options{
 		DisableOnDefault: false,
 		Help:             "制图\n- " + strings.Join(cmds, "\n- "),
-	}).OnRegex(`^(` + strings.Join(cmds, "|") + `)\D*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).
-		SetBlock(true).SetPriority(20).Handle(func(ctx *zero.Ctx) {
+	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^(` + strings.Join(cmds, "|") + `)\D*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).
+		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c := newContext(ctx.Event.UserID)
 		list := ctx.State["regex_matched"].([]string)
 		c.prepareLogos(list[4]+list[5]+list[6], strconv.FormatInt(ctx.Event.UserID, 10))

@@ -6,10 +6,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 // 此功能实现依赖MCSManager项目对服务器的管理api，mc服务器如果没有在该管理平台部署此功能无效
@@ -18,7 +20,7 @@ import (
 
 const api = "http://your.addr:23333/api/start_server/%s/?apikey=apikey"
 
-var engine = control.Register("minecraft", &control.Options{
+var engine = control.Register("minecraft", order.PrioMinecraft, &control.Options{
 	DisableOnDefault: false,
 	Help: "minecraft\n" +
 		"- /mcstart xxx\n" +

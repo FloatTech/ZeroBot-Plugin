@@ -10,7 +10,7 @@ import (
 	// 下列插件可与 wdvxdr1123/ZeroBot v1.1.2 以上配合单独使用
 
 	// 插件控制
-	// webctrl "github.com/FloatTech/zbpctrl/web" // web 后端控制
+	// webctrl "github.com/FloatTech/zbputils/control/web" // web 后端控制
 
 	// 词库类
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
@@ -27,19 +27,19 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation"  // 翻译
 
 	// 娱乐类
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"    // 鬼东西
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"       // 鬼东西
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"     // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"  // 哀伤雪刃吧推书记录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"   // 藏头诗
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_choose"       // 选择困难症帮手
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua" // 说抽象话
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"        // 三次元小姐姐
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cpstory"      // cp短打
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse"        // 骂人
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"      // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"        // 笑话
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_gif"          // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_hs"           // 炉石
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_jandan"       // 煎蛋网无聊图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"     // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"    // MCSManager
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"         // 摸鱼
@@ -50,19 +50,27 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"        // 分数
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shadiao"      // 沙雕app
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_shindan"      // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_wangyiyun"    // 网易云音乐热评
 
 	// b站相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili" // 查询b站用户信息
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"    // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"       // 查询b站用户信息
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse" // b站视频链接解析
+
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push" // b站推送
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana" // 嘉心糖发病
 
 	// 二次元图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"      // 随机图片与AI点评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"        // 随机老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_coser"         // 三次元小姐姐
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_danbooru"      // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_image_finder"  // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"    // 本地涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"    // 本地老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"          // nsfw图片识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"      // 以图搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_scale"         // 叔叔的AI二次元图片放大
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"      // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_tracemoe"      // 搜番
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation" // vtb语录
@@ -73,12 +81,14 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 var (
 	contents = []string{
 		"* OneBot + ZeroBot + Golang",
-		"* Version 1.2.3 - 2022-01-07 20:09:30 +0800 CST",
+		"* Version 1.2.5 - 2022-01-30 20:06:00 +0800 CST",
 		"* Copyright © 2020 - 2021 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
@@ -121,6 +131,7 @@ func init() {
 			logrus.SetLevel(logrus.WarnLevel)
 		}
 	}
+
 	// 启用 gui
 	// webctrl.InitGui(*g)
 }
@@ -149,13 +160,14 @@ func getKanban() string {
 }
 
 func main() {
+	order.Wait()
 	printBanner()
 	// 帮助
-	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).FirstPriority().
+	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(banner, "\n可发送\"/服务列表\"查看 bot 功能"))
 		})
-	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).FirstPriority().
+	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(getKanban()))
 		})

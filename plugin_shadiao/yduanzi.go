@@ -8,14 +8,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 )
 
 func init() {
-	engine.OnFullMatch("讲个段子").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.GroupID).Acquire() {
-			return
-		}
+	engine.OnFullMatch("讲个段子").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		data, err := web.ReqWith(yduanziURL, "POST", yduanziReferer, ua)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))

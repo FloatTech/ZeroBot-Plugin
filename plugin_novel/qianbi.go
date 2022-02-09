@@ -9,18 +9,19 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbpctrl"
 	ub "github.com/FloatTech/zbputils/binary"
-	"github.com/FloatTech/zbputils/txt2img"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
@@ -38,20 +39,15 @@ const (
 
 var (
 	gCurCookieJar *cookiejar.Jar
-	engine        = control.Register("novel", &control.Options{
+	engine        = control.Register("novel", order.PrioNovel, &control.Options{
 		DisableOnDefault: false,
 		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	})
-	limit = rate.NewManager(time.Minute, 5)
 )
 
 func init() {
-	engine.OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
+	engine.OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.GroupID).Acquire() {
-				ctx.SendChain(message.Text("请稍后重试0x0..."))
-				return
-			}
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			login(username, password)
 			searchKey := ctx.State["regex_matched"].([]string)[1]
@@ -68,7 +64,7 @@ func init() {
 					log.Errorln("[novel]", err)
 				}
 				if len(list) != 0 {
-					text := ""
+					txt := ""
 					for _, v := range list {
 						bookName := htmlquery.InnerText(htmlquery.FindOne(v, "/dd[1]/h3/a[1]"))
 						category := htmlquery.InnerText(htmlquery.FindOne(v, "/dt/span[1]"))
@@ -84,13 +80,13 @@ func init() {
 
 						webpageURL := websiteURL + "/book/" + id + "/"
 						downloadURL := websiteURL + "/modules/article/txtarticle.php?id=" + id
-						text += fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n字数:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n\n", bookName, category, author, status, wordNumbers, description, updateTime, latestChapter, webpageURL, downloadURL)
+						txt += fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n字数:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n\n", bookName, category, author, status, wordNumbers, description, updateTime, latestChapter, webpageURL, downloadURL)
 					}
-					data, err := txt2img.RenderToBase64(text, 40, 20)
+					data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 					if err != nil {
 						log.Println("err:", err)
 					}
-					if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
+					if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 					}
 				} else {
@@ -118,13 +114,7 @@ func init() {
 				webpageURL := websiteURL + "/book/" + id + "/"
 				downloadURL := websiteURL + "/modules/article/txtarticle.php?id=" + id
 				text := fmt.Sprintf("书名:%s\n类型:%s\n作者:%s\n状态:%s\n简介:%s\n更新时间:%s\n最新章节:%s\n网页链接:%s\n下载地址:%s\n", bookName, category, author, status, description, updateTime, latestChapter, webpageURL, downloadURL)
-				data, err := txt2img.RenderToBase64(text, 40, 20)
-				if err != nil {
-					log.Println("err:", err)
-				}
-				if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id == 0 {
-					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-				}
+				ctx.SendChain(message.Text(text))
 			}
 		})
 }
