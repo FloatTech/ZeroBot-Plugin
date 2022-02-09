@@ -74,7 +74,7 @@ func init() {
 						mu.RUnlock()
 						if !ok {
 							mu.Lock()
-							db.Insert("picture", &picture{ID: i, URL: u})
+							_ = db.Insert("picture", &picture{ID: i, URL: u})
 							mu.Unlock()
 						} else {
 							// 开始重复，说明之后都是重复
