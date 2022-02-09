@@ -1,6 +1,9 @@
 package asoul
 
-import control "github.com/FloatTech/zbputils/control"
+import (
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control/order"
+)
 
 const (
 	datapath = "data/vtbs1/"
