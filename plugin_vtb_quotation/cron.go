@@ -6,8 +6,9 @@ import (
 
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 	"github.com/FloatTech/zbputils/control/order"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
 func init() {

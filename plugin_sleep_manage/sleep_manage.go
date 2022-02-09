@@ -11,8 +11,9 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 	"github.com/FloatTech/zbputils/control/order"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 )
 
 const dbpath = "data/sleep/"

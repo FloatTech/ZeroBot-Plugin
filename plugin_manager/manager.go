@@ -20,8 +20,9 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 	"github.com/FloatTech/zbputils/control/order"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 )
 
 const (
