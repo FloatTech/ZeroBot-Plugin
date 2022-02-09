@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"math"
-	"strconv"
 	"time"
 
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -33,8 +32,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.Event.Message
 			if msg[0].Type == "reply" {
-				id, _ := strconv.Atoi(msg[0].Data["id"])
-				msg := ctx.GetMessage(int64(id)).Elements[0].Data["text"]
+				msg := ctx.GetMessage(message.NewMessageID(msg[0].Data["id"])).Elements[0].Data["text"]
 				zhiwangjson := zhiwangapi(msg)
 
 				if zhiwangjson == nil || zhiwangjson.Code != 0 {

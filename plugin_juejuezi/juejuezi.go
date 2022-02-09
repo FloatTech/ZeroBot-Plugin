@@ -6,37 +6,30 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"time"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
 	juejueziURL = "https://www.offjuan.com/api/juejuezi/text"
-	prio        = 15
 	referer     = "https://juejuezi.offjuan.com/"
 	ua          = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 )
 
-var (
-	limit = rate.NewManager(time.Minute, 20)
-)
-
 func init() {
-	control.Register("juejuezi", &control.Options{
+	control.Register("juejuezi", order.PrioJueJueZi, &control.Options{
 		DisableOnDefault: false,
 		Help: "绝绝子生成器\n" +
-			"- 喝奶茶绝绝子|绝绝子吃饭",
-	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.GroupID).Acquire() {
-			return
-		}
+			"- 喝奶茶绝绝子 | 绝绝子吃饭",
+	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		toDealStr := []rune(strings.ReplaceAll(ctx.ExtractPlainText(), "绝绝子", ""))
 		switch len(toDealStr) {
 		case 0, 1:

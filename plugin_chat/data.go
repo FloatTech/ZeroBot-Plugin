@@ -8,12 +8,15 @@ import (
 
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 type kimo = map[string]*[]string
 
 func initChatList(postinit func()) {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		_ = os.MkdirAll(dbpath, 0755)
 		data, err := file.GetLazyData(dbfile, true, true)

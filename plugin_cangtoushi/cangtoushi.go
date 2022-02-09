@@ -9,12 +9,14 @@ import (
 	"net/url"
 	"strings"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
@@ -22,7 +24,6 @@ const (
 	searchURL = "https://www.shicimingju.com/cangtoushi/index.html"
 	ua        = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 	referer   = "https://www.shicimingju.com/cangtoushi/index.html"
-	prio      = 20
 )
 
 var (
@@ -31,12 +32,12 @@ var (
 )
 
 func init() {
-	engine := control.Register("cangtoushi", &control.Options{
+	engine := control.Register("cangtoushi", order.PrioCangTouShi, &control.Options{
 		DisableOnDefault: false,
 		Help: "藏头诗\n" +
 			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",
 	})
-	engine.OnRegex("藏头诗([\u4E00-\u9FA5]{3,10})").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`藏头诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
 		login()
 		data, err := search(kw, "7", "0")
@@ -47,7 +48,7 @@ func init() {
 		ctx.SendChain(message.Text(text))
 	})
 
-	engine.OnRegex("藏尾诗([\u4E00-\u9FA5]{3,10})").SetBlock(true).SetPriority(prio).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`藏尾诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]
 		login()
 		data, err := search(kw, "7", "2")

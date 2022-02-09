@@ -5,7 +5,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/process"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
@@ -14,17 +18,26 @@ const (
 	dbfile    = dbpath + "score.db"
 )
 
-// SDB 得分数据库
-var SDB *DB
+// sdb 得分数据库
+var sdb *scoredb
 
 // 加载数据库
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
+		_, err := file.GetLazyData(text.BoldFontFile, false, true)
+		if err != nil {
+			panic(err)
+		}
+		_, err = file.GetLazyData(text.FontFile, false, true)
+		if err != nil {
+			panic(err)
+		}
 		_ = os.MkdirAll(dbpath, 0755)
 		os.RemoveAll(cachePath)
 		_ = os.MkdirAll(cachePath, 0755)
-		SDB = Initialize(dbfile)
+		sdb = initialize(dbfile)
 		log.Println("[score]加载score数据库")
 	}()
 }

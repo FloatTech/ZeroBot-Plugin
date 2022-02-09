@@ -5,22 +5,24 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
-var engine = control.Register("bilibili", &control.Options{
+var engine = control.Register("bilibili", order.PrioBilibili, &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
-		"- >vup info [名字|uid]\n" +
-		"- >user info [名字|uid]",
+		"- >vup info [名字 | uid]\n" +
+		"- >user info [名字 | uid]",
 })
 
 // 查成分的
 func init() {
-	engine.OnRegex(`^>user info\s(.{1,25})$`).SetBlock(true).
+	engine.OnRegex(`^>(?:user|vup)\s?info\s?(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			rest, err := uid(keyword)

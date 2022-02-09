@@ -2,10 +2,9 @@
 package shadiao
 
 import (
-	"time"
+	control "github.com/FloatTech/zbputils/control"
 
-	control "github.com/FloatTech/zbpctrl"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 const (
@@ -21,14 +20,12 @@ const (
 	pyqReferer      = "https://pyq.shadiao.app/"
 	yduanziReferer  = "http://www.yduanzi.com/?utm_source=shadiao.app"
 	loveliveReferer = "https://lovelive.tools/"
-	prio            = 10
 )
 
 var (
-	engine = control.Register("shadiao", &control.Options{
+	engine = control.Register("shadiao", order.PrioShaDiao, &control.Options{
 		DisableOnDefault: false,
 		Help: "沙雕app\n" +
 			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子",
 	})
-	limit = rate.NewManager(time.Minute, 60)
 )

@@ -6,14 +6,16 @@ import (
 	"math/rand"
 	"time"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	control.Register("reborn", &control.Options{
+	control.Register("reborn", order.PrioReborn, &control.Options{
 		DisableOnDefault: false,
 		Help:             "投胎\n- reborn",
 	}).OnFullMatch("reborn").SetBlock(true).

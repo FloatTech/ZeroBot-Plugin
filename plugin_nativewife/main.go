@@ -12,12 +12,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/picture"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/ZeroBot-Plugin/order"
+
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 )
@@ -31,11 +32,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	engine := control.Register("nwife", &control.Options{
+	engine := control.Register("nwife", order.PrioNativeWife, &control.Options{
 		DisableOnDefault: false,
-		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让|不让]所有人均可添加wife",
+		Help:             "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让 | 不让]所有人均可添加wife",
 	})
-	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			grpf := strconv.FormatInt(ctx.Event.GroupID, 36)
 			wifes, err := os.ReadDir(base + "/" + grpf)
@@ -61,7 +62,7 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, picture.MustGiven).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, ctxext.MustGiven).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
@@ -93,7 +94,7 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有找到wife的名字！"))
 			}
 		})
-	engine.OnPrefix("删除wife", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).SetPriority(20).
+	engine.OnPrefix("删除wife", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
@@ -117,7 +118,7 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有找到wife的名字！"))
 			}
 		})
-	engine.OnSuffix("所有人均可添加wife", zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).SetPriority(20).
+	engine.OnSuffix("所有人均可添加wife", zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			text := ""
 			for _, elem := range ctx.Event.Message {

@@ -4,25 +4,21 @@ package wtf
 import (
 	"fmt"
 	"strconv"
-	"time"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-)
 
-var (
-	// 限制调用频率
-	limit = rate.NewManager(time.Minute*5, 5)
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 )
 
 func init() {
-	en := control.Register("wtf", &control.Options{
+	en := control.Register("wtf", order.PrioWtf, &control.Options{
 		DisableOnDefault: false,
 		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",
 	})
-	en.OnFullMatch("鬼东西列表").SetBlock(true).SetPriority(30).
+	en.OnFullMatch("鬼东西列表").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			s := ""
 			for i, w := range table {
@@ -30,12 +26,8 @@ func init() {
 			}
 			ctx.SendChain(message.Text(s))
 		})
-	en.OnRegex(`^查询鬼东西(\d*)`, zero.OnlyGroup).SetBlock(true).SetPriority(30).
+	en.OnRegex(`^查询鬼东西(\d*)`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("请稍后重试0x0..."))
-				return
-			}
 			// 调用接口
 			i, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FloatTech/zbputils/sql"
+	sql "github.com/FloatTech/sqlite"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 

@@ -9,16 +9,17 @@ import (
 	"strings"
 	"time"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 
 	"github.com/tidwall/gjson"
 )
 
 var (
-	limit     = rate.NewManager(time.Minute*3, 5)
 	templates = map[string]string{
 		"py2":        "print 'Hello World!'",
 		"ruby":       "puts \"Hello World!\";",
@@ -92,7 +93,7 @@ var (
 )
 
 func init() {
-	control.Register("runcode", &control.Options{
+	control.Register("runcode", order.PrioRuncode, &control.Options{
 		DisableOnDefault: false,
 		Help: "在线代码运行: \n" +
 			">runcode [language] [code block]\n" +
@@ -103,46 +104,42 @@ func init() {
 			"JavaScript || TypeScript || PHP || Shell \n" +
 			"Kotlin  || Rust || Erlang || Ruby || Swift \n" +
 			"R || VB || Py2 || Perl || Pascal || Scala",
-	}).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).SecondPriority().
+	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("请稍后重试0x0..."))
+			language := ctx.State["regex_matched"].([]string)[1]
+			language = strings.ToLower(language)
+			if runType, exist := table[language]; !exist {
+				// 不支持语言
+				ctx.SendChain(
+					message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+					message.Text("语言不是受支持的编程语种呢~"),
+				)
 			} else {
-				language := ctx.State["regex_matched"].([]string)[1]
-				language = strings.ToLower(language)
-				if runType, exist := table[language]; !exist {
-					// 不支持语言
+				// 执行运行
+				block := ctx.State["regex_matched"].([]string)[2]
+				block = message.UnescapeCQCodeText(block)
+				if block == "help" {
+					// 输出模板
 					ctx.SendChain(
-						message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-						message.Text("语言不是受支持的编程语种呢~"),
+						message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
+						message.Text(
+							">runcode ", language, "\n",
+							templates[language],
+						),
 					)
 				} else {
-					// 执行运行
-					block := ctx.State["regex_matched"].([]string)[2]
-					block = message.UnescapeCQCodeText(block)
-					if block == "help" {
-						// 输出模板
+					if output, err := runCode(block, runType); err != nil {
+						// 运行失败
 						ctx.SendChain(
-							message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
-							message.Text(
-								">runcode ", language, "\n",
-								templates[language],
-							),
+							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+							message.Text("ERROR: ", err),
 						)
 					} else {
-						if output, err := runCode(block, runType); err != nil {
-							// 运行失败
-							ctx.SendChain(
-								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-								message.Text("ERROR: ", err),
-							)
-						} else {
-							// 运行成功
-							ctx.SendChain(
-								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-								message.Text(output),
-							)
-						}
+						// 运行成功
+						ctx.SendChain(
+							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+							message.Text(output),
+						)
 					}
 				}
 			}

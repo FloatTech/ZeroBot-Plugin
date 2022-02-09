@@ -8,22 +8,22 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbpctrl"
+	control "github.com/FloatTech/zbputils/control"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_diana/data"
 )
 
-var engine *zero.Engine
+var engine = control.Register("diana", order.PrioDiana, &control.Options{
+	DisableOnDefault: false,
+	Help: "嘉然\n" +
+		"- 小作文\n" +
+		"- 发大病\n" +
+		"- 教你一篇小作文[作文]\n" +
+		"- [回复]查重",
+})
 
 func init() {
-	engine = control.Register("diana", &control.Options{
-		DisableOnDefault: false,
-		Help: "嘉然\n" +
-			"- 小作文\n" +
-			"- 发大病\n" +
-			"- 教你一篇小作文[作文]\n" +
-			"- [回复]查重",
-	})
 	// 随机发送一篇上面的小作文
 	engine.OnFullMatch("小作文").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

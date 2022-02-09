@@ -6,11 +6,13 @@ import (
 
 	"github.com/FloatTech/zbputils/process"
 
+	"github.com/FloatTech/ZeroBot-Plugin/order"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
 func init() {
 	go func() {
+		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
 		log.Println("[vtb/cron] 开启vtb数据库日常更新")
 		vtbDaily()
