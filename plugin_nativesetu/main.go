@@ -10,10 +10,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/rule"
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -27,7 +27,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", order.PrioNativeSetu, &control.Options{
+	engine := control.Register("nativesetu", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +
@@ -36,7 +36,7 @@ func init() {
 			"- 刷新所有本地setu\n" +
 			"- 所有本地setu分类",
 	})
-	engine.OnRegex(`^本地(.*)$`, rule.FirstValueInList(ns)).SetBlock(true).
+	engine.OnRegex(`^本地(.*)$`, ctxext.FirstValueInList(ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -50,7 +50,7 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, rule.FirstValueInList(ns), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, ctxext.FirstValueInList(ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)

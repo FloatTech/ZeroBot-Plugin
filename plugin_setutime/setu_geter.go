@@ -15,14 +15,13 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
-	imagepool "github.com/FloatTech/zbputils/imgpool"
+	imagepool "github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/rule"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 // Pools 图片缓冲池
@@ -69,7 +68,7 @@ func init() { // 插件主体
 		}
 	}()
 
-	engine := control.Register("setutime", order.PrioSetuTime, &control.Options{
+	engine := control.Register("setutime", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +
@@ -77,7 +76,7 @@ func init() { // 插件主体
 			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
 			"- >setu status",
 	})
-	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^来份(.*)$`, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
@@ -111,7 +110,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除(.*?)(\d+)$`, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]

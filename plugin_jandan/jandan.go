@@ -14,7 +14,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("jandan", order.PrioJandan, &control.Options{
+	engine := control.Register("jandan", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "煎蛋网无聊图\n- 来份屌图\n- 更新屌图\n",
 	})

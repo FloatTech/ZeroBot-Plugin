@@ -11,11 +11,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	en := control.Register("base16384", order.PrioBase14, &control.Options{
+	en := control.Register("base16384", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "base16384加解密\n" +
 			"- 加密xxx\n- 解密xxx\n- 用yyy加密xxx\n- 用yyy解密xxx",

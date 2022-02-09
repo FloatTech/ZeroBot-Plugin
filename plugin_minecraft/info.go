@@ -4,11 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
-
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension"
-	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 type resultjson struct {
@@ -40,27 +35,6 @@ type resultjson struct {
 var (
 	servers = make(map[string]string)
 )
-
-func init() {
-	// 这里填对应mc服务器的登录地址
-	servers["ftbi"] = "115.28.186.22:25710"
-	servers["ges"] = "115.28.186.22:25701"
-
-	engine.OnCommand("mclist").SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			model := extension.CommandModel{}
-			_ = ctx.Parse(&model)
-			// 支持多个服务器
-			gesjson := infoapi(servers[model.Args])
-			var str = gesjson.Players.List
-			cs := strings.Join(str, "\n")
-			ctx.SendChain(message.Text(
-				"服务器名字: ", gesjson.Motd.Raw[0], "\n",
-				"在线人数: ", gesjson.Players.Online, "/", gesjson.Players.Max, "\n",
-				"以下为玩家名字: ", "\n", cs,
-			))
-		})
-}
 
 // 开放api请求调用
 func infoapi(addr string) *resultjson {

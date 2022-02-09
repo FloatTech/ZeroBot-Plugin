@@ -11,11 +11,11 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/imgpool"
+	"github.com/FloatTech/zbputils/img/pool"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 type resultjson struct {
@@ -65,7 +65,7 @@ type resultjson struct {
 }
 
 func init() {
-	control.Register("imgfinder", order.PrioImageFinder, &control.Options{
+	control.Register("imgfinder", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "关键字搜图\n" +
 			"- 来张 [xxx]",
@@ -77,7 +77,7 @@ func init() {
 			rannum := randintn(len(soutujson.Illusts))
 			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
 			u := pom1 + pom2
-			m, hassent, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), u[strings.LastIndex(u, "/")+1:], u)
+			m, hassent, err := pool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), u[strings.LastIndex(u, "/")+1:], u)
 			if err == nil && !hassent {
 				ctx.SendChain(message.Image(m.String()))
 			}

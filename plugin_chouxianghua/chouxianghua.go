@@ -6,11 +6,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("chouxianghua", order.PrioChouXiangHua, &control.Options{
+	control.Register("chouxianghua", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx",
 	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).

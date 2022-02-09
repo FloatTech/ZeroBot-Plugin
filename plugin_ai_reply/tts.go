@@ -9,11 +9,11 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("mockingbird", order.PrioMockingBird, &control.Options{
+	control.Register("mockingbird", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "拟声鸟\n- @Bot 任意文本(任意一句话回复)",
 	}).OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).

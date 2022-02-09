@@ -8,12 +8,12 @@ import (
 	"github.com/FloatTech/AnimeAPI/classify"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/imgpool"
+	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -30,7 +30,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("acgimage", order.PrioACGImage, &control.Options{
+	engine := control.Register("acgimage", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "随机图片与AI点评\n" +
 			"- 随机图片(评级大于6的图将私发)\n" +
@@ -82,7 +82,7 @@ func init() { // 插件主体
 			}
 		})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
@@ -102,7 +102,7 @@ func init() { // 插件主体
 					u = apihead + dhash
 				}
 
-				m, hassent, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
+				m, hassent, err := pool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
 				if err == nil && !hassent {
 					ctx.SendChain(message.Image(m.String()))
 				}
@@ -146,7 +146,7 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 		}
 	}
 
-	m, hassent, err := imgpool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
+	m, hassent, err := pool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
 	if err == nil && !hassent {
 		send(message.Message{message.Image(m.String())})
 	}
