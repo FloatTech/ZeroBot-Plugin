@@ -4,7 +4,7 @@ package shadiao
 import (
 	control "github.com/FloatTech/zbputils/control"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	engine = control.Register("shadiao", order.PrioShaDiao, &control.Options{
+	engine = control.Register("shadiao", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "沙雕app\n" +
 			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子",

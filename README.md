@@ -45,6 +45,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 ## 功能
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
 > 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
+> 插件的优先级为`import`的先后顺序
 - **web管理** `import _ "github.com/FloatTech/zbputils/control/web"`
     - 开启后可执行文件大约增加 5M ，默认注释不开启。如需开启请自行编辑`main.go`取消注释
     - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
@@ -135,8 +136,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 用yyy加密xxx
     - [x] 用yyy解密xxx
 - **摸鱼** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"`
-    - [x] 添加摸鱼提醒
-    - [x] 删除摸鱼提醒
+    - [x] /启用 moyu
+    - [x] /禁用 moyu
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]

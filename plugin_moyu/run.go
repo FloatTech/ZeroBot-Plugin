@@ -9,51 +9,23 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() { // 插件主体
+	control.Register("moyu", order.AcquirePrio(), &control.Options{
+		DisableOnDefault: true,
+		Help: "moyu\n" +
+			"- /启用 moyu\n" +
+			"- /禁用 moyu",
+	})
+
 	// 定时任务每天10点执行一次
 	c := cron.New()
 	_, err := c.AddFunc("0 10 * * *", func() { sendNotice() })
 	if err == nil {
 		c.Start()
 	}
-
-	control.Register("moyu", order.PrioMoyu, &control.Options{
-		DisableOnDefault: true,
-		Help: "moyu\n" +
-			"- 添加摸鱼提醒\n" +
-			"- 删除摸鱼提醒",
-	}).OnFullMatch("删除摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			m, ok := control.Lookup("moyu")
-			if ok {
-				if m.IsEnabledIn(ctx.Event.GroupID) {
-					m.Disable(ctx.Event.GroupID)
-					ctx.Send(message.Text("删除成功！"))
-				} else {
-					ctx.Send(message.Text("未启用！"))
-				}
-			} else {
-				ctx.Send(message.Text("找不到该服务！"))
-			}
-		})
-
-	zero.OnFullMatch("添加摸鱼提醒", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			m, ok := control.Lookup("moyu")
-			if ok {
-				if m.IsEnabledIn(ctx.Event.GroupID) {
-					ctx.Send(message.Text("已启用！"))
-				} else {
-					m.Enable(ctx.Event.GroupID)
-					ctx.Send(message.Text("添加成功！"))
-				}
-			} else {
-				ctx.Send(message.Text("找不到该服务！"))
-			}
-		})
 }
 
 // 获取数据拼接消息链并发送

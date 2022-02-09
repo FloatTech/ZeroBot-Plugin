@@ -13,11 +13,11 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/imgpool"
+	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -30,7 +30,7 @@ var (
 )
 
 func init() {
-	control.Register("lolicon", order.PrioLolicon, &control.Options{
+	control.Register("lolicon", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
 			"- 来份萝莉",
@@ -57,7 +57,7 @@ func init() {
 					url := json.Get("data.0.urls.original").Str
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
 					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
-					m, err := imgpool.GetImage(name)
+					m, err := pool.GetImage(name)
 					if err != nil {
 						m.SetFile(url)
 						_, err = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))

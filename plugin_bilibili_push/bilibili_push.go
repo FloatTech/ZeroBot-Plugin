@@ -20,7 +20,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -57,7 +57,7 @@ var (
 
 func init() {
 	go bilibiliPushDaily()
-	en := control.Register(serviceName, order.PrioBilibiliPush, &control.Options{
+	en := control.Register(serviceName, order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
 			"- 添加订阅[uid]\n" +

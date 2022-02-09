@@ -17,7 +17,7 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -52,7 +52,7 @@ func init() {
 		panic(err)
 	}
 
-	engine := control.Register("hs", order.PrioHS, &control.Options{
+	engine := control.Register("hs", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +

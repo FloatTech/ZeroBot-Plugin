@@ -12,14 +12,14 @@ import (
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() { // 插件主体
-	engine := control.Register("aifalse", order.PrioAIFalse, &control.Options{
+	engine := control.Register("aifalse", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "AIfalse\n" +
 			"- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]",

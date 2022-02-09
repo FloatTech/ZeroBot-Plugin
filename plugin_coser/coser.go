@@ -13,7 +13,7 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	control.Register("coser", order.PrioCoser, &control.Options{
+	control.Register("coser", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "三次元小姐姐\n- coser",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).

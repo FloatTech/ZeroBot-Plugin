@@ -10,11 +10,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	en := control.Register("wtf", order.PrioWtf, &control.Options{
+	en := control.Register("wtf", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",
 	})

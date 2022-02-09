@@ -13,7 +13,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -30,7 +30,7 @@ func init() { // 插件主体
 		panic(err)
 	}
 	rand.Seed(time.Now().UnixNano()) // 设置种子
-	control.Register("gif", order.PrioGIF, &control.Options{
+	control.Register("gif", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "制图\n- " + strings.Join(cmds, "\n- "),
 	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^(` + strings.Join(cmds, "|") + `)\D*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).

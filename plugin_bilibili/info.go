@@ -10,10 +10,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-var engine = control.Register("bilibili", order.PrioBilibili, &control.Options{
+var engine = control.Register("bilibili", order.AcquirePrio(), &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
 		"- >vup info [名字 | uid]\n" +

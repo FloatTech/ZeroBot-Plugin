@@ -6,7 +6,7 @@ import (
 	"github.com/FloatTech/zbputils/process"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
