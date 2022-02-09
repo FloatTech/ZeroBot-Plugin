@@ -1,4 +1,4 @@
-package asoul
+package bilibili
 
 import (
 	"encoding/json"
