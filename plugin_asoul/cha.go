@@ -3,8 +3,6 @@ package asoul
 import (
 	"encoding/json"
 	"errors"
-	"github.com/FloatTech/sqlite"
-	"github.com/FloatTech/zbputils/process"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
@@ -12,29 +10,30 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 )
 
 // 查成分的
 func init() {
 	// 插件初始化，获取vtbs数据入库
-	go func() {
-		process.SleepAbout1sTo2s()
-		_ = os.MkdirAll(datapath, 0755)
-		db := &sql.Sqlite{DBPath: dbfile}
-		db.Create("vtbs", &vtbs{})
-		log.Infof("[vtbs]创建数据库和表完成")
-		vtbData := getVtbs().Array()
-		for _, i := range vtbData {
-			db.Insert("vtbs", &vtbs{
-				Mid: i.Get("mid").Int(),
-				Un:  i.Get("uname").Str,
-				Rid: i.Get("roomid").Int(),
-			})
-		}
-		log.Infof("[vtbs]获取%v条vtbs数据，插入数据库成功", len(vtbData))
-	}()
+	//go func() {
+	//	process.SleepAbout1sTo2s()
+	//	_ = os.MkdirAll(datapath, 0755)
+	//	db := &sql.Sqlite{DBPath: dbfile}
+	//	db.Create("vtbs", &vtbs{})
+	//	log.Infof("[vtbs]创建数据库和表完成")
+	//	vtbData := getVtbs().Array()
+	//	fmt.Println(vtbData)
+	//	for _, i := range vtbData {
+	//		fmt.Println(i)
+	//		db.Insert("vtbs", &vtbs{
+	//			Mid: i.Get("mid").Int(),
+	//			Un:  i.Get("uname").Str,
+	//			Rid: i.Get("roomid").Int(),
+	//		})
+	//	}
+	//	log.Infof("[vtbs]获取%v条vtbs数据，插入数据库成功", len(vtbData))
+	//}()
 	// 插件主体,匹配用户名字
 	engine.OnRegex(`^/查\s(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
