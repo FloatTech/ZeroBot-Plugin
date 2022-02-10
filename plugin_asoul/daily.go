@@ -1,7 +1,6 @@
 package asoul
 
 import (
-	"fmt"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -35,8 +34,6 @@ func getDynamic() string {
 	dy := json.Get("data.cards.#.card").Array()
 	for i, v := range dy {
 		if strings.Contains(v.Str, "日程表") == true {
-			fmt.Println(i, v)
-
 			if strings.Contains(dy[i].Str, "img_src") == true {
 				gi := dy[i].Str
 				startStr := "\"img_src\":\""
