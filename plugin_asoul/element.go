@@ -3,7 +3,8 @@ package asoul
 import (
 	"encoding/json"
 	"errors"
-	"github.com/jinzhu/gorm"
+	"github.com/FloatTech/sqlite"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
@@ -13,11 +14,27 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 )
 
 // 查成分的
 func init() {
+	// 插件初始化，获取vtbs数据入库
+	go func() {
+		process.SleepAbout1sTo2s()
+		_ = os.MkdirAll(datapath, 0755)
+		db := &sql.Sqlite{DBPath: dbfile}
+		db.Create("vtbs", &vtbs{})
+		log.Infof("[vtbs]创建数据库和表完成")
+		vtbData := getVtbs().Array()
+		for _, i := range vtbData {
+			db.Insert("vtbs", &vtbs{
+				Mid: i.Get("mid").Int(),
+				Un:  i.Get("uname").Str,
+				Rid: i.Get("roomid").Int(),
+			})
+		}
+		log.Infof("[vtbs]获取%v条vtbs数据，插入数据库成功", len(vtbData))
+	}()
 	// 插件主体,匹配用户名字
 	engine.OnRegex(`^/查\s(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -44,10 +61,15 @@ func init() {
 				))
 		})
 	// 插件主体,匹配用户uid
-	engine.OnRegex(`^/查UID:(.{1,25})$`).SetBlock(true).
+	engine.OnRegex(`^/查 UID:(.{1,25})$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
-			mid := keyword
+			rest, err := getMid(keyword)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			mid := rest.Get("data.result.0.mid").String()
 			info := getinfo(mid)
 			attentions := compared(info.Card.Attentions)
 			ctx.SendChain(message.Image(info.Card.Face),
@@ -103,70 +125,31 @@ func getinfo(mid string) *follows {
 func compared(follows []int) []string {
 	var db *sqlx.DB
 	db, _ = sqlx.Open("sqlite3", dbfile)
-	defer db.Close()
 	query1, args, err := sqlx.In("select uname from vtbs where mid in (?)", follows)
 	res := []string{}
 	err = db.Select(&res, query1, args...)
 	if err != nil {
-		log.Errorln("查找失败")
+		panic(err)
 	}
 	return res
 }
 
-//首次启动初始化插件, 异步处理！！
-func init() {
-	go func() {
-		getVtbs()
-	}()
-}
-
 // 获取vtbs数据返回
-func getVtbs() {
+func getVtbs() gjson.Result {
 	url := "https://api.vtbs.moe/v1/short"
 	method := "GET"
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		log.Error("[Element]请求api失败", err)
+		log.Error("请求api失败", err)
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Error("[Element]请求api失败")
+		log.Error("请求api失败", err)
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Errorln(err)
-	}
 	json := gjson.ParseBytes(body)
 
-	if _, err = os.Stat(dbfile); err != nil || os.IsNotExist(err) {
-		// 生成文件
-		var err error
-		_ = os.MkdirAll(datapath, 0755)
-		f, err := os.Create(dbfile)
-		if err != nil {
-			log.Error("[Element]", err)
-		}
-		log.Infof("[Element]数据库文件(%v)创建成功", dbfile)
-		time.Sleep(1 * time.Second)
-		defer f.Close()
-		// 打开数据库制表
-		db, err := gorm.Open("sqlite3", dbfile)
-		if err != nil {
-			log.Errorln("[Element]打开数据库失败：", err)
-		}
-		db.AutoMigrate(vtbs{})
-		time.Sleep(1 * time.Second)
-		// 插入数据
-		for _, i := range json.Array() {
-			db.Create(&vtbs{
-				Mid:   i.Get("mid").Int(),
-				Uname: i.Get("uname").Str,
-				Rid:   i.Get("roomid").Int(),
-			})
-		}
-		log.Infof("[Element]vtbs更新完成，插入（%v）条数据", len(json.Array()))
-		defer db.Close()
-	}
+	return json
 }
