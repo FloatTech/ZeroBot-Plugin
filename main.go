@@ -81,6 +81,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"           // nsfw图片识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"        // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"         // 投胎
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_recrod"         // 群消息记录入库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"        // 在线运行代码
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"       // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_scale"          // 叔叔的AI二次元图片放大
