@@ -1,3 +1,4 @@
+// Package emojimix 合成emoji
 package emojimix
 
 import (
@@ -33,7 +34,7 @@ func init() {
 			resp2, err := client.Head(u2)
 			if err == nil && resp2.StatusCode == http.StatusOK {
 				ctx.SendChain(message.Image(u2))
-				resp1.Body.Close()
+				resp2.Body.Close()
 				return
 			}
 			ctx.SendChain(message.Text("404 Not found"))
