@@ -93,11 +93,11 @@ func video(uid string) *vdInfo {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		log.Errorln("[fans]", err)
+		log.Errorln("[video]", err)
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Errorln("[fans]", err)
+		log.Errorln("[video]", err)
 	}
 	defer res.Body.Close()
 	result := &vdInfo{}
