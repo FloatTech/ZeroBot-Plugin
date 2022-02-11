@@ -247,6 +247,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 讲个笑话[@xxx] | 讲个笑话[qq号]
 - **抽象话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua"`
     - [x] 抽象翻译[xxx]
+- **抽象话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_emojimix"`
+    - [x] [emoji][emoji]
 - **绝绝子** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"`
     - [x] 喝奶茶绝绝子 | 绝绝子吃饭
 - **藏头诗** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"`

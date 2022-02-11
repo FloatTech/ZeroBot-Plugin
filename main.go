@@ -118,6 +118,8 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_emojimix" // 合成emoji
+
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^低优先级区^^^^^^^                      //
