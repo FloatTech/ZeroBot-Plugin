@@ -1,3 +1,4 @@
+// asoul相关功能[随机视频]
 package asoul
 
 import (
@@ -92,11 +93,11 @@ func video(uid string) *vdInfo {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		log.Errorf("[fans]", err)
+		log.Errorln("[fans]", err)
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Errorf("[fans]", err)
+		log.Errorln("[fans]", err)
 	}
 	defer res.Body.Close()
 	result := &vdInfo{}

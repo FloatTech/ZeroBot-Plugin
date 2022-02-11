@@ -1,3 +1,4 @@
+// asoul相关功能
 package asoul
 
 import (
@@ -20,7 +21,7 @@ const (
 )
 
 type follows struct {
-	Ts   int `json:"ts"`
+	TS   int `json:"ts"`
 	Code int `json:"code"`
 	Card struct {
 		Mid        string `json:"mid"`

@@ -1,3 +1,4 @@
+// asoul相关功能[查成分]
 package asoul
 
 import (
@@ -105,10 +106,13 @@ func compared(follows []int) []string {
 	db, _ = sqlx.Open("sqlite3", dbfile)
 	defer db.Close()
 	query1, args, err := sqlx.In("select uname from vtbs where mid in (?)", follows)
+	if err != nil {
+		log.Errorln("[element]查找失败", err)
+	}
 	res := []string{}
 	err = db.Select(&res, query1, args...)
 	if err != nil {
-		log.Errorln("查找失败")
+		log.Errorln("[element]查找失败", err)
 	}
 	return res
 }

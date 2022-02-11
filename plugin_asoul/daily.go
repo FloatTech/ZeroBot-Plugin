@@ -1,3 +1,4 @@
+// asoul相关功能[日程表]
 package asoul
 
 import (
@@ -33,13 +34,13 @@ func getDynamic() string {
 
 	dy := json.Get("data.cards.#.card").Array()
 	for i, v := range dy {
-		if strings.Contains(v.Str, "日程表") == true {
-			if strings.Contains(dy[i].Str, "img_src") == true {
+		if strings.Contains(v.Str, "日程表") {
+			if strings.Contains(dy[i].Str, "img_src") {
 				gi := dy[i].Str
 				startStr := "\"img_src\":\""
 				endStr := "\",\"img_tags"
 				inurl := string([]byte(gi)[strings.Index(gi, startStr)+len(startStr) : strings.Index(gi, endStr)])
-				imurl := strings.Replace(inurl, "\\", "", -1)
+				imurl := strings.ReplaceAll(inurl, "\\", "")
 				return imurl
 			}
 		}
