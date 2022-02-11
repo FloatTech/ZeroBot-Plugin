@@ -1,4 +1,4 @@
-// Package recrod 群消息记录入库
+// Package record 群消息记录入库
 package record
 
 import (
