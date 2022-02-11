@@ -22,7 +22,7 @@ var engine = control.Register("record", order.AcquirePrio(), &control.Options{
 })
 
 type messages struct {
-	gorm.Namer
+	gorm.Model
 	Mid interface{} `gorm:"column:message_id;type:bigint"`
 	QQ  int64       `gorm:"column:qq"`
 	Un  string      `gorm:"column:username"`

@@ -3,6 +3,7 @@ package asoul
 import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -59,12 +60,6 @@ type follower struct {
 	AreaRank int    `json:"areaRank"`
 }
 
-type vtbs struct {
-	Mid int64  `db:"mid"`
-	Un  string `db:"uname"`
-	Rid int64  `db:"roomid"`
-}
-
 type vdInfo struct {
 	Code int `json:"code"`
 	Data struct {
@@ -83,13 +78,16 @@ type vdInfo struct {
 	} `json:"data"`
 }
 
+type vtbs struct {
+	gorm.Model
+	Mid   int64  `db:"mid"`
+	Uname string `db:"uname"`
+	Rid   int64  `db:"roomid"`
+}
+
 var engine = control.Register("asoul", order.AcquirePrio(), &control.Options{
 	DisableOnDefault: false,
 	Help: "=======asoul相关功能=======\n" +
-		"- 小作文\n" +
-		"- 发大病\n" +
-		"- 教你一篇小作文[作文]\n" +
-		"- [回复]查重" +
 		"- /查 [名字|uid] (查询bilibili用户关注vtb的情况)\n" +
 		"- 日程表 (从asoul官号获取最新的日程表)\n" +
 		"- 来点然/晚/牛/乃/狼能量 (随机推送一条对应账号的投稿)" +

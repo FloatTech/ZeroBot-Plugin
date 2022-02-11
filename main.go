@@ -48,10 +48,10 @@ import (
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage" // 随机图片与AI点评
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false" // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"   // 随机老婆
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin_asoul"		  // Asoul相关
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_acgimage"       // 随机图片与AI点评
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_false"       // 服务器监控
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_aiwife"         // 随机老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_asoul"          // asoul相关功能
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_b14"            // base16384加解密
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse" // b站视频链接解析
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"    // 哀伤雪刃吧推书记录
@@ -81,7 +81,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nsfw"           // nsfw图片识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji"        // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_reborn"         // 投胎
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_recrod"         // 群消息记录入库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_runcode"        // 在线运行代码
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_saucenao"       // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_scale"          // 叔叔的AI二次元图片放大
