@@ -1,3 +1,4 @@
+// Package recrod 群消息记录入库
 package record
 
 import (
@@ -28,7 +29,7 @@ type messages struct {
 	Un  string      `gorm:"column:username"`
 	Gn  string      `gorm:"column:groupname"`
 	Msg string      `gorm:"column:messages;type:varchar(1024)"`
-	Ts  int64       `gorm:"column:timestamp;type:timestamp"`
+	TS  int64       `gorm:"column:timestamp;type:timestamp"`
 }
 
 func init() {
@@ -59,7 +60,7 @@ func init() {
 				Un:  ctx.Event.Sender.NickName,
 				Gn:  ctx.Event.Sender.Card,
 				Msg: ctx.Event.Message.String(),
-				Ts:  ctx.Event.Time,
+				TS:  ctx.Event.Time,
 			})
 			logrus.Infof("[recrod]消息（%v）插入数据库成功", ctx.Event.GroupID)
 			defer db.Close()

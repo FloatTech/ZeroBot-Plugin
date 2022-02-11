@@ -1,4 +1,3 @@
-// asoul相关功能[查成分]
 package asoul
 
 import (

@@ -1,4 +1,3 @@
-// asoul相关功能[随机视频]
 package asoul
 
 import (

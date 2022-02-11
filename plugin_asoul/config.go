@@ -1,4 +1,4 @@
-// asoul相关功能
+// Package asoul相关功能
 package asoul
 
 import (

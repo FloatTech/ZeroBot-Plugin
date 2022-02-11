@@ -1,4 +1,3 @@
-// asoul相关功能[粉丝信息]
 package asoul
 
 import (

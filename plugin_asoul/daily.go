@@ -1,4 +1,3 @@
-// asoul相关功能[日程表]
 package asoul
 
 import (
