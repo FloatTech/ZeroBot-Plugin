@@ -18,7 +18,7 @@ const (
 
 var (
 	engine = control.Register("purechat", order.PrioPureChat, &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: ture,
 		Help:             "purechat\n- 稍微干净一点的chat回复 删掉了一些有点ex的w((",
 	})
 	kimogomap  = make(kimogo, 256)
