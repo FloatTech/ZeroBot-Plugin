@@ -62,6 +62,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_cpstory"        // cp短打
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_danbooru"       // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_diana"          // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_emojimix"       // 合成emoji
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_fortune"        // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_funny"          // 笑话
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_gif"            // 制图
@@ -117,6 +118,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_curse" // 骂人
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_ai_reply" // 人工智能回复
+
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
