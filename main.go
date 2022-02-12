@@ -29,6 +29,8 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri" // ATRI词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager" // 群管
+	
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_wordbank" // 不是很ex的基础词库
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
