@@ -4,6 +4,7 @@ package gif
 import (
 	"math/rand"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -24,11 +25,7 @@ var (
 )
 
 func init() { // 插件主体
-	_ = os.RemoveAll(datapath) // 清除缓存图片
-	err := os.MkdirAll(datapath, 0755)
-	if err != nil {
-		panic(err)
-	}
+	_ = os.MkdirAll(datapath, 0755)
 	rand.Seed(time.Now().UnixNano()) // 设置种子
 	control.Register("gif", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
@@ -39,31 +36,19 @@ func init() { // 插件主体
 		list := ctx.State["regex_matched"].([]string)
 		c.prepareLogos(list[4]+list[5]+list[6], strconv.FormatInt(ctx.Event.UserID, 10))
 		var picurl string
-		switch list[1] {
-		case "爬":
-			picurl = c.pa()
-		case "摸":
-			picurl = c.mo()
-		case "吃":
-			picurl = c.chi()
-		case "啃":
-			picurl = c.ken()
-		case "蹭":
-			picurl = c.ceng()
-		case "敲":
-			picurl = c.qiao()
-		case "搓":
-			picurl = c.cuo()
-		case "拍":
-			picurl = c.pai()
-		case "丢":
-			picurl = c.diu()
-		case "撕":
-			picurl = c.si()
-		case "冲":
-			picurl = c.chong()
-		default:
-			picurl = c.other(list[1]) // "灰度", "上翻", "下翻", "左翻", "右翻", "反色", "倒放", "浮雕", "打码", "负片"
+		var err error
+		if len([]rune(list[1])) == 1 {
+			r := reflect.ValueOf(c).MethodByName("A" + list[1]).Call(nil)
+			picurl = r[0].String()
+			if !r[1].IsNil() {
+				err = r[1].Interface().(error)
+			}
+		} else {
+			picurl, err = c.other(list[1]) // "灰度", "上翻", "下翻", "左翻", "右翻", "反色", "倒放", "浮雕", "打码", "负片"
+		}
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
 		ctx.SendChain(message.Image(picurl))
 	})

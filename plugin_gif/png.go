@@ -1,6 +1,7 @@
 package gif
 
 import (
+	"errors"
 	"image"
 	"math/rand"
 	"strconv"
@@ -9,62 +10,85 @@ import (
 	"github.com/FloatTech/zbputils/img/writer"
 )
 
-// 爬
-func (cc *context) pa() string {
+// A爬
+func (cc *context) A爬() (string, error) {
 	name := cc.usrdir + `爬.png`
-	tou := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0).Circle(0).Im
+	tou, err := cc.getLogo(0, 0)
+	if err != nil {
+		return "", err
+	}
 	// 随机爬图序号
 	rand := rand.Intn(60) + 1
-	dc := img.LoadFirstFrame(dlblock(`pa/`+strconv.Itoa(rand)+`.png`), 0, 0).
-		InsertBottom(tou, 100, 100, 0, 400).Im
-	_ = writer.SavePNG2Path(name, dc)
-	return "file:///" + name
+	f, err := dlblock(`pa/` + strconv.Itoa(rand) + `.png`)
+	if err != nil {
+		return "", err
+	}
+	imgf, err := img.LoadFirstFrame(f, 0, 0)
+	if err != nil {
+		return "", err
+	}
+	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(tou, 100, 100, 0, 400).Im)
 }
 
-// 撕
-func (cc *context) si() string {
+// A撕
+func (cc *context) A撕() (string, error) {
 	name := cc.usrdir + `撕.png`
-	tou := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0).Im
+	tou, err := cc.getLogo(0, 0)
+	if err != nil {
+		return "", err
+	}
 	im1 := img.Rotate(tou, 20, 380, 380)
 	im2 := img.Rotate(tou, -12, 380, 380)
-	dc := img.LoadFirstFrame(dlblock(`si/0.png`), 0, 0).
-		InsertBottom(im1.Im, im1.W, im1.H, -3, 370).
-		InsertBottom(im2.Im, im2.W, im2.H, 653, 310).Im
-	_ = writer.SavePNG2Path(name, dc)
-	return "file:///" + name
+	f, err := dlblock(`si/0.png`)
+	if err != nil {
+		return "", err
+	}
+	imgf, err := img.LoadFirstFrame(f, 0, 0)
+	if err != nil {
+		return "", err
+	}
+	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(im1.Im, im1.W, im1.H, -3, 370).InsertBottom(im2.Im, im2.W, im2.H, 653, 310).Im)
 }
 
 // 简单
-func (cc *context) other(value ...string) string {
+func (cc *context) other(value ...string) (string, error) {
 	name := cc.usrdir + value[0] + `.png`
 	// 加载图片
-	im := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
-	var a *image.NRGBA
-
+	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	if err != nil {
+		return "", err
+	}
+	var imgnrgba *image.NRGBA
 	switch value[0] {
 	case "上翻", "下翻":
-		a = im.FlipV().Im
+		imgnrgba = im.FlipV().Im
 	case "左翻", "右翻":
-		a = im.FlipH().Im
+		imgnrgba = im.FlipH().Im
 	case "反色":
-		a = im.Invert().Im
+		imgnrgba = im.Invert().Im
 	case "灰度":
-		a = im.Grayscale().Im
+		imgnrgba = im.Grayscale().Im
 	case "负片":
-		a = im.Invert().Grayscale().Im
+		imgnrgba = im.Invert().Grayscale().Im
 	case "浮雕":
-		a = im.Convolve3x3().Im
+		imgnrgba = im.Convolve3x3().Im
 	case "打码":
-		a = im.Blur(10).Im
+		imgnrgba = im.Blur(10).Im
 	case "旋转":
 		r, _ := strconv.ParseFloat(value[1], 64)
-		a = img.Rotate(im.Im, r, 0, 0).Im
+		imgnrgba = img.Rotate(im.Im, r, 0, 0).Im
 	case "变形":
-		w, _ := strconv.Atoi(value[1])
-		h, _ := strconv.Atoi(value[2])
-		a = img.Size(im.Im, w, h).Im
+		w, err := strconv.Atoi(value[1])
+		if err != nil {
+			return "", err
+		}
+		h, err := strconv.Atoi(value[2])
+		if err != nil {
+			return "", err
+		}
+		imgnrgba = img.Size(im.Im, w, h).Im
+	default:
+		return "", errors.New("no such method")
 	}
-
-	_ = writer.SavePNG2Path(name, a)
-	return "file:///" + name
+	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
