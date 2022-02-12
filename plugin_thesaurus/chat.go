@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	dbpath = "data/Purechat/"
+	dbpath = "data/thesaurus/"
 	dbfile = dbpath + "kimoi_clear.json"
 )
 
@@ -26,7 +26,7 @@ var (
 )
 
 func init() { 
-	initPureChatList(func() {
+	initthesaurusList(func() {
 		engine.OnFullMatchGroup(chatList, zero.OnlyToMe).SetBlock(true).Handle(
 			func(ctx *zero.Ctx) {
 				key := ctx.MessageString()

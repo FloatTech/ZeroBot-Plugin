@@ -14,7 +14,7 @@ import (
 
 type kimogo = map[string]*[]string
 
-func initPureChatList(postinit func()) {
+func initthesaurusList(postinit func()) {
 	go func() {
 		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
@@ -30,7 +30,7 @@ func initPureChatList(postinit func()) {
 		for k := range kimogomap {
 			chatList = append(chatList, k)
 		}
-		logrus.Infoln("[purechat]加载", len(chatList), "条kimoi")
+		logrus.Infoln("[thesaurus]加载", len(chatList), "条kimoi")
 		postinit()
 	}()
 }
