@@ -17,6 +17,7 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/web"
@@ -70,6 +71,14 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
+
+			// 避免图片过大，最大 1280*720
+			if back.Bounds().Size().X > 1280 {
+				back = img.Size(back, 1280, back.Bounds().Size().Y*1280/back.Bounds().Size().X).Im
+			} else if back.Bounds().Size().Y > 720 {
+				back = img.Size(back, back.Bounds().Size().X*720/back.Bounds().Size().Y, 720).Im
+			}
+
 			canvas := gg.NewContext(back.Bounds().Size().X, int(float64(back.Bounds().Size().Y)*1.7))
 			canvas.SetRGB(1, 1, 1)
 			canvas.Clear()
