@@ -8,7 +8,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
