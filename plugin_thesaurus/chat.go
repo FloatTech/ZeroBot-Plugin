@@ -18,7 +18,7 @@ const (
 
 var (
 	engine = control.Register("thesaurus", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: ture,
+		DisableOnDefault: true,
 		Help:             "thesaurus\n- 稍微干净一点的chat回复 删掉了一些有点ex的w((",
 	})
 	kimogomap  = make(kimogo, 256)
