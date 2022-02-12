@@ -21,11 +21,11 @@ var (
 		DisableOnDefault: true,
 		Help:             "thesaurus\n- 稍微干净一点的chat回复 删掉了一些有点ex的w((",
 	})
-	kimogomap  = make(kimogo, 256)
-	chatList = make([]string, 0, 256)
+	kimogomap = make(kimogo, 256)
+	chatList  = make([]string, 0, 256)
 )
 
-func init() { 
+func init() {
 	initthesaurusList(func() {
 		engine.OnFullMatchGroup(chatList, zero.OnlyToMe).SetBlock(true).Handle(
 			func(ctx *zero.Ctx) {
