@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	wangyiyunURL     = "http://ovooa.com/API/wyrp/api.php?type=text"
-	wangyiyunReferer = "http://ovooa.com/"
+	wangyiyunURL     = "https://api.gmit.vip/Api/HotComments?format=text"
+	wangyiyunReferer = "https://api.gmit.vip/"
 	ua               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 )
 

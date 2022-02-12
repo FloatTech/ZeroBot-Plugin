@@ -1,4 +1,4 @@
-package chat
+package thesaurus
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 
 type kimo = map[string]*[]string
 
-func initChatList(postinit func()) {
+func initThesaurusList(postinit func()) {
 	go func() {
 		defer order.DoneOnExit()()
 		process.SleepAbout1sTo2s()
@@ -30,7 +30,7 @@ func initChatList(postinit func()) {
 		for k := range kimomap {
 			chatList = append(chatList, k)
 		}
-		logrus.Infoln("[chat]加载", len(chatList), "条kimoi")
+		logrus.Infoln("[thesaurus]加载", len(chatList), "条kimoi")
 		postinit()
 	}()
 }

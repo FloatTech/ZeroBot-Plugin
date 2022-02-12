@@ -30,6 +30,8 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_manager" // 群管
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_thesaurus" // 词典匹配回复
+
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^高优先级区^^^^^^^                      //
