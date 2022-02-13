@@ -24,7 +24,7 @@ var (
 
 func init() { // 插件主体
 	// 被喊名字
-	engine.OnMessage(zero.OnlyToMe).SetBlock(true).
+	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
