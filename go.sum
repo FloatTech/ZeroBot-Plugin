@@ -1,12 +1,8 @@
-github.com/FloatTech/AnimeAPI v1.3.0-beta8 h1:1Xeg9aIsFJetMU4XLxnoyMUiyZd7lTm4dT9283qescc=
-github.com/FloatTech/AnimeAPI v1.3.0-beta8/go.mod h1:zu2DRv5np3QkidAXIE6pQRSpf98KNBrrYpq2CGndwM0=
 github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220213040613-3eae1be1dca8 h1:hUY6f/EJClqbhlClR2zZ9zmSmoGvwxJv7coOJJvLXMY=
 github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220213040613-3eae1be1dca8/go.mod h1:5hkXn82e12mNoieItQZkaOOzoXF/bagimHJxQE4Vp98=
 github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
 github.com/FloatTech/sqlite v0.1.0 h1:Geh6Z+DWZXmyXVOhM0U2oXT7b1Ob6sQtuyjInk+MCUk=
 github.com/FloatTech/sqlite v0.1.0/go.mod h1:XS0oeSqtH6lFzpPRiDE9fV6+zMcuUF5/6o+tQVO1QZE=
-github.com/FloatTech/zbputils v1.3.0-beta8 h1:rc5P3S9rgtSpxESDxnMR6Tnp7DjAZEh5ujgMY9pUlSw=
-github.com/FloatTech/zbputils v1.3.0-beta8/go.mod h1:P3tTFIIQJs/cijG80jwxrs0NBGISEDkXtrZhiev/eMk=
 github.com/FloatTech/zbputils v1.3.0-beta8.0.20220213040222-ee1ac6293584 h1:nJXw4FXaaUJTJclRjisc2739YwWFsStuEOoMaZSj3bs=
 github.com/FloatTech/zbputils v1.3.0-beta8.0.20220213040222-ee1ac6293584/go.mod h1:P3tTFIIQJs/cijG80jwxrs0NBGISEDkXtrZhiev/eMk=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
