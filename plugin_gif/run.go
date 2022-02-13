@@ -34,9 +34,12 @@ func init() { // 插件主体
 		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c := newContext(ctx.Event.UserID)
 		list := ctx.State["regex_matched"].([]string)
-		c.prepareLogos(list[4]+list[5]+list[6], strconv.FormatInt(ctx.Event.UserID, 10))
+		err := c.prepareLogos(list[4]+list[5]+list[6], strconv.FormatInt(ctx.Event.UserID, 10))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
 		var picurl string
-		var err error
 		if len([]rune(list[1])) == 1 {
 			r := reflect.ValueOf(c).MethodByName("A" + list[1]).Call(nil)
 			picurl = r[0].String()

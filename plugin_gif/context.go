@@ -73,7 +73,7 @@ func newContext(user int64) *context {
 	return c
 }
 
-func LoadFirstFrames(paths []string, size int) (imgs []*img.ImgFactory, err error) {
+func loadFirstFrames(paths []string, size int) (imgs []*img.ImgFactory, err error) {
 	imgs = make([]*img.ImgFactory, size)
 	for i := range imgs {
 		imgs[i], err = img.LoadFirstFrame(paths[i], 0, 0)

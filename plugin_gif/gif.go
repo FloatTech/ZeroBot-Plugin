@@ -30,7 +30,7 @@ func (cc *context) A摸() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 5)
+	imgs, err := loadFirstFrames(c, 5)
 	if err != nil {
 		return "", err
 	}
@@ -70,7 +70,7 @@ func (cc *context) A搓() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 5)
+	imgs, err := loadFirstFrames(c, 5)
 	if err != nil {
 		return "", err
 	}
@@ -106,7 +106,7 @@ func (cc *context) A敲() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 2)
+	imgs, err := loadFirstFrames(c, 2)
 	if err != nil {
 		return "", err
 	}
@@ -139,7 +139,7 @@ func (cc *context) A吃() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 3)
+	imgs, err := loadFirstFrames(c, 3)
 	if err != nil {
 		return "", err
 	}
@@ -177,7 +177,7 @@ func (cc *context) A蹭() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 6)
+	imgs, err := loadFirstFrames(c, 6)
 	if err != nil {
 		return "", err
 	}
@@ -214,7 +214,7 @@ func (cc *context) A啃() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 16)
+	imgs, err := loadFirstFrames(c, 16)
 	if err != nil {
 		return "", err
 	}
@@ -261,7 +261,7 @@ func (cc *context) A拍() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 2)
+	imgs, err := loadFirstFrames(c, 2)
 	if err != nil {
 		return "", err
 	}
@@ -294,7 +294,7 @@ func (cc *context) A冲() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 2)
+	imgs, err := loadFirstFrames(c, 2)
 	if err != nil {
 		return "", err
 	}
@@ -327,7 +327,7 @@ func (cc *context) A丢() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgs, err := LoadFirstFrames(c, 8)
+	imgs, err := loadFirstFrames(c, 8)
 	if err != nil {
 		return "", err
 	}
