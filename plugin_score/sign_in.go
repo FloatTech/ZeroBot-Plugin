@@ -73,22 +73,7 @@ func init() {
 			}
 
 			// 避免图片过大，最大 1280*720
-			x := back.Bounds().Size().X
-			y := back.Bounds().Size().Y
-			hasChanged := false
-			if x > 1280 {
-				y = y * 1280 / x
-				x = 1280
-				hasChanged = true
-			}
-			if y > 720 {
-				x = x * 720 / y
-				y = 720
-				hasChanged = true
-			}
-			if hasChanged {
-				back = img.Size(back, x, y).Im
-			}
+			back = img.Limit(back, 1280, 720)
 
 			canvas := gg.NewContext(back.Bounds().Size().X, int(float64(back.Bounds().Size().Y)*1.7))
 			canvas.SetRGB(1, 1, 1)
