@@ -5,19 +5,21 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/FloatTech/AnimeAPI/ascii2d"
-	"github.com/FloatTech/AnimeAPI/pixiv"
-	"github.com/FloatTech/AnimeAPI/saucenao"
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/img/pool"
-	"github.com/FloatTech/zbputils/process"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/ascii2d"
+	"github.com/FloatTech/AnimeAPI/pixiv"
+	"github.com/FloatTech/AnimeAPI/saucenao"
+	"github.com/FloatTech/AnimeAPI/yandex"
+
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/process"
 )
 
 func init() { // 插件主体
@@ -118,6 +120,23 @@ func init() { // 插件主体
 							"画师：", result[0].MemberName, "\n",
 							"画师ID：", result[0].MemberID, "\n",
 							"直链：", "https://pixivel.moe/detail?id=", result[0].PixivID,
+						),
+					)
+					continue
+				}
+				if result, err := yandex.Yandex(pic); err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+				} else {
+					// 返回SauceNAO的结果
+					ctx.SendChain(
+						message.Text("我有把握是这个！"),
+						message.Text(
+							"\n",
+							"标题：", result.Title, "\n",
+							"插画ID：", result.Pid, "\n",
+							"画师：", result.UserName, "\n",
+							"画师ID：", result.UserId, "\n",
+							"直链：", "https://pixivel.moe/detail?id=", result.Pid,
 						),
 					)
 					continue
