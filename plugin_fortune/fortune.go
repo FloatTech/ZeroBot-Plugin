@@ -165,11 +165,11 @@ func init() {
 				}
 				m.SetFile(file.BOTPATH + "/" + cachefile)
 				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+				if hassent {
 					return
 				}
-				if hassent {
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 			}
