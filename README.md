@@ -179,6 +179,12 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
     - [x] 求签 | 占卜
     - [x] 解签
+- **漂流瓶** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_drift_bottle"`
+    - [x] (在群xxx)丢漂流瓶(到频道xxx) [消息]
+    - [x] (从频道xxx)捡漂流瓶
+    - [x] @BOT 创建频道 xxx
+    - [x] 跳入(频道)海中
+    - [x] 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >vup info [名字 | uid]
     - [x] >user info [名字 | uid]
