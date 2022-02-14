@@ -3,6 +3,7 @@ package imagefinder
 
 import (
 	"encoding/json"
+	"errors"
 	"math/rand"
 	"strings"
 
@@ -83,5 +84,8 @@ func soutuapi(keyword string) (r resultjson, err error) {
 		return
 	}
 	err = json.Unmarshal(data, &r)
+	if err == nil && r.Error {
+		err = errors.New(r.Message)
+	}
 	return
 }
