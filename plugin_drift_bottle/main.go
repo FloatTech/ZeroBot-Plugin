@@ -1,3 +1,4 @@
+// Package driftbottle 漂流瓶
 package driftbottle
 
 import (
