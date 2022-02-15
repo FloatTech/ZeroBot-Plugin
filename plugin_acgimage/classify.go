@@ -5,15 +5,16 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/FloatTech/AnimeAPI/classify"
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/pool"
-	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/classify"
+
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/web"
 )
 
 const (
@@ -52,8 +53,16 @@ func init() { // 插件主体
 	// 有保护的随机图片
 	engine.OnFullMatch("随机图片", zero.OnlyGroup).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			class, dhash, comment, _ := classify.Classify(randapi, true)
-			replyClass(ctx, class, dhash, comment, false)
+			class, dhash, _, err := classify.Classify(randapi, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			err = reply(ctx, class, dhash, classify.Comments[class])
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
 	engine.OnFullMatch("直接随机", ctxext.UserOrGrpAdmin).SetBlock(true).
@@ -85,11 +94,13 @@ func init() { // 插件主体
 	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			for _, url := range ctx.State["image_url"].([]string) {
-				class, dhash, comment, _ := classify.Classify(url, true)
-				replyClass(ctx, class, dhash, comment, true)
-				break
+			url := ctx.State["image_url"].([]string)[0]
+			class, _, _, err := classify.Classify(url, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(classify.Comments[class]))
 		})
 	engine.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -114,15 +125,10 @@ func setLastMsg(id int64, msg message.MessageID) {
 	msgof[id] = msg
 }
 
-func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload bool) {
-	if isupload {
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(comment))
-		return
-	}
-
+func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 	b14, err := url.QueryUnescape(dhash)
 	if err != nil {
-		return
+		return err
 	}
 
 	var u string
@@ -150,4 +156,5 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 	if err == nil && !hassent {
 		send(message.Message{message.Image(m.String())})
 	}
+	return err
 }
