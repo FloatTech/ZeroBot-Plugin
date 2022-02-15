@@ -18,6 +18,7 @@ type bottle struct {
 	Msg  string `db:"msg"`  // Msg 消息，纯文本
 }
 
+var sea = &sql.Sqlite{}
 var seamu sync.RWMutex
 
 func newBottle(qq, grp int64, name, msg string) *bottle {

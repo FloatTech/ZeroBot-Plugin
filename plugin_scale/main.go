@@ -17,18 +17,13 @@ import (
 	"github.com/FloatTech/zbputils/control/order"
 )
 
-const cachedir = "data/scale/"
-
 func init() {
-	_ = os.RemoveAll(cachedir)
-	err := os.MkdirAll(cachedir, 0755)
-	if err != nil {
-		panic(err)
-	}
 	engine := control.Register("scale", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             "叔叔的AI二次元图片放大\n- 放大图片[图片]",
+		DisableOnDefault:  false,
+		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
+		PrivateDataFolder: "scale",
 	}).ApplySingle(ctxext.DefaultSingle)
+	cachedir := engine.DataFolder()
 	// 上传一张图进行评价
 	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, ctxext.MustProvidePicture, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

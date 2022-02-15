@@ -4,7 +4,6 @@ package setutime
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -43,19 +42,27 @@ func (p *imgpool) List() (l []string) {
 }
 
 var pool = &imgpool{
-	db:   &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+	db:   &sql.Sqlite{},
 	path: pixiv.CacheDir,
 	max:  10,
 	pool: map[string][]*pixiv.Illust{},
 }
 
 func init() { // 插件主体
-	_ = os.MkdirAll("data/SetuTime", 0755)
+	engine := control.Register("setutime", order.AcquirePrio(), &control.Options{
+		DisableOnDefault: false,
+		Help: "涩图\n" +
+			"- 来份[涩图/二次元/风景/车万]\n" +
+			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
+			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
+			"- >setu status",
+		PublicDataFolder: "SetuTime",
+	})
 
 	go func() {
 		defer order.DoneOnExit()()
-		process.SleepAbout1sTo2s()
 		// 如果数据库不存在则下载
+		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
 		err := pool.db.Open()
 		if err != nil {
@@ -68,14 +75,6 @@ func init() { // 插件主体
 		}
 	}()
 
-	engine := control.Register("setutime", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help: "涩图\n" +
-			"- 来份[涩图/二次元/风景/车万]\n" +
-			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
-			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
-			"- >setu status",
-	})
 	engine.OnRegex(`^来份(.*)$`, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			var imgtype = ctx.State["regex_matched"].([]string)[1]

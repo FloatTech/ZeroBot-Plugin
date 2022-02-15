@@ -9,6 +9,7 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/antchfx/htmlquery"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -25,7 +26,24 @@ func init() {
 	engine := control.Register("jandan", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "煎蛋网无聊图\n- 来份屌图\n- 更新屌图\n",
+		PublicDataFolder: "Jandan",
 	})
+
+	go func() {
+		dbpath := engine.DataFolder()
+		db.DBPath = dbpath + "pics.db"
+		defer order.DoneOnExit()()
+		_, _ = file.GetLazyData(db.DBPath, false, false)
+		err := db.Create("picture", &picture{})
+		if err != nil {
+			panic(err)
+		}
+		n, err := db.Count("picture")
+		if err != nil {
+			panic(err)
+		}
+		logrus.Printf("[jandan]读取%d张图片", n)
+	}()
 
 	engine.OnFullMatch("来份屌图").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

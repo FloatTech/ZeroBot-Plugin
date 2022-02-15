@@ -4,7 +4,6 @@ package deepdanbooru
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"os"
 
 	"github.com/FloatTech/AnimeAPI/danbooru"
 	"github.com/FloatTech/AnimeAPI/saucenao"
@@ -19,19 +18,16 @@ import (
 	"github.com/FloatTech/zbputils/control/order"
 )
 
-const cachefile = "data/danbooru/"
-
 func init() { // 插件主体
-	_ = os.RemoveAll(cachefile)
-	err := os.MkdirAll(cachefile, 0755)
-	if err != nil {
-		panic(err)
-	}
 	engine := control.Register("danbooru", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "二次元图片标签识别\n" +
 			"- 鉴赏图片[图片]",
+		PrivateDataFolder: "danbooru",
 	})
+
+	cachefolder := engine.DataFolder()
+
 	// 上传一张图进行评价
 	engine.OnKeywordGroup([]string{"鉴赏图片"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -50,7 +46,7 @@ func init() { // 插件主体
 					return
 				}
 				digest := md5.Sum(helper.StringToBytes(url))
-				f := cachefile + hex.EncodeToString(digest[:])
+				f := cachefolder + hex.EncodeToString(digest[:])
 				if file.IsNotExist(f) {
 					_ = writer.SavePNG2Path(f, t)
 				}

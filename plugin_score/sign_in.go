@@ -38,9 +38,29 @@ var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 
 func init() {
 	engine := control.Register("score", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景",
+		DisableOnDefault:  false,
+		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景",
+		PrivateDataFolder: "score",
 	})
+	cachePath := engine.DataFolder() + "cache/"
+	go func() {
+		defer order.DoneOnExit()()
+		os.RemoveAll(cachePath)
+		err := os.MkdirAll(cachePath, 0755)
+		if err != nil {
+			panic(err)
+		}
+		_, err = file.GetLazyData(text.BoldFontFile, false, true)
+		if err != nil {
+			panic(err)
+		}
+		_, err = file.GetLazyData(text.FontFile, false, true)
+		if err != nil {
+			panic(err)
+		}
+		sdb = initialize(engine.DataFolder() + "score.db")
+		log.Println("[score]加载score数据库")
+	}()
 	engine.OnFullMatch("签到", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID

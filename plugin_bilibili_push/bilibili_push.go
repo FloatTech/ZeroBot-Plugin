@@ -7,20 +7,21 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
-	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/text"
-	"github.com/FloatTech/zbputils/web"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/zbputils/binary"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
+	"github.com/FloatTech/zbputils/web"
 )
 
 const (
@@ -33,6 +34,9 @@ const (
 	liveURL        = "https://live.bilibili.com/"
 	serviceName    = "bilibilipush"
 )
+
+// bdb bilibili推送数据库
+var bdb *bilibilipushdb
 
 var (
 	lastTime = map[int64]int64{}
@@ -65,7 +69,23 @@ func init() {
 			"- 取消动态订阅[uid]\n" +
 			"- 取消直播订阅[uid]\n" +
 			"- 推送列表",
+		PrivateDataFolder: serviceName,
 	})
+
+	// 加载数据库
+	go func() {
+		dbpath := en.DataFolder()
+		cachePath := dbpath + "cache/"
+		dbfile := dbpath + "push.db"
+		defer order.DoneOnExit()()
+		_ = os.RemoveAll(en.DataFolder() + "cache")
+		err := os.MkdirAll(cachePath, 0755)
+		if err != nil {
+			panic(err)
+		}
+		bdb = initialize(dbfile)
+		log.Println("[bilibilipush]加载bilibilipush数据库")
+	}()
 
 	en.OnRegex(`^添加订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
@@ -202,7 +222,7 @@ func init() {
 		if err != nil {
 			log.Errorln("[bilibilipush]:", err)
 		}
-		if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
+		if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
 			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 		}
 	})
@@ -223,8 +243,8 @@ func checkBuid(buid int64) (status int, name string) {
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
-	status = int(gjson.Get(helper.BytesToString(data), "code").Int())
-	name = gjson.Get(helper.BytesToString(data), "data.name").String()
+	status = int(gjson.Get(binary.BytesToString(data), "code").Int())
+	name = gjson.Get(binary.BytesToString(data), "data.name").String()
 	if status == 0 {
 		bdb.insertBilibiliUp(buid, name)
 		upMap[buid] = name
@@ -281,7 +301,7 @@ func getUserDynamicCard(buid int64) (cardList []gjson.Result) {
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
-	cardList = gjson.Get(helper.BytesToString(data), "data.cards").Array()
+	cardList = gjson.Get(binary.BytesToString(data), "data.cards").Array()
 	return
 }
 
@@ -306,7 +326,7 @@ func getLiveList(uids ...int64) string {
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
-	return helper.BytesToString(data)
+	return binary.BytesToString(data)
 }
 
 func sendDynamic() {

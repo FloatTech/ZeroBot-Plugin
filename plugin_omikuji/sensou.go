@@ -14,6 +14,7 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 
 	"github.com/FloatTech/zbputils/control/order"
@@ -26,7 +27,25 @@ func init() { // 插件主体
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",
+		PublicDataFolder: "Omikuji",
 	}).ApplySingle(ctxext.DefaultSingle)
+
+	go func() {
+		dbpath := engine.DataFolder()
+		db.DBPath = dbpath + "kuji.db"
+		defer order.DoneOnExit()()
+		_, _ = file.GetLazyData(db.DBPath, false, true)
+		err := db.Create("kuji", &kuji{})
+		if err != nil {
+			panic(err)
+		}
+		n, err := db.Count("kuji")
+		if err != nil {
+			panic(err)
+		}
+		log.Printf("[kuji]读取%d条签文", n)
+	}()
+
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := bangoToday(ctx.Event.UserID)

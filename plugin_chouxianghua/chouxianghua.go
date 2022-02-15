@@ -2,18 +2,40 @@
 package chouxianghua
 
 import (
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/file"
 )
 
 func init() {
-	control.Register("chouxianghua", order.AcquirePrio(), &control.Options{
+	en := control.Register("chouxianghua", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx",
-	}).OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).
+		PublicDataFolder: "ChouXiangHua",
+	})
+
+	go func() {
+		dbpath := en.DataFolder()
+		db.DBPath = dbpath + "cxh.db"
+		defer order.DoneOnExit()()
+		// os.RemoveAll(dbpath)
+		_, _ = file.GetLazyData(db.DBPath, false, true)
+		err := db.Create("pinyin", &pinyin{})
+		if err != nil {
+			panic(err)
+		}
+		n, err := db.Count("pinyin")
+		if err != nil {
+			panic(err)
+		}
+		logrus.Printf("[chouxianghua]读取%d条拼音", n)
+	}()
+
+	en.OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r := cx(ctx.State["regex_matched"].([]string)[1])
 			ctx.SendChain(message.Text(r))

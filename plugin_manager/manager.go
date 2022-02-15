@@ -4,7 +4,6 @@ package manager
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -26,9 +25,7 @@ import (
 )
 
 const (
-	datapath = "data/manager/"
-	confile  = datapath + "config.db"
-	hint     = "====群管====\n" +
+	hint = "====群管====\n" +
 		"- 禁言@QQ 1分钟\n" +
 		"- 解除禁言 @QQ\n" +
 		"- 我要自闭 1分钟\n" +
@@ -56,20 +53,20 @@ const (
 )
 
 var (
-	db    = &sql.Sqlite{DBPath: confile}
+	db    = &sql.Sqlite{}
 	clock timer.Clock
 )
 
 func init() { // 插件主体
 	engine := control.Register("manager", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             hint,
+		DisableOnDefault:  false,
+		Help:              hint,
+		PrivateDataFolder: "manager",
 	})
 
 	go func() {
 		defer order.DoneOnExit()()
-		process.SleepAbout1sTo2s()
-		_ = os.MkdirAll(datapath, 0755)
+		db.DBPath = engine.DataFolder() + "config.db"
 		clock = timer.NewClock(db)
 		err := db.Create("welcome", &welcome{})
 		if err != nil {

@@ -15,6 +15,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 
 	"github.com/FloatTech/zbputils/control/order"
@@ -22,17 +23,19 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
 )
 
-const (
-	regStr = ".*/(.*)"
-	dbpath = "data/VtbQuotation/"
-	dbfile = dbpath + "vtb.db"
-)
+const regStr = ".*/(.*)"
 
 func init() {
 	engine := control.Register("vtbquotation", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
+		PublicDataFolder: "VtbQuotation",
 	})
+	dbfile := engine.DataFolder() + "vtb.db"
+	go func() {
+		defer order.DoneOnExit()()
+		_, _ = file.GetLazyData(dbfile, false, false)
+	}()
 	engine.OnFullMatch("vtb语录").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var firstIndex int
@@ -198,7 +201,16 @@ func init() {
 	engine.OnFullMatch("更新vtb", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
-			vtbData()
+			db := model.Initialize(dbfile)
+			if db != nil {
+				for _, v := range db.GetVtbList() {
+					db.StoreVtb(v)
+				}
+				err := db.Close()
+				if err != nil {
+					log.Errorln("[vtb/cron]", err)
+				}
+			}
 			ctx.Send("vtb数据库已更新")
 		})
 }

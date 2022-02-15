@@ -3,7 +3,6 @@ package gif
 
 import (
 	"math/rand"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -11,6 +10,7 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -20,17 +20,18 @@ import (
 var (
 	cmds = []string{"搓", "冲", "摸", "拍", "丢", "吃", "敲", "啃", "蹭", "爬", "撕",
 		"灰度", "上翻", "下翻", "左翻", "右翻", "反色", "浮雕", "打码", "负片"}
-	botpath, _ = os.Getwd()
-	datapath   = botpath + "/data/gif/"
+	datapath string
 )
 
 func init() { // 插件主体
-	_ = os.MkdirAll(datapath, 0755)
 	rand.Seed(time.Now().UnixNano()) // 设置种子
-	control.Register("gif", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             "制图\n- " + strings.Join(cmds, "\n- "),
-	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^(` + strings.Join(cmds, "|") + `)\D*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).
+	en := control.Register("gif", order.AcquirePrio(), &control.Options{
+		DisableOnDefault:  false,
+		Help:              "制图\n- " + strings.Join(cmds, "\n- "),
+		PrivateDataFolder: "gif",
+	}).ApplySingle(ctxext.DefaultSingle)
+	datapath = file.BOTPATH + "/" + en.DataFolder()
+	en.OnRegex(`^(` + strings.Join(cmds, "|") + `)\D*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).
 		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c := newContext(ctx.Event.UserID)
 		list := ctx.State["regex_matched"].([]string)

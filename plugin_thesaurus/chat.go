@@ -2,31 +2,42 @@
 package thesaurus
 
 import (
+	"encoding/json"
 	"math/rand"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/zbputils/control/order"
 )
 
-const (
-	dbpath = "data/Chat/"
-	dbfile = dbpath + "kimoi.json"
-)
-
-var (
-	engine = control.Register("thesaurus", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             "thesaurus\n- 词典匹配回复",
-	})
-	kimomap  = make(kimo, 256)
-	chatList = make([]string, 0, 256)
-)
+type kimo = map[string]*[]string
 
 func init() {
-	initThesaurusList(func() {
+	engine := control.Register("thesaurus", order.AcquirePrio(), &control.Options{
+		DisableOnDefault: false,
+		Help:             "thesaurus\n- 词典匹配回复",
+		PublicDataFolder: "Chat",
+	})
+	go func() {
+		defer order.DoneOnExit()()
+		data, err := file.GetLazyData(engine.DataFolder()+"kimoi.json", true, true)
+		if err != nil {
+			panic(err)
+		}
+		kimomap := make(kimo, 256)
+		err = json.Unmarshal(data, &kimomap)
+		if err != nil {
+			panic(err)
+		}
+		chatList := make([]string, 0, 256)
+		for k := range kimomap {
+			chatList = append(chatList, k)
+		}
+		logrus.Infoln("[thesaurus]加载", len(chatList), "条kimoi")
 		engine.OnFullMatchGroup(chatList, zero.OnlyToMe).SetBlock(true).Handle(
 			func(ctx *zero.Ctx) {
 				key := ctx.MessageString()
@@ -34,5 +45,5 @@ func init() {
 				text := val[rand.Intn(len(val))]
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text)) // 来自于 https://github.com/Kyomotoi/AnimeThesaurus 的回复 经过二次修改
 			})
-	})
+	}()
 }

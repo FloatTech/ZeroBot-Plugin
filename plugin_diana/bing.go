@@ -22,9 +22,17 @@ var engine = control.Register("diana", order.AcquirePrio(), &control.Options{
 		"- 发大病\n" +
 		"- 教你一篇小作文[作文]\n" +
 		"- [回复]查重",
+	PublicDataFolder: "Diana",
 })
 
 func init() {
+	go func() {
+		datapath := engine.DataFolder()
+		dbfile := datapath + "text.db"
+		defer order.DoneOnExit()()
+		data.LoadText(dbfile)
+	}()
+
 	// 随机发送一篇上面的小作文
 	engine.OnFullMatch("小作文").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

@@ -12,14 +12,9 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 
 	"github.com/FloatTech/zbputils/control/order"
-)
-
-const (
-	datapath = "data/nsetu"
-	dbfile   = datapath + "/data.db"
-	cfgfile  = datapath + "/setupath.txt"
 )
 
 var (
@@ -35,7 +30,19 @@ func init() {
 			"- 设置本地setu绝对路径[xxx]\n" +
 			"- 刷新所有本地setu\n" +
 			"- 所有本地setu分类",
+		PrivateDataFolder: "nsetu",
 	})
+
+	ns.db.DBPath = engine.DataFolder() + "data.db"
+	cfgfile := engine.DataFolder() + "setupath.txt"
+	if file.IsExist(cfgfile) {
+		b, err := os.ReadFile(cfgfile)
+		if err == nil {
+			setupath = helper.BytesToString(b)
+			logrus.Println("[nsetu] set setu dir to", setupath)
+		}
+	}
+
 	engine.OnRegex(`^本地(.*)$`, ctxext.FirstValueInList(ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]

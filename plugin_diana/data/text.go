@@ -4,61 +4,38 @@ package data
 import (
 	"crypto/md5"
 	"encoding/binary"
-	"os"
-
-	log "github.com/sirupsen/logrus"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	sql "github.com/FloatTech/sqlite"
+	binutils "github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/process"
-
-	"github.com/FloatTech/zbputils/control/order"
+	"github.com/sirupsen/logrus"
 )
 
-const (
-	datapath = "data/Diana"
-	dbfile   = datapath + "/text.db"
-)
-
-var db = sql.Sqlite{DBPath: dbfile}
+var db = sql.Sqlite{}
 
 type text struct {
 	ID   int64  `db:"id"`
 	Data string `db:"data"`
 }
 
-func init() {
-	go func() {
-		defer order.DoneOnExit()()
-		process.SleepAbout1sTo2s()
-		err := os.MkdirAll(datapath, 0755)
-		if err != nil {
-			panic(err)
-		}
-		err = LoadText()
-		if err == nil {
-			err = db.Create("text", &text{})
-			if err != nil {
-				panic(err)
-			}
-			c, _ := db.Count("text")
-			log.Printf("[Diana]读取%d条小作文", c)
-		} else {
-			log.Printf("[Diana]读取小作文错误：%v", err)
-		}
-	}()
-}
-
 // LoadText 加载小作文
-func LoadText() error {
+func LoadText(dbfile string) {
 	_, err := file.GetLazyData(dbfile, false, false)
-	return err
+	db.DBPath = dbfile
+	if err != nil {
+		panic(err)
+	}
+	err = db.Create("text", &text{})
+	if err != nil {
+		panic(err)
+	}
+	c, _ := db.Count("text")
+	logrus.Printf("[Diana]读取%d条小作文", c)
 }
 
 // AddText 添加小作文
 func AddText(txt string) error {
-	s := md5.Sum(helper.StringToBytes(txt))
+	s := md5.Sum(binutils.StringToBytes(txt))
 	i := binary.LittleEndian.Uint64(s[:8])
 	return db.Insert("text", &text{ID: int64(i), Data: txt})
 }

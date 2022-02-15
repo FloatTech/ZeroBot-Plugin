@@ -16,14 +16,13 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_sleep_manage/model"
 )
 
-const dbpath = "data/sleep/"
-const dbfile = dbpath + "manage.db"
-
 func init() {
 	engine := control.Register("sleepmanage", order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             "sleepmanage\n- 早安\n- 晚安",
+		DisableOnDefault:  false,
+		Help:              "sleepmanage\n- 早安\n- 晚安",
+		PrivateDataFolder: "sleep",
 	})
+	dbfile := engine.DataFolder() + "manage.db"
 	engine.OnFullMatch("早安", isMorning, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)

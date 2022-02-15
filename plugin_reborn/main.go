@@ -4,9 +4,10 @@ package reborn
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	control "github.com/FloatTech/zbputils/control"
+	wr "github.com/mroth/weightedrand"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -14,11 +15,32 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
-	control.Register("reborn", order.AcquirePrio(), &control.Options{
+	en := control.Register("reborn", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "投胎\n- reborn",
-	}).OnFullMatch("reborn").SetBlock(true).
+		PublicDataFolder: "Reborn",
+	})
+	go func() {
+		datapath := en.DataFolder()
+		jsonfile := datapath + "rate.json"
+		defer order.DoneOnExit()()
+		area := make(rate, 226)
+		err := load(&area, jsonfile)
+		if err != nil {
+			panic(err)
+		}
+		choices := make([]wr.Choice, len(area))
+		for i, a := range area {
+			choices[i].Item = a.Name
+			choices[i].Weight = uint(a.Weight * 1e9)
+		}
+		areac, err = wr.NewChooser(choices...)
+		if err != nil {
+			panic(err)
+		}
+		logrus.Printf("[Reborn]读取%d个国家/地区", len(area))
+	}()
+	en.OnFullMatch("reborn").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if rand.Int31() > 1<<27 {
 				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("投胎成功！\n您出生在 %s, 是 %s。", randcoun(), randgen())))
