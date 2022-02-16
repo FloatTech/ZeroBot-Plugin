@@ -32,7 +32,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
-				var datachan chan []byte
+				datachan := make(chan []byte, 1)
 				var errsub error
 				go func() {
 					var d []byte
