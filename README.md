@@ -45,6 +45,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 ## 功能
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
 > 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
+> 插件的优先级为`import`的先后顺序
 - **web管理** `import _ "github.com/FloatTech/zbputils/control/web"`
     - 开启后可执行文件大约增加 5M ，默认注释不开启。如需开启请自行编辑`main.go`取消注释
     - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
@@ -71,7 +72,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 空调关
     - [x] 群温度
     - [x] 设置温度[正整数]
-    - [x] @Bot mua | 啾咪 | 摸 | 上你 | 傻 | 裸 | 贴 | 老婆 | 抱 | 亲 | 一下 | 咬 | 操 | 123 | 进去 | 调教 | 搓 | 让 | 捏 | 挤 | 略 | 呐 | 原味 | 胖次 | 内裤 | 内衣 | 衣服 | ghs | 批 | 憨批 | kkp | 咕 | 骚 | 喜欢 | suki | 好き | 看 | 不能 | 砸了 | 透 | 口我 | 草我 | 自慰 | onani | オナニー | 炸了 | 色图 | 涩图 | 告白 | 对不起 | 回来 | 吻 | 软 | 壁咚 | 掰开 | 女友 | 是 | 喵 | 嗷呜 | 叫 | 拜 | 佬 | awsl | 臭 | 香 | 腿 | 张开 | 脚 | 脸 | 头发 | 手 | pr | 舔 | 小穴 | 腰 | 诶嘿嘿 | 可爱 | 扭蛋 | 鼻 | 眼 | 色气 | 推 | 床 | 举 | 手冲 | 饿 | 变 | 敲 | 爬 | 怕 | 冲 | 射 | 不穿 | 迫害 | 猫粮 | 揪尾巴 | 薄荷 | 早 | 晚安 | 揉 | 榨 | 掐 | 胸 | 奶子 | 欧派 | 嫩 | 蹭 | 牵手 | 握手 | 拍照 | w | 睡不着 | 欧尼酱 | 哥 | 爱你 | 过来 | 自闭 | 打不过 | 么么哒 | 很懂 | 膝枕 | 累了 | 安慰 | 洗澡 | 一起睡觉 | 一起 | 多大 | 姐姐 | 糖 | 嗦 | 牛子 | 🐂子 | 🐮子 | 嫌弃 | 紧 | baka | 笨蛋 | 插 | 插进来 | 屁股 | 翘 | 翘起来 | 抬 | 抬起 | 爸 | 傲娇 | rua | 咕噜咕噜 | 咕噜 | 上床 | 做爱 | 吃掉 | 吃 | 揪 | 种草莓 | 种草 | 掀 | 妹 | 病娇 | 嘻
+- **词典匹配回复** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_thesaurus"`
+    - [x] @Bot 关键词
 - **ATRI** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_atri"`
     - [x] 具体指令看 /用法 atri
     - 注：本插件基于 [ATRI](https://github.com/Kyomotoi/ATRI) ，为 Golang 移植版
@@ -135,8 +137,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 用yyy加密xxx
     - [x] 用yyy解密xxx
 - **摸鱼** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"`
-    - [x] 添加摸鱼提醒
-    - [x] 删除摸鱼提醒
+    - [x] /启用 moyu
+    - [x] /禁用 moyu
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
@@ -177,6 +179,12 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin_omikuji`
     - [x] 求签 | 占卜
     - [x] 解签
+- **漂流瓶** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_drift_bottle"`
+    - [x] (在群xxx)丢漂流瓶(到频道xxx) [消息]
+    - [x] (从频道xxx)捡漂流瓶
+    - [x] @BOT 创建频道 xxx
+    - [x] 跳入(频道)海中
+    - [x] 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili"`
     - [x] >vup info [名字 | uid]
     - [x] >user info [名字 | uid]
@@ -227,6 +235,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **vtb语录** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation"`
     - [x] vtb语录
     - [x] 随机vtb
+    - [x] 更新vtb
 - **书评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_book_review"`
     - [x] 书评[xxx]
     - [x] 随机书评
@@ -245,6 +254,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 讲个笑话[@xxx] | 讲个笑话[qq号]
 - **抽象话** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_chouxianghua"`
     - [x] 抽象翻译[xxx]
+- **合成emoji** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_emojimix"`
+    - [x] [emoji][emoji]
 - **绝绝子** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"`
     - [x] 喝奶茶绝绝子 | 绝绝子吃饭
 - **藏头诗** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_cangtoushi"`
@@ -252,7 +263,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 藏尾诗[xxx]
 - **cp短打** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_cpstory"`
     - [x] 组cp[@xxx][@xxx]
-    - [x] 组cp大老师 雪乃
+    - [x] 磕cp大老师 雪乃
 - **签到得分** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"`
     - [x] 签到
     - [x] 获得签到背景[@xxx] | 获得签到背景
@@ -269,6 +280,9 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 来份网易云热评
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_parse"`
     - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA
+- **煎蛋网无聊图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_jandan"`
+    - [x] 来份屌图
+    - [x] 更新屌图
 - **TODO...**
 
 ## 使用方法

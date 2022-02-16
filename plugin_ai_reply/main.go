@@ -7,11 +7,11 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/aireply"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -21,21 +21,16 @@ const (
 var modes = [...]string{"青云客", "小爱"}
 
 func init() { // 插件主体
-	bucket := rate.NewManager(time.Minute, 20) // 接口回复限速器
-	engine := control.Register(serviceName, order.PrioAIReply, &control.Options{
+	engine := control.Register(serviceName, order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客  |  小爱]\n- ",
 	})
 	// 回复 @和包括名字
-	engine.OnMessage(zero.OnlyToMe).SetBlock(true).
+	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			aireply := aireply.NewAIReply(getReplyMode(ctx))
-			if !bucket.Load(ctx.Event.UserID).Acquire() {
-				// 频繁触发，不回复
-				return
-			}
-			reply := aireply.Talk(ctx.ExtractPlainText())
+			reply := message.ParseMessageFromString(aireply.Talk(ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
 			// 回复
 			time.Sleep(time.Second * 1)
 			if zero.OnlyPublic(ctx) {

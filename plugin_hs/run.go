@@ -13,17 +13,15 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-var (
-	cachedir = file.BOTPATH + "/data/hs/"
-	reqconf  = [...]string{"GET", "https://hs.fbigame.com",
-		"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
-)
+var reqconf = [...]string{"GET", "https://hs.fbigame.com",
+	"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
 
 const (
 	hs   = `https://hs.fbigame.com/ajax.php?`
@@ -45,19 +43,15 @@ const (
 )
 
 func init() {
-	os.RemoveAll(cachedir)
-	err := os.MkdirAll(cachedir, 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	engine := control.Register("hs", order.PrioHS, &control.Options{
+	engine := control.Register("hs", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +
 			"- [卡组代码xxx]\n" +
 			"- 更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp",
-	})
+		PrivateDataFolder: "hs",
+	}).ApplySingle(ctxext.DefaultSingle)
+	cachedir := file.BOTPATH + "/" + engine.DataFolder()
 	engine.OnRegex(`^搜卡(.+)$`).
 		SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		List := ctx.State["regex_matched"].([]string)[1]
@@ -71,7 +65,6 @@ func init() {
 		for i := 0; i < t && i < 5; i++ {
 			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
 			cachefile := cachedir + cid
-			imgcq := `[CQ:image,file=` + "file:///" + cachefile + `]`
 			if file.IsNotExist(cachefile) {
 				data, err := web.ReqWith(
 					`https://res.fbigame.com/hs/v13/`+cid+`.png?auth_key=`+
@@ -81,7 +74,7 @@ func init() {
 					err = os.WriteFile(cachefile, data, 0644)
 				}
 				if err != nil {
-					imgcq = err.Error()
+					continue
 				}
 			}
 			sk = append(
@@ -89,7 +82,7 @@ func init() {
 				message.CustomNode(
 					zero.BotConfig.NickName[0],
 					ctx.Event.SelfID,
-					imgcq, // 图片
+					[]message.MessageSegment{message.Image("file:///" + cachefile)}, // 图片
 				),
 			)
 		}

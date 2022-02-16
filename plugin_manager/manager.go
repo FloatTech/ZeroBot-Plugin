@@ -4,7 +4,6 @@ package manager
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,23 +11,21 @@ import (
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/sql"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
+
 	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
 )
 
 const (
-	datapath = "data/manager/"
-	confile  = datapath + "config.db"
-	hint     = "====群管====\n" +
+	hint = "====群管====\n" +
 		"- 禁言@QQ 1分钟\n" +
 		"- 解除禁言 @QQ\n" +
 		"- 我要自闭 1分钟\n" +
@@ -56,21 +53,20 @@ const (
 )
 
 var (
-	db    = &sql.Sqlite{DBPath: confile}
-	limit = rate.NewManager(time.Minute*5, 2)
+	db    = &sql.Sqlite{}
 	clock timer.Clock
 )
 
-var engine = control.Register("manager", order.PrioManager, &control.Options{
-	DisableOnDefault: false,
-	Help:             hint,
-})
-
 func init() { // 插件主体
+	engine := control.Register("manager", order.AcquirePrio(), &control.Options{
+		DisableOnDefault:  false,
+		Help:              hint,
+		PrivateDataFolder: "manager",
+	})
+
 	go func() {
 		defer order.DoneOnExit()()
-		process.SleepAbout1sTo2s()
-		_ = os.MkdirAll(datapath, 0755)
+		db.DBPath = engine.DataFolder() + "config.db"
 		clock = timer.NewClock(db)
 		err := db.Create("welcome", &welcome{})
 		if err != nil {
@@ -81,6 +77,7 @@ func init() { // 插件主体
 			panic(err)
 		}
 	}()
+
 	// 升为管理
 	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -333,12 +330,8 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text(clock.ListTimers(ctx.Event.GroupID)))
 		})
 	// 随机点名
-	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("少女祈祷中......"))
-				return
-			}
 			// 无缓存获取群员列表
 			list := ctx.CallAction("get_group_member_list", zero.Params{
 				"group_id": ctx.Event.GroupID,

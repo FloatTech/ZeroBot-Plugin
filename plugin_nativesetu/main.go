@@ -10,16 +10,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/rule"
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
-)
-
-const (
-	datapath = "data/nsetu"
-	dbfile   = datapath + "/data.db"
-	cfgfile  = datapath + "/setupath.txt"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -27,7 +22,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", order.PrioNativeSetu, &control.Options{
+	engine := control.Register("nativesetu", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +
@@ -35,8 +30,20 @@ func init() {
 			"- 设置本地setu绝对路径[xxx]\n" +
 			"- 刷新所有本地setu\n" +
 			"- 所有本地setu分类",
+		PrivateDataFolder: "nsetu",
 	})
-	engine.OnRegex(`^本地(.*)$`, rule.FirstValueInList(ns)).SetBlock(true).
+
+	ns.db.DBPath = engine.DataFolder() + "data.db"
+	cfgfile := engine.DataFolder() + "setupath.txt"
+	if file.IsExist(cfgfile) {
+		b, err := os.ReadFile(cfgfile)
+		if err == nil {
+			setupath = helper.BytesToString(b)
+			logrus.Println("[nsetu] set setu dir to", setupath)
+		}
+	}
+
+	engine.OnRegex(`^本地(.*)$`, ctxext.FirstValueInList(ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -50,7 +57,7 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, rule.FirstValueInList(ns), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, ctxext.FirstValueInList(ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)

@@ -7,12 +7,11 @@ import (
 	"sync"
 	"time"
 
+	sql "github.com/FloatTech/sqlite"
 	"github.com/fumiama/cron"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/sql"
 )
 
 // Clock 时钟

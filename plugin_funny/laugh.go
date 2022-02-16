@@ -3,34 +3,51 @@ package funny
 
 import (
 	"strings"
-	"time"
 
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/sql"
+	"github.com/FloatTech/zbputils/file"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-var (
-	engine = control.Register("funny", order.PrioFunny, &control.Options{
+type joke struct {
+	ID   uint32 `db:"id"`
+	Text string `db:"text"`
+}
+
+var db = &sql.Sqlite{}
+
+func init() {
+	en := control.Register("funny", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx] | 讲个笑话[qq号]",
+		PublicDataFolder: "Funny",
 	})
-	limit = rate.NewManager(time.Minute, 20)
-	db    = &sql.Sqlite{DBPath: dbfile}
-)
 
-func init() {
-	engine.OnPrefix("讲个笑话").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if !limit.Load(ctx.Event.GroupID).Acquire() {
-			return
+	go func() {
+		dbpath := en.DataFolder()
+		db.DBPath = dbpath + "jokes.db"
+		defer order.DoneOnExit()()
+		_, err := file.GetLazyData(db.DBPath, false, true)
+		if err != nil {
+			panic(err)
 		}
+		err = db.Create("jokes", &joke{})
+		if err != nil {
+			panic(err)
+		}
+		c, _ := db.Count("jokes")
+		logrus.Infoln("[funny]加载", c, "个笑话")
+	}()
+
+	en.OnPrefix("讲个笑话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		// 获取名字
 		name := ctxext.NickName(ctx)
 		var j joke

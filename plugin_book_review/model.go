@@ -1,9 +1,13 @@
 package bookreview
 
+import sql "github.com/FloatTech/sqlite"
+
 type book struct {
 	ID         uint64 `db:"id"`
 	BookReview string `db:"bookreview"`
 }
+
+var db = &sql.Sqlite{}
 
 // 暂时随机选择一个书评
 func getBookReviewByKeyword(keyword string) (b book) {

@@ -19,14 +19,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/AnimeAPI/imgpool"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/math"
-	"github.com/FloatTech/zbputils/txt2img"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -41,8 +41,7 @@ const (
 )
 
 var (
-	// 底图类型列表：车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌
-	// 				公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师
+	// 底图类型列表
 	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘"}
 	// 映射底图与 index
 	index = make(map[string]uint8)
@@ -51,37 +50,37 @@ var (
 )
 
 func init() {
-	for i, s := range table {
-		index[s] = uint8(i)
-	}
-	err := os.MkdirAll(images, 0755)
-	if err != nil {
-		panic(err)
-	}
-	_ = os.RemoveAll(cache)
-	err = os.MkdirAll(cache, 0755)
-	if err != nil {
-		panic(err)
-	}
-	data, err := file.GetLazyData(omikujson, true, false)
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal(data, &omikujis)
-	if err != nil {
-		panic(err)
-	}
-	_, err = file.GetLazyData(font, false, true)
-	if err != nil {
-		panic(err)
-	}
 	// 插件主体
-	en := control.Register("fortune", order.PrioFortune, &control.Options{
+	en := control.Register("fortune", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
 			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘]",
+		PublicDataFolder: "Fortune",
 	})
+	go func() {
+		defer order.DoneOnExit()()
+		for i, s := range table {
+			index[s] = uint8(i)
+		}
+		_ = os.RemoveAll(cache)
+		err := os.MkdirAll(cache, 0755)
+		if err != nil {
+			panic(err)
+		}
+		data, err := file.GetLazyData(omikujson, true, false)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(data, &omikujis)
+		if err != nil {
+			panic(err)
+		}
+		_, err = file.GetLazyData(font, false, true)
+		if err != nil {
+			panic(err)
+		}
+	}()
 	en.OnRegex(`^设置底图\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
@@ -93,7 +92,7 @@ func init() {
 			if ok {
 				c, ok := control.Lookup("fortune")
 				if ok {
-					err = c.SetData(gid, int64(i)&0xff)
+					err := c.SetData(gid, int64(i)&0xff)
 					if err != nil {
 						ctx.SendChain(message.Text("设置失败:", err))
 						return
@@ -125,7 +124,7 @@ func init() {
 			}
 			// 检查背景图片是否存在
 			zipfile := images + kind + ".zip"
-			_, err = file.GetLazyData(zipfile, false, false)
+			_, err := file.GetLazyData(zipfile, false, false)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -147,7 +146,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := imgpool.GetImage(cachefile)
+			m, err := pool.GetImage(cachefile)
 			if err != nil {
 				logrus.Debugln("[fortune]", err)
 				if file.IsNotExist(cachefile) {
@@ -165,11 +164,11 @@ func init() {
 				}
 				m.SetFile(file.BOTPATH + "/" + cachefile)
 				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+				if hassent {
 					return
 				}
-				if hassent {
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 			}
@@ -218,7 +217,7 @@ func randtext(seed int64) (string, string) {
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
+func draw(back image.Image, title, txt string, f io.Writer) (int64, error) {
 	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
 	canvas.DrawImage(back, 0, 0)
 	// 写标题
@@ -235,7 +234,7 @@ func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
 	}
 	tw, th := canvas.MeasureString("测")
 	tw, th = tw+10, th+10
-	r := []rune(text)
+	r := []rune(txt)
 	xsum := rowsnum(len(r), 9)
 	switch xsum {
 	default:
@@ -259,7 +258,7 @@ func draw(back image.Image, title, text string, f io.Writer) (int64, error) {
 			}
 		}
 	}
-	return txt2img.TxtCanvas{Canvas: canvas}.WriteTo(f)
+	return writer.WriteTo(canvas.Image(), f)
 }
 
 func offest(total, now int, distance float64) float64 {

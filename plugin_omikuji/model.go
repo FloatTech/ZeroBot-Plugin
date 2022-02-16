@@ -1,11 +1,17 @@
 package omikuji
 
-import "strconv"
+import (
+	"strconv"
+
+	sql "github.com/FloatTech/sqlite"
+)
 
 type kuji struct {
 	ID   uint8  `db:"id"`
 	Text string `db:"text"`
 }
+
+var db = &sql.Sqlite{}
 
 // 返回一个解签
 func getKujiByBango(id uint8) string {

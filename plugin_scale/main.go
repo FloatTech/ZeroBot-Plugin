@@ -14,23 +14,18 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-const cachedir = "data/scale/"
-
 func init() {
-	_ = os.RemoveAll(cachedir)
-	err := os.MkdirAll(cachedir, 0755)
-	if err != nil {
-		panic(err)
-	}
-	engine := control.Register("scale", order.PrioScale, &control.Options{
-		DisableOnDefault: false,
-		Help:             "叔叔的AI二次元图片放大\n- 放大图片[图片]",
-	})
+	engine := control.Register("scale", order.AcquirePrio(), &control.Options{
+		DisableOnDefault:  false,
+		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
+		PrivateDataFolder: "scale",
+	}).ApplySingle(ctxext.DefaultSingle)
+	cachedir := engine.DataFolder()
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven, getPara).SetBlock(true).
+	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, ctxext.MustProvidePicture, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {

@@ -1,7 +1,7 @@
 package timer
 
 import (
-	"github.com/FloatTech/zbputils/sql"
+	sql "github.com/FloatTech/sqlite"
 )
 
 // Timer 计时器

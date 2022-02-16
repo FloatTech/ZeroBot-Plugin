@@ -1,32 +1,27 @@
 package aireply
 
 import (
-	"time"
-
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
-	"github.com/FloatTech/AnimeAPI/mockingbird"
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	limit := rate.NewManager(time.Second*10, 1)
-
-	control.Register("mockingbird", order.PrioMockingBird, &control.Options{
+	control.Register("mockingbird", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help:             "拟声鸟\n- @Bot 任意文本(任意一句话回复)",
-	}).OnMessage(zero.OnlyToMe, func(ctx *zero.Ctx) bool {
-		return limit.Load(ctx.Event.UserID).Acquire()
-	}).SetBlock(true).
+	}).OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			r := aireply.NewAIReply(getReplyMode(ctx))
-			ctx.SendChain(mockingbird.Speak(ctx.Event.UserID, func() string {
-				return r.TalkPlain(msg)
-			}))
+			ctx.SendChain(message.Record(mockingbird.NewMockingBirdTTS(1).Speak(ctx.Event.UserID, func() string {
+				return r.TalkPlain(msg, zero.BotConfig.NickName[0])
+			})))
 		})
 }

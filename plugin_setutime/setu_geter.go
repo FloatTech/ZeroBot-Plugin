@@ -4,26 +4,23 @@ package setutime
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	imagepool "github.com/FloatTech/AnimeAPI/imgpool"
 	"github.com/FloatTech/AnimeAPI/pixiv"
+	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
+	imagepool "github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/rule"
-	"github.com/FloatTech/zbputils/sql"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
 // Pools 图片缓冲池
@@ -45,19 +42,27 @@ func (p *imgpool) List() (l []string) {
 }
 
 var pool = &imgpool{
-	db:   &sql.Sqlite{DBPath: "data/SetuTime/SetuTime.db"},
+	db:   &sql.Sqlite{},
 	path: pixiv.CacheDir,
 	max:  10,
 	pool: map[string][]*pixiv.Illust{},
 }
 
 func init() { // 插件主体
-	_ = os.MkdirAll("data/SetuTime", 0755)
+	engine := control.Register("setutime", order.AcquirePrio(), &control.Options{
+		DisableOnDefault: false,
+		Help: "涩图\n" +
+			"- 来份[涩图/二次元/风景/车万]\n" +
+			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
+			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
+			"- >setu status",
+		PublicDataFolder: "SetuTime",
+	})
 
 	go func() {
 		defer order.DoneOnExit()()
-		process.SleepAbout1sTo2s()
 		// 如果数据库不存在则下载
+		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
 		err := pool.db.Open()
 		if err != nil {
@@ -70,21 +75,8 @@ func init() { // 插件主体
 		}
 	}()
 
-	limit := rate.NewManager(time.Minute*1, 5)
-	engine := control.Register("setutime", order.PrioSetuTime, &control.Options{
-		DisableOnDefault: false,
-		Help: "涩图\n" +
-			"- 来份[涩图/二次元/风景/车万]\n" +
-			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
-			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
-			"- >setu status",
-	})
-	engine.OnRegex(`^来份(.*)$`, rule.FirstValueInList(pool)).SetBlock(true).
+	engine.OnRegex(`^来份(.*)$`, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !limit.Load(ctx.Event.UserID).Acquire() {
-				ctx.SendChain(message.Text("请稍后重试0x0..."))
-				return
-			}
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go pool.fill(ctx, imgtype)
@@ -117,7 +109,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除(.*?)(\d+)$`, rule.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除(.*?)(\d+)$`, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]

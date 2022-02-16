@@ -8,6 +8,9 @@ import (
 	_ "github.com/logoove/sqlite" // import sql
 )
 
+// sdb 得分数据库
+var sdb *scoredb
+
 // scoredb 分数数据库
 type scoredb gorm.DB
 

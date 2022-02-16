@@ -3,15 +3,16 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.17
 
 require (
-	github.com/FloatTech/AnimeAPI v1.2.5-beta6
-	github.com/FloatTech/zbputils v1.2.5-beta6
+	github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220216042718-5c85af4ddc8c
+	github.com/FloatTech/sqlite v0.1.0
+	github.com/FloatTech/zbputils v1.3.0-beta8.0.20220216042457-6eb4bcb08d79
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.2.1
-	github.com/fumiama/go-registry v0.0.2
-	github.com/fumiama/gofastTEA v0.0.6
+	github.com/fumiama/go-base16384 v1.3.0
+	github.com/fumiama/go-registry v0.1.0
+	github.com/fumiama/gofastTEA v0.0.9
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/jinzhu/gorm v1.9.16
 	github.com/logoove/sqlite v1.13.0
@@ -19,7 +20,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.21.12
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.13.0
-	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220127075442-eb7b296fc97e
+	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220210161326-bffb4cc61866
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 )
 
@@ -46,7 +47,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220111093109-d55c255bac03 // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/sys v0.0.0-20220207234003-57398862261d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
@@ -57,7 +58,7 @@ require (
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.0.5 // indirect
 	modernc.org/opt v0.1.1 // indirect
-	modernc.org/sqlite v1.14.5 // indirect
+	modernc.org/sqlite v1.14.6 // indirect
 	modernc.org/strutil v1.1.1 // indirect
 	modernc.org/token v1.0.0 // indirect
 )

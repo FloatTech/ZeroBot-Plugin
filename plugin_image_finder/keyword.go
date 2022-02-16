@@ -3,115 +3,90 @@ package imagefinder
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"math/rand"
-	"net/http"
 	"strings"
-	"time"
 
-	"github.com/FloatTech/AnimeAPI/imgpool"
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/AnimeAPI/pixiv"
+
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/web"
 )
 
 type resultjson struct {
-	Illusts []struct {
-		ID        int    `json:"id"`
-		Title     string `json:"title"`
-		Type      string `json:"type"`
-		ImageUrls struct {
-			SquareMedium string `json:"square_medium"`
-			Medium       string `json:"medium"`
-			Large        string `json:"large"`
-		} `json:"image_urls"`
-		Caption  string `json:"caption"`
-		Restrict int    `json:"restrict"`
-		User     struct {
-			ID               int    `json:"id"`
-			Name             string `json:"name"`
-			Account          string `json:"account"`
-			ProfileImageUrls struct {
-				Medium string `json:"medium"`
-			} `json:"profile_image_urls"`
-			IsFollowed bool `json:"is_followed"`
-		} `json:"user"`
-		Tags []struct {
-			Name           string      `json:"name"`
-			TranslatedName interface{} `json:"translated_name"`
-		} `json:"tags"`
-		Tools          []interface{} `json:"tools"`
-		PageCount      int           `json:"page_count"`
-		Width          int           `json:"width"`
-		Height         int           `json:"height"`
-		SanityLevel    int           `json:"sanity_level"`
-		XRestrict      int           `json:"x_restrict"`
-		Series         interface{}   `json:"series"`
-		MetaSinglePage struct {
-			OriginalImageURL string `json:"original_image_url"`
-		} `json:"meta_single_page,omitempty"`
-		MetaPages      []interface{} `json:"meta_pages"`
-		TotalView      int           `json:"total_view"`
-		TotalBookmarks int           `json:"total_bookmarks"`
-		IsBookmarked   bool          `json:"is_bookmarked"`
-		Visible        bool          `json:"visible"`
-		IsMuted        bool          `json:"is_muted"`
-	} `json:"illusts"`
-	NextURL         string `json:"next_url"`
-	SearchSpanLimit int    `json:"search_span_limit"`
+	Data struct {
+		Illusts []struct {
+			ID          int64  `json:"id"`
+			Title       string `json:"title"`
+			AltTitle    string `json:"altTitle"`
+			Description string `json:"description"`
+			Sanity      int    `json:"sanity"`
+		} `json:"illusts"`
+	} `json:"data"`
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
 }
 
 func init() {
-	control.Register("imgfinder", order.PrioImageFinder, &control.Options{
+	control.Register("imgfinder", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "关键字搜图\n" +
 			"- 来张 [xxx]",
 	}).OnRegex(`^来张\s?(.*)$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
-			soutujson := soutuapi(keyword)
-			pom1 := "https://i.pixiv.re"
-			rannum := randintn(len(soutujson.Illusts))
-			pom2 := soutujson.Illusts[rannum].ImageUrls.Medium[19:]
-			u := pom1 + pom2
-			m, hassent, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), u[strings.LastIndex(u, "/")+1:], u)
-			if err == nil && !hassent {
-				ctx.SendChain(message.Image(m.String()))
+			soutujson, err := soutuapi(keyword)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			rannum := rand.Intn(len(soutujson.Data.Illusts))
+			illust, err := pixiv.Works(soutujson.Data.Illusts[rannum].ID)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			u := illust.ImageUrls[0]
+			n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
+			m, err := pool.GetImage(n)
+			if err != nil {
+				// 下载图片
+				f := ""
+				if f, err = illust.DownloadToCache(0, n); err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				m.SetFile(file.BOTPATH + "/" + f)
+				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
+				if hassent {
+					return
+				}
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+			}
+			ctx.SendChain(message.Image(m.String()))
 		})
 }
 
 // soutuapi 请求api
-func soutuapi(keyword string) *resultjson {
-	url := "https://api.pixivel.moe/pixiv?type=search&page=0&mode=partial_match_for_tags&word=" + keyword
-	method := "GET"
-
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-
+func soutuapi(keyword string) (r resultjson, err error) {
+	url := "https://api.pixivel.moe/v2/pixiv/illust/search/" + keyword + "?page=0"
+	data, err := web.ReqWith(url, "GET", "https://pixivel.moe/", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36")
 	if err != nil {
-		fmt.Println(err)
+		return
 	}
-	req.Header.Add("accept", "application/json, text/plain, */*")
-	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36")
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
+	err = json.Unmarshal(data, &r)
+	if err == nil && r.Error {
+		err = errors.New(r.Message)
 	}
-	defer res.Body.Close()
-
-	result := &resultjson{}
-	if err := json.NewDecoder(res.Body).Decode(result); err != nil {
-		panic(err)
-	}
-	return result
-}
-
-// randintn 从json里的30条数据中随机获取一条返回
-func randintn(n int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(n)
+	return
 }

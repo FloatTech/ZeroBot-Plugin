@@ -13,24 +13,39 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/txt2img"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/text"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/zbputils/control/order"
 )
 
-const (
-	bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
-)
+const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
 
-var (
-	engine = control.Register("omikuji", order.PrioOmikuji, &control.Options{
+func init() { // 插件主体
+	engine := control.Register("omikuji", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",
-	})
-)
+		PublicDataFolder: "Omikuji",
+	}).ApplySingle(ctxext.DefaultSingle)
 
-func init() { // 插件主体
+	go func() {
+		dbpath := engine.DataFolder()
+		db.DBPath = dbpath + "kuji.db"
+		defer order.DoneOnExit()()
+		_, _ = file.GetLazyData(db.DBPath, false, true)
+		err := db.Create("kuji", &kuji{})
+		if err != nil {
+			panic(err)
+		}
+		n, err := db.Count("kuji")
+		if err != nil {
+			panic(err)
+		}
+		log.Printf("[kuji]读取%d条签文", n)
+	}()
+
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := bangoToday(ctx.Event.UserID)
@@ -42,7 +57,7 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			kujiBytes, err := txt2img.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), txt2img.FontFile, 400, 20)
+			kujiBytes, err := text.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), text.FontFile, 400, 20)
 			if err != nil {
 				log.Errorln("[omikuji]:", err)
 			}

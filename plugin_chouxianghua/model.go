@@ -1,5 +1,7 @@
 package chouxianghua
 
+import sql "github.com/FloatTech/sqlite"
+
 type pinyin struct {
 	Word   string `db:"word"`
 	Pronun string `db:"pronunciation"`
@@ -8,6 +10,8 @@ type emoji struct {
 	Pronun string `db:"pronunciation"`
 	Emoji  string `db:"emoji"`
 }
+
+var db = &sql.Sqlite{}
 
 func getPinyinByWord(word string) string {
 	var p pinyin

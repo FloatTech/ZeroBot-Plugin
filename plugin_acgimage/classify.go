@@ -4,18 +4,17 @@ package acgimage
 import (
 	"net/url"
 	"strings"
-	"time"
 
-	"github.com/FloatTech/AnimeAPI/classify"
-	"github.com/FloatTech/AnimeAPI/imgpool"
-	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/ZeroBot-Plugin/order"
+	"github.com/FloatTech/AnimeAPI/classify"
+
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/web"
 )
 
 const (
@@ -29,11 +28,10 @@ var (
 	randapi = "&loli=true&r18=true"
 	msgof   = make(map[int64]message.MessageID)
 	block   = false
-	limit   = rate.NewManager(time.Minute, 5)
 )
 
 func init() { // 插件主体
-	engine := control.Register("acgimage", order.PrioACGImage, &control.Options{
+	engine := control.Register("acgimage", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "随机图片与AI点评\n" +
 			"- 随机图片(评级大于6的图将私发)\n" +
@@ -41,7 +39,7 @@ func init() { // 插件主体
 			"- 设置随机图片网址[url]\n" +
 			"- 太涩了(撤回最近发的图)\n" +
 			"- 评价图片(发送一张图片让bot评分)",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnRegex(`^设置随机图片网址(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]
@@ -53,14 +51,18 @@ func init() { // 插件主体
 			}
 		})
 	// 有保护的随机图片
-	engine.OnFullMatch("随机图片", zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatch("随机图片", zero.OnlyGroup).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if limit.Load(ctx.Event.UserID).Acquire() {
-				class, dhash, comment, _ := classify.Classify(randapi, true)
-				replyClass(ctx, class, dhash, comment, false)
+			class, dhash, _, err := classify.Classify(randapi, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.Text("你太快啦!"))
+			err = reply(ctx, class, dhash, classify.Comments[class])
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
 	engine.OnFullMatch("直接随机", ctxext.UserOrGrpAdmin).SetBlock(true).
@@ -89,14 +91,16 @@ func init() { // 插件主体
 			}
 		})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, ctxext.CmdMatch, ctxext.MustGiven).SetBlock(true).
+	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			for _, url := range ctx.State["image_url"].([]string) {
-				class, dhash, comment, _ := classify.Classify(url, true)
-				replyClass(ctx, class, dhash, comment, true)
-				break
+			url := ctx.State["image_url"].([]string)[0]
+			class, _, _, err := classify.Classify(url, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(classify.Comments[class]))
 		})
 	engine.OnRegex(`^给你点提示哦：(.*)$`, zero.OnlyPrivate).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -109,7 +113,7 @@ func init() { // 插件主体
 					u = apihead + dhash
 				}
 
-				m, hassent, err := imgpool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
+				m, hassent, err := pool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
 				if err == nil && !hassent {
 					ctx.SendChain(message.Image(m.String()))
 				}
@@ -121,15 +125,10 @@ func setLastMsg(id int64, msg message.MessageID) {
 	msgof[id] = msg
 }
 
-func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload bool) {
-	if isupload {
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(comment))
-		return
-	}
-
+func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 	b14, err := url.QueryUnescape(dhash)
 	if err != nil {
-		return
+		return err
 	}
 
 	var u string
@@ -153,8 +152,9 @@ func replyClass(ctx *zero.Ctx, class int, dhash string, comment string, isupload
 		}
 	}
 
-	m, hassent, err := imgpool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
+	m, hassent, err := pool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
 	if err == nil && !hassent {
 		send(message.Message{message.Image(m.String())})
 	}
+	return err
 }
