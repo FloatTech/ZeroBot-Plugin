@@ -20,8 +20,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const WORDLEN = 5
-
 var errLengthNotEnough = errors.New("length not enough")
 var errUnknownWord = errors.New("unknown word")
 var errTimesRunOut = errors.New("times run out")
@@ -55,8 +53,7 @@ func init() {
 			_, img, _ := game("")
 			ctx.SendChain(message.ImageBytes(img), message.Text("请发送单词"))
 			// 没有图片就索取
-			next := zero.NewFutureEvent("message", 999, false,
-				zero.RegexRule(fmt.Sprintf(`^[A-Z]{%d}$|^[a-z]{%d}$`, WORDLEN, WORDLEN)))
+			next := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`))
 			recv, cancel := next.Repeat()
 			defer cancel()
 			for {
