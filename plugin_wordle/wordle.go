@@ -4,7 +4,6 @@ package wordle
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"image/color"
 	"image/png"
 	"math/rand"
