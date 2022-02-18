@@ -20,11 +20,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var WORD_LEN = 5
+const WORDLEN = 5
 
-var ErrLengthNotEnough = errors.New("length not enough")
-var ErrUnknownWord = errors.New("unknown word")
-var ErrTimesRunOut = errors.New("times run out")
+var errLengthNotEnough = errors.New("length not enough")
+var errUnknownWord = errors.New("unknown word")
+var errTimesRunOut = errors.New("times run out")
 
 const (
 	match = iota
@@ -56,7 +56,7 @@ func init() {
 			ctx.SendChain(message.ImageBytes(img), message.Text("请发送单词"))
 			// 没有图片就索取
 			next := zero.NewFutureEvent("message", 999, false,
-				zero.RegexRule(fmt.Sprintf(`^[A-Z]{%d}$|^[a-z]{%d}$`, WORD_LEN, WORD_LEN)))
+				zero.RegexRule(fmt.Sprintf(`^[A-Z]{%d}$|^[a-z]{%d}$`, WORDLEN, WORDLEN)))
 			recv, cancel := next.Repeat()
 			defer cancel()
 			for {
@@ -65,17 +65,17 @@ func init() {
 					return
 				case e := <-recv:
 					win, img, err := game(e.Message.String())
-					if err == ErrLengthNotEnough {
+					if err == errLengthNotEnough {
 						ctx.SendChain(message.ImageBytes(img), message.Text("单词长度错误"))
 					}
-					if err == ErrUnknownWord {
+					if err == errUnknownWord {
 						ctx.SendChain(message.ImageBytes(img), message.Text("不存在这样的单词"))
 					}
 					if win {
 						ctx.SendChain(message.ImageBytes(img), message.Text("你赢了"))
 						return
 					}
-					if err == ErrTimesRunOut {
+					if err == errTimesRunOut {
 						ctx.SendChain(message.ImageBytes(img), message.Text("你输了"))
 						return
 					}
@@ -97,17 +97,17 @@ func wordle(words []string) func(string) (bool, []byte, error) {
 				win = true
 			} else {
 				if len(s) != len(onhand) {
-					err = ErrLengthNotEnough
+					err = errLengthNotEnough
 					return
 				}
 				i := sort.SearchStrings(words, s)
 				if i >= len(words) || words[i] != s {
-					err = ErrUnknownWord
+					err = errUnknownWord
 					return
 				}
 			}
 			if len(record) >= cap(record) {
-				err = ErrTimesRunOut
+				err = errTimesRunOut
 			}
 			record = append(record, s)
 		}
