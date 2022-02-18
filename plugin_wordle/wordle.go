@@ -2,26 +2,28 @@
 package wordle
 
 import (
-	"bytes"
 	"errors"
 	"image/color"
-	"image/png"
 	"math/rand"
-	"sort"
 	"strings"
 	"time"
 
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/fogleman/gg"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var errLengthNotEnough = errors.New("length not enough")
-var errUnknownWord = errors.New("unknown word")
-var errTimesRunOut = errors.New("times run out")
+var (
+	errLengthNotEnough = errors.New("length not enough")
+	errUnknownWord     = errors.New("unknown word")
+	errTimesRunOut     = errors.New("times run out")
+)
 
 const (
 	match = iota
@@ -30,80 +32,98 @@ const (
 	undone
 )
 
-var colormap = map[int]color.RGBA{
-	0: {125, 166, 108, 255},
-	1: {199, 183, 96, 255},
-	2: {123, 123, 123, 255},
-	3: {219, 219, 219, 255},
+var colors = [...]color.RGBA{
+	{125, 166, 108, 255},
+	{199, 183, 96, 255},
+	{123, 123, 123, 255},
+	{219, 219, 219, 255},
 }
 
-func init() {
-	sort.Strings(words)
-}
+var words []wordpack
 
 func init() {
-	control.Register("wordle", order.AcquirePrio(), &control.Options{
+	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
 			"- 开始猜单词",
-	}).OnFullMatch("猜单词").SetBlock(true).Limit(ctxext.LimitByUser).
+		PublicDataFolder: "Wordle",
+	})
+	go func() {
+		data, err := file.GetLazyData(en.DataFolder()+"words.bin", true, true)
+		if err != nil {
+			panic(err)
+		}
+		words = loadwords(data)
+	}()
+	en.OnFullMatch("猜单词").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			game := wordle(words)
+			game := newWordleGame()
 			_, img, _ := game("")
-			ctx.SendChain(message.ImageBytes(img), message.Text("请发送单词"))
+			ctx.SendChain(message.Image("base64://"+binary.BytesToString(img)), message.Text("请发送单词"))
 			// 没有图片就索取
 			next := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`))
 			recv, cancel := next.Repeat()
-			defer cancel()
+			var msg message.Message
+			defer func() {
+				cancel()
+				ctx.Send(msg)
+			}()
 			for {
 				select {
 				case <-time.After(time.Second * 120):
 					return
 				case e := <-recv:
 					win, img, err := game(e.Message.String())
-					if err == errLengthNotEnough {
-						ctx.SendChain(message.ImageBytes(img), message.Text("单词长度错误"))
-					}
-					if err == errUnknownWord {
-						ctx.SendChain(message.ImageBytes(img), message.Text("不存在这样的单词"))
-					}
-					if win {
-						ctx.SendChain(message.ImageBytes(img), message.Text("你赢了"))
+					msg = []message.MessageSegment{message.Image("base64://" + binary.BytesToString(img))}
+					switch err {
+					case nil:
+						if win {
+							msg = append(msg, message.Text("你赢了"))
+							return
+						}
+					case errLengthNotEnough:
+						msg = append(msg, message.Text("单词长度错误"))
+					case errUnknownWord:
+						msg = append(msg, message.Text("不存在这样的单词"))
+					case errTimesRunOut:
+						msg = append(msg, message.Text("你输了"))
 						return
 					}
-					if err == errTimesRunOut {
-						ctx.SendChain(message.ImageBytes(img), message.Text("你输了"))
-						return
-					}
-					ctx.SendChain(message.ImageBytes(img))
+					ctx.Send(msg)
 				}
 			}
 		})
 }
 
-func wordle(words []string) func(string) (bool, []byte, error) {
-	rand.Seed(time.Now().UnixMilli())
-	index := rand.Intn(len(words))
-	onhand := words[index]
+func newWordleGame() func(string) (bool, []byte, error) {
+	onhandpack := words[rand.Intn(len(words))]
+	onhand := onhandpack.String()
 	record := make([]string, 0, len(onhand)+1)
-	return func(s string) (win bool, image []byte, err error) {
+	return func(s string) (win bool, base64Image []byte, err error) {
 		if s != "" {
 			s = strings.ToLower(s)
-			if onhand == s {
+			sp := pack(s)
+			if onhandpack == sp {
 				win = true
 			} else {
 				if len(s) != len(onhand) {
 					err = errLengthNotEnough
 					return
 				}
-				i := sort.SearchStrings(words, s)
-				if i >= len(words) || words[i] != s {
+				i := 0
+				for ; i < len(words); i++ {
+					if words[i] == sp {
+						break
+					}
+				}
+				if i >= len(words) || words[i] != sp {
 					err = errUnknownWord
 					return
 				}
 			}
 			if len(record) >= cap(record) {
 				err = errTimesRunOut
+				return
 			}
 			record = append(record, s)
 		}
@@ -117,11 +137,11 @@ func wordle(words []string) func(string) (bool, []byte, error) {
 					ctx.DrawRectangle(float64(10+j*(side+4)), float64(10+i*(side+4)), float64(side), float64(side))
 					switch {
 					case record[i][j] == onhand[j]:
-						ctx.SetColor(colormap[match])
+						ctx.SetColor(colors[match])
 					case strings.IndexByte(onhand, record[i][j]) != -1:
-						ctx.SetColor(colormap[exist])
+						ctx.SetColor(colors[exist])
 					default:
-						ctx.SetColor(colormap[notexist])
+						ctx.SetColor(colors[notexist])
 					}
 					ctx.Fill()
 					ctx.SetColor(color.RGBA{255, 255, 255, 255})
@@ -129,13 +149,12 @@ func wordle(words []string) func(string) (bool, []byte, error) {
 				} else {
 					ctx.DrawRectangle(float64(10+j*(side+4)+1), float64(10+i*(side+4)+1), float64(side-2), float64(side-2))
 					ctx.SetLineWidth(1)
-					ctx.SetColor(colormap[undone])
+					ctx.SetColor(colors[undone])
 					ctx.Stroke()
 				}
 			}
 		}
-		buf := bytes.NewBuffer(make([]byte, 0))
-		_ = png.Encode(buf, ctx.Image())
-		return win, buf.Bytes(), err
+		base64Image, err = writer.ToBase64(ctx.Image())
+		return
 	}
 }
