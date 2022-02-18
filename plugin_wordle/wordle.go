@@ -139,7 +139,7 @@ func wordle(words []string) func(string) (bool, []byte, error) {
 			}
 		}
 		buf := bytes.NewBuffer(make([]byte, 0))
-		png.Encode(buf, ctx.Image())
+		_ = png.Encode(buf, ctx.Image())
 		return win, buf.Bytes(), err
 	}
 }
