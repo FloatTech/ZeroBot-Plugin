@@ -2,9 +2,6 @@
 package diana
 
 import (
-	"math/rand"
-	"time"
-
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -36,7 +33,6 @@ func init() {
 	// 随机发送一篇上面的小作文
 	engine.OnFullMatch("小作文").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			rand.Seed(time.Now().UnixNano())
 			// 绕过第一行发病
 			ctx.SendChain(message.Text(data.RandText()))
 		})

@@ -188,8 +188,8 @@ func randimage(path string, seed int64) (im image.Image, index int, err error) {
 	}
 	defer reader.Close()
 
-	rand.Seed(seed)
-	index = rand.Intn(len(reader.File))
+	r := rand.New(rand.NewSource(seed))
+	index = r.Intn(len(reader.File))
 	file := reader.File[index]
 	f, err := file.Open()
 	if err != nil {
@@ -206,9 +206,9 @@ func randimage(path string, seed int64) (im image.Image, index int, err error) {
 // @param seed 随机数种子
 // @return 签名 & 签文 & 错误信息
 func randtext(seed int64) (string, string) {
-	rand.Seed(seed)
-	r := rand.Intn(len(omikujis))
-	return omikujis[r]["title"], omikujis[r]["content"]
+	r := rand.New(rand.NewSource(seed))
+	i := r.Intn(len(omikujis))
+	return omikujis[i]["title"], omikujis[i]["content"]
 }
 
 // @function draw 绘制运势图

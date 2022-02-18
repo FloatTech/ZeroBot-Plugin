@@ -342,7 +342,6 @@ func init() { // 插件主体
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
 			temp = temp[math.Max(0, len(temp)-10):]
-			rand.Seed(time.Now().UnixNano())
 			who := temp[rand.Intn(len(temp))]
 			if who.Get("user_id").Int() == ctx.Event.SelfID {
 				ctx.SendChain(message.Text("幸运儿居然是我自己"))

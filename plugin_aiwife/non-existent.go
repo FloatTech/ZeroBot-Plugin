@@ -4,7 +4,6 @@ package aiwife
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -19,7 +18,6 @@ const (
 )
 
 func init() { // 插件主体
-	rand.Seed(time.Now().UnixNano())
 	control.Register("aiwife", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "AIWife\n" +

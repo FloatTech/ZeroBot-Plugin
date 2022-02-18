@@ -2,11 +2,9 @@
 package gif
 
 import (
-	"math/rand"
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -24,7 +22,6 @@ var (
 )
 
 func init() { // 插件主体
-	rand.Seed(time.Now().UnixNano()) // 设置种子
 	en := control.Register("gif", order.AcquirePrio(), &control.Options{
 		DisableOnDefault:  false,
 		Help:              "制图\n- " + strings.Join(cmds, "\n- "),
