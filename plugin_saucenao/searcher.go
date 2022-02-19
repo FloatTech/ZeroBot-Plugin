@@ -19,7 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/pool"
-	"github.com/FloatTech/zbputils/process"
 )
 
 func init() { // 插件主体
@@ -47,11 +46,7 @@ func init() { // 插件主体
 					n := name + "_p" + strconv.Itoa(i)
 					filepath := file.BOTPATH + "/" + pixiv.CacheDir + n
 					f := ""
-					m, err := pool.GetImage(n)
-					if err == nil {
-						imgs = append(imgs, message.Image(m.String()))
-						continue
-					}
+					var m *pool.Image
 					switch {
 					case file.IsExist(filepath + ".jpg"):
 						f = filepath + ".jpg"
@@ -60,24 +55,21 @@ func init() { // 插件主体
 					case file.IsExist(filepath + ".gif"):
 						f = filepath + ".gif"
 					default:
+						m, err = pool.GetImage(n)
+						if err == nil {
+							imgs = append(imgs, message.Image(m.String()).Add("cache", "0"))
+							continue
+						}
 						logrus.Debugln("[sausenao]开始下载", n)
 						filepath, err = illust.DownloadToCache(i, n)
 						if err == nil {
 							f = file.BOTPATH + "/" + filepath
+							m.SetFile(f)
+							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
 					}
 					if f != "" {
-						m.SetFile(f)
-						hassent, err := m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-						if err == nil {
-							imgs = append(imgs, message.Image(m.String()))
-							if hassent {
-								process.SleepAbout1sTo2s()
-							}
-						} else {
-							logrus.Debugln("[saucenao]", err)
-							imgs = append(imgs, message.Image("file:///"+f))
-						}
+						imgs = append(imgs, message.Image("file:///"+f))
 					}
 				}
 				txt := message.Text(

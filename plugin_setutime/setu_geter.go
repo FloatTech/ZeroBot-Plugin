@@ -25,15 +25,18 @@ import (
 
 // Pools 图片缓冲池
 type imgpool struct {
-	lock sync.Mutex
-	db   *sql.Sqlite
-	path string
-	max  int
-	pool map[string][]*pixiv.Illust
+	db     *sql.Sqlite
+	dbmu   sync.RWMutex
+	path   string
+	max    int
+	pool   map[string][]*message.MessageSegment
+	poolmu sync.Mutex
 }
 
 func (p *imgpool) List() (l []string) {
 	var err error
+	p.dbmu.RLock()
+	defer p.dbmu.RUnlock()
 	l, err = p.db.ListTables()
 	if err != nil {
 		l = []string{"涩图", "二次元", "风景", "车万"}
@@ -45,7 +48,7 @@ var pool = &imgpool{
 	db:   &sql.Sqlite{},
 	path: pixiv.CacheDir,
 	max:  10,
-	pool: map[string][]*pixiv.Illust{},
+	pool: make(map[string][]*message.MessageSegment),
 }
 
 func init() { // 插件主体
@@ -90,7 +93,7 @@ func init() { // 插件主体
 				}
 			}
 			// 从缓冲池里抽一张
-			if id := ctx.SendChain(message.Image(pool.popfile(imgtype))); id.ID() == 0 {
+			if id := ctx.SendChain(*pool.pop(imgtype)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
@@ -127,6 +130,8 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
+			pool.dbmu.RLock()
+			defer pool.dbmu.RUnlock()
 			for _, imgtype := range pool.List() {
 				num, err := pool.db.Count(imgtype)
 				if err != nil {
@@ -150,6 +155,7 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 	u := illust.ImageUrls[0]
 	n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
 	m, err := imagepool.GetImage(n)
+	var msg message.MessageSegment
 	if err != nil {
 		// 下载图片
 		f := ""
@@ -157,31 +163,33 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m.SetFile(fileutil.BOTPATH + "/" + f)
+		f = fileutil.BOTPATH + "/" + f
+		m.SetFile(f)
 		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+		msg = message.Image("file:///" + f)
+	} else {
+		msg = message.Image(m.String())
+		if ctxext.SendToSelf(ctx)(msg) == 0 {
+			msg = msg.Add("cache", "0")
+		}
 	}
-	p.lock.Lock()
-	p.pool[imgtype] = append(p.pool[imgtype], illust)
-	p.lock.Unlock()
+	p.poolmu.Lock()
+	p.pool[imgtype] = append(p.pool[imgtype], &msg)
+	p.poolmu.Unlock()
 }
 
-func (p *imgpool) pop(imgtype string) (illust *pixiv.Illust) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+func (p *imgpool) pop(imgtype string) (msg *message.MessageSegment) {
+	p.poolmu.Lock()
+	defer p.poolmu.Unlock()
 	if p.size(imgtype) == 0 {
 		return
 	}
-	illust = p.pool[imgtype][0]
+	msg = p.pool[imgtype][0]
 	p.pool[imgtype] = p.pool[imgtype][1:]
 	return
 }
 
-func (p *imgpool) file(i *pixiv.Illust) string {
-	u := i.ImageUrls[0]
-	m, err := imagepool.GetImage(u[strings.LastIndex(u, "/")+1 : len(u)-4])
-	if err == nil {
-		return m.String()
-	}
+func (p *imgpool) cachefile(i *pixiv.Illust) string {
 	filename := fmt.Sprint(i.Pid) + "_p0"
 	filepath := fileutil.BOTPATH + `/` + p.path + filename
 	if fileutil.IsExist(filepath + ".jpg") {
@@ -196,13 +204,11 @@ func (p *imgpool) file(i *pixiv.Illust) string {
 	return ""
 }
 
-func (p *imgpool) popfile(imgtype string) string {
-	return p.file(p.pop(imgtype))
-}
-
 // fill 补充池子
 func (p *imgpool) fill(ctx *zero.Ctx, imgtype string) {
 	times := math.Min(p.max-p.size(imgtype), 2)
+	p.dbmu.RLock()
+	defer p.dbmu.RUnlock()
 	for i := 0; i < times; i++ {
 		illust := &pixiv.Illust{}
 		// 查询出一张图片
@@ -217,6 +223,8 @@ func (p *imgpool) fill(ctx *zero.Ctx, imgtype string) {
 }
 
 func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
+	p.dbmu.Lock()
+	defer p.dbmu.Unlock()
 	if err := p.db.Create(imgtype, &pixiv.Illust{}); err != nil {
 		return err
 	}
@@ -231,7 +239,7 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 		return err
 	}
 	// 发送到发送者
-	if id := ctx.SendChain(message.Image(p.file(illust))); id.ID() == 0 {
+	if id := ctx.SendChain(message.Image(p.cachefile(illust))); id.ID() == 0 {
 		return errors.New("可能被风控，发送失败")
 	}
 	// 添加插画到对应的数据库table
@@ -242,5 +250,7 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 }
 
 func (p *imgpool) remove(imgtype string, id int64) error {
+	p.dbmu.Lock()
+	defer p.dbmu.Unlock()
 	return p.db.Del(imgtype, fmt.Sprintf("WHERE pid=%d", id))
 }

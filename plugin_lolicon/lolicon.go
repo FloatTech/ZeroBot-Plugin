@@ -74,7 +74,14 @@ func init() {
 			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 			case url := <-queue:
-				ctx.SendChain(message.Image(url))
+				// 发送图片
+				id := ctx.SendChain(message.Image(url))
+				if id.ID() == 0 {
+					id = ctx.SendChain(message.Image(url).Add("cache", "0"))
+					if id.ID() == 0 {
+						ctx.SendChain(message.Text("图片发送失败，可能被风控了~"))
+					}
+				}
 			}
 		})
 }

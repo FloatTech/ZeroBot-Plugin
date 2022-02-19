@@ -173,7 +173,13 @@ func init() {
 				}
 			}
 			// 发送图片
-			ctx.SendChain(message.Image(m.String()))
+			id := ctx.SendChain(message.Image(m.String()))
+			if id.ID() == 0 {
+				id = ctx.SendChain(message.Image(m.String()).Add("cache", "0"))
+				if id.ID() == 0 {
+					ctx.SendChain(message.Text("图片发送失败，可能被风控了~"))
+				}
+			}
 		})
 }
 
