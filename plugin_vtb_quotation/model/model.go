@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/FloatTech/zbputils/web"
+	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
-	_ "github.com/logoove/sqlite" // import sql
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
