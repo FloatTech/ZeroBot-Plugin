@@ -15,7 +15,7 @@ import (
 	"github.com/FloatTech/zbputils/control/order"
 )
 
-var (
+const (
 	bilibiliRe = "https://www.bilibili.com/video/av[0-9]+|https://www.bilibili.com/video/BV[0-9a-zA-Z]+|https://b23.tv/[0-9a-zA-Z]+|https://www.bilibili.com/video/bv[0-9a-zA-Z]+"
 	validRe    = "https://www.bilibili.com/video/(BV[0-9a-zA-Z]+)"
 )
