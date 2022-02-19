@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/logoove/sqlite" // use sql
+	_ "github.com/fumiama/sqlite3" // use sql
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

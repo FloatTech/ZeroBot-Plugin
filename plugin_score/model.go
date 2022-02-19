@@ -4,8 +4,8 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
-	_ "github.com/logoove/sqlite" // import sql
 )
 
 // sdb 得分数据库

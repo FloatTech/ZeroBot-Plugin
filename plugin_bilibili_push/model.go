@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"os"
 
+	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
-	_ "github.com/logoove/sqlite" // import sql
 )
 
 // bilibilipushdb bili推送数据库

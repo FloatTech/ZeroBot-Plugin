@@ -337,7 +337,7 @@ GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o zerobot -trimpath
 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o zerobot.exe -trimpath
 # armv6 Linux 平台 如树莓派 zero W
 GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot -trimpath
-# （由于引入了github.com/logoove/sqlite，本项不再可用）mips Linux 平台 如 路由器 wndr4300
+# （由于引入了github.com/fumiama/sqlite3，本项不再可用）mips Linux 平台 如 路由器 wndr4300
 GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot -trimpath
 ```
 
