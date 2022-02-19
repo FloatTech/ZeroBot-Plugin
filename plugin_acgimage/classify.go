@@ -115,7 +115,14 @@ func init() { // 插件主体
 
 				m, hassent, err := pool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
 				if err == nil && !hassent {
-					ctx.SendChain(message.Image(m.String()))
+					// 发送图片
+					id := ctx.SendChain(message.Image(m.String()))
+					if id.ID() == 0 {
+						id = ctx.SendChain(message.Image(m.String()).Add("cache", "0"))
+						if id.ID() == 0 {
+							ctx.SendChain(message.Text("图片发送失败，可能被风控了~"))
+						}
+					}
 				}
 			}
 		})
@@ -154,7 +161,9 @@ func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 
 	m, hassent, err := pool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
 	if err == nil && !hassent {
-		send(message.Message{message.Image(m.String())})
+		if send(message.Message{message.Image(m.String())}) == 0 {
+			send(message.Message{message.Image(m.String()).Add("cache", "0")})
+		}
 	}
 	return err
 }
