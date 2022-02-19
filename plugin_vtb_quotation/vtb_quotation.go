@@ -31,6 +31,10 @@ import (
 const regStr = ".*/(.*)"
 const recordRe = "(\\.mp3|\\.wav|\\.wma|\\.mpa|\\.ram|\\.ra|\\.aac|\\.aif|\\.m4a|\\.tsa)"
 
+var (
+	re = regexp.MustCompile(recordRe)
+)
+
 func init() {
 	engine := control.Register("vtbquotation", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
@@ -175,7 +179,7 @@ func init() {
 									// log.Println(recordUrl)
 								}
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
-								re := regexp.MustCompile(recordRe)
+
 								if !re.MatchString(recURL) {
 									log.Errorln("[vtb]:文件格式不匹配")
 									return
@@ -217,7 +221,6 @@ func init() {
 					recURL = strings.ReplaceAll(recURL, "+", "%20")
 				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
-				re := regexp.MustCompile(recordRe)
 				if !re.MatchString(recURL) {
 					log.Errorln("[vtb]:文件格式不匹配")
 					return

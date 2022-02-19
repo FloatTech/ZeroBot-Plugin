@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -77,7 +76,6 @@ func init() {
 		dbpath := en.DataFolder()
 		dbfile := dbpath + "push.db"
 		defer order.DoneOnExit()()
-		_ = os.RemoveAll(en.DataFolder() + "cache")
 		bdb = initialize(dbfile)
 		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()
@@ -383,7 +381,7 @@ func sendDynamic() {
 							msg = append(msg, message.Text(cContent+"\n"))
 						case 8:
 							cName := gjson.Get(cOrigin, "owner.name").String()
-							cTime := time.Unix(gjson.Get(cOrigin, "ctime").Int(), 0).Format("2006-01-02 15:04:05")
+							cTime := time.Unix(gjson.Get(cOrigin, "pubdate").Int(), 0).Format("2006-01-02 15:04:05")
 							msg = append(msg, message.Text(cName+"在"+cTime+typeMsg[cOrigType]+"\n"))
 							cTitle := gjson.Get(cOrigin, "title").String()
 							msg = append(msg, message.Text(cTitle))
