@@ -75,14 +75,9 @@ func init() {
 	// 加载数据库
 	go func() {
 		dbpath := en.DataFolder()
-		cachePath := dbpath + "cache/"
 		dbfile := dbpath + "push.db"
 		defer order.DoneOnExit()()
 		_ = os.RemoveAll(en.DataFolder() + "cache")
-		err := os.MkdirAll(cachePath, 0755)
-		if err != nil {
-			panic(err)
-		}
 		bdb = initialize(dbfile)
 		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()

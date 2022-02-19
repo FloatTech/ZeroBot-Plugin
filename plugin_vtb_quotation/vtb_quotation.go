@@ -2,7 +2,12 @@
 package vtbquotation
 
 import (
+	"crypto/tls"
+	"fmt"
+	"io"
+	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -24,6 +29,7 @@ import (
 )
 
 const regStr = ".*/(.*)"
+const recordRe = "(\\.mp3|\\.wav|\\.wma|\\.mpa|\\.ram|\\.ra|\\.aac|\\.aif|\\.m4a|\\.tsa)"
 
 func init() {
 	engine := control.Register("vtbquotation", order.AcquirePrio(), &control.Options{
@@ -32,8 +38,13 @@ func init() {
 		PublicDataFolder: "VtbQuotation",
 	})
 	dbfile := engine.DataFolder() + "vtb.db"
+	storePath := engine.DataFolder() + "store/"
 	go func() {
 		defer order.DoneOnExit()()
+		err := os.MkdirAll(storePath, 0755)
+		if err != nil {
+			panic(err)
+		}
 		_, _ = file.GetLazyData(dbfile, false, false)
 	}()
 	engine.OnFullMatch("vtb语录").SetBlock(true).
@@ -164,7 +175,19 @@ func init() {
 									// log.Println(recordUrl)
 								}
 								ctx.SendChain(message.Reply(e.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
-								ctx.SendChain(message.Record(recURL))
+								re := regexp.MustCompile(recordRe)
+								if !re.MatchString(recURL) {
+									log.Errorln("[vtb]:文件格式不匹配")
+									return
+								}
+								format := re.FindStringSubmatch(recURL)[1]
+								recordFile := storePath + fmt.Sprintf("%d-%d-%d", firstIndex, secondIndex, thirdIndex) + format
+								if file.IsExist(recordFile) {
+									ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
+									return
+								}
+								initRecord(recordFile, recURL)
+								ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 								return
 							}
 						}
@@ -194,7 +217,19 @@ func init() {
 					recURL = strings.ReplaceAll(recURL, "+", "%20")
 				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
-				ctx.SendChain(message.Record(recURL))
+				re := regexp.MustCompile(recordRe)
+				if !re.MatchString(recURL) {
+					log.Errorln("[vtb]:文件格式不匹配")
+					return
+				}
+				format := re.FindStringSubmatch(recURL)[1]
+				recordFile := storePath + fmt.Sprintf("%d-%d-%d", fc.FirstCategoryIndex, tc.SecondCategoryIndex, tc.ThirdCategoryIndex) + format
+				if file.IsExist(recordFile) {
+					ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
+					return
+				}
+				initRecord(recordFile, recURL)
+				ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 			}
 			db.Close()
 		})
@@ -213,4 +248,35 @@ func init() {
 			}
 			ctx.Send("vtb数据库已更新")
 		})
+}
+
+func initRecord(recordFile, recordURL string) {
+	if file.IsNotExist(recordFile) {
+		transport := http.Transport{
+			TLSClientConfig: &tls.Config{
+				MaxVersion: tls.VersionTLS12,
+			},
+		}
+		client := &http.Client{
+			Transport: &transport,
+		}
+		req, _ := http.NewRequest("GET", recordURL, nil)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Errorln("[vtb]:", err)
+			return
+		}
+		defer resp.Body.Close()
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Errorln("[vtb]:", err)
+			return
+		}
+		err = os.WriteFile(recordFile, data, 0666)
+		if err != nil {
+			log.Errorln("[vtb]:", err)
+		}
+	}
 }
