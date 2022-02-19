@@ -37,8 +37,8 @@ func pack(word string) (w wordpack) {
 
 func (w wordpack) String() (word string) {
 	wt := binary.SelectWriter()
-	wt.Write(w[:])
-	wt.WriteByte(0)
+	_, _ = wt.Write(w[:])
+	_ = wt.WriteByte(0)
 	n := goBinary.LittleEndian.Uint32(wt.Bytes())
 	binary.PutWriter(wt)
 	word = strconv.FormatUint(uint64(n), 26)
