@@ -59,7 +59,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				if im.Bounds().Size().X > 1080 || im.Bounds().Size().Y > 1080 {
+				if im.Bounds().Size().X*im.Bounds().Size().Y > 512*512 {
 					ctx.SendChain(message.Text("图片过大!"))
 					return
 				}
