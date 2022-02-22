@@ -98,6 +98,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_translation"    // 翻译
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation"  // vtb语录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_wangyiyun"      // 网易云音乐热评
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_wordle"         // 猜单词
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_wtf"            // 鬼东西
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin_bilibili_push"  // b站推送

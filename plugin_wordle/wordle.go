@@ -5,7 +5,9 @@ import (
 	"errors"
 	"image/color"
 	"math/rand"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/FloatTech/zbputils/binary"
@@ -39,13 +41,14 @@ var colors = [...]color.RGBA{
 	{219, 219, 219, 255},
 }
 
-var words []wordpack
+var words []string
 
 func init() {
 	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
-			"- 开始猜单词",
+			"- 个人猜单词" +
+			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
 	})
 	go func() {
@@ -53,79 +56,99 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		words = loadwords(data)
+		var wordpacks = loadwords(data)
+		words = make([]string, 0, len(wordpacks))
+		for i := range wordpacks {
+			words = append(words, wordpacks[i].String())
+		}
+		sort.Strings(words)
 	}()
-	en.OnFullMatch("猜单词").SetBlock(true).Limit(ctxext.LimitByUser).
+	var room = sync.Map{}
+	en.OnRegex(`(个人|团队)猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
+			if ongoing, ok := room.Load(ctx.Event.GroupID); ok && ongoing.(bool) {
+				ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("已经有正在进行的游戏..."))...)
+				return
+			}
+			room.Store(ctx.Event.GroupID, true)
 			game := newWordleGame()
 			_, img, _ := game("")
-			ctx.SendChain(message.Image("base64://"+binary.BytesToString(img)), message.Text("请发送单词"))
-			// 没有图片就索取
-			next := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`))
+			typ := ctx.State["regex_matched"].([]string)[1]
+			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID,
+				message.Image("base64://"+binary.BytesToString(img)),
+				message.Text("你有6次机会猜出单词，单词长度为5，请发送单词"))...)
+			var next *zero.FutureEvent
+			if typ == "个人" {
+				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
+			} else {
+				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup)
+			}
 			recv, cancel := next.Repeat()
-			var msg message.Message
 			defer func() {
 				cancel()
-				ctx.Send(msg)
+				room.Store(ctx.Event.GroupID, false)
 			}()
 			for {
 				select {
 				case <-time.After(time.Second * 120):
+					ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Image("base64://"+binary.BytesToString(img)),
+						message.Text("猜单词超时，游戏结束..."))...)
 					return
 				case e := <-recv:
 					win, img, err := game(e.Message.String())
-					msg = []message.MessageSegment{message.Image("base64://" + binary.BytesToString(img))}
-					switch err {
-					case nil:
-						if win {
-							msg = append(msg, message.Text("你赢了"))
-							return
-						}
-					case errLengthNotEnough:
-						msg = append(msg, message.Text("单词长度错误"))
-					case errUnknownWord:
-						msg = append(msg, message.Text("不存在这样的单词"))
-					case errTimesRunOut:
-						msg = append(msg, message.Text("你输了"))
+					switch {
+					case win:
+						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+							message.Image("base64://"+binary.BytesToString(img)),
+							message.Text("太棒了，你猜出来了！"))...)
 						return
+					case err == errTimesRunOut:
+						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+							message.Image("base64://"+binary.BytesToString(img)),
+							message.Text("游戏结束..."))...)
+						return
+					case err == errLengthNotEnough:
+						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+							message.Image("base64://"+binary.BytesToString(img)),
+							message.Text("单词长度错误"))...)
+					case err == errUnknownWord:
+						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+							message.Image("base64://"+binary.BytesToString(img)),
+							message.Text("你确定存在这样的单词吗？"))...)
+					default:
+						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+							message.Image("base64://"+binary.BytesToString(img)))...)
 					}
-					ctx.Send(msg)
 				}
 			}
 		})
 }
 
 func newWordleGame() func(string) (bool, []byte, error) {
-	onhandpack := words[rand.Intn(len(words))]
-	onhand := onhandpack.String()
+	onhand := words[rand.Intn(len(words))]
 	record := make([]string, 0, len(onhand)+1)
 	return func(s string) (win bool, base64Image []byte, err error) {
 		if s != "" {
 			s = strings.ToLower(s)
-			sp := pack(s)
-			if onhandpack == sp {
+			if onhand == s {
 				win = true
 			} else {
 				if len(s) != len(onhand) {
 					err = errLengthNotEnough
 					return
 				}
-				i := 0
-				for ; i < len(words); i++ {
-					if words[i] == sp {
-						break
-					}
-				}
-				if i >= len(words) || words[i] != sp {
+				i := sort.SearchStrings(words, s)
+				if i >= len(words) || words[i] != s {
 					err = errUnknownWord
 					return
 				}
 			}
+			record = append(record, s)
 			if len(record) >= cap(record) {
 				err = errTimesRunOut
-				return
 			}
-			record = append(record, s)
 		}
 		var side = 20
 		ctx := gg.NewContext((side+2)*5+26, (side+2)*6+26)
@@ -154,7 +177,7 @@ func newWordleGame() func(string) (bool, []byte, error) {
 				}
 			}
 		}
-		base64Image, err = writer.ToBase64(ctx.Image())
+		base64Image, _ = writer.ToBase64(ctx.Image())
 		return
 	}
 }
