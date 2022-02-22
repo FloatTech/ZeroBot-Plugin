@@ -4,20 +4,31 @@ package scale
 import (
 	"bytes"
 	"image"
+	"math"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/nsfw"
-	"github.com/FloatTech/AnimeAPI/scale"
-	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/web"
+	_ "image/gif"  // import gif decoding
+	_ "image/jpeg" // import jpg decoding
+	_ "image/png"  // import png decoding
+
+	_ "golang.org/x/image/webp" // import webp decoding
+
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/nsfw"
+	"github.com/FloatTech/AnimeAPI/scale"
+
+	"github.com/FloatTech/zbputils/binary"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/img"
+	"github.com/FloatTech/zbputils/img/writer"
+	"github.com/FloatTech/zbputils/web"
 )
 
 func init() {
@@ -40,6 +51,7 @@ func init() {
 					datachan <- d
 				}()
 				ctx.SendChain(message.Text("少女祈祷中..."))
+
 				p, err := nsfw.Classify(url[0])
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
@@ -49,6 +61,7 @@ func init() {
 					ctx.SendChain(message.Text("请发送二次元图片!"))
 					return
 				}
+
 				data := <-datachan
 				if errsub != nil {
 					ctx.SendChain(message.Text("ERROR:", errsub))
@@ -59,16 +72,31 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				if im.Bounds().Size().X*im.Bounds().Size().Y > 512*512 {
-					ctx.SendChain(message.Text("图片过大!"))
-					return
-				}
+				px := im.Bounds().Size().X * im.Bounds().Size().Y
 				paras := ctx.State["scale_paras"].([2]int)
-				data, err = scale.Get(url[0], paras[0], paras[1], 2)
+
+				if px > 512*512 {
+					px = int(math.Pow(float64(px), 0.5) + 0.5)
+					x := im.Bounds().Size().X * 512 / px
+					y := im.Bounds().Size().Y * 512 / px
+					ctx.SendChain(message.Text("图片", im.Bounds().Size().X, "x", im.Bounds().Size().Y, "过大，调整图片至", x, "x", y))
+					im = img.Size(im, x, y).Im
+					w := binary.SelectWriter()
+					defer binary.PutWriter(w)
+					_, err = writer.WriteTo(im, w)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR:", err))
+						return
+					}
+					data, err = scale.Post(bytes.NewReader(w.Bytes()), paras[0], paras[1], 2)
+				} else {
+					data, err = scale.Get(url[0], paras[0], paras[1], 2)
+				}
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
+
 				n := cachedir + strconv.Itoa(int(ctx.Event.UserID))
 				f, err := os.Create(n)
 				if err != nil {
