@@ -49,6 +49,7 @@ const (
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
 		"- 设置欢迎语XXX（可加{at}在欢迎时@对方）\n" +
+		"- 测试欢迎语\n" +
 		"- [开启 | 关闭]入群验证"
 )
 
@@ -429,6 +430,16 @@ func init() { // 插件主体
 						}
 					}
 				}
+			}
+		})
+	engine.OnFullMatch("测试欢迎语", zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			var w welcome
+			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+			if err == nil {
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(w.Msg))
+			} else {
+				ctx.SendChain(message.Text("欢迎~"))
 			}
 		})
 	// 退群提醒
