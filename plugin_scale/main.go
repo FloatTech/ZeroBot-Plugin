@@ -77,8 +77,8 @@ func init() {
 
 				if px > 512*512 {
 					px = int(math.Pow(float64(px), 0.5) + 0.5)
-					x := im.Bounds().Size().X * px / 512
-					y := im.Bounds().Size().Y * px / 512
+					x := im.Bounds().Size().X * 512 / px
+					y := im.Bounds().Size().Y * 512 / px
 					ctx.SendChain(message.Text("图片", im.Bounds().Size().X, "x", im.Bounds().Size().Y, "过大，调整图片至", x, "x", y))
 					im = img.Size(im, x, y).Im
 					w := binary.SelectWriter()
