@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/FloatTech/zbputils/binary"
@@ -18,6 +17,7 @@ import (
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/fogleman/gg"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -50,7 +50,17 @@ func init() {
 			"- 个人猜单词" +
 			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
-	})
+	}).ApplySingle(single.New(
+		single.WithKeyFn(func(ctx *zero.Ctx) interface{} { return ctx.Event.GroupID }),
+		single.WithPostFn(func(ctx *zero.Ctx) {
+			ctx.Send(
+				message.ReplyWithMessage(
+					ctx.Event.MessageID,
+					message.Text("已经有正在进行的游戏..."),
+				),
+			)
+		}),
+	))
 	go func() {
 		data, err := file.GetLazyData(en.DataFolder()+"words.bin", true, true)
 		if err != nil {
@@ -63,15 +73,8 @@ func init() {
 		}
 		sort.Strings(words)
 	}()
-	var room = sync.Map{}
 	en.OnRegex(`(个人|团队)猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if ongoing, ok := room.Load(ctx.Event.GroupID); ok && ongoing.(bool) {
-				ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("已经有正在进行的游戏..."))...)
-				return
-			}
-			room.Store(ctx.Event.GroupID, true)
 			game := newWordleGame()
 			_, img, _ := game("")
 			typ := ctx.State["regex_matched"].([]string)[1]
@@ -85,10 +88,7 @@ func init() {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup)
 			}
 			recv, cancel := next.Repeat()
-			defer func() {
-				cancel()
-				room.Store(ctx.Event.GroupID, false)
-			}()
+			defer cancel()
 			for {
 				select {
 				case <-time.After(time.Second * 120):
