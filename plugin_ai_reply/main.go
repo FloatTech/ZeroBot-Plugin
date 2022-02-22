@@ -15,13 +15,13 @@ import (
 )
 
 const (
-	serviceName = "aireply"
+	replyServiceName = "aireply"
 )
 
-var modes = [...]string{"青云客", "小爱"}
+var replyModes = [...]string{"青云客", "小爱"}
 
 func init() { // 插件主体
-	engine := control.Register(serviceName, order.AcquirePrio(), &control.Options{
+	engine := control.Register(replyServiceName, order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客  |  小爱]\n- ",
@@ -59,7 +59,7 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	}
 	var ok bool
 	var index int64
-	for i, s := range modes {
+	for i, s := range replyModes {
 		if s == name {
 			ok = true
 			index = int64(i)
@@ -69,7 +69,7 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	if !ok {
 		return errors.New("no such mode")
 	}
-	m, ok := control.Lookup(serviceName)
+	m, ok := control.Lookup(replyServiceName)
 	if !ok {
 		return errors.New("no such plugin")
 	}
@@ -81,11 +81,11 @@ func getReplyMode(ctx *zero.Ctx) (name string) {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	m, ok := control.Lookup(serviceName)
+	m, ok := control.Lookup(replyServiceName)
 	if ok {
 		index := m.GetData(gid)
-		if int(index) < len(modes) {
-			return modes[index]
+		if int(index) < len(replyModes) {
+			return replyModes[index]
 		}
 	}
 	return "青云客"
