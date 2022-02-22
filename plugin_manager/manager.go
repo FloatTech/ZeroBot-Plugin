@@ -210,6 +210,10 @@ func init() { // 插件主体
 	// 修改名片
 	engine.OnRegex(`^修改名片.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			if len(ctx.State["regex_matched"].([]string)[2]) > 60 {
+				ctx.SendChain(message.Text("名字太长啦！"))
+				return
+			}
 			ctx.SetGroupCard(
 				ctx.Event.GroupID,
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被修改群名片的人
@@ -220,6 +224,10 @@ func init() { // 插件主体
 	// 修改头衔
 	engine.OnRegex(`^修改头衔.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
+				ctx.SendChain(message.Text("头衔太长啦！"))
+				return
+			}
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被修改群头衔的人
@@ -230,6 +238,10 @@ func init() { // 插件主体
 	// 申请头衔
 	engine.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
+				ctx.SendChain(message.Text("头衔太长啦！"))
+				return
+			}
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
 				ctx.Event.UserID,                         // 被修改群头衔的人
@@ -369,7 +381,11 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.SendChain(message.Text(w.Msg))
+					WMsg := strings.ReplaceAll(w.Msg, "&#91;", "[")
+					WMsg = strings.ReplaceAll(w.Msg, "&#93;", "]")
+					WMsg = strings.ReplaceAll(w.Msg, "file=", "cache=")
+					WMsg = strings.ReplaceAll(w.Msg, "url=", "file=")
+					ctx.Send(WMsg)
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
