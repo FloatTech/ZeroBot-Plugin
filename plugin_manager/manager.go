@@ -48,7 +48,7 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX\n" +
+		"- 设置欢迎语XXX（可加{at}在欢迎时@对方）\n" +
 		"- [开启 | 关闭]入群验证"
 )
 
@@ -385,6 +385,7 @@ func init() { // 插件主体
 					WMsg = strings.ReplaceAll(w.Msg, "&#93;", "]")
 					WMsg = strings.ReplaceAll(w.Msg, "file=", "cache=")
 					WMsg = strings.ReplaceAll(w.Msg, "url=", "file=")
+					WMsg = strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")
 					ctx.Send(WMsg)
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
