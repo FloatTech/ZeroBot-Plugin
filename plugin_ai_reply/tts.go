@@ -65,6 +65,7 @@ func init() {
 		})
 }
 
+// NewTTS 语音简单工厂
 func NewTTS(name string) tts.TTS {
 	switch name {
 	case "百度女声":
