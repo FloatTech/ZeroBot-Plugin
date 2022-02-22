@@ -11,6 +11,7 @@ import (
 
 type wordpack [3]byte
 
+/*
 func pack(word string) (w wordpack) {
 	if len(word) != 5 {
 		panic("word must be 5 letters")
@@ -34,6 +35,7 @@ func pack(word string) (w wordpack) {
 	binary.PutWriter(wt)
 	return
 }
+*/
 
 func (w wordpack) String() (word string) {
 	wt := binary.SelectWriter()

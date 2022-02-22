@@ -12,7 +12,6 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -144,12 +143,9 @@ func init() {
 			f, err := os.Create(drawedFile)
 			if err != nil {
 				log.Errorln("[score]", err)
-				canvasBase64, err := writer.ToBase64(canvas.Image())
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + helper.BytesToString(canvasBase64)))
+				data, cl := writer.ToBytes(canvas.Image())
+				ctx.SendChain(message.ImageBytes(data))
+				cl()
 				return
 			}
 			_, err = writer.WriteTo(canvas.Image(), f)
