@@ -78,9 +78,9 @@ func init() {
 			game := newWordleGame()
 			_, img, _ := game("")
 			typ := ctx.State["regex_matched"].([]string)[1]
-			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID,
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
 				message.Image("base64://"+binary.BytesToString(img)),
-				message.Text("你有6次机会猜出单词，单词长度为5，请发送单词"))...)
+				message.Text("你有6次机会猜出单词，单词长度为5，请发送单词")))
 			var next *zero.FutureEvent
 			if typ == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
@@ -92,34 +92,34 @@ func init() {
 			for {
 				select {
 				case <-time.After(time.Second * 120):
-					ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID,
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
 						message.Image("base64://"+binary.BytesToString(img)),
-						message.Text("猜单词超时，游戏结束..."))...)
+						message.Text("猜单词超时，游戏结束...")))
 					return
 				case e := <-recv:
 					win, img, err := game(e.Message.String())
 					switch {
 					case win:
-						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+						ctx.Send(message.ReplyWithMessage(e.MessageID,
 							message.Image("base64://"+binary.BytesToString(img)),
-							message.Text("太棒了，你猜出来了！"))...)
+							message.Text("太棒了，你猜出来了！")))
 						return
 					case err == errTimesRunOut:
-						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+						ctx.Send(message.ReplyWithMessage(e.MessageID,
 							message.Image("base64://"+binary.BytesToString(img)),
-							message.Text("游戏结束..."))...)
+							message.Text("游戏结束...")))
 						return
 					case err == errLengthNotEnough:
-						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+						ctx.Send(message.ReplyWithMessage(e.MessageID,
 							message.Image("base64://"+binary.BytesToString(img)),
-							message.Text("单词长度错误"))...)
+							message.Text("单词长度错误")))
 					case err == errUnknownWord:
-						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
+						ctx.Send(message.ReplyWithMessage(e.MessageID,
 							message.Image("base64://"+binary.BytesToString(img)),
-							message.Text("你确定存在这样的单词吗？"))...)
+							message.Text("你确定存在这样的单词吗？")))
 					default:
-						ctx.SendChain(message.ReplyWithMessage(e.MessageID,
-							message.Image("base64://"+binary.BytesToString(img)))...)
+						ctx.Send(message.ReplyWithMessage(e.MessageID,
+							message.Image("base64://"+binary.BytesToString(img))))
 					}
 				}
 			}
