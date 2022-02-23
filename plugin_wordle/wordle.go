@@ -73,7 +73,8 @@ func init() {
 	}()
 	en.OnRegex(`(个人|团队)猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			game := newWordleGame()
+			target := words[rand.Intn(len(words))]
+			game := newWordleGame(target)
 			_, img, cl, _ := game("")
 			typ := ctx.State["regex_matched"].([]string)[1]
 			ctx.Send(
@@ -82,6 +83,7 @@ func init() {
 					message.Text("你有6次机会猜出单词，单词长度为5，请发送单词"),
 				),
 			)
+			cl()
 			var next *zero.FutureEvent
 			if typ == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
@@ -90,20 +92,19 @@ func init() {
 			}
 			recv, cancel := next.Repeat()
 			defer cancel()
+			var win bool
+			var err error
 			for {
 				select {
 				case <-time.After(time.Second * 120):
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
-							message.ImageBytes(img),
-							message.Text("猜单词超时，游戏结束..."),
+							message.Text("猜单词超时，游戏结束...答案是: ", target),
 						),
 					)
-					cl()
 					return
 				case e := <-recv:
-					cl()
-					win, img, cl, err := game(e.Message.String())
+					win, img, cl, err = game(e.Message.String())
 					switch {
 					case win:
 						ctx.Send(
@@ -118,7 +119,7 @@ func init() {
 						ctx.Send(
 							message.ReplyWithMessage(e.MessageID,
 								message.ImageBytes(img),
-								message.Text("游戏结束..."),
+								message.Text("游戏结束...答案是: ", target),
 							),
 						)
 						cl()
@@ -126,14 +127,12 @@ func init() {
 					case err == errLengthNotEnough:
 						ctx.Send(
 							message.ReplyWithMessage(e.MessageID,
-								message.ImageBytes(img),
 								message.Text("单词长度错误"),
 							),
 						)
 					case err == errUnknownWord:
 						ctx.Send(
 							message.ReplyWithMessage(e.MessageID,
-								message.ImageBytes(img),
 								message.Text("你确定存在这样的单词吗？"),
 							),
 						)
@@ -143,22 +142,22 @@ func init() {
 								message.ImageBytes(img),
 							),
 						)
+						cl()
 					}
 				}
 			}
 		})
 }
 
-func newWordleGame() func(string) (bool, []byte, func(), error) {
-	onhand := words[rand.Intn(len(words))]
-	record := make([]string, 0, len(onhand)+1)
+func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
+	record := make([]string, 0, len(target)+1)
 	return func(s string) (win bool, data []byte, cl func(), err error) {
 		if s != "" {
 			s = strings.ToLower(s)
-			if onhand == s {
+			if target == s {
 				win = true
 			} else {
-				if len(s) != len(onhand) {
+				if len(s) != len(target) {
 					err = errLengthNotEnough
 					return
 				}
@@ -177,14 +176,14 @@ func newWordleGame() func(string) (bool, []byte, func(), error) {
 		ctx := gg.NewContext((side+2)*5+26, (side+2)*6+26)
 		ctx.SetColor(color.RGBA{255, 255, 255, 255})
 		ctx.Clear()
-		for i := 0; i < len(onhand)+1; i++ {
-			for j := 0; j < len(onhand); j++ {
+		for i := 0; i < len(target)+1; i++ {
+			for j := 0; j < len(target); j++ {
 				if len(record) > i {
 					ctx.DrawRectangle(float64(10+j*(side+4)), float64(10+i*(side+4)), float64(side), float64(side))
 					switch {
-					case record[i][j] == onhand[j]:
+					case record[i][j] == target[j]:
 						ctx.SetColor(colors[match])
-					case strings.IndexByte(onhand, record[i][j]) != -1:
+					case strings.IndexByte(target, record[i][j]) != -1:
 						ctx.SetColor(colors[exist])
 					default:
 						ctx.SetColor(colors[notexist])
