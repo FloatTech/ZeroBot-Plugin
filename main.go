@@ -239,9 +239,9 @@ func main() {
 			NickName:      append([]string{*adana}, nicks...),
 			CommandPrefix: *prefix,
 			// SuperUsers 某些功能需要主人权限，可通过以下两种方式修改
-			SuperUsers: []string{"213864964", "87654321"}, // 通过代码写死的方式添加主人账号
-			//SuperUsers: flag.Args(), // 通过命令行参数的方式添加主人账号
-			Driver: []zero.Driver{driver.NewWebSocketClient(*url, *token)},
+			// SuperUsers: []string{"12345678", "87654321"}, // 通过代码写死的方式添加主人账号
+			SuperUsers: flag.Args(), // 通过命令行参数的方式添加主人账号
+			Driver:     []zero.Driver{driver.NewWebSocketClient(*url, *token)},
 		},
 	)
 }
