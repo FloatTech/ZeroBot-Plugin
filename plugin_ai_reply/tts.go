@@ -25,8 +25,8 @@ const (
 )
 
 var (
-	reNumber = "(\\-|\\+)?\\d+(\\.\\d+)?"
-	t        *ttsInstances
+	t  *ttsInstances
+	re = regexp.MustCompile(`(\-|\+)?\d+(\.\d+)?`)
 )
 
 type ttsInstances struct {
@@ -61,7 +61,6 @@ func init() {
 			tts := newTTS(getSoundMode(ctx))
 			ctx.SendChain(message.Record(tts.Speak(ctx.Event.UserID, func() string {
 				reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
-				re := regexp.MustCompile(reNumber)
 				reply = re.ReplaceAllStringFunc(reply, func(s string) string {
 					f, err := strconv.ParseFloat(s, 64)
 					if err != nil {
