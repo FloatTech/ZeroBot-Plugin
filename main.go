@@ -79,6 +79,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"        // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"      // MCSManager
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"           // 摸鱼
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu_calendar"  // 摸鱼人日历
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"          // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativesetu"     // 本地涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_nativewife"     // 本地老婆
