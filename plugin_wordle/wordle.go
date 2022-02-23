@@ -88,7 +88,7 @@ func init() {
 			if typ == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
 			} else {
-				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup)
+				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 			}
 			recv, cancel := next.Repeat()
 			defer cancel()
