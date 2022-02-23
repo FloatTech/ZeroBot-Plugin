@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/cron"
@@ -28,33 +29,33 @@ func init() {
 
 	// 定时任务每天8点执行一次
 	c := cron.New()
-	_, err := c.AddFunc("* 8 * * *", func() { calendar() })
+	_, err := c.AddFunc("* 8 * * *", func() {
+		m, ok := control.Lookup("moyucalendar")
+		if !ok {
+			return
+		}
+		image, err := crew()
+		if err != nil {
+			return
+		}
+		zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+			for _, g := range ctx.GetGroupList().Array() {
+				grp := g.Get("group_id").Int()
+				if m.IsEnabledIn(grp) {
+					ctx.SendGroupMessage(grp, []message.MessageSegment{message.Image(image)})
+				}
+			}
+			return true
+		})
+	})
 	if err == nil {
 		c.Start()
 	}
 }
 
-func calendar() {
-	m, ok := control.Lookup("moyucalendar")
-	if !ok {
-		return
-	}
-	image, _ := crew()
-	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-		for _, g := range ctx.GetGroupList().Array() {
-			grp := g.Get("group_id").Int()
-			if m.IsEnabledIn(grp) {
-				ctx.SendGroupMessage(grp, []message.MessageSegment{message.Image(image)})
-			}
-		}
-		return true
-	})
-
-}
-
-var newest, _ = regexp.Compile(`uigs="account_article_0" href="(/link.+?)">`)
-var weixin, _ = regexp.Compile(`url \+= '(.+)';`)
-var rili, _ = regexp.Compile(`data-src="(.{0,300})" data-type="png" data-w="540"`)
+var newest = regexp.MustCompile(`uigs="account_article_0" href="(/link.+?)">`)
+var weixin = regexp.MustCompile(`url \+= '(.+)';`)
+var calendar = regexp.MustCompile(`data-src="(.{0,300})" data-type="png" data-w="540"`)
 
 func crew() (string, error) {
 	client := &http.Client{}
@@ -134,7 +135,11 @@ func crew() (string, error) {
 		return "", errors.New("status not ok")
 	}
 	bw, _ := ioutil.ReadAll(respw.Body)
-	matchw := rili.FindStringSubmatch(string(bw))
+	today := regexp.MustCompile(time.Now().Format("2006-01-02"))
+	if !today.Match(bw) {
+		return "", errors.New("calendar not found")
+	}
+	matchw := calendar.FindStringSubmatch(string(bw))
 	if len(matchw) < 2 {
 		return "", errors.New("calendar not found")
 	}
