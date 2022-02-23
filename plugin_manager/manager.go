@@ -49,7 +49,6 @@ const (
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
 		"- 设置欢迎语XXX（可加{at}在欢迎时@对方）\n" +
-		"- 测试欢迎语\n" +
 		"- [开启 | 关闭]入群验证"
 )
 
@@ -382,12 +381,8 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					WMsg := strings.ReplaceAll(w.Msg, "&#91;", "[")
-					WMsg = strings.ReplaceAll(w.Msg, "&#93;", "]")
-					WMsg = strings.ReplaceAll(w.Msg, "file=", "cache=")
-					WMsg = strings.ReplaceAll(w.Msg, "url=", "file=")
-					WMsg = strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")
-					ctx.Send(WMsg)
+					wmsg := strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")
+					ctx.Send(wmsg)
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
@@ -430,16 +425,6 @@ func init() { // 插件主体
 						}
 					}
 				}
-			}
-		})
-	engine.OnFullMatch("测试欢迎语", zero.AdminPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			var w welcome
-			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
-			if err == nil {
-				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(w.Msg))
-			} else {
-				ctx.SendChain(message.Text("欢迎~"))
 			}
 		})
 	// 退群提醒
