@@ -17,6 +17,7 @@ require (
 	github.com/fumiama/sqlite3 v1.14.6
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mroth/weightedrand v0.4.1
+	github.com/pkumza/numcn v1.0.0
 	github.com/shirou/gopsutil/v3 v3.21.12
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.13.0
