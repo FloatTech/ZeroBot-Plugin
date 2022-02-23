@@ -427,17 +427,6 @@ func init() { // 插件主体
 				}
 			}
 		})
-       // 测试欢迎语
-       engine.OnFullMatch("测试欢迎语", zero.AdminPermission).SetBlock(true).
-               Handle(func(ctx *zero.Ctx) {
-			var w welcome
-			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
-			if err == nil {
-				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
-			} else {
-				ctx.SendChain(message.Text("欢迎~"))
-			}
-		})
 	// 退群提醒
 	engine.OnNotice().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
@@ -458,6 +447,17 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("记住啦!"))
 			} else {
 				ctx.SendChain(message.Text("出错啦: ", err))
+			}
+		})
+       // 测试欢迎语
+       engine.OnFullMatch("测试欢迎语", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+               Handle(func(ctx *zero.Ctx) {
+			var w welcome
+			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+			if err == nil {
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+			} else {
+				ctx.SendChain(message.Text("欢迎~"))
 			}
 		})
 	// 入群后验证开关
