@@ -6,7 +6,7 @@ import (
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/fumiama/cron"
+	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -63,10 +63,9 @@ func init() {
 
 // 定时任务每天晚上最后2分钟执行一次
 func fansDaily() {
-	c := cron.New()
-	_, err := c.AddFunc("58 23 * * *", func() { sendNotice() })
-	if err == nil {
-		c.Start()
+	_, err := process.CronTab.AddFunc("58 23 * * *", func() { sendNotice() })
+	if err != nil {
+		panic(err)
 	}
 }
 

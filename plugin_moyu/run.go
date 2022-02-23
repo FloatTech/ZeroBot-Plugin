@@ -5,7 +5,7 @@ import (
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/fumiama/cron"
+	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -21,10 +21,9 @@ func init() { // 插件主体
 	})
 
 	// 定时任务每天10点执行一次
-	c := cron.New()
-	_, err := c.AddFunc("0 10 * * *", func() { sendNotice() })
-	if err == nil {
-		c.Start()
+	_, err := process.CronTab.AddFunc("0 10 * * *", func() { sendNotice() })
+	if err != nil {
+		panic(err)
 	}
 }
 

@@ -11,8 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/zbputils/binary"
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/fumiama/cron"
+	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -28,8 +29,7 @@ func init() {
 	})
 
 	// 定时任务每天8点执行一次
-	c := cron.New()
-	_, err := c.AddFunc("* 8 * * *", func() {
+	_, err := process.CronTab.AddFunc("* 8 * * *", func() {
 		m, ok := control.Lookup("moyucalendar")
 		if !ok {
 			return
@@ -48,8 +48,8 @@ func init() {
 			return true
 		})
 	})
-	if err == nil {
-		c.Start()
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -76,7 +76,7 @@ func crew() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	match := newest.FindStringSubmatch(string(b))
+	match := newest.FindStringSubmatch(binary.BytesToString(b))
 	if len(match) < 2 {
 		return "", errors.New("newest not found")
 	}
@@ -112,7 +112,7 @@ func crew() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		matcha := weixin.FindStringSubmatch(string(b))
+		matcha := weixin.FindStringSubmatch(binary.BytesToString(b))
 		if len(matcha) < 2 {
 			continue
 		}
@@ -135,11 +135,14 @@ func crew() (string, error) {
 		return "", errors.New("status not ok")
 	}
 	bw, _ := ioutil.ReadAll(respw.Body)
-	today := regexp.MustCompile(time.Now().Format("2006-01-02"))
+	today, err := regexp.Compile(time.Now().Format("2006-01-02"))
+	if err != nil {
+		return "", err
+	}
 	if !today.Match(bw) {
 		return "", errors.New("calendar not found")
 	}
-	matchw := calendar.FindStringSubmatch(string(bw))
+	matchw := calendar.FindStringSubmatch(binary.BytesToString(bw))
 	if len(matchw) < 2 {
 		return "", errors.New("calendar not found")
 	}
