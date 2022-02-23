@@ -139,6 +139,9 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **摸鱼** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"`
     - [x] /启用 moyu
     - [x] /禁用 moyu
+- **摸鱼人日历** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu_calendar"`
+    - [x] /启用 moyucalendar
+    - [x] /禁用 moyucalendar
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
