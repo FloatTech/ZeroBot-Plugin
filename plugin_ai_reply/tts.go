@@ -95,11 +95,9 @@ func setSoundMode(ctx *zero.Ctx, name string) error {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	var ok bool
 	var index int64
 	for i, s := range t.l {
 		if s == name {
-			ok = true
 			index = int64(i)
 			break
 		}
