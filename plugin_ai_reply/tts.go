@@ -2,12 +2,13 @@ package aireply
 
 import (
 	"errors"
+	"regexp"
+	"strconv"
+
 	"github.com/pkumza/numcn"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"regexp"
-	"strconv"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
 	"github.com/FloatTech/AnimeAPI/tts"
