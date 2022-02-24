@@ -113,16 +113,10 @@ func init() { // 插件主体
 					u = apihead + dhash
 				}
 
-				m, hassent, err := pool.NewImage(ctxext.Send(ctx), ctxext.GetMessage(ctx), dhash, u)
-				if err == nil && !hassent {
-					// 发送图片
-					id := ctx.SendChain(message.Image(m.String()))
-					if id.ID() == 0 {
-						id = ctx.SendChain(message.Image(m.String()).Add("cache", "0"))
-						if id.ID() == 0 {
-							ctx.SendChain(message.Text("图片发送失败，可能被风控了~"))
-						}
-					}
+				err := pool.SendRemoteImageFromPool(dhash, u, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
 			}
 		})
@@ -159,11 +153,5 @@ func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 		}
 	}
 
-	m, hassent, err := pool.NewImage(send, ctxext.GetMessage(ctx), b14, u)
-	if err == nil && !hassent {
-		if send(message.Message{message.Image(m.String())}) == 0 {
-			send(message.Message{message.Image(m.String()).Add("cache", "0")})
-		}
-	}
-	return err
+	return pool.SendRemoteImageFromPool(b14, u, send, ctxext.GetMessage(ctx))
 }

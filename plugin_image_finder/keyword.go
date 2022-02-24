@@ -15,7 +15,6 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -55,31 +54,15 @@ func init() {
 			}
 			u := illust.ImageUrls[0]
 			n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
-			m, err := pool.GetImage(n)
-			if err != nil {
+			f := illust.Path(0)
+
+			err = pool.SendImageFromPool(n, f, func() error {
 				// 下载图片
-				f := ""
-				if f, err = illust.DownloadToCache(0, n); err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				m.SetFile(file.BOTPATH + "/" + f)
-				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
-				if hassent {
-					return
-				}
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-			}
-			// 发送图片
-			id := ctx.SendChain(message.Image(m.String()))
-			if id.ID() == 0 {
-				id = ctx.SendChain(message.Image(m.String()).Add("cache", "0"))
-				if id.ID() == 0 {
-					ctx.SendChain(message.Text("图片发送失败，可能被风控了~"))
-				}
+				return illust.DownloadToCache(0)
+			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
 		})
 }

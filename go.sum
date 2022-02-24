@@ -1,11 +1,11 @@
-github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220222140454-0d15c275f385 h1:MdGiGCZJh/Q9Z9pmZw0xkU7CFfbptmsJECRnT/aUNq4=
-github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220222140454-0d15c275f385/go.mod h1:zYjxb/MpWOjBgyiMli6356fegX2tJ21+u2TNStzVrHg=
+github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220224052148-f7a1379d4a00 h1:idUMQfvkooUapF1B2WDrm84QQqz7t+/bVnSTIrs4Khg=
+github.com/FloatTech/AnimeAPI v1.3.0-beta8.0.20220224052148-f7a1379d4a00/go.mod h1:WGkFlN/5QbdptbQuvGrS7KQl5nAdQbvZLFsbrM7rWCU=
 github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9O/jd5BPSfWfOQ=
 github.com/FloatTech/sqlite v0.2.0 h1:x3uls/hExXH1+bbaNLkvilce6ATtWlDx4IqoxBW/bv8=
 github.com/FloatTech/sqlite v0.2.0/go.mod h1:xIDWIvpOFl8AXmZm0FC8t3PZjiR6ZutytCpBv2EWCns=
-github.com/FloatTech/zbputils v1.3.0-beta8.0.20220222140356-fceefeb900dc/go.mod h1:tUXu86+Hoi6vcLHfcVwjZa9ZYF4JRoNaCC510EELjfs=
-github.com/FloatTech/zbputils v1.3.0-beta8.0.20220223090830-a5253f2f5260 h1:vpw6jSQQL71rYBzzYK6NjdtTYH7aVaz6WmzAIDbcxd0=
-github.com/FloatTech/zbputils v1.3.0-beta8.0.20220223090830-a5253f2f5260/go.mod h1:Jn5LmnwqYivr64qQJBdhDwm2gRut8Hhq5gPBydV0Gvg=
+github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224051618-597cdb58b3fe/go.mod h1:Jn5LmnwqYivr64qQJBdhDwm2gRut8Hhq5gPBydV0Gvg=
+github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224114458-4310f8e13ad3 h1:rIi9+wMFfiYxEG6pCp5Mr6ZiBsstCGHrIt7moGkMEXM=
+github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224114458-4310f8e13ad3/go.mod h1:Jn5LmnwqYivr64qQJBdhDwm2gRut8Hhq5gPBydV0Gvg=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc h1:AAx50/fb/xS4lvsdQg+bFbGvqSDhyV1MF+p2PLCamZ0=
 github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc/go.mod h1:OMmITAib6POA37xCichWM0aRnoVpSMZO1rB/G01wrr0=
@@ -157,7 +157,6 @@ github.com/ugorji/go v1.1.7/go.mod h1:kZn38zHttfInRq0xu/PH0az30d+z6vm202qpg1oXVM
 github.com/ugorji/go v1.2.6/go.mod h1:anCg0y61KIhDlPZmnH+so+RQbysYVyDko0IMgJv0Nn0=
 github.com/ugorji/go/codec v1.1.7/go.mod h1:Ax+UKWsSmolVDwsd+7N3ZtXu+yMGCf907BLYF3GoBXY=
 github.com/ugorji/go/codec v1.2.6/go.mod h1:V6TCNZ4PHqoHGFZuSG1W8nrCzzdgA2DozYxWFFpvxTw=
-github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220222135901-74f9f7b24555/go.mod h1:NwXIp7PgjV+kUALMXJ4v4/3QcsRSOodtjhLekuPXFog=
 github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220223090418-8c5d8eccaf3a h1:Mw7850zyEgIr8VO9e8iofo78maed53FclPzRiMa7aeY=
 github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220223090418-8c5d8eccaf3a/go.mod h1:NwXIp7PgjV+kUALMXJ4v4/3QcsRSOodtjhLekuPXFog=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

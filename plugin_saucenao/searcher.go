@@ -43,34 +43,27 @@ func init() { // 插件主体
 				name := strconv.FormatInt(illust.Pid, 10)
 				var imgs message.Message
 				for i := range illust.ImageUrls {
+					f := file.BOTPATH + "/" + illust.Path(i)
 					n := name + "_p" + strconv.Itoa(i)
-					filepath := file.BOTPATH + "/" + pixiv.CacheDir + n
-					f := ""
 					var m *pool.Image
-					switch {
-					case file.IsExist(filepath + ".jpg"):
-						f = filepath + ".jpg"
-					case file.IsExist(filepath + ".png"):
-						f = filepath + ".png"
-					case file.IsExist(filepath + ".gif"):
-						f = filepath + ".gif"
-					default:
+					if file.IsNotExist(f) {
 						m, err = pool.GetImage(n)
 						if err == nil {
-							imgs = append(imgs, message.Image(m.String()).Add("cache", "0"))
-							continue
+							err = file.DownloadTo(m.String(), f, true)
+							if err != nil {
+								ctx.SendChain(message.Text("ERROR: ", err))
+								return
+							}
+							break
 						}
 						logrus.Debugln("[sausenao]开始下载", n)
-						filepath, err = illust.DownloadToCache(i, n)
+						err = illust.DownloadToCache(i)
 						if err == nil {
-							f = file.BOTPATH + "/" + filepath
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
 					}
-					if f != "" {
-						imgs = append(imgs, message.Image("file:///"+f))
-					}
+					imgs = append(imgs, message.Image("file:///"+f))
 				}
 				txt := message.Text(
 					"标题：", illust.Title, "\n",

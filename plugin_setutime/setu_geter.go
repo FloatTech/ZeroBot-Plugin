@@ -13,6 +13,7 @@ import (
 	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	fileutil "github.com/FloatTech/zbputils/file"
 	imagepool "github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
@@ -156,14 +157,13 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 	n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
 	m, err := imagepool.GetImage(n)
 	var msg message.MessageSegment
+	f := fileutil.BOTPATH + "/" + illust.Path(0)
 	if err != nil {
 		// 下载图片
-		f := ""
-		if f, err = illust.DownloadToCache(0, n); err != nil {
+		if err = illust.DownloadToCache(0); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		f = fileutil.BOTPATH + "/" + f
 		m.SetFile(f)
 		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 		msg = message.Image("file:///" + f)
@@ -171,6 +171,14 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 		msg = message.Image(m.String())
 		if ctxext.SendToSelf(ctx)(msg) == 0 {
 			msg = msg.Add("cache", "0")
+			if ctxext.SendToSelf(ctx)(msg) == 0 {
+				err = file.DownloadTo(m.String(), f, true)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				msg = message.Image("file:///" + f)
+			}
 		}
 	}
 	p.poolmu.Lock()
@@ -235,7 +243,7 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 		return err
 	}
 	// 下载插画
-	if _, err := illust.DownloadToCache(0, strconv.FormatInt(id, 10)+"_p0"); err != nil {
+	if err := illust.DownloadToCache(0); err != nil {
 		return err
 	}
 	// 发送到发送者

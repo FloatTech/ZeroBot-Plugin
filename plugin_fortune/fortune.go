@@ -146,39 +146,18 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			m, err := pool.GetImage(cachefile)
-			if err != nil {
-				logrus.Debugln("[fortune]", err)
-				if file.IsNotExist(cachefile) {
-					f, err := os.Create(cachefile)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-					_, err = draw(background, title, text, f)
-					_ = f.Close()
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-				}
-				m.SetFile(file.BOTPATH + "/" + cachefile)
-				hassent, err := m.Push(ctxext.Send(ctx), ctxext.GetMessage(ctx))
-				if hassent {
-					return
-				}
+			err = pool.SendImageFromPool(cachefile, cachefile, func() error {
+				f, err := os.Create(cachefile)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+					return err
 				}
-			}
-			// 发送图片
-			id := ctx.SendChain(message.Image(m.String()))
-			if id.ID() == 0 {
-				id = ctx.SendChain(message.Image(m.String()).Add("cache", "0"))
-				if id.ID() == 0 {
-					ctx.SendChain(message.Text("图片发送失败，可能被风控了~"))
-				}
+				_, err = draw(background, title, text, f)
+				_ = f.Close()
+				return err
+			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
 		})
 }
