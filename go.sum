@@ -4,8 +4,8 @@ github.com/FloatTech/bot-manager v1.0.0/go.mod h1:8YYRJ16oroGHQGD2En0oVnmcKJkxR9
 github.com/FloatTech/sqlite v0.2.0 h1:x3uls/hExXH1+bbaNLkvilce6ATtWlDx4IqoxBW/bv8=
 github.com/FloatTech/sqlite v0.2.0/go.mod h1:xIDWIvpOFl8AXmZm0FC8t3PZjiR6ZutytCpBv2EWCns=
 github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224051618-597cdb58b3fe/go.mod h1:Jn5LmnwqYivr64qQJBdhDwm2gRut8Hhq5gPBydV0Gvg=
-github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224114458-4310f8e13ad3 h1:rIi9+wMFfiYxEG6pCp5Mr6ZiBsstCGHrIt7moGkMEXM=
-github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224114458-4310f8e13ad3/go.mod h1:Jn5LmnwqYivr64qQJBdhDwm2gRut8Hhq5gPBydV0Gvg=
+github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224132834-0341eb3c3b13 h1:EMkixYWDwQKdlUpt0MF63Nj1e5pdladkWJ++5VCTGSc=
+github.com/FloatTech/zbputils v1.3.0-beta8.0.20220224132834-0341eb3c3b13/go.mod h1:Jn5LmnwqYivr64qQJBdhDwm2gRut8Hhq5gPBydV0Gvg=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc h1:AAx50/fb/xS4lvsdQg+bFbGvqSDhyV1MF+p2PLCamZ0=
 github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc/go.mod h1:OMmITAib6POA37xCichWM0aRnoVpSMZO1rB/G01wrr0=

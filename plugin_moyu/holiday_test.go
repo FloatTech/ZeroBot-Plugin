@@ -12,7 +12,6 @@ var sr = reg.NewRegedit("reilia.fumiama.top:32664", "fumiama", "--")
 
 func TestGetHoliday(t *testing.T) {
 	registry.Connect()
-	holidaymap = make(map[string]*Holiday)
 	h := GetHoliday("元旦")
 	registry.Close()
 	t.Fatal(h)
