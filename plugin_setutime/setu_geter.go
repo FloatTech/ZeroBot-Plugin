@@ -13,7 +13,6 @@ import (
 	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	fileutil "github.com/FloatTech/zbputils/file"
 	imagepool "github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
@@ -172,7 +171,7 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 		if ctxext.SendToSelf(ctx)(msg) == 0 {
 			msg = msg.Add("cache", "0")
 			if ctxext.SendToSelf(ctx)(msg) == 0 {
-				err = file.DownloadTo(m.String(), f, true)
+				err = fileutil.DownloadTo(m.String(), f, true)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
