@@ -41,6 +41,7 @@ var colors = [...]color.RGBA{
 }
 
 var words []string
+var questions []string
 
 func init() {
 	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
@@ -60,11 +61,20 @@ func init() {
 		}),
 	))
 	go func() {
-		data, err := file.GetLazyData(en.DataFolder()+"words.bin", true, true)
+		questionsdata, err := file.GetLazyData(en.DataFolder()+"questions.bin", true, true)
 		if err != nil {
 			panic(err)
 		}
-		wordpacks := loadwords(data)
+		questionspacks := loadwords(questionsdata)
+		questions = make([]string, len(questionspacks))
+		for i := range questionspacks {
+			questions[i] = questionspacks[i].String()
+		}
+		wordsdata, err := file.GetLazyData(en.DataFolder()+"words.bin", true, true)
+		if err != nil {
+			panic(err)
+		}
+		wordpacks := loadwords(wordsdata)
 		words = make([]string, len(wordpacks))
 		for i := range wordpacks {
 			words[i] = wordpacks[i].String()
@@ -73,7 +83,7 @@ func init() {
 	}()
 	en.OnRegex(`(个人|团队)猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			target := words[rand.Intn(len(words))]
+			target := questions[rand.Intn(len(questions))]
 			game := newWordleGame(target)
 			_, img, cl, _ := game("")
 			typ := ctx.State["regex_matched"].([]string)[1]
@@ -90,8 +100,6 @@ func init() {
 			} else {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 			}
-			recv, cancel := next.Repeat()
-			defer cancel()
 			var win bool
 			var err error
 			for {
@@ -103,7 +111,7 @@ func init() {
 						),
 					)
 					return
-				case e := <-recv:
+				case e := <-next.Next():
 					win, img, cl, err = game(e.Message.String())
 					switch {
 					case win:
