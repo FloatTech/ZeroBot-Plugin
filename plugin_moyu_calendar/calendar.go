@@ -4,9 +4,11 @@ package moyucalendar
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -53,13 +55,19 @@ func init() {
 	}
 }
 
-var newest = regexp.MustCompile(`uigs="account_article_0" href="(/link.+?)">`)
+var newest = regexp.MustCompile(`href="(/link.+?)" id="sogou_vr_11002601_title_0" uigs="article_title_0"`)
 var weixin = regexp.MustCompile(`url \+= '(.+)';`)
 var calendar = regexp.MustCompile(`data-src="(.{0,300})" data-type="png" data-w="540"`)
 
 func crew() (string, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://weixin.sogou.com/weixin?type=1&s_from=input&query=%E6%91%B8%E9%B1%BC%E4%BA%BA%E6%97%A5%E5%8E%86", nil)
+	u, _ := url.Parse("https://weixin.sogou.com/weixin")
+	u.RawQuery = url.Values{
+		"type":   []string{"2"},
+		"s_from": []string{"input"},
+		"query":  []string{fmt.Sprintf("摸鱼人日历 %d月%d日", time.Now().Month(), time.Now().Day())},
+	}.Encode()
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return "", err
 	}
@@ -140,7 +148,7 @@ func crew() (string, error) {
 		return "", err
 	}
 	if !today.Match(bw) {
-		return "", errors.New("calendar not found")
+		return "", errors.New("today not found")
 	}
 	matchw := calendar.FindStringSubmatch(binary.BytesToString(bw))
 	if len(matchw) < 2 {
