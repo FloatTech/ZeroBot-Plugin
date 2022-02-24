@@ -28,7 +28,14 @@ func init() {
 		Help: "摸鱼人日历\n" +
 			"- /启用 moyucalendar\n" +
 			"- /禁用 moyucalendar",
-	})
+	}).OnFullMatch("摸鱼人日历").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			image, err := crew()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+			}
+			ctx.SendChain(message.Image(image))
+		})
 
 	// 定时任务每天8点执行一次
 	_, err := process.CronTab.AddFunc("* 8 * * *", func() {
