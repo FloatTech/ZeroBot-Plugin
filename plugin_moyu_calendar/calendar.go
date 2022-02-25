@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -38,7 +37,7 @@ func init() {
 		})
 
 	// 定时任务每天8点执行一次
-	_, err := process.CronTab.AddFunc("* 8 * * *", func() {
+	_, err := process.CronTab.AddFunc("30 8 * * *", func() {
 		m, ok := control.Lookup("moyucalendar")
 		if !ok {
 			return
@@ -51,7 +50,8 @@ func init() {
 			for _, g := range ctx.GetGroupList().Array() {
 				grp := g.Get("group_id").Int()
 				if m.IsEnabledIn(grp) {
-					ctx.SendGroupMessage(grp, []message.MessageSegment{message.Image(image)})
+					ctx.SendGroupMessage(grp, message.Message{message.Image(image)})
+					process.SleepAbout1sTo2s()
 				}
 			}
 			return true
@@ -87,7 +87,7 @@ func crew() (string, error) {
 	if resp.StatusCode != http.StatusOK {
 		return "", errors.New("status not ok")
 	}
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -149,7 +149,7 @@ func crew() (string, error) {
 	if respw.StatusCode != http.StatusOK {
 		return "", errors.New("status not ok")
 	}
-	bw, _ := ioutil.ReadAll(respw.Body)
+	bw, _ := io.ReadAll(respw.Body)
 	today, err := regexp.Compile(time.Now().Format("2006-01-02"))
 	if err != nil {
 		return "", err

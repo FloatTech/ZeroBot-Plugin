@@ -57,6 +57,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /全局启用 xxx
     - [x] /全局禁用 xxx
     - [x] /还原 xxx (在发送的群/用户还原xxx的开启状态到初始状态)
+    - 注：当全局未配置或与默认相同时，状态取决于单独配置，后备为默认配置；当全局与默认不同时，状态取决于全局配置，单独配置失效。
     - [x] /禁止 service qq1 qq2... (禁止 qqs 使用服务 service)
     - [x] /允许 service qq1 qq2... (重新允许 qqs 使用服务 service)
     - [x] /封禁 qq1 qq2... (禁止 qqs 使用全部服务)
