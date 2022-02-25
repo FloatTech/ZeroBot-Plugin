@@ -77,7 +77,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_jandan"         // 煎蛋网无聊图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_juejuezi"       // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_lolicon"        // lolicon 随机图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_minecraft"      // MCSManager
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu"           // 摸鱼
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_moyu_calendar"  // 摸鱼人日历
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin_music"          // 点歌
