@@ -21,7 +21,7 @@ import (
 
 	"github.com/FloatTech/zbputils/control/order"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_manager/timer"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/plugin_manager/timer"
 )
 
 const (

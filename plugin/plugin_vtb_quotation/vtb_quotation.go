@@ -25,7 +25,7 @@ import (
 
 	"github.com/FloatTech/zbputils/control/order"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin_vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/plugin_vtb_quotation/model"
 )
 
 const regStr = ".*/(.*)"
