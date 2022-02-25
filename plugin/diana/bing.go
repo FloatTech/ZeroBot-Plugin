@@ -9,7 +9,7 @@ import (
 
 	"github.com/FloatTech/zbputils/control/order"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/plugin_diana/data"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/diana/data"
 )
 
 var engine = control.Register("diana", order.AcquirePrio(), &control.Options{

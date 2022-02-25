@@ -13,7 +13,7 @@ import (
 
 	"github.com/FloatTech/zbputils/control/order"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/plugin_sleep_manage/model"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage/model"
 )
 
 func init() {
