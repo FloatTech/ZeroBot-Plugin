@@ -48,8 +48,11 @@ func (t *ttsInstances) List() []string {
 
 func init() {
 	engine := control.Register(ttsServiceName, order.AcquirePrio(), &control.Options{
-		DisableOnDefault: false,
-		Help:             "语音回复(包括拟声鸟和百度)\n- @Bot 任意文本(任意一句话回复)\n- 设置语音模式拟声鸟阿梓 | 设置语音模式拟声鸟药水哥 | 设置语音模式百度女声 | 设置语音模式百度男声| 设置语音模式百度度逍遥 | 设置语音模式百度度丫丫",
+		DisableOnDefault: true,
+		Help: "语音回复(包括拟声鸟和百度)\n" +
+			"- @Bot 任意文本(任意一句话回复)\n" +
+			"- 设置语音模式[拟声鸟阿梓 | 拟声鸟药水哥 | 百度女声 | 百度男声| 百度度逍遥 | 百度度丫丫]\n" +
+			"- 设置默认语音模式[拟声鸟阿梓 | 拟声鸟药水哥 | 百度女声 | 百度男声| 百度度逍遥 | 百度度丫丫]\n",
 	})
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
@@ -78,7 +81,13 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 				return
 			}
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前模式为", param))
+		})
+	engine.OnRegex(`^设置默认语音模式(.*)$`, ctxext.FirstValueInList(t)).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			param := ctx.State["regex_matched"].([]string)[1]
+			t.setDefaultSoundMode(param)
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，默认模式为", param))
 		})
 }
 
@@ -119,4 +128,15 @@ func (t *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 		}
 	}
 	return "拟声鸟阿梓"
+}
+
+func (t *ttsInstances) setDefaultSoundMode(name string) {
+	var index int
+	for i, s := range t.l {
+		if s == name {
+			index = i
+			break
+		}
+	}
+	t.l[0], t.l[index] = t.l[index], t.l[0]
 }
