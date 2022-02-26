@@ -26,7 +26,7 @@ const (
 )
 
 var (
-	queue = make(chan [2]string, capacity)
+	queue = make(chan string, capacity)
 )
 
 func init() {
@@ -58,28 +58,28 @@ func init() {
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
 					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
 					m, err := pool.GetImage(name)
-					if err != nil {
+					if err != nil && err != pool.ErrImgFileAsync {
 						m.SetFile(url)
 						_, err = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						process.SleepAbout1sTo2s()
 					}
 					if err == nil {
-						queue <- [2]string{name, m.String()}
+						queue <- m.String()
 					} else {
-						queue <- [2]string{name, url}
+						queue <- url
 					}
 				}
 			}()
 			select {
 			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
-			case o := <-queue:
-				name := o[0]
-				url := o[1]
-				err := pool.SendRemoteImageFromPool(name, url, ctxext.Send(ctx), ctxext.GetMessage(ctx))
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-					return
+			case img := <-queue:
+				id := ctx.SendChain(message.Image(img))
+				if id.ID() == 0 {
+					id = ctx.SendChain(message.Image(img).Add("cache", "0"))
+					if id.ID() == 0 {
+						ctx.SendChain(message.Text("ERROR:图片发送失败，可能被风控了~"))
+					}
 				}
 			}
 		})

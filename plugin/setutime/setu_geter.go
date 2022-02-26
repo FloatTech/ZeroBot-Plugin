@@ -159,25 +159,19 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 	f := fileutil.BOTPATH + "/" + illust.Path(0)
 	if err != nil {
 		// 下载图片
-		if err = illust.DownloadToCache(0); err != nil {
+		if err := illust.DownloadToCache(0); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m.SetFile(f)
-		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+		if err != imagepool.ErrImgFileAsync {
+			m.SetFile(f)
+			_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+		}
 		msg = message.Image("file:///" + f)
 	} else {
 		msg = message.Image(m.String())
 		if ctxext.SendToSelf(ctx)(msg) == 0 {
 			msg = msg.Add("cache", "0")
-			if ctxext.SendToSelf(ctx)(msg) == 0 {
-				err = fileutil.DownloadTo(m.String(), f, true)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				msg = message.Image("file:///" + f)
-			}
 		}
 	}
 	p.poolmu.Lock()
