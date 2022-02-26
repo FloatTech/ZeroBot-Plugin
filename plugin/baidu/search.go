@@ -1,3 +1,4 @@
+// Package baidu 百度一下
 package baidu
 
 import (

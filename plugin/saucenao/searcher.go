@@ -49,16 +49,12 @@ func init() { // 插件主体
 					if file.IsNotExist(f) {
 						m, err = pool.GetImage(n)
 						if err == nil {
-							err = file.DownloadTo(m.String(), f, true)
-							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
-								return
-							}
-							break
+							imgs = append(imgs, message.Image(m.String()))
+							continue
 						}
 						logrus.Debugln("[sausenao]开始下载", n)
-						err = illust.DownloadToCache(i)
-						if err == nil {
+						err1 := illust.DownloadToCache(i)
+						if err != pool.ErrImgFileAsync && err1 == nil {
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
