@@ -57,11 +57,11 @@ func initialize(dbpath string) *ymgaldb {
 func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, ymgalMap map[string]interface{}) (err error) {
 	db := (*gorm.DB)(gdb)
 	y := Ymgal{}
-	ymgalMapJson, err := json.Marshal(ymgalMap)
+	ymgalJSON, err := json.Marshal(ymgalMap)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
-	err = json.Unmarshal(ymgalMapJson, &y)
+	err = json.Unmarshal(ymgalJSON, &y)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
@@ -127,7 +127,7 @@ func initPageNumber() {
 	}
 }
 
-func getPicId(pageNumber int, pictureType string) {
+func getPicID(pageNumber int, pictureType string) {
 	var picURL string
 	if pictureType == cgType {
 		picURL = cgURL + strconv.Itoa(pageNumber)
@@ -154,11 +154,11 @@ func getPicId(pageNumber int, pictureType string) {
 func updatePic() {
 	initPageNumber()
 	for i := 1; i <= maxCgPageNumber; i++ {
-		getPicId(i, cgType)
+		getPicID(i, cgType)
 		time.Sleep(time.Millisecond * 500)
 	}
 	for i := 1; i <= maxEmoticonPageNumber; i++ {
-		getPicId(i, emoticonType)
+		getPicID(i, emoticonType)
 		time.Sleep(time.Millisecond * 500)
 	}
 	for _, v := range cgIDList {
@@ -205,12 +205,12 @@ func storeCgPic(picIDStr string) {
 		PictureDescription: pictureDescription,
 		PictureList:        pictureList,
 	}
-	ymgalJson, err := json.Marshal(&y)
+	ymgalJSON, err := json.Marshal(&y)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
 	var ymgalMap map[string]interface{}
-	err = json.Unmarshal(ymgalJson, &ymgalMap)
+	err = json.Unmarshal(ymgalJSON, &ymgalMap)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
@@ -254,12 +254,12 @@ func storeEmoticonPic(picIDStr string) {
 		PictureDescription: pictureDescription,
 		PictureList:        pictureList,
 	}
-	ymgalJson, err := json.Marshal(&y)
+	ymgalJSON, err := json.Marshal(&y)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
 	var ymgalMap map[string]interface{}
-	err = json.Unmarshal(ymgalJson, &ymgalMap)
+	err = json.Unmarshal(ymgalJSON, &ymgalMap)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
