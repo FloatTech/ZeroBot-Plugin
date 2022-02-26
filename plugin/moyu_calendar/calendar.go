@@ -146,15 +146,15 @@ func redirect(link string, cookies []*http.Cookie, ua string) (string, error) {
 		return "", err
 	}
 	req.Header.Set("User-Agent", ua)
-	var new = make([]string, 0, 4)
+	var c = make([]string, 0, 4)
 	for _, cookie := range cookies {
 		if cookie.Name != "ABTEST" && cookie.Name != "SNUID" &&
 			cookie.Name != "IPLOC" && cookie.Name != "SUID" {
 			continue
 		}
-		new = append(new, cookie.Name+"="+cookie.Value)
+		c = append(c, cookie.Name+"="+cookie.Value)
 	}
-	req.Header.Set("Cookie", strings.Join(new, "; "))
+	req.Header.Set("Cookie", strings.Join(c, "; "))
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
@@ -204,7 +204,7 @@ func calendar(link, ua string) (string, error) {
 		return "", err
 	}
 	html := xpath.OutputHTML(doc, false)
-	if strings.Index(html, time.Now().Format("2006-01-02")) == -1 {
+	if !strings.Contains(html, time.Now().Format("2006-01-02")) {
 		return "", errors.New("calendar not today")
 	}
 	images := xpath.Find(doc, `//*[@id="js_content"]/p/img`)
