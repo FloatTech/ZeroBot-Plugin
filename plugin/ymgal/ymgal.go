@@ -27,6 +27,7 @@ func init() {
 	}()
 	engine.OnRegex("^随机gal(CG|表情包)$").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			ctx.Send("少女祈祷中......")
 			pictureType := ctx.State["regex_matched"].([]string)[1]
 			var y ymgal
 			if pictureType == "表情包" {
@@ -38,6 +39,7 @@ func init() {
 		})
 	engine.OnRegex("^gal(CG|表情包)([一-龥A-Za-z0-9]{1,25})$").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			ctx.Send("少女祈祷中......")
 			pictureType := ctx.State["regex_matched"].([]string)[1]
 			key := ctx.State["regex_matched"].([]string)[2]
 			var y ymgal
