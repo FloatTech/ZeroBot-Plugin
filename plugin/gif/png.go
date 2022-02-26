@@ -4,8 +4,10 @@ import (
 	"errors"
 	"image"
 	"math/rand"
+	"os"
 	"strconv"
 
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/writer"
 )
@@ -19,6 +21,12 @@ func (cc *context) A爬() (string, error) {
 	}
 	// 随机爬图序号
 	rand := rand.Intn(60) + 1
+	if file.IsNotExist(datapath + "materials/pa") {
+		err = os.MkdirAll(datapath+"materials/pa", 0755)
+		if err != nil {
+			return "", err
+		}
+	}
 	f, err := dlblock(`pa/` + strconv.Itoa(rand) + `.png`)
 	if err != nil {
 		return "", err
@@ -39,6 +47,12 @@ func (cc *context) A撕() (string, error) {
 	}
 	im1 := img.Rotate(tou, 20, 380, 380)
 	im2 := img.Rotate(tou, -12, 380, 380)
+	if file.IsNotExist(datapath + "materials/si") {
+		err = os.MkdirAll(datapath+"materials/si", 0755)
+		if err != nil {
+			return "", err
+		}
+	}
 	f, err := dlblock(`si/0.png`)
 	if err != nil {
 		return "", err
