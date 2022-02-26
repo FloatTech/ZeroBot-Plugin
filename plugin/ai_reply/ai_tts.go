@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"strconv"
+	"sync"
 
 	"github.com/pkumza/numcn"
 	log "github.com/sirupsen/logrus"
@@ -23,7 +24,8 @@ import (
 const ttsServiceName = "tts"
 
 var (
-	t = &ttsInstances{
+	mu sync.RWMutex
+	t  = &ttsInstances{
 		m: map[string]tts.TTS{
 			"百度女声":   baidutts.NewBaiduTTS(0),
 			"百度男声":   baidutts.NewBaiduTTS(1),
@@ -138,5 +140,7 @@ func (t *ttsInstances) setDefaultSoundMode(name string) {
 			break
 		}
 	}
+	mu.Lock()
 	t.l[0], t.l[index] = t.l[index], t.l[0]
+	mu.Unlock()
 }

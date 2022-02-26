@@ -1,7 +1,6 @@
 package ymgal
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/antchfx/htmlquery"
 	_ "github.com/fumiama/sqlite3" // import sql
@@ -12,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -21,17 +21,19 @@ var gdb *ymgaldb
 // ymgaldb galgame图片数据库
 type ymgaldb gorm.DB
 
-// Ymgal gal图片储存结构体
-type Ymgal struct {
-	ID                 int64  `gorm:"column:id" json:"id,omitempty"`
-	Title              string `gorm:"column:title" json:"title"`
-	PictureType        string `gorm:"column:picture_type" json:"picture_type"`
-	PictureDescription string `gorm:"column:picture_description;type:varchar(1024)" json:"picture_description"`
-	PictureList        string `gorm:"column:picture_list;type:varchar(20000)" json:"picture_list"`
+var mu sync.RWMutex
+
+// ymgal gal图片储存结构体
+type ymgal struct {
+	ID                 int64  `gorm:"column:id" `
+	Title              string `gorm:"column:title" `
+	PictureType        string `gorm:"column:picture_type" `
+	PictureDescription string `gorm:"column:picture_description;type:varchar(1024)" `
+	PictureList        string `gorm:"column:picture_list;type:varchar(20000)" `
 }
 
 // TableName ...
-func (Ymgal) TableName() string {
+func (ymgal) TableName() string {
 	return "ymgal"
 }
 
@@ -50,43 +52,59 @@ func initialize(dbpath string) *ymgaldb {
 	if err != nil {
 		panic(err)
 	}
-	gdb.AutoMigrate(&Ymgal{})
+	gdb.AutoMigrate(&ymgal{})
 	return (*ymgaldb)(gdb)
 }
 
-func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, ymgalMap map[string]interface{}) (err error) {
+func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictureDescription, pictureList string) (err error) {
 	db := (*gorm.DB)(gdb)
-	y := Ymgal{}
-	ymgalJSON, err := json.Marshal(ymgalMap)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
+	y := ymgal{
+		ID:                 id,
+		Title:              title,
+		PictureType:        pictureType,
+		PictureDescription: pictureDescription,
+		PictureList:        pictureList,
 	}
-	err = json.Unmarshal(ymgalJSON, &y)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
-	y.ID = id
-	if err = db.Debug().Model(&Ymgal{}).First(&y, "id = ? ", id).Error; err != nil {
+	if err = db.Debug().Model(&ymgal{}).First(&y, "id = ? ", id).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&Ymgal{}).Create(&y).Error // newUser not user
+			err = db.Debug().Model(&ymgal{}).Create(&y).Error // newUser not user
 		}
 	} else {
-		err = db.Debug().Model(&Ymgal{}).Where("id = ? ", id).Update(ymgalMap).Error
+		err = db.Debug().Model(&ymgal{}).Where("id = ? ", id).Update(map[string]interface{}{
+			"title":               title,
+			"picture_type":        pictureType,
+			"picture_description": pictureDescription,
+			"picture_list":        pictureList,
+		}).Error
 	}
 	return
 }
 
-func (gdb *ymgaldb) randomYmgal(pictureType string) (y Ymgal) {
+func (gdb *ymgaldb) getYmgalByID(id string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
-	var count int
-	db.Debug().Model(&Ymgal{}).Where("picture_type = ?", pictureType).Count(&count).Offset(rand.Intn(count)).Take(&y)
+	db.Debug().Model(&ymgal{}).Where("id = ?", id).Take(&y)
 	return
 }
 
-func (gdb *ymgaldb) getYmgalByKey(pictureType, key string) (y Ymgal) {
+func (gdb *ymgaldb) randomYmgal(pictureType string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
 	var count int
-	db.Debug().Model(&Ymgal{}).Where("picture_type = ? and (picture_description like ? or title like ?) ", pictureType, "%"+key+"%", "%"+key+"%").Count(&count).Offset(rand.Intn(count)).Take(&y)
+	s := db.Debug().Model(&ymgal{}).Where("picture_type = ?", pictureType).Count(&count)
+	if count == 0 {
+		return
+	}
+	s.Offset(rand.Intn(count)).Take(&y)
+	return
+}
+
+func (gdb *ymgaldb) getYmgalByKey(pictureType, key string) (y ymgal) {
+	db := (*gorm.DB)(gdb)
+	var count int
+	s := db.Debug().Model(&ymgal{}).Where("picture_type = ? and (picture_description like ? or title like ?) ", pictureType, "%"+key+"%", "%"+key+"%").Count(&count)
+	if count == 0 {
+		return
+	}
+	s.Offset(rand.Intn(count)).Take(&y)
 	return
 }
 
@@ -99,16 +117,14 @@ const (
 )
 
 var (
-	maxCgPageNumber       int
-	maxEmoticonPageNumber int
-	cgURL                 = webURL + "/search?type=picset&sort=default&category=" + url.QueryEscape(cgType) + "&page="
-	emoticonURL           = webURL + "/search?type=picset&sort=default&category=" + url.QueryEscape(emoticonType) + "&page="
-	commonPageNumberExpr  = "//*[@id='pager-box']/div/a[@class='icon item pager-next']/preceding-sibling::a[1]/text()"
-	cgIDList              []string
-	emoticonIDList        []string
+	cgURL                = webURL + "/search?type=picset&sort=default&category=" + url.QueryEscape(cgType) + "&page="
+	emoticonURL          = webURL + "/search?type=picset&sort=default&category=" + url.QueryEscape(emoticonType) + "&page="
+	commonPageNumberExpr = "//*[@id='pager-box']/div/a[@class='icon item pager-next']/preceding-sibling::a[1]/text()"
+	cgIDList             []string
+	emoticonIDList       []string
 )
 
-func initPageNumber() {
+func initPageNumber() (maxCgPageNumber, maxEmoticonPageNumber int) {
 	doc, err := htmlquery.LoadURL(cgURL + "1")
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
@@ -125,6 +141,7 @@ func initPageNumber() {
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
+	return
 }
 
 func getPicID(pageNumber int, pictureType string) {
@@ -152,7 +169,7 @@ func getPicID(pageNumber int, pictureType string) {
 }
 
 func updatePic() {
-	initPageNumber()
+	maxCgPageNumber, maxEmoticonPageNumber := initPageNumber()
 	for i := 1; i <= maxCgPageNumber; i++ {
 		getPicID(i, cgType)
 		time.Sleep(time.Millisecond * 500)
@@ -161,15 +178,34 @@ func updatePic() {
 		getPicID(i, emoticonType)
 		time.Sleep(time.Millisecond * 500)
 	}
-	for _, v := range cgIDList {
-		storeCgPic(v)
+CGLOOP:
+	for i := len(cgIDList) - 1; i >= 0; i-- {
+		mu.RLock()
+		y := gdb.getYmgalByID(cgIDList[i])
+		mu.RUnlock()
+		if y.PictureList == "" {
+			mu.Lock()
+			storeCgPic(cgIDList[i])
+			mu.Unlock()
+		} else {
+			break CGLOOP
+		}
 		time.Sleep(time.Millisecond * 500)
 	}
-	for _, v := range emoticonIDList {
-		storeEmoticonPic(v)
+EMOTICONLOOP:
+	for i := len(emoticonIDList) - 1; i >= 0; i-- {
+		mu.RLock()
+		y := gdb.getYmgalByID(emoticonIDList[i])
+		mu.RUnlock()
+		if y.PictureList == "" {
+			mu.Lock()
+			storeEmoticonPic(emoticonIDList[i])
+			mu.Unlock()
+		} else {
+			break EMOTICONLOOP
+		}
 		time.Sleep(time.Millisecond * 500)
 	}
-
 }
 
 func storeCgPic(picIDStr string) {
@@ -199,22 +235,7 @@ func storeCgPic(picIDStr string) {
 			pictureList += "," + picURL
 		}
 	}
-	y := Ymgal{
-		Title:              title,
-		PictureType:        pictureType,
-		PictureDescription: pictureDescription,
-		PictureList:        pictureList,
-	}
-	ymgalJSON, err := json.Marshal(&y)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
-	var ymgalMap map[string]interface{}
-	err = json.Unmarshal(ymgalJSON, &ymgalMap)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
-	err = gdb.insertOrUpdateYmgalByID(picID, ymgalMap)
+	err = gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
@@ -248,22 +269,7 @@ func storeEmoticonPic(picIDStr string) {
 			pictureList += "," + picURL
 		}
 	}
-	y := Ymgal{
-		Title:              title,
-		PictureType:        pictureType,
-		PictureDescription: pictureDescription,
-		PictureList:        pictureList,
-	}
-	ymgalJSON, err := json.Marshal(&y)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
-	var ymgalMap map[string]interface{}
-	err = json.Unmarshal(ymgalJSON, &ymgalMap)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
-	err = gdb.insertOrUpdateYmgalByID(picID, ymgalMap)
+	err = gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
