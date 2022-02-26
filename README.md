@@ -165,6 +165,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 搜图[P站图片ID]
 - **搜番** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"`
     - [x] 搜番 | 搜索番剧[图片]
+- **百度一下** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
+    - [x] 百度下[xxx]
 - **随机图片与AI点评** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
