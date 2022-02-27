@@ -45,8 +45,10 @@ type ttsInstances struct {
 }
 
 func (t *ttsInstances) List() []string {
+	t.RLock()
 	cl := make([]string, len(t.l))
 	_ = copy(cl, t.l)
+	t.RUnlock()
 	return cl
 }
 
@@ -141,13 +143,13 @@ func (t *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 func (t *ttsInstances) setDefaultSoundMode(name string) {
 	var index int
 	t.RLock()
-	defer t.RUnlock()
-	for i, s := range t.l {
+	for _, s := range t.l {
 		if s == name {
-			index = i
 			break
 		}
+		index++
 	}
+	t.RUnlock()
 	t.Lock()
 	t.l[0], t.l[index] = t.l[index], t.l[0]
 	t.Unlock()
