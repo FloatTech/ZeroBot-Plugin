@@ -58,6 +58,9 @@ func init() { // 插件主体
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
+						if err1 != nil {
+							logrus.Debugln("[sausenao]下载err:", err1)
+						}
 					}
 					imgs = append(imgs, message.Image("file:///"+f))
 				}

@@ -2,7 +2,6 @@
 package setutime
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -158,10 +157,12 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 	var msg message.MessageSegment
 	f := fileutil.BOTPATH + "/" + illust.Path(0)
 	if err != nil {
-		// 下载图片
-		if err := illust.DownloadToCache(0); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
+		if fileutil.IsNotExist(f) {
+			// 下载图片
+			if err := illust.DownloadToCache(0); err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 		}
 		if err != imagepool.ErrImgFileAsync {
 			m.SetFile(f)
@@ -188,21 +189,6 @@ func (p *imgpool) pop(imgtype string) (msg *message.MessageSegment) {
 	msg = p.pool[imgtype][0]
 	p.pool[imgtype] = p.pool[imgtype][1:]
 	return
-}
-
-func (p *imgpool) cachefile(i *pixiv.Illust) string {
-	filename := fmt.Sprint(i.Pid) + "_p0"
-	filepath := fileutil.BOTPATH + `/` + p.path + filename
-	if fileutil.IsExist(filepath + ".jpg") {
-		return `file:///` + filepath + ".jpg"
-	}
-	if fileutil.IsExist(filepath + ".png") {
-		return `file:///` + filepath + ".png"
-	}
-	if fileutil.IsExist(filepath + ".gif") {
-		return `file:///` + filepath + ".gif"
-	}
-	return ""
 }
 
 // fill 补充池子
@@ -235,13 +221,11 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 	if err != nil {
 		return err
 	}
-	// 下载插画
-	if err := illust.DownloadToCache(0); err != nil {
+	err = imagepool.SendImageFromPool(strconv.FormatInt(illust.Pid, 10)+"_p0", illust.Path(0), func() error {
+		return illust.DownloadToCache(0)
+	}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+	if err != nil {
 		return err
-	}
-	// 发送到发送者
-	if id := ctx.SendChain(message.Image(p.cachefile(illust))); id.ID() == 0 {
-		return errors.New("可能被风控，发送失败")
 	}
 	// 添加插画到对应的数据库table
 	if err := p.db.Insert(imgtype, illust); err != nil {
