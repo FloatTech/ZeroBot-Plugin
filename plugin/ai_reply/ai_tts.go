@@ -24,8 +24,7 @@ import (
 const ttsServiceName = "tts"
 
 var (
-	mu sync.RWMutex
-	t  = &ttsInstances{
+	t = &ttsInstances{
 		m: map[string]tts.TTS{
 			"百度女声":   baidutts.NewBaiduTTS(0),
 			"百度男声":   baidutts.NewBaiduTTS(1),
@@ -40,8 +39,9 @@ var (
 )
 
 type ttsInstances struct {
-	m map[string]tts.TTS
-	l []string
+	mu sync.RWMutex
+	m  map[string]tts.TTS
+	l  []string
 }
 
 func (t *ttsInstances) List() []string {
@@ -140,7 +140,7 @@ func (t *ttsInstances) setDefaultSoundMode(name string) {
 			break
 		}
 	}
-	mu.Lock()
+	t.mu.Lock()
 	t.l[0], t.l[index] = t.l[index], t.l[0]
-	mu.Unlock()
+	t.mu.Unlock()
 }
