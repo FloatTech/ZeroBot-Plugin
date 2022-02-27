@@ -45,9 +45,9 @@ type ttsInstances struct {
 }
 
 func (t *ttsInstances) List() []string {
-	t.RLock()
-	defer t.RUnlock()
-	return t.l
+	cl := make([]string, len(t.l))
+	_ = copy(cl, t.l)
+	return cl
 }
 
 func init() {
@@ -129,11 +129,11 @@ func (t *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 	m, ok := control.Lookup(ttsServiceName)
 	if ok {
 		t.RLock()
+		defer t.RUnlock()
 		index := m.GetData(gid)
 		if int(index) < len(t.l) {
 			return t.l[index]
 		}
-		t.RUnlock()
 	}
 	return "拟声鸟阿梓"
 }
@@ -141,13 +141,13 @@ func (t *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 func (t *ttsInstances) setDefaultSoundMode(name string) {
 	var index int
 	t.RLock()
+	defer t.RUnlock()
 	for i, s := range t.l {
 		if s == name {
 			index = i
 			break
 		}
 	}
-	t.RUnlock()
 	t.Lock()
 	t.l[0], t.l[index] = t.l[index], t.l[0]
 	t.Unlock()
