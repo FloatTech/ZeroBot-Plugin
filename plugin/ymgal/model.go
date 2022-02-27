@@ -2,10 +2,6 @@ package ymgal
 
 import (
 	"fmt"
-	"github.com/antchfx/htmlquery"
-	_ "github.com/fumiama/sqlite3" // import sql
-	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"net/url"
 	"os"
@@ -13,6 +9,11 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/antchfx/htmlquery"
+	_ "github.com/fumiama/sqlite3" // import sql
+	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 // gdb 得分数据库
@@ -165,7 +166,6 @@ func getPicID(pageNumber int, pictureType string) {
 			emoticonIDList = append(emoticonIDList, picID)
 		}
 	}
-
 }
 
 func updatePic() {
@@ -239,7 +239,6 @@ func storeCgPic(picIDStr string) {
 	if err != nil {
 		log.Errorln("[ymgal]:", err)
 	}
-
 }
 
 func storeEmoticonPic(picIDStr string) {
