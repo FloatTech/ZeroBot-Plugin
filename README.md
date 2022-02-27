@@ -287,6 +287,12 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **煎蛋网无聊图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
     - [x] 来份屌图
     - [x] 更新屌图
+- **月幕galgame图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
+    - [x] 随机galCG
+    - [x] 随机gal表情包
+    - [x] galCG[xxx]
+    - [x] gal表情包[xxx]
+    - [x] 更新gal
 - **TODO...**
 
 ## 使用方法
