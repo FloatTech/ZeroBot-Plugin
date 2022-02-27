@@ -39,12 +39,14 @@ var (
 )
 
 type ttsInstances struct {
-	mu sync.RWMutex
-	m  map[string]tts.TTS
-	l  []string
+	sync.RWMutex
+	m map[string]tts.TTS
+	l []string
 }
 
 func (t *ttsInstances) List() []string {
+	t.RLock()
+	defer t.RUnlock()
 	return t.l
 }
 
@@ -104,12 +106,14 @@ func (t *ttsInstances) setSoundMode(ctx *zero.Ctx, name string) error {
 		gid = -ctx.Event.UserID
 	}
 	var index int64
+	t.RLock()
 	for i, s := range t.l {
 		if s == name {
 			index = int64(i)
 			break
 		}
 	}
+	t.RUnlock()
 	m, ok := control.Lookup(ttsServiceName)
 	if !ok {
 		return errors.New("no such plugin")
@@ -124,23 +128,27 @@ func (t *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 	}
 	m, ok := control.Lookup(ttsServiceName)
 	if ok {
+		t.RLock()
 		index := m.GetData(gid)
 		if int(index) < len(t.l) {
 			return t.l[index]
 		}
+		t.RUnlock()
 	}
 	return "拟声鸟阿梓"
 }
 
 func (t *ttsInstances) setDefaultSoundMode(name string) {
 	var index int
+	t.RLock()
 	for i, s := range t.l {
 		if s == name {
 			index = i
 			break
 		}
 	}
-	t.mu.Lock()
+	t.RUnlock()
+	t.Lock()
 	t.l[0], t.l[index] = t.l[index], t.l[0]
-	t.mu.Unlock()
+	t.Unlock()
 }
