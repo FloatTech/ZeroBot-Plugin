@@ -11,7 +11,7 @@ import (
 
 func init() {
 	engine.OnFullMatch("发个朋友圈").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		data, err := web.ReqWith(pyqURL, "GET", pyqReferer, ua)
+		data, err := web.GetDataWith(web.NewDefaultClient(), pyqURL, "GET", pyqReferer, ua)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return

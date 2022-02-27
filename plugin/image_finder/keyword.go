@@ -70,7 +70,7 @@ func init() {
 // soutuapi 请求api
 func soutuapi(keyword string) (r resultjson, err error) {
 	url := "https://api.pixivel.moe/v2/pixiv/illust/search/" + keyword + "?page=0"
-	data, err := web.ReqWith(url, "GET", "https://pixivel.moe/", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36")
+	data, err := web.GetDataWith(web.NewTLS12Client(), url, "GET", "https://pixivel.moe/", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36")
 	if err != nil {
 		return
 	}

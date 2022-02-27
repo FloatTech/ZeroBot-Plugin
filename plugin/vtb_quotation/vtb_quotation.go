@@ -2,7 +2,6 @@
 package vtbquotation
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,6 +21,7 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/FloatTech/zbputils/web"
 
 	"github.com/FloatTech/zbputils/control/order"
 
@@ -255,14 +255,7 @@ func init() {
 
 func initRecord(recordFile, recordURL string) {
 	if file.IsNotExist(recordFile) {
-		transport := http.Transport{
-			TLSClientConfig: &tls.Config{
-				MaxVersion: tls.VersionTLS12,
-			},
-		}
-		client := &http.Client{
-			Transport: &transport,
-		}
+		client := web.NewTLS12Client()
 		req, _ := http.NewRequest("GET", recordURL, nil)
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
