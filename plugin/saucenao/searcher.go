@@ -129,30 +129,18 @@ func init() { // 插件主体
 					ctx.SendChain(message.Text("ERROR: ", err))
 					continue
 				} else {
-					var msg message.Message = []message.MessageSegment{
-						message.CustomNode(
-							ctx.Event.Sender.Name(),
-							ctx.Event.UserID,
-							"ascii2d搜图结果",
-						)}
+					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
 					for i := 0; i < len(result) && i < 5; i++ {
-						msg = append(
-							msg,
-							message.CustomNode(
-								ctx.Event.Sender.Name(),
-								ctx.Event.UserID,
-								[]message.MessageSegment{
-									message.Image(result[i].Thumb),
-									message.Text(fmt.Sprintf(
-										"标题：%s\n图源：%s\n画师：%s\n画师链接：%s\n图片链接：%s",
-										result[i].Name,
-										result[i].Type,
-										result[i].AuthNm,
-										result[i].Author,
-										result[i].Link,
-									)),
-								},
-							),
+						msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
+							message.Image(result[i].Thumb),
+							message.Text(fmt.Sprintf(
+								"标题：%s\n图源：%s\n画师：%s\n画师链接：%s\n图片链接：%s",
+								result[i].Name,
+								result[i].Type,
+								result[i].AuthNm,
+								result[i].Author,
+								result[i].Link,
+							))),
 						)
 					}
 					if id := ctx.SendGroupForwardMessage(

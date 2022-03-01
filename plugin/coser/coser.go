@@ -32,23 +32,11 @@ func init() {
 			if err != nil {
 				log.Println("err为:", err)
 			}
-			var m message.Message
+
 			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
-			m = append(m,
-				message.CustomNode(
-					ctx.Event.Sender.NickName,
-					ctx.Event.UserID,
-					text,
-				))
+			m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(text))}
 			gjson.Get(helper.BytesToString(data), "data.data").ForEach(func(_, value gjson.Result) bool {
-				m = append(m,
-					message.CustomNode(
-						ctx.Event.Sender.NickName,
-						ctx.Event.UserID,
-						[]message.MessageSegment{
-							message.Image(value.String()),
-						}),
-				)
+				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(value.String())))
 				return true
 			})
 

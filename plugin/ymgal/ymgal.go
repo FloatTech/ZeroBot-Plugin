@@ -64,29 +64,12 @@ func sendYmgal(y ymgal, ctx *zero.Ctx) {
 		ctx.SendChain(message.Text(zero.BotConfig.NickName[0] + "暂时没有这样的图呢"))
 		return
 	}
-	m := message.Message{
-		message.CustomNode(
-			ctx.Event.Sender.NickName,
-			ctx.Event.UserID,
-			y.Title,
-		)}
+	m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(y.Title))}
 	if y.PictureDescription != "" {
-		m = append(m,
-			message.CustomNode(
-				ctx.Event.Sender.NickName,
-				ctx.Event.UserID,
-				y.PictureDescription,
-			))
+		m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(y.PictureDescription)))
 	}
 	for _, v := range strings.Split(y.PictureList, ",") {
-		m = append(m,
-			message.CustomNode(
-				ctx.Event.Sender.NickName,
-				ctx.Event.UserID,
-				[]message.MessageSegment{
-					message.Image(v),
-				}),
-		)
+		m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(v)))
 	}
 	if id := ctx.SendGroupForwardMessage(
 		ctx.Event.GroupID,

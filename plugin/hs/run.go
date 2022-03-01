@@ -77,14 +77,7 @@ func init() {
 					continue
 				}
 			}
-			sk = append(
-				sk,
-				message.CustomNode(
-					zero.BotConfig.NickName[0],
-					ctx.Event.SelfID,
-					[]message.MessageSegment{message.Image("file:///" + cachefile)}, // 图片
-				),
-			)
+			sk = append(sk, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+cachefile)))
 		}
 		if id := ctx.SendGroupForwardMessage(
 			ctx.Event.GroupID,

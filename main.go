@@ -161,7 +161,7 @@ var (
 	url    *string
 	adana  *string
 	prefix *string
-	reg    = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
+	reg    = registry.NewRegReader("reilia.westeurope.cloudapp.azure.com:32664", "fumiama")
 )
 
 func init() {
