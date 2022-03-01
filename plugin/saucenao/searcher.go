@@ -111,9 +111,8 @@ func init() { // 插件主体
 				if result, err := yandex.Yandex(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 				} else {
-					// 返回SauceNAO的结果
 					ctx.SendChain(
-						message.Text("我有把握是这个！"),
+						message.Text("也许是这个？"),
 						message.Text(
 							"\n",
 							"标题：", result.Title, "\n",
@@ -123,8 +122,8 @@ func init() { // 插件主体
 							"直链：", "https://pixivel.moe/detail?id=", result.Pid,
 						),
 					)
-					continue
 				}
+				// 不论结果如何都执行 ascii2d 搜索
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					continue
