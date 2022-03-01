@@ -77,7 +77,13 @@ func init() { // 插件主体
 				} else {
 					url = randapi
 				}
-				setLastMsg(ctx.Event.GroupID, ctx.SendChain(message.Image(url).Add("cache", "0")))
+				setLastMsg(ctx.Event.GroupID, message.NewMessageID(
+					ctx.SendGroupForwardMessage(ctx.Event.GroupID,
+						message.Message{
+							ctxext.FakeSenderForwardNode(ctx,
+								message.Image(url).Add("cache", "0"),
+							),
+						}).Get("message_id").String()))
 				block = false
 			}
 		})
@@ -149,9 +155,19 @@ func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 		}
 	} else {
 		send = func(msg interface{}) int64 {
-			return ctx.Send(append(msg.(message.Message), message.Text(comment))).ID()
+			return int64(ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
+				ctxext.FakeSenderForwardNode(ctx, append(
+					msg.(message.Message),
+					message.Text(comment))...,
+				),
+			}).Get("message_id").Int())
 		}
 	}
 
-	return pool.SendRemoteImageFromPool(b14, u, send, ctxext.GetMessage(ctx))
+	return pool.SendRemoteImageFromPool(b14, u, send, func(i int64) zero.Message {
+		if class > 5 {
+			return ctxext.GetMessage(ctx)(i)
+		}
+		return ctxext.GetFirstMessageInForward(ctx)(i)
+	})
 }

@@ -59,7 +59,7 @@ func init() {
 			err = pool.SendImageFromPool(n, f, func() error {
 				// 下载图片
 				return illust.DownloadToCache(0)
-			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+			}, ctxext.SendFakeForwardToGroup(ctx), ctxext.GetFirstMessageInForward(ctx))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

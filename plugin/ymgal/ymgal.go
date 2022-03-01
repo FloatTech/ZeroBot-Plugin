@@ -2,7 +2,6 @@
 package ymgal
 
 import (
-	"log"
 	"strings"
 
 	"github.com/FloatTech/zbputils/control"
@@ -24,7 +23,6 @@ func init() {
 		defer order.DoneOnExit()()
 		_, _ = file.GetLazyData(dbfile, false, false)
 		gdb = initialize(dbfile)
-		log.Println("[ymgal]加载月幕gal数据库")
 	}()
 	engine.OnRegex("^随机gal(CG|表情包)$").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

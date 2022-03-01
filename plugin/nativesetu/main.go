@@ -54,6 +54,13 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
 				p := "file:///" + setupath + "/" + sc.Path
+				if ctx.Event.GroupID != 0 {
+					ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
+						ctxext.FakeSenderForwardNode(ctx,
+							message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p),
+						)})
+					return
+				}
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
