@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math/rand"
+	"net/url"
 	"strings"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -69,7 +70,7 @@ func init() {
 
 // soutuapi 请求api
 func soutuapi(keyword string) (r resultjson, err error) {
-	data, err := web.GetData("https://copymanga.azurewebsites.net/api/pixivel?" + keyword + "?page=0")
+	data, err := web.GetData("https://copymanga.azurewebsites.net/api/pixivel?" + url.QueryEscape(keyword) + "?page=0")
 	if err != nil {
 		return
 	}
