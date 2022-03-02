@@ -179,7 +179,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 放大图片[图片]
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
     - [x] 运势 | 抽签
-    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘]
+    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录]
 - **睡眠管理** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage`
     - [x] 早安 | 晚安
 - **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
