@@ -3,6 +3,7 @@ package wordle
 
 import (
 	"errors"
+	"fmt"
 	"image/color"
 	"math/rand"
 	"sort"
@@ -40,8 +41,19 @@ var colors = [...]color.RGBA{
 	{219, 219, 219, 255},
 }
 
-var words []string
-var questions []string
+var classdict = map[string]int{
+	"":   5,
+	"五阶": 5,
+	"六阶": 6,
+	"七阶": 7,
+}
+
+type dictionary map[int]struct {
+	dict []string
+	cet4 []string
+}
+
+var words = make(dictionary)
 
 func init() {
 	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
@@ -61,47 +73,50 @@ func init() {
 		}),
 	))
 	go func() {
-		questionsdata, err := file.GetLazyData(en.DataFolder()+"questions.bin", true, true)
-		if err != nil {
-			panic(err)
+		for i := 5; i <= 7; i++ {
+			dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
+			if err != nil {
+				panic(err)
+			}
+			c := strings.Split(string(dc), "\n")
+			sort.Strings(c)
+			dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
+			if err != nil {
+				panic(err)
+			}
+			d := strings.Split(string(dd), "\n")
+			sort.Strings(d)
+			words[i] = struct {
+				dict []string
+				cet4 []string
+			}{d, c}
 		}
-		questionspacks := loadwords(questionsdata)
-		questions = make([]string, len(questionspacks))
-		for i := range questionspacks {
-			questions[i] = questionspacks[i].String()
-		}
-		wordsdata, err := file.GetLazyData(en.DataFolder()+"words.bin", true, true)
-		if err != nil {
-			panic(err)
-		}
-		wordpacks := loadwords(wordsdata)
-		words = make([]string, len(wordpacks))
-		for i := range wordpacks {
-			words[i] = wordpacks[i].String()
-		}
-		sort.Strings(words)
 	}()
-	en.OnRegex(`(个人|团队)猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+	en.OnRegex(`(个人|团队)(五阶|六阶|七阶)?猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			target := questions[rand.Intn(len(questions))]
+			class := classdict[ctx.State["regex_matched"].([]string)[2]]
+			target := words[class].cet4[rand.Intn(len(words[class].cet4))]
 			game := newWordleGame(target)
 			_, img, cl, _ := game("")
-			typ := ctx.State["regex_matched"].([]string)[1]
 			ctx.Send(
 				message.ReplyWithMessage(ctx.Event.MessageID,
 					message.ImageBytes(img),
-					message.Text("你有6次机会猜出单词，单词长度为5，请发送单词"),
+					message.Text("你有", class+1, "次机会猜出单词，单词长度为", class, "，请发送单词"),
 				),
 			)
 			cl()
 			var next *zero.FutureEvent
-			if typ == "个人" {
-				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
+			if ctx.State["regex_matched"].([]string)[1] == "个人" {
+				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
+					zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
 			} else {
-				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-Z]{5}$|^[a-z]{5}$`), zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
+				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
+					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 			}
 			var win bool
 			var err error
+			recv, cancel := next.Repeat()
+			defer cancel()
 			for {
 				select {
 				case <-time.After(time.Second * 120):
@@ -111,7 +126,7 @@ func init() {
 						),
 					)
 					return
-				case e := <-next.Next():
+				case e := <-recv:
 					win, img, cl, err = game(e.Message.String())
 					switch {
 					case win:
@@ -158,6 +173,7 @@ func init() {
 }
 
 func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
+	var class = len(target)
 	record := make([]string, 0, len(target)+1)
 	return func(s string) (win bool, data []byte, cl func(), err error) {
 		if s != "" {
@@ -169,8 +185,8 @@ func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
 					err = errLengthNotEnough
 					return
 				}
-				i := sort.SearchStrings(words, s)
-				if i >= len(words) || words[i] != s {
+				i := sort.SearchStrings(words[class].dict, s)
+				if i >= len(words[class].dict) || words[class].dict[i] != s {
 					err = errUnknownWord
 					return
 				}
@@ -181,13 +197,14 @@ func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
 			}
 		}
 		var side = 20
-		ctx := gg.NewContext((side+2)*5+26, (side+2)*6+26)
+		var space = 10
+		ctx := gg.NewContext((side+4)*class+space*2-4, (side+4)*(class+1)+space*2-4)
 		ctx.SetColor(color.RGBA{255, 255, 255, 255})
 		ctx.Clear()
-		for i := 0; i < len(target)+1; i++ {
-			for j := 0; j < len(target); j++ {
+		for i := 0; i < class+1; i++ {
+			for j := 0; j < class; j++ {
 				if len(record) > i {
-					ctx.DrawRectangle(float64(10+j*(side+4)), float64(10+i*(side+4)), float64(side), float64(side))
+					ctx.DrawRectangle(float64(space+j*(side+4)), float64(space+i*(side+4)), float64(side), float64(side))
 					switch {
 					case record[i][j] == target[j]:
 						ctx.SetColor(colors[match])
