@@ -155,12 +155,12 @@ func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 		}
 	} else {
 		send = func(msg interface{}) int64 {
-			return int64(ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
+			return ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
 				ctxext.FakeSenderForwardNode(ctx, append(
 					msg.(message.Message),
 					message.Text(comment))...,
 				),
-			}).Get("message_id").Int())
+			}).Get("message_id").Int()
 		}
 	}
 
