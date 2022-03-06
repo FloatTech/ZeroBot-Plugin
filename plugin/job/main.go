@@ -16,6 +16,7 @@ import (
 	"github.com/fumiama/cron"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -23,6 +24,7 @@ var (
 	lo      map[int64]vevent.Loop
 	entries map[int64]cron.EntryID // id entryid
 	mu      sync.Mutex
+	limit   = rate.NewLimiter(time.Second*10, 5)
 )
 
 func init() {
@@ -107,7 +109,9 @@ func islonotnil(ctx *zero.Ctx) bool {
 
 func inject(bot int64, response []byte) func() {
 	return func() {
-		lo[bot].Echo(response)
+		if limit.Acquire() {
+			lo[bot].Echo(response)
+		}
 	}
 }
 
