@@ -76,7 +76,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"             // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"   // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"         // 煎蛋网无聊图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/job"            // 炉石
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/job"            // 定时指令触发器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"       // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"        // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"           // 摸鱼
