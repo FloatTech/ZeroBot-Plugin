@@ -10,6 +10,7 @@ import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/vevent"
 	"github.com/fumiama/cron"
@@ -64,7 +65,7 @@ func init() {
 		logrus.Infoln("[job]本地环回初始化完成")
 		process.GlobalInitMutex.Unlock()
 	}()
-	en.OnRegex(`^记录在"(.*)"触发的指令$`, zero.AdminPermission, islonotnil, func(ctx *zero.Ctx) bool {
+	en.OnRegex(`^记录在"(.*)"触发的指令$`, ctxext.UserOrGrpAdmin, islonotnil, func(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("您的下一条指令将被记录，在", ctx.State["regex_matched"].([]string)[1], "时触发"))
 		select {
 		case <-time.After(time.Second * 120):
@@ -89,7 +90,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功!"))
 	})
-	en.OnRegex(`^取消在"(.*)"触发的指令$`, zero.AdminPermission, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消在"(.*)"触发的指令$`, ctxext.UserOrGrpAdmin, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		cron := ctx.State["regex_matched"].([]string)[1]
 		err := rmcmd(ctx.Event.SelfID, cron)
 		if err != nil {
