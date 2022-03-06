@@ -66,7 +66,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /服务列表
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
-- **定时指令触发器**
+- **定时指令触发器** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/job"`
     - [x] 记录在"cron"触发的指令
     - [x] 取消在"cron"触发的指令
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
