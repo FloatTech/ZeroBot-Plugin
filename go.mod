@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/FloatTech/AnimeAPI v1.3.1-0.20220307053346-aa76aec4b635
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.3.1-0.20220307063102-42185420359d
+	github.com/FloatTech/zbputils v1.3.1-0.20220307143543-1139754cacdf
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
@@ -21,7 +21,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.22.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.0
-	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220304040741-8e53f210618c
+	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220307142419-a1b34e6da007
 	golang.org/x/image v0.0.0-20220302094943-723b81ca9867
 )
 

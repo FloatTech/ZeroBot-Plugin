@@ -71,6 +71,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 取消在"cron"触发的指令
     - [x] 查看所有触发指令
     - [x] 查看在"cron"触发的指令
+    - [x] 注入指令结果：任意指令
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -120,6 +121,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
     - [x] > runcode [language] help
     - [x] > runcode [language] [code block]
+    - [x] > runcoderaw [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]

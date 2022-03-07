@@ -2,8 +2,10 @@
 package job
 
 import (
+	"encoding/json"
 	"hash/crc64"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -30,7 +32,7 @@ var (
 func init() {
 	en := control.Register("job", order.AcquirePrio(), &control.Options{
 		DisableOnDefault:  false,
-		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令",
+		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令\n- 注入指令结果：任意指令",
 		PrivateDataFolder: "job",
 	})
 	db.DBPath = en.DataFolder() + "job.db"
@@ -143,6 +145,34 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Text(lst))
+	})
+	en.OnPrefix("注入指令结果：", ctxext.UserOrGrpAdmin, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		command := ctx.State["args"].(string)
+		if command != "" {
+			vevent.NewLoopOf(vevent.NewAPICallerHook(ctx, func(rsp zero.APIResponse, err error) {
+				if err == nil {
+					logrus.Debugln("[job] CallerHook returned")
+					id := message.NewMessageID(rsp.Data.Get("message_id").String())
+					msg := ctx.GetMessage(id)
+					ctx.Event.NativeMessage = json.RawMessage("\"" + msg.Elements.String() + "\"")
+					ctx.Event.RawMessageID = json.RawMessage(msg.MessageId.String())
+					ctx.Event.RawMessage = msg.Elements.String()
+					time.Sleep(time.Second * 5) // 防止风控
+					ctx.Event.Time = time.Now().Unix()
+					vev, cl := binary.OpenWriterF(func(w *binary.Writer) {
+						err = json.NewEncoder(w).Encode(ctx.Event)
+					})
+					if err != nil {
+						cl()
+						ctx.SendChain(message.Text("ERROR:", err))
+						return
+					}
+					logrus.Debugln("[job] inject:", binary.BytesToString(vev))
+					inject(ctx.Event.SelfID, vev)()
+					cl()
+				}
+			})).Echo([]byte(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "\"注入指令结果：", "\"")))
+		}
 	})
 }
 
