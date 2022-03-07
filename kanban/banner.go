@@ -14,10 +14,12 @@ var (
 		"* Copyright © 2020 - 2022 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
+	// Banner ...
 	Banner = strings.Join(info[:], "\n")
 	reg    = registry.NewRegReader("reilia.westeurope.cloudapp.azure.com:32664", "fumiama")
 )
 
+// PrintBanner ...
 func PrintBanner() {
 	fmt.Print(
 		"\n======================[ZeroBot-Plugin]======================",
@@ -28,6 +30,7 @@ func PrintBanner() {
 	)
 }
 
+// Kanban ...
 func Kanban() string {
 	err := reg.Connect()
 	if err != nil {

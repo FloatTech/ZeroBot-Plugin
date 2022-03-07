@@ -55,7 +55,7 @@ func init() {
 			if err != nil {
 				panic(err)
 			}
-			db.FindFor(ids, c, "", func() error {
+			_ = db.FindFor(ids, c, "", func() error {
 				mu.Lock()
 				defer mu.Unlock()
 				eid, err := process.CronTab.AddFunc(c.Cron, inject(id, []byte(c.Cmd)))
@@ -216,6 +216,8 @@ func rmcmd(bot int64, cron string) error {
 		}
 		return nil
 	})
-	db.Del(bots, "WHERE cron='"+cron+"'")
-	return err
+	if err != nil {
+		return err
+	}
+	return db.Del(bots, "WHERE cron='"+cron+"'")
 }
