@@ -5,13 +5,13 @@ go 1.17
 require (
 	github.com/FloatTech/AnimeAPI v1.3.1-0.20220307053346-aa76aec4b635
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.3.1-0.20220307060719-f59122ebcdb5
+	github.com/FloatTech/zbputils v1.3.1-0.20220307063102-42185420359d
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.3.0
-	github.com/fumiama/go-registry v0.1.0
+	github.com/fumiama/go-registry v0.1.1
 	github.com/fumiama/gofastTEA v0.0.9
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/sqlite3 v1.14.6
