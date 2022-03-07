@@ -69,6 +69,8 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **定时指令触发器** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/job"`
     - [x] 记录在"cron"触发的指令
     - [x] 取消在"cron"触发的指令
+    - [x] 查看所有触发指令
+    - [x] 查看在"cron"触发的指令
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]

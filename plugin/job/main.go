@@ -24,13 +24,13 @@ var (
 	lo      map[int64]vevent.Loop
 	entries map[int64]cron.EntryID // id entryid
 	mu      sync.Mutex
-	limit   = rate.NewLimiter(time.Second*10, 5)
+	limit   = rate.NewLimiter(time.Second*2, 1)
 )
 
 func init() {
 	en := control.Register("job", order.AcquirePrio(), &control.Options{
 		DisableOnDefault:  false,
-		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令",
+		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令",
 		PrivateDataFolder: "job",
 	})
 	db.DBPath = en.DataFolder() + "job.db"
@@ -100,6 +100,49 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Text("成功!"))
+	})
+	en.OnFullMatch("查看所有触发指令", zero.SuperUserPermission, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		c := &cmd{}
+		ids := strconv.FormatInt(ctx.Event.SelfID, 36)
+		mu.Lock()
+		defer mu.Unlock()
+		n, err := db.Count(ids)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		lst := make([]string, 0, n)
+		err = db.FindFor(ids, c, "GROUP BY cron", func() error {
+			lst = append(lst, c.Cron+"\n")
+			return nil
+		})
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Text(lst))
+	})
+	en.OnRegex(`^查看在"(.*)"触发的指令$`, zero.SuperUserPermission, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		c := &cmd{}
+		ids := strconv.FormatInt(ctx.Event.SelfID, 36)
+		cron := ctx.State["regex_matched"].([]string)[1]
+		mu.Lock()
+		defer mu.Unlock()
+		n, err := db.Count(ids)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		lst := make([]string, 0, n)
+		err = db.FindFor(ids, c, "WHERE cron='"+cron+"'", func() error {
+			lst = append(lst, c.Cmd+"\n")
+			return nil
+		})
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Text(lst))
 	})
 }
 
