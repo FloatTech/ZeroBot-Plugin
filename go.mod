@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/FloatTech/AnimeAPI v1.3.1-0.20220307053346-aa76aec4b635
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.3.1-0.20220307055422-07821031c13b
+	github.com/FloatTech/zbputils v1.3.1-0.20220307060009-af2004fa27b4
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
