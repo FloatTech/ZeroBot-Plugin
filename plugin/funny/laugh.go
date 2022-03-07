@@ -34,7 +34,6 @@ func init() {
 	go func() {
 		dbpath := en.DataFolder()
 		db.DBPath = dbpath + "jokes.db"
-		defer order.DoneOnExit()()
 		_, err := file.GetLazyData(db.DBPath, false, true)
 		if err != nil {
 			panic(err)

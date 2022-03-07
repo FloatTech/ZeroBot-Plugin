@@ -23,7 +23,6 @@ func init() {
 		PublicDataFolder: "Chat",
 	})
 	go func() {
-		defer order.DoneOnExit()()
 		data, err := file.GetLazyData(engine.DataFolder()+"kimoi.json", true, true)
 		if err != nil {
 			panic(err)

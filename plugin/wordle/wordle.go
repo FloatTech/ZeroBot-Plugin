@@ -73,7 +73,6 @@ func init() {
 		}),
 	))
 	go func() {
-		defer order.DoneOnExit()()
 		for i := 5; i <= 7; i++ {
 			dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
 			if err != nil {

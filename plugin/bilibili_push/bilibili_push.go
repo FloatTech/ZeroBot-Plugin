@@ -75,7 +75,6 @@ func init() {
 	go func() {
 		dbpath := en.DataFolder()
 		dbfile := dbpath + "push.db"
-		defer order.DoneOnExit()()
 		bdb = initialize(dbfile)
 		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()

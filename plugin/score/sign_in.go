@@ -43,7 +43,6 @@ func init() {
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		defer order.DoneOnExit()()
 		os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {

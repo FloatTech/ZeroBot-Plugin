@@ -23,7 +23,6 @@ func init() {
 	go func() {
 		datapath := en.DataFolder()
 		jsonfile := datapath + "rate.json"
-		defer order.DoneOnExit()()
 		area := make(rate, 226)
 		err := load(&area, jsonfile)
 		if err != nil {

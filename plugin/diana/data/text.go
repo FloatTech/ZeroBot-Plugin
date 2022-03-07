@@ -7,7 +7,6 @@ import (
 
 	sql "github.com/FloatTech/sqlite"
 	binutils "github.com/FloatTech/zbputils/binary"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/sirupsen/logrus"
 )
@@ -21,7 +20,6 @@ type text struct {
 
 // LoadText 加载小作文
 func LoadText(dbfile string) {
-	defer order.DoneOnExit()()
 	_, err := file.GetLazyData(dbfile, false, false)
 	db.DBPath = dbfile
 	if err != nil {

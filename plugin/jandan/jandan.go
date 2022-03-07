@@ -32,7 +32,6 @@ func init() {
 	go func() {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "pics.db"
-		defer order.DoneOnExit()()
 		_, _ = file.GetLazyData(db.DBPath, false, false)
 		err := db.Create("picture", &picture{})
 		if err != nil {

@@ -21,7 +21,6 @@ func init() {
 	go func() {
 		dbpath := en.DataFolder()
 		db.DBPath = dbpath + "cxh.db"
-		defer order.DoneOnExit()()
 		// os.RemoveAll(dbpath)
 		_, _ = file.GetLazyData(db.DBPath, false, true)
 		err := db.Create("pinyin", &pinyin{})

@@ -59,7 +59,6 @@ func init() {
 		PublicDataFolder: "Fortune",
 	})
 	go func() {
-		defer order.DoneOnExit()()
 		for i, s := range table {
 			index[s] = uint8(i)
 		}

@@ -66,7 +66,6 @@ func init() { // 插件主体
 	})
 
 	go func() {
-		defer order.DoneOnExit()()
 		db.DBPath = engine.DataFolder() + "config.db"
 		clock = timer.NewClock(db)
 		err := db.Create("welcome", &welcome{})

@@ -33,7 +33,6 @@ func init() { // 插件主体
 	go func() {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "kuji.db"
-		defer order.DoneOnExit()()
 		_, _ = file.GetLazyData(db.DBPath, false, true)
 		err := db.Create("kuji", &kuji{})
 		if err != nil {
