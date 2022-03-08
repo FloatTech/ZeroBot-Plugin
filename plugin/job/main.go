@@ -17,24 +17,26 @@ import (
 	"github.com/FloatTech/zbputils/vevent"
 	"github.com/fumiama/cron"
 	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
-	lo      map[int64]vevent.Loop
-	entries map[int64]cron.EntryID // id entryid
-	mu      sync.Mutex
-	limit   = rate.NewLimiter(time.Second*2, 1)
+	lo       map[int64]vevent.Loop
+	entries  = map[int64]cron.EntryID{} // id entryid
+	matchers = map[int64]*zero.Matcher{}
+	mu       sync.Mutex
+	limit    = rate.NewLimiter(time.Second*2, 1)
+	en       = control.Register("job", order.AcquirePrio(), &control.Options{
+		DisableOnDefault:  false,
+		Help:              "定时指令触发器\n- 记录以\"完全匹配关键词\"触发的指令\n- 取消以\"完全匹配关键词\"触发的指令\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令\n- 查看以\"完全匹配关键词\"触发的指令\n- 注入指令结果：任意指令\n- 执行指令：任意指令",
+		PrivateDataFolder: "job",
+	})
 )
 
 func init() {
-	en := control.Register("job", order.AcquirePrio(), &control.Options{
-		DisableOnDefault:  false,
-		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令\n- 注入指令结果：任意指令\n- 执行指令：任意指令",
-		PrivateDataFolder: "job",
-	})
 	db.DBPath = en.DataFolder() + "job.db"
 	err := db.Open()
 	if err != nil {
@@ -44,7 +46,6 @@ func init() {
 		process.GlobalInitMutex.Lock()
 		process.SleepAbout1sTo2s()
 		lo = make(map[int64]vevent.Loop, len(zero.BotConfig.Driver))
-		entries = map[int64]cron.EntryID{}
 		for _, drv := range zero.BotConfig.Driver {
 			id := drv.SelfID()
 			ids := strconv.FormatInt(id, 36)
@@ -58,6 +59,12 @@ func init() {
 			_ = db.FindFor(ids, c, "", func() error {
 				mu.Lock()
 				defer mu.Unlock()
+				if strings.HasPrefix(c.Cron, "fm:") {
+					m := en.OnFullMatch(c.Cron[3:] /* skip fm: */).SetBlock(true)
+					m.Handle(generalhandler(c))
+					matchers[c.ID] = getmatcher(m)
+					return nil
+				}
 				eid, err := process.CronTab.AddFunc(c.Cron, inject(id, []byte(c.Cmd)))
 				if err != nil {
 					return err
@@ -69,17 +76,7 @@ func init() {
 		logrus.Infoln("[job]本地环回初始化完成")
 		process.GlobalInitMutex.Unlock()
 	}()
-	en.OnRegex(`^记录在"(.*)"触发的指令$`, ctxext.UserOrGrpAdmin, islonotnil, func(ctx *zero.Ctx) bool {
-		ctx.SendChain(message.Text("您的下一条指令将被记录，在", ctx.State["regex_matched"].([]string)[1], "时触发"))
-		select {
-		case <-time.After(time.Second * 120):
-			ctx.SendChain(message.Text("指令记录超时"))
-			return false
-		case e := <-zero.NewFutureEvent("message", 0, false, zero.CheckUser(ctx.Event.UserID)).Next():
-			ctx.State["job_raw_event"] = e.RawEvent.Raw
-			return true
-		}
-	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^记录在"(.*)"触发的指令$`, ctxext.UserOrGrpAdmin, islonotnil, isfirstregmatchnotnil, logevent).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		cron := ctx.State["regex_matched"].([]string)[1]
 		command := ctx.State["job_raw_event"].(string)
 		c := &cmd{
@@ -94,9 +91,34 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功!"))
 	})
-	en.OnRegex(`^取消在"(.*)"触发的指令$`, ctxext.UserOrGrpAdmin, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^记录以"(.*)"触发的指令$`, zero.SuperUserPermission, islonotnil, isfirstregmatchnotnil, logevent).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		cron := "fm:" + ctx.State["regex_matched"].([]string)[1]
+		command := ctx.State["job_new_event"].(gjson.Result).Get("message").Raw
+		logrus.Debugln("[job] get cmd:", command)
+		c := &cmd{
+			ID:   idof(cron, command),
+			Cron: cron,
+			Cmd:  command,
+		}
+		err := registercmd(ctx.Event.SelfID, c)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	en.OnRegex(`^取消在"(.*)"触发的指令$`, ctxext.UserOrGrpAdmin, islonotnil, isfirstregmatchnotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		cron := ctx.State["regex_matched"].([]string)[1]
-		err := rmcmd(ctx.Event.SelfID, cron)
+		err := rmcmd(ctx.Event.SelfID, ctx.Event.UserID, cron)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	en.OnRegex(`^取消以"(.*)"触发的指令$`, zero.SuperUserPermission, islonotnil, isfirstregmatchnotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		cron := "fm:" + ctx.State["regex_matched"].([]string)[1]
+		err := delcmd(ctx.Event.SelfID, cron)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -124,10 +146,32 @@ func init() {
 		}
 		ctx.SendChain(message.Text(lst))
 	})
-	en.OnRegex(`^查看在"(.*)"触发的指令$`, zero.SuperUserPermission, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^查看在"(.*)"触发的指令$`, zero.SuperUserPermission, islonotnil, isfirstregmatchnotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c := &cmd{}
 		ids := strconv.FormatInt(ctx.Event.SelfID, 36)
 		cron := ctx.State["regex_matched"].([]string)[1]
+		mu.Lock()
+		defer mu.Unlock()
+		n, err := db.Count(ids)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		lst := make([]string, 0, n)
+		err = db.FindFor(ids, c, "WHERE cron='"+cron+"'", func() error {
+			lst = append(lst, c.Cmd+"\n")
+			return nil
+		})
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Text(lst))
+	})
+	en.OnRegex(`^查看以"(.*)"触发的指令$`, zero.SuperUserPermission, islonotnil, isfirstregmatchnotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		c := &cmd{}
+		ids := strconv.FormatInt(ctx.Event.SelfID, 36)
+		cron := "fm:" + ctx.State["regex_matched"].([]string)[1]
 		mu.Lock()
 		defer mu.Unlock()
 		n, err := db.Count(ids)
@@ -189,6 +233,10 @@ func islonotnil(ctx *zero.Ctx) bool {
 	return len(lo) > 0
 }
 
+func isfirstregmatchnotnil(ctx *zero.Ctx) bool {
+	return ctx.State["regex_matched"].([]string)[1] != ""
+}
+
 func inject(bot int64, response []byte) func() {
 	return func() {
 		if limit.Acquire() {
@@ -212,23 +260,88 @@ func addcmd(bot int64, c *cmd) error {
 	return db.Insert(strconv.FormatInt(bot, 36), c)
 }
 
-func rmcmd(bot int64, cron string) error {
+func registercmd(bot int64, c *cmd) error {
+	mu.Lock()
+	defer mu.Unlock()
+	m := en.OnFullMatch(c.Cron[3:] /* skip fm: */).SetBlock(true)
+	m.Handle(generalhandler(c))
+	matchers[c.ID] = getmatcher(m)
+	return db.Insert(strconv.FormatInt(bot, 36), c)
+}
+
+func generalhandler(c *cmd) zero.Handler {
+	return func(ctx *zero.Ctx) {
+		ctx.Event.NativeMessage = json.RawMessage(c.Cmd) // c.Cmd only have message
+		ctx.Event.Time = time.Now().Unix()
+		var err error
+		vev, cl := binary.OpenWriterF(func(w *binary.Writer) {
+			err = json.NewEncoder(w).Encode(ctx.Event)
+		})
+		if err != nil {
+			cl()
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		logrus.Debugln("[job] inject:", binary.BytesToString(vev))
+		inject(ctx.Event.SelfID, vev)()
+		cl()
+	}
+}
+
+func rmcmd(bot, caller int64, cron string) error {
 	c := &cmd{}
 	mu.Lock()
 	defer mu.Unlock()
 	bots := strconv.FormatInt(bot, 36)
+	e := new(zero.Event)
+	var delcmd []string
 	err := db.FindFor(bots, c, "WHERE cron='"+cron+"'", func() error {
+		err := json.Unmarshal(binary.StringToBytes(c.Cmd), e)
+		if err != nil {
+			return err
+		}
+		if e.UserID != caller {
+			return nil
+		}
 		eid, ok := entries[c.ID]
 		if ok {
 			process.CronTab.Remove(eid)
 			delete(entries, c.ID)
+			delcmd = append(delcmd, "id="+strconv.FormatInt(c.ID, 10))
 		}
 		return nil
 	})
 	if err != nil {
 		return err
 	}
-	return db.Del(bots, "WHERE cron='"+cron+"'")
+	if len(delcmd) > 0 {
+		return db.Del(bots, "WHERE "+strings.Join(delcmd, " or "))
+	}
+	return nil
+}
+
+func delcmd(bot int64, cron string) error {
+	c := &cmd{}
+	mu.Lock()
+	defer mu.Unlock()
+	bots := strconv.FormatInt(bot, 36)
+	var delcmd []string
+	err := db.FindFor(bots, c, "WHERE cron='"+cron+"'", func() error {
+		m, ok := matchers[c.ID]
+		if ok {
+			m.Delete()
+			delete(matchers, c.ID)
+			delcmd = append(delcmd, "id="+strconv.FormatInt(c.ID, 10))
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	if len(delcmd) > 0 {
+		return db.Del(bots, "WHERE "+strings.Join(delcmd, " or "))
+	}
+	return nil
 }
 
 func parseArgs(ctx *zero.Ctx) bool {
@@ -259,15 +372,18 @@ func parseArgs(ctx *zero.Ctx) bool {
 		}
 		arr, ok := args[arg]
 		if !ok {
+			var id message.MessageID
 			if msg == "" {
-				ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入参数", arg))
+				id = ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入参数", arg))
 			} else {
-				ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", arg, "] ", msg))
+				id = ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", arg, "] ", msg))
 			}
 			select {
 			case <-time.After(time.Second * 120):
-				ctx.SendChain(message.Text("参数读取超时"))
-				return false
+				ctx.Send(message.ReplyWithMessage(id, message.Text("参数读取超时")))
+				if msg[0] != '?' {
+					return false
+				}
 			case e := <-zero.NewFutureEvent("message", 0, true, zero.CheckUser(ctx.Event.UserID)).Next():
 				args[arg] = e.Message.String()
 				arr = args[arg]
@@ -279,4 +395,17 @@ func parseArgs(ctx *zero.Ctx) bool {
 		ctx.Event.RawEvent.Raw = ctx.Event.RawEvent.Raw[:start] + arr + ctx.Event.RawEvent.Raw[numend+1:]
 	}
 	return true
+}
+
+func logevent(ctx *zero.Ctx) bool {
+	ctx.SendChain(message.Text("您的下一条指令将被记录，在", ctx.State["regex_matched"].([]string)[1], "时触发"))
+	select {
+	case <-time.After(time.Second * 120):
+		ctx.SendChain(message.Text("指令记录超时"))
+		return false
+	case e := <-zero.NewFutureEvent("message", 0, true, zero.CheckUser(ctx.Event.UserID)).Next():
+		ctx.State["job_raw_event"] = e.RawEvent.Raw
+		ctx.State["job_new_event"] = e.RawEvent
+		return true
+	}
 }
