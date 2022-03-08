@@ -153,6 +153,10 @@ func init() {
 				if err == nil {
 					logrus.Debugln("[job] CallerHook returned")
 					id := message.NewMessageID(rsp.Data.Get("message_id").String())
+					if id.ID() == 0 {
+						ctx.SendChain(message.Text("ERROR:未获取到返回结果"))
+						return
+					}
 					msg := ctx.GetMessage(id)
 					ctx.Event.NativeMessage = json.RawMessage("\"" + msg.Elements.String() + "\"")
 					ctx.Event.RawMessageID = json.RawMessage(msg.MessageId.String())
@@ -171,7 +175,7 @@ func init() {
 					inject(ctx.Event.SelfID, vev)()
 					cl()
 				}
-			})).Echo([]byte(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "\"注入指令结果：", "\"")))
+			})).Echo([]byte(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "注入指令结果：", "")))
 		}
 	})
 }

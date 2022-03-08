@@ -72,6 +72,20 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 查看所有触发指令
     - [x] 查看在"cron"触发的指令
     - [x] 注入指令结果：任意指令
+    - 一些示例
+> 定时指令触发器编程实现每日9:30推送摸鱼人日历示例
+```
+记录在"30 9 * * *"触发的指令
+run[CQ:image,file=https://api.vvhan.com/api/moyu]
+```
+> 定时指令触发器编程实现每日12:00以1/2概率执行coser指令
+```python
+记录在"0 12 * * *"触发的指令
+注入指令结果：>runcoderaw py
+from random import random
+if random() > 0.5: print('coser')
+else: print('今天没有coser哦~')
+```
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
