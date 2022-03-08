@@ -146,37 +146,36 @@ func init() {
 		}
 		ctx.SendChain(message.Text(lst))
 	})
-	en.OnPrefix("注入指令结果：", ctxext.UserOrGrpAdmin, islonotnil).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		command := ctx.State["args"].(string)
-		if command != "" {
-			vevent.NewLoopOf(vevent.NewAPICallerHook(ctx, func(rsp zero.APIResponse, err error) {
-				if err == nil {
-					logrus.Debugln("[job] CallerHook returned")
-					id := message.NewMessageID(rsp.Data.Get("message_id").String())
-					if id.ID() == 0 {
-						ctx.SendChain(message.Text("ERROR:未获取到返回结果"))
-						return
-					}
-					msg := ctx.GetMessage(id)
-					ctx.Event.NativeMessage = json.RawMessage("\"" + msg.Elements.String() + "\"")
-					ctx.Event.RawMessageID = json.RawMessage(msg.MessageId.String())
-					ctx.Event.RawMessage = msg.Elements.String()
-					time.Sleep(time.Second * 5) // 防止风控
-					ctx.Event.Time = time.Now().Unix()
-					vev, cl := binary.OpenWriterF(func(w *binary.Writer) {
-						err = json.NewEncoder(w).Encode(ctx.Event)
-					})
-					if err != nil {
-						cl()
-						ctx.SendChain(message.Text("ERROR:", err))
-						return
-					}
-					logrus.Debugln("[job] inject:", binary.BytesToString(vev))
-					inject(ctx.Event.SelfID, vev)()
-					cl()
+	en.OnPrefix("注入指令结果：", ctxext.UserOrGrpAdmin, islonotnil, func(ctx *zero.Ctx) bool {
+		return ctx.State["args"].(string) != ""
+	}, parseArgs).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		vevent.NewLoopOf(vevent.NewAPICallerHook(ctx, func(rsp zero.APIResponse, err error) {
+			if err == nil {
+				logrus.Debugln("[job] CallerHook returned")
+				id := message.NewMessageID(rsp.Data.Get("message_id").String())
+				if id.ID() == 0 {
+					ctx.SendChain(message.Text("ERROR:未获取到返回结果"))
+					return
 				}
-			})).Echo([]byte(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "注入指令结果：", "")))
-		}
+				msg := ctx.GetMessage(id)
+				ctx.Event.NativeMessage = json.RawMessage("\"" + msg.Elements.String() + "\"")
+				ctx.Event.RawMessageID = json.RawMessage(msg.MessageId.String())
+				ctx.Event.RawMessage = msg.Elements.String()
+				time.Sleep(time.Second * 5) // 防止风控
+				ctx.Event.Time = time.Now().Unix()
+				vev, cl := binary.OpenWriterF(func(w *binary.Writer) {
+					err = json.NewEncoder(w).Encode(ctx.Event)
+				})
+				if err != nil {
+					cl()
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				logrus.Debugln("[job] inject:", binary.BytesToString(vev))
+				inject(ctx.Event.SelfID, vev)()
+				cl()
+			}
+		})).Echo([]byte(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "注入指令结果：", "")))
 	})
 }
 
@@ -224,4 +223,44 @@ func rmcmd(bot int64, cron string) error {
 		return err
 	}
 	return db.Del(bots, "WHERE cron='"+cron+"'")
+}
+
+func parseArgs(ctx *zero.Ctx) bool {
+	if !strings.Contains(ctx.State["args"].(string), "?::") {
+		return true
+	}
+	args := make(map[int]string)
+	for strings.Contains(ctx.Event.RawEvent.Raw, "?::") {
+		start := strings.Index(ctx.Event.RawEvent.Raw, "?::")
+		msgend := strings.Index(ctx.Event.RawEvent.Raw[start+3:], "::") + start + 3
+		numend := strings.Index(ctx.Event.RawEvent.Raw[msgend+2:], "!") + msgend + 2
+		logrus.Debugln("[job]", start, msgend, numend)
+		msg := ctx.Event.RawEvent.Raw[start+3 : msgend]
+		arg, err := strconv.Atoi(ctx.Event.RawEvent.Raw[msgend+2 : numend])
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		arr, ok := args[arg]
+		if !ok {
+			if msg == "" {
+				ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入参数", arg))
+			} else {
+				ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", arg, "] ", msg))
+			}
+			select {
+			case <-time.After(time.Second * 120):
+				ctx.SendChain(message.Text("参数读取超时"))
+				return false
+			case e := <-zero.NewFutureEvent("message", 0, false, zero.CheckUser(ctx.Event.UserID)).Next():
+				args[arg] = e.Message.String()
+				ctx.SendChain(message.Reply(e.MessageID), message.Text("已记录"))
+				process.SleepAbout1sTo2s()
+				arr = args[arg]
+			}
+		}
+		ctx.Event.RawEvent.Raw = ctx.Event.RawEvent.Raw[:start] + arr + ctx.Event.RawEvent.Raw[numend+1:]
+	}
+	ctx.SendChain(message.Text("指令读取完成"))
+	return true
 }
