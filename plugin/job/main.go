@@ -261,6 +261,5 @@ func parseArgs(ctx *zero.Ctx) bool {
 		}
 		ctx.Event.RawEvent.Raw = ctx.Event.RawEvent.Raw[:start] + arr + ctx.Event.RawEvent.Raw[numend+1:]
 	}
-	ctx.SendChain(message.Text("指令读取完成"))
 	return true
 }
