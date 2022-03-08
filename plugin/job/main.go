@@ -32,7 +32,7 @@ var (
 func init() {
 	en := control.Register("job", order.AcquirePrio(), &control.Options{
 		DisableOnDefault:  false,
-		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令\n- 注入指令结果：任意指令",
+		Help:              "定时指令触发器\n- 记录在\"cron\"触发的指令\n- 取消在\"cron\"触发的指令\n- 查看所有触发指令\n- 查看在\"cron\"触发的指令\n- 注入指令结果：任意指令\n- 执行指令：任意指令",
 		PrivateDataFolder: "job",
 	})
 	db.DBPath = en.DataFolder() + "job.db"
@@ -146,6 +146,11 @@ func init() {
 		}
 		ctx.SendChain(message.Text(lst))
 	})
+	en.OnPrefix("执行指令：", ctxext.UserOrGrpAdmin, islonotnil, func(ctx *zero.Ctx) bool {
+		return ctx.State["args"].(string) != ""
+	}, parseArgs).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		inject(ctx.Event.SelfID, binary.StringToBytes(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "执行指令：", "")))()
+	})
 	en.OnPrefix("注入指令结果：", ctxext.UserOrGrpAdmin, islonotnil, func(ctx *zero.Ctx) bool {
 		return ctx.State["args"].(string) != ""
 	}, parseArgs).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -163,6 +168,7 @@ func init() {
 				ctx.Event.RawMessage = msg.Elements.String()
 				time.Sleep(time.Second * 5) // 防止风控
 				ctx.Event.Time = time.Now().Unix()
+				ctx.DeleteMessage(id)
 				vev, cl := binary.OpenWriterF(func(w *binary.Writer) {
 					err = json.NewEncoder(w).Encode(ctx.Event)
 				})
@@ -175,7 +181,7 @@ func init() {
 				inject(ctx.Event.SelfID, vev)()
 				cl()
 			}
-		})).Echo([]byte(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "注入指令结果：", "")))
+		})).Echo(binary.StringToBytes(strings.ReplaceAll(ctx.Event.RawEvent.Raw, "注入指令结果：", "")))
 	})
 }
 
@@ -262,11 +268,12 @@ func parseArgs(ctx *zero.Ctx) bool {
 			case <-time.After(time.Second * 120):
 				ctx.SendChain(message.Text("参数读取超时"))
 				return false
-			case e := <-zero.NewFutureEvent("message", 0, false, zero.CheckUser(ctx.Event.UserID)).Next():
+			case e := <-zero.NewFutureEvent("message", 0, true, zero.CheckUser(ctx.Event.UserID)).Next():
 				args[arg] = e.Message.String()
+				arr = args[arg]
+				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Reply(e.MessageID), message.Text("已记录"))
 				process.SleepAbout1sTo2s()
-				arr = args[arg]
 			}
 		}
 		ctx.Event.RawEvent.Raw = ctx.Event.RawEvent.Raw[:start] + arr + ctx.Event.RawEvent.Raw[numend+1:]
