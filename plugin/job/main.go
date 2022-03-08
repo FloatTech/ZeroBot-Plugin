@@ -232,8 +232,18 @@ func parseArgs(ctx *zero.Ctx) bool {
 	args := make(map[int]string)
 	for strings.Contains(ctx.Event.RawEvent.Raw, "?::") {
 		start := strings.Index(ctx.Event.RawEvent.Raw, "?::")
-		msgend := strings.Index(ctx.Event.RawEvent.Raw[start+3:], "::") + start + 3
-		numend := strings.Index(ctx.Event.RawEvent.Raw[msgend+2:], "!") + msgend + 2
+		msgend := strings.Index(ctx.Event.RawEvent.Raw[start+3:], "::")
+		if msgend < 0 {
+			ctx.SendChain(message.Text("ERROR:找不到结束的::"))
+			return false
+		}
+		msgend += start + 3
+		numend := strings.Index(ctx.Event.RawEvent.Raw[msgend+2:], "!")
+		if numend <= 0 {
+			ctx.SendChain(message.Text("ERROR:找不到结束的!"))
+			return false
+		}
+		numend += msgend + 2
 		logrus.Debugln("[job]", start, msgend, numend)
 		msg := ctx.Event.RawEvent.Raw[start+3 : msgend]
 		arg, err := strconv.Atoi(ctx.Event.RawEvent.Raw[msgend+2 : numend])
