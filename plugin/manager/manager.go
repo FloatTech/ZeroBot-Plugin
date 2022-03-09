@@ -547,7 +547,7 @@ func init() { // 插件主体
 	})
 }
 
-//传入 ctx 和 welcome格式string 返回cq格式string  使用方法: welcometocq(ctx,w.Msg)
+// 传入 ctx 和 welcome格式string 返回cq格式string  使用方法: welcometocq(ctx,w.Msg)
 func welcometocq(ctx *zero.Ctx, welcome string) string {
 	nickname := ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("nickname").Str
 	at := "[CQ:at,qq=" + strconv.FormatInt(ctx.Event.UserID, 10) + "]"
