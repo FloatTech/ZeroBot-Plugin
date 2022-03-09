@@ -48,7 +48,7 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX（可加{at}在欢迎时@对方）\n" +
+		"- 设置欢迎语XXX (可以添加 {at} {avatar} {nickname}自定义) \n" +
 		"- 测试欢迎语\n" +
 		"- [开启 | 关闭]入群验证"
 )
@@ -381,7 +381,7 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
@@ -454,7 +454,7 @@ func init() { // 插件主体
 			var w welcome
 			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {
-				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				ctx.SendChain(message.Text("欢迎~"))
 			}
@@ -545,4 +545,15 @@ func init() { // 插件主体
 			}
 		}
 	})
+}
+
+//传入 ctx 和 welcome格式string 返回cq格式string  使用方法: welcometocq(ctx,w.Msg)
+func welcometocq(ctx *zero.Ctx, welcome string) string {
+	nickname := ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("nickname").Str
+	at := "[CQ:at,qq=" + strconv.FormatInt(ctx.Event.UserID, 10) + "]"
+	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(ctx.Event.UserID, 10) + "&s=640]"
+	cqstring := strings.ReplaceAll(welcome, "{at}", at)
+	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
+	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
+	return cqstring
 }
