@@ -145,7 +145,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 退出群聊[群号]@Bot
     - [x] *入群欢迎
     - [x] *退群通知
-    - [x] 设置欢迎语[欢迎~]
+    - [x] 设置欢迎语[欢迎~][可自定义添加 {at} {avatar} {nickname}]
     - [x] 在[MM]月[dd]日的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 在[MM]月[每周 | 周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
@@ -346,6 +346,9 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] galCG[xxx]
     - [x] gal表情包[xxx]
     - [x] 更新gal
+- **每日早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
+    - [x] /启用 zaobao
+    - [x] /禁用 zaobao
 - **TODO...**
 
 ## 使用方法
