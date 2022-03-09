@@ -346,7 +346,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] galCG[xxx]
     - [x] gal表情包[xxx]
     - [x] 更新gal
-- **每日早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
+- **今日早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
     - [x] /启用 zaobao
     - [x] /禁用 zaobao
 - **TODO...**
