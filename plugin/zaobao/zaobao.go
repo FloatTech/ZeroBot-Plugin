@@ -43,7 +43,7 @@ func init() { // 插件主体
 			if err != nil {
 				panic(err)
 			}
-			if !FileExist(file.BOTPATH + "data/zaobao/zaobao_" + time.Now().Format("2006-01-02") + ".jpg") {
+			if !FileExist(file.BOTPATH + "/data/zaobao/zaobao_" + time.Now().Format("2006-01-02") + ".jpg") {
 				download(ctx)
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/data/zaobao/zaobao_" + time.Now().Format("2006-01-02") + ".jpg"))
@@ -113,7 +113,7 @@ func sendzaobao() { // 发送
 			for _, g := range ctx.GetGroupList().Array() {
 				groupid := g.Get("group_id").Int()
 				if m.IsEnabledIn(groupid) {
-					if !FileExist(file.BOTPATH + "data/zaobao/zaobao_" + time.Now().Format("2006-01-02") + ".jpg") {
+					if !FileExist(file.BOTPATH + "/data/zaobao/zaobao_" + time.Now().Format("2006-01-02") + ".jpg") {
 						download(ctx)
 					}
 					ctx.SendGroupMessage(groupid, message.Image("file:///"+file.BOTPATH+"/data/zaobao/zaobao_"+time.Now().Format("2006-01-02")+".jpg"))
