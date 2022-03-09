@@ -512,11 +512,8 @@ func init() { // 插件主体
 	// 运行 CQ 码
 	engine.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			var cmd = ctx.State["regex_matched"].([]string)[1]
-			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
-			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
 			// 可注入，权限为主人
-			ctx.Send(cmd)
+			ctx.Send(message.UnescapeCQCodeText(ctx.State["regex_matched"].([]string)[1]))
 		})
 	// 根据 gist 自动同意加群
 	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。

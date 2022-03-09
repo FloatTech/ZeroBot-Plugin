@@ -117,7 +117,7 @@ func init() {
 				)
 			} else {
 				// 执行运行
-				block := message.UnescapeCQCodeText(ctx.State["regex_matched"].([]string)[3])
+				block := message.UnescapeCQText(ctx.State["regex_matched"].([]string)[3])
 				switch block {
 				case "help":
 					ctx.SendChain(
