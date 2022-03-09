@@ -124,7 +124,8 @@ func sendzaobao() { // 发送
 	}
 }
 
-func FileExist(path string) bool { // 判断文件是否存在
+// FileExist 判断文件是否存在
+func FileExist(path string) bool {
 	_, err := os.Lstat(path)
 	return !os.IsNotExist(err)
 }
