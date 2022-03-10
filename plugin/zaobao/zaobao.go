@@ -40,7 +40,6 @@ func init() { // 插件主体
 				download(ctx)
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + engine.DataFolder() + "/zaobao_" + time.Now().Format("2006-01-02") + ".jpg"))
-			return
 		})
 }
 
