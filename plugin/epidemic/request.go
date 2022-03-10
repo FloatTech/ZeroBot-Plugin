@@ -1,3 +1,4 @@
+// package epidemic 城市疫情查询
 package epidemic
 
 import (
@@ -11,13 +12,15 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
-const POST_REMOTE_TIMEOUT = 30
+const postRemoteTimeout = 30
 
 // post 设置请求超时
 func dialTimeout(network, addr string) (net.Conn, error) {
-	return net.DialTimeout(network, addr, time.Second*POST_REMOTE_TIMEOUT)
+	return net.DialTimeout(network, addr, time.Second*postRemoteTimeout)
 }
 
 // get请求
@@ -29,15 +32,13 @@ func httpGet(url string) []byte {
 	client := &http.Client{Transport: tr, Timeout: time.Duration(3) * time.Second}
 	resp, err := client.Get(url)
 	if err != nil {
-		fmt.Println(err)
-		//return err.Error()
+		log.Errorln("http err : ", err)
 	}
 
 	defer resp.Body.Close()
 	body, erro := ioutil.ReadAll(resp.Body)
 	if erro != nil {
-		fmt.Println("http wrong erro")
-		//return erro.Error()
+		log.Errorln("http wrong erro : ", erro)
 	}
 
 	return body
@@ -47,12 +48,12 @@ func httpGet(url string) []byte {
 func httpPost(requesturl string, params map[string]interface{}) []byte {
 	b, err := json.Marshal(params)
 	if err != nil {
-		fmt.Errorf("json.Marshal failed[%v]", err)
+		log.Errorln("json.Marshal failed : ", err)
 	}
 
 	req, err1 := http.NewRequest("POST", requesturl, strings.NewReader(string(b)))
 	if err1 != nil {
-		fmt.Errorf("json.Marshal failed[%v]", err1)
+		log.Errorln("json.Marshal failed : ", err1)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -70,24 +71,24 @@ func httpPost(requesturl string, params map[string]interface{}) []byte {
 	defer resp.Body.Close()
 	body, erro := ioutil.ReadAll(resp.Body)
 	if erro != nil {
-		fmt.Println("http wrong erro")
+		log.Errorln("http wrong erro : ", erro)
 	}
 
 	return body
 }
 
-// get 拼接参数
+// ParamsToStr 拼接参数
 func ParamsToStr(params map[string]interface{}) string {
 	isfirst := true
 	requesturl := ""
 	for k, v := range params {
 		if !isfirst {
-			requesturl = requesturl + "&"
+			requesturl += "&"
 		}
 
 		isfirst = false
 		if strings.Contains(k, "_") {
-			strings.Replace(k, ".", "_", -1)
+			strings.ReplaceAll(k, ".", "_")
 		}
 		v := typeSwitcher(v)
 		requesturl = requesturl + k + "=" + url.QueryEscape(v)
@@ -99,18 +100,18 @@ func ParamsToStr(params map[string]interface{}) string {
 // 集合get或post请求方式
 func sendRequest(requesturl string, params map[string]interface{}, method string) []byte {
 	var response []byte
-	if method == "GET" {
+	switch method {
+	case "GET":
 		if len(params) > 0 {
-			params_str := "?" + ParamsToStr(params)
-			requesturl = requesturl + params_str
+			paramsStr := "?" + ParamsToStr(params)
+			requesturl += paramsStr
 		}
 		response = httpGet(requesturl)
-	} else if method == "POST" {
+	case "POST":
 		response = httpPost(requesturl, params)
-	} else {
-		fmt.Println("unsuppported http method")
+	default:
+		log.Errorln("unsuppported http method")
 	}
-
 	return response
 }
 

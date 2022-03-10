@@ -1,3 +1,4 @@
+// package epidemic 城市疫情查询
 package epidemic
 
 import (
@@ -13,12 +14,11 @@ import (
 
 const (
 	servicename = "qe"
-	//疫情查询
-	TXURL = "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5"
+	txurl       = "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5"
 )
 
 var (
-	ISCONFIRM = false
+	isconfirm = false
 )
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 func queryEpidemic(findName string) message.MessageSegment {
 	var returnText string
 	params := make(map[string]interface{})
-	response := sendRequest(TXURL, params, "GET")
+	response := sendRequest(txurl, params, "GET")
 	info := gjson.ParseBytes(response)
 	data := gjson.Parse(info.Get("data").String())
 	dqnmae := data.Get("areaTree.0.children").Array()
@@ -54,7 +54,7 @@ outfor:
 				v.Get("total.heal").Int(),
 				v.Get("total.dead").Int(),
 			)
-			ISCONFIRM = true
+			isconfirm = true
 			break outfor
 		} else {
 			for _, cv := range v.Get("children").Array() {
@@ -68,15 +68,15 @@ outfor:
 						cv.Get("total.dead").Int(),
 						cv.Get("total.grade").String(),
 					)
-					ISCONFIRM = true
+					isconfirm = true
 					break outfor
 				}
 			}
 		}
 	}
-	if ISCONFIRM == false {
+	if !isconfirm {
 		returnText = " 没有找到【" + findName + "】城市的疫情数据."
 	}
-	ISCONFIRM = false
+	isconfirm = false
 	return message.Text(returnText + "\n" + fmt.Sprintf(" 更新时间：%s", data.Get("lastUpdateTime").String()) + "\n" + "温馨提示：请大家做好防疫工作，出门带好口罩！")
 }
