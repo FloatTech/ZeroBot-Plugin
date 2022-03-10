@@ -1,4 +1,4 @@
-// package epidemic 城市疫情查询
+// Package epidemic 城市疫情查询
 package epidemic
 
 import (

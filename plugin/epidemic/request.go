@@ -1,4 +1,4 @@
-// package epidemic 城市疫情查询
+// Package epidemic 城市疫情查询
 package epidemic
 
 import (
@@ -87,9 +87,9 @@ func ParamsToStr(params map[string]interface{}) string {
 		}
 
 		isfirst = false
-		if strings.Contains(k, "_") {
-			strings.ReplaceAll(k, ".", "_")
-		}
+		// if strings.Contains(k, "_") {
+		// 	strings.Replace(k, ".", "_", -1)
+		// }
 		v := typeSwitcher(v)
 		requesturl = requesturl + k + "=" + url.QueryEscape(v)
 	}
