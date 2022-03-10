@@ -25,6 +25,7 @@ func init() { // 插件主体
 	engine := control.Register("zaobao", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: true,
 		Help: "zaobao\n" +
+			"api早上8点更新，推荐定时在8点30后\n" +
 			"配合插件job中的记录在'cron'触发的指令使用\n" +
 			"------示例------\n" +
 			"|每天早上九点定时发送\n" +
