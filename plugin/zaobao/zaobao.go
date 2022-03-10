@@ -25,11 +25,11 @@ func init() { // 插件主体
 	engine := control.Register("zaobao", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: true,
 		Help: "zaobao\n" +
-		"配合插件job中的记录在'cron'触发的指令使用\n"+
-		"------示例------\n"+
-		"|每天早上九点定时发送\n"+
-		"记录在'00 9 * * *'触发的指令\n"+
-		"今日早报",
+			"配合插件job中的记录在'cron'触发的指令使用\n" +
+			"------示例------\n" +
+			"|每天早上九点定时发送\n" +
+			"记录在'00 9 * * *'触发的指令\n" +
+			"今日早报",
 		PrivateDataFolder: "zaobao",
 	})
 	os.RemoveAll(engine.DataFolder())
