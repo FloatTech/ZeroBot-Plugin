@@ -35,35 +35,38 @@ func init() { // 插件主体
 		PrivateDataFolder: "zaobao",
 	})
 	cachePath := engine.DataFolder()
-	go func() {
-		os.RemoveAll(cachePath)
-		err := os.MkdirAll(cachePath, 0755)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	os.RemoveAll(cachePath)
+	err := os.MkdirAll(cachePath, 0755)
+	if err != nil {
+		panic(err)
+	}
 	zaobaoFile := cachePath + "zaobao_" + time.Now().Format("2006-01-02") + ".jpg"
 	engine.OnFullMatch("今日早报", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			download(ctx, zaobaoFile)
+			err := download(ctx, zaobaoFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + zaobaoFile))
 		})
 }
 
-func download(ctx *zero.Ctx, zaobaoFile string) { // 获取图片链接并且下载
+func download(zaobaoFile string) error { // 获取图片链接并且下载
 	if file.IsNotExist(zaobaoFile) {
 		data, err := web.GetDataWith(web.NewDefaultClient(), api, "GET", "", ua)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			return err
 		}
 		zaobaoURL := gjson.Get(string(data), "url").String()
 		data, err = web.GetDataWith(web.NewDefaultClient(), zaobaoURL, "GET", referer, ua)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			return err
 		}
 		err = os.WriteFile(zaobaoFile, data, 0666)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			return err
 		}
 	}
+	return nil
 }
