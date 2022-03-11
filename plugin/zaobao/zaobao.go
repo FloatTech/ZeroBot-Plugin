@@ -36,7 +36,6 @@ func init() { // 插件主体
 	})
 	cachePath := engine.DataFolder()
 	go func() {
-		defer order.DoneOnExit()()
 		os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {
