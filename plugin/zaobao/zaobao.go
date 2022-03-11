@@ -52,7 +52,7 @@ func init() { // 插件主体
 
 func getdata() error { // 获取图片链接并且下载
 	mu.RLock()
-	if time.Since(pictime) >= time.Hour*24 {
+	if time.Since(pictime) > time.Hour*20 {
 		mu.RUnlock()
 		mu.Lock()
 		picdata = nil
