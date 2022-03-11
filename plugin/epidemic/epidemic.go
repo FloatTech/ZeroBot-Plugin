@@ -19,20 +19,20 @@ const (
 	txurl       = "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5"
 )
 
-// Result 疫情查询结果
-type Result struct {
+// result 疫情查询结果
+type result struct {
 	Ret  int    `json:"ret"`
 	Data string `json:"data"`
 }
 
-// Epidemic 疫情数据
-type Epidemic struct {
+// epidemic 疫情数据
+type epidemic struct {
 	LastUpdateTime string `json:"lastUpdateTime"`
-	AreaTree       []Area `json:"areaTree"`
+	AreaTree       []*area `json:"areaTree"`
 }
 
-// Area 城市疫情数据
-type Area struct {
+// area 城市疫情数据
+type area struct {
 	Name  string `json:"name"`
 	Today struct {
 		Confirm int `json:"confirm"`
@@ -44,7 +44,7 @@ type Area struct {
 		Heal       int    `json:"heal"`
 		Grade      string `json:"grade"`
 	} `json:"total"`
-	Children []*Area `json:"children"`
+	Children []*area `json:"children"`
 }
 
 func init() {
@@ -82,7 +82,7 @@ func init() {
 }
 
 // rcity 查找城市
-func rcity(a *Area, cityName string) *Area {
+func rcity(a *area, cityName string) *area {
 	if a == nil {
 		return nil
 	}
@@ -102,19 +102,19 @@ func rcity(a *Area, cityName string) *Area {
 }
 
 // queryEpidemic 查询城市疫情
-func queryEpidemic(findCityName string) (citydata *Area, times string) {
+func queryEpidemic(findCityName string) (citydata *area, times string) {
 	response, err := web.GetData(txurl)
 	if err != nil {
 		log.Errorln("[txurl-err]:", err)
 		return nil, ""
 	}
-	var r Result
+	var r result
 	err = json.Unmarshal(response, &r)
 	if err != nil {
 		log.Errorln("[txjson-Result-err]:", err)
 		return nil, ""
 	}
-	var e Epidemic
+	var e epidemic
 	err = json.Unmarshal([]byte(r.Data), &e)
 	if err != nil {
 		log.Errorln("[txjson-Epidemic-err]:", err)
