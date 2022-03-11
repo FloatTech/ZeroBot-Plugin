@@ -19,16 +19,19 @@ const (
 	txurl       = "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5"
 )
 
+// Result 疫情查询结果
 type Result struct {
 	Ret  int    `json:"ret"`
 	Data string `json:"data"`
 }
 
+// Epidemic 疫情数据
 type Epidemic struct {
 	LastUpdateTime string `json:"lastUpdateTime"`
 	AreaTree       []Area `json:"areaTree"`
 }
 
+// Area 城市疫情数据
 type Area struct {
 	Name  string `json:"name"`
 	Today struct {
