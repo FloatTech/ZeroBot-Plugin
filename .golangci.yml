@@ -1,6 +1,6 @@
 linters-settings:
   errcheck:
-    ignore: fmt:.*,io/ioutil:^Read.*
+    ignore: fmt:.*
     ignoretests: true
 
   goimports:

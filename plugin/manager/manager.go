@@ -509,12 +509,6 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text("找不到服务!"))
 		})
-	// 运行 CQ 码
-	engine.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			// 可注入，权限为主人
-			ctx.Send(message.UnescapeCQCodeText(ctx.State["regex_matched"].([]string)[1]))
-		})
 	// 根据 gist 自动同意加群
 	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。
 	// 然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。

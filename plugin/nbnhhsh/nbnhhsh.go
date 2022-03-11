@@ -2,7 +2,7 @@
 package nbnhhsh
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -31,7 +31,7 @@ func getValue(text string) []string {
 	urlValues.Add("text", text)
 	resp, err := http.PostForm("https://lab.magiconch.com/api/nbnhhsh/guess", urlValues)
 	if err == nil {
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err == nil {
 			resp.Body.Close()
 			json := gjson.ParseBytes(body)

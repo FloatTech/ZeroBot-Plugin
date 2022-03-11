@@ -3,9 +3,9 @@ package wtf
 import (
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
 	"net/url"
+
+	"github.com/FloatTech/zbputils/web"
 )
 
 /* JS path getter for https://wtf.hiigara.net/ranking
@@ -134,12 +134,7 @@ func (w *wtf) predict(names ...string) (string, error) {
 		name += "/" + url.QueryEscape(n)
 	}
 	u := apiprefix + w.path + name
-	resp, err := http.Get(u)
-	if err != nil {
-		return "", err
-	}
-	r, err := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	r, err := web.GetData(u)
 	if err != nil {
 		return "", err
 	}

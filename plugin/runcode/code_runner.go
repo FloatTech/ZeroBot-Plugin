@@ -3,7 +3,7 @@ package runcode
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -181,7 +181,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	if body.StatusCode != http.StatusOK {
 		return "", errors.New("code not 200")
 	}
-	res, err := ioutil.ReadAll(body.Body)
+	res, err := io.ReadAll(body.Body)
 	if err != nil {
 		return "", err
 	}

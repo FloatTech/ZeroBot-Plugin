@@ -3,7 +3,7 @@ package novel
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -164,7 +164,7 @@ func search(searchKey string) (searchHTML string) {
 		log.Errorln("[novel]", err)
 	}
 	defer searchResp.Body.Close()
-	searchData, err := ioutil.ReadAll(searchResp.Body)
+	searchData, err := io.ReadAll(searchResp.Body)
 	if err != nil {
 		log.Errorf("[novel] get response for url=%s got error=%s\n", searchURL, err.Error())
 	}

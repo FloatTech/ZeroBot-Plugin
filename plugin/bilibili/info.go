@@ -2,7 +2,7 @@
 package bilibili
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	control "github.com/FloatTech/zbputils/control"
@@ -47,7 +47,7 @@ func init() {
 			}
 			defer res.Body.Close()
 
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

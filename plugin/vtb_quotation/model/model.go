@@ -2,7 +2,7 @@
 package model
 
 import (
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -199,7 +199,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	}
 
 	defer resp.Body.Close()
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -262,7 +262,7 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 	}
 
 	defer resp.Body.Close()
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Errorln(err)
 		return

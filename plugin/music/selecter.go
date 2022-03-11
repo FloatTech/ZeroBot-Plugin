@@ -5,7 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -231,7 +231,7 @@ func netGet(url string, header http.Header) []byte {
 		return nil
 	}
 	defer res.Body.Close()
-	result, _ := ioutil.ReadAll(res.Body)
+	result, _ := io.ReadAll(res.Body)
 	return result
 }
 
@@ -245,6 +245,6 @@ func netPost(url string, data url.Values, header http.Header) []byte {
 		return nil
 	}
 	defer res.Body.Close()
-	result, _ := ioutil.ReadAll(res.Body)
+	result, _ := io.ReadAll(res.Body)
 	return result
 }
