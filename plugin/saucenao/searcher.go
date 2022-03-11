@@ -54,7 +54,7 @@ func init() { // 插件主体
 						}
 						logrus.Debugln("[sausenao]开始下载", n)
 						err1 := illust.DownloadToCache(i)
-						if err != pool.ErrImgFileAsync && err1 == nil {
+						if err1 == nil {
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}

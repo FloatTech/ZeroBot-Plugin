@@ -51,7 +51,7 @@ func init() {
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
 					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
 					m, err := pool.GetImage(name)
-					if err != nil && err != pool.ErrImgFileAsync {
+					if err != nil {
 						m.SetFile(url)
 						_, err = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						process.SleepAbout1sTo2s()
