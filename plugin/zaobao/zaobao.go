@@ -43,7 +43,7 @@ func init() { // 插件主体
 	zaobaoFile := cachePath + "zaobao_" + time.Now().Format("2006-01-02") + ".jpg"
 	engine.OnFullMatch("今日早报", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			err := download(ctx, zaobaoFile)
+			err := download(zaobaoFile)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
