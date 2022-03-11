@@ -512,7 +512,7 @@ func parseArgs(ctx *zero.Ctx) bool {
 				f := fakejson{Arg: binary.BytesToString(b)}
 				w := binary.SelectWriter()
 				defer binary.PutWriter(w)
-				json.NewEncoder(w).Encode(&f)
+				_ = json.NewEncoder(w).Encode(&f)
 				arr = w.String()[8 : w.Len()-3]
 				args[arg] = arr
 			}
