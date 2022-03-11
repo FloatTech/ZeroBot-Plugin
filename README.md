@@ -145,7 +145,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 退出群聊[群号]@Bot
     - [x] *入群欢迎
     - [x] *退群通知
-    - [x] 设置欢迎语[欢迎~]
+    - [x] 设置欢迎语[欢迎~]  可选添加 [{at}] [{nickname}] [{avatar}]
     - [x] 在[MM]月[dd]日的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 在[MM]月[每周 | 周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
@@ -161,6 +161,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [ ] 警告[@xxx]
     - [x] run[xxx]
     - 注：使用gist加群自动审批，请在群介绍添加以下说明，同时开启`需要回答问题并由管理员审核`：加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
+    - 设置欢迎语可选添加参数说明：{at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
     - [x] >github [xxx]
     - [x] >github -p [xxx]
@@ -347,6 +348,9 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 更新gal
 - **城市疫情查询** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
     - [x] xxx疫情
+- **早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
+    - [x] /启用 zaobao
+    - [x] /禁用 zaobao
 - **TODO...**
 
 ## 使用方法
