@@ -3,6 +3,7 @@ package zaobao
 
 import (
 	"sync"
+	"time"
 
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -23,7 +24,8 @@ const (
 
 var (
 	picdata []byte
-	mu      sync.Mutex
+	mu      sync.RWMutex
+	pictime time.Time
 )
 
 func init() { // 插件主体
@@ -49,9 +51,20 @@ func init() { // 插件主体
 }
 
 func getdata() error { // 获取图片链接并且下载
+	mu.RLock()
+	if time.Since(pictime) > time.Hour*24 {
+		mu.RUnlock()
+		mu.Lock()
+		picdata = nil
+		pictime = time.Now()
+		mu.Unlock()
+		mu.RLock()
+	}
 	if picdata != nil {
+		mu.RUnlock()
 		return nil
 	}
+	mu.RUnlock()
 	mu.Lock()
 	defer mu.Unlock()
 	if picdata != nil {
