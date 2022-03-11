@@ -10,7 +10,7 @@ import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
-	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 )
 
@@ -48,39 +48,36 @@ type area struct {
 
 func init() {
 	engine := control.Register(servicename, order.AcquirePrio(), &control.Options{
-		DisableOnDefault: true,
-		Help: "本插件用于查询城市疫情状况\n" +
-			"使用方法列如： 北京疫情  \n",
+		DisableOnDefault: false,
+		Help: "城市疫情查询\n" +
+			"- xxx疫情\n",
 	})
-	engine.OnSuffix("疫情").SetBlock(true).
+	engine.OnSuffix("疫情").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			text := ctx.State["args"].(string)
-			if text == "" {
+			city := ctx.State["args"].(string)
+			if city == "" {
 				ctx.SendChain(message.Text("你还没有输入城市名字呢！"))
 				return
 			}
-			data, times, err := queryEpidemic(text)
+			data, time, err := queryEpidemic(city)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if data == nil {
-				ctx.SendChain(message.Text("没有找到【", text, "】城市的疫情数据."))
+				ctx.SendChain(message.Text("没有找到【", city, "】城市的疫情数据."))
 				return
 			}
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(
 				message.Text(
-					"【", data.Name, "】疫情数据:\n",
-					"新增：", data.Today.Confirm,
-					" ,现有确诊：", data.Total.NowConfirm,
-					" ,治愈：", data.Total.Heal,
-					" ,死亡：", data.Total.Dead, " ", data.Total.Grade,
+					"【", data.Name, "】疫情数据\n",
+					"新增：", data.Today.Confirm, " ,",
+					"现有确诊：", data.Total.NowConfirm, " ,",
+					"治愈：", data.Total.Heal, " ,",
+					"死亡：", data.Total.Dead, " ", data.Total.Grade, "\n",
+					"更新时间：", time, "\n",
+					"温馨提示：请大家做好防疫工作，出门带好口罩！",
 				),
-				message.Text("\n"),
-				message.Text("更新时间："+times),
-				message.Text("\n"),
-				message.Text("温馨提示：请大家做好防疫工作，出门带好口罩！"),
 			)
 		})
 }

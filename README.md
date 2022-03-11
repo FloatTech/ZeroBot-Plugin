@@ -345,6 +345,8 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] galCG[xxx]
     - [x] gal表情包[xxx]
     - [x] 更新gal
+- **城市疫情查询** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
+    - [x] xxx疫情
 - **TODO...**
 
 ## 使用方法
