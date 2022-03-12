@@ -349,8 +349,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **城市疫情查询** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
     - [x] xxx疫情
 - **早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
-> api早上8点更新，推荐定时在8点30后。配合插件job中的记录在"cron"触发的指令使用。
+> api早上8点更新，推荐定时在8点30后。配合插件`job`中的记录在"cron"触发的指令使用。
 ```
+/启用 zaobao
 记录在"00 9 * * *"触发的指令
 今日早报
 ```
