@@ -24,20 +24,18 @@ const (
 
 var (
 	picdata []byte
-	mu      sync.RWMutex
+	mu      sync.Mutex
 	pictime time.Time
 )
 
 func init() { // 插件主体
 	engine := control.Register("zaobao", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: true,
-		Help: "zaobao\n" +
+		Help: "易即今日公众号api的今日早报\n" +
 			"api早上8点更新，推荐定时在8点30后\n" +
-			"配合插件job中的记录在'cron'触发的指令使用\n" +
-			"------示例------\n" +
-			"每天早上九点定时发送\n" +
-			"记录在'00 9 * * *'触发的指令\n" +
-			"今日早报",
+			"配合插件job中的记录在\"cron\"触发的指令使用\n" +
+			"- 记录在\"0 9 * * *\"触发的指令\n" +
+			"   - 今日早报",
 	})
 	engine.OnFullMatch("今日早报", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
@@ -51,23 +49,9 @@ func init() { // 插件主体
 }
 
 func getdata() error { // 获取图片链接并且下载
-	mu.RLock()
-	if time.Since(pictime) > time.Hour*20 {
-		mu.RUnlock()
-		mu.Lock()
-		picdata = nil
-		pictime = time.Now()
-		mu.Unlock()
-		mu.RLock()
-	}
-	if picdata != nil {
-		mu.RUnlock()
-		return nil
-	}
-	mu.RUnlock()
 	mu.Lock()
 	defer mu.Unlock()
-	if picdata != nil {
+	if picdata != nil && time.Since(pictime) <= time.Hour*20 {
 		return nil
 	}
 	data, err := web.GetDataWith(web.NewDefaultClient(), api, "GET", "", ua)
@@ -78,5 +62,6 @@ func getdata() error { // 获取图片链接并且下载
 	if err != nil {
 		return err
 	}
+	pictime = time.Now()
 	return nil
 }
