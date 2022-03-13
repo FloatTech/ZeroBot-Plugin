@@ -14,7 +14,6 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
-	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -31,7 +30,9 @@ func init() {
 		DisableOnDefault: true,
 		Help: "摸鱼人日历\n" +
 			"- /启用 moyucalendar\n" +
-			"- /禁用 moyucalendar",
+			"- /禁用 moyucalendar\n" +
+			"- 记录在\"30 8 * * *\"触发的指令\n" +
+			"   - 摸鱼人日历",
 	}).OnFullMatch("摸鱼人日历").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			title := fmt.Sprintf("摸鱼人日历 %d月%d日", time.Now().Month(), time.Now().Day())
@@ -52,40 +53,6 @@ func init() {
 			}
 			ctx.SendChain(message.Image(image))
 		})
-
-	// 定时任务每天8点30分执行一次
-	_, err := process.CronTab.AddFunc("30 8 * * *", func() {
-		m, ok := control.Lookup("moyucalendar")
-		if !ok {
-			return
-		}
-		title := fmt.Sprintf("摸鱼人日历 %d月%d日", time.Now().Month(), time.Now().Day())
-		sg, cookies, err := sougou(title, "摸鱼人日历", ua)
-		if err != nil {
-			return
-		}
-		wx, err := redirect(sg, cookies, ua)
-		if err != nil {
-			return
-		}
-		image, err := calendar(wx, ua)
-		if err != nil {
-			return
-		}
-		zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-			for _, g := range ctx.GetGroupList().Array() {
-				grp := g.Get("group_id").Int()
-				if m.IsEnabledIn(grp) {
-					ctx.SendGroupMessage(grp, message.Message{message.Image(image)})
-					process.SleepAbout1sTo2s()
-				}
-			}
-			return true
-		})
-	})
-	if err != nil {
-		panic(err)
-	}
 }
 
 func sougou(title, publisher, ua string) (string, []*http.Cookie, error) {

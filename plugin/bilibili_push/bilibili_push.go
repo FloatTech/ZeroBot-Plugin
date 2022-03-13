@@ -231,7 +231,7 @@ func bilibiliPushDaily() {
 }
 
 func checkBuid(buid int64) (status int, name string) {
-	data, err := web.GetDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
@@ -289,7 +289,7 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 }
 
 func getUserDynamicCard(buid int64) (cardList []gjson.Result) {
-	data, err := web.GetDataWith(web.NewDefaultClient(), fmt.Sprintf(userDynamicURL, buid), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(userDynamicURL, buid), "GET", referer, ua)
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}

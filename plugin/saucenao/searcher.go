@@ -53,6 +53,7 @@ func init() { // 插件主体
 							continue
 						}
 						logrus.Debugln("[sausenao]开始下载", n)
+						logrus.Debugln("[sausenao]urls:", illust.ImageUrls)
 						err1 := illust.DownloadToCache(i)
 						if err1 == nil {
 							m.SetFile(f)

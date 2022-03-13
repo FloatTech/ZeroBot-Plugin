@@ -66,7 +66,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /服务列表
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
-- **定时指令触发器** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/job"`
+- **定时指令触发器** `import _ "github.com/FloatTech/zbputils/job"`
     - [x] 记录以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 记录在"cron"触发的指令
@@ -159,12 +159,13 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [ ] 同意好友请求
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
-    - [x] run[xxx]
     - 注：使用gist加群自动审批，请在群介绍添加以下说明，同时开启`需要回答问题并由管理员审核`：加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
     - 设置欢迎语可选添加参数说明：{at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
     - [x] >github [xxx]
     - [x] >github -p [xxx]
+- **注入指令** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`
+    - [x] run[CQ码]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
     - [x] > runcode [language] help
     - [x] > runcode [language] [code block]
@@ -194,9 +195,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **摸鱼** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"`
     - [x] /启用 moyu
     - [x] /禁用 moyu
+```
+记录在"0 10 * * *"触发的指令
+摸鱼提醒
+```
 - **摸鱼人日历** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar"`
     - [x] /启用 moyucalendar
     - [x] /禁用 moyucalendar
+```
+记录在"30 8 * * *"触发的指令
+摸鱼人日历
+```
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
@@ -349,8 +358,18 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **城市疫情查询** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
     - [x] xxx疫情
 - **早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
+<<<<<<< HEAD
     - [x] /启用 zaobao
     - [x] /禁用 zaobao
+=======
+    - api早上8点更新，推荐定时在8点30后。配合插件`job`中的记录在"cron"触发的指令使用
+    - [x] /启用 zaobao
+    - [x] /禁用 zaobao
+```
+记录在"00 9 * * *"触发的指令
+今日早报
+```
+>>>>>>> upstream/master
 - **TODO...**
 
 ## 使用方法
