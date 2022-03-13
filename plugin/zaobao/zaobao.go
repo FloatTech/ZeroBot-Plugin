@@ -54,11 +54,11 @@ func getdata() error { // 获取图片链接并且下载
 	if picdata != nil && time.Since(pictime) <= time.Hour*20 {
 		return nil
 	}
-	data, err := web.GetDataWith(web.NewDefaultClient(), api, "GET", "", ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", "", ua)
 	if err != nil {
 		return err
 	}
-	picdata, err = web.GetDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "GET", referer, ua)
+	picdata, err = web.RequestDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "GET", referer, ua)
 	if err != nil {
 		return err
 	}

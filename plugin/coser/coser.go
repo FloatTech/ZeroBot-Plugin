@@ -28,7 +28,7 @@ func init() {
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
-			data, err := web.GetDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
+			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
 			if err != nil {
 				log.Println("err为:", err)
 			}
