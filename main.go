@@ -207,7 +207,7 @@ func main() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(kanban.Kanban()))
 		})
-	zero.Run(
+	zero.RunAndBlock(
 		zero.Config{
 			NickName:      append([]string{*adana}, nicks...),
 			CommandPrefix: *prefix,
@@ -216,7 +216,6 @@ func main() {
 			SuperUsers: flag.Args(), // 通过命令行参数的方式添加主人账号
 			Driver:     []zero.Driver{driver.NewWebSocketClient(*url, *token)},
 		},
+		process.GlobalInitMutex.Unlock,
 	)
-	process.GlobalInitMutex.Unlock()
-	select {}
 }
