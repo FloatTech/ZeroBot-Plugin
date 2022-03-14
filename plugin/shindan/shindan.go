@@ -33,7 +33,7 @@ func init() {
 // shindanmaker 处理函数
 func handle(ctx *zero.Ctx) {
 	// 获取名字
-	name := ctxext.NickName(ctx)
+	name := ctx.NickName()
 	// 调用接口
 	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
 	if err != nil {

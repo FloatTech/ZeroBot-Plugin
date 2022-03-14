@@ -19,7 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/control/order"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 )
 
@@ -47,7 +46,7 @@ func init() {
 				ctx.SendChain(message.Text("大家的wife都是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
 			default:
 				// 获取名字
-				name := ctxext.NickName(ctx)
+				name := ctx.NickName()
 				now := time.Now()
 				s := md5.Sum(helper.StringToBytes(fmt.Sprintf("%s%d%d%d", name, now.Year(), now.Month(), now.Day())))
 				r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
@@ -57,7 +56,7 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, ctxext.MustProvidePicture).SetBlock(true).
+	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
