@@ -48,7 +48,7 @@ func init() {
 
 	en.OnPrefix("讲个笑话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		// 获取名字
-		name := ctxext.NickName(ctx)
+		name := ctx.NickName()
 		var j joke
 		err := db.Pick("jokes", &j)
 		if err != nil {

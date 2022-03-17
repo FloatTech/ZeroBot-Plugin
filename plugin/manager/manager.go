@@ -431,7 +431,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
 				userid := ctx.Event.UserID
-				ctx.SendChain(message.Text(ctxext.CardOrNickName(ctx, userid), "(", userid, ")", "离开了我们..."))
+				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
 			}
 		})
 	// 设置欢迎语

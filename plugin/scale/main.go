@@ -39,7 +39,7 @@ func init() {
 	}).ApplySingle(ctxext.DefaultSingle)
 	cachedir := engine.DataFolder()
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, ctxext.MustProvidePicture, getPara).SetBlock(true).
+	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, zero.MustProvidePicture, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {

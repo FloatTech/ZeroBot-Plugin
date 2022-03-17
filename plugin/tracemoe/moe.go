@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -23,7 +22,7 @@ func init() { // 插件主体
 		Help:             "tracemoe\n- 搜番 | 搜索番剧[图片]",
 	})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, ctxext.MustProvidePicture).SetBlock(true).
+	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))

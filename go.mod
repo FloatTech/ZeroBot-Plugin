@@ -3,16 +3,16 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.17
 
 require (
-	github.com/FloatTech/AnimeAPI v1.3.2-0.20220313051937-238f1cf29e94
+	github.com/FloatTech/AnimeAPI v1.3.2-0.20220315144908-33d5c403d240
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.3.2-0.20220313051845-7fc7fa20d8aa
+	github.com/FloatTech/zbputils v1.3.2-0.20220315144804-529ff96277c7
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.3.0
+	github.com/fumiama/go-base16384 v1.3.1
 	github.com/fumiama/go-registry v0.1.1
-	github.com/fumiama/gofastTEA v0.0.9
+	github.com/fumiama/gofastTEA v0.0.10
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/sqlite3 v1.14.6
 	github.com/jinzhu/gorm v1.9.16
@@ -21,7 +21,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.22.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.0
-	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220307142419-a1b34e6da007
+	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220314043738-2ff63b4ac217
 	golang.org/x/image v0.0.0-20220302094943-723b81ca9867
 )
 
@@ -47,9 +47,9 @@ require (
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	modernc.org/libc v1.14.6 // indirect
+	modernc.org/libc v1.14.11 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
-	modernc.org/memory v1.0.5 // indirect
+	modernc.org/memory v1.0.6 // indirect
 )

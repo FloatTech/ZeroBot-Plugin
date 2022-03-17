@@ -8,7 +8,6 @@ import (
 	"github.com/FloatTech/AnimeAPI/danbooru"
 	"github.com/FloatTech/AnimeAPI/saucenao"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -29,7 +28,7 @@ func init() { // 插件主体
 	cachefolder := engine.DataFolder()
 
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"鉴赏图片"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
+	engine.OnKeywordGroup([]string{"鉴赏图片"}, zero.OnlyGroup, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
