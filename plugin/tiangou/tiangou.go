@@ -20,7 +20,7 @@ type tiangou struct {
 var db = &sql.Sqlite{}
 
 func init() {
-	en := control.Register("funny", order.AcquirePrio(), &control.Options{
+	en := control.Register("tiangou", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
 		Help: "舔狗日记\n" +
 			"- 舔狗日记",
