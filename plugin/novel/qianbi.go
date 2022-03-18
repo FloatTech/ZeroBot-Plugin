@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	websiteURL   = "https://www.23qb.net"
+	websiteURL   = "https://www.23qb.com"
 	websiteTitle = "铅笔小说"
 	errorTitle   = "出现错误！"
 	username     = "zerobot"
