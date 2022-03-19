@@ -1,5 +1,4 @@
-// Package model 睡眠管理数据库
-package model
+package sleepmanage
 
 import (
 	"os"
@@ -10,11 +9,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// SleepDB 睡眠数据库
-type SleepDB gorm.DB
+// sdb 睡眠数据库全局变量
+var sdb *sleepdb
 
-// Initialize 初始化
-func Initialize(dbpath string) *SleepDB {
+// sleepdb 睡眠数据库结构体
+type sleepdb gorm.DB
+
+// initialize 初始化
+func initialize(dbpath string) *sleepdb {
 	var err error
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
@@ -29,27 +31,18 @@ func Initialize(dbpath string) *SleepDB {
 		panic(err)
 	}
 	gdb.AutoMigrate(&SleepManage{})
-	return (*SleepDB)(gdb)
-}
-
-// Open 打开
-func Open(dbpath string) (*SleepDB, error) {
-	db, err := gorm.Open("sqlite3", dbpath)
-	if err != nil {
-		return nil, err
-	}
-	return (*SleepDB)(db), nil
+	return (*sleepdb)(gdb)
 }
 
 // Close 关闭
-func (sdb *SleepDB) Close() error {
+func (sdb *sleepdb) Close() error {
 	db := (*gorm.DB)(sdb)
 	return db.Close()
 }
 
 // SleepManage 睡眠信息
 type SleepManage struct {
-	gorm.Model
+	ID        uint      `gorm:"primary_key"`
 	GroupID   int64     `gorm:"column:group_id"`
 	UserID    int64     `gorm:"column:user_id"`
 	SleepTime time.Time `gorm:"column:sleep_time"`
@@ -60,8 +53,8 @@ func (SleepManage) TableName() string {
 	return "sleep_manage"
 }
 
-// Sleep 更新睡眠时间
-func (sdb *SleepDB) Sleep(gid, uid int64) (position int, awakeTime time.Duration) {
+// sleep 更新睡眠时间
+func (sdb *sleepdb) sleep(gid, uid int64) (position int, awakeTime time.Duration) {
 	db := (*gorm.DB)(sdb)
 	now := time.Now()
 	var today time.Time
@@ -92,8 +85,8 @@ func (sdb *SleepDB) Sleep(gid, uid int64) (position int, awakeTime time.Duration
 	return position, awakeTime
 }
 
-// GetUp 更新起床时间
-func (sdb *SleepDB) GetUp(gid, uid int64) (position int, sleepTime time.Duration) {
+// getUp 更新起床时间
+func (sdb *sleepdb) getUp(gid, uid int64) (position int, sleepTime time.Duration) {
 	db := (*gorm.DB)(sdb)
 	now := time.Now()
 	today := now.Add(-time.Hour*time.Duration(-6+now.Hour()) - time.Minute*time.Duration(now.Minute()) - time.Second*time.Duration(now.Second()))

@@ -12,8 +12,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 
 	"github.com/FloatTech/zbputils/control/order"
-
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage/model"
 )
 
 func init() {
@@ -22,15 +20,13 @@ func init() {
 		Help:              "sleepmanage\n- 早安\n- 晚安",
 		PrivateDataFolder: "sleep",
 	})
-	dbfile := engine.DataFolder() + "manage.db"
+	go func() {
+		sdb = initialize(engine.DataFolder() + "manage.db")
+		log.Println("[sleepmanage]加载sleepmanage数据库")
+	}()
 	engine.OnFullMatch("早安", isMorning, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			db, err := model.Open(dbfile)
-			if err != nil {
-				log.Errorln(err)
-				return
-			}
-			position, getUpTime := db.GetUp(ctx.Event.GroupID, ctx.Event.UserID)
+			position, getUpTime := sdb.getUp(ctx.Event.GroupID, ctx.Event.UserID)
 			log.Println(position, getUpTime)
 			hour, minute, second := timeDuration(getUpTime)
 			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
@@ -38,16 +34,10 @@ func init() {
 			} else {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("早安成功！你的睡眠时长为%d时%d分%d秒,你是今天第%d个起床的", hour, minute, second, position)))
 			}
-			db.Close()
 		})
 	engine.OnFullMatch("晚安", isEvening, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			db, err := model.Open(dbfile)
-			if err != nil {
-				log.Errorln(err)
-				return
-			}
-			position, sleepTime := db.Sleep(ctx.Event.GroupID, ctx.Event.UserID)
+			position, sleepTime := sdb.sleep(ctx.Event.GroupID, ctx.Event.UserID)
 			log.Println(position, sleepTime)
 			hour, minute, second := timeDuration(sleepTime)
 			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
@@ -55,7 +45,6 @@ func init() {
 			} else {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("晚安成功！你的清醒时长为%d时%d分%d秒,你是今天第%d个睡觉的", hour, minute, second, position)))
 			}
-			db.Close()
 		})
 }
 
