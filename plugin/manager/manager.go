@@ -288,7 +288,7 @@ func init() { // 插件主体
 			}
 		})
 	// 定时 cron 提醒
-	engine.OnRegex(`^在"(.*)"时(用.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^在"(.*)"时用(.+)?提醒大家(.*)`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			dateStrs := ctx.State["regex_matched"].([]string)
 			var url, alert string
