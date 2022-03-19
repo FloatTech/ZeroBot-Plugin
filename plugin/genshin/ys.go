@@ -27,10 +27,11 @@ import (
 )
 
 var (
-	Three, four, four2, five, five2 = []string{}, []string{}, []string{}, []string{}, []string{}             //三 , 四, 五星的名字
-	genzip                          = "https://gitcode.net/qq_33747476/Images/-/raw/master/zero/genshin.zip" //素材包
+	//genzip                        = "https://gitcode.net/qq_33747476/Images/-/raw/master/zero/Genshin.zip"
+	genzip                          = "https://raw.githubusercontent.com/FloatTech/zbpdata/main/Genshin/Genshin.zip" //素材包
+	Three, four, four2, five, five2 = []string{}, []string{}, []string{}, []string{}, []string{}                     //三 , 四, 五星的名字
 
-	DP, gen, ZipN, Spath       = "./data/Genshin/", "_genshin.jpg", "./Genshin.zip", DP + "gacha/"       //路径
+	DP, gen, ZipN, Spath       = "./data/Genshin/", "_genshin.jpg", DP + "Genshin.zip", DP + "gacha/"    //路径
 	five_bg, four_bg, three_bg = DP + "five_bg.jpg", DP + "four_bg.jpg", DP + "three_bg.jpg"             //背景图片名
 	StarN3, StarN4, StarN5     = Spath + "ThreeStar.png", Spath + "FourStar.png", Spath + "FiveStar.png" //星级图标
 
@@ -53,7 +54,7 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("刷新完成!\n数量:", IMGN))
 				IMGN = 0
 			} else {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有素材哦~\n请发送 十连 进行下载"))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有素材哦~\n请发送 十连 \n下载素材.."))
 			}
 		})
 
@@ -67,7 +68,7 @@ func init() {
 				ctx.SendChain(message.Text("切换到五星卡池~"))
 			}
 		})
-
+	//@bot
 	engine.OnFullMatchGroup([]string{"十连", "十连抽", "来发十连", "来次十连", "来份十连"}, zero.OnlyToMe).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			times := time.Now().Unix()
@@ -86,12 +87,9 @@ func init() {
 							if v.Type == "text" {
 								text := strings.ReplaceAll(v.Data["text"], " ", "")
 								if text == "下载素材" {
-									Lock = false
 									return true
 								}
 								if text == "取消下载" {
-									ctx.SendChain(message.Text("正在退出.."))
-									Lock = false
 									ch <- 1
 									return false
 								}
@@ -109,13 +107,17 @@ func init() {
 					case <-recv:
 						cancel()
 						ctx.SendChain(message.Text("正在下载中~"))
+						os.Mkdir(DP, 0755)
 						err := file.DownloadTo(genzip, ZipN, true)
+						Lock = false
 						if err != nil {
 							ctx.SendChain(message.Text("下载出错了~", err))
 							return
 						}
 					case <-ch:
 						cancel()
+						ctx.SendChain(message.Text("取消了呢~"))
+						Lock = false
 						close(ch)
 						return
 					}
