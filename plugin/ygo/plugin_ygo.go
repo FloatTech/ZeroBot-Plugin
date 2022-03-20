@@ -15,6 +15,7 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/web"
 )
 
@@ -46,7 +47,7 @@ func init() {
 
 	en.OnPrefix("ygo", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		searchName := ctx.State["args"].(string)
-		if strings.Contains(searchName, "随机一卡"){
+		if strings.Contains(searchName, "随机一卡") {
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
 			list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
@@ -116,7 +117,7 @@ func init() {
 						}
 						//更新数据
 						pagemax, cardsname, cardshref = getYGolist(string(body))
-						list_data := "找到" + listmax  + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
+						list_data := "找到" + listmax + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
 						ctx.SendChain(message.Text(list_data))
 					default:
 						Cardint, err := strconv.Atoi(nextcmd)
@@ -167,7 +168,7 @@ func init() {
 			}
 		}
 	})
-	_, err := process.CronTab.AddFunc("00 12 * * *", func() {
+	process.CronTab.AddFunc("00 12 * * *", func() {
 		m, ok := control.Lookup("ygo")
 		if !ok {
 			return
@@ -176,26 +177,20 @@ func init() {
 		// 请求html页面
 		list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
-			// 错误处理
-			fmt.Println("网页数据读取错误：", err)
+			return
 		}
-		//fmt.Println(string(list_body))
-		result_number := regexp.MustCompile("条 共:(?s:(.*?))条</span>")
-		list_number := result_number.FindAllStringSubmatch(string(list_body), -1)
-		if len(list_number) == 0 {
-			fmt.Println("数据存在错误: 无法获取当前卡池数量")
+		//获取卡牌数量
+		listmax, regexpResult := regexpmatch("条 共:(?s:(.*?))条</span>", string(list_body))
+		if regexpResult {
+			return
 		}
-		listmax, _ := strconv.Atoi(list_number[0][1])
-		//fmt.Println("当前总卡数：", listmax)
-		List := "q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(listmax))
-		url = "https://www.ygo-sem.cn/Cards/S.aspx?" + List
+		maxnumber, _ := strconv.Atoi(listmax)
+		url = "https://www.ygo-sem.cn/Cards/S.aspx?" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
 		// 请求html页面
 		body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
-			// 错误处理
-			fmt.Println("网页数据读取错误：", err)
+			return
 		}
-		//fmt.Println(string(body))
 		//筛选数据
 		card_data, imageBase64 := getYGOdata(string(body))
 		zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
@@ -204,16 +199,13 @@ func init() {
 				index := m.GetData(grp)
 				if int(index) == 1 {
 					//输出数据
-					ctx.SendGroupMessage(grp, message.Message{message.Text("当前游戏王卡池总数：" + list_number[0][1] + "\n\n今日分享卡牌：\n\n"), message.Image("base64://" + imageBase64), message.Text(card_data)})
+					ctx.SendGroupMessage(grp, message.Message{message.Text("当前游戏王卡池总数：" + listmax + "\n\n今日分享卡牌：\n\n"), message.Image("base64://" + imageBase64), message.Text(card_data)})
 					process.SleepAbout1sTo2s()
 				}
 			}
 			return true
 		})
-	})
-	if err != nil {
-		fmt.Println(err)
-	}//*/
+	})//*/
 }
 
 //获取单卡信息
