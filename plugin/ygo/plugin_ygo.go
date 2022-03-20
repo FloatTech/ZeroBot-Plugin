@@ -45,8 +45,7 @@ func init() {
 
 	en.OnPrefix("ygo", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		searchName := ctx.State["args"].(string)
-		switch searchName {
-		case "随机一卡":
+		if searchName == "随机一卡"{
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
 			list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
@@ -61,11 +60,9 @@ func init() {
 				return
 			}
 			maxnumber, _ := strconv.Atoi(listmax)
-			searchName = "q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
-		default:
-			searchName = "q=" + searchName
+			searchName = fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
 		}
-		url := "https://www.ygo-sem.cn/Cards/S.aspx?" + searchName
+		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
 		// 请求html页面
 		body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
