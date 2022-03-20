@@ -40,12 +40,13 @@ func init() {
 		Help: "1.指令：ygo XXX\n" +
 			"①xxx为卡名：\n查询卡名为XXX的卡信息\n" +
 			"②xxx为“随机一卡”：\n随机展示一张卡\n" +
-			"2.指令：x\n①x为搜索列表对应的数字\n获取对应的卡片信息\n②x为“下一页”：\n搜索列表翻到下一页",
+			"2.指令：x\n①x为搜索列表对应的数字\n获取对应的卡片信息\n②x为“下一页”：\n搜索列表翻到下一页" +
+			"3.(开启|关闭)每日分享卡片",
 	})
 
 	en.OnPrefix("ygo", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		searchName := ctx.State["args"].(string)
-		if searchName == "随机一卡"{
+		if strings.Contains(searchName, "随机一卡"){
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
 			list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
@@ -144,45 +145,75 @@ func init() {
 	})
 
 	/*/每天12点随机分享一张卡
-	en.OnRegex(`^(.{0,2})每日随机分享卡片$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^(.{0,2})每日分享卡片$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "开启":
-				command := func() {
-					url := "https://www.ygo-sem.cn/Cards/Default.aspx"
-					// 请求html页面
-					list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
-					if err != nil {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
-						return
-					}
-					//获取卡牌数量
-					listmax, regexpResult := regexpmatch("条 共:(?s:(.*?))条</span>", string(list_body))
-					if regexpResult {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("数据存在错误: 无法获取当前卡池数量")))
-						return
-					}
-					maxnumber, _ := strconv.Atoi(listmax)
-					list := "q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
-					url = "https://www.ygo-sem.cn/Cards/S.aspx?" + list
-					// 请求html页面
-					body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
-					if err != nil {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
-						return
-					}
-					//fmt.Println(string(body))
-					//筛选数据
-					card_data, imageBase64 := getYGOdata(string(body))
+			gid := ctx.Event.GroupID
+			m, ok := control.Lookup("ygo")
+			if !ok {
+				return
+			}
+			if m.SetData(gid, int64(1)) == nil {
+				ctx.SendChain(message.Text("服务已开启")) //写入状态码
+			}
+		case "关闭":
+			gid := ctx.Event.GroupID
+			m, ok := control.Lookup("ygo")
+			if !ok {
+				return
+			}
+			if m.SetData(gid, int64(0)) == nil {
+				ctx.SendChain(message.Text("服务已关闭")) //写入状态码
+			}
+		}
+	})
+	_, err := process.CronTab.AddFunc("00 12 * * *", func() {
+		m, ok := control.Lookup("ygo")
+		if !ok {
+			return
+		}
+		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
+		// 请求html页面
+		list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		if err != nil {
+			// 错误处理
+			fmt.Println("网页数据读取错误：", err)
+		}
+		//fmt.Println(string(list_body))
+		result_number := regexp.MustCompile("条 共:(?s:(.*?))条</span>")
+		list_number := result_number.FindAllStringSubmatch(string(list_body), -1)
+		if len(list_number) == 0 {
+			fmt.Println("数据存在错误: 无法获取当前卡池数量")
+		}
+		listmax, _ := strconv.Atoi(list_number[0][1])
+		//fmt.Println("当前总卡数：", listmax)
+		List := "q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(listmax))
+		url = "https://www.ygo-sem.cn/Cards/S.aspx?" + List
+		// 请求html页面
+		body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		if err != nil {
+			// 错误处理
+			fmt.Println("网页数据读取错误：", err)
+		}
+		//fmt.Println(string(body))
+		//筛选数据
+		card_data, imageBase64 := getYGOdata(string(body))
+		zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+			for _, g := range ctx.GetGroupList().Array() {
+				grp := g.Get("group_id").Int()
+				index := m.GetData(grp)
+				if int(index) == 1 {
 					//输出数据
-					ctx.SendChain(message.Text("当前游戏王卡池总数："+listmax+"\n\n今日分享卡牌：\n\n"), message.Image("base64://"+imageBase64), message.Text(card_data))
+					ctx.SendGroupMessage(grp, message.Message{message.Text("当前游戏王卡池总数：" + list_number[0][1] + "\n\n今日分享卡牌：\n\n"), message.Image("base64://" + imageBase64), message.Text(card_data)})
 					process.SleepAbout1sTo2s()
 				}
-			ctx.SendChain(message.Text("该功能还在建设中"))
-		case "关闭":
-			ctx.SendChain(message.Text("该功能还在建设中"))
-		}
-	})//*/
-
+			}
+			return true
+		})
+	})
+	if err != nil {
+		fmt.Println(err)
+	}//*/
 }
 
 //获取单卡信息
