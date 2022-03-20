@@ -18,6 +18,8 @@ jobs:
         with:
           version: latest
           args: --issues-exit-code=0
+          # Optional: if set to true then the action will use pre-installed Go.
+          skip-go-installation: true
       - name: Commit back
         continue-on-error: true
         run: |
