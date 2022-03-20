@@ -8,6 +8,7 @@ import (
 	"time"
 
 	sql "github.com/FloatTech/sqlite"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/fumiama/cron"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -47,7 +48,7 @@ func NewClock(db *sql.Sqlite) (c Clock) {
 }
 
 // RegisterTimer 注册计时器
-func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
+func (c *Clock) RegisterTimer(ts *Timer, save, isinit bool) bool {
 	var key uint32
 	if save {
 		key = ts.GetTimerID()
@@ -62,6 +63,9 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
 	logrus.Println("[群管]注册计时器", key)
 	if ts.Cron != "" {
 		var ctx *zero.Ctx
+		if isinit {
+			process.GlobalInitMutex.Lock()
+		}
 		if ts.SelfID != 0 {
 			ctx = zero.GetBot(ts.SelfID)
 		} else {
@@ -70,6 +74,9 @@ func (c *Clock) RegisterTimer(ts *Timer, save bool) bool {
 				ts.SelfID = id
 				return false
 			})
+		}
+		if isinit {
+			process.GlobalInitMutex.Unlock()
 		}
 		eid, err := c.cron.AddFunc(ts.Cron, func() { ts.sendmsg(ts.GrpID, ctx) })
 		if err == nil {
@@ -187,7 +194,7 @@ func (c *Clock) loadTimers(db *sql.Sqlite) {
 		var t Timer
 		_ = c.db.FindFor("timer", &t, "", func() error {
 			tescape := t
-			go c.RegisterTimer(&tescape, false)
+			go c.RegisterTimer(&tescape, false, true)
 			return nil
 		})
 	}
