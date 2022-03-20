@@ -1,20 +1,21 @@
 module github.com/FloatTech/ZeroBot-Plugin
 
-go 1.17
+go 1.18
 
 require (
-	github.com/FloatTech/AnimeAPI v1.3.2-0.20220315144908-33d5c403d240
+	github.com/FloatTech/AnimeAPI v1.3.2-0.20220319114940-c6c7d308c43b
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.3.2-0.20220318084913-05364a3da744
+	github.com/FloatTech/zbputils v1.3.2-0.20220319114731-e5088958ce00
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.3.1
+	github.com/fumiama/go-base16384 v1.4.0
 	github.com/fumiama/go-registry v0.1.1
 	github.com/fumiama/gofastTEA v0.0.10
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/sqlite3 v1.14.6
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mroth/weightedrand v0.4.1
 	github.com/pkumza/numcn v1.0.0
@@ -31,7 +32,6 @@ require (
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
