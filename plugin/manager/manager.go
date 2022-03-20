@@ -294,7 +294,7 @@ func init() { // 插件主体
 			var url, alert string
 			switch len(dateStrs) {
 			case 4:
-				url = dateStrs[2]
+				url = strings.TrimPrefix(dateStrs[2], "用")
 				alert = dateStrs[3]
 			case 3:
 				alert = dateStrs[2]
