@@ -115,7 +115,7 @@ func init() {
 						}
 						//更新数据
 						pagemax, cardsname, cardshref = getYGolist(string(body))
-						list_data := "找到" + strconv.Itoa(pagemax) + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
+						list_data := "找到" + listmax  + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
 						ctx.SendChain(message.Text(list_data))
 					default:
 						Cardint, err := strconv.Atoi(nextcmd)
