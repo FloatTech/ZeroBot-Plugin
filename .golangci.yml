@@ -6,10 +6,6 @@ linters-settings:
   goimports:
     local-prefixes: github.com/FloatTech/ZeroBot-Plugin
 
-  gocritic:
-    disabled-checks:
-      - exitAfterDefer
-
   forbidigo:
     # Forbid the following identifiers
     forbid:
@@ -30,7 +26,7 @@ linters:
     - exhaustive
     #- funlen
     #- goconst
-    - gocritic
+    #- gocritic
     #- gocyclo
     - gofmt
     - goimports
