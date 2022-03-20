@@ -35,7 +35,7 @@ var (
 	five_bg, four_bg, three_bg = DP + "five_bg.jpg", DP + "four_bg.jpg", DP + "three_bg.jpg"             //背景图片名
 	StarN3, StarN4, StarN5     = Spath + "ThreeStar.png", Spath + "FourStar.png", Spath + "FiveStar.png" //星级图标
 
-	Toatl, IMGN, isPath, Lock      = 0, 0, false, false //累计抽奖次数, 连抽次数, 卡池总数, 是否遍历过路径
+	Toatl, IMGN, isPath, Lock      = 0, 0, false, false //累计抽奖次数, 卡池总数, 是否遍历过路径, 锁
 	DefaultMode, FiveMode, iPrefix = true, false, 0     //抽卡模式,文件前缀
 
 	engine = control.Register("genshin", order.AcquirePrio(), &control.Options{
