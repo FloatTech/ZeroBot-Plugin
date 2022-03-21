@@ -145,8 +145,8 @@ func init() {
 		}
 	})
 
-	/*/每天12点随机分享一张卡
-	en.OnRegex(`^(.{0,2})每日分享卡片$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	//*/每天12点随机分享一张卡
+	en.OnRegex(`^(.{0,2})每日分享卡片$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "开启":
 			gid := ctx.Event.GroupID
