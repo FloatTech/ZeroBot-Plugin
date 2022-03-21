@@ -9,7 +9,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 
@@ -26,7 +25,6 @@ func init() {
 	go func() {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "cp.db"
-		defer order.DoneOnExit()()
 		// os.RemoveAll(dbpath)
 		_, _ = file.GetLazyData(db.DBPath, false, true)
 		err := db.Create("cp_story", &cpstory{})
@@ -42,8 +40,8 @@ func init() {
 
 	engine.OnRegex("^组cp.*?(\\d+).*?(\\d+)", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		cs := getRandomCpStory()
-		gong := ctxext.CardOrNickName(ctx, math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-		shou := ctxext.CardOrNickName(ctx, math.Str2Int64(ctx.State["regex_matched"].([]string)[2]))
+		gong := ctx.CardOrNickName(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
+		shou := ctx.CardOrNickName(math.Str2Int64(ctx.State["regex_matched"].([]string)[2]))
 		text := strings.ReplaceAll(cs.Story, "<攻>", gong)
 		text = strings.ReplaceAll(text, "<受>", shou)
 		text = strings.ReplaceAll(text, cs.Gong, gong)

@@ -2,8 +2,6 @@
 package lolicon
 
 import (
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"time"
 
@@ -16,6 +14,7 @@ import (
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/web"
 
 	"github.com/FloatTech/zbputils/control/order"
 )
@@ -38,17 +37,11 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				for i := 0; i < math.Min(cap(queue)-len(queue), 2); i++ {
-					resp, err := http.Get(api)
+					data, err := web.GetData(api)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					if resp.StatusCode != http.StatusOK {
-						ctx.SendChain(message.Text("ERROR: code ", resp.StatusCode))
-						continue
-					}
-					data, _ := ioutil.ReadAll(resp.Body)
-					resp.Body.Close()
 					json := gjson.ParseBytes(data)
 					if e := json.Get("error").Str; e != "" {
 						ctx.SendChain(message.Text("ERROR: ", e))
@@ -58,7 +51,7 @@ func init() {
 					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
 					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
 					m, err := pool.GetImage(name)
-					if err != nil && err != pool.ErrImgFileAsync {
+					if err != nil {
 						m.SetFile(url)
 						_, err = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						process.SleepAbout1sTo2s()

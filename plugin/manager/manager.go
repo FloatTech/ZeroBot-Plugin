@@ -48,7 +48,7 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX（可加{at}在欢迎时@对方）\n" +
+		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像\n" +
 		"- 测试欢迎语\n" +
 		"- [开启 | 关闭]入群验证"
 )
@@ -66,7 +66,6 @@ func init() { // 插件主体
 	})
 
 	go func() {
-		defer order.DoneOnExit()()
 		db.DBPath = engine.DataFolder() + "config.db"
 		clock = timer.NewClock(db)
 		err := db.Create("welcome", &welcome{})
@@ -282,7 +281,7 @@ func init() { // 插件主体
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, ctx.Event.GroupID, false)
 			if ts.En() {
-				go clock.RegisterTimer(ts, true)
+				go clock.RegisterTimer(ts, true, false)
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -295,7 +294,7 @@ func init() { // 插件主体
 			var url, alert string
 			switch len(dateStrs) {
 			case 4:
-				url = dateStrs[2]
+				url = strings.TrimPrefix(dateStrs[2], "用")
 				alert = dateStrs[3]
 			case 3:
 				alert = dateStrs[2]
@@ -305,7 +304,7 @@ func init() { // 插件主体
 			}
 			logrus.Debugln("[manager] cron:", dateStrs[1])
 			ts := timer.GetFilledCronTimer(dateStrs[1], alert, url, ctx.Event.SelfID, ctx.Event.GroupID)
-			if clock.RegisterTimer(ts, true) {
+			if clock.RegisterTimer(ts, true, false) {
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -382,7 +381,7 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
@@ -432,7 +431,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
 				userid := ctx.Event.UserID
-				ctx.SendChain(message.Text(ctxext.CardOrNickName(ctx, userid), "(", userid, ")", "离开了我们..."))
+				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
 			}
 		})
 	// 设置欢迎语
@@ -455,7 +454,7 @@ func init() { // 插件主体
 			var w welcome
 			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {
-				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				ctx.SendChain(message.Text("欢迎~"))
 			}
@@ -510,15 +509,6 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text("找不到服务!"))
 		})
-	// 运行 CQ 码
-	engine.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			var cmd = ctx.State["regex_matched"].([]string)[1]
-			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
-			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
-			// 可注入，权限为主人
-			ctx.Send(cmd)
-		})
 	// 根据 gist 自动同意加群
 	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。
 	// 然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
@@ -549,4 +539,15 @@ func init() { // 插件主体
 			}
 		}
 	})
+}
+
+// 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
+func welcometocq(ctx *zero.Ctx, welcome string) string {
+	nickname := ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("nickname").Str
+	at := "[CQ:at,qq=" + strconv.FormatInt(ctx.Event.UserID, 10) + "]"
+	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(ctx.Event.UserID, 10) + "&s=640]"
+	cqstring := strings.ReplaceAll(welcome, "{at}", at)
+	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
+	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
+	return cqstring
 }

@@ -65,7 +65,7 @@ func init() { // 插件主体
 			}
 		})
 	// 直接随机图片，无r18保护，后果自负。如果出r18图可尽快通过发送"太涩了"撤回
-	engine.OnFullMatch("直接随机", ctxext.UserOrGrpAdmin).SetBlock(true).
+	engine.OnFullMatch("直接随机", zero.UserOrGrpAdmin).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if block {
 				ctx.SendChain(message.Text("请稍后再试哦"))
@@ -97,7 +97,7 @@ func init() { // 插件主体
 			}
 		})
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
+	engine.OnKeywordGroup([]string{"评价图片"}, zero.OnlyGroup, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			url := ctx.State["image_url"].([]string)[0]
@@ -155,12 +155,12 @@ func reply(ctx *zero.Ctx, class int, dhash string, comment string) error {
 		}
 	} else {
 		send = func(msg interface{}) int64 {
-			return int64(ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
+			return ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
 				ctxext.FakeSenderForwardNode(ctx, append(
 					msg.(message.Message),
 					message.Text(comment))...,
 				),
-			}).Get("message_id").Int())
+			}).Get("message_id").Int()
 		}
 	}
 

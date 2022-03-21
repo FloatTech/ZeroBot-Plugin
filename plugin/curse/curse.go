@@ -29,7 +29,6 @@ func init() {
 	go func() {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "curse.db"
-		defer order.DoneOnExit()()
 		_, err := file.GetLazyData(db.DBPath, false, true)
 		if err != nil {
 			panic(err)

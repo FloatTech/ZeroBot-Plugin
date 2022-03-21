@@ -18,7 +18,6 @@ import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -75,12 +74,11 @@ func init() {
 	go func() {
 		dbpath := en.DataFolder()
 		dbfile := dbpath + "push.db"
-		defer order.DoneOnExit()()
 		bdb = initialize(dbfile)
 		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()
 
-	en.OnRegex(`^添加订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -106,7 +104,7 @@ func init() {
 			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -132,7 +130,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消动态订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消动态订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -158,7 +156,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 		}
 	})
-	en.OnRegex(`^取消直播订阅\s?(\d+)$`, ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消直播订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -184,7 +182,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 		}
 	})
-	en.OnFullMatch("推送列表", ctxext.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("推送列表", zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
@@ -232,7 +230,7 @@ func bilibiliPushDaily() {
 }
 
 func checkBuid(buid int64) (status int, name string) {
-	data, err := web.GetDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
@@ -290,7 +288,7 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 }
 
 func getUserDynamicCard(buid int64) (cardList []gjson.Result) {
-	data, err := web.GetDataWith(web.NewDefaultClient(), fmt.Sprintf(userDynamicURL, buid), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(userDynamicURL, buid), "GET", referer, ua)
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}

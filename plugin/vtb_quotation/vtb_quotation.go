@@ -44,7 +44,6 @@ func init() {
 	dbfile := engine.DataFolder() + "vtb.db"
 	storePath := engine.DataFolder() + "store/"
 	go func() {
-		defer order.DoneOnExit()()
 		err := os.MkdirAll(storePath, 0755)
 		if err != nil {
 			panic(err)

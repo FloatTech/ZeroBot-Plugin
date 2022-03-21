@@ -1,14 +1,10 @@
 linters-settings:
   errcheck:
-    ignore: fmt:.*,io/ioutil:^Read.*
+    ignore: fmt:.*
     ignoretests: true
 
   goimports:
     local-prefixes: github.com/FloatTech/ZeroBot-Plugin
-
-  gocritic:
-    disabled-checks:
-      - exitAfterDefer
 
   forbidigo:
     # Forbid the following identifiers

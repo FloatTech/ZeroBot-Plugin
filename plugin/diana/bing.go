@@ -26,7 +26,6 @@ func init() {
 	go func() {
 		datapath := engine.DataFolder()
 		dbfile := datapath + "text.db"
-		defer order.DoneOnExit()()
 		data.LoadText(dbfile)
 	}()
 

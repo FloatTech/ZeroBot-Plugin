@@ -14,7 +14,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
@@ -43,7 +42,6 @@ func init() {
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		defer order.DoneOnExit()()
 		os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {
@@ -108,7 +106,7 @@ func init() {
 			canvas.SetRGB(0, 0, 0)
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
-			nickName := ctxext.CardOrNickName(ctx, uid)
+			nickName := ctx.CardOrNickName(uid)
 			if err = canvas.LoadFontFace(text.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -204,12 +202,12 @@ func getLevel(count int) int {
 
 func initPic(picFile string) {
 	if file.IsNotExist(picFile) {
-		data, err := web.GetDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
+		data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
 		if err != nil {
 			log.Errorln("[score]", err)
 		}
 		picURL := gjson.Get(string(data), "pic").String()
-		data, err = web.GetDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
+		data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
 		if err != nil {
 			log.Errorln("[score]", err)
 		}

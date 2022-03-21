@@ -23,7 +23,6 @@ func init() {
 	go func() {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "bookreview.db"
-		defer order.DoneOnExit()()
 		// os.RemoveAll(dbpath)
 		_, _ = file.GetLazyData(db.DBPath, false, true)
 		err := db.Create("bookreview", &book{})

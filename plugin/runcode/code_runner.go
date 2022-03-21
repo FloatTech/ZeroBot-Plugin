@@ -3,7 +3,7 @@ package runcode
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -104,9 +104,10 @@ func init() {
 			"JavaScript || TypeScript || PHP || Shell \n" +
 			"Kotlin  || Rust || Erlang || Ruby || Swift \n" +
 			"R || VB || Py2 || Perl || Pascal || Scala",
-	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^>runcode\s(.+?)\s([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).
+	}).ApplySingle(ctxext.DefaultSingle).OnRegex(`^>runcode(raw)?\s(.+?)\s([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			language := ctx.State["regex_matched"].([]string)[1]
+			israw := ctx.State["regex_matched"].([]string)[1] != ""
+			language := ctx.State["regex_matched"].([]string)[2]
 			language = strings.ToLower(language)
 			if runType, exist := table[language]; !exist {
 				// 不支持语言
@@ -116,10 +117,9 @@ func init() {
 				)
 			} else {
 				// 执行运行
-				block := ctx.State["regex_matched"].([]string)[2]
-				block = message.UnescapeCQCodeText(block)
-				if block == "help" {
-					// 输出模板
+				block := message.UnescapeCQText(ctx.State["regex_matched"].([]string)[3])
+				switch block {
+				case "help":
 					ctx.SendChain(
 						message.Text("> ", ctx.Event.Sender.NickName, "  ", language, "-template:\n"),
 						message.Text(
@@ -127,7 +127,7 @@ func init() {
 							templates[language],
 						),
 					)
-				} else {
+				default:
 					if output, err := runCode(block, runType); err != nil {
 						// 运行失败
 						ctx.SendChain(
@@ -136,10 +136,14 @@ func init() {
 						)
 					} else {
 						// 运行成功
-						ctx.SendChain(
-							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-							message.Text(output),
-						)
+						if israw {
+							ctx.SendChain(message.Text(output))
+						} else {
+							ctx.SendChain(
+								message.Text("> ", ctx.Event.Sender.NickName, "\n"),
+								message.Text(output),
+							)
+						}
 					}
 				}
 			}
@@ -177,7 +181,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	if body.StatusCode != http.StatusOK {
 		return "", errors.New("code not 200")
 	}
-	res, err := ioutil.ReadAll(body.Body)
+	res, err := io.ReadAll(body.Body)
 	if err != nil {
 		return "", err
 	}

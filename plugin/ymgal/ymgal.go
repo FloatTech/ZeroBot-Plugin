@@ -20,7 +20,6 @@ func init() {
 	})
 	dbfile := engine.DataFolder() + "ymgal.db"
 	go func() {
-		defer order.DoneOnExit()()
 		_, _ = file.GetLazyData(dbfile, false, false)
 		gdb = initialize(dbfile)
 	}()

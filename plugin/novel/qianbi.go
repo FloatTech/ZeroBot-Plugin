@@ -3,7 +3,7 @@ package novel
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -25,14 +25,14 @@ import (
 )
 
 const (
-	websiteURL   = "https://www.23qb.net"
+	websiteURL   = "https://www.23qb.com"
 	websiteTitle = "铅笔小说"
 	errorTitle   = "出现错误！"
 	username     = "zerobot"
 	password     = "123456"
 	submit       = "%26%23160%3B%B5%C7%26%23160%3B%26%23160%3B%C2%BC%26%23160%3B"
 	ua           = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
-	loginURL     = websiteURL + "/login.php?do=submit&jumpurl=https%3A%2F%2Fwww.23qb.net%2F"
+	loginURL     = websiteURL + "/login.php?do=submit&jumpurl=https%3A%2F%2Fwww.23qb.com%2F"
 	searchURL    = websiteURL + "/saerch.php"
 	idReg        = `/(\d+)/`
 )
@@ -164,7 +164,7 @@ func search(searchKey string) (searchHTML string) {
 		log.Errorln("[novel]", err)
 	}
 	defer searchResp.Body.Close()
-	searchData, err := ioutil.ReadAll(searchResp.Body)
+	searchData, err := io.ReadAll(searchResp.Body)
 	if err != nil {
 		log.Errorf("[novel] get response for url=%s got error=%s\n", searchURL, err.Error())
 	}

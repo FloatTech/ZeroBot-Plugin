@@ -66,6 +66,58 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /服务列表
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
+- **定时指令触发器** `import _ "github.com/FloatTech/zbputils/job"`
+    - [x] 记录以"完全匹配关键词"触发的(代表我执行的)指令
+    - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
+    - [x] 记录在"cron"触发的指令
+    - [x] 取消在"cron"触发的指令
+    - [x] 查看所有触发指令
+    - [x] 查看在"cron"触发的指令
+    - [x] 查看以"完全匹配关键词"触发的(代表我执行的)指令
+    - [x] 注入指令结果：任意指令
+    - [x] 执行指令：任意指令
+    - 注：任意指令可以使用形如`?::参数1提示语::1!`,`?::参数2提示语::2!`,`?::?可选参数3提示语，不回答将填入空值::3!`,`!::从url获取的参数::4!`,`!::?可选的从url获取的参数，出错将填入空值::5!`的未定参数，在注入时一一匹配
+    - 一些示例
+> 每日9:30推送摸鱼人日历
+```
+记录在"30 9 * * *"触发的指令
+run[CQ:image,file=https://api.vvhan.com/api/moyu]
+```
+> 每日12:00以1/2概率执行coser指令
+```python
+记录在"0 12 * * *"触发的指令
+注入指令结果：>runcoderaw py
+from random import random
+if random() > 0.5: print('coser')
+else: print('今天没有coser哦~')
+```
+> 每日15:00询问设置定时者否想看coser
+```python
+记录在"0 15 * * *"触发的指令
+注入指令结果：>runcoderaw py
+if '?::想看coser吗？::1!' == '想': print('coser')
+else: print('好吧')
+```
+> 自行编写简易的选择困难症助手小插件
+```python
+记录以"简易的选择困难症助手"触发的指令
+执行指令：>runcoderaw py
+from random import random
+if random() > 0.5: print('您最终会选?::请输入您的选择1::1!')
+else: print('您最终会选?::请输入您的选择2::2!')
+简易的选择困难症助手
+```
+> 自行编写随机b站404页趣图插件
+```python
+记录以"随机b站404页趣图"触发的代表我执行的指令
+注入指令结果：>runcoderaw py
+import json
+j = json.loads(r'''!::https://api.iyk0.com/bili_chart::1!''')
+print("run[CQ:image,file="+j["img"]+"]")
+随机b站404页趣图
+```
+![随机b站404页趣图](https://user-images.githubusercontent.com/41315874/157371451-c09ad3bb-c61a-4a42-9c47-fab3305bc0f8.png)
+
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -93,7 +145,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] 退出群聊[群号]@Bot
     - [x] *入群欢迎
     - [x] *退群通知
-    - [x] 设置欢迎语[欢迎~]
+    - [x] 设置欢迎语[欢迎~]  可选添加 [{at}] [{nickname}] [{avatar}]
     - [x] 在[MM]月[dd]日的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 在[MM]月[每周 | 周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
@@ -107,14 +159,17 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [ ] 同意好友请求
     - [ ] 撤回[@xxx] [xxx]
     - [ ] 警告[@xxx]
-    - [x] run[xxx]
     - 注：使用gist加群自动审批，请在群介绍添加以下说明，同时开启`需要回答问题并由管理员审核`：加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
+    - 设置欢迎语可选添加参数说明：{at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像
 - **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
     - [x] >github [xxx]
     - [x] >github -p [xxx]
+- **注入指令** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`
+    - [x] run[CQ码]
 - **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
     - [x] > runcode [language] help
     - [x] > runcode [language] [code block]
+    - [x] > runcoderaw [language] [code block]
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
@@ -140,9 +195,17 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **摸鱼** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"`
     - [x] /启用 moyu
     - [x] /禁用 moyu
+```
+记录在"0 10 * * *"触发的指令
+摸鱼提醒
+```
 - **摸鱼人日历** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar"`
     - [x] /启用 moyucalendar
     - [x] /禁用 moyucalendar
+```
+记录在"30 8 * * *"触发的指令
+摸鱼人日历
+```
 - **涩图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"`
     - [x] 来份[涩图/二次元/风景/车万]
     - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
@@ -180,6 +243,9 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
     - [x] 运势 | 抽签
     - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录]
+- **原神抽卡** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
+    - [x] 切换原神卡池
+    - [x] 原神十连
 - **睡眠管理** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage`
     - [x] 早安 | 晚安
 - **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
@@ -197,7 +263,6 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
     - [x] >vup info [名字 | uid]
     - [x] >user info [名字 | uid]
-    - [x] /开启粉丝日报
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
     - [x] 小作文
     - [x] 发大病
@@ -293,6 +358,18 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] galCG[xxx]
     - [x] gal表情包[xxx]
     - [x] 更新gal
+- **城市疫情查询** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
+    - [x] xxx疫情
+- **早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
+    - api早上8点更新，推荐定时在8点30后。配合插件`job`中的记录在"cron"触发的指令使用
+    - [x] /启用 zaobao
+    - [x] /禁用 zaobao
+- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
+    - [x] 舔狗日记
+```
+记录在"00 9 * * *"触发的指令
+今日早报
+```
 - **TODO...**
 
 ## 使用方法

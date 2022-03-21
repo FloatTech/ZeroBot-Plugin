@@ -62,7 +62,6 @@ func init() { // 插件主体
 	})
 
 	go func() {
-		defer order.DoneOnExit()()
 		// 如果数据库不存在则下载
 		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
@@ -164,10 +163,8 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 				return
 			}
 		}
-		if err != imagepool.ErrImgFileAsync {
-			m.SetFile(f)
-			_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-		}
+		m.SetFile(f)
+		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 		msg = message.Image("file:///" + f)
 	} else {
 		msg = message.Image(m.String())
