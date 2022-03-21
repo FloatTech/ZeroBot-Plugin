@@ -350,8 +350,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
     - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
 - **煎蛋网无聊图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
-    - [x] 来份屌图
-    - [x] 更新屌图
+    - [x] 来份[屌|弔|吊]图
+    - [x] 更新[屌|弔|吊]图
 - **月幕galgame图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
     - [x] 随机galCG
     - [x] 随机gal表情包

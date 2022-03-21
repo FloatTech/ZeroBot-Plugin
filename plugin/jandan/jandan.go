@@ -25,7 +25,7 @@ const (
 func init() {
 	engine := control.Register("jandan", order.AcquirePrio(), &control.Options{
 		DisableOnDefault: false,
-		Help:             "煎蛋网无聊图\n- 来份屌图\n- 更新屌图\n",
+		Help:             "煎蛋网无聊图\n- 来份[屌|弔|吊]图\n- 更新[屌|弔|吊]图\n",
 		PublicDataFolder: "Jandan",
 	})
 
@@ -44,7 +44,7 @@ func init() {
 		logrus.Printf("[jandan]读取%d张图片", n)
 	}()
 
-	engine.OnFullMatch("来份屌图").SetBlock(true).
+	engine.OnRegex(`来份[屌|弔|吊]图`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u, err := getRandomPicture()
 			if err != nil {
@@ -54,7 +54,7 @@ func init() {
 			ctx.SendChain(message.Image(u))
 		})
 
-	engine.OnFullMatch("更新屌图", zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`更新[屌|弔|吊]图`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女更新中...")
 			webpageURL := api
