@@ -185,7 +185,7 @@ func init() {
 			return
 		}
 		maxnumber, _ := strconv.Atoi(listmax)
-		url = "https://www.ygo-sem.cn/Cards/S.aspx?" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
+		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
 		// 请求html页面
 		body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
