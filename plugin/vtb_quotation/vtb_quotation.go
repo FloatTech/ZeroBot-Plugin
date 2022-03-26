@@ -78,25 +78,25 @@ func init() {
 			errorCount := 0
 			for {
 				select {
-				case e := <-echo: // 接收到需要复读的消息
+				case c := <-echo: // 接收到需要复读的消息
 					// 错误次数达到3次，结束命令
 					if errorCount >= 3 {
-						ctx.SendChain(message.Reply(e.MessageID), message.Text("输入错误太多,请重新发指令"))
+						ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("输入错误太多,请重新发指令"))
 						return
 					}
 					switch step {
 					case 0:
-						firstIndex, err = strconv.Atoi(e.RawMessage)
+						firstIndex, err = strconv.Atoi(c.Event.RawMessage)
 						// log.Println(fmt.Sprintf("当前在第%d步", step))
 						// log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
-							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
 							secondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
 							// log.Println(secondStepMessage)
 							if secondStepMessage == "" {
-								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
+								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
 								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
@@ -117,17 +117,17 @@ func init() {
 							}
 						}
 					case 1:
-						secondIndex, err = strconv.Atoi(e.RawMessage)
+						secondIndex, err = strconv.Atoi(c.Event.RawMessage)
 						// log.Println(fmt.Sprintf("当前在第%d步", step))
 						// log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
-							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
 							thirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
 							// log.Println(thirdStepMessage)
 							if thirdStepMessage == "" {
-								ctx.SendChain(message.Reply(e.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
+								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
 								secondStepMessageBytes, err := text.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
@@ -148,18 +148,18 @@ func init() {
 							}
 						}
 					case 2:
-						thirdIndex, err = strconv.Atoi(e.RawMessage)
+						thirdIndex, err = strconv.Atoi(c.Event.RawMessage)
 						// log.Println(fmt.Sprintf("当前在第%d步", step))
 						// log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
-							ctx.SendChain(message.Reply(e.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
 							tc := db.GetThirdCategory(firstIndex, secondIndex, thirdIndex)
 							reg := regexp.MustCompile(regStr)
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
-								ctx.SendChain(message.Reply(e.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
+								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
 								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
 								if err != nil {
 									log.Errorln("[vtb]:", err)
@@ -177,7 +177,7 @@ func init() {
 									recURL = strings.ReplaceAll(recURL, "+", "%20")
 									// log.Println(recordUrl)
 								}
-								ctx.SendChain(message.Reply(e.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
+								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
 
 								if !re.MatchString(recURL) {
 									log.Errorln("[vtb]:文件格式不匹配")

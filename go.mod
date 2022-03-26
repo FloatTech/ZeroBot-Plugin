@@ -3,9 +3,9 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.18
 
 require (
-	github.com/FloatTech/AnimeAPI v1.3.2-0.20220319114940-c6c7d308c43b
+	github.com/FloatTech/AnimeAPI v1.3.2-0.20220326161751-d0d2797b91da
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.3.2-0.20220326140053-3c3626865d29
+	github.com/FloatTech/zbputils v1.3.2-0.20220326161600-f9554b2fb9a4
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
@@ -22,8 +22,8 @@ require (
 	github.com/shirou/gopsutil/v3 v3.22.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.0
-	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220314043738-2ff63b4ac217
-	golang.org/x/image v0.0.0-20220302094943-723b81ca9867
+	github.com/wdvxdr1123/ZeroBot v1.4.2-0.20220326160643-893d4e910785
+	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
 )
 
 require (
@@ -47,9 +47,9 @@ require (
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
+	golang.org/x/sys v0.0.0-20220325203850-36772127a21f // indirect
 	golang.org/x/text v0.3.7 // indirect
-	modernc.org/libc v1.14.11 // indirect
+	modernc.org/libc v1.14.12 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
-	modernc.org/memory v1.0.6 // indirect
+	modernc.org/memory v1.0.7 // indirect
 )
