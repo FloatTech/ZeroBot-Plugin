@@ -4,7 +4,9 @@ package plugin_ygo
 import (
 	"encoding/base64"
 	"fmt"
+	"io"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,11 +18,30 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/process"
-	"github.com/FloatTech/zbputils/web"
 )
 
 var reqconf = [...]string{"GET", "https://www.ygo-sem.cn/",
 	"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
+
+// ReqWith 使用自定义请求头获取数据
+func ReqWith(url string, method string, referer string, ua string) (data []byte, err error) {
+	client := &http.Client{}
+	// 提交请求
+	var request *http.Request
+	request, err = http.NewRequest(method, url, nil)
+	if err == nil {
+		// 增加header选项
+		request.Header.Add("Referer", referer)
+		request.Header.Add("User-Agent", ua)
+		var response *http.Response
+		response, err = client.Do(request)
+		if err == nil {
+			data, err = io.ReadAll(response.Body)
+			response.Body.Close()
+		}
+	}
+	return
+}
 
 //正则筛选数据
 func regexpmatch(rule string, str string) (regexpresult string, regexpstate bool) {
@@ -50,7 +71,7 @@ func init() {
 		if strings.Contains(searchName, "随机一卡") {
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
-			list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+			list_body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 			if err != nil {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
 				return
@@ -66,7 +87,7 @@ func init() {
 		}
 		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
 		// 请求html页面
-		body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
 			return
@@ -89,19 +110,28 @@ func init() {
 			ctx.SendChain(message.Text(list_data))
 			var searchpage = 0 //初始当前页面
 			//等待用户下一步选择
-			var next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(下一页)|\d+`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
+			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(取消)|(下一页)|\d+`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID)).Repeat()
 			for {
 				select {
 				case <-time.After(time.Second * 120): //两分钟等待
+					cancel()
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
 							message.Text("等待超时,搜索结束"),
 						),
 					)
 					return
-				case e := <-next.Next():
+				case e := <-recv:
 					nextcmd := e.Message.String() //获取下一个指令
 					switch nextcmd {
+					case "取消":
+						cancel()
+						ctx.Send(
+							message.ReplyWithMessage(ctx.Event.MessageID,
+								message.Text("用户取消,搜索结束"),
+							),
+						)
+						return
 					case "下一页":
 						searchpage += 1
 						if searchpage > pagemax {
@@ -110,7 +140,7 @@ func init() {
 						}
 						url := "https://www.ygo-sem.cn/Cards/S.aspx?dRace=&attr=&q=" + searchName + "&start=" + strconv.Itoa(searchpage*30)
 						// 请求html页面
-						body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+						body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 						if err != nil {
 							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
 							return
@@ -120,6 +150,7 @@ func init() {
 						list_data := "找到" + listmax + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
 						ctx.SendChain(message.Text(list_data))
 					default:
+						cancel()
 						Cardint, err := strconv.Atoi(nextcmd)
 						switch {
 						case err != nil:
@@ -128,9 +159,10 @@ func init() {
 							if Cardint < len(cardsname) {
 								url := "https://www.ygo-sem.cn/" + cardshref[Cardint]
 								// 请求html页面
-								body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+								body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 								if err != nil {
-									fmt.Println("网页数据读取错误：", err)
+									ctx.Send(message.Text("网页数据读取错误：", err))
+									return
 								}
 								card_data, imageBase64 := getYGOdata(string(body))
 								ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Image("base64://"+imageBase64), message.Text(card_data)))
@@ -166,6 +198,18 @@ func init() {
 			if m.SetData(gid, int64(0)) == nil {
 				ctx.SendChain(message.Text("服务已关闭")) //写入状态码
 			}
+		case "查询":
+			gid := ctx.Event.GroupID
+			m, ok := control.Lookup("ygo")
+			if !ok {
+				return
+			}
+			index := m.GetData(gid)
+			if int(index) == 1 {
+				ctx.SendChain(message.Text("服务已开启"))
+			} else {
+				ctx.SendChain(message.Text("服务未开启"))
+			}
 		}
 	})
 	process.CronTab.AddFunc("00 12 * * *", func() {
@@ -175,7 +219,7 @@ func init() {
 		}
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
-		list_body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		list_body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			return
 		}
@@ -187,7 +231,7 @@ func init() {
 		maxnumber, _ := strconv.Atoi(listmax)
 		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
 		// 请求html页面
-		body, err := web.ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			return
 		}
@@ -205,7 +249,7 @@ func init() {
 			}
 			return true
 		})
-	})//*/
+	}) //*/
 }
 
 //获取单卡信息
@@ -217,7 +261,7 @@ func getYGOdata(body string) (ygodata string, imageBase64 string) {
 	}
 	pic_href := "https://www.ygo-sem.cn/yugioh/picsCN" + cardpic + ".jpg"
 	// 读取获取的[]byte数据
-	data, _ := web.ReqWith(pic_href, reqconf[0], reqconf[1], reqconf[2])
+	data, _ := ReqWith(pic_href, reqconf[0], reqconf[1], reqconf[2])
 	imageBase64 = base64.StdEncoding.EncodeToString(data)
 
 	//获取卡名*/
