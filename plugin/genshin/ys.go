@@ -168,10 +168,10 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 			switch rand.Intn(2) {
 			case 0:
 				fourN++
-				fours = append(fours, filetree["four"][rand.Intn(fourlen)]) //随机角色
+				fours = append(fours, filetree["four"][rand.Intn(fourlen)]) // 随机角色
 			case 1:
 				fourN2++
-				fourArms = append(fourArms, filetree["four2"][rand.Intn(four2len)]) //随机武器
+				fourArms = append(fourArms, filetree["four2"][rand.Intn(four2len)]) // 随机武器
 			}
 		}
 		_ = atomic.AddUint64(&totl, 1)
