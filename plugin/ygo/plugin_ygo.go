@@ -23,8 +23,8 @@ import (
 var reqconf = [...]string{"GET", "https://www.ygo-sem.cn/",
 	"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
 
-// ReqWith 使用自定义请求头获取数据
-func ReqWith(url string, method string, referer string, ua string) (data []byte, err error) {
+// reqwith 使用自定义请求头获取数据
+func reqwith(url string, method string, referer string, ua string) (data []byte, err error) {
 	client := &http.Client{}
 	// 提交请求
 	var request *http.Request
@@ -71,7 +71,7 @@ func init() {
 		if strings.Contains(searchName, "随机一卡") {
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
-			list_body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+			list_body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
 			if err != nil {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
 				return
@@ -87,7 +87,7 @@ func init() {
 		}
 		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
 		// 请求html页面
-		body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
 			return
@@ -140,7 +140,7 @@ func init() {
 						}
 						url := "https://www.ygo-sem.cn/Cards/S.aspx?dRace=&attr=&q=" + searchName + "&start=" + strconv.Itoa(searchpage*30)
 						// 请求html页面
-						body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+						body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
 						if err != nil {
 							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
 							return
@@ -150,16 +150,16 @@ func init() {
 						list_data := "找到" + listmax + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
 						ctx.SendChain(message.Text(list_data))
 					default:
-						Cardint, err := strconv.Atoi(nextcmd)
+						cardint, err := strconv.Atoi(nextcmd)
 						switch {
 						case err != nil:
 							ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
 						default:
-							if Cardint < len(cardsname) {
+							if cardint < len(cardsname) {
 								cancel()
-								url := "https://www.ygo-sem.cn/" + cardshref[Cardint]
+								url := "https://www.ygo-sem.cn/" + cardshref[cardint]
 								// 请求html页面
-								body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+								body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
 								if err != nil {
 									ctx.Send(message.Text("网页数据读取错误：", err))
 									return
@@ -219,7 +219,7 @@ func init() {
 		}
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
-		list_body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		list_body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			return
 		}
@@ -231,7 +231,7 @@ func init() {
 		maxnumber, _ := strconv.Atoi(listmax)
 		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + fmt.Sprint(rand.New(rand.NewSource(time.Now().UnixNano())).Intn(maxnumber))
 		// 请求html页面
-		body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
+		body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			return
 		}
@@ -261,7 +261,7 @@ func getYGOdata(body string) (ygodata string, imageBase64 string) {
 	}
 	pic_href := "https://www.ygo-sem.cn/yugioh/picsCN" + cardpic + ".jpg"
 	// 读取获取的[]byte数据
-	data, _ := ReqWith(pic_href, reqconf[0], reqconf[1], reqconf[2])
+	data, _ := reqwith(pic_href, reqconf[0], reqconf[1], reqconf[2])
 	imageBase64 = base64.StdEncoding.EncodeToString(data)
 
 	//获取卡名*/
