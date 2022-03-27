@@ -67,6 +67,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 - **定时指令触发器** `import _ "github.com/FloatTech/zbputils/job"`
+    - 注意：触发器具有限速，每 2s 仅允许最多一次触发
     - [x] 记录以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 记录在"cron"触发的指令
