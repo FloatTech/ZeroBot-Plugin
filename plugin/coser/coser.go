@@ -52,7 +52,7 @@ func init() {
 			if id := ctx.SendGroupForwardMessage(
 				ctx.Event.GroupID,
 				m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				ctx.SendChain(message.Text("ERROR:可能被风控或下载图片用时过长，请耐心等待"))
 			}
 		})
 }
