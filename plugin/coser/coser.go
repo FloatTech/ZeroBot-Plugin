@@ -2,6 +2,8 @@
 package coser
 
 import (
+	"regexp"
+
 	"github.com/tidwall/gjson"
 
 	log "github.com/sirupsen/logrus"
@@ -19,6 +21,7 @@ import (
 var (
 	ua       = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
 	coserURL = "http://ovooa.com/API/cosplay/api.php"
+	datestr  = regexp.MustCompile(`/\d{4}-\d{2}-\d{2}/`)
 )
 
 func init() {
@@ -35,7 +38,13 @@ func init() {
 
 			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
 			m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(text))}
+			ds := ""
 			gjson.Get(helper.BytesToString(data), "data.data").ForEach(func(_, value gjson.Result) bool {
+				if ds == "" {
+					ds = datestr.FindString(value.String())
+				} else if ds != datestr.FindString(value.String()) {
+					return false
+				}
 				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(value.String())))
 				return true
 			})
