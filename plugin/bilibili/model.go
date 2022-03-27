@@ -3,7 +3,7 @@ package bilibili
 import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/web"
-	_ "github.com/fumiama/sqlite3"
+	_ "github.com/fumiama/sqlite3" // use sql
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
@@ -95,7 +95,10 @@ func updateVup() {
 			mid := value.Get("mid").Int()
 			uname := value.Get("uname").String()
 			roomid := value.Get("roomid").Int()
-			vdb.insertVupByMid(mid, uname, roomid)
+			err = vdb.insertVupByMid(mid, uname, roomid)
+			if err != nil {
+				log.Errorln("[bilibili]:", err)
+			}
 			return true
 		})
 	}

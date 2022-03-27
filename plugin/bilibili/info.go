@@ -26,9 +26,9 @@ import (
 var engine = control.Register("bilibili", order.AcquirePrio(), &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
-		"- >vup info [名字 | search]\n" +
-		"- >user info [名字 | search]\n" +
-		"- 查成分 [名字 | search]\n" +
+		"- >vup info [名字 | uid]\n" +
+		"- >user info [名字 | uid]\n" +
+		"- 查成分 [名字 | uid]\n" +
 		"- 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\n" +
 		"- 更新vup",
 	PublicDataFolder: "Bilibili",
@@ -141,7 +141,7 @@ func init() {
 			for i := len(frontVups); i < len(vups); i++ {
 				if _, ok := medalMap[vups[i].Mid]; ok {
 					vups = append(vups[:i], vups[i+1:]...)
-					i = i - 1
+					i--
 				}
 			}
 			facePath := cachePath + id + "vupFace.png"
@@ -246,7 +246,11 @@ func init() {
 	engine.OnRegex(`^设置b站cookie?\s+(.{1,100})$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			cookie := ctx.State["regex_matched"].([]string)[1]
-			vdb.setBilibiliCookie(cookie)
+			err := vdb.setBilibiliCookie(cookie)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.SendChain(message.Text("成功设置b站cookie为" + cookie))
 		})
 
