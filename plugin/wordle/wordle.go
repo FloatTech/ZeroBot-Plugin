@@ -108,7 +108,7 @@ func init() {
 			var next *zero.FutureEvent
 			if ctx.State["regex_matched"].([]string)[1] == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
-					zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
+					zero.OnlyGroup, ctx.CheckSession())
 			} else {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
 					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
@@ -126,12 +126,12 @@ func init() {
 						),
 					)
 					return
-				case e := <-recv:
-					win, img, cl, err = game(e.Message.String())
+				case c := <-recv:
+					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
 								message.Text("太棒了，你猜出来了！"),
 							),
@@ -140,7 +140,7 @@ func init() {
 						return
 					case err == errTimesRunOut:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
 								message.Text("游戏结束...答案是: ", target),
 							),
@@ -149,19 +149,19 @@ func init() {
 						return
 					case err == errLengthNotEnough:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.Text("单词长度错误"),
 							),
 						)
 					case err == errUnknownWord:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.Text("你确定存在这样的单词吗？"),
 							),
 						)
 					default:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
 							),
 						)

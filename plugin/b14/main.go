@@ -35,7 +35,7 @@ func init() {
 			str := ctx.State["regex_matched"].([]string)[1]
 			es := base14.DecodeString(str)
 			if es != "" {
-				ctx.SendChain(message.Text(base14.DecodeString(es)))
+				ctx.SendChain(message.Text(es))
 			} else {
 				ctx.SendChain(message.Text("解密失败!"))
 			}

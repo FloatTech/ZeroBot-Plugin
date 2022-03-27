@@ -125,7 +125,7 @@ func init() {
 			zipfile := images + kind + ".zip"
 			_, err := file.GetLazyData(zipfile, false, false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 
@@ -136,7 +136,7 @@ func init() {
 			// 随机获取背景
 			background, index, err := randimage(zipfile, seed)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 
@@ -155,7 +155,7 @@ func init() {
 				return err
 			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 		})
