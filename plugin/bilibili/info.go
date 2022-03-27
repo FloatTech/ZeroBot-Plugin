@@ -12,13 +12,11 @@ import (
 	"github.com/FloatTech/zbputils/web"
 	"github.com/fogleman/gg"
 	log "github.com/sirupsen/logrus"
-	"image/color"
-	"sort"
-
-	//"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"image/color"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -105,7 +103,7 @@ func init() {
 			}
 			id := searchRes.Get("data.result.0.mid").String()
 			today := time.Now().Format("20060102")
-			drawedFile := cachePath + id + today + "vuplike.png"
+			drawedFile := cachePath + id + today + "vupLike.png"
 			if file.IsExist(drawedFile) {
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 				return
@@ -147,14 +145,18 @@ func init() {
 			}
 			facePath := cachePath + id + "vupFace.png"
 			initFacePic(facePath, u.Face)
+			var backX int
+			var backY int
 			back, err := gg.LoadImage(facePath)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
-				return
+				backX = 500
+				backY = 500
+			} else {
+				back = img.Limit(back, 1280, 720)
+				backX = back.Bounds().Size().X
+				backY = back.Bounds().Size().Y
 			}
-			back = img.Limit(back, 1280, 720)
-			backX := back.Bounds().Size().X
-			backY := back.Bounds().Size().Y
 			if len(vups) > 50 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前50个up"))
 				vups = vups[:50]
@@ -163,7 +165,9 @@ func init() {
 			fontSize := float64(backX) * 0.1
 			canvas.SetColor(color.White)
 			canvas.Clear()
-			canvas.DrawImage(back, 0, 0)
+			if back != nil {
+				canvas.DrawImage(back, 0, 0)
+			}
 			canvas.SetColor(color.Black)
 			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
