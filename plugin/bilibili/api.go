@@ -12,7 +12,7 @@ import (
 
 // 搜索api：通过把触发指令传入的昵称找出uid返回
 func search(keyword string) (*gjson.Result, error) {
-	searchURL := "http://api.bilibili.com/x/web-interface/search/type?search_type=bili_user&&user_type=1&keyword=" + keyword
+	searchURL := "http://api.bilibili.com/x/web-interface/search/type?search_type=bili_user&keyword=" + keyword
 	data, err := web.GetData(searchURL)
 	if err != nil {
 		return nil, err
