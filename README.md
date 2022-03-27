@@ -180,6 +180,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 异世界转生[@xxx]
     - [x] 卖萌[@xxx]
     - [x] 抽老婆[@xxx]
+    - [x] 黄油角色[@xxx]
 - **AIWife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
     - [x] waifu | 随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
 - **gif** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"`
