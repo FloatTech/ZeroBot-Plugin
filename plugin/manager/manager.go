@@ -417,13 +417,13 @@ func init() { // 插件主体
 							}
 							return false
 						}
-						next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule)
+						next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession(), rule)
 						recv, cancel := next.Repeat()
 						select {
 						case <-time.After(time.Minute):
+							cancel()
 							ctx.SendChain(message.Text("拜拜啦~"))
 							ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
-							cancel()
 						case <-recv:
 							cancel()
 							ctx.SendChain(message.Text("答对啦~"))

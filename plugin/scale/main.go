@@ -111,7 +111,7 @@ func init() {
 }
 
 func getPara(ctx *zero.Ctx) bool {
-	next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID))
+	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession())
 	recv, cancel := next.Repeat()
 	i := 0
 	paras := [2]int{}
@@ -119,9 +119,10 @@ func getPara(ctx *zero.Ctx) bool {
 	for {
 		select {
 		case <-time.After(time.Second * 120):
+			cancel()
 			return false
-		case e := <-recv:
-			msg := e.Message.ExtractPlainText()
+		case c := <-recv:
+			msg := c.Event.Message.ExtractPlainText()
 			num, err := strconv.Atoi(msg)
 			if err != nil {
 				ctx.SendChain(message.Text("请输入数字!"))
