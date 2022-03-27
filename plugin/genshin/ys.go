@@ -109,13 +109,13 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 		threeN2, fourN2, fiveN2       = 0, 0, 0                                                                      // 抽到 三 , 四, 五星武器的数量
 		hero, stars                   = make([]*zip.File, 0, 10), make([]*zip.File, 0, 10)                           // 角色武器名, 储存星级图标
 
-		cicon                      = make([]*zip.File, 0, 10)                                                            // 元素图标
-		five_bg, four_bg, three_bg = filetree["five_bg.jpg"][0], filetree["four_bg.jpg"][0], filetree["three_bg.jpg"][0] // 背景图片名
-		fivelen                    = len(filetree["five"])
-		five2len                   = len(filetree["five2"])
-		threelen                   = len(filetree["Three"])
-		fourlen                    = len(filetree["four"])
-		four2len                   = len(filetree["four2"])
+		cicon                   = make([]*zip.File, 0, 10)                                                            // 元素图标
+		fivebg, fourbg, threebg = filetree["five_bg.jpg"][0], filetree["four_bg.jpg"][0], filetree["three_bg.jpg"][0] // 背景图片名
+		fivelen                 = len(filetree["five"])
+		five2len                = len(filetree["five2"])
+		threelen                = len(filetree["Three"])
+		fourlen                 = len(filetree["four"])
+		four2len                = len(filetree["four2"])
 	)
 
 	if totl%9 == 0 { // 累计9次加入一个五星
@@ -207,19 +207,19 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 	}
 
 	if fiveN > 0 { // 按顺序加入
-		he(fiveN, 5, starN5, five_bg) // 五星角色
+		he(fiveN, 5, starN5, fivebg) // 五星角色
 	}
 	if fourN > 0 {
-		he(fourN, 3, starN4, four_bg) // 四星角色
+		he(fourN, 3, starN4, fourbg) // 四星角色
 	}
 	if fiveN2 > 0 {
-		he(fiveN2, 4, starN5, five_bg) // 五星武器
+		he(fiveN2, 4, starN5, fivebg) // 五星武器
 	}
 	if fourN2 > 0 {
-		he(fourN2, 2, starN4, four_bg) // 四星武器
+		he(fourN2, 2, starN4, fourbg) // 四星武器
 	}
 	if threeN2 > 0 {
-		he(threeN2, 1, starN3, three_bg) // 三星武器
+		he(threeN2, 1, starN3, threebg) // 三星武器
 	}
 
 	var c1, c2, c3 uint8 = 50, 50, 50 // 背景颜色
