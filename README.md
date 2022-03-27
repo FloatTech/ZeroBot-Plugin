@@ -119,6 +119,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 ```
 ![随机b站404页趣图](https://user-images.githubusercontent.com/41315874/157371451-c09ad3bb-c61a-4a42-9c47-fab3305bc0f8.png)
 
+- **渲染任意文字到图片** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
+    - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]

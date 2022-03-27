@@ -2,8 +2,8 @@ github.com/FloatTech/AnimeAPI v1.3.2-0.20220326161751-d0d2797b91da h1:KbJujP8k2/
 github.com/FloatTech/AnimeAPI v1.3.2-0.20220326161751-d0d2797b91da/go.mod h1:aC3EOKpb0R0VOdW9QIQCfqN6ZFymOfvCgzVY1/Fz3Og=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
-github.com/FloatTech/zbputils v1.3.2-0.20220326161600-f9554b2fb9a4 h1:+OnHN8QcMqwEx37a3TMBw7CT5OTyFs8qqa4Hub+Igbk=
-github.com/FloatTech/zbputils v1.3.2-0.20220326161600-f9554b2fb9a4/go.mod h1:qZlHzG1s1giQrXaosjOAA2utGNaPZjwJsVZfBog2bhg=
+github.com/FloatTech/zbputils v1.3.2-0.20220327052638-95033087f201 h1:7x73xvsTmz7HWL4CjmX0jmfp2XAr2Hvpt2ay+DPOo6c=
+github.com/FloatTech/zbputils v1.3.2-0.20220327052638-95033087f201/go.mod h1:qZlHzG1s1giQrXaosjOAA2utGNaPZjwJsVZfBog2bhg=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc h1:AAx50/fb/xS4lvsdQg+bFbGvqSDhyV1MF+p2PLCamZ0=
 github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc/go.mod h1:OMmITAib6POA37xCichWM0aRnoVpSMZO1rB/G01wrr0=

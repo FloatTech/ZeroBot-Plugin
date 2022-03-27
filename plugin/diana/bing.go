@@ -46,7 +46,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			err := data.AddText(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			} else {
 				ctx.SendChain(message.Text("记住啦!"))
 			}

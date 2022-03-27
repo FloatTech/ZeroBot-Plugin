@@ -70,7 +70,7 @@ func init() {
 				log.Errorln("[vtb]:", err)
 			}
 			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 			// 步骤0，1，2，依次选择3个类别
 			step := 0
@@ -102,7 +102,7 @@ func init() {
 									log.Errorln("[vtb]:", err)
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
-									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+									ctx.SendChain(message.Text("ERROR:可能被风控了"))
 								}
 								errorCount++
 							} else {
@@ -111,7 +111,7 @@ func init() {
 									log.Errorln("[vtb]:", err)
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
-									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+									ctx.SendChain(message.Text("ERROR:可能被风控了"))
 								}
 								step++
 							}
@@ -133,7 +133,7 @@ func init() {
 									log.Errorln("[vtb]:", err)
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
-									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+									ctx.SendChain(message.Text("ERROR:可能被风控了"))
 								}
 								errorCount++
 							} else {
@@ -142,7 +142,7 @@ func init() {
 									log.Errorln("[vtb]:", err)
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id.ID() == 0 {
-									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+									ctx.SendChain(message.Text("ERROR:可能被风控了"))
 								}
 								step++
 							}
@@ -165,7 +165,7 @@ func init() {
 									log.Errorln("[vtb]:", err)
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
-									ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+									ctx.SendChain(message.Text("ERROR:可能被风控了"))
 								}
 								errorCount++
 								step = 1

@@ -39,12 +39,12 @@ func init() {
 				for i := 0; i < math.Min(cap(queue)-len(queue), 2); i++ {
 					data, err := web.GetData(api)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
+						ctx.SendChain(message.Text("ERROR:", err))
 						continue
 					}
 					json := gjson.ParseBytes(data)
 					if e := json.Get("error").Str; e != "" {
-						ctx.SendChain(message.Text("ERROR: ", e))
+						ctx.SendChain(message.Text("ERROR:", e))
 						continue
 					}
 					url := json.Get("data.0.urls.original").Str
@@ -65,7 +65,7 @@ func init() {
 			}()
 			select {
 			case <-time.After(time.Minute):
-				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
+				ctx.SendChain(message.Text("ERROR:等待填充，请稍后再试......"))
 			case img := <-queue:
 				id := ctx.SendChain(message.Image(img))
 				if id.ID() == 0 {

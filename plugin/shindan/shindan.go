@@ -69,7 +69,7 @@ func handlepic(ctx *zero.Ctx) {
 		log.Errorln("[shindan]:", err)
 	}
 	if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
-		ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+		ctx.SendChain(message.Text("ERROR:可能被风控了"))
 	}
 }
 
