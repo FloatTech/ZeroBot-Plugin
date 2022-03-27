@@ -48,13 +48,13 @@ func init() {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			uidRes, err := search(keyword)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			id := uidRes.Get("data.result.0.mid").String()
 			follwingsRes, err := followings(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			}
 			ctx.SendChain(message.Text(
 				"search: ", uidRes.Get("data.result.0.mid").Int(), "\n",
@@ -71,14 +71,14 @@ func init() {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			res, err := search(keyword)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			id := res.Get("data.result.0.mid").String()
 			// 获取详情
 			fo, err := fansapi(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			ctx.SendChain(message.Text(
@@ -100,7 +100,7 @@ func init() {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			searchRes, err := search(keyword)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			id := searchRes.Get("data.result.0.mid").String()
@@ -112,18 +112,18 @@ func init() {
 			}
 			u, err := card(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			vups, err := vdb.filterVup(u.Attentions)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			medals, err := medalwall(id)
 			sort.Sort(medalSlice(medals))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			}
 			frontVups := make([]vup, 0)
 			medalMap := make(map[int64]medal)
