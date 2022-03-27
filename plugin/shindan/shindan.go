@@ -24,33 +24,52 @@ func init() {
 			"- 卖萌[@xxx]\n" +
 			"- 抽老婆[@xxx]",
 	})
-	engine.OnPrefix("异世界转生", number(587874)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handle)
-	engine.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handle)
-	engine.OnPrefix("卖萌", number(360578)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handle)
-	engine.OnPrefix("抽老婆", number(1075116)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handle)
+	engine.OnPrefix("异世界转生", number(587874)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlepic)
+	engine.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlepic)
+	engine.OnPrefix("卖萌", number(360578)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handletxt)
+	engine.OnPrefix("抽老婆", number(1075116)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlecq)
+	engine.OnPrefix("黄油角色", number(1115465)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlepic)
 }
 
-// shindanmaker 处理函数
-func handle(ctx *zero.Ctx) {
+func handletxt(ctx *zero.Ctx) {
 	// 获取名字
 	name := ctx.NickName()
 	// 调用接口
 	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
 	}
-	// TODO: 可注入
-	switch ctx.State["id"].(int64) {
-	case 587874, 162207:
-		data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
-		if err != nil {
-			log.Errorln("[shindan]:", err)
-		}
-		if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
-			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-		}
-	default:
-		ctx.Send(txt)
+	ctx.SendChain(message.Text(txt))
+}
+
+func handlecq(ctx *zero.Ctx) {
+	// 获取名字
+	name := ctx.NickName()
+	// 调用接口
+	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
+	}
+	ctx.Send(txt)
+}
+
+func handlepic(ctx *zero.Ctx) {
+	// 获取名字
+	name := ctx.NickName()
+	// 调用接口
+	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
+	}
+	data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
+	if err != nil {
+		log.Errorln("[shindan]:", err)
+	}
+	if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
+		ctx.SendChain(message.Text("ERROR:可能被风控了"))
 	}
 }
 
