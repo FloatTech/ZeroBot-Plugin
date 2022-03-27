@@ -73,8 +73,10 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"   // 漂流瓶
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"       // 合成emoji
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"       // 城市疫情查询
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"           // 渲染任意文字到图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"        // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"          // 笑话
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"        // 原神抽卡
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"            // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"         // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"             // 炉石

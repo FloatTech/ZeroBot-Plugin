@@ -48,8 +48,10 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像\n" +
+		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{id}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {id}是被欢迎者QQ号\n" +
 		"- 测试欢迎语\n" +
+		"- 设置告别辞 参数同设置欢迎语\n" +
+		"- 测试告别辞\n" +
 		"- [开启 | 关闭]入群验证"
 )
 
@@ -73,6 +75,10 @@ func init() { // 插件主体
 			panic(err)
 		}
 		err = db.Create("member", &member{})
+		if err != nil {
+			panic(err)
+		}
+		err = db.Create("farewell", &welcome{})
 		if err != nil {
 			panic(err)
 		}
@@ -281,7 +287,7 @@ func init() { // 插件主体
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, ctx.Event.GroupID, false)
 			if ts.En() {
-				go clock.RegisterTimer(ts, true)
+				go clock.RegisterTimer(ts, true, false)
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -294,7 +300,7 @@ func init() { // 插件主体
 			var url, alert string
 			switch len(dateStrs) {
 			case 4:
-				url = dateStrs[2]
+				url = strings.TrimPrefix(dateStrs[2], "用")
 				alert = dateStrs[3]
 			case 3:
 				alert = dateStrs[2]
@@ -304,7 +310,7 @@ func init() { // 插件主体
 			}
 			logrus.Debugln("[manager] cron:", dateStrs[1])
 			ts := timer.GetFilledCronTimer(dateStrs[1], alert, url, ctx.Event.SelfID, ctx.Event.GroupID)
-			if clock.RegisterTimer(ts, true) {
+			if clock.RegisterTimer(ts, true, false) {
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -411,13 +417,13 @@ func init() { // 插件主体
 							}
 							return false
 						}
-						next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule)
+						next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession(), rule)
 						recv, cancel := next.Repeat()
 						select {
 						case <-time.After(time.Minute):
+							cancel()
 							ctx.SendChain(message.Text("拜拜啦~"))
 							ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
-							cancel()
 						case <-recv:
 							cancel()
 							ctx.SendChain(message.Text("答对啦~"))
@@ -430,8 +436,14 @@ func init() { // 插件主体
 	engine.OnNotice().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
-				userid := ctx.Event.UserID
-				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+				var w welcome
+				err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+				if err == nil {
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+				} else {
+					userid := ctx.Event.UserID
+					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+				}
 			}
 		})
 	// 设置欢迎语
@@ -457,6 +469,32 @@ func init() { // 插件主体
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				ctx.SendChain(message.Text("欢迎~"))
+			}
+		})
+	// 设置告别辞
+	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			w := &welcome{
+				GrpID: ctx.Event.GroupID,
+				Msg:   ctx.State["regex_matched"].([]string)[1],
+			}
+			err := db.Insert("farewell", w)
+			if err == nil {
+				ctx.SendChain(message.Text("记住啦!"))
+			} else {
+				ctx.SendChain(message.Text("出错啦: ", err))
+			}
+		})
+	// 测试告别辞
+	engine.OnFullMatch("测试告别辞", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			var w welcome
+			err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+			if err == nil {
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+			} else {
+				userid := ctx.Event.UserID
+				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
 			}
 		})
 	// 入群后验证开关
@@ -543,11 +581,13 @@ func init() { // 插件主体
 
 // 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
 func welcometocq(ctx *zero.Ctx, welcome string) string {
-	nickname := ctx.GetGroupMemberInfo(ctx.Event.GroupID, ctx.Event.UserID, false).Get("nickname").Str
 	at := "[CQ:at,qq=" + strconv.FormatInt(ctx.Event.UserID, 10) + "]"
 	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(ctx.Event.UserID, 10) + "&s=640]"
+	id := strconv.FormatInt(ctx.Event.UserID, 10)
+	nickname := ctx.CardOrNickName(ctx.Event.UserID)
 	cqstring := strings.ReplaceAll(welcome, "{at}", at)
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
+	cqstring = strings.ReplaceAll(cqstring, "{id}", id)
 	return cqstring
 }

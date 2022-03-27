@@ -6,10 +6,6 @@ linters-settings:
   goimports:
     local-prefixes: github.com/FloatTech/ZeroBot-Plugin
 
-  gocritic:
-    disabled-checks:
-      - exitAfterDefer
-
   forbidigo:
     # Forbid the following identifiers
     forbid:
@@ -66,6 +62,7 @@ run:
   tests: false
   skip-dirs:
     - order
+  go: '1.18'
 
 # output configuration options
 output:

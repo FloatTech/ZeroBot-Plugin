@@ -35,6 +35,7 @@ type area struct {
 	Name  string `json:"name"`
 	Today struct {
 		Confirm int `json:"confirm"`
+		Wzzadd  int `json:"wzz_add"`
 	} `json:"today"`
 	Total struct {
 		NowConfirm int    `json:"nowConfirm"`
@@ -42,6 +43,7 @@ type area struct {
 		Dead       int    `json:"dead"`
 		Heal       int    `json:"heal"`
 		Grade      string `json:"grade"`
+		Wzz        int    `json:"wzz"`
 	} `json:"total"`
 	Children []*area `json:"children"`
 }
@@ -61,7 +63,7 @@ func init() {
 			}
 			data, time, err := queryEpidemic(city)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			if data == nil {
@@ -71,12 +73,14 @@ func init() {
 			ctx.SendChain(
 				message.Text(
 					"【", data.Name, "】疫情数据\n",
-					"新增：", data.Today.Confirm, " ,",
-					"现有确诊：", data.Total.NowConfirm, " ,",
-					"治愈：", data.Total.Heal, " ,",
-					"死亡：", data.Total.Dead, " ", data.Total.Grade, "\n",
-					"更新时间：", time, "\n",
-					"温馨提示：请大家做好防疫工作，出门带好口罩！",
+					"新增人数：", data.Today.Confirm, "\n",
+					"现有确诊：", data.Total.NowConfirm, "\n",
+					"累计确诊：", data.Total.Confirm, "\n",
+					"治愈人数：", data.Total.Heal, "\n",
+					"死亡人数：", data.Total.Dead, "\n",
+					"无症状人数：", data.Total.Wzz, "\n",
+					"新增无症状：", data.Today.Wzzadd, "\n",
+					"更新时间：\n『", time, "』",
 				),
 			)
 		})

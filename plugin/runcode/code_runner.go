@@ -132,7 +132,7 @@ func init() {
 						// 运行失败
 						ctx.SendChain(
 							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-							message.Text("ERROR: ", err),
+							message.Text("ERROR:", err),
 						)
 					} else {
 						// 运行成功

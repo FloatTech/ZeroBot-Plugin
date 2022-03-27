@@ -38,17 +38,17 @@ func init() {
 			title := fmt.Sprintf("摸鱼人日历 %d月%d日", time.Now().Month(), time.Now().Day())
 			sg, cookies, err := sougou(title, "摸鱼人日历", ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			wx, err := redirect(sg, cookies, ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			image, err := calendar(wx, ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			ctx.SendChain(message.Image(image))

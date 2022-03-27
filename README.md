@@ -67,6 +67,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 - **定时指令触发器** `import _ "github.com/FloatTech/zbputils/job"`
+    - 注意：触发器具有限速，每 2s 仅允许最多一次触发
     - [x] 记录以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 记录在"cron"触发的指令
@@ -118,6 +119,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 ```
 ![随机b站404页趣图](https://user-images.githubusercontent.com/41315874/157371451-c09ad3bb-c61a-4a42-9c47-fab3305bc0f8.png)
 
+- **渲染任意文字到图片** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
+    - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -180,6 +183,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 异世界转生[@xxx]
     - [x] 卖萌[@xxx]
     - [x] 抽老婆[@xxx]
+    - [x] 黄油角色[@xxx]
 - **AIWife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
     - [x] waifu | 随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
 - **gif** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"`
@@ -243,6 +247,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
     - [x] 运势 | 抽签
     - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录]
+- **原神抽卡** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
+    - [x] 切换原神卡池
+    - [x] 原神十连
 - **睡眠管理** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage`
     - [x] 早安 | 晚安
 - **浅草寺求签** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
@@ -347,8 +354,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
     - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
 - **煎蛋网无聊图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
-    - [x] 来份屌图
-    - [x] 更新屌图
+    - [x] 来份[屌|弔|吊]图
+    - [x] 更新[屌|弔|吊]图
 - **月幕galgame图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
     - [x] 随机galCG
     - [x] 随机gal表情包
