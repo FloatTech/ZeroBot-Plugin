@@ -150,13 +150,13 @@ func init() {
 						list_data := "找到" + listmax + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsname, "\n")
 						ctx.SendChain(message.Text(list_data))
 					default:
-						cancel()
 						Cardint, err := strconv.Atoi(nextcmd)
 						switch {
 						case err != nil:
 							ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
 						default:
 							if Cardint < len(cardsname) {
+								cancel()
 								url := "https://www.ygo-sem.cn/" + cardshref[Cardint]
 								// 请求html页面
 								body, err := ReqWith(url, reqconf[0], reqconf[1], reqconf[2])
