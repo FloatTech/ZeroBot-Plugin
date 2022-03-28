@@ -27,7 +27,7 @@ type line struct {
 
 func (l *line) String() string {
 	b := binary.NewWriterF(func(w *binary.Writer) {
-		r := reflect.ValueOf(l).Elem()
+		r := reflect.ValueOf(l).Elem().Type()
 		for i := 0; i < r.NumField(); i++ {
 			switch i {
 			case 0:
@@ -39,9 +39,9 @@ func (l *line) String() string {
 			case 4, 5:
 				w.WriteString("◎")
 			}
-			w.WriteString(r.Type().Field(i).Name)
+			w.WriteString(r.Field(i).Name)
 			w.WriteString("：")
-			w.WriteString(r.Field(i).String())
+			w.WriteString((*[6]string)(unsafe.Pointer(l))[i])
 			w.WriteString("\n")
 		}
 	})
