@@ -3,6 +3,7 @@ package bilibili
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/web"
 	"github.com/tidwall/gjson"
@@ -10,18 +11,35 @@ import (
 	"net/http"
 )
 
+var (
+	errNeedCookie = errors.New("该api需要设置b站cookie，请发送命令设置cookie，例如\"设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\"")
+)
+
+type searchResult struct {
+	Mid    int64  `json:"mid"`
+	Uname  string `json:"uname"`
+	Gender int64  `json:"gender"`
+	Usign  string `json:"usign"`
+	Level  int64  `json:"level"`
+}
+
 // 搜索api：通过把触发指令传入的昵称找出uid返回
-func search(keyword string) (*gjson.Result, error) {
+func search(keyword string) (r []searchResult, err error) {
 	searchURL := "http://api.bilibili.com/x/web-interface/search/type?search_type=bili_user&keyword=" + keyword
 	data, err := web.GetData(searchURL)
 	if err != nil {
-		return nil, err
+		return
 	}
-	json := gjson.ParseBytes(data)
-	if json.Get("data.numResults").Int() == 0 {
-		return nil, errors.New("查无此人")
+	j := gjson.ParseBytes(data)
+	if j.Get("data.numResults").Int() == 0 {
+		err = errors.New("查无此人")
+		return
 	}
-	return &json, nil
+	err = json.Unmarshal(binary.StringToBytes(j.Get("data.result").Raw), &r)
+	if err != nil {
+		return
+	}
+	return
 }
 
 type follower struct {
@@ -36,64 +54,69 @@ type follower struct {
 }
 
 // 请求api
-func fansapi(uid string) (*follower, error) {
+func fansapi(uid string) (result follower, err error) {
 	fanURL := "https://api.vtbs.moe/v1/detail/" + uid
 	data, err := web.GetData(fanURL)
 	if err != nil {
-		return nil, err
+		return
 	}
-	result := &follower{}
-	if err = json.Unmarshal(data, result); err != nil {
-		return nil, err
+	if err = json.Unmarshal(data, &result); err != nil {
+		return
 	}
-	return result, nil
+	return
 }
 
-func followings(uid string) (*gjson.Result, error) {
+func followings(uid string) (s string, err error) {
 	followingURL := "https://api.bilibili.com/x/relation/same/followings?vmid=" + uid
 	method := "GET"
 	client := &http.Client{}
 	req, err := http.NewRequest(method, followingURL, nil)
 	if err != nil {
-		return nil, err
+		return
 	}
 	c := vdb.getBilibiliCookie()
 	req.Header.Add("cookie", c.Value)
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return
 	}
 	json := gjson.ParseBytes(body)
+	s = json.Get("data.list.#.uname").Raw
 	if json.Get("code").Int() == -101 {
-		return &json, errors.New("查关注需要设置b站cookie，请发送命令设置cookie，例如\"设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\"")
+		err = errNeedCookie
+		return
 	}
 	if json.Get("code").Int() != 0 {
-		return &json, errors.New(json.Get("message").String())
+		err = errors.New(json.Get("message").String())
+		return
 	}
-	return &json, nil
+	return
 }
 
 type userinfo struct {
-	Name       string
-	Mid        int64
-	Face       string
-	Fans       int64
-	Attentions []int64
+	Name       string  `json:"name"`
+	Mid        string  `json:"mid"`
+	Face       string  `json:"face"`
+	Fans       int64   `json:"fans"`
+	Attentions []int64 `json:"attentions"`
 }
 
+type medalInfo struct {
+	Mid              int64  `json:"target_id"`
+	MedalName        string `json:"medal_name"`
+	Level            int64  `json:"level"`
+	MedalColorStart  int64  `json:"medal_color_start"`
+	MedalColorEnd    int64  `json:"medal_color_end"`
+	MedalColorBorder int64  `json:"medal_color_border"`
+}
 type medal struct {
-	Uname            string
-	Mid              int64
-	MedalName        string
-	Level            int64
-	MedalColorBorder int64
-	MedalColorStart  int64
-	MedalColorEnd    int64
+	Uname     string `json:"target_name"`
+	medalInfo `json:"medal_info"`
 }
 
 type medalSlice []medal
@@ -113,20 +136,13 @@ func card(uid string) (result userinfo, err error) {
 	cardURL := "https://account.bilibili.com/api/member/getCardByMid?mid=" + uid
 	data, err := web.GetData(cardURL)
 	if err != nil {
-		return result, err
+		return
 	}
-	cardStr := binary.BytesToString(data)
-	result.Name = gjson.Get(cardStr, "card.name").String()
-	result.Face = gjson.Get(cardStr, "card.face").String()
-	result.Mid = gjson.Get(cardStr, "card.mid").Int()
-	result.Fans = gjson.Get(cardStr, "card.fans").Int()
-	attention := make([]int64, 0)
-	gjson.Get(cardStr, "card.attentions").ForEach(func(key, value gjson.Result) bool {
-		attention = append(attention, value.Int())
-		return true
-	})
-	result.Attentions = attention
-	return result, nil
+	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("card").Raw), &result)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // 获得牌子
@@ -136,37 +152,28 @@ func medalwall(uid string) (result []medal, err error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, medalwallURL, nil)
 	if err != nil {
-		return nil, err
+		return
 	}
 	c := vdb.getBilibiliCookie()
 	req.Header.Add("cookie", c.Value)
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer res.Body.Close()
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		return result, err
+		return
 	}
-	medalStr := binary.BytesToString(data)
-	if gjson.Get(medalStr, "code").Int() == -101 {
-		return result, errors.New("查牌子需要设置b站cookie，请发送命令设置cookie，例如\"设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\"")
+	fmt.Println("medalwall:", binary.BytesToString(data))
+	j := gjson.ParseBytes(data)
+	if j.Get("code").Int() == -101 {
+		err = errNeedCookie
+		return
 	}
-	if gjson.Get(medalStr, "code").Int() != 0 {
-		err = errors.New(gjson.Get(medalStr, "message").String())
+	if j.Get("code").Int() != 0 {
+		err = errors.New(j.Get("message").String())
 	}
-	gjson.Get(medalStr, "data.list").ForEach(func(key, value gjson.Result) bool {
-		m := medal{}
-		m.Uname = value.Get("target_name").String()
-		m.Mid = value.Get("medal_info.target_id").Int()
-		m.MedalName = value.Get("medal_info.medal_name").String()
-		m.Level = value.Get("medal_info.level").Int()
-		m.MedalColorBorder = value.Get("medal_info.medal_color_border").Int()
-		m.MedalColorStart = value.Get("medal_info.medal_color_start").Int()
-		m.MedalColorEnd = value.Get("medal_info.medal_color_end").Int()
-		result = append(result, m)
-		return true
-	})
+	_ = json.Unmarshal(binary.StringToBytes(j.Get("data.list").Raw), &result)
 	return
 }

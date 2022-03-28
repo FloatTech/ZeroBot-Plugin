@@ -15,10 +15,8 @@ const (
 )
 
 var (
-	vtbURLs   = [...]string{"https://api.vtbs.moe/v1/short", "https://api.tokyo.vtbs.moe/v1/short", "https://vtbs.musedash.moe/v1/short"}
-	dbfile    = engine.DataFolder() + "bilibili.db"
-	vdb       *vupdb
-	cachePath = engine.DataFolder() + "cache/"
+	vtbURLs = [...]string{"https://api.vtbs.moe/v1/short", "https://api.tokyo.vtbs.moe/v1/short", "https://vtbs.musedash.moe/v1/short"}
+	vdb     *vupdb
 )
 
 // vupdb 分数数据库

@@ -2,6 +2,7 @@
 package bilibili
 
 import (
+	"encoding/binary"
 	"fmt"
 	"image/color"
 	"os"
@@ -25,9 +26,9 @@ import (
 var engine = control.Register("bilibili", order.AcquirePrio(), &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
-		"- >vup info [名字 | uid]\n" +
-		"- >user info [名字 | uid]\n" +
-		"- 查成分 [名字 | uid]\n" +
+		"- >vup info [xxx]\n" +
+		"- >user info [xxx]\n" +
+		"- 查成分 [xxx]\n" +
 		"- 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\n" +
 		"- 更新vup",
 	PublicDataFolder: "Bilibili",
@@ -35,7 +36,8 @@ var engine = control.Register("bilibili", order.AcquirePrio(), &control.Options{
 
 // 查成分的
 func init() {
-
+	cachePath := engine.DataFolder() + "cache/"
+	dbfile := engine.DataFolder() + "bilibili.db"
 	go func() {
 		_ = os.MkdirAll(cachePath, 0755)
 		_, _ = file.GetLazyData(dbfile, false, false)
@@ -50,18 +52,18 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			id := uidRes.Get("data.result.0.mid").String()
-			follwingsRes, err := followings(id)
+			id := strconv.FormatInt(uidRes[0].Mid, 10)
+			follwings, err := followings(id)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 			}
 			ctx.SendChain(message.Text(
-				"search: ", uidRes.Get("data.result.0.mid").Int(), "\n",
-				"name: ", uidRes.Get("data.result.0.uname").Str, "\n",
-				"sex: ", []string{"", "男", "女", "未知"}[uidRes.Get("data.result.0.gender").Int()], "\n",
-				"sign: ", uidRes.Get("data.result.0.usign").Str, "\n",
-				"level: ", uidRes.Get("data.result.0.level").Int(), "\n",
-				"follow: ", follwingsRes.Get("data.list.#.uname"),
+				"search: ", uidRes[0].Mid, "\n",
+				"name: ", uidRes[0].Uname, "\n",
+				"sex: ", []string{"", "男", "女", "未知"}[uidRes[0].Gender], "\n",
+				"sign: ", uidRes[0].Usign, "\n",
+				"level: ", uidRes[0].Level, "\n",
+				"follow: ", follwings,
 			))
 		})
 
@@ -73,7 +75,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			id := res.Get("data.result.0.mid").String()
+			id := strconv.FormatInt(res[0].Mid, 10)
 			// 获取详情
 			fo, err := fansapi(id)
 			if err != nil {
@@ -102,7 +104,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			id := searchRes.Get("data.result.0.mid").String()
+			id := strconv.FormatInt(searchRes[0].Mid, 10)
 			today := time.Now().Format("20060102")
 			drawedFile := cachePath + id + today + "vupLike.png"
 			if file.IsExist(drawedFile) {
@@ -175,14 +177,14 @@ func init() {
 				return
 			}
 			sl, _ := canvas.MeasureString("好")
-			length, h := canvas.MeasureString(strconv.FormatInt(u.Mid, 10))
+			length, h := canvas.MeasureString(u.Mid)
 			n, _ := canvas.MeasureString(u.Name)
 			canvas.DrawString(u.Name, float64(backX)*1.1, float64(backY)/3-h)
 			canvas.DrawRoundedRectangle(float64(backX)*1.2+n-length*0.1, float64(backY)/3-h*2.5, length*1.2, h*2, fontSize*0.2)
 			canvas.SetRGB255(221, 221, 221)
 			canvas.Fill()
 			canvas.SetColor(color.Black)
-			canvas.DrawString(strconv.FormatInt(u.Mid, 10), float64(backX)*1.2+n, float64(backY)/3-h)
+			canvas.DrawString(u.Mid, float64(backX)*1.2+n, float64(backY)/3-h)
 			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Fans), float64(backX)*1.1, float64(backY)/3*2-2.5*h)
 			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Attentions)), float64(backX)*2, float64(backY)/3*2-2.5*h)
 			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Attentions))*100, vupLen, len(u.Attentions)), float64(backX)*1.1, float64(backY)-4*h)
@@ -282,12 +284,8 @@ func initFacePic(filename, faceURL string) {
 }
 
 func int2rbg(t int64) (int64, int64, int64) {
-	result := strconv.FormatInt(t, 16)
-	if len(result) == 1 {
-		result = "0" + result
-	}
-	r, _ := strconv.ParseInt(result[:2], 16, 10)
-	g, _ := strconv.ParseInt(result[2:4], 16, 18)
-	b, _ := strconv.ParseInt(result[4:], 16, 10)
+	var buf [8]byte
+	binary.LittleEndian.PutUint64(buf[:], uint64(t))
+	b, g, r := int64(buf[0]), int64(buf[1]), int64(buf[2])
 	return r, g, b
 }

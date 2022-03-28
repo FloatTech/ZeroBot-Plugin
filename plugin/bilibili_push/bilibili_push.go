@@ -298,7 +298,7 @@ func getLiveList(uids ...int64) string {
 	m := make(map[string]interface{})
 	m["uids"] = uids
 	b, _ := json.Marshal(m)
-	data, err := web.PostData(liveListURL, "application/json", bytes.NewBuffer(b))
+	data, err := web.PostData(liveListURL, "application/json", bytes.NewReader(b))
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}

@@ -268,9 +268,9 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 个人猜单词
     - [x] 团队猜单词
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-    - [x] >vup info [名字 | uid]
-    - [x] >user info [名字 | uid]
-    - [x] 查成分[名字 | uid]
+    - [x] >vup info [xxx]
+    - [x] >user info [xxx]
+    - [x] 查成分 [xxx]
     - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31
     - [x] 更新vup
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
