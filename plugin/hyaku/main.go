@@ -112,11 +112,10 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:超出范围"))
 			return
 		}
-		i--
 		ctx.SendChain(
-			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i+1)),
-			message.Text("\n", lines[i]),
-			message.Image(fmt.Sprintf(bed+"img/%03d.png", i+1)),
+			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i)),
+			message.Text("\n", lines[i-1]),
+			message.Image(fmt.Sprintf(bed+"img/%03d.png", i)),
 		)
 	})
 }
