@@ -3,6 +3,12 @@ package bilibili
 
 import (
 	"fmt"
+	"image/color"
+	"os"
+	"sort"
+	"strconv"
+	"time"
+
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/file"
@@ -14,11 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"image/color"
-	"os"
-	"sort"
-	"strconv"
-	"time"
 )
 
 var engine = control.Register("bilibili", order.AcquirePrio(), &control.Options{
@@ -153,7 +154,7 @@ func init() {
 				backX = 500
 				backY = 500
 			} else {
-				back = img.Limit(back, 1280, 720)
+				back = img.Limit(back, 500, 500)
 				backX = back.Bounds().Size().X
 				backY = back.Bounds().Size().Y
 			}
@@ -175,12 +176,13 @@ func init() {
 			}
 			sl, _ := canvas.MeasureString("好")
 			length, h := canvas.MeasureString(strconv.FormatInt(u.Mid, 10))
+			n, _ := canvas.MeasureString(u.Name)
 			canvas.DrawString(u.Name, float64(backX)*1.1, float64(backY)/3-h)
-			canvas.DrawRoundedRectangle(float64(backX)*2-length*0.1, float64(backY)/3-h*2.5, length*1.2, h*2, fontSize*0.2)
+			canvas.DrawRoundedRectangle(float64(backX)*1.2+n-length*0.1, float64(backY)/3-h*2.5, length*1.2, h*2, fontSize*0.2)
 			canvas.SetRGB255(221, 221, 221)
 			canvas.Fill()
 			canvas.SetColor(color.Black)
-			canvas.DrawString(strconv.FormatInt(u.Mid, 10), float64(backX)*2, float64(backY)/3-h)
+			canvas.DrawString(strconv.FormatInt(u.Mid, 10), float64(backX)*1.2+n, float64(backY)/3-h)
 			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Fans), float64(backX)*1.1, float64(backY)/3*2-2.5*h)
 			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Attentions)), float64(backX)*2, float64(backY)/3*2-2.5*h)
 			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Attentions))*100, vupLen, len(u.Attentions)), float64(backX)*1.1, float64(backY)-4*h)

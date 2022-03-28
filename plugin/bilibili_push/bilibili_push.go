@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -300,20 +298,7 @@ func getLiveList(uids ...int64) string {
 	m := make(map[string]interface{})
 	m["uids"] = uids
 	b, _ := json.Marshal(m)
-	client := &http.Client{}
-	// 提交请求
-	request, err := http.NewRequest("POST", liveListURL, bytes.NewBuffer(b))
-	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
-	}
-	request.Header.Add("Referer", referer)
-	request.Header.Add("User-Agent", ua)
-	response, err := client.Do(request)
-	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
-	}
-	defer response.Body.Close()
-	data, err := io.ReadAll(response.Body)
+	data, err := web.PostData(liveListURL, "application/json", bytes.NewBuffer(b))
 	if err != nil {
 		log.Errorln("[bilibilipush]:", err)
 	}
