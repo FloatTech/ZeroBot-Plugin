@@ -58,14 +58,14 @@ func init() {
 			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录]",
 		PublicDataFolder: "Fortune",
 	})
+	_ = os.RemoveAll(cache)
+	err := os.MkdirAll(cache, 0755)
+	if err != nil {
+		panic(err)
+	}
 	go func() {
 		for i, s := range table {
 			index[s] = uint8(i)
-		}
-		_ = os.RemoveAll(cache)
-		err := os.MkdirAll(cache, 0755)
-		if err != nil {
-			panic(err)
 		}
 		data, err := file.GetLazyData(omikujson, true, false)
 		if err != nil {
@@ -75,7 +75,9 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		_, err = file.GetLazyData(font, false, true)
+	}()
+	go func() {
+		_, err := file.GetLazyData(font, false, true)
 		if err != nil {
 			panic(err)
 		}
