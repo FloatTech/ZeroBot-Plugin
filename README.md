@@ -234,6 +234,9 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 搜番 | 搜索番剧[图片]
 - **百度一下** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
     - [x] 百度下[xxx]
+- **百人一首** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"`
+    - [x] 百人一首
+    - [x] 百人一首之n
 - **随机图片与AI点评** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
