@@ -268,8 +268,11 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 个人猜单词
     - [x] 团队猜单词
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-    - [x] >vup info [名字 | uid]
-    - [x] >user info [名字 | uid]
+    - [x] >vup info [xxx]
+    - [x] >user info [xxx]
+    - [x] 查成分 [xxx]
+    - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31
+    - [x] 更新vup
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
     - [x] 小作文
     - [x] 发大病
@@ -371,12 +374,12 @@ print("run[CQ:image,file="+j["img"]+"]")
     - api早上8点更新，推荐定时在8点30后。配合插件`job`中的记录在"cron"触发的指令使用
     - [x] /启用 zaobao
     - [x] /禁用 zaobao
-- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
-    - [x] 舔狗日记
 ```
 记录在"00 9 * * *"触发的指令
 今日早报
 ```
+- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
+    - [x] 舔狗日记
 - **TODO...**
 
 ## 使用方法
