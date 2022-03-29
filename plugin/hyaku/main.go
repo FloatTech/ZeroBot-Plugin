@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"reflect"
 	"strconv"
 	"unsafe"
 
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -18,8 +20,32 @@ import (
 
 const bed = "https://gitcode.net/u011570312/OguraHyakuninIsshu/-/raw/master/"
 
+//nolint: asciicheck
 type line struct {
-	no, 歌人, 上の句, 下の句, 上の句ひらがな, 下の句ひらがな string
+	番号, 歌人, 上の句, 下の句, 上の句ひらがな, 下の句ひらがな string
+}
+
+func (l *line) String() string {
+	b := binary.NewWriterF(func(w *binary.Writer) {
+		r := reflect.ValueOf(l).Elem().Type()
+		for i := 0; i < r.NumField(); i++ {
+			switch i {
+			case 0:
+				w.WriteString("●")
+			case 1:
+				w.WriteString("◉")
+			case 2, 3:
+				w.WriteString("○")
+			case 4, 5:
+				w.WriteString("◎")
+			}
+			w.WriteString(r.Field(i).Name)
+			w.WriteString("：")
+			w.WriteString((*[6]string)(unsafe.Pointer(l))[i])
+			w.WriteString("\n")
+		}
+	})
+	return binary.BytesToString(b)
 }
 
 var lines [100]*line
@@ -54,6 +80,9 @@ func init() {
 			panic("invalid csvfile")
 		}
 		for j, r := range records {
+			if len(r) != 6 {
+				panic("invalid csvfile")
+			}
 			i, err := strconv.Atoi(r[0])
 			if err != nil {
 				panic(err)
@@ -69,14 +98,7 @@ func init() {
 		i := rand.Intn(100)
 		ctx.SendChain(
 			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i+1)),
-			message.Text("\n",
-				"●番　号: ", lines[i].no, "\n",
-				"●歌　人: ", lines[i].歌人, "\n",
-				"●上の句: ", lines[i].上の句, "\n",
-				"●下の句: ", lines[i].下の句, "\n",
-				"●上の句ひらがな: ", lines[i].上の句ひらがな, "\n",
-				"●下の句ひらがな: ", lines[i].下の句ひらがな, "\n",
-			),
+			message.Text("\n", lines[i]),
 			message.Image(fmt.Sprintf(bed+"img/%03d.png", i+1)),
 		)
 	})
@@ -90,18 +112,10 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:超出范围"))
 			return
 		}
-		i--
 		ctx.SendChain(
-			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i+1)),
-			message.Text("\n",
-				"●番　号: ", lines[i].no, "\n",
-				"●歌　人: ", lines[i].歌人, "\n",
-				"●上の句: ", lines[i].上の句, "\n",
-				"●下の句: ", lines[i].下の句, "\n",
-				"●上の句ひらがな: ", lines[i].上の句ひらがな, "\n",
-				"●下の句ひらがな: ", lines[i].下の句ひらがな, "\n",
-			),
-			message.Image(fmt.Sprintf(bed+"img/%03d.png", i+1)),
+			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i)),
+			message.Text("\n", lines[i-1]),
+			message.Image(fmt.Sprintf(bed+"img/%03d.png", i)),
 		)
 	})
 }
