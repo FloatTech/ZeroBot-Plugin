@@ -1,13 +1,14 @@
 package bilibili
 
 import (
+	"os"
+
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/web"
 	_ "github.com/fumiama/sqlite3" // use sql
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
-	"os"
 )
 
 const (
