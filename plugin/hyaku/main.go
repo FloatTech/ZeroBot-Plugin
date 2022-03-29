@@ -75,6 +75,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
+		_ = f.Close()
 		records = records[1:] // skip title
 		if len(records) != 100 {
 			panic("invalid csvfile")
