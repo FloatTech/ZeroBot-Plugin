@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/web"
 	"github.com/tidwall/gjson"
-	"io"
-	"net/http"
 )
 
 var (

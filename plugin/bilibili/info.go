@@ -138,8 +138,8 @@ func init() {
 				medalMap[v.Mid] = v
 			}
 			vups = append(vups, frontVups...)
-			copy(vups[len(frontVups):], vups[:])
-			copy(vups[:], frontVups)
+			copy(vups[len(frontVups):], vups)
+			copy(vups, frontVups)
 			for i := len(frontVups); i < len(vups); i++ {
 				if _, ok := medalMap[vups[i].Mid]; ok {
 					vups = append(vups[:i], vups[i+1:]...)
