@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
@@ -53,7 +54,10 @@ type dictionary map[int]struct {
 	cet4 []string
 }
 
-var words = make(dictionary)
+var (
+	words   = make(dictionary)
+	wordsmu sync.Mutex
+)
 
 func init() {
 	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
@@ -72,26 +76,34 @@ func init() {
 			)
 		}),
 	))
-	go func() {
-		for i := 5; i <= 7; i++ {
+	for i := 5; i <= 7; i++ {
+		go func(i int) {
 			dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
 			if err != nil {
 				panic(err)
 			}
 			c := strings.Split(string(dc), "\n")
 			sort.Strings(c)
+			wordsmu.Lock()
+			tmp := words[i]
+			tmp.cet4 = c
+			words[i] = tmp
+			wordsmu.Unlock()
+		}(i)
+		go func(i int) {
 			dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
 			if err != nil {
 				panic(err)
 			}
 			d := strings.Split(string(dd), "\n")
 			sort.Strings(d)
-			words[i] = struct {
-				dict []string
-				cet4 []string
-			}{d, c}
-		}
-	}()
+			wordsmu.Lock()
+			tmp := words[i]
+			tmp.dict = d
+			words[i] = tmp
+			wordsmu.Unlock()
+		}(i)
+	}
 	en.OnRegex(`(个人|团队)(五阶|六阶|七阶)?猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			class := classdict[ctx.State["regex_matched"].([]string)[2]]
@@ -108,7 +120,7 @@ func init() {
 			var next *zero.FutureEvent
 			if ctx.State["regex_matched"].([]string)[1] == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
-					zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID))
+					zero.OnlyGroup, ctx.CheckSession())
 			} else {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
 					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
@@ -126,12 +138,12 @@ func init() {
 						),
 					)
 					return
-				case e := <-recv:
-					win, img, cl, err = game(e.Message.String())
+				case c := <-recv:
+					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
 								message.Text("太棒了，你猜出来了！"),
 							),
@@ -140,7 +152,7 @@ func init() {
 						return
 					case err == errTimesRunOut:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
 								message.Text("游戏结束...答案是: ", target),
 							),
@@ -149,19 +161,19 @@ func init() {
 						return
 					case err == errLengthNotEnough:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.Text("单词长度错误"),
 							),
 						)
 					case err == errUnknownWord:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.Text("你确定存在这样的单词吗？"),
 							),
 						)
 					default:
 						ctx.Send(
-							message.ReplyWithMessage(e.MessageID,
+							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
 							),
 						)
