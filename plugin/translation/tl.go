@@ -24,7 +24,7 @@ func init() {
 			msg := []string{ctx.State["regex_matched"].([]string)[2]}
 			data, err := web.GetData("https://api.cloolc.club/fanyi?data=" + msg[0])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			}
 			info := gjson.ParseBytes(data)
 			repo := info.Get("data.0")

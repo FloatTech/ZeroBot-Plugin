@@ -67,6 +67,7 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 - **定时指令触发器** `import _ "github.com/FloatTech/zbputils/job"`
+    - 注意：触发器具有限速，每 2s 仅允许最多一次触发
     - [x] 记录以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 记录在"cron"触发的指令
@@ -118,6 +119,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 ```
 ![随机b站404页趣图](https://user-images.githubusercontent.com/41315874/157371451-c09ad3bb-c61a-4a42-9c47-fab3305bc0f8.png)
 
+- **渲染任意文字到图片** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
+    - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
 - **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
@@ -180,6 +183,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 异世界转生[@xxx]
     - [x] 卖萌[@xxx]
     - [x] 抽老婆[@xxx]
+    - [x] 黄油角色[@xxx]
 - **AIWife** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
     - [x] waifu | 随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
 - **gif** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"`
@@ -230,6 +234,9 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 搜番 | 搜索番剧[图片]
 - **百度一下** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
     - [x] 百度下[xxx]
+- **百人一首** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"`
+    - [x] 百人一首
+    - [x] 百人一首之n
 - **随机图片与AI点评** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
@@ -261,8 +268,11 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 个人猜单词
     - [x] 团队猜单词
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-    - [x] >vup info [名字 | uid]
-    - [x] >user info [名字 | uid]
+    - [x] >vup info [xxx]
+    - [x] >user info [xxx]
+    - [x] 查成分 [xxx]
+    - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31
+    - [x] 更新vup
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
     - [x] 小作文
     - [x] 发大病
@@ -350,8 +360,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
     - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
 - **煎蛋网无聊图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
-    - [x] 来份屌图
-    - [x] 更新屌图
+    - [x] 来份[屌|弔|吊]图
+    - [x] 更新[屌|弔|吊]图
 - **月幕galgame图** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
     - [x] 随机galCG
     - [x] 随机gal表情包
@@ -364,12 +374,12 @@ print("run[CQ:image,file="+j["img"]+"]")
     - api早上8点更新，推荐定时在8点30后。配合插件`job`中的记录在"cron"触发的指令使用
     - [x] /启用 zaobao
     - [x] /禁用 zaobao
-- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
-    - [x] 舔狗日记
 ```
 记录在"00 9 * * *"触发的指令
 今日早报
 ```
+- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
+    - [x] 舔狗日记
 - **TODO...**
 
 ## 使用方法

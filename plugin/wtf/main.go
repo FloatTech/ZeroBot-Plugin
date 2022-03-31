@@ -31,7 +31,7 @@ func init() {
 			// 调用接口
 			i, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			w := newWtf(i)
@@ -54,7 +54,7 @@ func init() {
 				text, err = w.predict(name)
 			}
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			// TODO: 可注入
