@@ -47,14 +47,6 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		_, err = file.GetLazyData(text.BoldFontFile, false, true)
-		if err != nil {
-			panic(err)
-		}
-		_, err = file.GetLazyData(text.FontFile, false, true)
-		if err != nil {
-			panic(err)
-		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 		log.Println("[score]加载score数据库")
 	}()
@@ -99,6 +91,11 @@ func init() {
 
 			monthWord := now.Format("01/02")
 			hourWord := getHourWord(now)
+			_, err = file.GetLazyData(text.BoldFontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if err = canvas.LoadFontFace(text.BoldFontFile, float64(back.Bounds().Size().X)*0.1); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -107,6 +104,11 @@ func init() {
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
 			nickName := ctx.CardOrNickName(uid)
+			_, err = file.GetLazyData(text.FontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if err = canvas.LoadFontFace(text.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
