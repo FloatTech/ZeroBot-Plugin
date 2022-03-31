@@ -148,7 +148,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 退出群聊[群号]@Bot
     - [x] *入群欢迎
     - [x] *退群通知
-    - [x] 设置欢迎语[欢迎~]  可选添加 [{at}] [{nickname}] [{avatar}]
+    - [x] 设置欢迎语[欢迎~]  可选添加 [{at}] [{nickname}] [{avatar}] [{id}]
     - [x] 在[MM]月[dd]日的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 在[MM]月[每周 | 周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
