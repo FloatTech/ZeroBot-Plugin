@@ -102,7 +102,6 @@ func init() { // 插件主体
 				imgtype = ctx.State["regex_matched"].([]string)[1]
 				id, _   = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 			)
-			ctx.SendChain(message.Text(imgtype, id))
 			err := pool.add(ctx, imgtype, id)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
