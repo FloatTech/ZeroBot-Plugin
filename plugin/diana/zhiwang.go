@@ -30,7 +30,7 @@ func init() {
 				}
 
 				if zhiwangjson.Get("data.related.#").Int() == 0 {
-					ctx.SendChain(message.Text("枝网没搜到，查重率为0%，一眼丁真，鉴定为原创"))
+					ctx.SendChain(message.Text("枝网没搜到，查重率为0%，鉴定为原创"))
 					return
 				}
 				related := zhiwangjson.Get("data.related.0.reply").Map()
