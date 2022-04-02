@@ -14,7 +14,6 @@ import (
 	"github.com/FloatTech/AnimeAPI/pixiv"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/web"
@@ -35,7 +34,7 @@ type resultjson struct {
 }
 
 func init() {
-	control.Register("imgfinder", order.AcquirePrio(), &control.Options{
+	control.Register("imgfinder", &control.Options{
 		DisableOnDefault: false,
 		Help: "关键字搜图\n" +
 			"- 来张 [xxx]",

@@ -13,12 +13,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() { // 插件主体
-	engine := control.Register("danbooru", order.AcquirePrio(), &control.Options{
+	engine := control.Register("danbooru", &control.Options{
 		DisableOnDefault: false,
 		Help: "二次元图片标签识别\n" +
 			"- 鉴赏图片[图片]",

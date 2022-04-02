@@ -8,15 +8,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
 func init() {
-	engine := control.Register("shindan", order.AcquirePrio(), &control.Options{
+	engine := control.Register("shindan", &control.Options{
 		DisableOnDefault: false,
 		Help: "shindan\n" +
 			"- 今天是什么少女[@xxx]\n" +

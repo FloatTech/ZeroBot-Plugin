@@ -7,12 +7,10 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/diana/data"
 )
 
-var engine = control.Register("diana", order.AcquirePrio(), &control.Options{
+var engine = control.Register("diana", &control.Options{
 	DisableOnDefault: false,
 	Help: "嘉然\n" +
 		"- 小作文\n" +

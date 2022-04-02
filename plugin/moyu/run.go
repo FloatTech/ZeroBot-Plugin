@@ -8,8 +8,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -19,7 +17,7 @@ var (
 )
 
 func init() { // 插件主体
-	control.Register("moyu", order.AcquirePrio(), &control.Options{
+	control.Register("moyu", &control.Options{
 		DisableOnDefault: true,
 		Help: "moyu\n" +
 			"- /启用 moyu\n" +

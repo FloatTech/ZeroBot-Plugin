@@ -8,14 +8,12 @@ import (
 	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const hso = "https://gchat.qpic.cn/gchatpic_new//--4234EDEC5F147A4C319A41149D7E0EA9/0"
 
 func init() {
-	engine := control.Register("nsfw", order.AcquirePrio(), &control.Options{
+	engine := control.Register("nsfw", &control.Options{
 		DisableOnDefault: false,
 		Help:             "nsfw图片识别\n- nsfw打分[图片]",
 	}).ApplySingle(ctxext.DefaultSingle)
@@ -33,7 +31,7 @@ func init() {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p[0]))))
 			}
 		})
-	control.Register("nsfwauto", order.AcquirePrio(), &control.Options{
+	control.Register("nsfwauto", &control.Options{
 		DisableOnDefault: true,
 		Help:             "nsfw图片自动识别\n- 当图片属于非 neutral 类别时自动发送评价",
 	}).OnMessage(zero.HasPicture).SetBlock(false).

@@ -10,12 +10,10 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("translation", order.AcquirePrio(), &control.Options{
+	control.Register("translation", &control.Options{
 		DisableOnDefault: false,
 		Help: "翻译\n" +
 			">TL 你好",

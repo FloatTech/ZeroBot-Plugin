@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -60,7 +59,7 @@ var (
 )
 
 func init() {
-	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
+	en := control.Register("wordle", &control.Options{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
 			"- 个人猜单词" +

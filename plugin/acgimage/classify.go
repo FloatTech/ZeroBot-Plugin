@@ -11,7 +11,6 @@ import (
 	"github.com/FloatTech/AnimeAPI/classify"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/web"
@@ -31,7 +30,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("acgimage", order.AcquirePrio(), &control.Options{
+	engine := control.Register("acgimage", &control.Options{
 		DisableOnDefault: false,
 		Help: "随机图片与AI点评\n" +
 			"- 随机图片(评级大于6的图将私发)\n" +

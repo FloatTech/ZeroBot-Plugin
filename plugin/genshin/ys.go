@@ -13,7 +13,6 @@ import (
 	"sync/atomic"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -33,7 +32,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("genshin", order.AcquirePrio(), &control.Options{
+	engine := control.Register("genshin", &control.Options{
 		DisableOnDefault: false,
 		Help:             "原神抽卡\n- 原神十连\n- 切换原神卡池",
 		PublicDataFolder: "Genshin",

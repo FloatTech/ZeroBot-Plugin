@@ -15,8 +15,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -32,7 +30,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("cangtoushi", order.AcquirePrio(), &control.Options{
+	engine := control.Register("cangtoushi", &control.Options{
 		DisableOnDefault: false,
 		Help: "藏头诗\n" +
 			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",

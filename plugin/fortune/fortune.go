@@ -25,8 +25,6 @@ import (
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/math"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -51,7 +49,7 @@ var (
 
 func init() {
 	// 插件主体
-	en := control.Register("fortune", order.AcquirePrio(), &control.Options{
+	en := control.Register("fortune", &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +

@@ -16,14 +16,12 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
 
 func init() { // 插件主体
-	engine := control.Register("omikuji", order.AcquirePrio(), &control.Options{
+	engine := control.Register("omikuji", &control.Options{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",

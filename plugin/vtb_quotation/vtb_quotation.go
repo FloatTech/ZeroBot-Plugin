@@ -23,8 +23,6 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation/model"
 )
 
@@ -36,7 +34,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("vtbquotation", order.AcquirePrio(), &control.Options{
+	engine := control.Register("vtbquotation", &control.Options{
 		DisableOnDefault: false,
 		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
 		PublicDataFolder: "VtbQuotation",

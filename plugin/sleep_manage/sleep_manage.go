@@ -10,12 +10,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	engine := control.Register("sleepmanage", order.AcquirePrio(), &control.Options{
+	engine := control.Register("sleepmanage", &control.Options{
 		DisableOnDefault:  false,
 		Help:              "sleepmanage\n- 早安\n- 晚安",
 		PrivateDataFolder: "sleep",

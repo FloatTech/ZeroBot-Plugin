@@ -13,8 +13,6 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -22,7 +20,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", order.AcquirePrio(), &control.Options{
+	engine := control.Register("nativesetu", &control.Options{
 		DisableOnDefault: false,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +

@@ -13,13 +13,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/tidwall/gjson"
 )
 
 func init() { // 插件主体
-	control.Register("github", order.AcquirePrio(), &control.Options{
+	control.Register("github", &control.Options{
 		DisableOnDefault: false,
 		Help: "GitHub仓库搜索\n" +
 			"- >github [xxx]\n" +

@@ -11,8 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -21,7 +19,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("bilibiliparse", order.AcquirePrio(), &control.Options{
+	engine := control.Register("bilibiliparse", &control.Options{
 		DisableOnDefault: false,
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",
