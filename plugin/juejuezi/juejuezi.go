@@ -14,8 +14,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -25,7 +23,7 @@ const (
 )
 
 func init() {
-	control.Register("juejuezi", order.AcquirePrio(), &control.Options{
+	control.Register("juejuezi", &control.Options{
 		DisableOnDefault: false,
 		Help: "绝绝子生成器\n" +
 			"- 喝奶茶绝绝子 | 绝绝子吃饭",

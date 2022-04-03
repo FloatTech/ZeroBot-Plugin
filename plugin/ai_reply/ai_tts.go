@@ -17,8 +17,6 @@ import (
 	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const ttsServiceName = "tts"
@@ -51,7 +49,7 @@ func init() {
 		},
 		l: []string{"拟声鸟阿梓", "拟声鸟药水哥", "百度女声", "百度男声", "百度度逍遥", "百度度丫丫"},
 	}
-	engine := control.Register(ttsServiceName, order.AcquirePrio(), &control.Options{
+	engine := control.Register(ttsServiceName, &control.Options{
 		DisableOnDefault: true,
 		Help: "语音回复(包括拟声鸟和百度)\n" +
 			"- @Bot 任意文本(任意一句话回复)\n" +

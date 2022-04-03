@@ -8,8 +8,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -19,7 +17,7 @@ const (
 )
 
 func init() {
-	control.Register("wangyiyun", order.AcquirePrio(), &control.Options{
+	control.Register("wangyiyun", &control.Options{
 		DisableOnDefault: false,
 		Help:             "wangyiyun \n- 来份网易云热评",
 	}).OnFullMatch("来份网易云热评").SetBlock(true).Limit(ctxext.LimitByUser).

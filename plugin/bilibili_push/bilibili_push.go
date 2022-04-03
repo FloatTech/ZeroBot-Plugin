@@ -15,7 +15,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -57,7 +56,7 @@ var (
 
 func init() {
 	go bilibiliPushDaily()
-	en := control.Register(serviceName, order.AcquirePrio(), &control.Options{
+	en := control.Register(serviceName, &control.Options{
 		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
 			"- 添加订阅[uid]\n" +

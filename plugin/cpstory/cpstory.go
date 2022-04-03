@@ -11,12 +11,10 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	engine := control.Register("cpstory", order.AcquirePrio(), &control.Options{
+	engine := control.Register("cpstory", &control.Options{
 		DisableOnDefault: false,
 		Help:             "cp短打\n- 组cp[@xxx][@xxx]\n- 磕cp大老师 雪乃",
 		PublicDataFolder: "CpStory",

@@ -15,8 +15,6 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -29,7 +27,7 @@ var (
 )
 
 func init() {
-	control.Register("lolicon", order.AcquirePrio(), &control.Options{
+	control.Register("lolicon", &control.Options{
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
 			"- 来份萝莉",

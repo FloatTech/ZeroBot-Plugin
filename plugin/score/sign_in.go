@@ -19,8 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -35,7 +33,7 @@ const (
 var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 
 func init() {
-	engine := control.Register("score", order.AcquirePrio(), &control.Options{
+	engine := control.Register("score", &control.Options{
 		DisableOnDefault:  false,
 		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景",
 		PrivateDataFolder: "score",

@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -17,7 +16,7 @@ import (
 const bed = "https://www.gstatic.com/android/keyboard/emojikitchen/%d/u%x/u%x_u%x.png"
 
 func init() {
-	control.Register("emojimix", order.AcquirePrio(), &control.Options{
+	control.Register("emojimix", &control.Options{
 		DisableOnDefault: false,
 		Help: "合成emoji\n" +
 			"- [emoji][emoji]",

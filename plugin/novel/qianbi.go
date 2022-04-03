@@ -20,8 +20,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -40,7 +38,7 @@ const (
 var gCurCookieJar *cookiejar.Jar
 
 func init() {
-	control.Register("novel", order.AcquirePrio(), &control.Options{
+	control.Register("novel", &control.Options{
 		DisableOnDefault: false,
 		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	}).OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).

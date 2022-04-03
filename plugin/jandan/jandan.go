@@ -14,8 +14,6 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -23,7 +21,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("jandan", order.AcquirePrio(), &control.Options{
+	engine := control.Register("jandan", &control.Options{
 		DisableOnDefault: false,
 		Help:             "煎蛋网无聊图\n- 来份[屌|弔|吊]图\n- 更新[屌|弔|吊]图\n",
 		PublicDataFolder: "Jandan",

@@ -11,7 +11,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -51,7 +50,7 @@ func (l *line) String() string {
 var lines [100]*line
 
 func init() {
-	engine := control.Register("hyaku", order.AcquirePrio(), &control.Options{
+	engine := control.Register("hyaku", &control.Options{
 		DisableOnDefault: false,
 		Help: "百人一首\n" +
 			"- 百人一首(随机发一首)\n" +

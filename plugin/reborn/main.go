@@ -10,12 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	en := control.Register("reborn", order.AcquirePrio(), &control.Options{
+	en := control.Register("reborn", &control.Options{
 		DisableOnDefault: false,
 		Help:             "投胎\n- reborn",
 		PublicDataFolder: "Reborn",

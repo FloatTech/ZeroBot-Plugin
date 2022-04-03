@@ -7,12 +7,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/file"
 )
 
 func init() {
-	en := control.Register("chouxianghua", order.AcquirePrio(), &control.Options{
+	en := control.Register("chouxianghua", &control.Options{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx",
 		PublicDataFolder: "ChouXiangHua",

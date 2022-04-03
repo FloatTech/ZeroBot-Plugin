@@ -8,13 +8,12 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
 func init() {
-	engine := control.Register("bookreview", order.AcquirePrio(), &control.Options{
+	engine := control.Register("bookreview", &control.Options{
 		DisableOnDefault: false,
 		Help:             "哀伤雪刃推书记录\n- 书评[xxx]\n- 随机书评",
 		PublicDataFolder: "BookReview",

@@ -5,7 +5,6 @@
 
   <img src="http://sayuri.fumiama.top/cmoe?name=ZeroBot-Plugin&theme=r34" />
 
-[![YAYA](https://img.shields.io/badge/OneBot-YaYa-green.svg?style=social&logo=appveyor)](https://github.com/Yiwen-Chan/OneBot-YaYa)
 [![GOCQ](https://img.shields.io/badge/OneBot-MiraiGo-green.svg?style=social&logo=appveyor)](https://github.com/Mrs4s/go-cqhttp)
 [![OICQ](https://img.shields.io/badge/OneBot-OICQ-green.svg?style=social&logo=appveyor)](https://github.com/takayama-lily/node-onebot)
 [![MIRAI](https://img.shields.io/badge/OneBot-Mirai-green.svg?style=social&logo=appveyor)](https://github.com/yyuueexxiinngg/onebot-kotlin)
@@ -249,7 +248,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 放大图片[图片]
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
     - [x] 运势 | 抽签
-    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录]
+    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录 奇异恩典]
 - **原神抽卡** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
     - [x] 切换原神卡池
     - [x] 原神十连

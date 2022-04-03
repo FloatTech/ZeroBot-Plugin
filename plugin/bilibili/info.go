@@ -11,7 +11,6 @@ import (
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
@@ -23,7 +22,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var engine = control.Register("bilibili", order.AcquirePrio(), &control.Options{
+var engine = control.Register("bilibili", &control.Options{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
 		"- >vup info [xxx]\n" +

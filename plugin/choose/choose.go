@@ -9,12 +9,10 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	engine := control.Register("choose", order.AcquirePrio(), &control.Options{
+	engine := control.Register("choose", &control.Options{
 		DisableOnDefault: false,
 		Help: "choose\n" +
 			"- 选择可口可乐还是百事可乐\n" +

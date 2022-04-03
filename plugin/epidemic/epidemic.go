@@ -9,7 +9,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -49,7 +48,7 @@ type area struct {
 }
 
 func init() {
-	engine := control.Register(servicename, order.AcquirePrio(), &control.Options{
+	engine := control.Register(servicename, &control.Options{
 		DisableOnDefault: false,
 		Help: "城市疫情查询\n" +
 			"- xxx疫情\n",
