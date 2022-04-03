@@ -4,9 +4,14 @@ package wordle
 import (
 	"errors"
 	"fmt"
+	"github.com/FloatTech/zbputils/binary"
+	"github.com/FloatTech/zbputils/web"
+	log "github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 	"image/color"
 	"math/rand"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -62,7 +67,7 @@ func init() {
 	en := control.Register("wordle", &control.Options{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
-			"- 个人猜单词" +
+			"- 个人猜单词\n" +
 			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
 	}).ApplySingle(single.New(
@@ -128,23 +133,29 @@ func init() {
 			var err error
 			recv, cancel := next.Repeat()
 			defer cancel()
+			tick := time.NewTicker(105 * time.Second)
+			after := time.After(120 * time.Second)
 			for {
 				select {
-				case <-time.After(time.Second * 120):
+				case <-tick.C:
+					ctx.SendChain(message.Text("猜单词，你还有15s作答时间"))
+				case <-after:
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("猜单词超时，游戏结束...答案是: ", target),
+							message.Text("猜单词超时，游戏结束...答案是: ", target, "(", translate(target), ")"),
 						),
 					)
 					return
 				case c := <-recv:
+					after = time.After(120 * time.Second)
+					tick = time.NewTicker(105 * time.Second)
 					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("太棒了，你猜出来了！"),
+								message.Text("太棒了，你猜出来了！答案是: ", target, "(", translate(target), ")"),
 							),
 						)
 						cl()
@@ -153,7 +164,7 @@ func init() {
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("游戏结束...答案是: ", target),
+								message.Text("游戏结束...答案是: ", target, "(", translate(target), ")"),
 							),
 						)
 						cl()
@@ -238,4 +249,19 @@ func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
 		data, cl = writer.ToBytes(ctx.Image())
 		return
 	}
+}
+
+func translate(target string) string {
+	data, err := web.GetData("https://api.cloolc.club/fanyi?data=" + target)
+	if err != nil {
+		log.Errorln("[wordle]:", err)
+	}
+	repo := gjson.ParseBytes(data).Get("data.0")
+	b := make([]byte, 0, 100)
+	for _, v := range repo.Get("value").Array() {
+		b = strconv.AppendQuote(b, v.String())
+	}
+	s := strings.ReplaceAll(binary.BytesToString(b), "\"\"", ",")
+	s = strings.ReplaceAll(s, "\"", "")
+	return s
 }

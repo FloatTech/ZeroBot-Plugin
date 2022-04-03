@@ -349,11 +349,11 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 骂我
     - [x] 大力骂我
 - **b站推送** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
-    - [x] 添加订阅[uid]
-    - [x] 取消订阅[uid]
-    - [x] 取消动态订阅[uid]
-    - [x] 取消直播订阅[uid]
-    - [x] 推送列表
+    - [x] 添加b站订阅[uid]
+    - [x] 取消b站订阅[uid]
+    - [x] 取消b站动态订阅[uid]
+    - [x] 取消b站直播订阅[uid]
+    - [x] b站推送列表
 - **网易云音乐热评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"`
     - [x] 来份网易云热评
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
