@@ -4,14 +4,10 @@ package wordle
 import (
 	"errors"
 	"fmt"
-	"github.com/FloatTech/zbputils/binary"
-	"github.com/FloatTech/zbputils/web"
-	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
+	"github.com/FloatTech/AnimeAPI/tl"
 	"image/color"
 	"math/rand"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -112,6 +108,10 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			class := classdict[ctx.State["regex_matched"].([]string)[2]]
 			target := words[class].cet4[rand.Intn(len(words[class].cet4))]
+			tt, err := tl.Translate(target)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
 			game := newWordleGame(target)
 			_, img, cl, _ := game("")
 			ctx.Send(
@@ -130,32 +130,31 @@ func init() {
 					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 			}
 			var win bool
-			var err error
 			recv, cancel := next.Repeat()
 			defer cancel()
-			tick := time.NewTicker(105 * time.Second)
-			after := time.After(120 * time.Second)
+			tick := time.NewTimer(105 * time.Second)
+			after := time.NewTimer(120 * time.Second)
 			for {
 				select {
 				case <-tick.C:
 					ctx.SendChain(message.Text("猜单词，你还有15s作答时间"))
-				case <-after:
+				case <-after.C:
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("猜单词超时，游戏结束...答案是: ", target, "(", translate(target), ")"),
+							message.Text("猜单词超时，游戏结束...答案是: ", target, "(", tt, ")"),
 						),
 					)
 					return
 				case c := <-recv:
-					after = time.After(120 * time.Second)
-					tick = time.NewTicker(105 * time.Second)
+					tick.Reset(105 * time.Second)
+					after.Reset(120 * time.Second)
 					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("太棒了，你猜出来了！答案是: ", target, "(", translate(target), ")"),
+								message.Text("太棒了，你猜出来了！答案是: ", target, "(", tt, ")"),
 							),
 						)
 						cl()
@@ -164,7 +163,7 @@ func init() {
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("游戏结束...答案是: ", target, "(", translate(target), ")"),
+								message.Text("游戏结束...答案是: ", target, "(", tt, ")"),
 							),
 						)
 						cl()
@@ -249,19 +248,4 @@ func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
 		data, cl = writer.ToBytes(ctx.Image())
 		return
 	}
-}
-
-func translate(target string) string {
-	data, err := web.GetData("https://api.cloolc.club/fanyi?data=" + target)
-	if err != nil {
-		log.Errorln("[wordle]:", err)
-	}
-	repo := gjson.ParseBytes(data).Get("data.0")
-	b := make([]byte, 0, 100)
-	for _, v := range repo.Get("value").Array() {
-		b = strconv.AppendQuote(b, v.String())
-	}
-	s := strings.ReplaceAll(binary.BytesToString(b), "\"\"", ",")
-	s = strings.ReplaceAll(s, "\"", "")
-	return s
 }
