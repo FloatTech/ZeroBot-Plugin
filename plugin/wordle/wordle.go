@@ -111,6 +111,7 @@ func init() {
 			tt, err := tl.Translate(target)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			game := newWordleGame(target)
 			_, img, cl, _ := game("")
@@ -151,6 +152,8 @@ func init() {
 					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
+						tick.Stop()
+						after.Stop()
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
@@ -160,6 +163,8 @@ func init() {
 						cl()
 						return
 					case err == errTimesRunOut:
+						tick.Stop()
+						after.Stop()
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),

@@ -20,6 +20,7 @@ func init() {
 			data, err := tl.Translate(msg[0])
 			if err != nil {
 				ctx.SendChain(message.Text("Error:", data))
+				return
 			}
 			ctx.SendChain(message.Text(data))
 		})
