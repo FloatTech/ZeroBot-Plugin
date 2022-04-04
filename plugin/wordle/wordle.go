@@ -4,13 +4,14 @@ package wordle
 import (
 	"errors"
 	"fmt"
-	"github.com/FloatTech/AnimeAPI/tl"
 	"image/color"
 	"math/rand"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/FloatTech/AnimeAPI/tl"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
