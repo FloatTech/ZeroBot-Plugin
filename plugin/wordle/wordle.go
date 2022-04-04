@@ -4,6 +4,7 @@ package wordle
 import (
 	"errors"
 	"fmt"
+	"github.com/FloatTech/AnimeAPI/tl"
 	"image/color"
 	"math/rand"
 	"sort"
@@ -62,7 +63,7 @@ func init() {
 	en := control.Register("wordle", &control.Options{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
-			"- 个人猜单词" +
+			"- 个人猜单词\n" +
 			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
 	}).ApplySingle(single.New(
@@ -107,6 +108,11 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			class := classdict[ctx.State["regex_matched"].([]string)[2]]
 			target := words[class].cet4[rand.Intn(len(words[class].cet4))]
+			tt, err := tl.Translate(target)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			game := newWordleGame(target)
 			_, img, cl, _ := game("")
 			ctx.Send(
@@ -125,35 +131,44 @@ func init() {
 					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 			}
 			var win bool
-			var err error
 			recv, cancel := next.Repeat()
 			defer cancel()
+			tick := time.NewTimer(105 * time.Second)
+			after := time.NewTimer(120 * time.Second)
 			for {
 				select {
-				case <-time.After(time.Second * 120):
+				case <-tick.C:
+					ctx.SendChain(message.Text("猜单词，你还有15s作答时间"))
+				case <-after.C:
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("猜单词超时，游戏结束...答案是: ", target),
+							message.Text("猜单词超时，游戏结束...答案是: ", target, "(", tt, ")"),
 						),
 					)
 					return
 				case c := <-recv:
+					tick.Reset(105 * time.Second)
+					after.Reset(120 * time.Second)
 					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
+						tick.Stop()
+						after.Stop()
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("太棒了，你猜出来了！"),
+								message.Text("太棒了，你猜出来了！答案是: ", target, "(", tt, ")"),
 							),
 						)
 						cl()
 						return
 					case err == errTimesRunOut:
+						tick.Stop()
+						after.Stop()
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("游戏结束...答案是: ", target),
+								message.Text("游戏结束...答案是: ", target, "(", tt, ")"),
 							),
 						)
 						cl()
