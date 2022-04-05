@@ -23,12 +23,12 @@ func init() {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
 				ctx.SendChain(message.Text("少女祈祷中..."))
-				p, err := nsfw.Classify(url...)
+				p, err := nsfw.Classify(url[0])
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p[0]))))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))
 			}
 		})
 	control.Register("nsfwauto", &control.Options{
@@ -39,17 +39,17 @@ func init() {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
 				process.SleepAbout1sTo2s()
-				p, err := nsfw.Classify(url...)
+				p, err := nsfw.Classify(url[0])
 				if err != nil {
 					return
 				}
 				process.SleepAbout1sTo2s()
-				autojudge(ctx, p[0])
+				autojudge(ctx, p)
 			}
 		})
 }
 
-func judge(p nsfw.Picture) string {
+func judge(p *nsfw.Picture) string {
 	if p.Neutral > 0.3 {
 		return "普通哦"
 	}
@@ -71,7 +71,7 @@ func judge(p nsfw.Picture) string {
 	return c
 }
 
-func autojudge(ctx *zero.Ctx, p nsfw.Picture) {
+func autojudge(ctx *zero.Ctx, p *nsfw.Picture) {
 	if p.Neutral > 0.3 {
 		return
 	}

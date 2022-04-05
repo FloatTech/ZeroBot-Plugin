@@ -56,7 +56,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				if p[0].Drawings < 0.1 || p[0].Neutral > 0.8 {
+				if p.Drawings < 0.1 || p.Neutral > 0.8 {
 					ctx.SendChain(message.Text("请发送二次元图片!"))
 					return
 				}
