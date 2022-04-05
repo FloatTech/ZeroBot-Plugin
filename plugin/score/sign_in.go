@@ -190,13 +190,19 @@ func init() {
 				return
 			}
 			_, err = file.GetLazyData(text.FontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			b, err := os.ReadFile(text.FontFile)
 			if err != nil {
-				log.Errorln(err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			font, err := freetype.ParseFont(b)
 			if err != nil {
-				log.Errorln(err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			bars := make([]chart.Value, 0)
 			for _, v := range st {
@@ -222,7 +228,11 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			graph.Render(chart.PNG, f)
+			err = graph.Render(chart.PNG, f)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
