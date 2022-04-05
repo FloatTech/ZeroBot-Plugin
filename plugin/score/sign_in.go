@@ -204,12 +204,12 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			bars := make([]chart.Value, 0)
-			for _, v := range st {
-				bars = append(bars, chart.Value{
+			bars := make([]chart.Value, len(st))
+			for i, v := range st {
+				bars[i] = chart.Value{
 					Value: float64(v.Score),
 					Label: ctx.CardOrNickName(v.UID),
-				})
+				}
 			}
 			graph := chart.BarChart{
 				Font:  font,
@@ -229,12 +229,9 @@ func init() {
 				return
 			}
 			err = graph.Render(chart.PNG, f)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
 			_ = f.Close()
 			if err != nil {
+				os.Remove(drawedFile)
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
