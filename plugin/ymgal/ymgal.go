@@ -50,7 +50,11 @@ func init() {
 	engine.OnFullMatch("更新gal", zero.SuperUserPermission).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
-			updatePic()
+			err := updatePic()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.Send("ymgal数据库已更新")
 		})
 }

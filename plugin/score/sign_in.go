@@ -46,7 +46,6 @@ func init() {
 			panic(err)
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
-		log.Println("[score]加载score数据库")
 	}()
 	engine.OnFullMatch("签到", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -69,7 +68,11 @@ func init() {
 			}
 
 			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
-			initPic(picFile)
+			err := initPic(picFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 
 			_ = sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
 
@@ -200,20 +203,21 @@ func getLevel(count int) int {
 	return -1
 }
 
-func initPic(picFile string) {
+func initPic(picFile string) error {
 	if file.IsNotExist(picFile) {
 		data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
 		if err != nil {
-			log.Errorln("[score]", err)
+			return err
 		}
 		picURL := gjson.Get(string(data), "pic").String()
 		data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
 		if err != nil {
-			log.Errorln("[score]", err)
+			return err
 		}
 		err = os.WriteFile(picFile, data, 0666)
 		if err != nil {
-			log.Errorln("[score]", err)
+			return err
 		}
 	}
+	return nil
 }

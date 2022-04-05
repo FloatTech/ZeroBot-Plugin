@@ -72,7 +72,7 @@ func init() {
 						}
 						return numcn.EncodeFromFloat64(f)
 					})
-					log.Println("[tts]:", reply)
+					log.Debugln("[tts]:", reply)
 					return reply
 				})))
 			}

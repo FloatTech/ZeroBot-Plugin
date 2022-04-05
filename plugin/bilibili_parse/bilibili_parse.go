@@ -8,7 +8,6 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -27,17 +26,21 @@ func init() {
 
 	engine.OnRegex(bilibiliRe).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		bilibiliURL := ctx.State["regex_matched"].([]string)[0]
-		m := parseURL(bilibiliURL)
+		m, err := parseURL(bilibiliURL)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
 		if len(m) != 0 {
 			ctx.Send(m)
 		}
 	})
 }
 
-func parseURL(bilibiliURL string) (m message.Message) {
+func parseURL(bilibiliURL string) (m message.Message, err error) {
 	doc, err := htmlquery.LoadURL(bilibiliURL)
 	if err != nil {
-		log.Errorln("[bilibiliparse]:访问的链接为", bilibiliURL, ",错误为", err)
+		return
 	}
 	videoURL := htmlquery.FindOne(doc, "/html/head/meta[@itemprop='url']").Attr[2].Val
 	re := regexp.MustCompile(validRe)

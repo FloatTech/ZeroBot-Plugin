@@ -73,7 +73,6 @@ func init() {
 		dbpath := en.DataFolder()
 		dbfile := dbpath + "push.db"
 		bdb = initialize(dbfile)
-		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()
 
 	en.OnRegex(`^添加b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -221,7 +220,7 @@ func bilibiliPushDaily() {
 	t := time.NewTicker(time.Second * 10)
 	defer t.Stop()
 	for range t.C {
-		log.Println("-----bilibilipush拉取推送信息-----")
+		log.Debugln("-----bilibilipush拉取推送信息-----")
 		sendDynamic()
 		sendLive()
 	}

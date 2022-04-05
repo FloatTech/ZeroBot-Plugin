@@ -60,7 +60,7 @@ func (c *Clock) RegisterTimer(ts *Timer, save, isinit bool) bool {
 	if t != ts && ok { // 避免重复注册定时器
 		t.SetEn(false)
 	}
-	logrus.Println("[群管]注册计时器", key)
+	logrus.Infoln("[群管]注册计时器", key)
 	if ts.Cron != "" {
 		var ctx *zero.Ctx
 		if isinit {

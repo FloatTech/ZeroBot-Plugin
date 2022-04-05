@@ -214,7 +214,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 	count := gjson.Get(vtbListStr, "#").Int()
 	for i := int64(0); i < count; i++ {
 		item := gjson.Get(vtbListStr, strconv.FormatInt(i, 10))
-		log.Println(item)
+		log.Debugln(item)
 		fc := FirstCategory{
 			FirstCategoryIndex:       i,
 			FirstCategoryName:        item.Get("name").String(),
@@ -222,7 +222,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string) {
 			FirstCategoryIconPath:    item.Get("icon_path").String(),
 			FirstCategoryUID:         item.Get("uid").String(),
 		}
-		log.Println(fc)
+		log.Debugln(fc)
 
 		if err := db.Debug().Model(&FirstCategory{}).First(&fc, "first_category_uid = ?", fc.FirstCategoryUID).Error; err != nil {
 			if gorm.IsRecordNotFoundError(err) {
@@ -275,10 +275,10 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 	}
 
 	secondCount := gjson.Get(vtbStr, "data.voices.#").Int()
-	log.Println("二级品类一共有", secondCount)
+	log.Debugln("二级品类一共有", secondCount)
 	for secondIndex := int64(0); secondIndex < secondCount; secondIndex++ {
 		secondItem := gjson.Get(vtbStr, "data.voices."+strconv.FormatInt(secondIndex, 10))
-		log.Println(secondItem)
+		log.Debugln(secondItem)
 		sc := SecondCategory{
 			SecondCategoryName:        secondItem.Get("categoryName").String(),
 			SecondCategoryIndex:       secondIndex,
@@ -301,10 +301,10 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 				})
 		}
 		thirdCount := secondItem.Get("voiceList.#").Int()
-		log.Println("三级品类一共有", thirdCount)
+		log.Debugln("三级品类一共有", thirdCount)
 		for thirdIndex := int64(0); thirdIndex < thirdCount; thirdIndex++ {
 			thirdItem := secondItem.Get("voiceList." + strconv.FormatInt(thirdIndex, 10))
-			log.Println(thirdItem)
+			log.Debugln(thirdItem)
 			tc := ThirdCategory{
 				ThirdCategoryName:        thirdItem.Get("name").String(),
 				ThirdCategoryIndex:       thirdIndex,
@@ -314,7 +314,7 @@ func (vdb *VtbDB) StoreVtb(uid string) {
 				ThirdCategoryPath:        thirdItem.Get("path").String(),
 				ThirdCategoryAuthor:      thirdItem.Get("author").String(),
 			}
-			log.Println(tc)
+			log.Debugln(tc)
 
 			if err := db.Debug().Model(&ThirdCategory{}).First(&tc, "first_category_uid = ? and second_category_index = ? and third_category_index = ?",
 				uid, secondIndex, thirdIndex).Error; err != nil {

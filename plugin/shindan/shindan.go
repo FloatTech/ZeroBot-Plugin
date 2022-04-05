@@ -3,7 +3,6 @@ package shindan
 
 import (
 	"github.com/FloatTech/AnimeAPI/shindanmaker"
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -64,7 +63,8 @@ func handlepic(ctx *zero.Ctx) {
 	}
 	data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 	if err != nil {
-		log.Errorln("[shindan]:", err)
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
 	}
 	if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
 		ctx.SendChain(message.Text("ERROR:可能被风控了"))
