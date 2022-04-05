@@ -10,13 +10,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
 	poke   = rate.NewManager(time.Minute*5, 8) // 戳一戳
-	engine = control.Register("chat", order.AcquirePrio(), &control.Options{
+	engine = control.Register("chat", &control.Options{
 		DisableOnDefault: false,
 		Help:             "chat\n- [BOT名字]\n- [戳一戳BOT]\n- 空调开\n- 空调关\n- 群温度\n- 设置温度[正整数]",
 	})

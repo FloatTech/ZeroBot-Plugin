@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -13,7 +12,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("ymgal", order.AcquirePrio(), &control.Options{
+	engine := control.Register("ymgal", &control.Options{
 		DisableOnDefault: false,
 		Help:             "月幕galgame\n- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal\n",
 		PublicDataFolder: "Ymgal",
@@ -51,7 +50,11 @@ func init() {
 	engine.OnFullMatch("更新gal", zero.SuperUserPermission).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
-			updatePic()
+			err := updatePic()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.Send("ymgal数据库已更新")
 		})
 }

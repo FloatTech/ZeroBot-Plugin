@@ -16,12 +16,10 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("music", order.AcquirePrio(), &control.Options{
+	control.Register("music", &control.Options{
 		DisableOnDefault: false,
 		Help: "点歌\n" +
 			"- 点歌[xxx]\n" +

@@ -18,8 +18,6 @@ import (
 	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 // Pools 图片缓冲池
@@ -51,7 +49,7 @@ var pool = &imgpool{
 }
 
 func init() { // 插件主体
-	engine := control.Register("setutime", order.AcquirePrio(), &control.Options{
+	engine := control.Register("setutime", &control.Options{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +

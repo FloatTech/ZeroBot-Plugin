@@ -6,7 +6,6 @@ import (
 
 	"github.com/tidwall/gjson"
 
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -14,8 +13,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -25,7 +22,7 @@ var (
 )
 
 func init() {
-	control.Register("coser", order.AcquirePrio(), &control.Options{
+	control.Register("coser", &control.Options{
 		DisableOnDefault: false,
 		Help:             "三次元小姐姐\n- coser",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
@@ -33,9 +30,9 @@ func init() {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
 			if err != nil {
-				log.Println("err为:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
-
 			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
 			m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(text))}
 			ds := ""

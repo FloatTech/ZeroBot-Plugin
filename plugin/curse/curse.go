@@ -10,8 +10,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/process"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -20,7 +18,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("curse", order.AcquirePrio(), &control.Options{
+	engine := control.Register("curse", &control.Options{
 		DisableOnDefault: true,
 		Help:             "骂人(求骂,自卫)\n- 骂我\n- 大力骂我",
 		PublicDataFolder: "Curse",

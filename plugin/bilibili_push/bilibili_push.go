@@ -15,7 +15,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -37,13 +36,14 @@ var bdb *bilibilipushdb
 var (
 	lastTime = map[int64]int64{}
 	typeMsg  = map[int64]string{
-		1:   "转发了一条动态",
-		2:   "有图营业",
-		4:   "无图营业",
-		8:   "发布了新投稿",
-		16:  "发布了短视频",
-		64:  "发布了新专栏",
-		256: "发布了新音频",
+		1:    "转发了一条动态",
+		2:    "有图营业",
+		4:    "无图营业",
+		8:    "发布了新投稿",
+		16:   "发布了短视频",
+		64:   "发布了新专栏",
+		256:  "发布了新音频",
+		2048: "发布了新简报",
 	}
 	liveStatus  = map[int64]int{}
 	uidErrorMsg = map[int]string{
@@ -57,14 +57,14 @@ var (
 
 func init() {
 	go bilibiliPushDaily()
-	en := control.Register(serviceName, order.AcquirePrio(), &control.Options{
+	en := control.Register(serviceName, &control.Options{
 		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
-			"- 添加订阅[uid]\n" +
-			"- 取消订阅[uid]\n" +
-			"- 取消动态订阅[uid]\n" +
-			"- 取消直播订阅[uid]\n" +
-			"- 推送列表",
+			"- 添加b站订阅[uid]\n" +
+			"- 取消b站订阅[uid]\n" +
+			"- 取消b站动态订阅[uid]\n" +
+			"- 取消b站直播订阅[uid]\n" +
+			"- b站推送列表",
 		PrivateDataFolder: serviceName,
 	})
 
@@ -73,10 +73,9 @@ func init() {
 		dbpath := en.DataFolder()
 		dbfile := dbpath + "push.db"
 		bdb = initialize(dbfile)
-		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()
 
-	en.OnRegex(`^添加订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -102,7 +101,7 @@ func init() {
 			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -128,7 +127,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 		}
 	})
-	en.OnRegex(`^取消动态订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消b站动态订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -154,7 +153,7 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 		}
 	})
-	en.OnRegex(`^取消直播订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消b站直播订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
@@ -180,14 +179,14 @@ func init() {
 			ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 		}
 	})
-	en.OnFullMatch("推送列表", zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("b站推送列表", zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
 		bpl := bdb.getAllPushByGroup(gid)
 		fmt.Println(bpl)
-		msg := "--------推送列表--------"
+		msg := "--------b站推送列表--------"
 		for _, v := range bpl {
 			if _, ok := upMap[v.BilibiliUID]; !ok {
 				bdb.updateAllUp()
@@ -221,7 +220,7 @@ func bilibiliPushDaily() {
 	t := time.NewTicker(time.Second * 10)
 	defer t.Stop()
 	for range t.C {
-		log.Println("-----bilibilipush拉取推送信息-----")
+		log.Debugln("-----bilibilipush拉取推送信息-----")
 		sendDynamic()
 		sendLive()
 	}
@@ -402,6 +401,19 @@ func sendDynamic() {
 							msg = append(msg, message.Text(cTitle))
 							cCover := gjson.Get(cOrigin, "cover").String()
 							msg = append(msg, message.Image(cCover))
+						case 2048:
+							cName := gjson.Get(cOrigin, "user.uname").String()
+							msg = append(msg, message.Text(cName+typeMsg[cOrigType]+"\n"))
+							cContent := gjson.Get(cOrigin, "vest.content").String()
+							msg = append(msg, message.Text(cContent+"\n"))
+							cTitle := gjson.Get(cOrigin, "sketch.title").String()
+							msg = append(msg, message.Text(cTitle+"\n"))
+							cDescText := gjson.Get(cOrigin, "sketch.desc_text").String()
+							msg = append(msg, message.Text(cDescText))
+							cCoverURL := gjson.Get(cOrigin, "sketch.cover_url").String()
+							msg = append(msg, message.Image(cCoverURL))
+							cTargetURL := gjson.Get(cOrigin, "sketch.target_url").String()
+							msg = append(msg, message.Text("简报链接："+cTargetURL+"\n"))
 						default:
 							msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cOrigType, 10)+"\n"))
 						}
@@ -463,6 +475,19 @@ func sendDynamic() {
 						msg = append(msg, message.Text(cTitle))
 						cCover := gjson.Get(cardStr, "cover").String()
 						msg = append(msg, message.Image(cCover))
+					case 2048:
+						cName := gjson.Get(cardStr, "user.uname").String()
+						msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
+						cContent := gjson.Get(cardStr, "vest.content").String()
+						msg = append(msg, message.Text(cContent+"\n"))
+						cTitle := gjson.Get(cardStr, "sketch.title").String()
+						msg = append(msg, message.Text(cTitle+"\n"))
+						cDescText := gjson.Get(cardStr, "sketch.desc_text").String()
+						msg = append(msg, message.Text(cDescText))
+						cCoverURL := gjson.Get(cardStr, "sketch.cover_url").String()
+						msg = append(msg, message.Image(cCoverURL))
+						cTargetURL := gjson.Get(cardStr, "sketch.target_url").String()
+						msg = append(msg, message.Text("简报链接："+cTargetURL+"\n"))
 					default:
 						msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cType, 10)+"\n"))
 					}

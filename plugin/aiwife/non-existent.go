@@ -9,8 +9,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -18,7 +16,7 @@ const (
 )
 
 func init() { // 插件主体
-	control.Register("aiwife", order.AcquirePrio(), &control.Options{
+	control.Register("aiwife", &control.Options{
 		DisableOnDefault: false,
 		Help: "AIWife\n" +
 			"- waifu | 随机waifu",

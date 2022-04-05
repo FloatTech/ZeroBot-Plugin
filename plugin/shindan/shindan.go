@@ -3,12 +3,9 @@ package shindan
 
 import (
 	"github.com/FloatTech/AnimeAPI/shindanmaker"
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-
-	"github.com/FloatTech/zbputils/control/order"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -16,7 +13,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("shindan", order.AcquirePrio(), &control.Options{
+	engine := control.Register("shindan", &control.Options{
 		DisableOnDefault: false,
 		Help: "shindan\n" +
 			"- 今天是什么少女[@xxx]\n" +
@@ -66,7 +63,8 @@ func handlepic(ctx *zero.Ctx) {
 	}
 	data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 	if err != nil {
-		log.Errorln("[shindan]:", err)
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
 	}
 	if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
 		ctx.SendChain(message.Text("ERROR:可能被风控了"))

@@ -11,12 +11,10 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("nbnhhsh", order.AcquirePrio(), &control.Options{
+	control.Register("nbnhhsh", &control.Options{
 		DisableOnDefault: false,
 		Help:             "拼音首字母释义工具\n- ?? [缩写]",
 	}).OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).
