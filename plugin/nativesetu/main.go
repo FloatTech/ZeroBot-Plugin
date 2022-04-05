@@ -37,7 +37,7 @@ func init() {
 		b, err := os.ReadFile(cfgfile)
 		if err == nil {
 			setupath = helper.BytesToString(b)
-			logrus.Println("[nsetu] set setu dir to", setupath)
+			logrus.Infoln("[nsetu] set setu dir to", setupath)
 		}
 	}
 

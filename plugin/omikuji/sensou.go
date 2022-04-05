@@ -45,7 +45,11 @@ func init() { // 插件主体
 
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			miku := bangoToday(ctx.Event.UserID)
+			miku, err := bangoToday(ctx.Event.UserID)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.SendChain(
 				message.At(ctx.Event.UserID),
 				message.Image(fmt.Sprintf(bed, miku, 0)),
@@ -54,9 +58,15 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"解签"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			kujiBytes, err := text.RenderToBase64(getKujiByBango(bangoToday(ctx.Event.UserID)), text.FontFile, 400, 20)
+			bg, err := bangoToday(ctx.Event.UserID)
 			if err != nil {
-				log.Errorln("[omikuji]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			kujiBytes, err := text.RenderToBase64(getKujiByBango(bg), text.FontFile, 400, 20)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -64,12 +74,12 @@ func init() { // 插件主体
 		})
 }
 
-func bangoToday(uid int64) uint8 {
+func bangoToday(uid int64) (uint8, error) {
 	today, err := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
 	if err != nil {
-		log.Errorln("string转化为int64格式有问题:", err)
+		return 0, err
 	}
 	seed := uid + today
 	r := rand.New(rand.NewSource(seed))
-	return uint8(r.Intn(100) + 1)
+	return uint8(r.Intn(100) + 1), nil
 }

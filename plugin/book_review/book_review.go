@@ -41,7 +41,8 @@ func init() {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
 			data, err := text.RenderToBase64(b.BookReview, text.FontFile, 400, 20)
 			if err != nil {
-				log.Println("err:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -53,7 +54,8 @@ func init() {
 			br := getRandomBookReview()
 			data, err := text.RenderToBase64(br.BookReview, text.FontFile, 400, 20)
 			if err != nil {
-				log.Println("err:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))

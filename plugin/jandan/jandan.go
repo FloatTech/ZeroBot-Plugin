@@ -69,7 +69,7 @@ func init() {
 			}
 		LOOP:
 			for i := 0; i < pageTotal; i++ {
-				logrus.Infoln("[jandan]", fmt.Sprintf("处理第%d/%d页...", i, pageTotal))
+				logrus.Debugln("[jandan]", fmt.Sprintf("处理第%d/%d页...", i, pageTotal))
 				doc, err = htmlquery.LoadURL(webpageURL)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
