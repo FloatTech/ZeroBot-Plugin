@@ -171,6 +171,7 @@ func init() {
 				canvas.DrawImage(back, 0, 0)
 			}
 			canvas.SetColor(color.Black)
+			_, err = file.GetLazyData(text.BoldFontFile, false, true)
 			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return

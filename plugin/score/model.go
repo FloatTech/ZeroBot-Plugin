@@ -117,3 +117,9 @@ func (sdb *scoredb) InsertOrUpdateSignInCountByUID(uid int64, count int) (err er
 	}
 	return
 }
+
+func (sdb *scoredb) GetScoreRankByTopN(n int) (st []scoretable, err error) {
+	db := (*gorm.DB)(sdb)
+	err = db.Debug().Model(&scoretable{}).Order("score desc").Limit(n).Find(&st).Error
+	return
+}
