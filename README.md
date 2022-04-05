@@ -1,5 +1,5 @@
 <div align="center">
-  <img src=".github/gopher.jpg" width = "150" height = "150" alt="Gopher"><br>
+  <img src=".github/gopher.jpg" width = "200" height = "150" alt="Gopher"><br>
   <h1>ZeroBot-Plugin</h1>
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
