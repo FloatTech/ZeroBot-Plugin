@@ -345,6 +345,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **签到得分** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"`
     - [x] 签到
     - [x] 获得签到背景[@xxx] | 获得签到背景
+    - [x] 查看分数排名
 - **骂人** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse"`
     - [x] 骂我
     - [x] 大力骂我

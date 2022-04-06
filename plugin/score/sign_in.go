@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/fogleman/gg"
+	"github.com/golang/freetype"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -35,7 +37,7 @@ var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 func init() {
 	engine := control.Register("score", &control.Options{
 		DisableOnDefault:  false,
-		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景",
+		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
 		PrivateDataFolder: "score",
 	})
 	cachePath := engine.DataFolder() + "cache/"
@@ -172,6 +174,71 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
+		})
+	engine.OnFullMatch("查看分数排名", zero.OnlyGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			today := time.Now().Format("20060102")
+			drawedFile := cachePath + today + "scoreRank.png"
+			if file.IsExist(drawedFile) {
+				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+				return
+			}
+			st, err := sdb.GetScoreRankByTopN(10)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			if len(st) == 0 {
+				ctx.SendChain(message.Text("ERROR:目前还没有人签到过"))
+				return
+			}
+			_, err = file.GetLazyData(text.FontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			b, err := os.ReadFile(text.FontFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			font, err := freetype.ParseFont(b)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			bars := make([]chart.Value, len(st))
+			for i, v := range st {
+				bars[i] = chart.Value{
+					Value: float64(v.Score),
+					Label: ctx.CardOrNickName(v.UID),
+				}
+			}
+			graph := chart.BarChart{
+				Font:  font,
+				Title: "饼干排名",
+				Background: chart.Style{
+					Padding: chart.Box{
+						Top: 40,
+					},
+				},
+				Height:   500,
+				BarWidth: 50,
+				Bars:     bars,
+			}
+			f, err := os.Create(drawedFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			err = graph.Render(chart.PNG, f)
+			_ = f.Close()
+			if err != nil {
+				os.Remove(drawedFile)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 }
 
