@@ -587,5 +587,5 @@ func welcometocq(ctx *zero.Ctx, welcome string) string {
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
 	cqstring = strings.ReplaceAll(cqstring, "{id}", id)
-	return cqstring
+	return message.UnescapeCQCodeText(cqstring)
 }
