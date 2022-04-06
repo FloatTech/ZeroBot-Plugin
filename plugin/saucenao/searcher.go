@@ -71,15 +71,9 @@ func init() { // 插件主体
 					"画师ID：", illust.UserId, "\n",
 					"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
-				msg := append(imgs, txt)
 				if imgs != nil {
 					// 发送搜索结果
-					if id := ctx.SendGroupForwardMessage(
-						ctx.Event.GroupID,
-						msg,
-					).Get("message_id").Int(); id == 0 {
-						ctx.SendChain(message.Text("ERROR:可能被风控了"))
-					}
+					ctx.Send(append(imgs, message.Text("\n"), txt))
 				} else {
 					// 图片下载失败，仅发送文字结果
 					ctx.SendChain(txt)
