@@ -71,9 +71,15 @@ func init() { // 插件主体
 					"画师ID：", illust.UserId, "\n",
 					"直链：", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
+				msg := append(imgs, txt)
 				if imgs != nil {
 					// 发送搜索结果
-					ctx.Send(append(imgs, message.Text("\n"), txt))
+					if id := ctx.SendGroupForwardMessage(
+						ctx.Event.GroupID,
+						msg,
+					).Get("message_id").Int(); id == 0 {
+						ctx.SendChain(message.Text("ERROR:可能被风控了"))
+					}
 				} else {
 					// 图片下载失败，仅发送文字结果
 					ctx.SendChain(txt)
@@ -93,7 +99,8 @@ func init() { // 插件主体
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else {
 					// 返回SauceNAO的结果
-					ctx.SendChain(
+					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("saucenao搜图结果"))}
+					msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
 						message.Text("我有把握是这个！"),
 						message.Image(result[0].Thumbnail),
 						message.Text(
@@ -104,14 +111,20 @@ func init() { // 插件主体
 							"画师：", result[0].MemberName, "\n",
 							"画师ID：", result[0].MemberID, "\n",
 							"直链：", "https://pixivel.moe/detail?id=", result[0].PixivID,
-						),
-					)
+						)))
+					if id := ctx.SendGroupForwardMessage(
+						ctx.Event.GroupID,
+						msg,
+					).Get("message_id").Int(); id == 0 {
+						ctx.SendChain(message.Text("ERROR:可能被风控了"))
+					}
 					continue
 				}
 				if result, err := yandex.Yandex(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else {
-					ctx.SendChain(
+					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("yandex搜图结果"))}
+					msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
 						message.Text("也许是这个？"),
 						message.Text(
 							"\n",
@@ -119,9 +132,13 @@ func init() { // 插件主体
 							"插画ID：", result.Pid, "\n",
 							"画师：", result.UserName, "\n",
 							"画师ID：", result.UserId, "\n",
-							"直链：", "https://pixivel.moe/detail?id=", result.Pid,
-						),
-					)
+							"直链：", "https://pixivel.moe/detail?id=", result.Pid)))
+					if id := ctx.SendGroupForwardMessage(
+						ctx.Event.GroupID,
+						msg,
+					).Get("message_id").Int(); id == 0 {
+						ctx.SendChain(message.Text("ERROR:可能被风控了"))
+					}
 				}
 				// 不论结果如何都执行 ascii2d 搜索
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
