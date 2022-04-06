@@ -7,7 +7,6 @@ import (
 	"github.com/FloatTech/zbputils/web"
 	_ "github.com/fumiama/sqlite3" // use sql
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
 
@@ -84,11 +83,11 @@ func (vdb *vupdb) filterVup(ids []int64) (vups []vup, err error) {
 	return
 }
 
-func updateVup() {
+func updateVup() error {
 	for _, v := range vtbURLs {
 		data, err := web.GetData(v)
 		if err != nil {
-			log.Errorln("[bilibili]:", err)
+			return err
 		}
 		gjson.Get(binary.BytesToString(data), "@this").ForEach(func(key, value gjson.Result) bool {
 			mid := value.Get("mid").Int()
@@ -96,11 +95,15 @@ func updateVup() {
 			roomid := value.Get("roomid").Int()
 			err = vdb.insertVupByMid(mid, uname, roomid)
 			if err != nil {
-				log.Errorln("[bilibili]:", err)
+				return false
 			}
 			return true
 		})
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (vdb *vupdb) setBilibiliCookie(cookie string) (err error) {
