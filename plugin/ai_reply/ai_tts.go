@@ -17,26 +17,11 @@ import (
 	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const ttsServiceName = "tts"
 
-var (
-	t = &ttsInstances{
-		m: map[string]tts.TTS{
-			"百度女声":   baidutts.NewBaiduTTS(0),
-			"百度男声":   baidutts.NewBaiduTTS(1),
-			"百度度逍遥":  baidutts.NewBaiduTTS(3),
-			"百度度丫丫":  baidutts.NewBaiduTTS(4),
-			"拟声鸟阿梓":  mockingbird.NewMockingBirdTTS(0),
-			"拟声鸟药水哥": mockingbird.NewMockingBirdTTS(1),
-		},
-		l: []string{"拟声鸟阿梓", "拟声鸟药水哥", "百度女声", "百度男声", "百度度逍遥", "百度度丫丫"},
-	}
-	re = regexp.MustCompile(`(\-|\+)?\d+(\.\d+)?`)
-)
+var re = regexp.MustCompile(`(\-|\+)?\d+(\.\d+)?`)
 
 type ttsInstances struct {
 	sync.RWMutex
@@ -53,7 +38,18 @@ func (t *ttsInstances) List() []string {
 }
 
 func init() {
-	engine := control.Register(ttsServiceName, order.AcquirePrio(), &control.Options{
+	t := &ttsInstances{
+		m: map[string]tts.TTS{
+			"百度女声":   baidutts.NewBaiduTTS(0),
+			"百度男声":   baidutts.NewBaiduTTS(1),
+			"百度度逍遥":  baidutts.NewBaiduTTS(3),
+			"百度度丫丫":  baidutts.NewBaiduTTS(4),
+			"拟声鸟阿梓":  nil,
+			"拟声鸟药水哥": nil,
+		},
+		l: []string{"拟声鸟阿梓", "拟声鸟药水哥", "百度女声", "百度男声", "百度度逍遥", "百度度丫丫"},
+	}
+	engine := control.Register(ttsServiceName, &control.Options{
 		DisableOnDefault: true,
 		Help: "语音回复(包括拟声鸟和百度)\n" +
 			"- @Bot 任意文本(任意一句话回复)\n" +
@@ -65,19 +61,21 @@ func init() {
 			msg := ctx.ExtractPlainText()
 			r := aireply.NewAIReply(getReplyMode(ctx))
 			tts := t.new(t.getSoundMode(ctx))
-			ctx.SendChain(message.Record(tts.Speak(ctx.Event.UserID, func() string {
-				reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
-				reply = re.ReplaceAllStringFunc(reply, func(s string) string {
-					f, err := strconv.ParseFloat(s, 64)
-					if err != nil {
-						log.Errorln("[tts]:", err)
-						return s
-					}
-					return numcn.EncodeFromFloat64(f)
-				})
-				log.Println("[tts]:", reply)
-				return reply
-			})))
+			if tts != nil {
+				ctx.SendChain(message.Record(tts.Speak(ctx.Event.UserID, func() string {
+					reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
+					reply = re.ReplaceAllStringFunc(reply, func(s string) string {
+						f, err := strconv.ParseFloat(s, 64)
+						if err != nil {
+							log.Errorln("[tts]:", err)
+							return s
+						}
+						return numcn.EncodeFromFloat64(f)
+					})
+					log.Debugln("[tts]:", reply)
+					return reply
+				})))
+			}
 		})
 	engine.OnRegex(`^设置语音模式(.*)$`, ctxext.FirstValueInList(t)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -98,8 +96,23 @@ func init() {
 }
 
 // new 语音简单工厂
-func (t *ttsInstances) new(name string) tts.TTS {
-	return t.m[name]
+func (t *ttsInstances) new(name string) (ts tts.TTS) {
+	t.RLock()
+	ts = t.m[name]
+	t.RUnlock()
+	if ts == nil {
+		switch name {
+		case "拟声鸟阿梓":
+			t.Lock()
+			ts, _ = mockingbird.NewMockingBirdTTS(0)
+			t.Unlock()
+		case "拟声鸟药水哥":
+			t.Lock()
+			ts, _ = mockingbird.NewMockingBirdTTS(1)
+			t.Unlock()
+		}
+	}
+	return
 }
 
 func (t *ttsInstances) setSoundMode(ctx *zero.Ctx, name string) error {

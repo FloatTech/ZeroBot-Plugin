@@ -4,7 +4,6 @@ package tiangou
 import (
 	sql "github.com/FloatTech/sqlite"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/sirupsen/logrus"
@@ -20,7 +19,7 @@ type tiangou struct {
 var db = &sql.Sqlite{}
 
 func init() {
-	en := control.Register("tiangou", order.AcquirePrio(), &control.Options{
+	en := control.Register("tiangou", &control.Options{
 		DisableOnDefault: false,
 		Help: "舔狗日记\n" +
 			"- 舔狗日记",

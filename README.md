@@ -1,11 +1,10 @@
 <div align="center">
-  <img src=".github/yaya.jpg" width = "150" height = "150" alt="OneBot-YaYa"><br>
+  <img src=".github/gopher.jpg" width = "200" height = "150" alt="Gopher"><br>
   <h1>ZeroBot-Plugin</h1>
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
   <img src="http://sayuri.fumiama.top/cmoe?name=ZeroBot-Plugin&theme=r34" />
 
-[![YAYA](https://img.shields.io/badge/OneBot-YaYa-green.svg?style=social&logo=appveyor)](https://github.com/Yiwen-Chan/OneBot-YaYa)
 [![GOCQ](https://img.shields.io/badge/OneBot-MiraiGo-green.svg?style=social&logo=appveyor)](https://github.com/Mrs4s/go-cqhttp)
 [![OICQ](https://img.shields.io/badge/OneBot-OICQ-green.svg?style=social&logo=appveyor)](https://github.com/takayama-lily/node-onebot)
 [![MIRAI](https://img.shields.io/badge/OneBot-Mirai-green.svg?style=social&logo=appveyor)](https://github.com/yyuueexxiinngg/onebot-kotlin)
@@ -148,7 +147,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 退出群聊[群号]@Bot
     - [x] *入群欢迎
     - [x] *退群通知
-    - [x] 设置欢迎语[欢迎~]  可选添加 [{at}] [{nickname}] [{avatar}]
+    - [x] 设置欢迎语[欢迎~]  可选添加 [{at}] [{nickname}] [{avatar}] [{id}]
     - [x] 在[MM]月[dd]日的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 在[MM]月[每周 | 周几]的[hh]点[mm]分时(用[url])提醒大家[xxx]
     - [x] 取消在[MM]月[dd]日的[hh]点[mm]分的提醒
@@ -234,6 +233,9 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 搜番 | 搜索番剧[图片]
 - **百度一下** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
     - [x] 百度下[xxx]
+- **百人一首** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"`
+    - [x] 百人一首
+    - [x] 百人一首之n
 - **随机图片与AI点评** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
     - [x] 随机图片(评级大于6的图将私发)
     - [x] 直接随机(无r18检测，务必小心，仅管理可用)
@@ -246,7 +248,7 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 放大图片[图片]
 - **每日运势** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
     - [x] 运势 | 抽签
-    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录]
+    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录 奇异恩典]
 - **原神抽卡** `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
     - [x] 切换原神卡池
     - [x] 原神十连
@@ -265,8 +267,11 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 个人猜单词
     - [x] 团队猜单词
 - **bilibili** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-    - [x] >vup info [名字 | uid]
-    - [x] >user info [名字 | uid]
+    - [x] >vup info [xxx]
+    - [x] >user info [xxx]
+    - [x] 查成分 [xxx]
+    - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31
+    - [x] 更新vup
 - **嘉然** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
     - [x] 小作文
     - [x] 发大病
@@ -340,15 +345,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **签到得分** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"`
     - [x] 签到
     - [x] 获得签到背景[@xxx] | 获得签到背景
+    - [x] 查看分数排名
 - **骂人** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse"`
     - [x] 骂我
     - [x] 大力骂我
 - **b站推送** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
-    - [x] 添加订阅[uid]
-    - [x] 取消订阅[uid]
-    - [x] 取消动态订阅[uid]
-    - [x] 取消直播订阅[uid]
-    - [x] 推送列表
+    - [x] 添加b站订阅[uid]
+    - [x] 取消b站订阅[uid]
+    - [x] 取消b站动态订阅[uid]
+    - [x] 取消b站直播订阅[uid]
+    - [x] b站推送列表
 - **网易云音乐热评** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"`
     - [x] 来份网易云热评
 - **b站视频链接解析** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
@@ -365,20 +371,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 - **城市疫情查询** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
     - [x] xxx疫情
 - **早报** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"`
-<<<<<<< HEAD
-    - [x] /启用 zaobao
-    - [x] /禁用 zaobao
-=======
     - api早上8点更新，推荐定时在8点30后。配合插件`job`中的记录在"cron"触发的指令使用
     - [x] /启用 zaobao
     - [x] /禁用 zaobao
-- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
-    - [x] 舔狗日记
 ```
 记录在"00 9 * * *"触发的指令
 今日早报
 ```
->>>>>>> upstream/master
+
+=======
+- **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
+    - [x] 舔狗日记
 - **TODO...**
 
 ## 使用方法

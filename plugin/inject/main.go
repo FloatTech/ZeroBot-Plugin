@@ -3,13 +3,12 @@ package inject
 
 import (
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	en := control.Register("inject", order.AcquirePrio(), &control.Options{
+	en := control.Register("inject", &control.Options{
 		DisableOnDefault: false,
 		Help: "注入指令\n" +
 			"- run[CQ码]",

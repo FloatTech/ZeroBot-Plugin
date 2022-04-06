@@ -13,7 +13,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 )
 
 // gdb 得分数据库
@@ -125,27 +124,27 @@ var (
 	emoticonIDList       []string
 )
 
-func initPageNumber() (maxCgPageNumber, maxEmoticonPageNumber int) {
+func initPageNumber() (maxCgPageNumber, maxEmoticonPageNumber int, err error) {
 	doc, err := htmlquery.LoadURL(cgURL + "1")
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	maxCgPageNumber, err = strconv.Atoi(htmlquery.FindOne(doc, commonPageNumberExpr).Data)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	doc, err = htmlquery.LoadURL(emoticonURL + "1")
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	maxEmoticonPageNumber, err = strconv.Atoi(htmlquery.FindOne(doc, commonPageNumberExpr).Data)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	return
 }
 
-func getPicID(pageNumber int, pictureType string) {
+func getPicID(pageNumber int, pictureType string) error {
 	var picURL string
 	if pictureType == cgType {
 		picURL = cgURL + strconv.Itoa(pageNumber)
@@ -154,7 +153,7 @@ func getPicID(pageNumber int, pictureType string) {
 	}
 	doc, err := htmlquery.LoadURL(picURL)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	list := htmlquery.Find(doc, "//*[@id='picset-result-list']/ul/div/div[1]/a")
 	for i := 0; i < len(list); i++ {
@@ -166,16 +165,26 @@ func getPicID(pageNumber int, pictureType string) {
 			emoticonIDList = append(emoticonIDList, picID)
 		}
 	}
+	return nil
 }
 
-func updatePic() {
-	maxCgPageNumber, maxEmoticonPageNumber := initPageNumber()
+func updatePic() error {
+	maxCgPageNumber, maxEmoticonPageNumber, err := initPageNumber()
+	if err != nil {
+		return err
+	}
 	for i := 1; i <= maxCgPageNumber; i++ {
-		getPicID(i, cgType)
+		err = getPicID(i, cgType)
+		if err != nil {
+			return err
+		}
 		time.Sleep(time.Millisecond * 500)
 	}
 	for i := 1; i <= maxEmoticonPageNumber; i++ {
-		getPicID(i, emoticonType)
+		err = getPicID(i, emoticonType)
+		if err != nil {
+			return err
+		}
 		time.Sleep(time.Millisecond * 500)
 	}
 CGLOOP:
@@ -185,8 +194,11 @@ CGLOOP:
 		mu.RUnlock()
 		if y.PictureList == "" {
 			mu.Lock()
-			storeCgPic(cgIDList[i])
+			err = storeCgPic(cgIDList[i])
 			mu.Unlock()
+			if err != nil {
+				return err
+			}
 		} else {
 			break CGLOOP
 		}
@@ -199,24 +211,28 @@ EMOTICONLOOP:
 		mu.RUnlock()
 		if y.PictureList == "" {
 			mu.Lock()
-			storeEmoticonPic(emoticonIDList[i])
+			err = storeEmoticonPic(emoticonIDList[i])
 			mu.Unlock()
+			if err != nil {
+				return err
+			}
 		} else {
 			break EMOTICONLOOP
 		}
 		time.Sleep(time.Millisecond * 500)
 	}
+	return nil
 }
 
-func storeCgPic(picIDStr string) {
+func storeCgPic(picIDStr string) (err error) {
 	picID, err := strconv.ParseInt(picIDStr, 10, 64)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	pictureType := cgType
 	doc, err := htmlquery.LoadURL(webPicURL + picIDStr)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	title := htmlquery.FindOne(doc, "//meta[@name='name']").Attr[1].Val
 	pictureDescription := htmlquery.FindOne(doc, "//meta[@name='description']").Attr[1].Val
@@ -224,7 +240,7 @@ func storeCgPic(picIDStr string) {
 	re := regexp.MustCompile(reNumber)
 	pictureNumber, err := strconv.Atoi(re.FindString(pictureNumberStr))
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	pictureList := ""
 	for i := 1; i <= pictureNumber; i++ {
@@ -236,20 +252,18 @@ func storeCgPic(picIDStr string) {
 		}
 	}
 	err = gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
+	return
 }
 
-func storeEmoticonPic(picIDStr string) {
+func storeEmoticonPic(picIDStr string) error {
 	picID, err := strconv.ParseInt(picIDStr, 10, 64)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	pictureType := emoticonType
 	doc, err := htmlquery.LoadURL(webPicURL + picIDStr)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	title := htmlquery.FindOne(doc, "//meta[@name='name']").Attr[1].Val
 	pictureDescription := htmlquery.FindOne(doc, "//meta[@name='description']").Attr[1].Val
@@ -257,7 +271,7 @@ func storeEmoticonPic(picIDStr string) {
 	re := regexp.MustCompile(reNumber)
 	pictureNumber, err := strconv.Atoi(re.FindString(pictureNumberStr))
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	pictureList := ""
 	for i := 1; i <= pictureNumber; i++ {
@@ -268,8 +282,5 @@ func storeEmoticonPic(picIDStr string) {
 			pictureList += "," + picURL
 		}
 	}
-	err = gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
+	return gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
 }

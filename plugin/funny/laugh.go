@@ -12,8 +12,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 type joke struct {
@@ -24,7 +22,7 @@ type joke struct {
 var db = &sql.Sqlite{}
 
 func init() {
-	en := control.Register("funny", order.AcquirePrio(), &control.Options{
+	en := control.Register("funny", &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx] | 讲个笑话[qq号]",

@@ -4,7 +4,6 @@ package font
 import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -12,7 +11,7 @@ import (
 )
 
 func init() {
-	control.Register("font", order.AcquirePrio(), &control.Options{
+	control.Register("font", &control.Options{
 		DisableOnDefault: false,
 		Help:             "渲染任意文字到图片\n- (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx",
 	}).OnRegex(`^(用.+)?渲染文字([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {

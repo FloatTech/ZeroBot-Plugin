@@ -13,7 +13,6 @@ import (
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -26,7 +25,7 @@ var weixin = regexp.MustCompile(`url \+= '(.+)';`)
 var client = &http.Client{}
 
 func init() {
-	control.Register("moyucalendar", order.AcquirePrio(), &control.Options{
+	control.Register("moyucalendar", &control.Options{
 		DisableOnDefault: true,
 		Help: "摸鱼人日历\n" +
 			"- /启用 moyucalendar\n" +

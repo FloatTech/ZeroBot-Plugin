@@ -8,10 +8,12 @@ import (
 	"math/rand"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/tl"
+
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -53,13 +55,16 @@ type dictionary map[int]struct {
 	cet4 []string
 }
 
-var words = make(dictionary)
+var (
+	words   = make(dictionary)
+	wordsmu sync.Mutex
+)
 
 func init() {
-	en := control.Register("wordle", order.AcquirePrio(), &control.Options{
+	en := control.Register("wordle", &control.Options{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
-			"- 个人猜单词" +
+			"- 个人猜单词\n" +
 			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
 	}).ApplySingle(single.New(
@@ -72,30 +77,43 @@ func init() {
 			)
 		}),
 	))
-	go func() {
-		for i := 5; i <= 7; i++ {
+	for i := 5; i <= 7; i++ {
+		go func(i int) {
 			dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
 			if err != nil {
 				panic(err)
 			}
 			c := strings.Split(string(dc), "\n")
 			sort.Strings(c)
+			wordsmu.Lock()
+			tmp := words[i]
+			tmp.cet4 = c
+			words[i] = tmp
+			wordsmu.Unlock()
+		}(i)
+		go func(i int) {
 			dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
 			if err != nil {
 				panic(err)
 			}
 			d := strings.Split(string(dd), "\n")
 			sort.Strings(d)
-			words[i] = struct {
-				dict []string
-				cet4 []string
-			}{d, c}
-		}
-	}()
+			wordsmu.Lock()
+			tmp := words[i]
+			tmp.dict = d
+			words[i] = tmp
+			wordsmu.Unlock()
+		}(i)
+	}
 	en.OnRegex(`(个人|团队)(五阶|六阶|七阶)?猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			class := classdict[ctx.State["regex_matched"].([]string)[2]]
 			target := words[class].cet4[rand.Intn(len(words[class].cet4))]
+			tt, err := tl.Translate(target)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			game := newWordleGame(target)
 			_, img, cl, _ := game("")
 			ctx.Send(
@@ -114,35 +132,44 @@ func init() {
 					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 			}
 			var win bool
-			var err error
 			recv, cancel := next.Repeat()
 			defer cancel()
+			tick := time.NewTimer(105 * time.Second)
+			after := time.NewTimer(120 * time.Second)
 			for {
 				select {
-				case <-time.After(time.Second * 120):
+				case <-tick.C:
+					ctx.SendChain(message.Text("猜单词，你还有15s作答时间"))
+				case <-after.C:
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("猜单词超时，游戏结束...答案是: ", target),
+							message.Text("猜单词超时，游戏结束...答案是: ", target, "(", tt, ")"),
 						),
 					)
 					return
 				case c := <-recv:
+					tick.Reset(105 * time.Second)
+					after.Reset(120 * time.Second)
 					win, img, cl, err = game(c.Event.Message.String())
 					switch {
 					case win:
+						tick.Stop()
+						after.Stop()
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("太棒了，你猜出来了！"),
+								message.Text("太棒了，你猜出来了！答案是: ", target, "(", tt, ")"),
 							),
 						)
 						cl()
 						return
 					case err == errTimesRunOut:
+						tick.Stop()
+						after.Stop()
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
 								message.ImageBytes(img),
-								message.Text("游戏结束...答案是: ", target),
+								message.Text("游戏结束...答案是: ", target, "(", tt, ")"),
 							),
 						)
 						cl()

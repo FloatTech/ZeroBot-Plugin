@@ -19,8 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 )
 
@@ -61,7 +59,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("manager", order.AcquirePrio(), &control.Options{
+	engine := control.Register("manager", &control.Options{
 		DisableOnDefault:  false,
 		Help:              hint,
 		PrivateDataFolder: "manager",
@@ -566,7 +564,7 @@ func init() { // 插件主体
 			}
 			ghun := ans[:divi]
 			hash := ans[divi+1:]
-			logrus.Infoln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
+			logrus.Debugln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
 			ok, reason := checkNewUser(ctx.Event.UserID, ctx.Event.GroupID, ghun, hash)
 			if ok {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", true, "")

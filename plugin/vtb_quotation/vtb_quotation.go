@@ -13,7 +13,6 @@ import (
 	"time"
 
 	_ "github.com/fumiama/sqlite3" // use sql
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -22,8 +21,6 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation/model"
 )
@@ -36,7 +33,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("vtbquotation", order.AcquirePrio(), &control.Options{
+	engine := control.Register("vtbquotation", &control.Options{
 		DisableOnDefault: false,
 		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
 		PublicDataFolder: "VtbQuotation",
@@ -60,14 +57,20 @@ func init() {
 				Repeat()             // 不断监听复读
 			db, err := model.Open(dbfile)
 			if err != nil {
-				log.Errorln("[vtb]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			defer db.Close()
 			defer cancel()
-			firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
+			r, err := db.GetAllFirstCategoryMessage()
 			if err != nil {
-				log.Errorln("[vtb]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -87,19 +90,29 @@ func init() {
 					switch step {
 					case 0:
 						firstIndex, err = strconv.Atoi(c.Event.RawMessage)
-						// log.Println(fmt.Sprintf("当前在第%d步", step))
-						// log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
+						// log.Debugln(fmt.Sprintf("当前在第%d步", step))
+						// log.Debugln(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							secondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
-							// log.Println(secondStepMessage)
+							secondStepMessage, err := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
+							if err != nil {
+								ctx.SendChain(message.Text("ERROR:", err))
+								return
+							}
+							// log.Debugln(secondStepMessage)
 							if secondStepMessage == "" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
+								r, err := db.GetAllFirstCategoryMessage()
 								if err != nil {
-									log.Errorln("[vtb]:", err)
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
+								firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -108,7 +121,8 @@ func init() {
 							} else {
 								secondStepMessageBytes, err := text.RenderToBase64(secondStepMessage, text.FontFile, 400, 20)
 								if err != nil {
-									log.Errorln("[vtb]:", err)
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -118,19 +132,29 @@ func init() {
 						}
 					case 1:
 						secondIndex, err = strconv.Atoi(c.Event.RawMessage)
-						// log.Println(fmt.Sprintf("当前在第%d步", step))
-						// log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
+						// log.Debugln(fmt.Sprintf("当前在第%d步", step))
+						// log.Debugln(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							thirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
-							// log.Println(thirdStepMessage)
+							thirdStepMessage, err := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
+							if err != nil {
+								ctx.SendChain(message.Text("ERROR:", err))
+								return
+							}
+							// log.Debugln(thirdStepMessage)
 							if thirdStepMessage == "" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								secondStepMessageBytes, err := text.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), text.FontFile, 400, 20)
+								r, err := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
 								if err != nil {
-									log.Errorln("[vtb]:", err)
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
+								secondStepMessageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -139,7 +163,8 @@ func init() {
 							} else {
 								thirdStepMessageBytes, err := text.RenderToBase64(thirdStepMessage, text.FontFile, 400, 20)
 								if err != nil {
-									log.Errorln("[vtb]:", err)
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -149,8 +174,8 @@ func init() {
 						}
 					case 2:
 						thirdIndex, err = strconv.Atoi(c.Event.RawMessage)
-						// log.Println(fmt.Sprintf("当前在第%d步", step))
-						// log.Println(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
+						// log.Debugln(fmt.Sprintf("当前在第%d步", step))
+						// log.Debugln(fmt.Sprintf("firstIndex:%d,secondIndex:%d,thirdIndex:%d", firstIndex, secondIndex, thirdIndex))
 						if err != nil {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
@@ -160,9 +185,15 @@ func init() {
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
+								r, err := db.GetAllFirstCategoryMessage()
 								if err != nil {
-									log.Errorln("[vtb]:", err)
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
+								firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
 								}
 								if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
 									ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -171,16 +202,16 @@ func init() {
 								step = 1
 							} else {
 								if reg.MatchString(recURL) {
-									// log.Println(reg.FindStringSubmatch(recordUrl)[1])
-									// log.Println(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
+									// log.Debugln(reg.FindStringSubmatch(recordUrl)[1])
+									// log.Debugln(url.QueryEscape(reg.FindStringSubmatch(recordUrl)[1]))
 									recURL = strings.ReplaceAll(recURL, reg.FindStringSubmatch(recURL)[1], url.QueryEscape(reg.FindStringSubmatch(recURL)[1]))
 									recURL = strings.ReplaceAll(recURL, "+", "%20")
-									// log.Println(recordUrl)
+									// log.Debugln(recordUrl)
 								}
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请欣赏《"+tc.ThirdCategoryName+"》"))
 
 								if !re.MatchString(recURL) {
-									log.Errorln("[vtb]:文件格式不匹配")
+									ctx.SendChain(message.Text("ERROR:文件格式不匹配"))
 									return
 								}
 								format := re.FindStringSubmatch(recURL)[1]
@@ -189,7 +220,11 @@ func init() {
 									ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 									return
 								}
-								initRecord(recordFile, recURL)
+								err = initRecord(recordFile, recURL)
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
 								ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 								return
 							}
@@ -207,9 +242,10 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
-				log.Errorln("[vtb]:", err)
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
+			defer db.Close()
 			tc := db.RandomVtb()
 			fc := db.GetFirstCategoryByFirstUID(tc.FirstCategoryUID)
 			if (tc != model.ThirdCategory{}) && (fc != model.FirstCategory{}) {
@@ -221,7 +257,7 @@ func init() {
 				}
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请欣赏"+fc.FirstCategoryName+"的《"+tc.ThirdCategoryName+"》"))
 				if !re.MatchString(recURL) {
-					log.Errorln("[vtb]:文件格式不匹配")
+					ctx.SendChain(message.Text("ERROR:文件格式不匹配"))
 					return
 				}
 				format := re.FindStringSubmatch(recURL)[1]
@@ -230,29 +266,42 @@ func init() {
 					ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 					return
 				}
-				initRecord(recordFile, recURL)
+				err = initRecord(recordFile, recURL)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
 				ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 			}
-			db.Close()
 		})
 	engine.OnFullMatch("更新vtb", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
 			db := model.Initialize(dbfile)
 			if db != nil {
-				for _, v := range db.GetVtbList() {
-					db.StoreVtb(v)
-				}
-				err := db.Close()
+				vl, err := db.GetVtbList()
 				if err != nil {
-					log.Errorln("[vtb/cron]", err)
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				for _, v := range vl {
+					err = db.StoreVtb(v)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR:", err))
+						return
+					}
+				}
+				err = db.Close()
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
 			}
 			ctx.Send("vtb数据库已更新")
 		})
 }
 
-func initRecord(recordFile, recordURL string) {
+func initRecord(recordFile, recordURL string) error {
 	if file.IsNotExist(recordFile) {
 		client := web.NewTLS12Client()
 		req, _ := http.NewRequest("GET", recordURL, nil)
@@ -260,18 +309,17 @@ func initRecord(recordFile, recordURL string) {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Errorln("[vtb]:", err)
-			return
+			return err
 		}
 		defer resp.Body.Close()
 		data, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Errorln("[vtb]:", err)
-			return
+			return err
 		}
 		err = os.WriteFile(recordFile, data, 0666)
 		if err != nil {
-			log.Errorln("[vtb]:", err)
+			return err
 		}
 	}
+	return nil
 }

@@ -12,8 +12,6 @@ import (
 	"github.com/FloatTech/zbputils/binary"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -29,7 +27,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("zaobao", order.AcquirePrio(), &control.Options{
+	engine := control.Register("zaobao", &control.Options{
 		DisableOnDefault: true,
 		Help: "易即今日公众号api的今日早报\n" +
 			"api早上8点更新，推荐定时在8点30后\n" +

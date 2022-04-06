@@ -16,8 +16,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var reqconf = [...]string{"GET", "https://hs.fbigame.com",
@@ -43,7 +41,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("hs", order.AcquirePrio(), &control.Options{
+	engine := control.Register("hs", &control.Options{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +
