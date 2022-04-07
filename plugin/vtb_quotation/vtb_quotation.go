@@ -62,7 +62,12 @@ func init() {
 			}
 			defer db.Close()
 			defer cancel()
-			firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
+			r, err := db.GetAllFirstCategoryMessage()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -91,11 +96,20 @@ func init() {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号,三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							secondStepMessage := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
+							secondStepMessage, err := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
+							if err != nil {
+								ctx.SendChain(message.Text("ERROR:", err))
+								return
+							}
 							// log.Debugln(secondStepMessage)
 							if secondStepMessage == "" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
+								r, err := db.GetAllFirstCategoryMessage()
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
+								firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 								if err != nil {
 									ctx.SendChain(message.Text("ERROR:", err))
 									return
@@ -124,11 +138,20 @@ func init() {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("请输入正确的序号，三次输入错误，指令可退出重输"))
 							errorCount++
 						} else {
-							thirdStepMessage := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
+							thirdStepMessage, err := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstIndex, secondIndex)
+							if err != nil {
+								ctx.SendChain(message.Text("ERROR:", err))
+								return
+							}
 							// log.Debugln(thirdStepMessage)
 							if thirdStepMessage == "" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
-								secondStepMessageBytes, err := text.RenderToBase64(db.GetAllSecondCategoryMessageByFirstIndex(firstIndex), text.FontFile, 400, 20)
+								r, err := db.GetAllSecondCategoryMessageByFirstIndex(firstIndex)
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
+								secondStepMessageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 								if err != nil {
 									ctx.SendChain(message.Text("ERROR:", err))
 									return
@@ -162,7 +185,12 @@ func init() {
 							recURL := tc.ThirdCategoryPath
 							if recURL == "" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
-								firstStepImageBytes, err := text.RenderToBase64(db.GetAllFirstCategoryMessage(), text.FontFile, 400, 20)
+								r, err := db.GetAllFirstCategoryMessage()
+								if err != nil {
+									ctx.SendChain(message.Text("ERROR:", err))
+									return
+								}
+								firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 								if err != nil {
 									ctx.SendChain(message.Text("ERROR:", err))
 									return
@@ -251,10 +279,19 @@ func init() {
 			ctx.Send("少女祈祷中......")
 			db := model.Initialize(dbfile)
 			if db != nil {
-				for _, v := range db.GetVtbList() {
-					db.StoreVtb(v)
+				vl, err := db.GetVtbList()
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
-				err := db.Close()
+				for _, v := range vl {
+					err = db.StoreVtb(v)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR:", err))
+						return
+					}
+				}
+				err = db.Close()
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return

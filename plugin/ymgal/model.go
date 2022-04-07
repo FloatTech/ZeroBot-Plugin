@@ -211,8 +211,11 @@ EMOTICONLOOP:
 		mu.RUnlock()
 		if y.PictureList == "" {
 			mu.Lock()
-			storeEmoticonPic(emoticonIDList[i])
+			err = storeEmoticonPic(emoticonIDList[i])
 			mu.Unlock()
+			if err != nil {
+				return err
+			}
 		} else {
 			break EMOTICONLOOP
 		}
