@@ -448,7 +448,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			welcomestring := ctx.State["regex_matched"].([]string)[1]
-			welcomestring = UnescapeCQCodeText(welcomestring)
+			welcomestring = message.UnescapeCQCodeText(welcomestring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
 				Msg:   welcomestring,
@@ -475,7 +475,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			farewellstring := ctx.State["regex_matched"].([]string)[1]
-			farewellstring = UnescapeCQCodeText(farewellstring)
+			farewellstring = message.UnescapeCQCodeText(farewellstring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
 				Msg:   farewellstring,
@@ -596,13 +596,4 @@ func welcometocq(ctx *zero.Ctx, welcome string) string {
 	cqstring = strings.ReplaceAll(cqstring, "{gid}", gid)
 	cqstring = strings.ReplaceAll(cqstring, "{groupname}", groupname)
 	return cqstring
-}
-
-// UnescapeCQCodeText cq码反解析
-func UnescapeCQCodeText(raw string) string {
-	raw = strings.ReplaceAll(raw, "&amp;", "&")
-	raw = strings.ReplaceAll(raw, "&#44;", ",")
-	raw = strings.ReplaceAll(raw, "&#93;", "]")
-	raw = strings.ReplaceAll(raw, "&#91;", "[")
-	return raw
 }
