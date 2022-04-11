@@ -447,9 +447,11 @@ func init() { // 插件主体
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			welcomestring := ctx.State["regex_matched"].([]string)[1]
+			welcomestring = message.UnescapeCQCodeText(welcomestring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   ctx.State["regex_matched"].([]string)[1],
+				Msg:   welcomestring,
 			}
 			err := db.Insert("welcome", w)
 			if err == nil {
@@ -472,9 +474,11 @@ func init() { // 插件主体
 	// 设置告别辞
 	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			farewellstring := ctx.State["regex_matched"].([]string)[1]
+			farewellstring = message.UnescapeCQCodeText(farewellstring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   ctx.State["regex_matched"].([]string)[1],
+				Msg:   farewellstring,
 			}
 			err := db.Insert("farewell", w)
 			if err == nil {
@@ -579,13 +583,17 @@ func init() { // 插件主体
 
 // 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
 func welcometocq(ctx *zero.Ctx, welcome string) string {
-	at := "[CQ:at,qq=" + strconv.FormatInt(ctx.Event.UserID, 10) + "]"
-	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(ctx.Event.UserID, 10) + "&s=640]"
-	id := strconv.FormatInt(ctx.Event.UserID, 10)
-	nickname := ctx.CardOrNickName(ctx.Event.UserID)
+	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                  // 用户id
+	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                // 用户昵称
+	at := "[CQ:at,qq=" + uid + "]"                                                  // at用户
+	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640]" // 用户头像
+	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                 // 群id
+	groupname := ctx.GetGroupInfo(ctx.Event.GroupID, true).Name                     // 群名
 	cqstring := strings.ReplaceAll(welcome, "{at}", at)
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
-	cqstring = strings.ReplaceAll(cqstring, "{id}", id)
+	cqstring = strings.ReplaceAll(cqstring, "{uid}", uid)
+	cqstring = strings.ReplaceAll(cqstring, "{gid}", gid)
+	cqstring = strings.ReplaceAll(cqstring, "{groupname}", groupname)
 	return cqstring
 }
