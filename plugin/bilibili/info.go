@@ -146,19 +146,21 @@ func init() {
 				}
 			}
 			facePath := cachePath + id + "vupFace.png"
-			initFacePic(facePath, u.Face)
+			err = initFacePic(facePath, u.Face)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			var backX int
 			var backY int
 			back, err := gg.LoadImage(facePath)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
-				backX = 500
-				backY = 500
-			} else {
-				back = img.Limit(back, 500, 500)
-				backX = back.Bounds().Size().X
-				backY = back.Bounds().Size().Y
+				return
 			}
+			back = img.Limit(back, 500, 500)
+			backX = back.Bounds().Size().X
+			backY = back.Bounds().Size().Y
 			if len(vups) > 50 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前50个up"))
 				vups = vups[:50]
@@ -171,6 +173,10 @@ func init() {
 				canvas.DrawImage(back, 0, 0)
 			}
 			canvas.SetColor(color.Black)
+			_, err = file.GetLazyData(text.BoldFontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
 			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -264,22 +270,27 @@ func init() {
 	engine.OnFullMatch("更新vup", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			updateVup()
+			err := updateVup()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.SendChain(message.Text("vup已更新"))
 		})
 }
 
-func initFacePic(filename, faceURL string) {
+func initFacePic(filename, faceURL string) error {
 	if file.IsNotExist(filename) {
 		data, err := web.GetData(faceURL)
 		if err != nil {
-			log.Errorln("[bilibili]", err)
+			return err
 		}
 		err = os.WriteFile(filename, data, 0666)
 		if err != nil {
-			log.Errorln("[bilibili]", err)
+			return err
 		}
 	}
+	return nil
 }
 
 func int2rbg(t int64) (int64, int64, int64) {
