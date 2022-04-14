@@ -38,7 +38,6 @@ func init() { // 插件主体
 			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(txt))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
-
 		})
 	engine.OnFullMatch("清理缓存", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
