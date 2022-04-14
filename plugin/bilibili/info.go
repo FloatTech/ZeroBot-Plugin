@@ -161,9 +161,9 @@ func init() {
 			back = img.Limit(back, 500, 500)
 			backX = back.Bounds().Size().X
 			backY = back.Bounds().Size().Y
-			if len(vups) > 50 {
-				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前50个up"))
-				vups = vups[:50]
+			if len(vups) > 240 {
+				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前240个up"))
+				vups = vups[:240]
 			}
 			canvas := gg.NewContext(backX*3, int(float64(backY)*(1.1+float64(len(vups))/3)))
 			fontSize := float64(backX) * 0.1

@@ -20,7 +20,7 @@ var replyModes = [...]string{"青云客", "小爱"}
 
 func init() { // 插件主体
 	engine := control.Register(replyServiceName, &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客  |  小爱]\n- ",
 	})

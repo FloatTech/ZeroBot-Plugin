@@ -42,14 +42,14 @@ func init() {
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		os.RemoveAll(cachePath)
+		//os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {
 			panic(err)
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
-	engine.OnFullMatch("签到", zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatch("签到", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()
@@ -159,7 +159,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	engine.OnPrefix("获得签到背景", zero.OnlyGroup).SetBlock(true).
+	engine.OnPrefixGroup([]string{"获得签到背景", "获取签到背景"}, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
 			var uidStr string

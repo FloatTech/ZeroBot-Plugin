@@ -238,7 +238,7 @@ func init() {
 }
 
 func bilibiliPushDaily() {
-	t := time.NewTicker(time.Second * 10)
+	t := time.NewTicker(time.Second * 60)
 	defer t.Stop()
 	for range t.C {
 		log.Debugln("-----bilibilipush拉取推送信息-----")

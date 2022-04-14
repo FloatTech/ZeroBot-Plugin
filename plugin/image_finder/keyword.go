@@ -35,10 +35,10 @@ type resultjson struct {
 
 func init() {
 	control.Register("imgfinder", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "关键字搜图\n" +
 			"- 来张 [xxx]",
-	}).OnRegex(`^来张\s?(.*)$`, zero.AdminPermission).SetBlock(true).
+	}).OnRegex(`^来张\s?(.*)$`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			soutujson, err := soutuapi(keyword)

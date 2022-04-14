@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	api      = "https://api.lolicon.app/setu/v2"
+	api      = "https://api.lolicon.app/setu/v2?tag=%E8%90%9D%E8%8E%89"
 	capacity = 10
 )
 
@@ -28,7 +28,7 @@ var (
 
 func init() {
 	control.Register("lolicon", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "lolicon\n" +
 			"- 来份萝莉",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("来份萝莉").SetBlock(true).
@@ -65,12 +65,12 @@ func init() {
 			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR:等待填充，请稍后再试......"))
 			case img := <-queue:
-				id := ctx.SendChain(message.Image(img))
-				if id.ID() == 0 {
-					id = ctx.SendChain(message.Image(img).Add("cache", "0"))
-					if id.ID() == 0 {
-						ctx.SendChain(message.Text("ERROR:图片发送失败，可能被风控了~"))
-					}
+				msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img))}
+				if id := ctx.SendGroupForwardMessage(
+					ctx.Event.GroupID,
+					msg,
+				).Get("message_id").Int(); id == 0 {
+					ctx.SendChain(message.Text("ERROR:可能被风控了"))
 				}
 			}
 		})

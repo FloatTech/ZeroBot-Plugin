@@ -50,7 +50,7 @@ var pool = &imgpool{
 
 func init() { // 插件主体
 	engine := control.Register("setutime", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +
 			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
@@ -89,7 +89,11 @@ func init() { // 插件主体
 				}
 			}
 			// 从缓冲池里抽一张
-			if id := ctx.SendChain(*pool.pop(imgtype)); id.ID() == 0 {
+			msg := message.Message{ctxext.FakeSenderForwardNode(ctx, *pool.pop(imgtype))}
+			if id := ctx.SendGroupForwardMessage(
+				ctx.Event.GroupID,
+				msg,
+			).Get("message_id").Int(); id == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 		})

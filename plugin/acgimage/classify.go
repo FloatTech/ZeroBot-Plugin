@@ -31,7 +31,7 @@ var (
 
 func init() { // 插件主体
 	engine := control.Register("acgimage", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "随机图片与AI点评\n" +
 			"- 随机图片(评级大于6的图将私发)\n" +
 			"- 直接随机(无r18检测，务必小心，仅管理可用)\n" +
@@ -76,7 +76,7 @@ func init() { // 插件主体
 				} else {
 					url = randapi
 				}
-				setLastMsg(ctx.Event.GroupID, message.NewMessageID(
+				setLastMsg(ctx.Event.GroupID, message.NewMessageIDFromString(
 					ctx.SendGroupForwardMessage(ctx.Event.GroupID,
 						message.Message{
 							ctxext.FakeSenderForwardNode(ctx,

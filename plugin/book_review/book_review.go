@@ -14,7 +14,7 @@ import (
 
 func init() {
 	engine := control.Register("bookreview", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "哀伤雪刃推书记录\n- 书评[xxx]\n- 随机书评",
 		PublicDataFolder: "BookReview",
 	})

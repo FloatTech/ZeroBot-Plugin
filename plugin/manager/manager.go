@@ -440,7 +440,7 @@ func init() { // 插件主体
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					userid := ctx.Event.UserID
-					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "退出了群聊..."))
 				}
 			}
 		})
@@ -492,7 +492,7 @@ func init() { // 插件主体
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				userid := ctx.Event.UserID
-				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "退出了群聊..."))
 			}
 		})
 	// 入群后验证开关

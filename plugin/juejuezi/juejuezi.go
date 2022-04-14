@@ -23,7 +23,7 @@ const (
 
 func init() {
 	control.Register("juejuezi", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "绝绝子生成器\n" +
 			"- 喝奶茶绝绝子 | 绝绝子吃饭",
 	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {

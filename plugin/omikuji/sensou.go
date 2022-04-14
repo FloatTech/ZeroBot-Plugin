@@ -22,7 +22,7 @@ const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jp
 
 func init() { // 插件主体
 	engine := control.Register("omikuji", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",
 		PublicDataFolder: "Omikuji",

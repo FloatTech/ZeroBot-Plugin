@@ -23,7 +23,7 @@ var (
 
 func init() {
 	control.Register("coser", &control.Options{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "三次元小姐姐\n- coser",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {

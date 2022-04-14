@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -20,6 +21,7 @@ import (
 	"github.com/golang/freetype"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -29,6 +31,7 @@ var (
 	totl                   uint64 // 累计抽奖次数
 	filetree               = make(zipfilestructure, 32)
 	starN3, starN4, starN5 *zip.File
+	limit                  = rate.NewManager[int64](time.Hour, 5)
 )
 
 func init() {
@@ -76,26 +79,30 @@ func init() {
 			}
 		})
 
-	engine.OnFullMatch("原神十连").SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnFullMatch("原神十连").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := control.Lookup("genshin")
-			if !ok {
-				ctx.SendChain(message.Text("找不到服务!"))
-				return
+			if limit.Load(ctx.Event.UserID).Acquire() {
+				c, ok := control.Lookup("genshin")
+				if !ok {
+					ctx.SendChain(message.Text("找不到服务!"))
+					return
+				}
+				gid := ctx.Event.GroupID
+				if gid == 0 {
+					gid = -ctx.Event.UserID
+				}
+				store := (storage)(c.GetData(gid))
+				img, err := randnums(10, store)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				b, cl := writer.ToBytes(img)
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.ImageBytes(b)))
+				cl()
+			} else {
+				ctx.SendChain(message.Text("一小时五次哟"))
 			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			store := (storage)(c.GetData(gid))
-			img, err := randnums(10, store)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			b, cl := writer.ToBytes(img)
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.ImageBytes(b)))
-			cl()
 		})
 }
 
@@ -117,7 +124,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 		four2len                = len(filetree["four2"])
 	)
 
-	if totl%9 == 0 { // 累计9次加入一个五星
+	/*if totl%9 == 0 { // 累计9次加入一个五星
 		switch rand.Intn(2) {
 		case 0:
 			fiveN++
@@ -127,7 +134,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 			fiveArms = append(fiveArms, filetree["five2"][rand.Intn(five2len)])
 		}
 		nums--
-	}
+	}*/
 
 	if store.is5starsmode() { // 5星模式
 		for i := 0; i < nums; i++ {
@@ -142,18 +149,18 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 		}
 	} else { // 默认模式
 		for i := 0; i < nums; i++ {
-			a := rand.Intn(1000)
-			switch { // 抽卡几率 三星75% 四星18% 五星7%
-			case a >= 0 && a <= 750:
+			a := rand.Intn(10000)
+			switch { // 抽卡几率
+			case a >= 0 && a <= 9430:
 				threeN2++
 				threeArms = append(threeArms, filetree["Three"][rand.Intn(threelen)])
-			case a > 750 && a <= 840:
+			case a > 9430 && a <= 9685:
 				fourN++
 				fours = append(fours, filetree["four"][rand.Intn(fourlen)]) // 随机角色
-			case a > 840 && a <= 930:
+			case a > 9685 && a <= 9940:
 				fourN2++
 				fourArms = append(fourArms, filetree["four2"][rand.Intn(four2len)]) // 随机武器
-			case a > 930 && a <= 965:
+			case a > 9940 && a <= 9970:
 				fiveN++
 				fives = append(fives, filetree["five"][rand.Intn(fivelen)])
 			default:

@@ -14,7 +14,7 @@ import (
 
 func init() {
 	engine := control.Register("sleepmanage", &control.Options{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		Help:              "sleepmanage\n- 早安\n- 晚安",
 		PrivateDataFolder: "sleep",
 	})

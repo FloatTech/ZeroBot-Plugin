@@ -68,8 +68,8 @@ func init() {
 			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
 	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) interface{} { return ctx.Event.GroupID }),
-		single.WithPostFn(func(ctx *zero.Ctx) {
+		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
+		single.WithPostFn[int64](func(ctx *zero.Ctx) {
 			ctx.Send(
 				message.ReplyWithMessage(ctx.Event.MessageID,
 					message.Text("已经有正在进行的游戏..."),

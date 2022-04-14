@@ -22,7 +22,7 @@ import (
 
 func init() {
 	engine := control.Register("nwife", &control.Options{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		Help:              "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让 | 不让]所有人均可添加wife",
 		PrivateDataFolder: "nwife",
 	})

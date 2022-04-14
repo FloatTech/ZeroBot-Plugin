@@ -8,12 +8,14 @@ import (
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 func init() { // 插件主体
@@ -24,12 +26,19 @@ func init() { // 插件主体
 	})
 	engine.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
+			temp := fmt.Sprint(
 				"* CPU占用: ", cpuPercent(), "%\n",
 				"* RAM占用: ", memPercent(), "%\n",
-				"* 硬盘使用: ", diskPercent(),
-			),
-			)
+				"* 硬盘使用: ", diskPercent())
+			txt, err := text.RenderToBase64(temp, text.FontFile, 400, 20)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(txt))); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+			}
+
 		})
 	engine.OnFullMatch("清理缓存", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
