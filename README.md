@@ -29,9 +29,11 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地址:端口] [qq1 qq2 qq3 ...] [&]
+zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地址:端口] [qq1 qq2 qq3 ...] [&]
 ```
+- **-c config.json**: 从`config.json`加载`bot`配置
 - **-h**: 显示帮助
+- **-s config.json**: 保存现在`bot`配置到`config.json`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
@@ -40,6 +42,29 @@ zerobot [-h] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地�
 - **-g 监听地址:端口**: 在 http://监听地址:端口 上开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
+
+默认配置文件格式如下。当选择从配置文件加载时，将忽略相应命令行参数。
+```json
+{
+    "zero": {
+        "nickname": [
+            "椛椛",
+            "ATRI",
+            "atri",
+            "亚托莉",
+            "アトリ"
+        ],
+        "command_prefix": "/",
+        "super_users": []
+    },
+    "ws": [
+        {
+            "Url": "ws://127.0.0.1:6700",
+            "AccessToken": ""
+        }
+    ]
+}
+```
 
 ## 功能
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。

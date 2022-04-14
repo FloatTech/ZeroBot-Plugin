@@ -76,13 +76,13 @@ func init() { // 插件主体
 				} else {
 					url = randapi
 				}
-				setLastMsg(ctx.Event.GroupID, message.NewMessageID(
+				setLastMsg(ctx.Event.GroupID, message.NewMessageIDFromInteger(
 					ctx.SendGroupForwardMessage(ctx.Event.GroupID,
 						message.Message{
 							ctxext.FakeSenderForwardNode(ctx,
 								message.Image(url).Add("cache", "0"),
 							),
-						}).Get("message_id").String()))
+						}).Get("message_id").Int()))
 				block = false
 			}
 		})
