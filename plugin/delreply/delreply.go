@@ -7,7 +7,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-//插件主体
+// 插件主体
 func init() {
 	engine := control.Register("delreply", &control.Options{
 		DisableOnDefault: false,
