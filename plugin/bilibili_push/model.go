@@ -59,12 +59,12 @@ func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interfa
 	bp := bilibilipush{}
 	data, _ := json.Marshal(&bpMap)
 	_ = json.Unmarshal(data, &bp)
-	if err = db.Debug().Model(&bilibilipush{}).First(&bp, "bilibili_uid = ? and group_id = ?", bp.BilibiliUID, bp.GroupID).Error; err != nil {
+	if err = db.Model(&bilibilipush{}).First(&bp, "bilibili_uid = ? and group_id = ?", bp.BilibiliUID, bp.GroupID).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&bilibilipush{}).Create(&bp).Error
+			err = db.Model(&bilibilipush{}).Create(&bp).Error
 		}
 	} else {
-		err = db.Debug().Model(&bilibilipush{}).Where("bilibili_uid = ? and group_id = ?", bp.BilibiliUID, bp.GroupID).Update(bpMap).Error
+		err = db.Model(&bilibilipush{}).Where("bilibili_uid = ? and group_id = ?", bp.BilibiliUID, bp.GroupID).Update(bpMap).Error
 	}
 	return
 }
@@ -72,7 +72,7 @@ func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interfa
 func (bdb *bilibilipushdb) getAllBuidByLive() (buidList []int64) {
 	db := (*gorm.DB)(bdb)
 	var bpl []bilibilipush
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "live_disable = 0")
+	db.Model(&bilibilipush{}).Find(&bpl, "live_disable = 0")
 	temp := make(map[int64]bool)
 	for _, v := range bpl {
 		_, ok := temp[v.BilibiliUID]
@@ -87,7 +87,7 @@ func (bdb *bilibilipushdb) getAllBuidByLive() (buidList []int64) {
 func (bdb *bilibilipushdb) getAllBuidByDynamic() (buidList []int64) {
 	db := (*gorm.DB)(bdb)
 	var bpl []bilibilipush
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "dynamic_disable = 0")
+	db.Model(&bilibilipush{}).Find(&bpl, "dynamic_disable = 0")
 	temp := make(map[int64]bool)
 	for _, v := range bpl {
 		_, ok := temp[v.BilibiliUID]
@@ -102,7 +102,7 @@ func (bdb *bilibilipushdb) getAllBuidByDynamic() (buidList []int64) {
 func (bdb *bilibilipushdb) getAllGroupByBuidAndLive(buid int64) (groupList []int64) {
 	db := (*gorm.DB)(bdb)
 	var bpl []bilibilipush
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and live_disable = 0", buid)
+	db.Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and live_disable = 0", buid)
 	for _, v := range bpl {
 		groupList = append(groupList, v.GroupID)
 	}
@@ -112,7 +112,7 @@ func (bdb *bilibilipushdb) getAllGroupByBuidAndLive(buid int64) (groupList []int
 func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (groupList []int64) {
 	db := (*gorm.DB)(bdb)
 	var bpl []bilibilipush
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and dynamic_disable = 0", buid)
+	db.Model(&bilibilipush{}).Find(&bpl, "bilibili_uid = ? and dynamic_disable = 0", buid)
 	for _, v := range bpl {
 		groupList = append(groupList, v.GroupID)
 	}
@@ -121,7 +121,7 @@ func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (groupList []
 
 func (bdb *bilibilipushdb) getAllPushByGroup(groupID int64) (bpl []bilibilipush) {
 	db := (*gorm.DB)(bdb)
-	db.Debug().Model(&bilibilipush{}).Find(&bpl, "group_id = ? and (live_disable = 0 or dynamic_disable = 0)", groupID)
+	db.Model(&bilibilipush{}).Find(&bpl, "group_id = ? and (live_disable = 0 or dynamic_disable = 0)", groupID)
 	return
 }
 
@@ -131,13 +131,13 @@ func (bdb *bilibilipushdb) insertBilibiliUp(buid int64, name string) {
 		BilibiliUID: buid,
 		Name:        name,
 	}
-	db.Debug().Model(&bilibiliup{}).Create(bu)
+	db.Model(&bilibiliup{}).Create(bu)
 }
 
 func (bdb *bilibilipushdb) updateAllUp() {
 	db := (*gorm.DB)(bdb)
 	var bul []bilibiliup
-	db.Debug().Model(&bilibiliup{}).Find(&bul)
+	db.Model(&bilibiliup{}).Find(&bul)
 	for _, v := range bul {
 		upMap[v.BilibiliUID] = v.Name
 	}

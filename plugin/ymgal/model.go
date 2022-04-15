@@ -64,12 +64,12 @@ func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictur
 		PictureDescription: pictureDescription,
 		PictureList:        pictureList,
 	}
-	if err = db.Debug().Model(&ymgal{}).First(&y, "id = ? ", id).Error; err != nil {
+	if err = db.Model(&ymgal{}).First(&y, "id = ? ", id).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&ymgal{}).Create(&y).Error // newUser not user
+			err = db.Model(&ymgal{}).Create(&y).Error // newUser not user
 		}
 	} else {
-		err = db.Debug().Model(&ymgal{}).Where("id = ? ", id).Update(map[string]interface{}{
+		err = db.Model(&ymgal{}).Where("id = ? ", id).Update(map[string]interface{}{
 			"title":               title,
 			"picture_type":        pictureType,
 			"picture_description": pictureDescription,
@@ -81,14 +81,14 @@ func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictur
 
 func (gdb *ymgaldb) getYmgalByID(id string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
-	db.Debug().Model(&ymgal{}).Where("id = ?", id).Take(&y)
+	db.Model(&ymgal{}).Where("id = ?", id).Take(&y)
 	return
 }
 
 func (gdb *ymgaldb) randomYmgal(pictureType string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
 	var count int
-	s := db.Debug().Model(&ymgal{}).Where("picture_type = ?", pictureType).Count(&count)
+	s := db.Model(&ymgal{}).Where("picture_type = ?", pictureType).Count(&count)
 	if count == 0 {
 		return
 	}
@@ -99,7 +99,7 @@ func (gdb *ymgaldb) randomYmgal(pictureType string) (y ymgal) {
 func (gdb *ymgaldb) getYmgalByKey(pictureType, key string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
 	var count int
-	s := db.Debug().Model(&ymgal{}).Where("picture_type = ? and (picture_description like ? or title like ?) ", pictureType, "%"+key+"%", "%"+key+"%").Count(&count)
+	s := db.Model(&ymgal{}).Where("picture_type = ? and (picture_description like ? or title like ?) ", pictureType, "%"+key+"%", "%"+key+"%").Count(&count)
 	if count == 0 {
 		return
 	}
