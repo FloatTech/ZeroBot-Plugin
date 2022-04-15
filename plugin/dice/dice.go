@@ -17,7 +17,7 @@ func init() {
 	engine.OnRegex(`\.ra(.*)`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			temp := ctx.State["regex_matched"].(string)
+			temp := ctx.State["regex_matched"].([]string)
 			math := ctx.State["regex_matched"].(int)
 			r := rand.Intn(100) + 1
 			switch {
