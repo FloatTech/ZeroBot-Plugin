@@ -68,20 +68,20 @@ func (sdb *sleepdb) sleep(gid, uid int64) (position int, awakeTime time.Duration
 		UserID:    uid,
 		SleepTime: now,
 	}
-	if err := db.Debug().Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st).Error; err != nil {
+	if err := db.Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st).Error; err != nil {
 		// error handling...
 		if gorm.IsRecordNotFoundError(err) {
-			db.Debug().Model(&SleepManage{}).Create(&st) // newUser not user
+			db.Model(&SleepManage{}).Create(&st) // newUser not user
 		}
 	} else {
 		log.Debugln("sleeptime为", st)
 		awakeTime = now.Sub(st.SleepTime)
-		db.Debug().Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
+		db.Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
 			map[string]interface{}{
 				"sleep_time": now,
 			})
 	}
-	db.Debug().Model(&SleepManage{}).Where("group_id = ? and sleep_time <= ? and sleep_time >= ?", gid, now, today).Count(&position)
+	db.Model(&SleepManage{}).Where("group_id = ? and sleep_time <= ? and sleep_time >= ?", gid, now, today).Count(&position)
 	return position, awakeTime
 }
 
@@ -95,19 +95,19 @@ func (sdb *sleepdb) getUp(gid, uid int64) (position int, sleepTime time.Duration
 		UserID:    uid,
 		SleepTime: now,
 	}
-	if err := db.Debug().Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st).Error; err != nil {
+	if err := db.Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st).Error; err != nil {
 		// error handling...
 		if gorm.IsRecordNotFoundError(err) {
-			db.Debug().Model(&SleepManage{}).Create(&st) // newUser not user
+			db.Model(&SleepManage{}).Create(&st) // newUser not user
 		}
 	} else {
 		log.Debugln("sleeptime为", st)
 		sleepTime = now.Sub(st.SleepTime)
-		db.Debug().Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
+		db.Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
 			map[string]interface{}{
 				"sleep_time": now,
 			})
 	}
-	db.Debug().Model(&SleepManage{}).Where("group_id = ? and sleep_time <= ? and sleep_time >= ?", gid, now, today).Count(&position)
+	db.Model(&SleepManage{}).Where("group_id = ? and sleep_time <= ? and sleep_time >= ?", gid, now, today).Count(&position)
 	return position, sleepTime
 }

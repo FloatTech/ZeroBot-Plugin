@@ -3,11 +3,11 @@ package omikuji
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"strconv"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -28,21 +28,6 @@ func init() { // 插件主体
 		PublicDataFolder: "Omikuji",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	go func() {
-		dbpath := engine.DataFolder()
-		db.DBPath = dbpath + "kuji.db"
-		_, _ = file.GetLazyData(db.DBPath, false, true)
-		err := db.Create("kuji", &kuji{})
-		if err != nil {
-			panic(err)
-		}
-		n, err := db.Count("kuji")
-		if err != nil {
-			panic(err)
-		}
-		log.Printf("[kuji]读取%d条签文", n)
-	}()
-
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku, err := bangoToday(ctx.Event.UserID)
@@ -56,7 +41,29 @@ func init() { // 插件主体
 				message.Image(fmt.Sprintf(bed, miku, 1)),
 			)
 		})
-	engine.OnFullMatchGroup([]string{"解签"}).SetBlock(true).
+	engine.OnFullMatch("解签", ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			dbpath := engine.DataFolder()
+			db.DBPath = dbpath + "kuji.db"
+			_, err := file.GetLazyData(db.DBPath, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = db.Create("kuji", &kuji{})
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			n, err := db.Count("kuji")
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			log.Printf("[kuji]读取%d条签文", n)
+			return true
+		},
+	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			bg, err := bangoToday(ctx.Event.UserID)
 			if err != nil {

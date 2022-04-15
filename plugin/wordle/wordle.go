@@ -9,10 +9,12 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/tl"
 
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -55,10 +57,7 @@ type dictionary map[int]struct {
 	cet4 []string
 }
 
-var (
-	words   = make(dictionary)
-	wordsmu sync.Mutex
-)
+var words = make(dictionary)
 
 func init() {
 	en := control.Register("wordle", &control.Options{
@@ -77,35 +76,53 @@ func init() {
 			)
 		}),
 	))
-	for i := 5; i <= 7; i++ {
-		go func(i int) {
-			dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
-			if err != nil {
-				panic(err)
+
+	en.OnRegex(`(个人|团队)(五阶|六阶|七阶)?猜单词`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			var errcnt uint32
+			var wg sync.WaitGroup
+			var mu sync.Mutex
+			for i := 5; i <= 7; i++ {
+				wg.Add(2)
+				go func(i int) {
+					defer wg.Done()
+					dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
+					if err != nil {
+						atomic.AddUint32(&errcnt, 1)
+						return
+					}
+					c := strings.Split(binary.BytesToString(dc), "\n")
+					sort.Strings(c)
+					mu.Lock()
+					tmp := words[i]
+					tmp.cet4 = c
+					words[i] = tmp
+					mu.Unlock()
+				}(i)
+				go func(i int) {
+					defer wg.Done()
+					dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
+					if err != nil {
+						atomic.AddUint32(&errcnt, 1)
+						return
+					}
+					d := strings.Split(binary.BytesToString(dd), "\n")
+					sort.Strings(d)
+					mu.Lock()
+					tmp := words[i]
+					tmp.dict = d
+					words[i] = tmp
+					mu.Unlock()
+				}(i)
 			}
-			c := strings.Split(string(dc), "\n")
-			sort.Strings(c)
-			wordsmu.Lock()
-			tmp := words[i]
-			tmp.cet4 = c
-			words[i] = tmp
-			wordsmu.Unlock()
-		}(i)
-		go func(i int) {
-			dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
-			if err != nil {
-				panic(err)
+			wg.Wait()
+			if errcnt > 0 {
+				ctx.SendChain(message.Text("ERROR:下载字典时发生", errcnt, "个错误"))
+				return false
 			}
-			d := strings.Split(string(dd), "\n")
-			sort.Strings(d)
-			wordsmu.Lock()
-			tmp := words[i]
-			tmp.dict = d
-			words[i] = tmp
-			wordsmu.Unlock()
-		}(i)
-	}
-	en.OnRegex(`(个人|团队)(五阶|六阶|七阶)?猜单词`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+			return true
+		},
+	)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			class := classdict[ctx.State["regex_matched"].([]string)[2]]
 			target := words[class].cet4[rand.Intn(len(words[class].cet4))]

@@ -9,6 +9,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 )
@@ -20,23 +21,26 @@ func init() {
 		PublicDataFolder: "CpStory",
 	})
 
-	go func() {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "cp.db"
 		// os.RemoveAll(dbpath)
 		_, _ = file.GetLazyData(db.DBPath, false, true)
 		err := db.Create("cp_story", &cpstory{})
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		n, err := db.Count("cp_story")
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		logrus.Printf("[cpstory]读取%d条故事", n)
-	}()
+		return true
+	})
 
-	engine.OnRegex("^组cp.*?(\\d+).*?(\\d+)", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex("^组cp.*?(\\d+).*?(\\d+)", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		cs := getRandomCpStory()
 		gong := ctx.CardOrNickName(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
 		shou := ctx.CardOrNickName(math.Str2Int64(ctx.State["regex_matched"].([]string)[2]))
@@ -46,7 +50,7 @@ func init() {
 		text = strings.ReplaceAll(text, cs.Shou, gong)
 		ctx.SendChain(message.Text(text))
 	})
-	engine.OnPrefix("磕cp").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnPrefix("磕cp", getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		cs := getRandomCpStory()
 		params := strings.Split(ctx.State["args"].(string), " ")
 		if len(params) < 2 {

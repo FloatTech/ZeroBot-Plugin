@@ -11,6 +11,7 @@ import (
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
@@ -36,14 +37,21 @@ var engine = control.Register("bilibili", &control.Options{
 // 查成分的
 func init() {
 	cachePath := engine.DataFolder() + "cache/"
-	dbfile := engine.DataFolder() + "bilibili.db"
-	go func() {
-		_ = os.MkdirAll(cachePath, 0755)
+	_ = os.RemoveAll(cachePath)
+	_ = os.MkdirAll(cachePath, 0755)
+	var getdb = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		var err error
+		dbfile := engine.DataFolder() + "bilibili.db"
 		_, _ = file.GetLazyData(dbfile, false, false)
-		vdb = initialize(dbfile)
-	}()
+		vdb, err = initialize(dbfile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		return true
+	})
 
-	engine.OnRegex(`^>user info\s?(.{1,25})$`).SetBlock(true).
+	engine.OnRegex(`^>user info\s?(.{1,25})$`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			uidRes, err := search(keyword)
@@ -95,7 +103,7 @@ func init() {
 			))
 		})
 
-	engine.OnRegex(`^查成分\s?(.{1,25})$`).SetBlock(true).
+	engine.OnRegex(`^查成分\s?(.{1,25})$`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			searchRes, err := search(keyword)
@@ -256,7 +264,7 @@ func init() {
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 
-	engine.OnRegex(`^设置b站cookie?\s+(.{1,100})$`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^设置b站cookie?\s+(.{1,100})$`, zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			cookie := ctx.State["regex_matched"].([]string)[1]
 			err := vdb.setBilibiliCookie(cookie)
@@ -267,7 +275,7 @@ func init() {
 			ctx.SendChain(message.Text("成功设置b站cookie为" + cookie))
 		})
 
-	engine.OnFullMatch("更新vup", zero.SuperUserPermission).SetBlock(true).
+	engine.OnFullMatch("更新vup", zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			err := updateVup()

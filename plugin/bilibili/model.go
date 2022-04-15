@@ -42,21 +42,21 @@ func (config) TableName() string {
 }
 
 // initialize 初始化vtb数据库
-func initialize(dbpath string) *vupdb {
+func initialize(dbpath string) (*vupdb, error) {
 	if _, err := os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(dbpath)
 		if err != nil {
-			return nil
+			return nil, err
 		}
 		defer f.Close()
 	}
 	gdb, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	gdb.Debug().AutoMigrate(&vup{}).AutoMigrate(&config{})
-	return (*vupdb)(gdb)
+	gdb.AutoMigrate(&vup{}).AutoMigrate(&config{})
+	return (*vupdb)(gdb), nil
 }
 
 func (vdb *vupdb) insertVupByMid(mid int64, uname string, roomid int64) (err error) {
@@ -66,9 +66,9 @@ func (vdb *vupdb) insertVupByMid(mid int64, uname string, roomid int64) (err err
 		Uname:  uname,
 		Roomid: roomid,
 	}
-	if err = db.Debug().Model(&vup{}).First(&v, "mid = ? ", mid).Error; err != nil {
+	if err = db.Model(&vup{}).First(&v, "mid = ? ", mid).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&vup{}).Create(&v).Error
+			err = db.Model(&vup{}).Create(&v).Error
 		}
 	}
 	return
@@ -77,7 +77,7 @@ func (vdb *vupdb) insertVupByMid(mid int64, uname string, roomid int64) (err err
 // filterVup 筛选vup
 func (vdb *vupdb) filterVup(ids []int64) (vups []vup, err error) {
 	db := (*gorm.DB)(vdb)
-	if err = db.Debug().Model(&vup{}).Find(&vups, "mid in (?)", ids).Error; err != nil {
+	if err = db.Model(&vup{}).Find(&vups, "mid in (?)", ids).Error; err != nil {
 		return vups, err
 	}
 	return
@@ -112,13 +112,13 @@ func (vdb *vupdb) setBilibiliCookie(cookie string) (err error) {
 		Key:   bilibiliCookie,
 		Value: cookie,
 	}
-	if err = db.Debug().Model(&config{}).First(&c, "key = ? ", bilibiliCookie).Error; err != nil {
+	if err = db.Model(&config{}).First(&c, "key = ? ", bilibiliCookie).Error; err != nil {
 		// error handling...
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&config{}).Create(&c).Error
+			err = db.Model(&config{}).Create(&c).Error
 		}
 	} else {
-		err = db.Debug().Model(&config{}).Where("key = ? ", bilibiliCookie).Update(
+		err = db.Model(&config{}).Where("key = ? ", bilibiliCookie).Update(
 			map[string]interface{}{
 				"value": cookie,
 			}).Error
@@ -128,6 +128,6 @@ func (vdb *vupdb) setBilibiliCookie(cookie string) (err error) {
 
 func (vdb *vupdb) getBilibiliCookie() (c config) {
 	db := (*gorm.DB)(vdb)
-	db.Debug().Model(&config{}).First(&c, "key = ?", bilibiliCookie)
+	db.Model(&config{}).First(&c, "key = ?", bilibiliCookie)
 	return
 }

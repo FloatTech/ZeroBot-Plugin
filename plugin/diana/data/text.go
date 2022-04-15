@@ -19,18 +19,22 @@ type text struct {
 }
 
 // LoadText 加载小作文
-func LoadText(dbfile string) {
+func LoadText(dbfile string) error {
 	_, err := file.GetLazyData(dbfile, false, false)
 	db.DBPath = dbfile
 	if err != nil {
-		panic(err)
+		return err
 	}
 	err = db.Create("text", &text{})
 	if err != nil {
-		panic(err)
+		return err
 	}
-	c, _ := db.Count("text")
+	c, err := db.Count("text")
+	if err != nil {
+		return err
+	}
 	logrus.Printf("[Diana]读取%d条小作文", c)
+	return nil
 }
 
 // AddText 添加小作文
