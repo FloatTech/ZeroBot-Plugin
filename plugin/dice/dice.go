@@ -15,11 +15,11 @@ func init() {
 		Help:              "Dice! beta for zb ",
 		PrivateDataFolder: "dice",
 	})
-	engine.OnRegex(`(.rd)|[\\u4e00-\\u9fa5]+|[0-9]+`, zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(".rd|[\\u4e00-\\u9fa5]+|[0-9]+", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			temp := ctx.State["regex_matched"].([]string)[1]
-			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
+			temp := ctx.State["regex_matched"].([]string)[0]
+			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			r := rand.Intn(100) + 1
 			switch {
 			case r < math && r/2 < math/2 && r/5 < math/5:
