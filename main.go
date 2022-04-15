@@ -148,6 +148,7 @@ import (
 	// todo
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/personalrule"
+
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
 
 	//                               ^^^^                               //
