@@ -385,7 +385,7 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.Send(message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
@@ -437,7 +437,7 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.Send(message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					userid := ctx.Event.UserID
 					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "退出了群聊..."))
@@ -447,11 +447,9 @@ func init() { // 插件主体
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			welcomestring := ctx.State["regex_matched"].([]string)[1]
-			welcomestring = message.UnescapeCQCodeText(welcomestring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   welcomestring,
+				Msg:   ctx.State["regex_matched"].([]string)[1],
 			}
 			err := db.Insert("welcome", w)
 			if err == nil {
@@ -466,7 +464,7 @@ func init() { // 插件主体
 			var w welcome
 			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {
-				ctx.Send(message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				ctx.SendChain(message.Text("欢迎~"))
 			}
@@ -474,11 +472,9 @@ func init() { // 插件主体
 	// 设置告别辞
 	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			farewellstring := ctx.State["regex_matched"].([]string)[1]
-			farewellstring = message.UnescapeCQCodeText(farewellstring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   farewellstring,
+				Msg:   ctx.State["regex_matched"].([]string)[1],
 			}
 			err := db.Insert("farewell", w)
 			if err == nil {
@@ -493,7 +489,7 @@ func init() { // 插件主体
 			var w welcome
 			err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {
-				ctx.Send(message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				userid := ctx.Event.UserID
 				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "退出了群聊..."))
@@ -595,5 +591,5 @@ func welcometocq(ctx *zero.Ctx, welcome string) string {
 	cqstring = strings.ReplaceAll(cqstring, "{uid}", uid)
 	cqstring = strings.ReplaceAll(cqstring, "{gid}", gid)
 	cqstring = strings.ReplaceAll(cqstring, "{groupname}", groupname)
-	return cqstring
+	return message.UnescapeCQCodeText(cqstring)
 }
