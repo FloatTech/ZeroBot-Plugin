@@ -42,21 +42,21 @@ func (config) TableName() string {
 }
 
 // initialize 初始化vtb数据库
-func initialize(dbpath string) *vupdb {
+func initialize(dbpath string) (*vupdb, error) {
 	if _, err := os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(dbpath)
 		if err != nil {
-			return nil
+			return nil, err
 		}
 		defer f.Close()
 	}
 	gdb, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	gdb.Debug().AutoMigrate(&vup{}).AutoMigrate(&config{})
-	return (*vupdb)(gdb)
+	return (*vupdb)(gdb), nil
 }
 
 func (vdb *vupdb) insertVupByMid(mid int64, uname string, roomid int64) (err error) {

@@ -38,22 +38,21 @@ func (ymgal) TableName() string {
 }
 
 // initialize 初始化ymgaldb数据库
-func initialize(dbpath string) *ymgaldb {
-	var err error
+func initialize(dbpath string) (db *ymgaldb, err error) {
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(dbpath)
 		if err != nil {
-			return nil
+			return nil, err
 		}
-		defer f.Close()
+		_ = f.Close()
 	}
 	gdb, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
-		panic(err)
+		return
 	}
 	gdb.AutoMigrate(&ymgal{})
-	return (*ymgaldb)(gdb)
+	return (*ymgaldb)(gdb), nil
 }
 
 func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictureDescription, pictureList string) (err error) {

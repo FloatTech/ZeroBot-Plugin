@@ -38,18 +38,6 @@ func init() {
 		PublicDataFolder: "Genshin",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	go func() {
-		zipfile := engine.DataFolder() + "Genshin.zip"
-		_, err := file.GetLazyData(zipfile, false, false)
-		if err != nil {
-			panic(err)
-		}
-		err = parsezip(zipfile)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
 	engine.OnFullMatch("切换原神卡池").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			c, ok := control.Lookup("genshin")
@@ -76,7 +64,22 @@ func init() {
 			}
 		})
 
-	engine.OnFullMatch("原神十连").SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnFullMatch("原神十连", ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			zipfile := engine.DataFolder() + "Genshin.zip"
+			_, err := file.GetLazyData(zipfile, false, false)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = parsezip(zipfile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			return true
+		},
+	)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			c, ok := control.Lookup("genshin")
 			if !ok {
