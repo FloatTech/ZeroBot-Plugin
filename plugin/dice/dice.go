@@ -3,6 +3,7 @@ package dice
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -14,11 +15,11 @@ func init() {
 		Help:              "Dice! beta for zb ",
 		PrivateDataFolder: "dice",
 	})
-	engine.OnRegex(`\.ra(.*)`, zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(`\.|\。ra`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			temp := ctx.State["regex_matched"].([]string)
-			math := ctx.State["regex_matched"].(int)
+			temp := ctx.State["regex_matched"].([]string)[1]
+			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 			r := rand.Intn(100) + 1
 			switch {
 			case r < math && r/2 < math/2 && r/5 < math/5:
