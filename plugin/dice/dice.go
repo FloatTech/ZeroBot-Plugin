@@ -15,7 +15,7 @@ func init() {
 		Help:              "Dice! beta for zb ",
 		PrivateDataFolder: "dice",
 	})
-	engine.OnRegex(".rd([\u4e00-\u9fa5]|[a-z]|[A-Z])+|[0-9]+", zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(".rd([\\u4e00-\\u9fa5]|[a-z]|[A-Z])+|[0-9]+", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			temp := ctx.State["regex_matched"].([]string)[1]
