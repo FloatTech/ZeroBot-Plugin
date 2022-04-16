@@ -405,6 +405,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 ```
 - **舔狗日记** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
     - [x] 舔狗日记
+- **聊天热词** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"`
+    - [x] 热词[群号]
 - **TODO...**
 
 ## 使用方法
