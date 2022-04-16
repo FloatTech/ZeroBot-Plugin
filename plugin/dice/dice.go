@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -19,16 +21,37 @@ var (
 
 func init() {
 	engine := control.Register("dice", &control.Options{
-		DisableOnDefault:  true,
-		Help:              "Dice! beta for zb ",
-		PrivateDataFolder: "dice",
+		DisableOnDefault: true,
+		Help:             "Dice! beta for zb ",
+		PublicDataFolder: "Dice",
 	})
 	go func() {
 		for i, s := range list {
 			index[s] = uint8(i)
 		}
 	}()
-	engine.OnRegex(`^.ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(false).
+	now := time.Now().Format("20060102")
+	var signTF map[string](int)
+	signTF = make(map[string](int))
+	var result map[int64](int)
+	result = make(map[int64](int))
+	// baka酱写的.jrrp
+	engine.OnFullMatch(".jrrp").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			user := ctx.Event.UserID
+			userS := strconv.FormatInt(user, 10)
+			var si string = now + userS
+			rand.Seed(time.Now().UnixNano())
+			today := rand.Intn(100)
+			if signTF[si] == 0 {
+				signTF[si] = (1)
+				result[user] = (today)
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
+			} else {
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
+			}
+		})
+	engine.OnRegex(`^.ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			c, ok := control.Lookup("dice")
@@ -152,7 +175,7 @@ func init() {
 			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, temp, r, math, win)
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^.ra(\d+)(\D+)(\d+)`, zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(`^.ra(\d+)(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			c, ok := control.Lookup("dice")
@@ -167,9 +190,9 @@ func init() {
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
-			for i > 0 && i < 30 {
+			for i > 0 && i <= 30 {
 				i--
-				r := rand.Intn(100) + 1
+				r := rand.Intn(99) + 1
 				switch rule {
 				case 0:
 					switch {
@@ -278,10 +301,11 @@ func init() {
 					}
 				}
 				msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
+				return
 			}
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^.setcoc[0-6]`, zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(`^.setcoc(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			atoi, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			gid := ctx.Event.GroupID
@@ -302,4 +326,40 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个规则哦～"))
 		})
+	// baka酱写的.rd
+	engine.OnRegex("^.[rR](.*)[dD](.*)", zero.OnlyGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			r1 := ctx.State["regex_matched"].([]string)[1]
+			d1 := ctx.State["regex_matched"].([]string)[2]
+			if r1 == "" {
+				r1 = "1"
+			}
+			if d1 == "" {
+				d1 = "100"
+			}
+			r, _ := strconv.Atoi(r1)
+			d, _ := strconv.Atoi(d1)
+			if r < 1 || d <= 1 {
+				ctx.SendChain(message.Text("阁下..你在让我骰什么啊？( ´_ゝ`)"))
+				return
+			}
+			if r <= 100 && d <= 100 {
+				res, sum := rd(r, d)
+				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(" 阁下掷出了", "R", r, "D", d, "=", sum, "\n", res, sum, "呢~"))
+			} else {
+				ctx.SendChain(message.Text("骰子太多啦~~数不过来了！"))
+			}
+		})
+}
+
+func rd(r, d int) (string, int) {
+	var res string
+	var sum int
+	for i := 0; i < r; i++ {
+		sum += rand.Intn(d-1) + 1
+		res += strconv.Itoa(sum) + "+"
+	}
+	res += "="
+	res = strings.ReplaceAll(res, "+=", "=")
+	return res, sum
 }
