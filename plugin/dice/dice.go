@@ -40,7 +40,7 @@ func init() {
 			userS := strconv.FormatInt(user, 10)
 			var si string = now + userS
 			rand.Seed(time.Now().UnixNano())
-			today := rand.Intn(100)
+			today := rand.Intn(101)
 			if signTF[si] == 0 {
 				signTF[si] = (1)
 				result[user] = (today)
@@ -62,7 +62,7 @@ func init() {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			temp := ctx.State["regex_matched"].([]string)[1]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
-			r := rand.Intn(99) + 1
+			r := rand.Intn(100) + 1
 			win = rules(r, math)
 			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, temp, r, math, win)
 			ctx.Send(msg)
@@ -82,10 +82,10 @@ func init() {
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
-			if i <= 10 {
+			if i < 10 {
 				for i > 0 {
 					i--
-					r := rand.Intn(99) + 1
+					r := rand.Intn(100) + 1
 					win = rules(r, math)
 					msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
 				}
