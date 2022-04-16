@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
@@ -79,8 +78,7 @@ func init() {
 				}
 			}
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			i1 := strings.ReplaceAll(ctx.State["regex_matched"].([]string)[1], "#", "")
-			i, _ := strconv.Atoi(i1)
+			i, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
