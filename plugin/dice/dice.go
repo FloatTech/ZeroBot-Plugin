@@ -46,9 +46,9 @@ func init() {
 			if signTF[si] == 0 {
 				signTF[si] = (1)
 				result[user] = (today)
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
 			} else {
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
 			}
 		})
 	engine.OnRegex(`^.ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
