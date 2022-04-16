@@ -82,7 +82,7 @@ func init() {
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
-			if i > 10 {
+			if i < 10 {
 				for i > 0 {
 					i--
 					r := rand.Intn(99) + 1
