@@ -283,8 +283,9 @@ func init() {
 		})
 	engine.OnRegex(`^.setcoc[0-6]`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
+			atoi, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			gid := ctx.Event.GroupID
-			rule, ok := index[ctx.State["regex_matched"].([]int)[1]]
+			rule, ok := index[atoi]
 			if ok {
 				c, ok := control.Lookup("dice")
 				if ok {
