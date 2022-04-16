@@ -297,6 +297,7 @@ func init() {
 					default:
 						win = "失败"
 					}
+
 				}
 				msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
 			}
@@ -345,7 +346,7 @@ func init() {
 				for i := 0; i < r; i++ {
 					rand := rand.Intn(d-1) + 1
 					sum += rand
-					if i == r {
+					if i == r-1 {
 						res += fmt.Sprintf("%d", rand)
 					} else {
 						res += fmt.Sprintf("%d+", rand)
