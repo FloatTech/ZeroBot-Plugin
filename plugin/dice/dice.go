@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	rule int
-	win  string
-	list = [...]int{0,1,2,3,4,5,6}
+	rule  int
+	win   string
+	list  = [...]int{0, 1, 2, 3, 4, 5, 6}
 	index = make(map[int]uint8)
 )
 
