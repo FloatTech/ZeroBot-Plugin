@@ -13,10 +13,15 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+)
+
+var (
+	re = regexp.MustCompile(`^[一-龥]+$`)
 )
 
 func init() {
@@ -42,7 +47,7 @@ func init() {
 		for _, v := range strings.Split(binary.BytesToString(data), "\r\n") {
 			stopwordsMap[v] = 1
 		}
-		logrus.Infoln("[WordCount]加载", len(stopwordsMap), "条停用词")
+		logrus.Infoln("[wordcount]加载", len(stopwordsMap), "条停用词")
 	}()
 	engine.OnRegex(`^热词\s?(\d*)$`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
@@ -54,6 +59,12 @@ func init() {
 			group := ctx.GetGroupInfo(gid, false)
 			if group.MemberCount == 0 {
 				ctx.SendChain(message.Text(fmt.Sprintf("%s未加入%s(%d),无法获得热词呢", zero.BotConfig.NickName[0], group.Name, gid)))
+				return
+			}
+			today := time.Now().Format("20060102")
+			drawedFile := cachePath + strconv.FormatInt(ctx.Event.GroupID, 10) + today + "wordCount.png"
+			if file.IsExist(drawedFile) {
+				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 				return
 			}
 			messageMap := make(map[string]int)
@@ -70,10 +81,7 @@ func init() {
 					}
 					for _, t := range ctx.GetWordSlices(tex).Get("slices").Array() {
 						tex := strings.TrimSpace(t.Str)
-						if tex == "" {
-							continue
-						}
-						if _, ok := stopwordsMap[tex]; !ok {
+						if _, ok := stopwordsMap[tex]; !ok && re.MatchString(tex) {
 							messageMap[tex]++
 						}
 					}
@@ -85,12 +93,6 @@ func init() {
 				wc = wc[:20]
 			}
 			// 绘图
-			today := time.Now().Format("20060102")
-			drawedFile := cachePath + strconv.FormatInt(ctx.Event.GroupID, 10) + today + "wordCount.png"
-			if file.IsExist(drawedFile) {
-				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
-				return
-			}
 			if len(wc) == 0 {
 				ctx.SendChain(message.Text("ERROR:历史消息为空或者无法获得历史消息"))
 				return
