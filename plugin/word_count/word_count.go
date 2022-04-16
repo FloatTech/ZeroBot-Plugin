@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/golang/freetype"
@@ -28,7 +29,7 @@ func init() {
 	engine := control.Register("wordcount", &control.Options{
 		DisableOnDefault: false,
 		Help: "聊天热词\n" +
-			"- 热词[群号]",
+			"- 热词 [群号] [消息数目]|热词 123456 1000",
 		PublicDataFolder: "WordCount",
 	})
 	cachePath := engine.DataFolder() + "cache/"
@@ -49,10 +50,17 @@ func init() {
 		}
 		logrus.Infoln("[wordcount]加载", len(stopwordsMap), "条停用词")
 	}()
-	engine.OnRegex(`^热词\s?(\d*)$`, zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup).Limit(ctxext.LimitByUser).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+			p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			if p > 10000 {
+				p = 10000
+			}
+			if p == 0 {
+				p = 1000
+			}
 			if gid == 0 {
 				gid = ctx.Event.GroupID
 			}
@@ -62,7 +70,7 @@ func init() {
 				return
 			}
 			today := time.Now().Format("20060102")
-			drawedFile := cachePath + strconv.FormatInt(ctx.Event.GroupID, 10) + today + "wordCount.png"
+			drawedFile := fmt.Sprintf("%s%d%s%dwordCount.png", cachePath, gid, today, p)
 			if file.IsExist(drawedFile) {
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 				return
@@ -70,7 +78,7 @@ func init() {
 			messageMap := make(map[string]int)
 			h := ctx.CallAction("get_group_msg_history", zero.Params{"group_id": gid}).Data
 			messageSeq := h.Get("messages.0.message_seq").Int()
-			for i := 0; i < 50 && messageSeq != 0; i++ {
+			for i := 0; i < int(p/20) && messageSeq != 0; i++ {
 				if i != 0 {
 					h = ctx.CallAction("get_group_msg_history", zero.Params{"group_id": ctx.Event.GroupID, "message_seq": messageSeq}).Data
 				}
@@ -121,7 +129,7 @@ func init() {
 			}
 			graph := chart.BarChart{
 				Font:  font,
-				Title: time.Now().Format("2006-01-02") + "热词top20",
+				Title: fmt.Sprintf("%s(%d)在%s号的%d条消息的热词top20", group.Name, gid, time.Now().Format("2006-01-02"), p),
 				Background: chart.Style{
 					Padding: chart.Box{
 						Top: 40,
