@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
@@ -35,8 +34,7 @@ func init() {
 	signTF = make(map[string](int))
 	var result map[int64](int)
 	result = make(map[int64](int))
-	// baka酱写的.jrrp
-	engine.OnFullMatch(".jrrp").SetBlock(true).
+	engine.OnFullMatch("今日人品").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			user := ctx.Event.UserID
 			userS := strconv.FormatInt(user, 10)
@@ -46,9 +44,9 @@ func init() {
 			if signTF[si] == 0 {
 				signTF[si] = (1)
 				result[user] = (today)
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
 			} else {
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
 			}
 		})
 	engine.OnRegex(`^.ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
@@ -190,7 +188,7 @@ func init() {
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
-			for i > 0 && i <= 30 {
+			for i > 0 && i < 30 {
 				i--
 				r := rand.Intn(99) + 1
 				switch rule {
@@ -299,9 +297,9 @@ func init() {
 					default:
 						win = "失败"
 					}
+
 				}
 				msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
-				return
 			}
 			ctx.Send(msg)
 		})
@@ -326,7 +324,6 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个规则哦～"))
 		})
-	// baka酱写的.rd
 	engine.OnRegex("^.[rR](.*)[dD](.*)", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r1 := ctx.State["regex_matched"].([]string)[1]
@@ -344,22 +341,16 @@ func init() {
 				return
 			}
 			if r <= 100 && d <= 100 {
-				res, sum := rd(r, d)
-				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(" 阁下掷出了", "R", r, "D", d, "=", sum, "\n", res, sum, "呢~"))
+				sum := 0
+				res := fmt.Sprintf("")
+				for i := 0; i < r; i++ {
+					sum += rand.Intn(d+1) - 1
+					res += fmt.Sprintf("%d+", r)
+				}
+				msg := fmt.Sprintf("阁下掷出了R%dD%d=%d\n%s=%d", r, d, sum, res, sum)
+				ctx.Send(msg)
 			} else {
 				ctx.SendChain(message.Text("骰子太多啦~~数不过来了！"))
 			}
 		})
-}
-
-func rd(r, d int) (string, int) {
-	var res string
-	var sum int
-	for i := 0; i < r; i++ {
-		sum += rand.Intn(d-1) + 1
-		res += strconv.Itoa(sum) + "+"
-	}
-	res += "="
-	res = strings.ReplaceAll(res, "+=", "=")
-	return res, sum
 }
