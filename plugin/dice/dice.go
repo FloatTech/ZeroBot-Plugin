@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
@@ -34,7 +35,7 @@ func init() {
 	signTF = make(map[string](int))
 	var result map[int64](int)
 	result = make(map[int64](int))
-	engine.OnFullMatch("今日人品").SetBlock(true).
+	engine.OnFullMatch(".jrrp").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			user := ctx.Event.UserID
 			userS := strconv.FormatInt(user, 10)
@@ -44,12 +45,12 @@ func init() {
 			if signTF[si] == 0 {
 				signTF[si] = (1)
 				result[user] = (today)
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"))
 			} else {
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"), message.Image("https://img.qwq.nz/images/2022/04/04/aab2985d94e996558b303be42a954a4f.jpg"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"))
 			}
 		})
-	engine.OnRegex(`^.ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			c, ok := control.Lookup("dice")
@@ -63,117 +64,11 @@ func init() {
 			temp := ctx.State["regex_matched"].([]string)[1]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 			r := rand.Intn(99) + 1
-			switch rule {
-			case 0:
-				switch {
-				case r == 1:
-					win = "大成功"
-				case math < 50 && r <= 100 && r >= 96 || math >= 50 && r == 100:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			case 1:
-				switch {
-				case math < 50 && r == 1 || math >= 50 && r >= 1 && r <= 5:
-					win = "大成功"
-				case math < 50 && r < 100 && r > 96 || math >= 50 && r == 100:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			case 2:
-				switch {
-				case r >= 1 && r <= 5 && r <= math:
-					win = "大成功"
-				case r >= 96 && r <= 100 && r > math:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			case 3:
-				switch {
-				case r >= 1 && r <= 5:
-					win = "大成功"
-				case r >= 96 && r <= 100:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			case 4:
-				switch {
-				case r >= 1 && r <= 5 && r <= math/10:
-					win = "大成功"
-				case math < 50 && r >= 96+math/10 || math >= 50 && r == 100:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			case 5:
-				switch {
-				case r >= 1 && r <= 2 && r <= math/5:
-					win = "大成功"
-				case math < 50 && r >= 96 && r <= 100 || math >= 50 && r >= 99 && r <= 100:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			case 6:
-				switch {
-				case r == 1 && r <= math || r%11 == 0 && r <= math:
-					win = "大成功"
-				case r == 100 && r > math || r%11 == 0 && r > math:
-					win = "大失败"
-				case r < math/5:
-					win = "极难成功"
-				case r < math/2:
-					win = "困难成功"
-				case r < math:
-					win = "成功"
-				default:
-					win = "失败"
-				}
-			}
+			win = rules(r, math)
 			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, temp, r, math, win)
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^.ra(\d+)(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]ra(\d+)(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			c, ok := control.Lookup("dice")
@@ -184,125 +79,24 @@ func init() {
 				}
 			}
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			i, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
+			i1 := strings.ReplaceAll(ctx.State["regex_matched"].([]string)[1], "#", "")
+			i, _ := strconv.Atoi(i1)
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
-			for i > 0 && i < 30 {
-				i--
-				r := rand.Intn(99) + 1
-				switch rule {
-				case 0:
-					switch {
-					case r == 1:
-						win = "大成功"
-					case math < 50 && r <= 100 && r >= 96 || math >= 50 && r == 100:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
-				case 1:
-					switch {
-					case math < 50 && r == 1 || math >= 50 && r >= 1 && r <= 5:
-						win = "大成功"
-					case math < 50 && r < 100 && r > 96 || math >= 50 && r == 100:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
-				case 2:
-					switch {
-					case r >= 1 && r <= 5 && r <= math:
-						win = "大成功"
-					case r >= 96 && r <= 100 && r > math:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
-				case 3:
-					switch {
-					case r >= 1 && r <= 5:
-						win = "大成功"
-					case r >= 96 && r <= 100:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
-				case 4:
-					switch {
-					case r >= 1 && r <= 5 && r <= math/10:
-						win = "大成功"
-					case math < 50 && r >= 96+math/10 || math >= 50 && r == 100:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
-				case 5:
-					switch {
-					case r >= 1 && r <= 2 && r <= math/5:
-						win = "大成功"
-					case math < 50 && r >= 96 && r <= 100 || math >= 50 && r >= 99 && r <= 100:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
-				case 6:
-					switch {
-					case r == 1 && r <= math || r%11 == 0 && r <= math:
-						win = "大成功"
-					case r == 100 && r > math || r%11 == 0 && r > math:
-						win = "大失败"
-					case r < math/5:
-						win = "极难成功"
-					case r < math/2:
-						win = "困难成功"
-					case r < math:
-						win = "成功"
-					default:
-						win = "失败"
-					}
+			if i > 10 {
+				for i > 0 {
+					i--
+					r := rand.Intn(99) + 1
+					win = rules(r, math)
+					msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
 				}
-				msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
+				ctx.Send(msg)
+			} else {
+				ctx.SendChain(message.Text("最多检定10次哟~"))
 			}
-			ctx.Send(msg)
 		})
-	engine.OnRegex(`^.setcoc(\d+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`[.。]setcoc(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			atoi, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			gid := ctx.Event.GroupID
@@ -357,4 +151,115 @@ func init() {
 				ctx.SendChain(message.Text("骰子太多啦~~数不过来了！"))
 			}
 		})
+}
+
+func rules(r, math int) (win string) {
+	switch rule {
+	case 0:
+		switch {
+		case r == 1:
+			win = "大成功"
+		case math < 50 && r <= 100 && r >= 96 || math >= 50 && r == 100:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	case 1:
+		switch {
+		case math < 50 && r == 1 || math >= 50 && r >= 1 && r <= 5:
+			win = "大成功"
+		case math < 50 && r < 100 && r > 96 || math >= 50 && r == 100:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	case 2:
+		switch {
+		case r >= 1 && r <= 5 && r <= math:
+			win = "大成功"
+		case r >= 96 && r <= 100 && r > math:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	case 3:
+		switch {
+		case r >= 1 && r <= 5:
+			win = "大成功"
+		case r >= 96 && r <= 100:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	case 4:
+		switch {
+		case r >= 1 && r <= 5 && r <= math/10:
+			win = "大成功"
+		case math < 50 && r >= 96+math/10 || math >= 50 && r == 100:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	case 5:
+		switch {
+		case r >= 1 && r <= 2 && r <= math/5:
+			win = "大成功"
+		case math < 50 && r >= 96 && r <= 100 || math >= 50 && r >= 99 && r <= 100:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	case 6:
+		switch {
+		case r == 1 && r <= math || r%11 == 0 && r <= math:
+			win = "大成功"
+		case r == 100 && r > math || r%11 == 0 && r > math:
+			win = "大失败"
+		case r < math/5:
+			win = "极难成功"
+		case r < math/2:
+			win = "困难成功"
+		case r < math:
+			win = "成功"
+		default:
+			win = "失败"
+		}
+	}
+	return win
 }
