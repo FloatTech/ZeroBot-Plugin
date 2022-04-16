@@ -297,7 +297,6 @@ func init() {
 					default:
 						win = "失败"
 					}
-
 				}
 				msg += fmt.Sprintf("\nD100=%d/%d %s", r, math, win)
 			}
