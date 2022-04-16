@@ -13,6 +13,8 @@ import (
 var (
 	rule int
 	win  string
+	list = [...]int{0,1,2,3,4,5,6}
+	index = make(map[int]uint8)
 )
 
 func init() {
@@ -21,14 +23,18 @@ func init() {
 		Help:              "Dice! beta for zb ",
 		PrivateDataFolder: "dice",
 	})
+	go func() {
+		for i, s := range list {
+			index[s] = uint8(i)
+		}
+	}()
 	engine.OnRegex(`^.ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			list := []int{0, 1, 2, 3, 4, 5, 6}
 			gid := ctx.Event.GroupID
-			c, ok := control.Lookup("fortune")
+			c, ok := control.Lookup("dice")
 			if ok {
 				v := uint8(c.GetData(gid) & 0xff)
-				if int(v) < 8 {
+				if int(v) < len(list) {
 					rule = list[v]
 				}
 			}
@@ -148,12 +154,11 @@ func init() {
 		})
 	engine.OnRegex(`^.ra(\d+)(\D+)(\d+)`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			list := []int{0, 1, 2, 3, 4, 5, 6}
 			gid := ctx.Event.GroupID
-			c, ok := control.Lookup("fortune")
+			c, ok := control.Lookup("dice")
 			if ok {
 				v := uint8(c.GetData(gid) & 0xff)
-				if int(v) < 8 {
+				if int(v) < len(list) {
 					rule = list[v]
 				}
 			}
@@ -276,11 +281,11 @@ func init() {
 			}
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^.set[0-6]`, zero.OnlyGroup).SetBlock(false).
+	engine.OnRegex(`^.setcoc[0-6]`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			rule, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			gid := ctx.Event.GroupID
-			c, ok := control.Lookup("fortune")
+			c, ok := control.Lookup("dice")
 			if ok {
 				err := c.SetData(gid, int64(rule)&0xff)
 				if err != nil {
