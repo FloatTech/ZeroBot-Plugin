@@ -34,7 +34,7 @@ func init() {
 	signTF = make(map[string](int))
 	var result map[int64](int)
 	result = make(map[int64](int))
-	engine.OnFullMatch(".jrrp").SetBlock(true).
+	engine.OnFullMatchGroup([]string{".jrrp", "。jrrp"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			user := ctx.Event.UserID
 			userS := strconv.FormatInt(user, 10)
@@ -44,9 +44,9 @@ func init() {
 			if signTF[si] == 0 {
 				signTF[si] = (1)
 				result[user] = (today)
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
 			} else {
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~\n"))
+				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
 			}
 		})
 	engine.OnRegex(`^[.。]ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
