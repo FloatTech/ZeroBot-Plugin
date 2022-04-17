@@ -22,7 +22,8 @@ import (
 )
 
 var (
-	re = regexp.MustCompile(`^[一-龥]+$`)
+	re        = regexp.MustCompile(`^[一-龥]+$`)
+	stopwords []string
 )
 
 func init() {
@@ -33,24 +34,27 @@ func init() {
 		PublicDataFolder: "WordCount",
 	})
 	cachePath := engine.DataFolder() + "cache/"
-	stopwordsMap := make(map[string]int)
-	go func() {
-		_ = os.RemoveAll(cachePath)
-		err := os.MkdirAll(cachePath, 0755)
+	_ = os.RemoveAll(cachePath)
+	err := os.MkdirAll(cachePath, 0755)
+	var getStopwords = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		if err != nil {
 			panic(err)
 		}
 		_, _ = file.GetLazyData(engine.DataFolder()+"stopwords.txt", false, false)
 		data, err := os.ReadFile(engine.DataFolder() + "stopwords.txt")
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
-		for _, v := range strings.Split(binary.BytesToString(data), "\r\n") {
-			stopwordsMap[v] = 1
-		}
-		logrus.Infoln("[wordcount]加载", len(stopwordsMap), "条停用词")
+		stopwords = strings.Split(binary.BytesToString(data), "\r\n")
+		sort.Strings(stopwords)
+		logrus.Infoln("[wordcount]加载", len(stopwords), "条停用词")
+		return true
+	})
+	go func() {
+
 	}()
-	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup).Limit(ctxext.LimitByUser).SetBlock(false).
+	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, getStopwords).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
@@ -66,7 +70,7 @@ func init() {
 			}
 			group := ctx.GetGroupInfo(gid, false)
 			if group.MemberCount == 0 {
-				ctx.SendChain(message.Text(fmt.Sprintf("%s未加入%s(%d),无法获得热词呢", zero.BotConfig.NickName[0], group.Name, gid)))
+				ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获得热词呢"))
 				return
 			}
 			today := time.Now().Format("20060102")
@@ -83,15 +87,17 @@ func init() {
 					h = ctx.CallAction("get_group_msg_history", zero.Params{"group_id": ctx.Event.GroupID, "message_seq": messageSeq}).Data
 				}
 				for _, v := range h.Get("messages.#.message").Array() {
-					tex := strings.TrimSpace(message.ParseMessage(binary.StringToBytes(v.Raw)).ExtractPlainText())
+					tex := strings.TrimSpace(message.ParseMessageFromString(v.Str).ExtractPlainText())
 					if tex == "" {
 						continue
 					}
 					for _, t := range ctx.GetWordSlices(tex).Get("slices").Array() {
 						tex := strings.TrimSpace(t.Str)
-						if _, ok := stopwordsMap[tex]; !ok && re.MatchString(tex) {
+						i := sort.SearchStrings(stopwords, tex)
+						if re.MatchString(tex) && (i >= len(stopwords) || stopwords[i] != tex) {
 							messageMap[tex]++
 						}
+
 					}
 				}
 				messageSeq = h.Get("messages.0.message_seq").Int()
@@ -156,24 +162,24 @@ func init() {
 		})
 }
 
-func rankByWordCount(wordFrequencies map[string]int) PairList {
-	pl := make(PairList, len(wordFrequencies))
+func rankByWordCount(wordFrequencies map[string]int) pairlist {
+	pl := make(pairlist, len(wordFrequencies))
 	i := 0
 	for k, v := range wordFrequencies {
-		pl[i] = Pair{k, v}
+		pl[i] = pair{k, v}
 		i++
 	}
 	sort.Sort(sort.Reverse(pl))
 	return pl
 }
 
-type Pair struct {
+type pair struct {
 	Key   string
 	Value int
 }
 
-type PairList []Pair
+type pairlist []pair
 
-func (p PairList) Len() int           { return len(p) }
-func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
-func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p pairlist) Len() int           { return len(p) }
+func (p pairlist) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p pairlist) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
