@@ -35,12 +35,13 @@ func init() {
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	_ = os.RemoveAll(cachePath)
-	err := os.MkdirAll(cachePath, 0755)
-	var getStopwords = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	_ = os.MkdirAll(cachePath, 0755)
+	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		_, err := file.GetLazyData(engine.DataFolder()+"stopwords.txt", false, false)
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
-		_, _ = file.GetLazyData(engine.DataFolder()+"stopwords.txt", false, false)
 		data, err := os.ReadFile(engine.DataFolder() + "stopwords.txt")
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -50,11 +51,7 @@ func init() {
 		sort.Strings(stopwords)
 		logrus.Infoln("[wordcount]加载", len(stopwords), "条停用词")
 		return true
-	})
-	go func() {
-
-	}()
-	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, getStopwords).Limit(ctxext.LimitByUser).SetBlock(true).
+	})).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
