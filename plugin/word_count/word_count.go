@@ -82,7 +82,7 @@ func init() {
 			messageSeq := h.Get("messages.0.message_seq").Int()
 			for i := 0; i < int(p/20) && messageSeq != 0; i++ {
 				if i != 0 {
-					h = ctx.CallAction("get_group_msg_history", zero.Params{"group_id": ctx.Event.GroupID, "message_seq": messageSeq}).Data
+					h = ctx.CallAction("get_group_msg_history", zero.Params{"group_id": gid, "message_seq": messageSeq}).Data
 				}
 				for _, v := range h.Get("messages.#.message").Array() {
 					tex := strings.TrimSpace(message.ParseMessageFromString(v.Str).ExtractPlainText())
