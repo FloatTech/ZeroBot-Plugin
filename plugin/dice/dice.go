@@ -115,7 +115,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个规则哦～"))
 		})
-	engine.OnRegex("^.[rR](.*)[dD](.*)", zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。][rR](.*)[dD](.*)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r1 := ctx.State["regex_matched"].([]string)[1]
 			d1 := ctx.State["regex_matched"].([]string)[2]
