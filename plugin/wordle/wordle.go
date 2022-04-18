@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/tl"
+	"github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
@@ -77,7 +78,7 @@ func init() {
 		}),
 	))
 
-	en.OnRegex(`(个人|团队)(五阶|六阶|七阶)?猜单词`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(
+	en.OnRegex(`^(个人|团队)(五阶|六阶|七阶)?猜单词$`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			var errcnt uint32
 			var wg sync.WaitGroup
@@ -87,6 +88,7 @@ func init() {
 				go func(i int) {
 					defer wg.Done()
 					dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
+					logrus.Debugln("[wordle] get", fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i))
 					if err != nil {
 						atomic.AddUint32(&errcnt, 1)
 						return
@@ -102,6 +104,7 @@ func init() {
 				go func(i int) {
 					defer wg.Done()
 					dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
+					logrus.Debugln("[wordle] get", fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i))
 					if err != nil {
 						atomic.AddUint32(&errcnt, 1)
 						return
