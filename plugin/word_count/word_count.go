@@ -48,7 +48,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
-		stopwords = strings.Split(binary.BytesToString(data), "\r\n")
+		stopwords = strings.Split(strings.ReplaceAll(binary.BytesToString(data), "\r", ""), "\n")
 		sort.Strings(stopwords)
 		logrus.Infoln("[wordcount]加载", len(stopwords), "条停用词")
 		return true
