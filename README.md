@@ -70,12 +70,19 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
 > 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
 > 插件的优先级为`import`的先后顺序
-- **web管理** `import _ "github.com/FloatTech/zbputils/control/web"`
+<details>
+  <summary>web管理</summary>
+  `import _ "github.com/FloatTech/zbputils/control/web"`
     - 开启后可执行文件大约增加 5M ，默认注释不开启。如需开启请自行编辑`main.go`取消注释
     - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
-- **动态加载插件** `import _ github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader`
+</details>
+<details>
+  <summary>动态加载插件</summary>
+  `import _ github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader`
     - 本功能需要`cgo`，故已分离出主线。详见[ZeroBot-Plugin-Dynamic](https://github.com/FloatTech/ZeroBot-Plugin-Dynamic)
-- **插件控制**
+</details>
+<details>
+  <summary>插件控制</summary>
     - [x] /启用 xxx (在发送的群/用户启用xxx)
     - [x] /禁用 xxx (在发送的群/用户禁用xxx)
     - [x] /全局启用 xxx
@@ -90,7 +97,10 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
     - [x] /服务列表
     - [x] /服务详情
     - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
-- **定时指令触发器** `import _ "github.com/FloatTech/zbputils/job"`
+</details>
+<details>
+  <summary>定时指令触发器</summary>
+  `import _ "github.com/FloatTech/zbputils/job"`
     - 注意：触发器具有限速，每 2s 仅允许最多一次触发
     - [x] 记录以"完全匹配关键词"触发的(代表我执行的)指令
     - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
@@ -142,22 +152,37 @@ print("run[CQ:image,file="+j["img"]+"]")
 随机b站404页趣图
 ```
 ![随机b站404页趣图](https://user-images.githubusercontent.com/41315874/157371451-c09ad3bb-c61a-4a42-9c47-fab3305bc0f8.png)
+</details>
 
-- **渲染任意文字到图片** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
+<details>
+  <summary>渲染任意文字到图片</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
     - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
-- **聊天** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
+</details>
+<details>
+  <summary>聊天</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"`
     - [x] [BOT名字]
     - [x] [戳一戳BOT]
     - [x] 空调开
     - [x] 空调关
     - [x] 群温度
     - [x] 设置温度[正整数]
-- **词典匹配回复** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
+</details>
+<details>
+  <summary>词典匹配回复</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
     - [x] @Bot 关键词
-- **ATRI** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri"`
+</details>
+<details>
+  <summary>ATRI</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri"`
     - [x] 具体指令看 /用法 atri
     - 注：本插件基于 [ATRI](https://github.com/Kyomotoi/ATRI) ，为 Golang 移植版
-- **群管** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager"`
+</details>
+<details>
+  <summary>群管</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager"`
     - [x] 禁言[@xxx][分钟]
     - [x] 解除禁言[@xxx]
     - [x] 我要自闭 | 禅定 x [分钟 | 小时 | 天]
@@ -188,15 +213,25 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [ ] 警告[@xxx]
     - 注：使用gist加群自动审批，请在群介绍添加以下说明，同时开启`需要回答问题并由管理员审核`：加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
     - 设置欢迎语可选添加参数说明：{at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {uid}是被欢迎者QQ号 {gid}是当前群群号 {groupname} 是当前群群名
-- **GitHub仓库搜索** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
+</details>
+<details>
+  <summary>GitHub仓库搜索</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
     - [x] >github [xxx]
     - [x] >github -p [xxx]
-- **注入指令** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`
+</details>
+<details>
+  <summary>注入指令</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`
     - [x] run[CQ码]
-- **在线代码运行** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
+</details>
+<details>
+  <summary>在线代码运行</summary>
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
     - [x] > runcode [language] help
     - [x] > runcode [language] [code block]
     - [x] > runcoderaw [language] [code block]
+</details>
 - **点歌** `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"`
     - [x] 点歌[xxx]
     - [x] 网易点歌[xxx]
