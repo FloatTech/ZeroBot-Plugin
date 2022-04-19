@@ -112,7 +112,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 
 </details>
 
-### 高优先级
+### *高优先级*
 <details>
   <summary>web管理</summary>
 
@@ -313,73 +313,36 @@ print("run[CQ:image,file="+j["img"]+"]")
 ![随机b站404页趣图](https://user-images.githubusercontent.com/41315874/157371451-c09ad3bb-c61a-4a42-9c47-fab3305bc0f8.png)
 </details>
 
-### 中优先级
+### *中优先级*
 
 <details>
-  <summary>渲染任意文字到图片</summary>
+  <summary>随机图片与AI点评</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
+  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
 
-    - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
-</details>
-<details>
-  <summary>GitHub仓库搜索</summary>
+    - [x] 随机图片(评级大于6的图将私发)
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
+    - [x] 直接随机(无r18检测，务必小心，仅管理可用)
 
-    - [x] >github [xxx]
+    - [x] 设置随机图片网址[url]
 
-    - [x] >github -p [xxx]
+    - [x] 太涩了(撤回最近发的图)
 
-</details>
-<details>
-  <summary>注入指令</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`
-
-    - [x] run[CQ码]
+    - [x] 评价图片(发送一张图片让bot评分)
 
 </details>
 <details>
-  <summary>在线代码运行</summary>
+  <summary>AIfalse</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"`
 
-    - [x] > runcode [language] help
+    - [x] 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]
 
-    - [x] > runcode [language] [code block]
+    - [x] 清理缓存 (仅适用于 gocq 且需要 bot 的运行目录和 gocq 相同)
 
-    - [x] > runcoderaw [language] [code block]
+    - [ ] 简易语音
 
-</details>
-<details>
-  <summary>点歌</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"`
-
-    - [x] 点歌[xxx]
-
-    - [x] 网易点歌[xxx]
-
-    - [x] 酷我点歌[xxx]
-
-    - [x] 酷狗点歌[xxx]
-
-</details>
-<details>
-  <summary>shindan</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"`
-
-    - [x] 今天是什么少女[@xxx]
-
-    - [x] 异世界转生[@xxx]
-
-    - [x] 卖萌[@xxx]
-
-    - [x] 抽老婆[@xxx]
-
-    - [x] 黄油角色[@xxx]
+    - [ ] 爬图合成 [@xxx]
 
 </details>
 <details>
@@ -388,6 +351,195 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
 
     - [x] waifu | 随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
+
+</details>
+<details>
+  <summary>base16384加解密</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"`
+
+    - [x] 加密xxx
+
+    - [x] 解密xxx
+
+    - [x] 用yyy加密xxx
+
+    - [x] 用yyy解密xxx
+
+</details>
+<details>
+  <summary>百度一下</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
+
+    - [x] 百度下[xxx]
+
+</details>
+<details>
+  <summary>bilibili</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+
+    - [x] >vup info [xxx]
+
+    - [x] >user info [xxx]
+
+    - [x] 查成分 [xxx]
+
+    - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31
+
+    - [x] 更新vup
+
+</details>
+<details>
+  <summary>b站视频链接解析</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
+
+    - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
+
+</details>
+<details>
+  <summary>书评</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"`
+
+    - [x] 书评[xxx]
+
+    - [x] 随机书评
+
+</details>
+<details>
+  <summary>藏头诗</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"`
+
+    - [x] 藏头诗[xxx]
+
+    - [x] 藏尾诗[xxx]
+
+</details>
+<details>
+  <summary>选择困难症帮手</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"`
+
+    - [x] 选择[选择项1]还是[选项2]还是[更多选项]
+
+</details>
+<details>
+  <summary>抽象话</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chouxianghua"`
+
+    - [x] 抽象翻译[xxx]
+
+</details>
+<details>
+  <summary>coser</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser" `
+
+    - [x] coser
+
+</details>
+<details>
+  <summary>cp短打</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"`
+
+    - [x] 组cp[@xxx][@xxx]
+
+    - [x] 磕cp大老师 雪乃
+
+</details>
+<details>
+  <summary>DeepDanbooru二次元图标签识别</summary>
+
+  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru`
+
+    - [x] 鉴赏图片[图片]
+
+</details>
+<details>
+  <summary>嘉然</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
+
+    - [x] 小作文
+
+    - [x] 发大病
+
+    - [x] 教你一篇小作文[作文]
+
+    - [x] [回复]查重
+
+</details>
+<details>
+  <summary>漂流瓶</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"`
+
+    - [x] (在群xxx)丢漂流瓶(到频道xxx) [消息]
+
+    - [x] (从频道xxx)捡漂流瓶
+
+    - [x] @BOT 创建频道 xxx
+
+    - [x] 跳入(频道)海中
+
+    - [x] 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global
+
+</details>
+<details>
+  <summary>合成emoji</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"`
+
+    - [x] [emoji][emoji]
+
+</details>
+<details>
+  <summary>城市疫情查询</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
+
+    - [x] xxx疫情
+
+</details>
+<details>
+  <summary>渲染任意文字到图片</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
+
+    - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
+</details>
+<details>
+  <summary>每日运势</summary>
+
+  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
+
+    - [x] 运势 | 抽签
+
+    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录 奇异恩典]
+
+</details>
+<details>
+  <summary>笑话</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"`
+
+    - [x] 讲个笑话[@xxx] | 讲个笑话[qq号]
+
+</details>
+<details>
+  <summary>原神抽卡</summary>
+
+  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
+
+    - [x] 切换原神卡池
+
+    - [x] 原神十连
 
 </details>
 <details>
@@ -405,17 +557,77 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>base16384加解密</summary>
+  <summary>GitHub仓库搜索</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"`
 
-    - [x] 加密xxx
+    - [x] >github [xxx]
 
-    - [x] 解密xxx
+    - [x] >github -p [xxx]
 
-    - [x] 用yyy加密xxx
+</details>
+<details>
+  <summary>炉石</summary>
 
-    - [x] 用yyy解密xxx
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"`
+
+    - [x] 搜卡[xxxx]
+
+    - [x] [卡组代码xxx]
+
+    - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
+
+</details>
+<details>
+  <summary>百人一首</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"`
+
+    - [x] 百人一首
+
+    - [x] 百人一首之n
+
+</details>
+<details>
+  <summary>关键字搜图</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"`
+
+    - [x] 来张 [xxx]
+
+</details>
+<details>
+  <summary>注入指令</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`
+
+    - [x] run[CQ码]
+
+</details>
+<details>
+  <summary>煎蛋网无聊图</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
+
+    - [x] 来份[屌|弔|吊]图
+
+    - [x] 更新[屌|弔|吊]图
+
+</details>
+<details>
+  <summary>绝绝子</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"`
+
+    - [x] 喝奶茶绝绝子 | 绝绝子吃饭
+
+</details>
+<details>
+  <summary>lolicon</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"`
+
+    - [x] 来份萝莉
 
 </details>
 <details>
@@ -449,17 +661,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>涩图</summary>
+  <summary>点歌</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"`
 
-    - [x] 来份[涩图/二次元/风景/车万]
+    - [x] 点歌[xxx]
 
-    - [x] 添加[涩图/二次元/风景/车万][P站图片ID]
+    - [x] 网易点歌[xxx]
 
-    - [x] 删除[涩图/二次元/风景/车万][P站图片ID]
+    - [x] 酷我点歌[xxx]
 
-    - [x] > setu status
+    - [x] 酷狗点歌[xxx]
 
 </details>
 <details>
@@ -481,204 +693,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>nsfw图片识别</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw"`
-
-    - [x] nsfw打分[图片]
-
-    - [x] 当图片属于非 neutral 类别时自动发送评价(默认禁用，启用输入 /启用 nsfwauto)
-
-</details>
-<details>
-  <summary>lolicon</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"`
-
-    - [x] 来份萝莉
-
-</details>
-<details>
-  <summary>搜图</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"`
-
-    - [x] 以图搜图 | 搜索图片 | 以图识图[图片]
-
-    - [x] 搜图[P站图片ID]
-
-</details>
-<details>
-  <summary>搜番</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"`
-
-    - [x] 搜番 | 搜索番剧[图片]
-
-</details>
-<details>
-  <summary>百度一下</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
-
-    - [x] 百度下[xxx]
-
-</details>
-<details>
-  <summary>百人一首</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"`
-
-    - [x] 百人一首
-
-    - [x] 百人一首之n
-
-</details>
-<details>
-  <summary>随机图片与AI点评</summary>
-
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
-
-    - [x] 随机图片(评级大于6的图将私发)
-
-    - [x] 直接随机(无r18检测，务必小心，仅管理可用)
-
-    - [x] 设置随机图片网址[url]
-
-    - [x] 太涩了(撤回最近发的图)
-
-    - [x] 评价图片(发送一张图片让bot评分)
-
-</details>
-<details>
-  <summary>DeepDanbooru二次元图标签识别</summary>
-
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru`
-
-    - [x] 鉴赏图片[图片]
-
-</details>
-<details>
-  <summary>叔叔的AI二次元图片放大</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"`
-
-    - [x] 放大图片[图片]
-
-</details>
-<details>
-  <summary>每日运势</summary>
-
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
-
-    - [x] 运势 | 抽签
-
-    - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录 奇异恩典]
-
-</details>
-<details>
-  <summary>原神抽卡</summary>
-
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
-
-    - [x] 切换原神卡池
-
-    - [x] 原神十连
-
-</details>
-<details>
-  <summary>浅草寺求签</summary>
-
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
-
-    - [x] 求签 | 占卜
-
-    - [x] 解签
-
-</details>
-<details>
-  <summary>漂流瓶</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"`
-
-    - [x] (在群xxx)丢漂流瓶(到频道xxx) [消息]
-
-    - [x] (从频道xxx)捡漂流瓶
-
-    - [x] @BOT 创建频道 xxx
-
-    - [x] 跳入(频道)海中
-
-    - [x] 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global
-
-</details>
-<details>
-  <summary>猜单词</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"`
-
-    - [x] 个人猜单词
-
-    - [x] 团队猜单词
-
-</details>
-<details>
-  <summary>bilibili</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-
-    - [x] >vup info [xxx]
-
-    - [x] >user info [xxx]
-
-    - [x] 查成分 [xxx]
-
-    - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31
-
-    - [x] 更新vup
-
-</details>
-<details>
-  <summary>嘉然</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`
-
-    - [x] 小作文
-
-    - [x] 发大病
-
-    - [x] 教你一篇小作文[作文]
-
-    - [x] [回复]查重
-
-</details>
-<details>
-  <summary>鬼东西</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
-
-    - [x] 鬼东西列表
-
-    - [x] 查询鬼东西[序号][@xxx]
-
-    - 注：由于需要科学，默认注释。
-
-</details>
-<details>
-  <summary>AIfalse</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"`
-
-    - [x] 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]
-
-    - [x] 清理缓存 (仅适用于 gocq 且需要 bot 的运行目录和 gocq 相同)
-
-    - [ ] 简易语音
-
-    - [ ] 爬图合成 [@xxx]
-
-</details>
-<details>
   <summary>抽wife</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativewife"`
@@ -695,26 +709,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>炉石</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"`
-
-    - [x] 搜卡[xxxx]
-
-    - [x] [卡组代码xxx]
-
-    - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
-
-</details>
-<details>
-  <summary>关键字搜图</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"`
-
-    - [x] 来张 [xxx]
-
-</details>
-<details>
   <summary>拼音首字母释义工具</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"`
@@ -723,11 +717,31 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>选择困难症帮手</summary>
+  <summary>小说</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel" `
 
-    - [x] 选择[选择项1]还是[选项2]还是[更多选项]
+    - [x] 小说[xxx]
+
+</details>
+<details>
+  <summary>nsfw图片识别</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw"`
+
+    - [x] nsfw打分[图片]
+
+    - [x] 当图片属于非 neutral 类别时自动发送评价(默认禁用，启用输入 /启用 nsfwauto)
+
+</details>
+<details>
+  <summary>浅草寺求签</summary>
+
+  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
+
+    - [x] 求签 | 占卜
+
+    - [x] 解签
 
 </details>
 <details>
@@ -738,6 +752,71 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] reborn
 
     - 注：本插件来源于[tgbot](https://github.com/YukariChiba/tgbot/blob/main/modules/Reborn.py)
+
+</details>
+<details>
+  <summary>在线代码运行</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
+
+    - [x] > runcode [language] help
+
+    - [x] > runcode [language] [code block]
+
+    - [x] > runcoderaw [language] [code block]
+
+</details>
+<details>
+  <summary>搜图</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"`
+
+    - [x] 以图搜图 | 搜索图片 | 以图识图[图片]
+
+    - [x] 搜图[P站图片ID]
+
+</details>
+<details>
+  <summary>叔叔的AI二次元图片放大</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"`
+
+    - [x] 放大图片[图片]
+
+</details>
+
+<details>
+  <summary>shindan</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"`
+
+    - [x] 今天是什么少女[@xxx]
+
+    - [x] 异世界转生[@xxx]
+
+    - [x] 卖萌[@xxx]
+
+    - [x] 抽老婆[@xxx]
+
+    - [x] 黄油角色[@xxx]
+
+</details>
+<details>
+  <summary>搜番</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"`
+
+    - [x] 搜番 | 搜索番剧[图片]
+
+</details>
+<details>
+  <summary>猜单词</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"`
+
+    - [x] 个人猜单词
+
+    - [x] 团队猜单词
 
 </details>
 <details>
@@ -761,153 +840,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>书评</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"`
-
-    - [x] 书评[xxx]
-
-    - [x] 随机书评
-
-</details>
-<details>
-  <summary>coser</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser" `
-
-    - [x] coser
-
-</details>
-<details>
-  <summary>小说</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel" `
-
-    - [x] 小说[xxx]
-
-</details>
-<details>
-  <summary>沙雕app插件</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"`
-
-    - [x] 哄我
-
-    - [x] 渣我
-
-    - [x] 来碗绿茶
-
-    - [x] 发个朋友圈
-
-    - [x] 来碗毒鸡汤
-
-    - [x] 讲个段子
-
-</details>
-<details>
-  <summary>笑话</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"`
-
-    - [x] 讲个笑话[@xxx] | 讲个笑话[qq号]
-
-</details>
-<details>
-  <summary>抽象话</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chouxianghua"`
-
-    - [x] 抽象翻译[xxx]
-
-</details>
-<details>
-  <summary>合成emoji</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"`
-
-    - [x] [emoji][emoji]
-
-</details>
-<details>
-  <summary>绝绝子</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"`
-
-    - [x] 喝奶茶绝绝子 | 绝绝子吃饭
-
-</details>
-<details>
-  <summary>藏头诗</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"`
-
-    - [x] 藏头诗[xxx]
-
-    - [x] 藏尾诗[xxx]
-
-</details>
-<details>
-  <summary>cp短打</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"`
-
-    - [x] 组cp[@xxx][@xxx]
-
-    - [x] 磕cp大老师 雪乃
-
-</details>
-<details>
-  <summary>签到得分</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"`
-
-    - [x] 签到
-
-    - [x] 获得签到背景[@xxx] | 获得签到背景
-
-    - [x] 查看分数排名
-
-</details>
-<details>
-  <summary>b站推送</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
-
-    - [x] 添加b站订阅[uid]
-
-    - [x] 取消b站订阅[uid]
-
-    - [x] 取消b站动态订阅[uid]
-
-    - [x] 取消b站直播订阅[uid]
-
-    - [x] b站推送列表
-
-</details>
-<details>
   <summary>网易云音乐热评</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"`
 
     - [x] 来份网易云热评
-
-</details>
-<details>
-  <summary>b站视频链接解析</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
-
-    - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
-
-</details>
-<details>
-  <summary>煎蛋网无聊图</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
-
-    - [x] 来份[屌|弔|吊]图
-
-    - [x] 更新[屌|弔|吊]图
 
 </details>
 <details>
@@ -924,14 +861,6 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] gal表情包[xxx]
 
     - [x] 更新gal
-
-</details>
-<details>
-  <summary>城市疫情查询</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"`
-
-    - [x] xxx疫情
 
 </details>
 <details>
@@ -967,8 +896,36 @@ print("run[CQ:image,file="+j["img"]+"]")
     - [x] 热词 [群号] [消息数目]|热词 123456 1000
 
 </details>
+<details>
+  <summary>鬼东西</summary>
 
-### 低优先级
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
+
+    - [x] 鬼东西列表
+
+    - [x] 查询鬼东西[序号][@xxx]
+
+    - 注：由于需要科学，默认注释。
+
+</details>
+<details>
+  <summary>b站推送</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
+
+    - [x] 添加b站订阅[uid]
+
+    - [x] 取消b站订阅[uid]
+
+    - [x] 取消b站动态订阅[uid]
+
+    - [x] 取消b站直播订阅[uid]
+
+    - [x] b站推送列表
+
+</details>
+
+### *低优先级*
 
 <details>
   <summary>骂人</summary>
