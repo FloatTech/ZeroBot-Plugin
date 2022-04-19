@@ -952,13 +952,13 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 
-## 使用方法
+## 三种使用方法，推荐第一种
 
-### 使用稳定版/测试版 (推荐)
+### 1. 使用稳定版/测试版 (推荐)
 
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 或 [Package](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp)，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
 
-### 本地直接运行
+### 2. 本地直接运行
 
 1. 下载安装最新 [Go](https://studygolang.com/dl) 环境
 2. 下载本项目[压缩包](https://github.com/FloatTech/ZeroBot-Plugin/archive/master.zip)，本地解压
@@ -966,9 +966,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 4. 运行 OneBot 框架
 5. `Windows`下双击 run.bat 文件，`Linux`下使用 run.sh 运行本插件
 
-### 编译运行
+### 3. 编译运行
 
-#### 利用 Actions 在线编译
+#### a. 利用 Actions 在线编译
 
 1. 点击右上角 Fork 本项目，并转跳到自己 Fork 的仓库
 2. 点击仓库上方的 Actions 按钮，确认使用 Actions
@@ -978,7 +978,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 6. 运行 OneBot 框架，并同时运行本插件
 7. 啾咪~
 
-#### 本地编译/交叉编译
+#### b. 本地编译/交叉编译
 
 1. 下载安装最新 [Go](https://studygolang.com/dl) 环境
 2. clone 并进入本项目，下载所需包
