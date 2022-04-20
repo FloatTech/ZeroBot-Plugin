@@ -19,7 +19,7 @@ import (
 
 const (
 	servicename = "epidemic"
-	txurl       = "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5"
+	txurl       = "https://c.m.163.com/ug/api/wuhan/app/data/list-total"
 )
 
 var (
@@ -33,24 +33,30 @@ type result struct {
 
 // epidemic 疫情数据
 type epidemic struct {
-	LastUpdateTime string  `json:"lastUpdateTime"`
 	AreaTree       []*area `json:"areaTree"`
 }
 
 // area 城市疫情数据
 type area struct {
-	Name  string `json:"name"`
+	LastUpdateTime string  `json:"lastUpdateTime"` // 更新时间
+	Name  string `json:"name"` // 城市名字
 	Today struct {
-		Confirm int `json:"confirm"`
+		Confirm int `json:"confirm"` // 新增确诊
+		Heal  int `json:"heal"` // 新增治愈
+		Dead  int `json:"dead"` // 新增死亡
+		StoreConfirm int `json:"storeConfirm"` // 新增确诊
+		Input int `json:"input"` // 新增境外输入
 	} `json:"today"`
 	Total struct {
-		NowConfirm int    `json:"nowConfirm"`
-		Confirm    int    `json:"confirm"`
-		Dead       int    `json:"dead"`
-		Heal       int    `json:"heal"`
-		Grade      string `json:"grade"`
-		Wzz        int    `json:"wzz"`
+		Confirm    int    `json:"confirm"` // 累计确诊
+		Dead       int    `json:"dead"` // 累计死亡
+		Heal       int    `json:"heal"` // 累计治愈
+		Input      int    `json:"input"` // 累计境外输入
 	} `json:"total"`
+	ExtData struct {
+		NoSymptom int `json:"noSymptom"` // 无症状感染者
+		IncrNoSymptom int `json:"incrNoSymptom"` // 新增无症状感染者
+	} `json:"extData"`
 	Children []*area `json:"children"`
 }
 
@@ -78,12 +84,14 @@ func init() {
 			}
 			if limit.Load(ctx.Event.UserID).Acquire() {
 				temp := fmt.Sprint("【", data.Name, "】疫情数据\n",
-					"新增人数：", data.Today.Confirm, "\n",
-					"现有确诊：", data.Total.NowConfirm, "\n",
+					"新增确诊：", data.Today.Confirm, "\n",
+					"新增死亡：", data.Today.Dead, "\n",
+					"现有确诊：", data.Total.Confirm-data.Today.Dead-data.Today.Heal, "\n",
 					"累计确诊：", data.Total.Confirm, "\n",
-					"治愈人数：", data.Total.Heal, "\n",
-					"死亡人数：", data.Total.Dead, "\n",
-					"无症状人数：", data.Total.Wzz, "\n",
+					"累计治愈：", data.Total.Heal, "\n",
+					"累计死亡：", data.Total.Dead, "\n",
+					"新增无症状：", data.ExtData.IncrNoSymptom, "\n",
+					"无症状人数：", data.ExtData.NoSymptom, "\n",
 					"更新时间：\n『", time, "』")
 				txt, err := text.RenderToBase64(temp, text.FontFile, 400, 20)
 				if err != nil {
@@ -135,6 +143,7 @@ func queryEpidemic(findCityName string) (citydata *area, times string, err error
 	if err != nil {
 		return
 	}
+	var t area
 	citydata = rcity(e.AreaTree[0], findCityName)
-	return citydata, e.LastUpdateTime, nil
+	return citydata, t.LastUpdateTime, nil
 }
