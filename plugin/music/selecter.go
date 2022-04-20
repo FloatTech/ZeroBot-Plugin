@@ -143,10 +143,9 @@ func cloud163(keyword string) message.MessageSegment {
 		"keywords": []string{keyword},
 	}
 	// 通过API 搜索音乐信息 第一首
-	// 返回音乐卡片 
+	// 返回音乐卡片
 	return message.Music("163", gjson.ParseBytes(netPost("https://nemapi.windis.xyz/search", data, headers)).Get("result.songs.0.id").Int())
 }
-
 
 // qqmusic 返回QQ音乐卡片
 func qqmusic(keyword string) message.MessageSegment {
