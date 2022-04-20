@@ -36,7 +36,7 @@ func init() {
 		}
 		return false
 	}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		msg := ctx.GetMessage(message.NewMessageID(ctx.Event.Message[0].Data["id"])).Elements[0].Data["text"]
+		msg := ctx.GetMessage(message.NewMessageIDFromString(ctx.Event.Message[0].Data["id"])).Elements[0].Data["text"]
 		result, err := zhiwangapi(msg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))

@@ -140,20 +140,11 @@ func cloud163(keyword string) message.MessageSegment {
 		"User-Agent":   []string{"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"},
 	}
 	data := url.Values{
-		"offset": []string{"0"},
-		"total":  []string{"true"},
-		"limit":  []string{"9"},
-		"type":   []string{"1"},
-		"s":      []string{keyword},
+		"keywords": []string{keyword},
 	}
-	// 搜索音乐信息 第一首歌
-	info := gjson.ParseBytes(netPost("http://music.163.com/api/search/pc", data, headers)).Get("result.songs.0")
+	// 通过API 搜索音乐信息 第一首
 	// 返回音乐卡片
-	return message.CustomMusic(
-		fmt.Sprintf("http://y.music.163.com/m/song?id=%d", info.Get("id").Int()),
-		fmt.Sprintf("http://music.163.com/song/media/outer/url?id=%d.mp3", info.Get("id").Int()),
-		info.Get("name").Str,
-	).Add("content", info.Get("artists.0.name").Str).Add("image", info.Get("album.blurPicUrl").Str)
+	return message.Music("163", gjson.ParseBytes(netPost("https://nemapi.windis.xyz/search", data, headers)).Get("result.songs.0.id").Int())
 }
 
 // qqmusic 返回QQ音乐卡片

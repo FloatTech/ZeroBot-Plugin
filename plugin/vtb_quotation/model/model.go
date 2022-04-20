@@ -99,7 +99,7 @@ func (vdb *VtbDB) GetAllFirstCategoryMessage() (string, error) {
 	db := (*gorm.DB)(vdb)
 	firstStepMessage := "请选择一个vtb并发送序号:\n"
 	var fcl []FirstCategory
-	err := db.Debug().Model(&FirstCategory{}).Find(&fcl).Error
+	err := db.Model(&FirstCategory{}).Find(&fcl).Error
 	if err != nil {
 		return "", err
 	}
@@ -116,7 +116,7 @@ func (vdb *VtbDB) GetAllSecondCategoryMessageByFirstIndex(firstIndex int) (strin
 	var scl []SecondCategory
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
-	err := db.Debug().Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUID).Error
+	err := db.Model(&SecondCategory{}).Find(&scl, "first_category_uid = ?", fc.FirstCategoryUID).Error
 	if err != nil || len(scl) == 0 {
 		return "", err
 	}
@@ -133,7 +133,7 @@ func (vdb *VtbDB) GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(firstInde
 	var fc FirstCategory
 	db.Model(FirstCategory{}).Where("first_category_index = ?", firstIndex).First(&fc)
 	var tcl []ThirdCategory
-	err := db.Debug().Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUID, secondIndex).Error
+	err := db.Model(&ThirdCategory{}).Find(&tcl, "first_category_uid = ? and second_category_index = ?", fc.FirstCategoryUID, secondIndex).Error
 	if err != nil || len(tcl) == 0 {
 		return "", err
 	}
@@ -217,12 +217,12 @@ func (vdb *VtbDB) GetVtbList() (uidList []string, err error) {
 		}
 		log.Debugln(fc)
 
-		if err := db.Debug().Model(&FirstCategory{}).First(&fc, "first_category_uid = ?", fc.FirstCategoryUID).Error; err != nil {
+		if err := db.Model(&FirstCategory{}).First(&fc, "first_category_uid = ?", fc.FirstCategoryUID).Error; err != nil {
 			if gorm.IsRecordNotFoundError(err) {
-				db.Debug().Model(&FirstCategory{}).Create(&fc) // newUser not user
+				db.Model(&FirstCategory{}).Create(&fc) // newUser not user
 			}
 		} else {
-			db.Debug().Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).Update(
+			db.Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).Update(
 				map[string]interface{}{
 					"first_category_index":       i,
 					"first_category_name":        item.Get("name").String(),
@@ -276,13 +276,13 @@ func (vdb *VtbDB) StoreVtb(uid string) (err error) {
 			FirstCategoryUID:          uid,
 		}
 
-		if err := db.Debug().Model(&SecondCategory{}).First(&sc, "first_category_uid = ? and second_category_index = ?", uid, secondIndex).Error; err != nil {
+		if err := db.Model(&SecondCategory{}).First(&sc, "first_category_uid = ? and second_category_index = ?", uid, secondIndex).Error; err != nil {
 			// error handling...
 			if gorm.IsRecordNotFoundError(err) {
-				db.Debug().Model(&SecondCategory{}).Create(&sc) // newUser not user
+				db.Model(&SecondCategory{}).Create(&sc) // newUser not user
 			}
 		} else {
-			db.Debug().Model(&SecondCategory{}).Where("first_category_uid = ? and second_category_index = ?", uid, secondIndex).Update(
+			db.Model(&SecondCategory{}).Where("first_category_uid = ? and second_category_index = ?", uid, secondIndex).Update(
 				map[string]interface{}{
 					"second_category_name":        secondItem.Get("categoryName").String(),
 					"second_category_author":      secondItem.Get("author").String(),
@@ -305,13 +305,13 @@ func (vdb *VtbDB) StoreVtb(uid string) (err error) {
 			}
 			log.Debugln(tc)
 
-			if err := db.Debug().Model(&ThirdCategory{}).First(&tc, "first_category_uid = ? and second_category_index = ? and third_category_index = ?",
+			if err := db.Model(&ThirdCategory{}).First(&tc, "first_category_uid = ? and second_category_index = ? and third_category_index = ?",
 				uid, secondIndex, thirdIndex).Error; err != nil {
 				if gorm.IsRecordNotFoundError(err) {
-					db.Debug().Model(&ThirdCategory{}).Create(&tc) // newUser not user
+					db.Model(&ThirdCategory{}).Create(&tc) // newUser not user
 				}
 			} else {
-				db.Debug().Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?",
+				db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?",
 					uid, secondIndex, thirdIndex).Update(
 					map[string]interface{}{
 						"third_category_name":        thirdItem.Get("name").String(),

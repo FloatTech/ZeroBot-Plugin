@@ -61,25 +61,9 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	go func() {
-		for i, s := range table {
-			index[s] = uint8(i)
-		}
-		data, err := file.GetLazyData(omikujson, true, false)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(data, &omikujis)
-		if err != nil {
-			panic(err)
-		}
-	}()
-	go func() {
-		_, err := file.GetLazyData(font, false, true)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	for i, s := range table {
+		index[s] = uint8(i)
+	}
 	en.OnRegex(`^设置底图\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
@@ -104,7 +88,26 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
-	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).
+	en.OnFullMatchGroup([]string{"运势", "抽签"}, ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			data, err := file.GetLazyData(omikujson, true, false)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = json.Unmarshal(data, &omikujis)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			_, err = file.GetLazyData(font, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			return true
+		},
+	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取该群背景类型，默认车万
 			kind := "车万"

@@ -9,6 +9,7 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/antchfx/htmlquery"
 	"github.com/sirupsen/logrus"
@@ -27,22 +28,25 @@ func init() {
 		PublicDataFolder: "Jandan",
 	})
 
-	go func() {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "pics.db"
 		_, _ = file.GetLazyData(db.DBPath, false, false)
 		err := db.Create("picture", &picture{})
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		n, err := db.Count("picture")
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		logrus.Printf("[jandan]读取%d张图片", n)
-	}()
+		return true
+	})
 
-	engine.OnRegex(`来份[屌|弔|吊]图`).SetBlock(true).
+	engine.OnRegex(`来份[屌|弔|吊]图`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u, err := getRandomPicture()
 			if err != nil {
@@ -52,7 +56,7 @@ func init() {
 			ctx.SendChain(message.Image(u))
 		})
 
-	engine.OnRegex(`更新[屌|弔|吊]图`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`更新[屌|弔|吊]图`, zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女更新中...")
 			webpageURL := api
