@@ -4,6 +4,7 @@ package epidemic
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -11,7 +12,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
@@ -38,26 +38,26 @@ type epidemic struct {
 
 // area 城市疫情数据
 type area struct {
-	LastUpdateTime string `json:"lastUpdateTime"` // 更新时间
-	Name           string `json:"name"`           // 城市名字
-	Today          struct {
-		Confirm      int `json:"confirm"`      // 新增确诊
-		Heal         int `json:"heal"`         // 新增治愈
-		Dead         int `json:"dead"`         // 新增死亡
-		StoreConfirm int `json:"storeConfirm"` // 新增确诊
-		Input        int `json:"input"`        // 新增境外输入
+	Today struct {
+		Confirm      string `json:"confirm"`      // 新增确诊
+		Heal         string `json:"heal"`         // 新增治愈
+		Dead         string `json:"dead"`         // 新增死亡
+		StoreConfirm string `json:"storeConfirm"` // 新增确诊
+		Input        string `json:"input"`        // 新增境外输入
 	} `json:"today"`
 	Total struct {
-		Confirm int `json:"confirm"` // 累计确诊
-		Dead    int `json:"dead"`    // 累计死亡
-		Heal    int `json:"heal"`    // 累计治愈
-		Input   int `json:"input"`   // 累计境外输入
+		Confirm string `json:"confirm"` // 累计确诊
+		Dead    string `json:"dead"`    // 累计死亡
+		Heal    string `json:"heal"`    // 累计治愈
+		Input   string `json:"input"`   // 累计境外输入
 	} `json:"total"`
 	ExtData struct {
-		NoSymptom     int `json:"noSymptom"`     // 无症状感染者
-		IncrNoSymptom int `json:"incrNoSymptom"` // 新增无症状感染者
+		NoSymptom     string `json:"noSymptom"`     // 无症状感染者
+		IncrNoSymptom string `json:"incrNoSymptom"` // 新增无症状感染者
 	} `json:"extData"`
-	Children []*area `json:"children"`
+	Name           string  `json:"name"`           // 城市名字
+	LastUpdateTime string  `json:"lastUpdateTime"` // 更新时间
+	Children       []*area `json:"children"`
 }
 
 func init() {
@@ -82,11 +82,14 @@ func init() {
 				ctx.SendChain(message.Text("没有找到【", city, "】城市的疫情数据."))
 				return
 			}
+			confirm, _ := strconv.Atoi(data.Total.Confirm)
+			dead, _ := strconv.Atoi(data.Today.Dead)
+			heal, _ := strconv.Atoi(data.Today.Heal)
 			if limit.Load(ctx.Event.UserID).Acquire() {
 				temp := fmt.Sprint("【", data.Name, "】疫情数据\n",
 					"新增确诊：", data.Today.Confirm, "\n",
 					"新增死亡：", data.Today.Dead, "\n",
-					"现有确诊：", data.Total.Confirm-data.Today.Dead-data.Today.Heal, "\n",
+					"现有确诊：", confirm-dead-heal, "\n",
 					"累计确诊：", data.Total.Confirm, "\n",
 					"累计治愈：", data.Total.Heal, "\n",
 					"累计死亡：", data.Total.Dead, "\n",
@@ -139,11 +142,11 @@ func queryEpidemic(findCityName string) (citydata *area, times string, err error
 		return
 	}
 	var e epidemic
-	err = json.Unmarshal(binary.StringToBytes(r.Data), &e)
+	err = json.Unmarshal(helper.StringToBytes(r.Data), &e)
 	if err != nil {
 		return
 	}
-	var t area
+	var t *area
 	citydata = rcity(e.AreaTree[0], findCityName)
 	return citydata, t.LastUpdateTime, nil
 }
