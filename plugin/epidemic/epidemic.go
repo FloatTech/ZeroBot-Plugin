@@ -45,11 +45,11 @@ type area struct {
 		Wzzadd  int `json:"wzz_add"`
 	} `json:"today"`
 	Total struct {
-		NowConfirm int    `json:"nowConfirm"`
-		Confirm    int    `json:"confirm"`
-		Dead       int    `json:"dead"`
-		Heal       int    `json:"heal"`
-		Wzz        int    `json:"wzz"`
+		NowConfirm int `json:"nowConfirm"`
+		Confirm    int `json:"confirm"`
+		Dead       int `json:"dead"`
+		Heal       int `json:"heal"`
+		Wzz        int `json:"wzz"`
 	} `json:"total"`
 	Children []*area `json:"children"`
 }
