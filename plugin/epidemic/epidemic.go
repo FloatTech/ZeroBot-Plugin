@@ -19,7 +19,7 @@ import (
 
 const (
 	servicename = "epidemic"
-	txurl       = "https://c.m.163.com/ug/api/wuhan/app/data/list-total"
+	url         = "https://c.m.163.com/ug/api/wuhan/app/data/list-total"
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 
 // result 疫情查询结果
 type result struct {
-	Data []byte `json:"data"`
+	Data string `json:"data"`
 }
 
 // epidemic 疫情数据
@@ -132,7 +132,7 @@ func rcity(a *area, cityName string) *area {
 
 // queryEpidemic 查询城市疫情
 func queryEpidemic(findCityName string) (citydata *area, times string, err error) {
-	data, err := web.GetData(txurl)
+	data, err := web.GetData(url)
 	if err != nil {
 		return
 	}
@@ -142,7 +142,8 @@ func queryEpidemic(findCityName string) (citydata *area, times string, err error
 		return
 	}
 	var e epidemic
-	err = json.Unmarshal(r.Data, &e)
+	rdata := helper.StringToBytes(r.Data)
+	err = json.Unmarshal(rdata, &e)
 	if err != nil {
 		return
 	}
