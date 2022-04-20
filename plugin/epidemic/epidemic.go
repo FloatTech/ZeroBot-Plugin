@@ -43,9 +43,6 @@ type area struct {
 	Today struct {
 		Confirm int `json:"confirm"`
 	} `json:"today"`
-	Tip struct {
-		Wzzadd int `json:"wzz_add"`
-	} `json:"tip"`
 	Total struct {
 		NowConfirm int    `json:"nowConfirm"`
 		Confirm    int    `json:"confirm"`
@@ -87,7 +84,6 @@ func init() {
 					"治愈人数：", data.Total.Heal, "\n",
 					"死亡人数：", data.Total.Dead, "\n",
 					"无症状人数：", data.Total.Wzz, "\n",
-					"新增无症状：", data.Tip.Wzzadd, "\n",
 					"更新时间：\n『", time, "』")
 				txt, err := text.RenderToBase64(temp, text.FontFile, 400, 20)
 				if err != nil {
