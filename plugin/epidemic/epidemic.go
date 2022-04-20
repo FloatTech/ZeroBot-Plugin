@@ -33,28 +33,28 @@ type result struct {
 
 // epidemic 疫情数据
 type epidemic struct {
-	AreaTree       []*area `json:"areaTree"`
+	AreaTree []*area `json:"areaTree"`
 }
 
 // area 城市疫情数据
 type area struct {
-	LastUpdateTime string  `json:"lastUpdateTime"` // 更新时间
-	Name  string `json:"name"` // 城市名字
-	Today struct {
-		Confirm int `json:"confirm"` // 新增确诊
-		Heal  int `json:"heal"` // 新增治愈
-		Dead  int `json:"dead"` // 新增死亡
+	LastUpdateTime string `json:"lastUpdateTime"` // 更新时间
+	Name           string `json:"name"`           // 城市名字
+	Today          struct {
+		Confirm      int `json:"confirm"`      // 新增确诊
+		Heal         int `json:"heal"`         // 新增治愈
+		Dead         int `json:"dead"`         // 新增死亡
 		StoreConfirm int `json:"storeConfirm"` // 新增确诊
-		Input int `json:"input"` // 新增境外输入
+		Input        int `json:"input"`        // 新增境外输入
 	} `json:"today"`
 	Total struct {
-		Confirm    int    `json:"confirm"` // 累计确诊
-		Dead       int    `json:"dead"` // 累计死亡
-		Heal       int    `json:"heal"` // 累计治愈
-		Input      int    `json:"input"` // 累计境外输入
+		Confirm int `json:"confirm"` // 累计确诊
+		Dead    int `json:"dead"`    // 累计死亡
+		Heal    int `json:"heal"`    // 累计治愈
+		Input   int `json:"input"`   // 累计境外输入
 	} `json:"total"`
 	ExtData struct {
-		NoSymptom int `json:"noSymptom"` // 无症状感染者
+		NoSymptom     int `json:"noSymptom"`     // 无症状感染者
 		IncrNoSymptom int `json:"incrNoSymptom"` // 新增无症状感染者
 	} `json:"extData"`
 	Children []*area `json:"children"`
