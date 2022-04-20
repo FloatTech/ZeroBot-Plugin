@@ -28,7 +28,7 @@ var (
 
 // result 疫情查询结果
 type result struct {
-	Data string `json:"data"`
+	Data []byte `json:"data"`
 }
 
 // epidemic 疫情数据
@@ -142,7 +142,7 @@ func queryEpidemic(findCityName string) (citydata *area, times string, err error
 		return
 	}
 	var e epidemic
-	err = json.Unmarshal(helper.StringToBytes(r.Data), &e)
+	err = json.Unmarshal(r.Data, &e)
 	if err != nil {
 		return
 	}
