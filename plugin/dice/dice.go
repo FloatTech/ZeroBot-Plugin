@@ -30,10 +30,8 @@ func init() {
 		}
 	}()
 	now := time.Now().Format("20060102")
-	var signTF map[string](int)
-	signTF = make(map[string](int))
-	var result map[int64](int)
-	result = make(map[int64](int))
+	signTF := make(map[string](int))
+	result := make(map[int64](int))
 	engine.OnFullMatchGroup([]string{".jrrp", "。jrrp"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			user := ctx.Event.UserID
@@ -82,7 +80,7 @@ func init() {
 			temp := ctx.State["regex_matched"].([]string)[2]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
 			msg := fmt.Sprintf("%s进行%s检定:", nickname, temp)
-			if i < 10 {
+			if i <= 10 {
 				for i > 0 {
 					i--
 					r := rand.Intn(100) + 1
