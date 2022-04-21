@@ -17,6 +17,10 @@ const (
 	txurl       = "https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=statisGradeCityDetail,diseaseh5Shelf"
 )
 
+var (
+	limit = rate.NewManager[int64](time.Second*60, 1)
+)
+
 // result 疫情查询结果
 type result struct {
 	Data struct {
@@ -54,7 +58,7 @@ func init() {
 		Help: "城市疫情查询\n" +
 			"- xxx疫情\n",
 	})
-	engine.OnSuffix("疫情").SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnSuffix("疫情").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			city := ctx.State["args"].(string)
 			if city == "" {
@@ -70,9 +74,8 @@ func init() {
 				ctx.SendChain(message.Text("没有找到【", city, "】城市的疫情数据."))
 				return
 			}
-			ctx.SendChain(
-				message.Text(
-					"【", data.Name, "】疫情数据\n",
+			if limit.Load(ctx.Event.UserID).Acquire() {
+				temp := fmt.Sprint("【", data.Name, "】疫情数据\n",
 					"新增人数：", data.Today.Confirm, "\n",
 					"现有确诊：", data.Total.NowConfirm, "\n",
 					"累计确诊：", data.Total.Confirm, "\n",
@@ -80,9 +83,18 @@ func init() {
 					"死亡人数：", data.Total.Dead, "\n",
 					"无症状人数：", data.Total.Wzz, "\n",
 					"新增无症状：", data.Today.Wzzadd, "\n",
-					"更新时间：\n『", time, "』",
-				),
-			)
+					"更新时间：\n『", time, "』")
+				txt, err := text.RenderToBase64(temp, text.FontFile, 400, 20)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(txt))); id.ID() == 0 {
+					ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				}
+			} else {
+				ctx.SendChain(message.Text("您的操作太频繁了！（冷却时间为1分钟）"))
+			}
 		})
 }
 
