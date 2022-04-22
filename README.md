@@ -316,22 +316,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 ### *中优先级*
 
 <details>
-  <summary>随机图片与AI点评</summary>
-
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/acgimage`
-
-  - [x] 随机图片(评级大于6的图将私发)
-
-  - [x] 直接随机(无r18检测，务必小心，仅管理可用)
-
-  - [x] 设置随机图片网址[url]
-
-  - [x] 太涩了(撤回最近发的图)
-
-  - [x] 评价图片(发送一张图片让bot评分)
-
-</details>
-<details>
   <summary>AIfalse</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"`
