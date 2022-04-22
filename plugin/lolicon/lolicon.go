@@ -30,7 +30,7 @@ var (
 
 func init() {
 	en := control.Register("lolicon", &control.Options{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "lolicon\n" +
 			"- 来份萝莉\n" +
 			"- 设置随机图片地址[http...]",
@@ -78,16 +78,17 @@ func init() {
 			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR:等待填充，请稍后再试......"))
 			case img := <-queue:
-				msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img))}
+				msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img).Add("cache", "0"))}
 				if id := ctx.SendGroupForwardMessage(
 					ctx.Event.GroupID,
 					msg,
-						ctx.SendChain(message.Text("ERROR:图片发送失败，可能被风控了~"))
-					}
+				).Get("message_id").Int(); id == 0 {
+					ctx.SendChain(message.Text("ERROR:可能被风控了"))
 				}
 			}
 		})
 	en.OnPrefix("设置随机图片地址", zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
 			if !strings.HasPrefix(u, "http") {
 				ctx.SendChain(message.Text("ERROR:url非法!"))
