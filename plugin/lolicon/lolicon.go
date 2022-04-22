@@ -2,6 +2,7 @@
 package lolicon
 
 import (
+	"encoding/base64"
 	"strings"
 	"time"
 
@@ -23,18 +24,30 @@ const (
 )
 
 var (
-	queue = make(chan string, capacity)
+	queue   = make(chan string, capacity)
+	custapi = ""
 )
 
 func init() {
-	control.Register("lolicon", &control.Options{
+	en := control.Register("lolicon", &control.Options{
 		DisableOnDefault: true,
 		Help: "lolicon\n" +
-			"- 来份萝莉",
-	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("来份萝莉").SetBlock(true).
+			"- 来份萝莉\n" +
+			"- 设置随机图片地址[http...]",
+	}).ApplySingle(ctxext.DefaultSingle)
+	en.OnFullMatch("来份萝莉").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				for i := 0; i < math.Min(cap(queue)-len(queue), 2); i++ {
+					if custapi != "" {
+						data, err := web.GetData(custapi)
+						if err != nil {
+							ctx.SendChain(message.Text("ERROR:", err))
+							continue
+						}
+						queue <- "base64://" + base64.StdEncoding.EncodeToString(data)
+						continue
+					}
 					data, err := web.GetData(api)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR:", err))
@@ -69,9 +82,17 @@ func init() {
 				if id := ctx.SendGroupForwardMessage(
 					ctx.Event.GroupID,
 					msg,
-				).Get("message_id").Int(); id == 0 {
-					ctx.SendChain(message.Text("ERROR:可能被风控了"))
+						ctx.SendChain(message.Text("ERROR:图片发送失败，可能被风控了~"))
+					}
 				}
 			}
+		})
+	en.OnPrefix("设置随机图片地址", zero.SuperUserPermission).SetBlock(true).
+			u := strings.TrimSpace(ctx.State["args"].(string))
+			if !strings.HasPrefix(u, "http") {
+				ctx.SendChain(message.Text("ERROR:url非法!"))
+				return
+			}
+			custapi = u
 		})
 }
