@@ -2,6 +2,7 @@ package personalrule
 
 import (
 	"fmt"
+	"os"
 
 	control "github.com/FloatTech/zbputils/control"
 
@@ -17,8 +18,7 @@ func init() {
 	})
 	engine.OnFullMatchGroup([]string{"pause", "restart", "kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			err := ""
-			panic(err)
+			os.Exit(0)
 		})
 	engine.OnRegex(`^\[CQ:xml`, zero.OnlyGroup, zero.KeywordRule("serviceID=\"60\"")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
