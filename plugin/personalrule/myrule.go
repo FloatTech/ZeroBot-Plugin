@@ -41,7 +41,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Image("https://gchat.qpic.cn/gchatpic_new/1770747317/1049468946-3068097579-76A49478EFA68B4750B10B96917F7B58/0?term=3"))
 		})
-	engine.OnPrefix("[CQ:image,file=", zero.RegexRule("type=flash")).SetBlock(true).
+	engine.OnPrefix("[CQ:image,file=", zero.KeywordRule("type=flash")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			raw := ctx.Event.RawMessage
 			img := strings.ReplaceAll(raw, "type=flash,", "")
