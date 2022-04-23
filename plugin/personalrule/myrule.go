@@ -3,6 +3,7 @@ package personalrule
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	control "github.com/FloatTech/zbputils/control"
 
@@ -12,11 +13,11 @@ import (
 
 func init() {
 	engine := control.Register("mine", &control.Options{
-		DisableOnDefault: false,
-		Help: "Poweroff\n" +
-			"- pause",
+		DisableOnDefault: true,
+		Help: "怪\n" +
+			"-todo...",
 	})
-	engine.OnFullMatchGroup([]string{"pause", "restart", "kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(false).
+	engine.OnFullMatchGroup([]string{"pause", "restart", "kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			os.Exit(0)
 		})
@@ -39,5 +40,21 @@ func init() {
 	engine.OnRegex(`^来(.*)涩图`, zero.OnlyGroup, zero.KeywordRule("114514")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Image("https://gchat.qpic.cn/gchatpic_new/1770747317/1049468946-3068097579-76A49478EFA68B4750B10B96917F7B58/0?term=3"))
+		})
+	engine.OnRegex("[CQ:image,file=", zero.RegexRule("type=flash")).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			raw := ctx.Event.RawMessage
+			img := strings.ReplaceAll(raw, "type=flash,", "")
+			img = message.UnescapeCQCodeText(img)
+			text := "闪照捕捉测试"
+			ctx.Send(message.ParseMessageFromString(text + img))
+		})
+	engine.On("notice/group_recall").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			raw := ctx.GetMessage(ctx.Event.MessageID.(message.MessageID)).Elements
+			nickname := ctx.Event.Sender.NickName
+			uid := ctx.Event.UserID
+			msg := fmt.Sprintf("撤回捕捉测试：[%s](%d)\n原消息：%s", nickname, uid, raw)
+			ctx.Send(msg)
 		})
 }
