@@ -13,7 +13,7 @@ func init() {
 		DisableOnDefault: false,
 		Help:             "",
 	})
-	engine.OnRegex(`^\[CQ:reply,id=(.*)](.*)`, zero.AdminPermission, zero.OnlyToMe, zero.KeywordRule("撤回")).SetBlock(true).
+	engine.OnRegex(`^\[CQ:reply,id=(.*)](.*)`, zero.AdminPermission, zero.KeywordRule("撤回")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取消息id
 			mid := ctx.State["regex_matched"].([]string)[1]
