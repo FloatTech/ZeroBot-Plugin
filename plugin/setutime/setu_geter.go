@@ -101,7 +101,7 @@ func init() { // 插件主体
 			}
 		})
 
-	engine.OnRegex(`^添加(.+)\s?(\d+)$`, zero.SuperUserPermission, getdb).SetBlock(true).
+	engine.OnRegex(`^添加\s*([^0-9\s]+)\s*(\d+)$`, zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -115,7 +115,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除(.+)\s?(\d+)$`, getdb, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
