@@ -20,8 +20,10 @@ import (
 )
 
 var (
-	list gjson.Result
-	temp []gjson.Result
+	me      gjson.Result
+	list    gjson.Result
+	temp    []gjson.Result
+	listgid int64
 )
 
 func init() {
@@ -32,10 +34,10 @@ func init() {
 	})
 	engine.OnFullMatchGroup([]string{"哪个群友是我老婆", "哪位群友是我老婆", "今天谁是我老婆"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			list = ctx.CallAction("get_group_member_list", zero.Params{
-				"group_id": ctx.Event.GroupID,
-				"no_cache": false,
-			}).Data
+			if listgid == 0 {
+				listgid = ctx.Event.GroupID
+			}
+			list = GetGroupMemberList(ctx, listgid)
 			if len(temp) == 0 {
 				temp = list.Array()
 				sort.SliceStable(temp, func(i, j int) bool {
@@ -49,9 +51,9 @@ func init() {
 			r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
 			rn := r.Intn(len(temp))
 			who := temp[rn]
-			gid := who.Get("group_id").Int()
-			groupid := ctx.Event.GroupID
-			if gid == groupid {
+			gid := ctx.Event.GroupID
+			if listgid != gid {
+				list = GetGroupMemberList(ctx, listgid)
 				temp = list.Array()
 				sort.SliceStable(temp, func(i, j int) bool {
 					return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
@@ -59,9 +61,11 @@ func init() {
 				temp = temp[math.Max(0, len(temp)-30):]
 				rn = r.Intn(len(temp))
 				who = temp[rn]
+				listgid = gid
 			}
 			userid := who.Get("user_id").Int()
 			if userid == uid {
+				me = who
 				temp = append(temp[:rn], temp[rn:]...)
 				rn = r.Intn(len(temp))
 				who = temp[rn]
@@ -77,6 +81,9 @@ func init() {
 			msg += fmt.Sprintf("【%s】(%d)哒！", nick, userid)
 			msg = message.UnescapeCQCodeText(msg)
 			ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
+			if len(me.Array()) != 0 {
+				temp = append(temp, who)
+			}
 		})
 	engine.OnFullMatch("换个老婆", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -86,4 +93,12 @@ func init() {
 			}).Data
 			ctx.SendChain(message.Text("换好了！"))
 		})
+}
+
+func GetGroupMemberList(ctx *zero.Ctx, listgid int64) (list gjson.Result) {
+	list = ctx.CallAction("get_group_member_list", zero.Params{
+		"group_id": listgid,
+		"no_cache": false,
+	}).Data
+	return list
 }
