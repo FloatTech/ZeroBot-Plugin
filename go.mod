@@ -6,6 +6,7 @@ require (
 	github.com/FloatTech/AnimeAPI v1.3.3-0.20220417132103-df55797131af
 	github.com/FloatTech/sqlite v0.2.1
 	github.com/FloatTech/zbputils v1.3.3-0.20220418145633-c1d3c00da628
+	github.com/Lazarus/lz-string-go v0.0.0-20210604111459-ed7cd5a66c48
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
@@ -25,6 +26,7 @@ require (
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/wdvxdr1123/ZeroBot v1.5.0-mid.0.20220415071800-9e52436ab5c0
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
+	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
 )
 
 require (
@@ -48,7 +50,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 	modernc.org/libc v1.15.0 // indirect

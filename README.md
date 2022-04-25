@@ -616,6 +616,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>漫画猫漫画</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/maofly"`
+
+  - [x] 漫画猫 [xxx]
+
+</details>
+<details>
   <summary>摸鱼</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"`
