@@ -49,6 +49,17 @@ func init() {
 			r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
 			rn := r.Intn(len(temp))
 			who := temp[rn]
+			gid := who.Get("group_id").Int()
+			groupid := ctx.Event.GroupID
+			if gid == groupid {
+				temp = list.Array()
+				sort.SliceStable(temp, func(i, j int) bool {
+					return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
+				})
+				temp = temp[math.Max(0, len(temp)-30):]
+				rn = r.Intn(len(temp))
+				who = temp[rn]
+			}
 			userid := who.Get("user_id").Int()
 			if userid == uid {
 				temp = append(temp[:rn], temp[rn:]...)
