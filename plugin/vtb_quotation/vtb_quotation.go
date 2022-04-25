@@ -18,6 +18,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
@@ -40,14 +41,21 @@ func init() {
 	})
 	dbfile := engine.DataFolder() + "vtb.db"
 	storePath := engine.DataFolder() + "store/"
-	go func() {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		err := os.MkdirAll(storePath, 0755)
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
-		_, _ = file.GetLazyData(dbfile, false, false)
-	}()
-	engine.OnFullMatch("vtb语录").SetBlock(true).
+		_, err = file.GetLazyData(dbfile, false, false)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		return true
+	})
+
+	engine.OnFullMatch("vtb语录", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var firstIndex int
 			var secondIndex int
@@ -238,7 +246,7 @@ func init() {
 				}
 			}
 		})
-	engine.OnFullMatch("随机vtb").SetBlock(true).
+	engine.OnFullMatch("随机vtb", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
@@ -274,7 +282,7 @@ func init() {
 				ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 			}
 		})
-	engine.OnFullMatch("更新vtb", zero.SuperUserPermission).SetBlock(true).
+	engine.OnFullMatch("更新vtb", zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
 			db := model.Initialize(dbfile)

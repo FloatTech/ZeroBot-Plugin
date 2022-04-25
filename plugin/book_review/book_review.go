@@ -8,6 +8,7 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 )
@@ -19,24 +20,27 @@ func init() {
 		PublicDataFolder: "BookReview",
 	})
 
-	go func() {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		dbpath := engine.DataFolder()
 		db.DBPath = dbpath + "bookreview.db"
 		// os.RemoveAll(dbpath)
 		_, _ = file.GetLazyData(db.DBPath, false, true)
 		err := db.Create("bookreview", &book{})
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		n, err := db.Count("bookreview")
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
-		log.Printf("[bookreview]读取%d条书评", n)
-	}()
+		log.Infof("[bookreview]读取%d条书评", n)
+		return true
+	})
 
 	// 中文、英文、数字但不包括下划线等符号
-	engine.OnRegex("^书评([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).
+	engine.OnRegex("^书评([\u4E00-\u9FA5A-Za-z0-9]{1,25})$", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
 			data, err := text.RenderToBase64(b.BookReview, text.FontFile, 400, 20)
@@ -49,7 +53,7 @@ func init() {
 			}
 		})
 
-	engine.OnFullMatch("随机书评").SetBlock(true).
+	engine.OnFullMatch("随机书评", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			br := getRandomBookReview()
 			data, err := text.RenderToBase64(br.BookReview, text.FontFile, 400, 20)

@@ -7,7 +7,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
@@ -15,12 +14,14 @@ import (
 
 const (
 	servicename = "epidemic"
-	txurl       = "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5"
+	txurl       = "https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=statisGradeCityDetail,diseaseh5Shelf"
 )
 
 // result 疫情查询结果
 type result struct {
-	Data string `json:"data"`
+	Data struct {
+		Epidemic epidemic `json:"diseaseh5Shelf"`
+	} `json:"data"`
 }
 
 // epidemic 疫情数据
@@ -116,11 +117,6 @@ func queryEpidemic(findCityName string) (citydata *area, times string, err error
 	if err != nil {
 		return
 	}
-	var e epidemic
-	err = json.Unmarshal(binary.StringToBytes(r.Data), &e)
-	if err != nil {
-		return
-	}
-	citydata = rcity(e.AreaTree[0], findCityName)
-	return citydata, e.LastUpdateTime, nil
+	citydata = rcity(r.Data.Epidemic.AreaTree[0], findCityName)
+	return citydata, r.Data.Epidemic.LastUpdateTime, nil
 }
