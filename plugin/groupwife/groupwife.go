@@ -37,7 +37,10 @@ func init() {
 			if listgid == 0 {
 				listgid = ctx.Event.GroupID
 			}
-			list = GetGroupMemberList(ctx, listgid)
+			list = ctx.CallAction("get_group_member_list", zero.Params{
+				"group_id": listgid,
+				"no_cache": false,
+			}).Data
 			if len(temp) == 0 {
 				temp = list.Array()
 				sort.SliceStable(temp, func(i, j int) bool {
@@ -53,7 +56,11 @@ func init() {
 			who := temp[rn]
 			gid := ctx.Event.GroupID
 			if listgid != gid {
-				list = GetGroupMemberList(ctx, listgid)
+				listgid = gid
+				list = ctx.CallAction("get_group_member_list", zero.Params{
+					"group_id": listgid,
+					"no_cache": false,
+				}).Data
 				temp = list.Array()
 				sort.SliceStable(temp, func(i, j int) bool {
 					return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
@@ -82,7 +89,8 @@ func init() {
 			msg = message.UnescapeCQCodeText(msg)
 			ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
 			if len(me.Array()) != 0 {
-				temp = append(temp, who)
+				mlist := append(temp[:rn], who)
+				temp = append(mlist, temp[rn:]...)
 			}
 		})
 	engine.OnFullMatch("换个老婆", zero.OnlyGroup).SetBlock(true).
@@ -93,12 +101,4 @@ func init() {
 			}).Data
 			ctx.SendChain(message.Text("换好了！"))
 		})
-}
-
-func GetGroupMemberList(ctx *zero.Ctx, listgid int64) (list gjson.Result) {
-	list = ctx.CallAction("get_group_member_list", zero.Params{
-		"group_id": listgid,
-		"no_cache": false,
-	}).Data
-	return list
 }
