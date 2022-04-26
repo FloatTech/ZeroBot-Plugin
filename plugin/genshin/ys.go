@@ -131,7 +131,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, str string, replyMode 
 
 	rand.Seed(time.Now().UnixNano()) //设置时间种子
 
-	if totl%9 == 0 { // 累计9次加入一个五星
+	if totl != 0 && totl%9 == 0 { // 累计9次加入一个五星
 		switch rand.Intn(2) {
 		case 0:
 			fiveN++
@@ -156,18 +156,18 @@ func randnums(nums int, store storage) (rgba *image.RGBA, str string, replyMode 
 		}
 	} else { // 默认模式
 		for i := 0; i < nums; i++ {
-			a := rand.Intn(1000)
-			switch { // 抽卡几率 三星77% 四星18% 五星5%
+			a := rand.Intn(1000) // 抽卡几率 三星77% 四星20% 五星3%
+			switch {
 			case a >= 0 && a <= 770:
 				threeN2++
 				threeArms = append(threeArms, filetree["Three"][rand.Intn(threelen)])
-			case a > 770 && a <= 860:
+			case a > 770 && a <= 870:
 				fourN++
 				fours = append(fours, filetree["four"][rand.Intn(fourlen)]) // 随机角色
-			case a > 860 && a <= 950:
+			case a > 870 && a <= 970:
 				fourN2++
 				fourArms = append(fourArms, filetree["four2"][rand.Intn(four2len)]) // 随机武器
-			case a > 950 && a <= 975:
+			case a > 970 && a <= 985:
 				fiveN++
 				fives = append(fives, filetree["five"][rand.Intn(fivelen)])
 			default:
