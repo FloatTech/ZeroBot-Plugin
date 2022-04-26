@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	rule  int
-	win   string
+	rule int
+	win  string
 )
 
 func init() {
@@ -31,7 +31,7 @@ func init() {
 			uid := ctx.Event.UserID
 			seed := md5.Sum(helper.StringToBytes(fmt.Sprintf("%d%d%d%d", uid, now.Year(), now.Month(), now.Day())))
 			r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(seed[:]))))
-			jrrp := r.Intn(100)+1
+			jrrp := r.Intn(100) + 1
 			ctx.SendChain(message.At(uid), message.Text(" 阁下今日的人品值为", jrrp, "呢~"))
 		})
 	engine.OnRegex(`^[。.][RrAa].*?([0-9]+)#.*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
@@ -69,11 +69,11 @@ func init() {
 		})
 	engine.OnRegex(`^[。.][Rr].*?([0-9]+).*?[Dd].*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			var r1,d1 string
-			if r1 = ctx.State["regex_matched"].([]string)[1] ; r1 == "" {
+			var r1, d1 string
+			if r1 = ctx.State["regex_matched"].([]string)[1]; r1 == "" {
 				r1 = "1"
 			}
-			if d1 = ctx.State["regex_matched"].([]string)[2] ; d1 == "" {
+			if d1 = ctx.State["regex_matched"].([]string)[2]; d1 == "" {
 				d1 = "100"
 			}
 			r, _ := strconv.Atoi(r1)
