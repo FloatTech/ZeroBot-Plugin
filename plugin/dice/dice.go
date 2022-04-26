@@ -34,17 +34,7 @@ func init() {
 			jrrp := r.Intn(100) + 1
 			ctx.SendChain(message.At(uid), message.Text(" 阁下今日的人品值为", jrrp, "呢~"))
 		})
-	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			temp := ctx.State["regex_matched"].([]string)[1]
-			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
-			r := rand.Intn(100) + 1
-			win = rules(r, math)
-			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, temp, r, math, win)
-			ctx.Send(msg)
-		})
-	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?([0-9]+)#.*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?([0-9]+)[#].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			i, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
@@ -62,6 +52,16 @@ func init() {
 			} else {
 				ctx.SendChain(message.Text("最多检定10次哟~"))
 			}
+		})
+	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			nickname := ctx.CardOrNickName(ctx.Event.UserID)
+			temp := ctx.State["regex_matched"].([]string)[1]
+			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
+			r := rand.Intn(100) + 1
+			win = rules(r, math)
+			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, temp, r, math, win)
+			ctx.Send(msg)
 		})
 	engine.OnRegex(`[.。]setcoc(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
