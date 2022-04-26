@@ -1,6 +1,8 @@
 package dice
 
 import (
+	"crypto/md5"
+	"encoding/binary"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -9,13 +11,12 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 var (
 	rule  int
 	win   string
-	list  = [...]int{0, 1, 2, 3, 4, 5, 6}
-	index = make(map[int]uint8)
 )
 
 func init() {
@@ -24,39 +25,17 @@ func init() {
 		Help:             "Dice! beta for zb ",
 		PublicDataFolder: "Dice",
 	})
-	go func() {
-		for i, s := range list {
-			index[s] = uint8(i)
-		}
-	}()
-	now := time.Now().Format("20060102")
-	signTF := make(map[string](int))
-	result := make(map[int64](int))
 	engine.OnFullMatchGroup([]string{".jrrp", "。jrrp"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			user := ctx.Event.UserID
-			userS := strconv.FormatInt(user, 10)
-			var si string = now + userS
-			rand.Seed(time.Now().UnixNano())
-			today := rand.Intn(101)
-			if signTF[si] == 0 {
-				signTF[si] = (1)
-				result[user] = (today)
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
-			} else {
-				ctx.SendChain(message.At(user), message.Text(" 阁下今日的人品值为", result[user], "呢~"))
-			}
+			now := time.Now()
+			uid := ctx.Event.UserID
+			seed := md5.Sum(helper.StringToBytes(fmt.Sprintf("%d%d%d%d", uid, now.Year(), now.Month(), now.Day())))
+			r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(seed[:]))))
+			jrrp := r.Intn(100)+1
+			ctx.SendChain(message.At(uid), message.Text(" 阁下今日的人品值为", jrrp, "呢~"))
 		})
-	engine.OnRegex(`^[.。]ra(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][RrAa].*?([0-9]+)#.*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			gid := ctx.Event.GroupID
-			c, ok := control.Lookup("dice")
-			if ok {
-				v := uint8(c.GetData(gid) & 0xff)
-				if int(v) < len(list) {
-					rule = list[v]
-				}
-			}
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			temp := ctx.State["regex_matched"].([]string)[1]
 			math, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
@@ -65,16 +44,8 @@ func init() {
 			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, temp, r, math, win)
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^[.。]ra(\d+)(\D+)(\d+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][RrAa].*?([0-9]+)#.*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			gid := ctx.Event.GroupID
-			c, ok := control.Lookup("dice")
-			if ok {
-				v := uint8(c.GetData(gid) & 0xff)
-				if int(v) < len(list) {
-					rule = list[v]
-				}
-			}
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			i, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 			temp := ctx.State["regex_matched"].([]string)[2]
@@ -94,38 +65,20 @@ func init() {
 		})
 	engine.OnRegex(`[.。]setcoc(\d+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			atoi, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
-			gid := ctx.Event.GroupID
-			rule, ok := index[atoi]
-			if ok {
-				c, ok := control.Lookup("dice")
-				if ok {
-					err := c.SetData(gid, int64(rule)&0xff)
-					if err != nil {
-						ctx.SendChain(message.Text("设置失败:", err))
-						return
-					}
-					ctx.SendChain(message.Text("默认检定房规已设置:", rule))
-					return
-				}
-				ctx.SendChain(message.Text("设置失败: 找不到插件"))
-				return
-			}
-			ctx.SendChain(message.Text("没有这个规则哦～"))
+			// 这里应该是设置规则的，但是咕咕咕
 		})
-	engine.OnRegex(`^[.。][rR](.*)[dD](.*)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr].*?([0-9]+).*?[Dd].*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			r1 := ctx.State["regex_matched"].([]string)[1]
-			d1 := ctx.State["regex_matched"].([]string)[2]
-			if r1 == "" {
+			var r1,d1 string
+			if r1 = ctx.State["regex_matched"].([]string)[1] ; r1 == "" {
 				r1 = "1"
 			}
-			if d1 == "" {
+			if d1 = ctx.State["regex_matched"].([]string)[2] ; d1 == "" {
 				d1 = "100"
 			}
 			r, _ := strconv.Atoi(r1)
 			d, _ := strconv.Atoi(d1)
-			if r < 1 || d <= 1 {
+			if r < 1 && d <= 1 {
 				ctx.SendChain(message.Text("阁下..你在让我骰什么啊？( ´_ゝ`)"))
 				return
 			}
@@ -133,7 +86,7 @@ func init() {
 				sum := 0
 				res := fmt.Sprintf("")
 				for i := 0; i < r; i++ {
-					rand := rand.Intn(d-1) + 1
+					rand := rand.Intn(d) + 1
 					sum += rand
 					if i == r-1 {
 						res += fmt.Sprintf("%d", rand)
