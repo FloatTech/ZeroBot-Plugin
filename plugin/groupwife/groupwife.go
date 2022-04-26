@@ -77,23 +77,20 @@ func init() {
 				rn = r.Intn(len(temp))
 				who = temp[rn]
 			}
-			temp = append(temp[:rn], temp[rn:]...)
 			nick := who.Get("card").Str
 			if nick == "" {
 				nick = who.Get("nickname").Str
 			}
-			msg := fmt.Sprintf("[CQ:at,qq=%d]", uid)
-			msg += fmt.Sprintf("今天你的群友老婆是")
-			msg += "[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(who.Get("user_id").Int(), 10) + "&s=640,cache=0]"
-			msg += fmt.Sprintf("【%s】(%d)哒！", nick, userid)
+			avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%s&s=640,cache=0]",strconv.FormatInt(who.Get("user_id").Int(), 10))
+			msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！",uid,avtar, nick, userid)
 			msg = message.UnescapeCQCodeText(msg)
 			ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
 			if len(me.Array()) != 0 {
-				mlist := append(temp[:rn], who)
+				mlist := append(temp[:rn], me)
 				temp = append(mlist, temp[rn:]...)
 			}
 		})
-	engine.OnFullMatch("换个老婆", zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatch("换个老婆", zero.OnlyGroup,zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			list = ctx.CallAction("get_group_member_list", zero.Params{
 				"group_id": ctx.Event.GroupID,
