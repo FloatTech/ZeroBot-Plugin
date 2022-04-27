@@ -3,7 +3,6 @@ package genshin
 
 import (
 	"archive/zip"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -370,7 +369,7 @@ func reply(z []*zip.File, num int, nameStr string) string {
 		tmp.WriteString("★五星武器★\n")
 	}
 	for i := range z {
-		tmp.WriteString(namereg.FindStringSubmatch(z[i].String())[1] + " * ")
+		tmp.WriteString(namereg.FindStringSubmatch(z[i].Name)[1] + " * ")
 	}
 	return tmp.String()
 }
