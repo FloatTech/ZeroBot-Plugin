@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	chpURL          = "https://chp.shadiao.app/api.php"
-	duURL           = "https://du.shadiao.app/api.php"
-	pyqURL          = "https://pyq.shadiao.app/api.php"
+	chpURL          = "https://chp.shadiao.app/chp"
+	duURL           = "https://api.shadiao.app/du"
+	pyqURL          = "https://api.shadiao.app/pyq"
 	yduanziURL      = "http://www.yduanzi.com/duanzi/getduanzi"
 	chayiURL        = "https://api.lovelive.tools/api/SweetNothings/Web/0"
 	ganhaiURL       = "https://api.lovelive.tools/api/SweetNothings/Web/1"
