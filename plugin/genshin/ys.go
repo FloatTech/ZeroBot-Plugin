@@ -32,6 +32,7 @@ var (
 	totl                   uint64 // 累计抽奖次数
 	filetree               = make(zipfilestructure, 32)
 	starN3, starN4, starN5 *zip.File
+	namereg                = regexp.MustCompile(`_(.*)\.png`)
 )
 
 func init() {
@@ -221,7 +222,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, str string, replyMode 
 
 	if fiveN > 0 { // 按顺序加入
 		he(fiveN, 5, starN5, fivebg) // 五星角色
-		Reply(fives, 1, &str)
+		str += reply(fives, 1, str)
 		replyMode = true
 	}
 	if fourN > 0 {
@@ -229,7 +230,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, str string, replyMode 
 	}
 	if fiveN2 > 0 {
 		he(fiveN2, 4, starN5, fivebg) // 五星武器
-		Reply(fiveArms, 2, &str)
+		str += reply(fiveArms, 2, str)
 		replyMode = true
 	}
 	if fourN2 > 0 {
@@ -360,18 +361,20 @@ func parsezip(zipFile string) error {
 }
 
 // 取出角色武器名
-func Reply(z []*zip.File, num int, nameStr *string) {
-	var tmp string
+func reply(z []*zip.File, num int, nameStr string) string {
+	var tmp strings.Builder
+	tmp.Grow(128)
+	switch {
+	case num == 1:
+		tmp.WriteString("★五星角色★\n")
+	case num == 2 && len(nameStr) > 0:
+		tmp.WriteString("\n★五星武器★\n")
+	default:
+		tmp.WriteString("★五星武器★\n")
+	}
 	for i := range z {
 		Sf := fmt.Sprintf("%v", z[i])
-		tmp += regexp.MustCompile(`_(.*)\.png`).FindStringSubmatch(Sf)[1] + " * "
+		tmp.WriteString(namereg.FindStringSubmatch(Sf)[1] + " * ")
 	}
-	if num == 1 {
-		tmp = "★五星角色★\n" + tmp
-	} else if num == 2 && len(*nameStr) > 0 {
-		tmp = "\n★五星武器★\n" + tmp
-	} else {
-		tmp = "★五星武器★\n" + tmp
-	}
-	*nameStr += tmp
+	return tmp.String()
 }
