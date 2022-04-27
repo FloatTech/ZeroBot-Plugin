@@ -9,6 +9,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"math/rand"
+	"regexp"
 	"strings"
 	"sync/atomic"
 
@@ -29,6 +30,7 @@ var (
 	totl                   uint64 // 累计抽奖次数
 	filetree               = make(zipfilestructure, 32)
 	starN3, starN4, starN5 *zip.File
+	namereg                = regexp.MustCompile(`_(.*)\.png`)
 )
 
 func init() {
@@ -91,18 +93,24 @@ func init() {
 				gid = -ctx.Event.UserID
 			}
 			store := (storage)(c.GetData(gid))
-			img, err := randnums(10, store)
+			img, str, mode, err := randnums(10, store)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			b, cl := writer.ToBytes(img)
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.ImageBytes(b)))
+			if mode {
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("恭喜你抽到了: \n", str), message.ImageBytes(b)))
+			} else {
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("十连成功~"), message.ImageBytes(b)))
+			}
 			cl()
 		})
 }
 
-func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
+func randnums(nums int, store storage) (rgba *image.RGBA, str string, replyMode bool, err error) {
 	var (
 		fours, fives                  = make([]*zip.File, 0, 10), make([]*zip.File, 0, 10)                           // 抽到 四, 五星角色
 		threeArms, fourArms, fiveArms = make([]*zip.File, 0, 10), make([]*zip.File, 0, 10), make([]*zip.File, 0, 10) // 抽到 三 , 四, 五星武器
@@ -145,18 +153,18 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 		}
 	} else { // 默认模式
 		for i := 0; i < nums; i++ {
-			a := rand.Intn(1000)
-			switch { // 抽卡几率 三星75% 四星18% 五星7%
-			case a >= 0 && a <= 750:
+			a := rand.Intn(1000) // 抽卡几率 三星80% 四星17% 五星3%
+			switch {
+			case a >= 0 && a <= 800:
 				threeN2++
 				threeArms = append(threeArms, filetree["Three"][rand.Intn(threelen)])
-			case a > 750 && a <= 840:
+			case a > 800 && a <= 885:
 				fourN++
 				fours = append(fours, filetree["four"][rand.Intn(fourlen)]) // 随机角色
-			case a > 840 && a <= 930:
+			case a > 885 && a <= 970:
 				fourN2++
 				fourArms = append(fourArms, filetree["four2"][rand.Intn(four2len)]) // 随机武器
-			case a > 930 && a <= 965:
+			case a > 970 && a <= 985:
 				fiveN++
 				fives = append(fives, filetree["five"][rand.Intn(fivelen)])
 			default:
@@ -210,12 +218,16 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 
 	if fiveN > 0 { // 按顺序加入
 		he(fiveN, 5, starN5, fivebg) // 五星角色
+		str += reply(fives, 1, str)
+		replyMode = true
 	}
 	if fourN > 0 {
 		he(fourN, 3, starN4, fourbg) // 四星角色
 	}
 	if fiveN2 > 0 {
 		he(fiveN2, 4, starN5, fivebg) // 五星武器
+		str += reply(fiveArms, 2, str)
+		replyMode = true
 	}
 	if fourN2 > 0 {
 		he(fourN2, 2, starN4, fourbg) // 四星武器
@@ -256,7 +268,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 
 		imgs, err := bgs[i].Open() // 取出背景图片
 		if err != nil {
-			return nil, err
+			return nil, "", false, err
 		}
 		defer imgs.Close()
 
@@ -266,7 +278,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 
 		imgs1, err := hero[i].Open() // 取出图片名
 		if err != nil {
-			return nil, err
+			return nil, "", false, err
 		}
 		defer imgs1.Close()
 
@@ -276,7 +288,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 
 		imgs2, err := stars[i].Open() // 取出星级图标
 		if err != nil {
-			return nil, err
+			return nil, "", false, err
 		}
 		defer imgs2.Close()
 
@@ -286,7 +298,7 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 
 		imgs3, err := cicon[i].Open() // 取出类型图标
 		if err != nil {
-			return nil, err
+			return nil, "", false, err
 		}
 		defer imgs3.Close()
 
@@ -296,12 +308,12 @@ func randnums(nums int, store storage) (rgba *image.RGBA, err error) {
 	}
 	imgs4, err := filetree["Reply.png"][0].Open() // "分享" 图标
 	if err != nil {
-		return nil, err
+		return nil, "", false, err
 	}
 	defer imgs4.Close()
 	img4, err := png.Decode(imgs4)
 	if err != nil {
-		return nil, err
+		return nil, "", false, err
 	}
 	offset4 := image.Pt(1270, 945) // 宽, 高
 	draw.Draw(rgba, img4.Bounds().Add(offset4), img4, image.Point{}, draw.Over)
@@ -342,4 +354,22 @@ func parsezip(zipFile string) error {
 		}
 	}
 	return nil
+}
+
+// 取出角色武器名
+func reply(z []*zip.File, num int, nameStr string) string {
+	var tmp strings.Builder
+	tmp.Grow(128)
+	switch {
+	case num == 1:
+		tmp.WriteString("★五星角色★\n")
+	case num == 2 && len(nameStr) > 0:
+		tmp.WriteString("\n★五星武器★\n")
+	default:
+		tmp.WriteString("★五星武器★\n")
+	}
+	for i := range z {
+		tmp.WriteString(namereg.FindStringSubmatch(z[i].Name)[1] + " * ")
+	}
+	return tmp.String()
 }
