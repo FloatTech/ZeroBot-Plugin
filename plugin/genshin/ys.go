@@ -373,8 +373,8 @@ func reply(z []*zip.File, num int, nameStr string) string {
 		tmp.WriteString("★五星武器★\n")
 	}
 	for i := range z {
-		Sf := fmt.Sprintf("%v", z[i])
-		tmp.WriteString(namereg.FindStringSubmatch(Sf)[1] + " * ")
+		sf := fmt.Sprintf("%v", z[i])
+		tmp.WriteString(namereg.FindStringSubmatch(sf)[1] + " * ")
 	}
 	return tmp.String()
 }
