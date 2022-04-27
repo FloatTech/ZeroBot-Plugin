@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"strings"
 	"sync/atomic"
-	"time"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -129,8 +128,6 @@ func randnums(nums int, store storage) (rgba *image.RGBA, str string, replyMode 
 		fourlen                 = len(filetree["four"])
 		four2len                = len(filetree["four2"])
 	)
-
-	rand.Seed(time.Now().UnixNano()) //设置时间种子
 
 	if totl%9 == 0 { // 累计9次加入一个五星
 		switch rand.Intn(2) {
