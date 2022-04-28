@@ -769,7 +769,15 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 放大图片[图片]
 
 </details>
+<details>
+  <summary>​签到得分</summary>
 
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"` 
+
+  - [x] 签到
+  - [x] 获得签到背景[@xxx] | 获得签到背景
+
+</details>
 <details>
   <summary>shindan</summary>
 
