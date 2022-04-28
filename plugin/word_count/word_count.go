@@ -96,11 +96,11 @@ func init() {
 				return
 			}
 			messageMap := make(map[string]int, 256)
-			h := ctx.GetLatestGroupMessageHistory(gid)
-			messageSeq := h.Get("messages.0.message_seq").Int()
-			msghists := make(chan *gjson.Result, 64)
-			msghists <- &h
+			msghists := make(chan *gjson.Result, 256)
 			go func() {
+				h := ctx.GetLatestGroupMessageHistory(gid)
+				messageSeq := h.Get("messages.0.message_seq").Int()
+				msghists <- &h
 				for i := 1; i < int(p/20) && messageSeq != 0; i++ {
 					h := ctx.GetGroupMessageHistory(gid, messageSeq)
 					msghists <- &h
