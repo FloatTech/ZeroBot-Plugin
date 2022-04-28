@@ -27,7 +27,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation/model"
 )
 
-const regStr = ".*/(.*)"
+var reg = regexp.MustCompile(".*/(.*)")
 
 func init() {
 	engine := control.Register("vtbquotation", &control.Options{
@@ -169,7 +169,6 @@ func init() {
 					case 2:
 						indexs[2] = num
 						tc := db.GetThirdCategory(indexs[0], indexs[1], indexs[2])
-						reg := regexp.MustCompile(regStr)
 						recURL := tc.ThirdCategoryPath
 						if recURL == "" {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
@@ -227,7 +226,6 @@ func init() {
 			tc := db.RandomVtb()
 			fc := db.GetFirstCategoryByFirstUID(tc.FirstCategoryUID)
 			if (tc != model.ThirdCategory{}) && (fc != model.FirstCategory{}) {
-				reg := regexp.MustCompile(regStr)
 				recURL := tc.ThirdCategoryPath
 				if reg.MatchString(recURL) {
 					recURL = strings.ReplaceAll(recURL, reg.FindStringSubmatch(recURL)[1], url.QueryEscape(reg.FindStringSubmatch(recURL)[1]))
