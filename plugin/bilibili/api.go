@@ -3,7 +3,6 @@ package bilibili
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -166,7 +165,6 @@ func medalwall(uid string) (result []medal, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println("medalwall:", binary.BytesToString(data))
 	j := gjson.ParseBytes(data)
 	if j.Get("code").Int() == -101 {
 		err = errNeedCookie

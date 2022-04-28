@@ -1,9 +1,9 @@
-github.com/FloatTech/AnimeAPI v1.3.4-0.20220428141807-b64a0be87863 h1:Iff5BubgIQRDKZLLfml/2xOwQclvCd9AvfJdWnFRcpY=
-github.com/FloatTech/AnimeAPI v1.3.4-0.20220428141807-b64a0be87863/go.mod h1:JFlDzq+4lrg0AAhw0CJIpF5gvQjDhKriYdkUmVh1hfU=
+github.com/FloatTech/AnimeAPI v1.3.4-0.20220428145645-93a688024a47 h1:/91ayCAwvhyJw9iQ4so9QDfJcu1GMPFJNTq1JjePkcY=
+github.com/FloatTech/AnimeAPI v1.3.4-0.20220428145645-93a688024a47/go.mod h1:K10BsQlE9FJtDRfcjvH2XNX/JFejWfL3oTdMjHvEHr4=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
-github.com/FloatTech/zbputils v1.3.4-0.20220428141409-0e05f9db1a14 h1:cYWXNDANXTC9gjvmP0yJoBWQ0tWRaW77Yg0WYCywX3o=
-github.com/FloatTech/zbputils v1.3.4-0.20220428141409-0e05f9db1a14/go.mod h1:iBbE5rzR2ikZ6CorEqpol1ZtFh1i1zVEnwqU9pRx6H0=
+github.com/FloatTech/zbputils v1.3.4-0.20220428145324-45613dd2fd32 h1:YUNRju20/AJ9JpKyHyX6N30q5A7AbHh45GdkSq37PKI=
+github.com/FloatTech/zbputils v1.3.4-0.20220428145324-45613dd2fd32/go.mod h1:k2z5ZECUlLIstq/FP8uN2Mol8zH0P4NOnB2AqOBtJrI=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c h1:cNPOdTNiVwxLpROLjXCgbIPvdkE+BwvxDvgmdYmWx6Q=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c/go.mod h1:KqZzu7slNKROh3TSYEH/IUMG6f4M+1qubZ5e52QypsE=
@@ -95,8 +95,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMTY=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/tidwall/gjson v1.14.0 h1:6aeJ0bzojgWLa82gDQHcx3S0Lr/O51I9bJ5nv6JFx5w=
-github.com/tidwall/gjson v1.14.0/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
+github.com/tidwall/gjson v1.14.1 h1:iymTbGkQBhveq21bEvAQ81I0LEBork8BFe1CUZXdyuo=
+github.com/tidwall/gjson v1.14.1/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
 github.com/tidwall/match v1.1.1/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/pretty v1.2.0 h1:RWIZEg2iJ8/g6fDDYzMpobmaoGh5OLl4AXtGUGPcqCs=
@@ -107,8 +107,8 @@ github.com/tklauser/numcpus v0.4.0 h1:E53Dm1HjH1/R2/aoCtXtPgzmElmn51aOkhCFSuZq//
 github.com/tklauser/numcpus v0.4.0/go.mod h1:1+UI3pD8NW14VMwdgJNJ1ESk2UnwhAnz5hMwiKKqXCQ=
 github.com/wcharczuk/go-chart/v2 v2.1.0 h1:tY2slqVQ6bN+yHSnDYwZebLQFkphK4WNrVwnt7CJZ2I=
 github.com/wcharczuk/go-chart/v2 v2.1.0/go.mod h1:yx7MvAVNcP/kN9lKXM/NTce4au4DFN99j6i1OwDclNA=
-github.com/wdvxdr1123/ZeroBot v1.5.1-mid h1:MmdkgV7pOCbBq2gV7muX99mLyZ32khejsMntPdhD6z4=
-github.com/wdvxdr1123/ZeroBot v1.5.1-mid/go.mod h1:K2vu0mslV8s4qhIAu/a03Z7YW24qjM0j3imIR+k21KI=
+github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220428145048-a63af3145952 h1:akKAfBlunZ6S8zqhBmNcRl1l6t7cs6I1pkC2lziQZ5A=
+github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220428145048-a63af3145952/go.mod h1:LJ+VOf523i3IrykuLK53UEeWqnAclRL5d2wGT4sS4Zk=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
@@ -164,8 +164,8 @@ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8T
 golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 h1:go1bK/D/BFZV2I8cIQd1NKEZ+0owSTG1fDTci4IqFcE=
 golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
 lukechampine.com/uint128 v1.1.1/go.mod h1:c4eWIwlEGaxC/+H1VguhU4PHXNWDCDMUlWdIWl2j1gk=
 modernc.org/cc/v3 v3.33.6/go.mod h1:iPJg1pkwXqAV16SNgFBVYmggfMg6xhs+2oiO0vclK3g=
 modernc.org/cc/v3 v3.33.9/go.mod h1:iPJg1pkwXqAV16SNgFBVYmggfMg6xhs+2oiO0vclK3g=
