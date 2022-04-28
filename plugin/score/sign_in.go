@@ -42,7 +42,7 @@ func init() {
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		// os.RemoveAll(cachePath)
+		// _ = os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {
 			panic(err)
@@ -234,7 +234,7 @@ func init() {
 			err = graph.Render(chart.PNG, f)
 			_ = f.Close()
 			if err != nil {
-				os.Remove(drawedFile)
+				_ = os.Remove(drawedFile)
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}

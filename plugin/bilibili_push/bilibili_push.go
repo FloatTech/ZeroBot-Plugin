@@ -205,12 +205,10 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		bpl := bdb.getAllPushByGroup(gid)
-		fmt.Println(bpl)
 		msg := "--------b站推送列表--------"
 		for _, v := range bpl {
 			if _, ok := upMap[v.BilibiliUID]; !ok {
 				bdb.updateAllUp()
-				fmt.Println(upMap)
 			}
 			msg += fmt.Sprintf("\nuid:%-12d 动态：", v.BilibiliUID)
 			if v.DynamicDisable == 0 {

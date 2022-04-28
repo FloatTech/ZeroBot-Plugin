@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/FloatTech/zbputils/binary"
@@ -17,6 +18,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/golang/freetype"
 	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -54,6 +56,22 @@ func init() {
 		return true
 	})).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			_, err := file.GetLazyData(text.FontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			b, err := os.ReadFile(text.FontFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			font, err := freetype.ParseFont(b)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 			p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
@@ -77,28 +95,44 @@ func init() {
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 				return
 			}
-			messageMap := make(map[string]int)
-			h := ctx.CallAction("get_group_msg_history", zero.Params{"group_id": gid}).Data
-			messageSeq := h.Get("messages.0.message_seq").Int()
-			for i := 0; i < int(p/20) && messageSeq != 0; i++ {
-				if i != 0 {
-					h = ctx.CallAction("get_group_msg_history", zero.Params{"group_id": gid, "message_seq": messageSeq}).Data
+			messageMap := make(map[string]int, 256)
+			msghists := make(chan *gjson.Result, 256)
+			go func() {
+				h := ctx.GetLatestGroupMessageHistory(gid)
+				messageSeq := h.Get("messages.0.message_seq").Int()
+				msghists <- &h
+				for i := 1; i < int(p/20) && messageSeq != 0; i++ {
+					h := ctx.GetGroupMessageHistory(gid, messageSeq)
+					msghists <- &h
+					messageSeq = h.Get("messages.0.message_seq").Int()
 				}
-				for _, v := range h.Get("messages.#.message").Array() {
-					tex := strings.TrimSpace(message.ParseMessageFromString(v.Str).ExtractPlainText())
-					if tex == "" {
-						continue
-					}
-					for _, t := range ctx.GetWordSlices(tex).Get("slices").Array() {
-						tex := strings.TrimSpace(t.Str)
-						i := sort.SearchStrings(stopwords, tex)
-						if re.MatchString(tex) && (i >= len(stopwords) || stopwords[i] != tex) {
-							messageMap[tex]++
+				close(msghists)
+			}()
+			var wg sync.WaitGroup
+			var mapmu sync.Mutex
+			for h := range msghists {
+				wg.Add(1)
+				go func(h *gjson.Result) {
+					for _, v := range h.Get("messages.#.message").Array() {
+						tex := strings.TrimSpace(message.ParseMessageFromString(v.Str).ExtractPlainText())
+						if tex == "" {
+							continue
+						}
+						for _, t := range ctx.GetWordSlices(tex).Get("slices").Array() {
+							tex := strings.TrimSpace(t.Str)
+							i := sort.SearchStrings(stopwords, tex)
+							if re.MatchString(tex) && (i >= len(stopwords) || stopwords[i] != tex) {
+								mapmu.Lock()
+								messageMap[tex]++
+								mapmu.Unlock()
+							}
 						}
 					}
-				}
-				messageSeq = h.Get("messages.0.message_seq").Int()
+					wg.Done()
+				}(h)
 			}
+			wg.Wait()
+
 			wc := rankByWordCount(messageMap)
 			if len(wc) > 20 {
 				wc = wc[:20]
@@ -106,21 +140,6 @@ func init() {
 			// 绘图
 			if len(wc) == 0 {
 				ctx.SendChain(message.Text("ERROR:历史消息为空或者无法获得历史消息"))
-				return
-			}
-			_, err := file.GetLazyData(text.FontFile, false, true)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			b, err := os.ReadFile(text.FontFile)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			font, err := freetype.ParseFont(b)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			bars := make([]chart.Value, len(wc))

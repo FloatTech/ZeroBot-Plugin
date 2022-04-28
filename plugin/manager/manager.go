@@ -349,11 +349,7 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			// 无缓存获取群员列表
-			list := ctx.CallAction("get_group_member_list", zero.Params{
-				"group_id": ctx.Event.GroupID,
-				"no_cache": true,
-			}).Data
-			temp := list.Array()
+			temp := ctx.GetThisGroupMemberListNoCache().Array()
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})

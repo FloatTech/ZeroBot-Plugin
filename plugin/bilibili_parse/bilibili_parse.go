@@ -2,7 +2,6 @@
 package bilibiliparse
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -51,9 +50,7 @@ func parseURL(bilibiliURL string) (m message.Message, err error) {
 	title := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/h1/span/text()").Data
 	m = append(m, message.Text(title+"\n"))
 	upName := strings.TrimSpace(htmlquery.FindOne(doc, "//*[@id='v_upinfo']/div[2]/div[1]/a[1]/text()").Data)
-	fmt.Println(upName)
 	fanNumber := htmlquery.InnerText(htmlquery.FindOne(doc, "//i[@class='van-icon-general_addto_s']").NextSibling.NextSibling)
-	fmt.Println(fanNumber)
 	m = append(m, message.Text("up："+upName+"，粉丝："+fanNumber+"\n"))
 	view := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='view']/text()").Data
 	dm := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='dm']/text()").Data

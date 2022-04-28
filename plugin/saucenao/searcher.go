@@ -88,7 +88,6 @@ func init() { // 插件主体
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			for _, pic := range ctx.State["image_url"].([]string) {
-				fmt.Println(pic)
 				if result, err := saucenao.SauceNAO(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else {

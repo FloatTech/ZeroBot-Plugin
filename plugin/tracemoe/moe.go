@@ -2,8 +2,6 @@
 package tracemoe
 
 import (
-	"fmt"
-
 	control "github.com/FloatTech/zbputils/control"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -25,7 +23,6 @@ func init() { // 插件主体
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			for _, pic := range ctx.State["image_url"].([]string) {
-				fmt.Println(pic)
 				if result, err := moe.Search(pic, true, true); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else if len(result.Result) > 0 {
