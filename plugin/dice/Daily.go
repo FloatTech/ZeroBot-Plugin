@@ -20,14 +20,6 @@ var (
 )
 
 func init() {
-	go func() {
-		db.DBPath = engine.DataFolder() + "dice.db"
-		clock = timer.NewClock(db)
-		err := db.Create("strjrrp", &strjrrp{})
-		if err != nil {
-			panic(err)
-		}
-	}()
 	engine.OnFullMatchGroup([]string{".jrrp", "。jrrp"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now()
