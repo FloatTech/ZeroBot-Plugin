@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"strconv"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 	"github.com/FloatTech/zbputils/math"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -17,18 +16,6 @@ var (
 )
 
 func init() {
-	go func() {
-		db.DBPath = engine.DataFolder() + "dice.db"
-		clock = timer.NewClock(db)
-		err := db.Create("rsl", &rsl{})
-		if err != nil {
-			panic(err)
-		}
-		err = db.Create("set", &set{})
-		if err != nil {
-			panic(err)
-		}
-	}()
 	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?([0-9]+)[#].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
