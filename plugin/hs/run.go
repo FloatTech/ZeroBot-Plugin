@@ -2,7 +2,6 @@
 package hs
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -87,7 +86,6 @@ func init() {
 	// 卡组
 	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
 		SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		fmt.Print("成功")
 		List := ctx.State["regex_matched"].([]string)[1]
 		ctx.SendChain(
 			message.Image(kz(List)),
