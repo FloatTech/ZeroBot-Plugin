@@ -2,8 +2,8 @@ github.com/FloatTech/AnimeAPI v1.3.4-0.20220428145645-93a688024a47 h1:/91ayCAwvh
 github.com/FloatTech/AnimeAPI v1.3.4-0.20220428145645-93a688024a47/go.mod h1:K10BsQlE9FJtDRfcjvH2XNX/JFejWfL3oTdMjHvEHr4=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
-github.com/FloatTech/zbputils v1.3.4-0.20220428145324-45613dd2fd32 h1:YUNRju20/AJ9JpKyHyX6N30q5A7AbHh45GdkSq37PKI=
-github.com/FloatTech/zbputils v1.3.4-0.20220428145324-45613dd2fd32/go.mod h1:k2z5ZECUlLIstq/FP8uN2Mol8zH0P4NOnB2AqOBtJrI=
+github.com/FloatTech/zbputils v1.3.4-0.20220429123316-f504c32b198b h1:S+DVRtlWVCzUV2jF5TDucPF/yyGkI1S4Um2gnZF/1co=
+github.com/FloatTech/zbputils v1.3.4-0.20220429123316-f504c32b198b/go.mod h1:yYXxsdc8fouB9yd2XMr17wso2TV0fH1ukARwhV3U43M=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c h1:cNPOdTNiVwxLpROLjXCgbIPvdkE+BwvxDvgmdYmWx6Q=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c/go.mod h1:KqZzu7slNKROh3TSYEH/IUMG6f4M+1qubZ5e52QypsE=
@@ -107,8 +107,8 @@ github.com/tklauser/numcpus v0.4.0 h1:E53Dm1HjH1/R2/aoCtXtPgzmElmn51aOkhCFSuZq//
 github.com/tklauser/numcpus v0.4.0/go.mod h1:1+UI3pD8NW14VMwdgJNJ1ESk2UnwhAnz5hMwiKKqXCQ=
 github.com/wcharczuk/go-chart/v2 v2.1.0 h1:tY2slqVQ6bN+yHSnDYwZebLQFkphK4WNrVwnt7CJZ2I=
 github.com/wcharczuk/go-chart/v2 v2.1.0/go.mod h1:yx7MvAVNcP/kN9lKXM/NTce4au4DFN99j6i1OwDclNA=
-github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220428145048-a63af3145952 h1:akKAfBlunZ6S8zqhBmNcRl1l6t7cs6I1pkC2lziQZ5A=
-github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220428145048-a63af3145952/go.mod h1:LJ+VOf523i3IrykuLK53UEeWqnAclRL5d2wGT4sS4Zk=
+github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220429121512-29258eb2cd2d h1:gi/AuWH5LRwdKzftIqMA/YGrI1g82E8Ol80HG+u3evU=
+github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220429121512-29258eb2cd2d/go.mod h1:LJ+VOf523i3IrykuLK53UEeWqnAclRL5d2wGT4sS4Zk=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
