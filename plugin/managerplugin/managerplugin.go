@@ -49,5 +49,4 @@ func init() {
 			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(fmt.Sprintf("检测到 [%s](%d) 发送了干扰性消息,已处理", nickname, ctx.Event.UserID)))...)
 			ctx.DeleteMessage(ctx.Event.MessageID.(message.MessageID))
 		})
-
 }

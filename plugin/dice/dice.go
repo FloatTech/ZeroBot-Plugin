@@ -1,10 +1,11 @@
 package dice
 
 import (
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 )
 
 var (

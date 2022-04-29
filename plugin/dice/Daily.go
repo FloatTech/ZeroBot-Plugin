@@ -7,11 +7,12 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 	sql "github.com/FloatTech/sqlite"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 )
 
 var (
