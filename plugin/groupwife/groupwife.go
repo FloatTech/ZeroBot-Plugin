@@ -96,6 +96,11 @@ func init() {
 				"group_id": ctx.Event.GroupID,
 				"no_cache": true,
 			}).Data
+			temp = list.Array()
+			sort.SliceStable(temp, func(i, j int) bool {
+				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
+			})
+			temp = temp[math.Max(0, len(temp)-30):]
 			ctx.SendChain(message.Text("换好了！"))
 		})
 }
