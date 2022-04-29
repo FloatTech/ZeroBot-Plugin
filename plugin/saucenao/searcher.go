@@ -15,14 +15,13 @@ import (
 	"github.com/FloatTech/AnimeAPI/yandex"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/pool"
 )
 
 func init() { // 插件主体
-	engine := control.Register("saucenao", order.AcquirePrio(), &control.Options{
+	engine := control.Register("saucenao", &control.Options{
 		DisableOnDefault: false,
 		Help: "搜图\n" +
 			"- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +
@@ -89,7 +88,6 @@ func init() { // 插件主体
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			for _, pic := range ctx.State["image_url"].([]string) {
-				fmt.Println(pic)
 				if result, err := saucenao.SauceNAO(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else {

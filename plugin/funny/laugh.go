@@ -12,8 +12,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 type joke struct {
@@ -24,29 +22,34 @@ type joke struct {
 var db = &sql.Sqlite{}
 
 func init() {
-	en := control.Register("funny", order.AcquirePrio(), &control.Options{
+	en := control.Register("funny", &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx] | 讲个笑话[qq号]",
 		PublicDataFolder: "Funny",
 	})
 
-	go func() {
+	en.OnPrefix("讲个笑话", ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		dbpath := en.DataFolder()
 		db.DBPath = dbpath + "jokes.db"
 		_, err := file.GetLazyData(db.DBPath, false, true)
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		err = db.Create("jokes", &joke{})
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
-		c, _ := db.Count("jokes")
+		c, err := db.Count("jokes")
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
 		logrus.Infoln("[funny]加载", c, "个笑话")
-	}()
-
-	en.OnPrefix("讲个笑话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		return true
+	})).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		// 获取名字
 		name := ctx.NickName()
 		var j joke

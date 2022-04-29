@@ -18,8 +18,6 @@ import (
 	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 // Pools 图片缓冲池
@@ -51,7 +49,7 @@ var pool = &imgpool{
 }
 
 func init() { // 插件主体
-	engine := control.Register("setutime", order.AcquirePrio(), &control.Options{
+	engine := control.Register("setutime", &control.Options{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +
@@ -61,22 +59,25 @@ func init() { // 插件主体
 		PublicDataFolder: "SetuTime",
 	})
 
-	go func() {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		// 如果数据库不存在则下载
 		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
 		err := pool.db.Open()
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		for _, imgtype := range pool.List() {
 			if err := pool.db.Create(imgtype, &pixiv.Illust{}); err != nil {
-				panic(err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
 			}
 		}
-	}()
+		return true
+	})
 
-	engine.OnRegex(`^来份(.*)$`, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^来份(.+)$`, getdb, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
@@ -96,7 +97,7 @@ func init() { // 插件主体
 			}
 		})
 
-	engine.OnRegex(`^添加(.*?)(\d+)$`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^添加\s*([^0-9\s]+)\s*(\d+)$`, zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -110,7 +111,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除(.*?)(\d+)$`, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -125,7 +126,7 @@ func init() { // 插件主体
 		})
 
 	// 查询数据库涩图数量
-	engine.OnFullMatchGroup([]string{">setu status"}).SetBlock(true).
+	engine.OnFullMatch(">setu status", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			state := []string{"[SetuTime]"}
 			pool.dbmu.RLock()

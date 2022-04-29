@@ -106,10 +106,10 @@ func GetFilledTimer(dateStrs []string, botqq, grp int64, matchDateOnly bool) *Ti
 		urlStr := dateStrs[5]
 		if urlStr != "" { // 是图片url
 			t.URL = urlStr[3:] // utf-8下用为3字节
-			logrus.Println("[群管]" + t.URL)
+			logrus.Debugln("[群管]" + t.URL)
 			if !strings.HasPrefix(t.URL, "http") {
 				t.URL = "illegal"
-				logrus.Println("[群管]url非法！")
+				logrus.Debugln("[群管]url非法！")
 				return &t
 			}
 		}

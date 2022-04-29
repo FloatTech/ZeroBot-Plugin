@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/antchfx/htmlquery"
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -20,8 +19,6 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -40,25 +37,35 @@ const (
 var gCurCookieJar *cookiejar.Jar
 
 func init() {
-	control.Register("novel", order.AcquirePrio(), &control.Options{
+	control.Register("novel", &control.Options{
 		DisableOnDefault: false,
 		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	}).OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
-			login(username, password)
+			err := login(username, password)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			searchKey := ctx.State["regex_matched"].([]string)[1]
-			searchHTML := search(searchKey)
+			searchHTML, err := search(searchKey)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			doc, err := htmlquery.Parse(strings.NewReader(searchHTML))
 			if err != nil {
-				log.Errorln("[novel]", err)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			htmlTitle := htmlquery.InnerText(htmlquery.FindOne(doc, "/html/head/title"))
 			switch htmlTitle {
 			case websiteTitle:
 				list, err := htmlquery.QueryAll(doc, "//dl[@id='nr']")
 				if err != nil {
-					log.Errorln("[novel]", err)
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
 				if len(list) != 0 {
 					txt := ""
@@ -81,7 +88,8 @@ func init() {
 					}
 					data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 					if err != nil {
-						log.Println("err:", err)
+						ctx.SendChain(message.Text("ERROR:", err))
+						return
 					}
 					if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
 						ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -116,38 +124,39 @@ func init() {
 		})
 }
 
-func login(username, password string) {
+func login(username, password string) (err error) {
 	gCurCookieJar, _ = cookiejar.New(nil)
 	client := &http.Client{
 		Jar: gCurCookieJar,
 	}
 	usernameData, err := ub.UTF82GBK(helper.StringToBytes(username))
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
 	usernameGbk := helper.BytesToString(usernameData)
 	passwordData, err := ub.UTF82GBK(helper.StringToBytes(password))
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
 	passwordGbk := helper.BytesToString(passwordData)
 	loginReq, err := http.NewRequest("POST", loginURL, strings.NewReader(fmt.Sprintf("username=%s&password=%s&usecookie=315360000&action=login&submit=%s", url.QueryEscape(usernameGbk), url.QueryEscape(passwordGbk), submit)))
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
 	loginReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	loginReq.Header.Set("User-Agent", ua)
 	loginResp, err := client.Do(loginReq)
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
-	defer loginResp.Body.Close()
+	_ = loginResp.Body.Close()
+	return
 }
 
-func search(searchKey string) (searchHTML string) {
+func search(searchKey string) (searchHTML string, err error) {
 	searchKeyData, err := ub.UTF82GBK(helper.StringToBytes(searchKey))
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
 	searchKeyGbk := helper.BytesToString(searchKeyData)
 	client := &http.Client{
@@ -155,23 +164,23 @@ func search(searchKey string) (searchHTML string) {
 	}
 	searchReq, err := http.NewRequest("POST", searchURL, strings.NewReader(fmt.Sprintf("searchkey=%s&searchtype=all", url.QueryEscape(searchKeyGbk))))
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
 	searchReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	searchReq.Header.Set("User-Agent", ua)
 	searchResp, err := client.Do(searchReq)
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
-	defer searchResp.Body.Close()
 	searchData, err := io.ReadAll(searchResp.Body)
+	_ = searchResp.Body.Close()
 	if err != nil {
-		log.Errorf("[novel] get response for url=%s got error=%s\n", searchURL, err.Error())
+		return
 	}
 	searchData, err = ub.GBK2UTF8(searchData)
 	if err != nil {
-		log.Errorln("[novel]", err)
+		return
 	}
 	searchHTML = helper.BytesToString(searchData)
-	return searchHTML
+	return searchHTML, nil
 }

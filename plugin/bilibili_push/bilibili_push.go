@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -17,7 +15,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -39,13 +36,14 @@ var bdb *bilibilipushdb
 var (
 	lastTime = map[int64]int64{}
 	typeMsg  = map[int64]string{
-		1:   "转发了一条动态",
-		2:   "有图营业",
-		4:   "无图营业",
-		8:   "发布了新投稿",
-		16:  "发布了短视频",
-		64:  "发布了新专栏",
-		256: "发布了新音频",
+		1:    "转发了一条动态",
+		2:    "有图营业",
+		4:    "无图营业",
+		8:    "发布了新投稿",
+		16:   "发布了短视频",
+		64:   "发布了新专栏",
+		256:  "发布了新音频",
+		2048: "发布了新简报",
 	}
 	liveStatus  = map[int64]int{}
 	uidErrorMsg = map[int]string{
@@ -59,14 +57,14 @@ var (
 
 func init() {
 	go bilibiliPushDaily()
-	en := control.Register(serviceName, order.AcquirePrio(), &control.Options{
+	en := control.Register(serviceName, &control.Options{
 		DisableOnDefault: false,
 		Help: "bilibilipush\n" +
-			"- 添加订阅[uid]\n" +
-			"- 取消订阅[uid]\n" +
-			"- 取消动态订阅[uid]\n" +
-			"- 取消直播订阅[uid]\n" +
-			"- 推送列表",
+			"- 添加b站订阅[uid]\n" +
+			"- 取消b站订阅[uid]\n" +
+			"- 取消b站动态订阅[uid]\n" +
+			"- 取消b站直播订阅[uid]\n" +
+			"- b站推送列表",
 		PrivateDataFolder: serviceName,
 	})
 
@@ -75,16 +73,20 @@ func init() {
 		dbpath := en.DataFolder()
 		dbfile := dbpath + "push.db"
 		bdb = initialize(dbfile)
-		log.Println("[bilibilipush]加载bilibilipush数据库")
 	}()
 
-	en.OnRegex(`^添加订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
 		if name, ok = upMap[buid]; !ok {
 			var status int
-			status, name = checkBuid(buid)
+			var err error
+			status, name, err = checkBuid(buid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if status != 0 {
 				msg, ok := uidErrorMsg[status]
 				if !ok {
@@ -99,18 +101,23 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := subscribe(buid, gid); err != nil {
-			log.Errorln("[bilibilipush]:", err)
-		} else {
-			ctx.SendChain(message.Text("已添加" + name + "的订阅"))
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 	})
-	en.OnRegex(`^取消订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
 		if name, ok = upMap[buid]; !ok {
 			var status int
-			status, name = checkBuid(buid)
+			var err error
+			status, name, err = checkBuid(buid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if status != 0 {
 				msg, ok := uidErrorMsg[status]
 				if !ok {
@@ -125,18 +132,23 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := unsubscribe(buid, gid); err != nil {
-			log.Errorln("[bilibilipush]:", err)
-		} else {
-			ctx.SendChain(message.Text("已取消" + name + "的订阅"))
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 	})
-	en.OnRegex(`^取消动态订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消b站动态订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
 		if name, ok = upMap[buid]; !ok {
 			var status int
-			status, name = checkBuid(buid)
+			var err error
+			status, name, err = checkBuid(buid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if status != 0 {
 				msg, ok := uidErrorMsg[status]
 				if !ok {
@@ -151,18 +163,23 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := unsubscribeDynamic(buid, gid); err != nil {
-			log.Errorln("[bilibilipush]:", err)
-		} else {
-			ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 	})
-	en.OnRegex(`^取消直播订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消b站直播订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		var name string
 		var ok bool
 		if name, ok = upMap[buid]; !ok {
 			var status int
-			status, name = checkBuid(buid)
+			var err error
+			status, name, err = checkBuid(buid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if status != 0 {
 				msg, ok := uidErrorMsg[status]
 				if !ok {
@@ -177,23 +194,21 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := unsubscribeLive(buid, gid); err != nil {
-			log.Errorln("[bilibilipush]:", err)
-		} else {
-			ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 	})
-	en.OnFullMatch("推送列表", zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("b站推送列表", zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
 		bpl := bdb.getAllPushByGroup(gid)
-		fmt.Println(bpl)
-		msg := "--------推送列表--------"
+		msg := "--------b站推送列表--------"
 		for _, v := range bpl {
 			if _, ok := upMap[v.BilibiliUID]; !ok {
 				bdb.updateAllUp()
-				fmt.Println(upMap)
 			}
 			msg += fmt.Sprintf("\nuid:%-12d 动态：", v.BilibiliUID)
 			if v.DynamicDisable == 0 {
@@ -211,7 +226,8 @@ func init() {
 		}
 		data, err := text.RenderToBase64(msg, text.FontFile, 600, 20)
 		if err != nil {
-			log.Errorln("[bilibilipush]:", err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
 		if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
 			ctx.SendChain(message.Text("ERROR:可能被风控了"))
@@ -223,16 +239,16 @@ func bilibiliPushDaily() {
 	t := time.NewTicker(time.Second * 10)
 	defer t.Stop()
 	for range t.C {
-		log.Println("-----bilibilipush拉取推送信息-----")
-		sendDynamic()
-		sendLive()
+		log.Debugln("-----bilibilipush拉取推送信息-----")
+		_ = sendDynamic()
+		_ = sendLive()
 	}
 }
 
-func checkBuid(buid int64) (status int, name string) {
+func checkBuid(buid int64) (status int, name string, err error) {
 	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
 	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
+		return
 	}
 	status = int(gjson.Get(binary.BytesToString(data), "code").Int())
 	name = gjson.Get(binary.BytesToString(data), "data.name").String()
@@ -287,50 +303,37 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 	return
 }
 
-func getUserDynamicCard(buid int64) (cardList []gjson.Result) {
+func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
 	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(userDynamicURL, buid), "GET", referer, ua)
 	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
+		return
 	}
 	cardList = gjson.Get(binary.BytesToString(data), "data.cards").Array()
 	return
 }
 
-func getLiveList(uids ...int64) string {
+func getLiveList(uids ...int64) (string, error) {
 	m := make(map[string]interface{})
 	m["uids"] = uids
 	b, _ := json.Marshal(m)
-	client := &http.Client{}
-	// 提交请求
-	request, err := http.NewRequest("POST", liveListURL, bytes.NewBuffer(b))
+	data, err := web.PostData(liveListURL, "application/json", bytes.NewReader(b))
 	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
+		return "", err
 	}
-	request.Header.Add("Referer", referer)
-	request.Header.Add("User-Agent", ua)
-	response, err := client.Do(request)
-	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
-	}
-	defer response.Body.Close()
-	data, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Errorln("[bilibilipush]:", err)
-	}
-	return binary.BytesToString(data)
+	return binary.BytesToString(data), nil
 }
 
-func sendDynamic() {
+func sendDynamic() error {
 	uids := bdb.getAllBuidByDynamic()
 	for _, buid := range uids {
-		cardList := getUserDynamicCard(buid)
-		if len(cardList) == 0 {
-			return
+		cardList, err := getUserDynamicCard(buid)
+		if err != nil {
+			return err
 		}
 		t, ok := lastTime[buid]
 		if !ok {
 			lastTime[buid] = cardList[0].Get("desc.timestamp").Int()
-			return
+			return nil
 		}
 		for i := len(cardList) - 1; i >= 0; i-- {
 			ct := cardList[i].Get("desc.timestamp").Int()
@@ -417,6 +420,19 @@ func sendDynamic() {
 							msg = append(msg, message.Text(cTitle))
 							cCover := gjson.Get(cOrigin, "cover").String()
 							msg = append(msg, message.Image(cCover))
+						case 2048:
+							cName := gjson.Get(cOrigin, "user.uname").String()
+							msg = append(msg, message.Text(cName+typeMsg[cOrigType]+"\n"))
+							cContent := gjson.Get(cOrigin, "vest.content").String()
+							msg = append(msg, message.Text(cContent+"\n"))
+							cTitle := gjson.Get(cOrigin, "sketch.title").String()
+							msg = append(msg, message.Text(cTitle+"\n"))
+							cDescText := gjson.Get(cOrigin, "sketch.desc_text").String()
+							msg = append(msg, message.Text(cDescText))
+							cCoverURL := gjson.Get(cOrigin, "sketch.cover_url").String()
+							msg = append(msg, message.Image(cCoverURL))
+							cTargetURL := gjson.Get(cOrigin, "sketch.target_url").String()
+							msg = append(msg, message.Text("简报链接："+cTargetURL+"\n"))
 						default:
 							msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cOrigType, 10)+"\n"))
 						}
@@ -478,6 +494,19 @@ func sendDynamic() {
 						msg = append(msg, message.Text(cTitle))
 						cCover := gjson.Get(cardStr, "cover").String()
 						msg = append(msg, message.Image(cCover))
+					case 2048:
+						cName := gjson.Get(cardStr, "user.uname").String()
+						msg = append(msg, message.Text(cName+typeMsg[cType]+"\n"))
+						cContent := gjson.Get(cardStr, "vest.content").String()
+						msg = append(msg, message.Text(cContent+"\n"))
+						cTitle := gjson.Get(cardStr, "sketch.title").String()
+						msg = append(msg, message.Text(cTitle+"\n"))
+						cDescText := gjson.Get(cardStr, "sketch.desc_text").String()
+						msg = append(msg, message.Text(cDescText))
+						cCoverURL := gjson.Get(cardStr, "sketch.cover_url").String()
+						msg = append(msg, message.Image(cCoverURL))
+						cTargetURL := gjson.Get(cardStr, "sketch.target_url").String()
+						msg = append(msg, message.Text("简报链接："+cTargetURL+"\n"))
 					default:
 						msg = append(msg, message.Text("未知动态类型"+strconv.FormatInt(cType, 10)+"\n"))
 					}
@@ -492,8 +521,6 @@ func sendDynamic() {
 									ctx.SendGroupMessage(gid, msg)
 								case gid < 0:
 									ctx.SendPrivateMessage(-gid, msg)
-								default:
-									log.Errorln("[bilibilipush]:gid为0")
 								}
 							}
 						}
@@ -503,11 +530,16 @@ func sendDynamic() {
 			}
 		}
 	}
+	return nil
 }
 
-func sendLive() {
+func sendLive() error {
 	uids := bdb.getAllBuidByLive()
-	gjson.Get(getLiveList(uids...), "data").ForEach(func(key, value gjson.Result) bool {
+	ll, err := getLiveList(uids...)
+	if err != nil {
+		return err
+	}
+	gjson.Get(ll, "data").ForEach(func(key, value gjson.Result) bool {
 		newStatus := int(value.Get("live_status").Int())
 		if newStatus == 2 {
 			newStatus = 0
@@ -546,8 +578,6 @@ func sendLive() {
 								ctx.SendGroupMessage(gid, msg)
 							case gid < 0:
 								ctx.SendPrivateMessage(-gid, msg)
-							default:
-								log.Errorln("[bilibilipush]:gid为0")
 							}
 						}
 					}
@@ -559,4 +589,5 @@ func sendLive() {
 		}
 		return true
 	})
+	return nil
 }

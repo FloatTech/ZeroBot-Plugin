@@ -2,6 +2,7 @@
 package lolicon
 
 import (
+	"encoding/base64"
 	"strings"
 	"time"
 
@@ -15,8 +16,6 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -25,18 +24,30 @@ const (
 )
 
 var (
-	queue = make(chan string, capacity)
+	queue   = make(chan string, capacity)
+	custapi = ""
 )
 
 func init() {
-	control.Register("lolicon", order.AcquirePrio(), &control.Options{
+	en := control.Register("lolicon", &control.Options{
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
-			"- 来份萝莉",
-	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("来份萝莉").SetBlock(true).
+			"- 来份萝莉\n" +
+			"- 设置随机图片地址[http...]",
+	}).ApplySingle(ctxext.DefaultSingle)
+	en.OnFullMatch("来份萝莉").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				for i := 0; i < math.Min(cap(queue)-len(queue), 2); i++ {
+					if custapi != "" {
+						data, err := web.GetData(custapi)
+						if err != nil {
+							ctx.SendChain(message.Text("ERROR:", err))
+							continue
+						}
+						queue <- "base64://" + base64.StdEncoding.EncodeToString(data)
+						continue
+					}
 					data, err := web.GetData(api)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR:", err))
@@ -69,11 +80,21 @@ func init() {
 			case img := <-queue:
 				id := ctx.SendChain(message.Image(img))
 				if id.ID() == 0 {
+					process.SleepAbout1sTo2s()
 					id = ctx.SendChain(message.Image(img).Add("cache", "0"))
 					if id.ID() == 0 {
 						ctx.SendChain(message.Text("ERROR:图片发送失败，可能被风控了~"))
 					}
 				}
 			}
+		})
+	en.OnPrefix("设置随机图片地址", zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			u := strings.TrimSpace(ctx.State["args"].(string))
+			if !strings.HasPrefix(u, "http") {
+				ctx.SendChain(message.Text("ERROR:url非法!"))
+				return
+			}
+			custapi = u
 		})
 }

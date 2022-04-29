@@ -10,24 +10,21 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	engine := control.Register("sleepmanage", order.AcquirePrio(), &control.Options{
+	engine := control.Register("sleepmanage", &control.Options{
 		DisableOnDefault:  false,
 		Help:              "sleepmanage\n- 早安\n- 晚安",
 		PrivateDataFolder: "sleep",
 	})
 	go func() {
 		sdb = initialize(engine.DataFolder() + "manage.db")
-		log.Println("[sleepmanage]加载sleepmanage数据库")
 	}()
 	engine.OnFullMatch("早安", isMorning, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			position, getUpTime := sdb.getUp(ctx.Event.GroupID, ctx.Event.UserID)
-			log.Println(position, getUpTime)
+			log.Debugln(position, getUpTime)
 			hour, minute, second := timeDuration(getUpTime)
 			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("早安成功！你是今天第%d个起床的", position)))
@@ -38,7 +35,7 @@ func init() {
 	engine.OnFullMatch("晚安", isEvening, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			position, sleepTime := sdb.sleep(ctx.Event.GroupID, ctx.Event.UserID)
-			log.Println(position, sleepTime)
+			log.Debugln(position, sleepTime)
 			hour, minute, second := timeDuration(sleepTime)
 			if (hour == 0 && minute == 0 && second == 0) || hour >= 24 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("晚安成功！你是今天第%d个睡觉的", position)))

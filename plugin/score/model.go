@@ -65,7 +65,7 @@ func (sdb *scoredb) Close() error {
 // GetScoreByUID 取得分数
 func (sdb *scoredb) GetScoreByUID(uid int64) (s scoretable) {
 	db := (*gorm.DB)(sdb)
-	db.Debug().Model(&scoretable{}).FirstOrCreate(&s, "uid = ? ", uid)
+	db.Model(&scoretable{}).FirstOrCreate(&s, "uid = ? ", uid)
 	return s
 }
 
@@ -76,13 +76,13 @@ func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 		UID:   uid,
 		Score: score,
 	}
-	if err = db.Debug().Model(&scoretable{}).First(&s, "uid = ? ", uid).Error; err != nil {
+	if err = db.Model(&scoretable{}).First(&s, "uid = ? ", uid).Error; err != nil {
 		// error handling...
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&scoretable{}).Create(&s).Error // newUser not user
+			err = db.Model(&scoretable{}).Create(&s).Error // newUser not user
 		}
 	} else {
-		err = db.Debug().Model(&scoretable{}).Where("uid = ? ", uid).Update(
+		err = db.Model(&scoretable{}).Where("uid = ? ", uid).Update(
 			map[string]interface{}{
 				"score": score,
 			}).Error
@@ -93,7 +93,7 @@ func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 // GetSignInByUID 取得签到次数
 func (sdb *scoredb) GetSignInByUID(uid int64) (si signintable) {
 	db := (*gorm.DB)(sdb)
-	db.Debug().Model(&signintable{}).FirstOrCreate(&si, "uid = ? ", uid)
+	db.Model(&signintable{}).FirstOrCreate(&si, "uid = ? ", uid)
 	return si
 }
 
@@ -104,16 +104,22 @@ func (sdb *scoredb) InsertOrUpdateSignInCountByUID(uid int64, count int) (err er
 		UID:   uid,
 		Count: count,
 	}
-	if err = db.Debug().Model(&signintable{}).First(&si, "uid = ? ", uid).Error; err != nil {
+	if err = db.Model(&signintable{}).First(&si, "uid = ? ", uid).Error; err != nil {
 		// error handling...
 		if gorm.IsRecordNotFoundError(err) {
-			db.Debug().Model(&signintable{}).Create(&si) // newUser not user
+			db.Model(&signintable{}).Create(&si) // newUser not user
 		}
 	} else {
-		err = db.Debug().Model(&signintable{}).Where("uid = ? ", uid).Update(
+		err = db.Model(&signintable{}).Where("uid = ? ", uid).Update(
 			map[string]interface{}{
 				"count": count,
 			}).Error
 	}
+	return
+}
+
+func (sdb *scoredb) GetScoreRankByTopN(n int) (st []scoretable, err error) {
+	db := (*gorm.DB)(sdb)
+	err = db.Model(&scoretable{}).Order("score desc").Limit(n).Find(&st).Error
 	return
 }

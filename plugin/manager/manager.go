@@ -19,8 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 )
 
@@ -48,7 +46,7 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{id}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {id}是被欢迎者QQ号\n" +
+		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{uid}] [{gid}] [{groupname}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {uid}是被欢迎者QQ号 {gid}是当前群群号 {groupname} 是当前群群名\n" +
 		"- 测试欢迎语\n" +
 		"- 设置告别辞 参数同设置欢迎语\n" +
 		"- 测试告别辞\n" +
@@ -61,7 +59,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("manager", order.AcquirePrio(), &control.Options{
+	engine := control.Register("manager", &control.Options{
 		DisableOnDefault:  false,
 		Help:              hint,
 		PrivateDataFolder: "manager",
@@ -351,11 +349,7 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			// 无缓存获取群员列表
-			list := ctx.CallAction("get_group_member_list", zero.Params{
-				"group_id": ctx.Event.GroupID,
-				"no_cache": true,
-			}).Data
-			temp := list.Array()
+			temp := ctx.GetThisGroupMemberListNoCache().Array()
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
@@ -449,9 +443,11 @@ func init() { // 插件主体
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			welcomestring := ctx.State["regex_matched"].([]string)[1]
+			welcomestring = message.UnescapeCQCodeText(welcomestring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   ctx.State["regex_matched"].([]string)[1],
+				Msg:   welcomestring,
 			}
 			err := db.Insert("welcome", w)
 			if err == nil {
@@ -474,9 +470,11 @@ func init() { // 插件主体
 	// 设置告别辞
 	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			farewellstring := ctx.State["regex_matched"].([]string)[1]
+			farewellstring = message.UnescapeCQCodeText(farewellstring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   ctx.State["regex_matched"].([]string)[1],
+				Msg:   farewellstring,
 			}
 			err := db.Insert("farewell", w)
 			if err == nil {
@@ -566,7 +564,7 @@ func init() { // 插件主体
 			}
 			ghun := ans[:divi]
 			hash := ans[divi+1:]
-			logrus.Infoln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
+			logrus.Debugln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
 			ok, reason := checkNewUser(ctx.Event.UserID, ctx.Event.GroupID, ghun, hash)
 			if ok {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", true, "")
@@ -581,13 +579,17 @@ func init() { // 插件主体
 
 // 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
 func welcometocq(ctx *zero.Ctx, welcome string) string {
-	at := "[CQ:at,qq=" + strconv.FormatInt(ctx.Event.UserID, 10) + "]"
-	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(ctx.Event.UserID, 10) + "&s=640]"
-	id := strconv.FormatInt(ctx.Event.UserID, 10)
-	nickname := ctx.CardOrNickName(ctx.Event.UserID)
+	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                  // 用户id
+	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                // 用户昵称
+	at := "[CQ:at,qq=" + uid + "]"                                                  // at用户
+	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640]" // 用户头像
+	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                 // 群id
+	groupname := ctx.GetGroupInfo(ctx.Event.GroupID, true).Name                     // 群名
 	cqstring := strings.ReplaceAll(welcome, "{at}", at)
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
-	cqstring = strings.ReplaceAll(cqstring, "{id}", id)
+	cqstring = strings.ReplaceAll(cqstring, "{uid}", uid)
+	cqstring = strings.ReplaceAll(cqstring, "{gid}", gid)
+	cqstring = strings.ReplaceAll(cqstring, "{groupname}", groupname)
 	return cqstring
 }

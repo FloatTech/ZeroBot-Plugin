@@ -2,14 +2,10 @@
 package tracemoe
 
 import (
-	"fmt"
-
 	control "github.com/FloatTech/zbputils/control"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -17,7 +13,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("tracemoe", order.AcquirePrio(), &control.Options{
+	engine := control.Register("tracemoe", &control.Options{
 		DisableOnDefault: false,
 		Help:             "tracemoe\n- 搜番 | 搜索番剧[图片]",
 	})
@@ -27,7 +23,6 @@ func init() { // 插件主体
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			for _, pic := range ctx.State["image_url"].([]string) {
-				fmt.Println(pic)
 				if result, err := moe.Search(pic, true, true); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else if len(result.Result) > 0 {

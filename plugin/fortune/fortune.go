@@ -25,8 +25,6 @@ import (
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/math"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -42,7 +40,7 @@ const (
 
 var (
 	// 底图类型列表
-	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘", "东方归言录"}
+	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘", "东方归言录", "奇异恩典"}
 	// 映射底图与 index
 	index = make(map[string]uint8)
 	// 签文
@@ -51,35 +49,21 @@ var (
 
 func init() {
 	// 插件主体
-	en := control.Register("fortune", order.AcquirePrio(), &control.Options{
+	en := control.Register("fortune", &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
-			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录]",
+			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录 | 奇异恩典]",
 		PublicDataFolder: "Fortune",
 	})
-	go func() {
-		for i, s := range table {
-			index[s] = uint8(i)
-		}
-		_ = os.RemoveAll(cache)
-		err := os.MkdirAll(cache, 0755)
-		if err != nil {
-			panic(err)
-		}
-		data, err := file.GetLazyData(omikujson, true, false)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(data, &omikujis)
-		if err != nil {
-			panic(err)
-		}
-		_, err = file.GetLazyData(font, false, true)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	_ = os.RemoveAll(cache)
+	err := os.MkdirAll(cache, 0755)
+	if err != nil {
+		panic(err)
+	}
+	for i, s := range table {
+		index[s] = uint8(i)
+	}
 	en.OnRegex(`^设置底图\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
@@ -104,7 +88,26 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
-	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).
+	en.OnFullMatchGroup([]string{"运势", "抽签"}, ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			data, err := file.GetLazyData(omikujson, true, false)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = json.Unmarshal(data, &omikujis)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			_, err = file.GetLazyData(font, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			return true
+		},
+	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取该群背景类型，默认车万
 			kind := "车万"

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -13,17 +12,26 @@ import (
 )
 
 func init() {
-	engine := control.Register("ymgal", order.AcquirePrio(), &control.Options{
+	engine := control.Register("ymgal", &control.Options{
 		DisableOnDefault: false,
 		Help:             "月幕galgame\n- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal\n",
 		PublicDataFolder: "Ymgal",
 	})
 	dbfile := engine.DataFolder() + "ymgal.db"
-	go func() {
-		_, _ = file.GetLazyData(dbfile, false, false)
-		gdb = initialize(dbfile)
-	}()
-	engine.OnRegex("^随机gal(CG|表情包)$").Limit(ctxext.LimitByUser).SetBlock(true).
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		_, err := file.GetLazyData(dbfile, false, false)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		gdb, err = initialize(dbfile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		return true
+	})
+	engine.OnRegex("^随机gal(CG|表情包)$", getdb).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
 			pictureType := ctx.State["regex_matched"].([]string)[1]
@@ -35,7 +43,7 @@ func init() {
 			}
 			sendYmgal(y, ctx)
 		})
-	engine.OnRegex("^gal(CG|表情包)([一-龥ぁ-んァ-ヶA-Za-z0-9]{1,25})$").Limit(ctxext.LimitByUser).SetBlock(true).
+	engine.OnRegex("^gal(CG|表情包)([一-龥ぁ-んァ-ヶA-Za-z0-9]{1,25})$", getdb).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
 			pictureType := ctx.State["regex_matched"].([]string)[1]
@@ -48,10 +56,14 @@ func init() {
 			}
 			sendYmgal(y, ctx)
 		})
-	engine.OnFullMatch("更新gal", zero.SuperUserPermission).SetBlock(true).Handle(
+	engine.OnFullMatch("更新gal", zero.SuperUserPermission, getdb).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			ctx.Send("少女祈祷中......")
-			updatePic()
+			err := updatePic()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.Send("ymgal数据库已更新")
 		})
 }

@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/fogleman/gg"
+	"github.com/golang/freetype"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -19,12 +21,10 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
-	backgroundURL = "https://iw233.cn/API/pc.php?type=json"
+	backgroundURL = "https://iw233.cn/api.php?sort=pc&type=json"
 	referer       = "https://iw233.cn/main.html"
 	ua            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 	signinMax     = 1
@@ -35,28 +35,19 @@ const (
 var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 
 func init() {
-	engine := control.Register("score", order.AcquirePrio(), &control.Options{
+	engine := control.Register("score", &control.Options{
 		DisableOnDefault:  false,
-		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景",
+		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
 		PrivateDataFolder: "score",
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		os.RemoveAll(cachePath)
+		_ = os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {
 			panic(err)
 		}
-		_, err = file.GetLazyData(text.BoldFontFile, false, true)
-		if err != nil {
-			panic(err)
-		}
-		_, err = file.GetLazyData(text.FontFile, false, true)
-		if err != nil {
-			panic(err)
-		}
 		sdb = initialize(engine.DataFolder() + "score.db")
-		log.Println("[score]加载score数据库")
 	}()
 	engine.OnFullMatch("签到", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -79,7 +70,11 @@ func init() {
 			}
 
 			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
-			initPic(picFile)
+			err := initPic(picFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 
 			_ = sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
 
@@ -99,6 +94,11 @@ func init() {
 
 			monthWord := now.Format("01/02")
 			hourWord := getHourWord(now)
+			_, err = file.GetLazyData(text.BoldFontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if err = canvas.LoadFontFace(text.BoldFontFile, float64(back.Bounds().Size().X)*0.1); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -107,6 +107,11 @@ func init() {
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
 			nickName := ctx.CardOrNickName(uid)
+			_, err = file.GetLazyData(text.FontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			if err = canvas.LoadFontFace(text.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -170,6 +175,71 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
 		})
+	engine.OnFullMatch("查看分数排名", zero.OnlyGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			today := time.Now().Format("20060102")
+			drawedFile := cachePath + today + "scoreRank.png"
+			if file.IsExist(drawedFile) {
+				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+				return
+			}
+			st, err := sdb.GetScoreRankByTopN(10)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			if len(st) == 0 {
+				ctx.SendChain(message.Text("ERROR:目前还没有人签到过"))
+				return
+			}
+			_, err = file.GetLazyData(text.FontFile, false, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			b, err := os.ReadFile(text.FontFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			font, err := freetype.ParseFont(b)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			bars := make([]chart.Value, len(st))
+			for i, v := range st {
+				bars[i] = chart.Value{
+					Value: float64(v.Score),
+					Label: ctx.CardOrNickName(v.UID),
+				}
+			}
+			graph := chart.BarChart{
+				Font:  font,
+				Title: "饼干排名",
+				Background: chart.Style{
+					Padding: chart.Box{
+						Top: 40,
+					},
+				},
+				Height:   500,
+				BarWidth: 50,
+				Bars:     bars,
+			}
+			f, err := os.Create(drawedFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			err = graph.Render(chart.PNG, f)
+			_ = f.Close()
+			if err != nil {
+				_ = os.Remove(drawedFile)
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+		})
 }
 
 func getHourWord(t time.Time) string {
@@ -200,20 +270,21 @@ func getLevel(count int) int {
 	return -1
 }
 
-func initPic(picFile string) {
+func initPic(picFile string) error {
 	if file.IsNotExist(picFile) {
 		data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
 		if err != nil {
-			log.Errorln("[score]", err)
+			return err
 		}
 		picURL := gjson.Get(string(data), "pic").String()
 		data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
 		if err != nil {
-			log.Errorln("[score]", err)
+			return err
 		}
 		err = os.WriteFile(picFile, data, 0666)
 		if err != nil {
-			log.Errorln("[score]", err)
+			return err
 		}
 	}
+	return nil
 }

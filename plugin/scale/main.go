@@ -23,7 +23,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
@@ -32,7 +31,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("scale", order.AcquirePrio(), &control.Options{
+	engine := control.Register("scale", &control.Options{
 		DisableOnDefault:  false,
 		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
 		PrivateDataFolder: "scale",
@@ -57,7 +56,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				if p[0].Drawings < 0.1 || p[0].Neutral > 0.8 {
+				if p.Drawings < 0.1 || p.Neutral > 0.8 {
 					ctx.SendChain(message.Text("请发送二次元图片!"))
 					return
 				}
