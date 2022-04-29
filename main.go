@@ -146,8 +146,11 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/groupwife" // 群老婆
 
 	// todo
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/personalrule"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin"
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
 
