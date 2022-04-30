@@ -16,7 +16,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/process"
 )
 
@@ -57,17 +56,48 @@ func regexpmatch(rule string, str string) (regexpresult string, regexpstate bool
 }
 
 func init() {
-	en := control.Register("ygo", order.AcquirePrio(), &control.Options{
+	en := control.Register("ygo", &control.Options{
 		DisableOnDefault: false,
-		Help: "1.指令：ygo XXX\n" +
+		Help: "1.指令：/ys XXX\n" +
 			"①xxx为卡名：\n查询卡名为XXX的卡信息\n" +
 			"②xxx为“随机一卡”：\n随机展示一张卡\n" +
-			"2.指令：x\n①x为搜索列表对应的数字\n获取对应的卡片信息\n②x为“下一页”：\n搜索列表翻到下一页" +
-			"3.(开启|关闭)每日分享卡片",
+			"2.指令：x\n①x为搜索列表对应的数字\n获取对应的卡片信息\n②x为“下一页”：\n搜索列表翻到下一页\n" +
+			"3.指令：/卡图 XXX\n获取XXX的卡图\n" +
+			"4.(开启|关闭)每日分享卡片",
 	})
 
-	en.OnPrefix("ygo", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnPrefix("/卡图", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		searchName := ctx.State["args"].(string)
+		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
+		// 请求html页面
+		body, err := reqwith(url, reqconf[0], reqconf[1], reqconf[2])
+		if err != nil {
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器读取错误：", err)))
+			return
+		}
+		//获取卡牌数量
+		listmax, regexpResult := regexpmatch("找到(?s:(.*?))个卡片", string(body))
+		switch regexpResult {
+		case true: //只有一张卡时
+			//获取卡图连接
+			cardpic, regexpResult := regexpmatch("picsCN(?s:(.*?)).jpg", string(body))
+			if regexpResult {
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("服务器响应错误或者卡名错误！")))
+				return
+			}
+			pic_href := "https://www.ygo-sem.cn/yugioh/larg" + cardpic + ".jpg"
+			// 读取获取的[]byte数据
+			data, _ := reqwith(pic_href, reqconf[0], reqconf[1], reqconf[2])
+			imageBase64 := base64.StdEncoding.EncodeToString(data)
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Image("base64://"+imageBase64)))
+		case false:
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("搜索到"+listmax+"张卡片，请输入准确的卡名或者卡密")))
+			return
+		}
+	})
+
+	en.OnRegex(`^(.{1})ys\s?(.+)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		searchName := ctx.State["regex_matched"].([]string)[2]
 		if strings.Contains(searchName, "随机一卡") {
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
@@ -113,7 +143,7 @@ func init() {
 			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(取消)|(下一页)|\d+`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID)).Repeat()
 			for {
 				select {
-				case <-time.After(time.Second * 120): //两分钟等待
+				case <-time.After(time.Second * 20): //20s等待
 					cancel()
 					ctx.Send(
 						message.ReplyWithMessage(ctx.Event.MessageID,
@@ -122,7 +152,7 @@ func init() {
 					)
 					return
 				case e := <-recv:
-					nextcmd := e.Message.String() //获取下一个指令
+					nextcmd := e.Event.Message.String() //获取下一个指令
 					switch nextcmd {
 					case "取消":
 						cancel()
