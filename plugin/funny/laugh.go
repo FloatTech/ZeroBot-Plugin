@@ -25,7 +25,7 @@ func init() {
 	en := control.Register("funny", &control.Options{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
-			"- 讲个笑话[@xxx] | 讲个笑话[qq号] | 夸夸[@xxx] | 夸夸[qq号]",
+			"- 讲个笑话[@xxx|qq号|人名] | 夸夸[@xxx|qq号|人名] ",
 		PublicDataFolder: "Funny",
 	})
 
