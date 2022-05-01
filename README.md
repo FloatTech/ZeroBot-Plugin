@@ -515,7 +515,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"`
 
-  - [x] 讲个笑话[@xxx] | 讲个笑话[qq号]
+  - [x] 讲个笑话[@xxx] | 讲个笑话[qq号] | 夸夸[@xxx] | 夸夸[qq号]
 
 </details>
 <details>
@@ -917,6 +917,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 取消b站直播订阅[uid]
 
   - [x] b站推送列表
+
+  - 注：由于需要安装Chrome，默认注释，具体看[这里](https://www.yuque.com/xiangrikuidezhongzi/zerobot/qrwxth)
 
 </details>
 
