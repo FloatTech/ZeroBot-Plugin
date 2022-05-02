@@ -24,22 +24,20 @@ func init() { // 来自mayuri的插件
 				userid := ctx.Event.UserID
 				username := ctx.CardOrNickName(userid)
 				logrus.Infoln("[manager]收到好友申请, 用户:", username, "(", userid, ")", "验证消息:", comment, "Flag", flag)
-				for _, superuser := range zero.BotConfig.SuperUsers {
-					su := superuser
-					ctx.SendPrivateMessage(
-						su,
-						message.Text(
-							"在"+
-								now+
-								"收到来自"+
-								username+
-								"("+
-								strconv.FormatInt(userid, 10)+
-								")好友请求:"+comment+
-								"\n输入:\n-通过申请"+flag+
-								"\n-拒绝申请"+flag),
-					)
-				}
+				su := zero.BotConfig.SuperUsers[0]
+				ctx.SendPrivateMessage(
+					su,
+					message.Text(
+						"在"+
+							now+
+							"收到来自"+
+							username+
+							"("+
+							strconv.FormatInt(userid, 10)+
+							")好友请求:"+comment+
+							"\n输入:\n-通过申请"+flag+
+							"\n-拒绝申请"+flag),
+				)
 			}
 		})
 	engine.OnRequest().SetBlock(true).
@@ -53,28 +51,26 @@ func init() { // 来自mayuri的插件
 				inviterid := ctx.Event.UserID
 				invitername := ctx.CardOrNickName(inviterid)
 				logrus.Infoln("[manager]收到", "来自", invitername, "(", inviterid, ")", "的", "群邀请\n群:", groupname, "(", groupid, ")", "\n验证消息:", comment, "\nFlag", flag)
-				for _, superuser := range zero.BotConfig.SuperUsers {
-					su := superuser
-					ctx.SendPrivateMessage(
-						su,
-						message.Text(
-							"在"+
-								now+
-								"收到来自"+
-								invitername+
-								"("+
-								strconv.FormatInt(inviterid, 10)+
-								")群邀请\n群:"+
-								groupname+
-								"("+
-								strconv.FormatInt(groupid, 10)+
-								")"+
-								"\n验证信息:"+
-								comment+
-								"\n输入:\n-通过邀请"+flag+
-								"\n-拒绝邀请"+flag),
-					)
-				}
+				su := zero.BotConfig.SuperUsers[0]
+				ctx.SendPrivateMessage(
+					su,
+					message.Text(
+						"在"+
+							now+
+							"收到来自"+
+							invitername+
+							"("+
+							strconv.FormatInt(inviterid, 10)+
+							")群邀请\n群:"+
+							groupname+
+							"("+
+							strconv.FormatInt(groupid, 10)+
+							")"+
+							"\n验证信息:"+
+							comment+
+							"\n输入:\n-通过邀请"+flag+
+							"\n-拒绝邀请"+flag),
+				)
 			}
 		})
 
