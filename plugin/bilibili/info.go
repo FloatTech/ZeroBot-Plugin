@@ -159,7 +159,7 @@ func init() {
 			backX := 500
 			backY := 500
 			var back image.Image
-			if u.Face != ".webp" {
+			if path.Ext(u.Face) != ".webp" {
 				err = initFacePic(facePath, u.Face)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
