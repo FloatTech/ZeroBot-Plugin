@@ -1,9 +1,9 @@
-github.com/FloatTech/AnimeAPI v1.3.4-0.20220428145645-93a688024a47 h1:/91ayCAwvhyJw9iQ4so9QDfJcu1GMPFJNTq1JjePkcY=
-github.com/FloatTech/AnimeAPI v1.3.4-0.20220428145645-93a688024a47/go.mod h1:K10BsQlE9FJtDRfcjvH2XNX/JFejWfL3oTdMjHvEHr4=
+github.com/FloatTech/AnimeAPI v1.3.4-0.20220502025309-31a6d419159b h1:mpNsief6QSIMxXa/HtnIrbnGx4FKeAweyaMUquoMIxE=
+github.com/FloatTech/AnimeAPI v1.3.4-0.20220502025309-31a6d419159b/go.mod h1:jOKIH5uRC3LAjjCRKgABLeUZcuA/s4TGVv2kNYYoZWc=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
-github.com/FloatTech/zbputils v1.3.4-0.20220429123316-f504c32b198b h1:S+DVRtlWVCzUV2jF5TDucPF/yyGkI1S4Um2gnZF/1co=
-github.com/FloatTech/zbputils v1.3.4-0.20220429123316-f504c32b198b/go.mod h1:yYXxsdc8fouB9yd2XMr17wso2TV0fH1ukARwhV3U43M=
+github.com/FloatTech/zbputils v1.3.4-0.20220502024941-dfe3f750de64 h1:LeEJpTCdh8GQxDmh0Yw82smpMNA1zuoyK4P5wn+vdr0=
+github.com/FloatTech/zbputils v1.3.4-0.20220502024941-dfe3f750de64/go.mod h1:yYXxsdc8fouB9yd2XMr17wso2TV0fH1ukARwhV3U43M=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c h1:cNPOdTNiVwxLpROLjXCgbIPvdkE+BwvxDvgmdYmWx6Q=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c/go.mod h1:KqZzu7slNKROh3TSYEH/IUMG6f4M+1qubZ5e52QypsE=
