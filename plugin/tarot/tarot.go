@@ -16,7 +16,7 @@ import (
 
 const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
-//nolint: asciicheck
+
 var tarotData gjson.Result
 var reasons = []string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 var position = []string{"正位", "逆位"}
@@ -27,7 +27,7 @@ func init() {
 		DisableOnDefault: false,
 		Help: "塔罗牌\n" +
 			"- 抽塔罗牌\n",
-		//TODO 抽X张塔罗牌 解塔罗牌[牌名]
+		// TODO 抽X张塔罗牌 解塔罗牌[牌名]
 		PrivateDataFolder: "tarot",
 	})
 	go func() {
