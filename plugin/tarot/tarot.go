@@ -16,7 +16,6 @@ import (
 
 const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
-
 var tarotData gjson.Result
 var reasons = []string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 var position = []string{"正位", "逆位"}
@@ -39,6 +38,7 @@ func init() {
 		logrus.Infoln("[tarot]加载tarot成功")
 	}()
 	engine.OnFullMatch("抽塔罗牌").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+
 		i := rand.Intn(22)
 		p := rand.Intn(2)
 		card := tarotData.Get(strconv.Itoa(i))
@@ -48,6 +48,7 @@ func init() {
 		text1 += position[p] + " 的 " + name + "\n"
 		text2 := "\n其意义为：" + info[description[p]].String()
 		ctx.SendChain(
+			message.At(ctx.Event.UserID),
 			message.Text(text1),
 			message.Image(fmt.Sprintf(bed+"MajorArcana/%d.png", i)),
 			message.Text(text2),
