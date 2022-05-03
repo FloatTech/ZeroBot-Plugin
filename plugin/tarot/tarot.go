@@ -38,7 +38,6 @@ func init() {
 		logrus.Infoln("[tarot]加载tarot成功")
 	}()
 	engine.OnFullMatch("抽塔罗牌").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-
 		i := rand.Intn(22)
 		p := rand.Intn(2)
 		card := tarotData.Get(strconv.Itoa(i))
