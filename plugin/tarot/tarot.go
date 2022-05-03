@@ -46,7 +46,7 @@ func init() {
 		info := card.Get("info").Map()
 		text1 := reasons[rand.Intn(len(reasons))]
 		text1 += position[p] + " 的 " + name + "\n"
-		text2 := "其意义为：" + info[description[p]].String()
+		text2 := "\n其意义为：" + info[description[p]].String()
 		ctx.SendChain(
 			message.Text(text1),
 			message.Image(fmt.Sprintf(bed+"MajorArcana/%d.png", i)),
