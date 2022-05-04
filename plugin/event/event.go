@@ -12,7 +12,7 @@ import (
 
 func init() { // 来自mayuri的插件
 	engine := control.Register("event", &control.Options{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help:             "",
 	})
 	engine.OnRequest().SetBlock(true).
