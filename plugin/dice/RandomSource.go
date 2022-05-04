@@ -58,7 +58,7 @@ func init() {
 			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, word, rs, math, win)
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^[.。]setcoc.*?([0-6])`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]setcoc\s+([0-6])`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r := &rsl{
 				GrpID: ctx.Event.GroupID,
@@ -71,7 +71,7 @@ func init() {
 				ctx.SendChain(message.Text("出错啦: ", err))
 			}
 		})
-	engine.OnRegex(`^[.。]set.*?([0-9]+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]set\s+([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			d := &set{
 				UserID: ctx.Event.UserID,
