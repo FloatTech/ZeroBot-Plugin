@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/web"
@@ -39,6 +40,17 @@ func search(keyword string) (r []searchResult, err error) {
 	if err != nil {
 		return
 	}
+	return
+}
+
+// 用mid搜索,主要拿注册时间
+func getCardByMid(mid string) (t string, err error) {
+	requestURL := "https://account.bilibili.com/api/member/getCardByMid?mid=" + mid
+	data, err := web.GetData(requestURL)
+	if err != nil {
+		return
+	}
+	t = time.Unix(gjson.ParseBytes(data).Get("card.regtime").Int(), 0).Format("2006-01-02 15:04:05")
 	return
 }
 
@@ -85,14 +97,14 @@ func followings(uid string) (s string, err error) {
 	if err != nil {
 		return
 	}
-	json := gjson.ParseBytes(body)
-	s = json.Get("data.list.#.uname").Raw
-	if json.Get("code").Int() == -101 {
+	j := gjson.ParseBytes(body)
+	s = j.Get("data.list.#.uname").Raw
+	if j.Get("code").Int() == -101 {
 		err = errNeedCookie
 		return
 	}
-	if json.Get("code").Int() != 0 {
-		err = errors.New(json.Get("message").String())
+	if j.Get("code").Int() != 0 {
+		err = errors.New(j.Get("message").String())
 		return
 	}
 	return

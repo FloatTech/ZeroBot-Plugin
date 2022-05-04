@@ -4,8 +4,10 @@ package bilibili
 import (
 	"encoding/binary"
 	"fmt"
+	"image"
 	"image/color"
 	"os"
+	"path"
 	"sort"
 	"strconv"
 	"time"
@@ -153,28 +155,29 @@ func init() {
 					i--
 				}
 			}
-			facePath := cachePath + id + "vupFace.png"
-			err = initFacePic(facePath, u.Face)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
+			facePath := cachePath + id + "vupFace" + path.Ext(u.Face)
+			backX := 500
+			backY := 500
+			var back image.Image
+			if path.Ext(u.Face) != ".webp" {
+				err = initFacePic(facePath, u.Face)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				back, err = gg.LoadImage(facePath)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				back = img.Limit(back, backX, backY)
 			}
-			var backX int
-			var backY int
-			back, err := gg.LoadImage(facePath)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			back = img.Limit(back, 500, 500)
-			backX = back.Bounds().Size().X
-			backY = back.Bounds().Size().Y
 			if len(vups) > 240 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前240个up"))
 				vups = vups[:240]
 			}
-			canvas := gg.NewContext(backX*3, int(float64(backY)*(1.1+float64(len(vups))/3)))
-			fontSize := float64(backX) * 0.1
+			canvas := gg.NewContext(1500, int(500*(1.1+float64(len(vups))/3)))
+			fontSize := 50.0
 			canvas.SetColor(color.White)
 			canvas.Clear()
 			if back != nil {
@@ -192,16 +195,21 @@ func init() {
 			sl, _ := canvas.MeasureString("好")
 			length, h := canvas.MeasureString(u.Mid)
 			n, _ := canvas.MeasureString(u.Name)
-			canvas.DrawString(u.Name, float64(backX)*1.1, float64(backY)/3-h)
-			canvas.DrawRoundedRectangle(float64(backX)*1.2+n-length*0.1, float64(backY)/3-h*2.5, length*1.2, h*2, fontSize*0.2)
+			canvas.DrawString(u.Name, 550, 160-h)
+			canvas.DrawRoundedRectangle(600+n-length*0.1, 160-h*2.5, length*1.2, h*2, fontSize*0.2)
 			canvas.SetRGB255(221, 221, 221)
 			canvas.Fill()
 			canvas.SetColor(color.Black)
-			canvas.DrawString(u.Mid, float64(backX)*1.2+n, float64(backY)/3-h)
-			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Fans), float64(backX)*1.1, float64(backY)/3*2-2.5*h)
-			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Attentions)), float64(backX)*2, float64(backY)/3*2-2.5*h)
-			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Attentions))*100, vupLen, len(u.Attentions)), float64(backX)*1.1, float64(backY)-4*h)
-			canvas.DrawString("日期："+time.Now().Format("2006-01-02"), float64(backX)*1.1, float64(backY)-h)
+			canvas.DrawString(u.Mid, 600+n, 160-h)
+			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Fans), 550, 240-h)
+			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Attentions)), 1000, 240-h)
+			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Attentions))*100, vupLen, len(u.Attentions)), 550, 320-h)
+			regtime, err := getCardByMid(u.Mid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
+			canvas.DrawString("注册日期："+regtime, 550, 400-h)
+			canvas.DrawString("查询日期："+time.Now().Format("2006-01-02"), 550, 480-h)
 			for i, v := range vups {
 				if i%2 == 1 {
 					canvas.SetRGB255(245, 245, 245)
@@ -221,9 +229,9 @@ func init() {
 					mnl, _ := canvas.MeasureString(m.MedalName)
 					grad := gg.NewLinearGradient(nl+ml-sl/2+float64(backX)*0.4, float64(backY)*1.1+float64(i+1)*float64(backY)/3-3.5*h, nl+ml+mnl+sl/2+float64(backX)*0.4, float64(backY)*1.1+float64(i+1)*float64(backY)/3-1.5*h)
 					r, g, b := int2rbg(m.MedalColorStart)
-					grad.AddColorStop(0, color.RGBA{uint8(r), uint8(g), uint8(b), 255})
+					grad.AddColorStop(0, color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: 255})
 					r, g, b = int2rbg(m.MedalColorEnd)
-					grad.AddColorStop(1, color.RGBA{uint8(r), uint8(g), uint8(b), 255})
+					grad.AddColorStop(1, color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: 255})
 					canvas.SetFillStyle(grad)
 					canvas.SetLineWidth(4)
 					canvas.MoveTo(nl+ml-sl/2+float64(backX)*0.4, float64(backY)*1.1+float64(i+1)*float64(backY)/3-3.5*h)
