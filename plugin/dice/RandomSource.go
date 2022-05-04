@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?([0-9]+)[#].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*([0-9]+)[#].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
@@ -41,7 +41,7 @@ func init() {
 			} else {
 			}
 		})
-	engine.OnRegex(`^[。.][Rr][Aa|Cc].*?(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*(\D+).*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			word := ctx.State["regex_matched"].([]string)[1]
@@ -58,7 +58,7 @@ func init() {
 			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, word, rs, math, win)
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^[.。]setcoc\s+([0-6])`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]setcoc\s*([0-6]{1})`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r := &rsl{
 				GrpID: ctx.Event.GroupID,
@@ -71,7 +71,7 @@ func init() {
 				ctx.SendChain(message.Text("出错啦: ", err))
 			}
 		})
-	engine.OnRegex(`^[.。]set\s+([0-9]+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]set\s*([0-9]{1,3})\s*`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			d := &set{
 				UserID: ctx.Event.UserID,
@@ -99,7 +99,7 @@ func init() {
 			msg := fmt.Sprintf("阁下掷出了R%dD%d=%d", r1, d1, sum)
 			ctx.Send(msg)
 		})
-	engine.OnRegex(`^[。.][Rr].*?([0-9]+).*?[Dd].*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr]\s*([0-9]+).*?[Dd].*?([0-9]+).*?`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			r := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
 			d := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[2]))
