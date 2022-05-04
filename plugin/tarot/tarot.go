@@ -35,7 +35,7 @@ func init() {
 		DisableOnDefault: false,
 		Help: "塔罗牌\n" +
 			"- 抽塔罗牌\n",
-		// TODO 抽X张塔罗牌 解塔罗牌 [牌名]
+		// TODO 抽X张塔罗牌 解塔罗牌[牌名]
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
