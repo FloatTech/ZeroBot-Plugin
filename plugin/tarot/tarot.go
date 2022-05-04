@@ -16,7 +16,7 @@ import (
 
 const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
-type Card struct {
+type card struct {
 	Name string `json:"name"`
 	Info struct {
 		Description        string `json:"description"`
@@ -24,9 +24,9 @@ type Card struct {
 		ImgURL             string `json:"imgUrl"`
 	} `json:"info"`
 }
-type CardSet = map[string]Card
+type cardset = map[string]card
 
-var cardMap = make(CardSet, 256)
+var cardMap = make(cardset, 256)
 var reasons = []string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 var position = []string{"正位", "逆位"}
 
