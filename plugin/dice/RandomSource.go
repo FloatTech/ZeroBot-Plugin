@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*([0-9]+)[#]\s*(\D+)\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*([0-9]+)[#]\s*(\S\D+)\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
@@ -41,7 +41,7 @@ func init() {
 			} else {
 			}
 		})
-	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*(\D+)\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*(\S\D+)\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
 			word := ctx.State["regex_matched"].([]string)[1]
