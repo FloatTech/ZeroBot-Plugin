@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/FloatTech/zbputils/control"
@@ -21,10 +20,10 @@ import (
 
 var (
 	me     gjson.Result
-	wifeid int64
-	luid   int64
-	sign   int64
-	swife  = make(map[int64]int64)
+	wifeid int
+	luid   int
+	sign   int
+	swife  = make(map[int]int)
 )
 
 func init() {
@@ -35,14 +34,14 @@ func init() {
 	})
 	engine.OnFullMatchGroup([]string{"哪个群友是我老婆", "哪位群友是我老婆", "今天谁是我老婆"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			gid := ctx.Event.GroupID
-			uid := ctx.Event.UserID
+			gid := int(ctx.Event.GroupID)
+			uid := int(ctx.Event.UserID)
 			for sign = range swife {
 				if sign == gid+uid {
 					uid = luid - gid
 					wifeid = swife[luid] - gid
-					wifename := ctx.CardOrNickName(wifeid)
-					avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%s&s=640,cache=0]", strconv.FormatInt(wifeid, 10))
+					wifename := ctx.CardOrNickName(int64(wifeid))
+					avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%d&s=640,cache=0]", wifeid)
 					msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
 					msg = message.UnescapeCQCodeText(msg)
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
@@ -52,15 +51,15 @@ func init() {
 			}
 			if swife[luid] == gid+uid {
 				wifeid = luid - gid
-				wifename := ctx.CardOrNickName(wifeid)
-				avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%s&s=640,cache=0]", strconv.FormatInt(wifeid, 10))
+				wifename := ctx.CardOrNickName(int64(wifeid))
+				avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%d&s=640,cache=0]", wifeid)
 				msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
 				msg = message.UnescapeCQCodeText(msg)
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
 				ctx.SendChain(message.Text("这是标记2"))
 				return
 			}
-			list := ctx.GetGroupMemberListNoCache(gid)
+			list := ctx.GetGroupMemberListNoCache(int64(gid))
 			temp := list.Array()
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
@@ -71,7 +70,7 @@ func init() {
 			r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
 			rn := r.Intn(len(temp))
 			who := temp[rn]
-			wifeid = who.Get("user_id").Int()
+			wifeid = int(who.Get("user_id").Int())
 			if wifeid == uid {
 				me = who
 				temp = append(temp[:rn], temp[rn:]...)
@@ -82,7 +81,7 @@ func init() {
 			if wifename == "" {
 				wifename = who.Get("nickname").Str
 			}
-			avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%s&s=640,cache=0]", strconv.FormatInt(who.Get("user_id").Int(), 10))
+			avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%d&s=640,cache=0]", who.Get("user_id").Int())
 			msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
 			msg = message.UnescapeCQCodeText(msg)
 			ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
