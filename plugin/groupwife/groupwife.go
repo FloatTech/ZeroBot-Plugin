@@ -20,14 +20,11 @@ import (
 )
 
 var (
-	me       gjson.Result
-	uid      int64
-	wifeid   int64
-	luid     int64
-	lwid     int64
-	sign     int64
-	wifename string
-	swife    = make(map[int64]int64)
+	me     gjson.Result
+	wifeid int64
+	luid   int64
+	sign   int64
+	swife  = make(map[int64]int64)
 )
 
 func init() {
@@ -41,31 +38,29 @@ func init() {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			for sign = range swife {
-				if sign == uid+gid {
+				if sign == gid+uid {
 					uid = luid - gid
 					wifeid = swife[luid] - gid
-					wifename = ctx.CardOrNickName(wifeid)
+					wifename := ctx.CardOrNickName(wifeid)
 					avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%s&s=640,cache=0]", strconv.FormatInt(wifeid, 10))
 					msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
 					msg = message.UnescapeCQCodeText(msg)
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
+					ctx.SendChain(message.Text("这是标记1"))
 					return
 				}
 			}
-			if swife[luid] == gid+ctx.Event.UserID {
-				uid = ctx.Event.UserID
+			if swife[luid] == gid+uid {
 				wifeid = luid - gid
-				wifename = ctx.CardOrNickName(wifeid)
+				wifename := ctx.CardOrNickName(wifeid)
 				avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%s&s=640,cache=0]", strconv.FormatInt(wifeid, 10))
 				msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
 				msg = message.UnescapeCQCodeText(msg)
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
+				ctx.SendChain(message.Text("这是标记2"))
 				return
 			}
-			list := ctx.CallAction("get_group_member_list", zero.Params{
-				"group_id": gid,
-				"no_cache": true,
-			}).Data
+			list := ctx.GetGroupMemberListNoCache(gid)
 			temp := list.Array()
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
@@ -83,7 +78,7 @@ func init() {
 				rn = r.Intn(len(temp))
 				who = temp[rn]
 			}
-			wifename = who.Get("card").Str
+			wifename := who.Get("card").Str
 			if wifename == "" {
 				wifename = who.Get("nickname").Str
 			}
@@ -91,8 +86,9 @@ func init() {
 			msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
 			msg = message.UnescapeCQCodeText(msg)
 			ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
-			luid = gid + uid
-			lwid = gid + wifeid
+			ctx.SendChain(message.Text("这是标记3"))
+			luid := gid + uid
+			lwid := gid + wifeid
 			swife[luid] = (lwid)
 			if len(me.Array()) != 0 {
 				mlist := append(temp[:rn], me)
