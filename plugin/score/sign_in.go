@@ -94,7 +94,7 @@ func init() {
 
 			monthWord := now.Format("01/02")
 			hourWord := getHourWord(now)
-			_, err = file.GetLazyData(text.BoldFontFile, false, true)
+			_, err = file.GetLazyData(text.BoldFontFile, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -107,7 +107,7 @@ func init() {
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
 			nickName := ctx.CardOrNickName(uid)
-			_, err = file.GetLazyData(text.FontFile, false, true)
+			_, err = file.GetLazyData(text.FontFile, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -192,7 +192,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:目前还没有人签到过"))
 				return
 			}
-			_, err = file.GetLazyData(text.FontFile, false, true)
+			_, err = file.GetLazyData(text.FontFile, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return

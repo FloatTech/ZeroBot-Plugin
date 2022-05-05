@@ -10,7 +10,6 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/math"
 )
 
@@ -22,10 +21,9 @@ func init() {
 	})
 
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		dbpath := engine.DataFolder()
-		db.DBPath = dbpath + "cp.db"
+		db.DBPath = engine.DataFolder() + "cp.db"
 		// os.RemoveAll(dbpath)
-		_, _ = file.GetLazyData(db.DBPath, false, true)
+		_, _ = engine.GetLazyData("cp.db", true)
 		err := db.Create("cp_story", &cpstory{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))

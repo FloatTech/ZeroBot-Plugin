@@ -43,9 +43,8 @@ func init() {
 	_ = os.MkdirAll(cachePath, 0755)
 	var getdb = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		var err error
-		dbfile := engine.DataFolder() + "bilibili.db"
-		_, _ = file.GetLazyData(dbfile, false, false)
-		vdb, err = initialize(dbfile)
+		_, _ = engine.GetLazyData("bilibili.db", false)
+		vdb, err = initialize(engine.DataFolder() + "bilibili.db")
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
@@ -184,7 +183,7 @@ func init() {
 				canvas.DrawImage(back, 0, 0)
 			}
 			canvas.SetColor(color.Black)
-			_, err = file.GetLazyData(text.BoldFontFile, false, true)
+			_, err = file.GetLazyData(text.BoldFontFile, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 			}
