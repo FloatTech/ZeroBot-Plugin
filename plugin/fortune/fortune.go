@@ -8,10 +8,8 @@ import (
 	"encoding/json"
 	"image"
 	"io"
-	"math/rand"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/fogleman/gg" // 注册了 jpg png gif
 	"github.com/sirupsen/logrus"
@@ -132,19 +130,16 @@ func init() {
 				return
 			}
 
-			// 生成种子
-			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
-			seed := ctx.Event.UserID + t
-
 			// 随机获取背景
-			background, index, err := randimage(zipfile, seed)
+			background, index, err := randimage(zipfile, ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 
 			// 随机获取签文
-			title, text := randtext(seed)
+			randtextindex := ctxext.RandSenderPerDayN(ctx, len(omikujis))
+			title, text := omikujis[randtextindex]["title"], omikujis[randtextindex]["content"]
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
@@ -166,18 +161,16 @@ func init() {
 
 // @function randimage 随机选取zip内的文件
 // @param path zip路径
-// @param seed 随机数种子
+// @param ctx *zero.Ctx
 // @return 文件路径 & 错误信息
-func randimage(path string, seed int64) (im image.Image, index int, err error) {
+func randimage(path string, ctx *zero.Ctx) (im image.Image, index int, err error) {
 	reader, err := zip.OpenReader(path)
 	if err != nil {
 		return
 	}
 	defer reader.Close()
 
-	r := rand.New(rand.NewSource(seed))
-	index = r.Intn(len(reader.File))
-	file := reader.File[index]
+	file := reader.File[ctxext.RandSenderPerDayN(ctx, len(reader.File))]
 	f, err := file.Open()
 	if err != nil {
 		return
@@ -186,16 +179,6 @@ func randimage(path string, seed int64) (im image.Image, index int, err error) {
 
 	im, _, err = image.Decode(f)
 	return
-}
-
-// @function randtext 随机选取签文
-// @param file 文件路径
-// @param seed 随机数种子
-// @return 签名 & 签文 & 错误信息
-func randtext(seed int64) (string, string) {
-	r := rand.New(rand.NewSource(seed))
-	i := r.Intn(len(omikujis))
-	return omikujis[i]["title"], omikujis[i]["content"]
 }
 
 // @function draw 绘制运势图

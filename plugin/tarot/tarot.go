@@ -3,12 +3,12 @@ package tarot
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"strconv"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -49,12 +49,12 @@ func init() {
 			if err != nil {
 				panic(err)
 			}
-			log.Printf("[tarot]读取%d张塔罗牌", len(cardMap))
+			logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
 			return true
 		},
 	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		i := rand.Intn(22)
-		p := rand.Intn(2)
+		i := ctxext.RandSenderPerDayN(ctx, 22)
+		p := ctxext.RandSenderPerDayN(ctx, 2)
 		card := cardMap[(strconv.Itoa(i))]
 		name := card.Name
 		var info string
@@ -67,7 +67,7 @@ func init() {
 			message.At(ctx.Event.UserID),
 			message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
 			message.Image(fmt.Sprintf(bed+"MajorArcana/%d.png", i)),
-			message.Text("\n其意义为：", info),
+			message.Text("\n其意义为: ", info),
 		); id.ID() == 0 {
 			ctx.SendChain(message.Text("ERROR:可能被风控了"))
 		}
