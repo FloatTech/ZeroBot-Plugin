@@ -39,7 +39,7 @@ func init() {
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	engine.OnRegex(`^抽(\d{1,3}张)?塔罗牌$`, ctxext.DoOnceOnSuccess(
+	engine.OnRegex(`^抽(\d{1,2}张)?塔罗牌$`, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			data, err := engine.GetLazyData("tarots.json", true)
 			if err != nil {
