@@ -8,7 +8,6 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 )
 
 func init() {
@@ -20,10 +19,9 @@ func init() {
 
 	en.OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$",
 		ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-			dbpath := en.DataFolder()
-			db.DBPath = dbpath + "cxh.db"
+			db.DBPath = en.DataFolder() + "cxh.db"
 			// os.RemoveAll(dbpath)
-			_, _ = file.GetLazyData(db.DBPath, false, true)
+			_, _ = en.GetLazyData("cxh.db", true)
 			err := db.Create("pinyin", &pinyin{})
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))

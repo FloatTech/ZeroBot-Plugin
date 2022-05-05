@@ -43,7 +43,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
-		_, err = file.GetLazyData(dbfile, false, false)
+		_, err = engine.GetLazyData("vtb.db", false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

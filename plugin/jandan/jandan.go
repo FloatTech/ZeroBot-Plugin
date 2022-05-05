@@ -10,7 +10,6 @@ import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/antchfx/htmlquery"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -29,9 +28,8 @@ func init() {
 	})
 
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		dbpath := engine.DataFolder()
-		db.DBPath = dbpath + "pics.db"
-		_, _ = file.GetLazyData(db.DBPath, false, false)
+		db.DBPath = engine.DataFolder() + "pics.db"
+		_, _ = engine.GetLazyData("pics.db", false)
 		err := db.Create("picture", &picture{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))

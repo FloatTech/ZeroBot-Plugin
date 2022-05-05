@@ -13,12 +13,10 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/tl"
-	"github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/fogleman/gg"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -87,8 +85,7 @@ func init() {
 				wg.Add(2)
 				go func(i int) {
 					defer wg.Done()
-					dc, err := file.GetLazyData(fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i), true, true)
-					logrus.Debugln("[wordle] get", fmt.Sprintf("%scet-4_%d.txt", en.DataFolder(), i))
+					dc, err := en.GetLazyData(fmt.Sprintf("cet-4_%d.txt", i), true)
 					if err != nil {
 						atomic.AddUint32(&errcnt, 1)
 						return
@@ -103,8 +100,7 @@ func init() {
 				}(i)
 				go func(i int) {
 					defer wg.Done()
-					dd, err := file.GetLazyData(fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i), true, true)
-					logrus.Debugln("[wordle] get", fmt.Sprintf("%sdict_%d.txt", en.DataFolder(), i))
+					dd, err := en.GetLazyData(fmt.Sprintf("dict_%d.txt", i), true)
 					if err != nil {
 						atomic.AddUint32(&errcnt, 1)
 						return

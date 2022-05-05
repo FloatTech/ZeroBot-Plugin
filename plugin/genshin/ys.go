@@ -15,7 +15,6 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/process"
 	"github.com/golang/freetype"
@@ -69,7 +68,7 @@ func init() {
 	engine.OnFullMatch("原神十连", ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			zipfile := engine.DataFolder() + "Genshin.zip"
-			_, err := file.GetLazyData(zipfile, false, false)
+			_, err := engine.GetLazyData("Genshin.zip", false)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
