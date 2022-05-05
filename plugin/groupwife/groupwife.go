@@ -22,7 +22,9 @@ var (
 	me     gjson.Result
 	wifeid int
 	luid   int
+	lwid   int
 	sign   int
+	wife   = make(map[int]int)
 	swife  = make(map[int]int)
 )
 
@@ -38,7 +40,6 @@ func init() {
 			uid := int(ctx.Event.UserID)
 			for sign = range swife {
 				if sign == gid+uid {
-					uid = luid - gid
 					wifeid = swife[luid] - gid
 					wifename := ctx.CardOrNickName(int64(wifeid))
 					avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%d&s=640,cache=0]", wifeid)
@@ -49,15 +50,17 @@ func init() {
 					return
 				}
 			}
-			if swife[luid] == gid+uid {
-				wifeid = luid - gid
-				wifename := ctx.CardOrNickName(int64(wifeid))
-				avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%d&s=640,cache=0]", wifeid)
-				msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
-				msg = message.UnescapeCQCodeText(msg)
-				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
-				ctx.SendChain(message.Text("这是标记2"))
-				return
+			for sign = range wife {
+				if sign == gid+uid {
+					wifeid = wife[lwid] - gid
+					wifename := ctx.CardOrNickName(int64(wifeid))
+					avtar := fmt.Sprintf("[CQ:image,file=http://q4.qlogo.cn/g?b=qq&nk=%d&s=640,cache=0]", wifeid)
+					msg := fmt.Sprintf("[CQ:at,qq=%d]今天你的群友老婆是%s\n【%s】(%d)哒！", uid, avtar, wifename, wifeid)
+					msg = message.UnescapeCQCodeText(msg)
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
+					ctx.SendChain(message.Text("这是标记2"))
+					return
+				}
 			}
 			list := ctx.GetGroupMemberListNoCache(int64(gid))
 			temp := list.Array()
@@ -88,7 +91,9 @@ func init() {
 			ctx.SendChain(message.Text("这是标记3"))
 			luid := gid + uid
 			lwid := gid + wifeid
+			wife[lwid] = (luid)
 			swife[luid] = (lwid)
+
 			if len(me.Array()) != 0 {
 				mlist := append(temp[:rn], me)
 				temp = append(mlist, temp[rn:]...)
