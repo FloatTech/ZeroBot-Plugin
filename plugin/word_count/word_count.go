@@ -40,7 +40,7 @@ func init() {
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
 	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		_, err := file.GetLazyData(engine.DataFolder()+"stopwords.txt", false, false)
+		_, err := engine.GetLazyData("stopwords.txt", false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
@@ -56,7 +56,7 @@ func init() {
 		return true
 	})).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			_, err := file.GetLazyData(text.FontFile, false, true)
+			_, err := file.GetLazyData(text.FontFile, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return

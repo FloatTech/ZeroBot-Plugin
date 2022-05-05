@@ -9,7 +9,6 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -27,8 +26,8 @@ type card struct {
 type cardset = map[string]card
 
 var cardMap = make(cardset, 256)
-var reasons = []string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
-var position = []string{"正位", "逆位"}
+var reasons = [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
+var position = [...]string{"正位", "逆位"}
 
 func init() {
 	engine := control.Register("tarot", &control.Options{
@@ -41,8 +40,7 @@ func init() {
 
 	engine.OnFullMatch("抽塔罗牌", ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			tarotPath := engine.DataFolder() + "tarots.json"
-			data, err := file.GetLazyData(tarotPath, true, true)
+			data, err := engine.GetLazyData("tarots.json", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false

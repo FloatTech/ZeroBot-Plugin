@@ -90,7 +90,7 @@ func init() {
 		})
 	en.OnFullMatchGroup([]string{"运势", "抽签"}, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			data, err := file.GetLazyData(omikujson, true, false)
+			data, err := file.GetLazyData(omikujson, false)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
@@ -100,7 +100,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
-			_, err = file.GetLazyData(font, false, true)
+			_, err = file.GetLazyData(font, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
@@ -126,7 +126,7 @@ func init() {
 			}
 			// 检查背景图片是否存在
 			zipfile := images + kind + ".zip"
-			_, err := file.GetLazyData(zipfile, false, false)
+			_, err := file.GetLazyData(zipfile, false)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return

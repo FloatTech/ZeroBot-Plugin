@@ -14,7 +14,6 @@ import (
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -43,9 +42,8 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatch("解签", ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			dbpath := engine.DataFolder()
-			db.DBPath = dbpath + "kuji.db"
-			_, err := file.GetLazyData(db.DBPath, false, true)
+			db.DBPath = engine.DataFolder() + "kuji.db"
+			_, err := engine.GetLazyData("kuji.db", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
