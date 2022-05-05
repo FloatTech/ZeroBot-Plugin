@@ -24,8 +24,8 @@ var (
 	luid   int
 	lwid   int
 	sign   int
-	wife   = make(map[int]int)
-	swife  = make(map[int]int)
+	wife   map[int](int)
+	swife  map[int](int)
 )
 
 func init() {
@@ -36,6 +36,8 @@ func init() {
 	})
 	engine.OnFullMatchGroup([]string{"哪个群友是我老婆", "哪位群友是我老婆", "今天谁是我老婆"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
+			wife = make(map[int](int))
+			swife = make(map[int](int))
 			gid := int(ctx.Event.GroupID)
 			uid := int(ctx.Event.UserID)
 			for sign = range swife {
@@ -89,11 +91,10 @@ func init() {
 			msg = message.UnescapeCQCodeText(msg)
 			ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(msg))
 			ctx.SendChain(message.Text("这是标记3"))
-			luid := gid + uid
-			lwid := gid + wifeid
+			luid = gid + uid
+			lwid = gid + wifeid
 			wife[lwid] = (luid)
 			swife[luid] = (lwid)
-
 			if len(me.Array()) != 0 {
 				mlist := append(temp[:rn], me)
 				temp = append(mlist, temp[rn:]...)
