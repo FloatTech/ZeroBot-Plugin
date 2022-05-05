@@ -11,7 +11,6 @@ import (
 	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 )
 
 type joke struct {
@@ -30,9 +29,8 @@ func init() {
 	})
 
 	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		dbpath := en.DataFolder()
-		db.DBPath = dbpath + "jokes.db"
-		_, err := file.GetLazyData(db.DBPath, false, true)
+		db.DBPath = en.DataFolder() + "jokes.db"
+		_, err := en.GetLazyData("jokes.db", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

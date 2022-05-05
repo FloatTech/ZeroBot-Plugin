@@ -9,7 +9,6 @@ import (
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -21,10 +20,9 @@ func init() {
 	})
 
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		dbpath := engine.DataFolder()
-		db.DBPath = dbpath + "bookreview.db"
+		db.DBPath = engine.DataFolder() + "bookreview.db"
 		// os.RemoveAll(dbpath)
-		_, _ = file.GetLazyData(db.DBPath, false, true)
+		_, _ = engine.GetLazyData("bookreview.db", true)
 		err := db.Create("bookreview", &book{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))

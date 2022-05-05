@@ -3,18 +3,14 @@ package omikuji
 
 import (
 	"fmt"
-	"log"
-	"math/rand"
-	"strconv"
-	"time"
 
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -30,22 +26,17 @@ func init() { // 插件主体
 
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			miku, err := bangoToday(ctx.Event.UserID)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
+			i := ctxext.RandSenderPerDayN(ctx, 100) + 1
 			ctx.SendChain(
 				message.At(ctx.Event.UserID),
-				message.Image(fmt.Sprintf(bed, miku, 0)),
-				message.Image(fmt.Sprintf(bed, miku, 1)),
+				message.Image(fmt.Sprintf(bed, i, 0)),
+				message.Image(fmt.Sprintf(bed, i, 1)),
 			)
 		})
 	engine.OnFullMatch("解签", ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			dbpath := engine.DataFolder()
-			db.DBPath = dbpath + "kuji.db"
-			_, err := file.GetLazyData(db.DBPath, false, true)
+			db.DBPath = engine.DataFolder() + "kuji.db"
+			_, err := engine.GetLazyData("kuji.db", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
@@ -60,17 +51,17 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
-			log.Printf("[kuji]读取%d条签文", n)
+			logrus.Infof("[kuji]读取%d条签文", n)
 			return true
 		},
 	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			bg, err := bangoToday(ctx.Event.UserID)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			kujiBytes, err := text.RenderToBase64(getKujiByBango(bg), text.FontFile, 400, 20)
+			kujiBytes, err := text.RenderToBase64(
+				getKujiByBango(
+					uint8(ctxext.RandSenderPerDayN(ctx, 100)+1),
+				),
+				text.FontFile, 400, 20,
+			)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -79,14 +70,4 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 		})
-}
-
-func bangoToday(uid int64) (uint8, error) {
-	today, err := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
-	if err != nil {
-		return 0, err
-	}
-	seed := uid + today
-	r := rand.New(rand.NewSource(seed))
-	return uint8(r.Intn(100) + 1), nil
 }

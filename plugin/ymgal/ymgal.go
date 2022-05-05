@@ -6,7 +6,6 @@ import (
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -17,9 +16,9 @@ func init() {
 		Help:             "月幕galgame\n- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal\n",
 		PublicDataFolder: "Ymgal",
 	})
-	dbfile := engine.DataFolder() + "ymgal.db"
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		_, err := file.GetLazyData(dbfile, false, false)
+		dbfile := engine.DataFolder() + "ymgal.db"
+		_, err := engine.GetLazyData("ymgal.db", false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

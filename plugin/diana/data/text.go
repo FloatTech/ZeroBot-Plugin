@@ -20,7 +20,7 @@ type text struct {
 
 // LoadText 加载小作文
 func LoadText(dbfile string) error {
-	_, err := file.GetLazyData(dbfile, false, false)
+	_, err := file.GetLazyData(dbfile, false)
 	db.DBPath = dbfile
 	if err != nil {
 		return err

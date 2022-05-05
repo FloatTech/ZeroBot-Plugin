@@ -803,6 +803,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"`
 
   - [x] 抽塔罗牌
+  - [x] 抽n张塔罗牌
 
 </details>
 <details>

@@ -62,7 +62,7 @@ func init() { // 插件主体
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		// 如果数据库不存在则下载
 		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
-		_, _ = fileutil.GetLazyData(pool.db.DBPath, false, false)
+		_, _ = engine.GetLazyData("SetuTime.db", false)
 		err := pool.db.Open()
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
