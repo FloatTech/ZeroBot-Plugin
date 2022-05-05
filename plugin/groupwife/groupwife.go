@@ -18,6 +18,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
+/*type groupwife struct {
+	uid int64 `db:"uid"`
+	wid int64 `db:"wid"`
+	gid int64 `db:"gid"`
+	time time.Time `db:"time"`
+}*/
+
 var (
 	me     gjson.Result
 	wifeid int
@@ -34,10 +41,10 @@ func init() {
 		Help: "群老婆\n" +
 			"-哪个群友是我老婆",
 	})
+	wife = make(map[int](int))
+	swife = make(map[int](int))
 	engine.OnFullMatchGroup([]string{"哪个群友是我老婆", "哪位群友是我老婆", "今天谁是我老婆"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			wife = make(map[int](int))
-			swife = make(map[int](int))
 			gid := int(ctx.Event.GroupID)
 			uid := int(ctx.Event.UserID)
 			for sign = range swife {
