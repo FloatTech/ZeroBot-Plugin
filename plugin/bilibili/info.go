@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"os"
 	"path"
+	"regexp"
 	"sort"
 	"strconv"
 	"time"
@@ -35,6 +36,7 @@ var engine = control.Register("bilibili", &control.Options{
 		"- 更新vup",
 	PublicDataFolder: "Bilibili",
 })
+var re = regexp.MustCompile(`^\d+$`)
 
 // 查成分的
 func init() {
@@ -104,15 +106,9 @@ func init() {
 			))
 		})
 
-	engine.OnRegex(`^查成分\s?(.{1,25})$`, getdb).SetBlock(true).
+	engine.OnRegex(`^查成分\s?(.{1,25})$`, getdb, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			keyword := ctx.State["regex_matched"].([]string)[1]
-			searchRes, err := search(keyword)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			id := strconv.FormatInt(searchRes[0].Mid, 10)
+			id := ctx.State["uid"].(string)
 			today := time.Now().Format("20060102")
 			drawedFile := cachePath + id + today + "vupLike.png"
 			if file.IsExist(drawedFile) {
@@ -169,7 +165,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				back = img.Limit(back, backX, backY)
+				back = img.Size(back, backX, backY).Im
 			}
 			if len(vups) > 50 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前50个up"))
@@ -203,10 +199,7 @@ func init() {
 			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Fans), 550, 240-h)
 			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Attentions)), 1000, 240-h)
 			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Attentions))*100, vupLen, len(u.Attentions)), 550, 320-h)
-			regtime, err := getCardByMid(u.Mid)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-			}
+			regtime := time.Unix(u.Regtime, 0).Format("2006-01-02 15:04:05")
 			canvas.DrawString("注册日期："+regtime, 550, 400-h)
 			canvas.DrawString("查询日期："+time.Now().Format("2006-01-02"), 550, 480-h)
 			for i, v := range vups {
@@ -313,4 +306,52 @@ func int2rbg(t int64) (int64, int64, int64) {
 	binary.LittleEndian.PutUint64(buf[:], uint64(t))
 	b, g, r := int64(buf[0]), int64(buf[1]), int64(buf[2])
 	return r, g, b
+}
+
+func getPara(ctx *zero.Ctx) bool {
+	keyword := ctx.State["regex_matched"].([]string)[1]
+	if !re.MatchString(keyword) {
+		searchRes, err := search(keyword)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		ctx.State["uid"] = strconv.FormatInt(searchRes[0].Mid, 10)
+		return true
+	}
+	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession())
+	recv, cancel := next.Repeat()
+	defer cancel()
+	ctx.SendChain(message.Text("输入为纯数字，请选择查询uid还是用户名，输入对应序号：\n0. 查询uid\n1. 查询用户名"))
+	for {
+		select {
+		case <-time.After(time.Second * 10):
+			ctx.SendChain(message.Text("时间太久啦！", zero.BotConfig.NickName[0], "帮你选择查询uid"))
+			ctx.State["uid"] = keyword
+			return true
+		case c := <-recv:
+			msg := c.Event.Message.ExtractPlainText()
+			num, err := strconv.Atoi(msg)
+			if err != nil {
+				ctx.SendChain(message.Text("请输入数字!"))
+				continue
+			}
+			if num < 0 || num > 1 {
+				ctx.SendChain(message.Text("序号非法!"))
+				continue
+			}
+			if num == 0 {
+				ctx.State["uid"] = keyword
+				return true
+			} else if num == 1 {
+				searchRes, err := search(keyword)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return false
+				}
+				ctx.State["uid"] = strconv.FormatInt(searchRes[0].Mid, 10)
+				return true
+			}
+		}
+	}
 }
