@@ -112,31 +112,7 @@ func init() { // 插件主体
 					}
 					continue
 				}
-<<<<<<< HEAD
-				if result, err := yandex.Yandex(pic); err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-				} else {
-					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("yandex搜图结果"))}
-					msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
-						message.Text("也许是这个？"),
-						message.Text(
-							"\n",
-							"标题：", result.Title, "\n",
-							"插画ID：", result.Pid, "\n",
-							"画师：", result.UserName, "\n",
-							"画师ID：", result.UserId, "\n",
-							"直链：", "https://pixivel.moe/detail?id=", result.Pid)))
-					if id := ctx.SendGroupForwardMessage(
-						ctx.Event.GroupID,
-						msg,
-					).Get("message_id").Int(); id == 0 {
-						ctx.SendChain(message.Text("ERROR:可能被风控了"))
-					}
-				}
-				// 不论结果如何都执行 ascii2d 搜索
-=======
 				// ascii2d 搜索
->>>>>>> upsteram/master
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					continue
