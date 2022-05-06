@@ -1,11 +1,11 @@
 <div align="center">
-
-  [![看板娘](.github/黒金.jpg)](https://crypko.ai/crypko/5k8HyUVTq5421/)
+  <a href="//www.w3cschool.cc">
+  <img src=".github/黒金.jpg" alt="看板娘" width = "512" height = "512">
+  </a><br>
 
   <h1>ZeroBot-Plugin</h1>
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
-  <img src=".github/gopher.jpg" width = "200" height = "150" alt="Gopher"><br>
   <img src="http://sayuri.fumiama.top/cmoe?name=ZeroBot-Plugin&theme=r34" /><br>
 
   <img src="https://img.shields.io/badge/OneBot-MiraiGo-green.svg?style=social&logo=appveyor" />
