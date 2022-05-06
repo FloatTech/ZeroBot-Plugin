@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/web"
@@ -40,17 +39,6 @@ func search(keyword string) (r []searchResult, err error) {
 	if err != nil {
 		return
 	}
-	return
-}
-
-// 用mid搜索,主要拿注册时间
-func getCardByMid(mid string) (t string, err error) {
-	requestURL := "https://account.bilibili.com/api/member/getCardByMid?mid=" + mid
-	data, err := web.GetData(requestURL)
-	if err != nil {
-		return
-	}
-	t = time.Unix(gjson.ParseBytes(data).Get("card.regtime").Int(), 0).Format("2006-01-02 15:04:05")
 	return
 }
 
@@ -115,6 +103,7 @@ type userinfo struct {
 	Mid        string  `json:"mid"`
 	Face       string  `json:"face"`
 	Fans       int64   `json:"fans"`
+	Regtime    int64   `json:"regtime"`
 	Attentions []int64 `json:"attentions"`
 }
 

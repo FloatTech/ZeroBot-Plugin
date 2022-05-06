@@ -12,7 +12,6 @@ import (
 	"github.com/FloatTech/AnimeAPI/ascii2d"
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/FloatTech/AnimeAPI/saucenao"
-	"github.com/FloatTech/AnimeAPI/yandex"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -113,6 +112,7 @@ func init() { // 插件主体
 					}
 					continue
 				}
+<<<<<<< HEAD
 				if result, err := yandex.Yandex(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 				} else {
@@ -134,6 +134,9 @@ func init() { // 插件主体
 					}
 				}
 				// 不论结果如何都执行 ascii2d 搜索
+=======
+				// ascii2d 搜索
+>>>>>>> upsteram/master
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					continue

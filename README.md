@@ -1,5 +1,8 @@
 <div align="center">
-  <img src=".github/gopher.jpg" width = "200" height = "150" alt="Gopher"><br>
+  <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
+  <img src=".github/黒金.jpg" alt="看板娘" width = "400" height = "400">
+  </a><br>
+
   <h1>ZeroBot-Plugin</h1>
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
