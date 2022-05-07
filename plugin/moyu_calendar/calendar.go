@@ -21,9 +21,9 @@ const (
 )
 
 var (
-	picdata []byte
 	mu      sync.Mutex
 	pictime time.Time
+	picurl  string
 )
 
 func init() { // 插件主体
@@ -42,24 +42,21 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.ImageBytes(picdata))
+			ctx.SendChain(message.Image(picurl).Add("cache", 0))
 		})
 }
 
 func getdata() error { // 获取图片链接并且下载
 	mu.Lock()
 	defer mu.Unlock()
-	if picdata != nil && time.Since(pictime) <= time.Hour*20 {
+	if picurl != "" && time.Since(pictime) <= time.Hour*20 {
 		return nil
 	}
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", "", ua)
 	if err != nil {
 		return err
 	}
-	picdata, err = web.RequestDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "GET", "", ua)
-	if err != nil {
-		return err
-	}
+	picurl = gjson.Get(binary.BytesToString(data), "url").String()
 	pictime = time.Now()
 	return nil
 }
