@@ -29,7 +29,7 @@ var (
 func init() { // 插件主体
 	engine := control.Register("moyucalendar", &control.Options{
 		DisableOnDefault: false,
-		Help:            "摸鱼人日历\n" +
+		Help: "摸鱼人日历\n" +
 			"- /启用 moyucalendar\n" +
 			"- /禁用 moyucalendar\n" +
 			"- 记录在\"30 8 * * *\"触发的指令\n" +
