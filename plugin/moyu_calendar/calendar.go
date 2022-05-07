@@ -3,7 +3,7 @@ package moyucalendar
 
 import (
 	control "github.com/FloatTech/zbputils/control"
-  "github.com/FloatTech/zbputils/web"
+	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -18,8 +18,8 @@ func init() {
 			"   - 摸鱼人日历",
 	}).OnFullMatch("摸鱼人日历").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-      data, err := web.GetData("https://api.vvhan.com/api/moyu")
-      if err != nil {
+			data, err := web.GetData("https://api.vvhan.com/api/moyu")
+			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
