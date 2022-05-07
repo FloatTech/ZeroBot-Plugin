@@ -43,8 +43,8 @@ type epidemic struct {
 type area struct {
 	Name  string `json:"name"`
 	Today struct {
-		Confirm int `json:"confirm"`
-		Wzzadd  int `json:"wzz_add"`
+		Confirm int    `json:"confirm"`
+		Wzzadd  string `json:"wzz_add"`
 	} `json:"today"`
 	Total struct {
 		NowConfirm int    `json:"nowConfirm"`
