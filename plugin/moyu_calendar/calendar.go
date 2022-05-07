@@ -35,7 +35,7 @@ func init() { // 插件主体
 			"- 记录在\"30 8 * * *\"触发的指令\n" +
 			"   - 摸鱼人日历",
 	})
-	engine.OnFullMatch("摸鱼人日历", zero.OnlyGroup).SetBlock(true).
+	engine.OnFullMatch("摸鱼人日历", zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			err := getdata()
 			if err != nil {
@@ -56,7 +56,7 @@ func getdata() error { // 获取图片链接并且下载
 	if err != nil {
 		return err
 	}
-	picdata, err = web.RequestDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "GET", referer, ua)
+	picdata, err = web.RequestDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "POST", "", ua)
 	if err != nil {
 		return err
 	}
