@@ -56,7 +56,7 @@ func getdata() error { // 获取图片链接并且下载
 	if err != nil {
 		return err
 	}
-	picdata, err = web.RequestDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "POST", "", ua)
+	picdata, err = web.RequestDataWith(web.NewDefaultClient(), gjson.Get(binary.BytesToString(data), "url").String(), "GET", "", ua)
 	if err != nil {
 		return err
 	}
