@@ -807,6 +807,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 抽塔罗牌
   - [x] 抽n张塔罗牌
+  - [x] 解塔罗牌[牌名]
 
 </details>
 <details>

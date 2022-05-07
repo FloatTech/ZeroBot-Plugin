@@ -33,14 +33,15 @@ var position = [...]string{"正位", "逆位"}
 var reverse = [...]string{"", "Reverse"}
 var randomIntMap = make(map[int]int, 30)
 var infoMap = make(map[string]cardInfo, 30)
+var cardName = make([]string, 22)
 
 func init() {
 	engine := control.Register("tarot", &control.Options{
 		DisableOnDefault: false,
 		Help: "塔罗牌\n" +
 			"- 抽塔罗牌\n" +
-			"- 抽n张塔罗牌",
-		// TODO 抽X张塔罗牌 解塔罗牌[牌名]
+			"- 抽n张塔罗牌\n" +
+			"- 解塔罗牌[牌名]",
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
@@ -111,19 +112,17 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
-			value := make([]string, 22)
+
 			for _, card := range tempMap {
 				infoMapKey := strings.Split(card.Name, "(")[0]
 				infoMap[infoMapKey] = card.cardInfo
-				value = append(value, infoMapKey)
+				cardName = append(cardName, infoMapKey)
 			}
-			ctx.SendChain(message.Text("Keys:", value))
 			return true
 		},
 	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
-		ctx.SendChain(message.Text("match:", match))
 		if ok {
 			ctx.SendChain(message.Text(match, "的含义是~"),
 				message.Text("\n正位:", info.Description),
