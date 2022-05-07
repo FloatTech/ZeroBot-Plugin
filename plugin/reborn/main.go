@@ -5,41 +5,45 @@ import (
 	"fmt"
 	"math/rand"
 
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	wr "github.com/mroth/weightedrand"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	en := control.Register("reborn", order.AcquirePrio(), &control.Options{
+	en := control.Register("reborn", &control.Options{
 		DisableOnDefault: false,
 		Help:             "投胎\n- reborn",
 		PublicDataFolder: "Reborn",
 	})
-	go func() {
-		datapath := en.DataFolder()
-		jsonfile := datapath + "rate.json"
-		area := make(rate, 226)
-		err := load(&area, jsonfile)
-		if err != nil {
-			panic(err)
-		}
-		choices := make([]wr.Choice, len(area))
-		for i, a := range area {
-			choices[i].Item = a.Name
-			choices[i].Weight = uint(a.Weight * 1e9)
-		}
-		areac, err = wr.NewChooser(choices...)
-		if err != nil {
-			panic(err)
-		}
-		logrus.Printf("[Reborn]读取%d个国家/地区", len(area))
-	}()
-	en.OnFullMatch("reborn").SetBlock(true).
+
+	en.OnFullMatch("reborn", ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			datapath := en.DataFolder()
+			jsonfile := datapath + "rate.json"
+			area := make(rate, 226)
+			err := load(&area, jsonfile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			choices := make([]wr.Choice, len(area))
+			for i, a := range area {
+				choices[i].Item = a.Name
+				choices[i].Weight = uint(a.Weight * 1e9)
+			}
+			areac, err = wr.NewChooser(choices...)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			logrus.Printf("[Reborn]读取%d个国家/地区", len(area))
+			return true
+		},
+	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if rand.Int31() > 1<<27 {
 				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("投胎成功！\n您出生在 %s, 是 %s。", randcoun(), randgen())))

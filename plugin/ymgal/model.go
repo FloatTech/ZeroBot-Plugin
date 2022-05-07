@@ -13,7 +13,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 )
 
 // gdb 得分数据库
@@ -39,22 +38,21 @@ func (ymgal) TableName() string {
 }
 
 // initialize 初始化ymgaldb数据库
-func initialize(dbpath string) *ymgaldb {
-	var err error
+func initialize(dbpath string) (db *ymgaldb, err error) {
 	if _, err = os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(dbpath)
 		if err != nil {
-			return nil
+			return nil, err
 		}
-		defer f.Close()
+		_ = f.Close()
 	}
 	gdb, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
-		panic(err)
+		return
 	}
 	gdb.AutoMigrate(&ymgal{})
-	return (*ymgaldb)(gdb)
+	return (*ymgaldb)(gdb), nil
 }
 
 func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictureDescription, pictureList string) (err error) {
@@ -66,12 +64,12 @@ func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictur
 		PictureDescription: pictureDescription,
 		PictureList:        pictureList,
 	}
-	if err = db.Debug().Model(&ymgal{}).First(&y, "id = ? ", id).Error; err != nil {
+	if err = db.Model(&ymgal{}).First(&y, "id = ? ", id).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			err = db.Debug().Model(&ymgal{}).Create(&y).Error // newUser not user
+			err = db.Model(&ymgal{}).Create(&y).Error // newUser not user
 		}
 	} else {
-		err = db.Debug().Model(&ymgal{}).Where("id = ? ", id).Update(map[string]interface{}{
+		err = db.Model(&ymgal{}).Where("id = ? ", id).Update(map[string]interface{}{
 			"title":               title,
 			"picture_type":        pictureType,
 			"picture_description": pictureDescription,
@@ -83,14 +81,14 @@ func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictur
 
 func (gdb *ymgaldb) getYmgalByID(id string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
-	db.Debug().Model(&ymgal{}).Where("id = ?", id).Take(&y)
+	db.Model(&ymgal{}).Where("id = ?", id).Take(&y)
 	return
 }
 
 func (gdb *ymgaldb) randomYmgal(pictureType string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
 	var count int
-	s := db.Debug().Model(&ymgal{}).Where("picture_type = ?", pictureType).Count(&count)
+	s := db.Model(&ymgal{}).Where("picture_type = ?", pictureType).Count(&count)
 	if count == 0 {
 		return
 	}
@@ -101,7 +99,7 @@ func (gdb *ymgaldb) randomYmgal(pictureType string) (y ymgal) {
 func (gdb *ymgaldb) getYmgalByKey(pictureType, key string) (y ymgal) {
 	db := (*gorm.DB)(gdb)
 	var count int
-	s := db.Debug().Model(&ymgal{}).Where("picture_type = ? and (picture_description like ? or title like ?) ", pictureType, "%"+key+"%", "%"+key+"%").Count(&count)
+	s := db.Model(&ymgal{}).Where("picture_type = ? and (picture_description like ? or title like ?) ", pictureType, "%"+key+"%", "%"+key+"%").Count(&count)
 	if count == 0 {
 		return
 	}
@@ -125,27 +123,27 @@ var (
 	emoticonIDList       []string
 )
 
-func initPageNumber() (maxCgPageNumber, maxEmoticonPageNumber int) {
+func initPageNumber() (maxCgPageNumber, maxEmoticonPageNumber int, err error) {
 	doc, err := htmlquery.LoadURL(cgURL + "1")
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	maxCgPageNumber, err = strconv.Atoi(htmlquery.FindOne(doc, commonPageNumberExpr).Data)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	doc, err = htmlquery.LoadURL(emoticonURL + "1")
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	maxEmoticonPageNumber, err = strconv.Atoi(htmlquery.FindOne(doc, commonPageNumberExpr).Data)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	return
 }
 
-func getPicID(pageNumber int, pictureType string) {
+func getPicID(pageNumber int, pictureType string) error {
 	var picURL string
 	if pictureType == cgType {
 		picURL = cgURL + strconv.Itoa(pageNumber)
@@ -154,7 +152,7 @@ func getPicID(pageNumber int, pictureType string) {
 	}
 	doc, err := htmlquery.LoadURL(picURL)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	list := htmlquery.Find(doc, "//*[@id='picset-result-list']/ul/div/div[1]/a")
 	for i := 0; i < len(list); i++ {
@@ -166,16 +164,26 @@ func getPicID(pageNumber int, pictureType string) {
 			emoticonIDList = append(emoticonIDList, picID)
 		}
 	}
+	return nil
 }
 
-func updatePic() {
-	maxCgPageNumber, maxEmoticonPageNumber := initPageNumber()
+func updatePic() error {
+	maxCgPageNumber, maxEmoticonPageNumber, err := initPageNumber()
+	if err != nil {
+		return err
+	}
 	for i := 1; i <= maxCgPageNumber; i++ {
-		getPicID(i, cgType)
+		err = getPicID(i, cgType)
+		if err != nil {
+			return err
+		}
 		time.Sleep(time.Millisecond * 500)
 	}
 	for i := 1; i <= maxEmoticonPageNumber; i++ {
-		getPicID(i, emoticonType)
+		err = getPicID(i, emoticonType)
+		if err != nil {
+			return err
+		}
 		time.Sleep(time.Millisecond * 500)
 	}
 CGLOOP:
@@ -185,8 +193,11 @@ CGLOOP:
 		mu.RUnlock()
 		if y.PictureList == "" {
 			mu.Lock()
-			storeCgPic(cgIDList[i])
+			err = storeCgPic(cgIDList[i])
 			mu.Unlock()
+			if err != nil {
+				return err
+			}
 		} else {
 			break CGLOOP
 		}
@@ -199,24 +210,28 @@ EMOTICONLOOP:
 		mu.RUnlock()
 		if y.PictureList == "" {
 			mu.Lock()
-			storeEmoticonPic(emoticonIDList[i])
+			err = storeEmoticonPic(emoticonIDList[i])
 			mu.Unlock()
+			if err != nil {
+				return err
+			}
 		} else {
 			break EMOTICONLOOP
 		}
 		time.Sleep(time.Millisecond * 500)
 	}
+	return nil
 }
 
-func storeCgPic(picIDStr string) {
+func storeCgPic(picIDStr string) (err error) {
 	picID, err := strconv.ParseInt(picIDStr, 10, 64)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	pictureType := cgType
 	doc, err := htmlquery.LoadURL(webPicURL + picIDStr)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	title := htmlquery.FindOne(doc, "//meta[@name='name']").Attr[1].Val
 	pictureDescription := htmlquery.FindOne(doc, "//meta[@name='description']").Attr[1].Val
@@ -224,7 +239,7 @@ func storeCgPic(picIDStr string) {
 	re := regexp.MustCompile(reNumber)
 	pictureNumber, err := strconv.Atoi(re.FindString(pictureNumberStr))
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return
 	}
 	pictureList := ""
 	for i := 1; i <= pictureNumber; i++ {
@@ -236,20 +251,18 @@ func storeCgPic(picIDStr string) {
 		}
 	}
 	err = gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
+	return
 }
 
-func storeEmoticonPic(picIDStr string) {
+func storeEmoticonPic(picIDStr string) error {
 	picID, err := strconv.ParseInt(picIDStr, 10, 64)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	pictureType := emoticonType
 	doc, err := htmlquery.LoadURL(webPicURL + picIDStr)
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	title := htmlquery.FindOne(doc, "//meta[@name='name']").Attr[1].Val
 	pictureDescription := htmlquery.FindOne(doc, "//meta[@name='description']").Attr[1].Val
@@ -257,7 +270,7 @@ func storeEmoticonPic(picIDStr string) {
 	re := regexp.MustCompile(reNumber)
 	pictureNumber, err := strconv.Atoi(re.FindString(pictureNumberStr))
 	if err != nil {
-		log.Errorln("[ymgal]:", err)
+		return err
 	}
 	pictureList := ""
 	for i := 1; i <= pictureNumber; i++ {
@@ -268,8 +281,5 @@ func storeEmoticonPic(picIDStr string) {
 			pictureList += "," + picURL
 		}
 	}
-	err = gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
-	if err != nil {
-		log.Errorln("[ymgal]:", err)
-	}
+	return gdb.insertOrUpdateYmgalByID(picID, title, pictureType, pictureDescription, pictureList)
 }

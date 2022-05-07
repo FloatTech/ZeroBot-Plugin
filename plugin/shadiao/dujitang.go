@@ -11,7 +11,7 @@ import (
 
 func init() {
 	engine.OnFullMatch("来碗毒鸡汤").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		data, err := web.GetDataWith(web.NewDefaultClient(), duURL, "GET", duReferer, ua)
+		data, err := web.RequestDataWith(web.NewDefaultClient(), duURL, "GET", duReferer, ua)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return

@@ -10,14 +10,16 @@ import (
 var (
 	info = [...]string{
 		"* OneBot + ZeroBot + Golang",
-		"* Version 1.3.1 - 2022-03-07 13:40:58 +0800 CST",
+		"* Version 1.4.0-beta4 - 2022-05-04 23:21:30 +0800 CST",
 		"* Copyright © 2020 - 2022 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
+	// Banner ...
 	Banner = strings.Join(info[:], "\n")
 	reg    = registry.NewRegReader("reilia.westeurope.cloudapp.azure.com:32664", "fumiama")
 )
 
+// PrintBanner ...
 func PrintBanner() {
 	fmt.Print(
 		"\n======================[ZeroBot-Plugin]======================",
@@ -28,6 +30,7 @@ func PrintBanner() {
 	)
 }
 
+// Kanban ...
 func Kanban() string {
 	err := reg.Connect()
 	if err != nil {

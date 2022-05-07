@@ -3,14 +3,12 @@ package shadiao
 
 import (
 	control "github.com/FloatTech/zbputils/control"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
-	chpURL          = "https://chp.shadiao.app/api.php"
-	duURL           = "https://du.shadiao.app/api.php"
-	pyqURL          = "https://pyq.shadiao.app/api.php"
+	chpURL          = "https://chp.shadiao.app/chp"
+	duURL           = "https://api.shadiao.app/du"
+	pyqURL          = "https://api.shadiao.app/pyq"
 	yduanziURL      = "http://www.yduanzi.com/duanzi/getduanzi"
 	chayiURL        = "https://api.lovelive.tools/api/SweetNothings/Web/0"
 	ganhaiURL       = "https://api.lovelive.tools/api/SweetNothings/Web/1"
@@ -23,7 +21,7 @@ const (
 )
 
 var (
-	engine = control.Register("shadiao", order.AcquirePrio(), &control.Options{
+	engine = control.Register("shadiao", &control.Options{
 		DisableOnDefault: false,
 		Help: "沙雕app\n" +
 			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子",

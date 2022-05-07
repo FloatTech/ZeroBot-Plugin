@@ -8,10 +8,8 @@ import (
 	"encoding/json"
 	"image"
 	"io"
-	"math/rand"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/fogleman/gg" // 注册了 jpg png gif
 	"github.com/sirupsen/logrus"
@@ -25,8 +23,6 @@ import (
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/math"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -42,7 +38,7 @@ const (
 
 var (
 	// 底图类型列表
-	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘", "东方归言录"}
+	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘", "东方归言录", "奇异恩典", "夏日口袋"}
 	// 映射底图与 index
 	index = make(map[string]uint8)
 	// 签文
@@ -51,35 +47,21 @@ var (
 
 func init() {
 	// 插件主体
-	en := control.Register("fortune", order.AcquirePrio(), &control.Options{
+	en := control.Register("fortune", &control.Options{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
-			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录]",
+			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录 | 奇异恩典 | 夏日口袋]",
 		PublicDataFolder: "Fortune",
 	})
-	go func() {
-		for i, s := range table {
-			index[s] = uint8(i)
-		}
-		_ = os.RemoveAll(cache)
-		err := os.MkdirAll(cache, 0755)
-		if err != nil {
-			panic(err)
-		}
-		data, err := file.GetLazyData(omikujson, true, false)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(data, &omikujis)
-		if err != nil {
-			panic(err)
-		}
-		_, err = file.GetLazyData(font, false, true)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	_ = os.RemoveAll(cache)
+	err := os.MkdirAll(cache, 0755)
+	if err != nil {
+		panic(err)
+	}
+	for i, s := range table {
+		index[s] = uint8(i)
+	}
 	en.OnRegex(`^设置底图\s?(.*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
@@ -104,7 +86,26 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
-	en.OnFullMatchGroup([]string{"运势", "抽签"}).SetBlock(true).
+	en.OnFullMatchGroup([]string{"运势", "抽签"}, ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			data, err := file.GetLazyData(omikujson, false)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = json.Unmarshal(data, &omikujis)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			_, err = file.GetLazyData(font, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			return true
+		},
+	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取该群背景类型，默认车万
 			kind := "车万"
@@ -123,25 +124,22 @@ func init() {
 			}
 			// 检查背景图片是否存在
 			zipfile := images + kind + ".zip"
-			_, err := file.GetLazyData(zipfile, false, false)
+			_, err := file.GetLazyData(zipfile, false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 
-			// 生成种子
-			t, _ := strconv.ParseInt(time.Now().Format("20060102"), 10, 64)
-			seed := ctx.Event.UserID + t
-
 			// 随机获取背景
-			background, index, err := randimage(zipfile, seed)
+			background, index, err := randimage(zipfile, ctx)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 
 			// 随机获取签文
-			title, text := randtext(seed)
+			randtextindex := ctxext.RandSenderPerDayN(ctx, len(omikujis))
+			title, text := omikujis[randtextindex]["title"], omikujis[randtextindex]["content"]
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
@@ -155,7 +153,7 @@ func init() {
 				return err
 			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 		})
@@ -163,18 +161,16 @@ func init() {
 
 // @function randimage 随机选取zip内的文件
 // @param path zip路径
-// @param seed 随机数种子
+// @param ctx *zero.Ctx
 // @return 文件路径 & 错误信息
-func randimage(path string, seed int64) (im image.Image, index int, err error) {
+func randimage(path string, ctx *zero.Ctx) (im image.Image, index int, err error) {
 	reader, err := zip.OpenReader(path)
 	if err != nil {
 		return
 	}
 	defer reader.Close()
 
-	r := rand.New(rand.NewSource(seed))
-	index = r.Intn(len(reader.File))
-	file := reader.File[index]
+	file := reader.File[ctxext.RandSenderPerDayN(ctx, len(reader.File))]
 	f, err := file.Open()
 	if err != nil {
 		return
@@ -183,16 +179,6 @@ func randimage(path string, seed int64) (im image.Image, index int, err error) {
 
 	im, _, err = image.Decode(f)
 	return
-}
-
-// @function randtext 随机选取签文
-// @param file 文件路径
-// @param seed 随机数种子
-// @return 签名 & 签文 & 错误信息
-func randtext(seed int64) (string, string) {
-	r := rand.New(rand.NewSource(seed))
-	i := r.Intn(len(omikujis))
-	return omikujis[i]["title"], omikujis[i]["content"]
 }
 
 // @function draw 绘制运势图

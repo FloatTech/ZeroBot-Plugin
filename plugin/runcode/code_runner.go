@@ -3,7 +3,7 @@ package runcode
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -13,8 +13,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 
 	"github.com/tidwall/gjson"
 )
@@ -93,7 +91,7 @@ var (
 )
 
 func init() {
-	control.Register("runcode", order.AcquirePrio(), &control.Options{
+	control.Register("runcode", &control.Options{
 		DisableOnDefault: false,
 		Help: "在线代码运行: \n" +
 			">runcode [language] [code block]\n" +
@@ -117,7 +115,7 @@ func init() {
 				)
 			} else {
 				// 执行运行
-				block := message.UnescapeCQCodeText(ctx.State["regex_matched"].([]string)[3])
+				block := message.UnescapeCQText(ctx.State["regex_matched"].([]string)[3])
 				switch block {
 				case "help":
 					ctx.SendChain(
@@ -132,7 +130,7 @@ func init() {
 						// 运行失败
 						ctx.SendChain(
 							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-							message.Text("ERROR: ", err),
+							message.Text("ERROR:", err),
 						)
 					} else {
 						// 运行成功
@@ -181,7 +179,7 @@ func runCode(code string, runType [2]string) (string, error) {
 	if body.StatusCode != http.StatusOK {
 		return "", errors.New("code not 200")
 	}
-	res, err := ioutil.ReadAll(body.Body)
+	res, err := io.ReadAll(body.Body)
 	if err != nil {
 		return "", err
 	}

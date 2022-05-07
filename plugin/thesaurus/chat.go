@@ -6,24 +6,21 @@ import (
 	"math/rand"
 
 	control "github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 type kimo = map[string]*[]string
 
 func init() {
-	engine := control.Register("thesaurus", order.AcquirePrio(), &control.Options{
+	engine := control.Register("thesaurus", &control.Options{
 		DisableOnDefault: false,
 		Help:             "thesaurus\n- 词典匹配回复",
 		PublicDataFolder: "Chat",
 	})
 	go func() {
-		data, err := file.GetLazyData(engine.DataFolder()+"kimoi.json", true, true)
+		data, err := engine.GetLazyData("kimoi.json", false)
 		if err != nil {
 			panic(err)
 		}

@@ -23,7 +23,6 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
@@ -32,14 +31,14 @@ import (
 )
 
 func init() {
-	engine := control.Register("scale", order.AcquirePrio(), &control.Options{
+	engine := control.Register("scale", &control.Options{
 		DisableOnDefault:  false,
 		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
 		PrivateDataFolder: "scale",
 	}).ApplySingle(ctxext.DefaultSingle)
 	cachedir := engine.DataFolder()
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, ctxext.MustProvidePicture, getPara).SetBlock(true).
+	engine.OnKeywordGroup([]string{"放大图片"}, zero.OnlyGroup, zero.MustProvidePicture, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
@@ -57,7 +56,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				if p[0].Drawings < 0.1 || p[0].Neutral > 0.8 {
+				if p.Drawings < 0.1 || p.Neutral > 0.8 {
 					ctx.SendChain(message.Text("请发送二次元图片!"))
 					return
 				}
@@ -111,7 +110,7 @@ func init() {
 }
 
 func getPara(ctx *zero.Ctx) bool {
-	next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID))
+	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession())
 	recv, cancel := next.Repeat()
 	i := 0
 	paras := [2]int{}
@@ -119,9 +118,10 @@ func getPara(ctx *zero.Ctx) bool {
 	for {
 		select {
 		case <-time.After(time.Second * 120):
+			cancel()
 			return false
-		case e := <-recv:
-			msg := e.Message.ExtractPlainText()
+		case c := <-recv:
+			msg := c.Event.Message.ExtractPlainText()
 			num, err := strconv.Atoi(msg)
 			if err != nil {
 				ctx.SendChain(message.Text("请输入数字!"))

@@ -9,13 +9,11 @@ import (
 
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/antchfx/htmlquery"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 const (
@@ -23,28 +21,30 @@ const (
 )
 
 func init() {
-	engine := control.Register("jandan", order.AcquirePrio(), &control.Options{
+	engine := control.Register("jandan", &control.Options{
 		DisableOnDefault: false,
-		Help:             "煎蛋网无聊图\n- 来份屌图\n- 更新屌图\n",
+		Help:             "煎蛋网无聊图\n- 来份[屌|弔|吊]图\n- 更新[屌|弔|吊]图\n",
 		PublicDataFolder: "Jandan",
 	})
 
-	go func() {
-		dbpath := engine.DataFolder()
-		db.DBPath = dbpath + "pics.db"
-		_, _ = file.GetLazyData(db.DBPath, false, false)
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		db.DBPath = engine.DataFolder() + "pics.db"
+		_, _ = engine.GetLazyData("pics.db", false)
 		err := db.Create("picture", &picture{})
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		n, err := db.Count("picture")
 		if err != nil {
-			panic(err)
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
 		}
 		logrus.Printf("[jandan]读取%d张图片", n)
-	}()
+		return true
+	})
 
-	engine.OnFullMatch("来份屌图").SetBlock(true).
+	engine.OnRegex(`来份[屌|弔|吊]图`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u, err := getRandomPicture()
 			if err != nil {
@@ -54,7 +54,7 @@ func init() {
 			ctx.SendChain(message.Image(u))
 		})
 
-	engine.OnFullMatch("更新屌图", zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`更新[屌|弔|吊]图`, zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.Send("少女更新中...")
 			webpageURL := api
@@ -71,7 +71,7 @@ func init() {
 			}
 		LOOP:
 			for i := 0; i < pageTotal; i++ {
-				logrus.Infoln("[jandan]", fmt.Sprintf("处理第%d/%d页...", i, pageTotal))
+				logrus.Debugln("[jandan]", fmt.Sprintf("处理第%d/%d页...", i, pageTotal))
 				doc, err = htmlquery.LoadURL(webpageURL)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))

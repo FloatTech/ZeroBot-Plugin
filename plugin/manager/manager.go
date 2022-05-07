@@ -19,8 +19,6 @@ import (
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/manager/timer"
 )
 
@@ -48,8 +46,10 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX（可加{at}在欢迎时@对方）\n" +
+		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{uid}] [{gid}] [{groupname}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {uid}是被欢迎者QQ号 {gid}是当前群群号 {groupname} 是当前群群名\n" +
 		"- 测试欢迎语\n" +
+		"- 设置告别辞 参数同设置欢迎语\n" +
+		"- 测试告别辞\n" +
 		"- [开启 | 关闭]入群验证"
 )
 
@@ -59,7 +59,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("manager", order.AcquirePrio(), &control.Options{
+	engine := control.Register("manager", &control.Options{
 		DisableOnDefault:  false,
 		Help:              hint,
 		PrivateDataFolder: "manager",
@@ -73,6 +73,10 @@ func init() { // 插件主体
 			panic(err)
 		}
 		err = db.Create("member", &member{})
+		if err != nil {
+			panic(err)
+		}
+		err = db.Create("farewell", &welcome{})
 		if err != nil {
 			panic(err)
 		}
@@ -281,7 +285,7 @@ func init() { // 插件主体
 			dateStrs := ctx.State["regex_matched"].([]string)
 			ts := timer.GetFilledTimer(dateStrs, ctx.Event.SelfID, ctx.Event.GroupID, false)
 			if ts.En() {
-				go clock.RegisterTimer(ts, true)
+				go clock.RegisterTimer(ts, true, false)
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -294,7 +298,7 @@ func init() { // 插件主体
 			var url, alert string
 			switch len(dateStrs) {
 			case 4:
-				url = dateStrs[2]
+				url = strings.TrimPrefix(dateStrs[2], "用")
 				alert = dateStrs[3]
 			case 3:
 				alert = dateStrs[2]
@@ -304,7 +308,7 @@ func init() { // 插件主体
 			}
 			logrus.Debugln("[manager] cron:", dateStrs[1])
 			ts := timer.GetFilledCronTimer(dateStrs[1], alert, url, ctx.Event.SelfID, ctx.Event.GroupID)
-			if clock.RegisterTimer(ts, true) {
+			if clock.RegisterTimer(ts, true, false) {
 				ctx.SendChain(message.Text("记住了~"))
 			} else {
 				ctx.SendChain(message.Text("参数非法:" + ts.Alert))
@@ -345,11 +349,7 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"翻牌"}, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			// 无缓存获取群员列表
-			list := ctx.CallAction("get_group_member_list", zero.Params{
-				"group_id": ctx.Event.GroupID,
-				"no_cache": true,
-			}).Data
-			temp := list.Array()
+			temp := ctx.GetThisGroupMemberListNoCache().Array()
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
@@ -381,7 +381,7 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
@@ -411,13 +411,13 @@ func init() { // 插件主体
 							}
 							return false
 						}
-						next := zero.NewFutureEvent("message", 999, false, zero.CheckUser(ctx.Event.UserID), rule)
+						next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession(), rule)
 						recv, cancel := next.Repeat()
 						select {
 						case <-time.After(time.Minute):
+							cancel()
 							ctx.SendChain(message.Text("拜拜啦~"))
 							ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
-							cancel()
 						case <-recv:
 							cancel()
 							ctx.SendChain(message.Text("答对啦~"))
@@ -430,16 +430,24 @@ func init() { // 插件主体
 	engine.OnNotice().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
-				userid := ctx.Event.UserID
-				ctx.SendChain(message.Text(ctxext.CardOrNickName(ctx, userid), "(", userid, ")", "离开了我们..."))
+				var w welcome
+				err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+				if err == nil {
+					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+				} else {
+					userid := ctx.Event.UserID
+					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+				}
 			}
 		})
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			welcomestring := ctx.State["regex_matched"].([]string)[1]
+			welcomestring = message.UnescapeCQCodeText(welcomestring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   ctx.State["regex_matched"].([]string)[1],
+				Msg:   welcomestring,
 			}
 			err := db.Insert("welcome", w)
 			if err == nil {
@@ -454,9 +462,37 @@ func init() { // 插件主体
 			var w welcome
 			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {
-				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(strings.ReplaceAll(w.Msg, "{at}", "[CQ:at,qq="+strconv.FormatInt(ctx.Event.UserID, 10)+"]")))
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				ctx.SendChain(message.Text("欢迎~"))
+			}
+		})
+	// 设置告别辞
+	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			farewellstring := ctx.State["regex_matched"].([]string)[1]
+			farewellstring = message.UnescapeCQCodeText(farewellstring)
+			w := &welcome{
+				GrpID: ctx.Event.GroupID,
+				Msg:   farewellstring,
+			}
+			err := db.Insert("farewell", w)
+			if err == nil {
+				ctx.SendChain(message.Text("记住啦!"))
+			} else {
+				ctx.SendChain(message.Text("出错啦: ", err))
+			}
+		})
+	// 测试告别辞
+	engine.OnFullMatch("测试告别辞", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			var w welcome
+			err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+			if err == nil {
+				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+			} else {
+				userid := ctx.Event.UserID
+				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
 			}
 		})
 	// 入群后验证开关
@@ -509,15 +545,6 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text("找不到服务!"))
 		})
-	// 运行 CQ 码
-	engine.OnRegex(`^run(.*)$`, zero.SuperUserPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			var cmd = ctx.State["regex_matched"].([]string)[1]
-			cmd = strings.ReplaceAll(cmd, "&#91;", "[")
-			cmd = strings.ReplaceAll(cmd, "&#93;", "]")
-			// 可注入，权限为主人
-			ctx.Send(cmd)
-		})
 	// 根据 gist 自动同意加群
 	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。
 	// 然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
@@ -537,7 +564,7 @@ func init() { // 插件主体
 			}
 			ghun := ans[:divi]
 			hash := ans[divi+1:]
-			logrus.Infoln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
+			logrus.Debugln("[manager]收到加群申请, 用户:", ghun, ", hash:", hash)
 			ok, reason := checkNewUser(ctx.Event.UserID, ctx.Event.GroupID, ghun, hash)
 			if ok {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", true, "")
@@ -548,4 +575,21 @@ func init() { // 插件主体
 			}
 		}
 	})
+}
+
+// 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
+func welcometocq(ctx *zero.Ctx, welcome string) string {
+	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                  // 用户id
+	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                // 用户昵称
+	at := "[CQ:at,qq=" + uid + "]"                                                  // at用户
+	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640]" // 用户头像
+	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                 // 群id
+	groupname := ctx.GetGroupInfo(ctx.Event.GroupID, true).Name                     // 群名
+	cqstring := strings.ReplaceAll(welcome, "{at}", at)
+	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
+	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
+	cqstring = strings.ReplaceAll(cqstring, "{uid}", uid)
+	cqstring = strings.ReplaceAll(cqstring, "{gid}", gid)
+	cqstring = strings.ReplaceAll(cqstring, "{groupname}", groupname)
+	return cqstring
 }

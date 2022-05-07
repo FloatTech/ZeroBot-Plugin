@@ -2,7 +2,6 @@
 package hs
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -16,8 +15,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var reqconf = [...]string{"GET", "https://hs.fbigame.com",
@@ -43,7 +40,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("hs", order.AcquirePrio(), &control.Options{
+	engine := control.Register("hs", &control.Options{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +
@@ -66,7 +63,7 @@ func init() {
 			cid := gjson.Get(g, `list.`+strconv.Itoa(i)+`.CardID`).String()
 			cachefile := cachedir + cid
 			if file.IsNotExist(cachefile) {
-				data, err := web.GetDataWith(web.NewDefaultClient(),
+				data, err := web.RequestDataWith(web.NewDefaultClient(),
 					`https://res.fbigame.com/hs/v13/`+cid+`.png?auth_key=`+
 						gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
 					reqconf[0], reqconf[1], reqconf[2])
@@ -83,13 +80,12 @@ func init() {
 			ctx.Event.GroupID,
 			sk,
 		).Get("message_id").Int(); id == 0 {
-			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			ctx.SendChain(message.Text("ERROR:可能被风控了"))
 		}
 	})
 	// 卡组
 	engine.OnRegex(`^[\s\S]*?(AAE[a-zA-Z0-9/\+=]{70,})[\s\S]*$`).
 		SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		fmt.Print("成功")
 		List := ctx.State["regex_matched"].([]string)[1]
 		ctx.SendChain(
 			message.Image(kz(List)),
@@ -98,10 +94,10 @@ func init() {
 }
 
 func sh(s string) string {
-	data, err := web.GetDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2])
+	data, err := web.RequestDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2])
 	if err == nil {
 		url := hs + para + "&hash=" + strings.SplitN(strings.SplitN(helper.BytesToString(data), `var hash = "`, 2)[1], `"`, 2)[0] + "&search=" + s
-		r, err := web.GetDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		r, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
 		if err == nil {
 			return helper.BytesToString(r)
 		}
@@ -110,10 +106,10 @@ func sh(s string) string {
 }
 
 func kz(s string) string {
-	data, err := web.GetDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2])
+	data, err := web.RequestDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2])
 	if err == nil {
 		url := hs + para + "mod=general_deck_image&deck_code=" + s + "&deck_text=&hash=" + strings.SplitN(strings.SplitN(helper.BytesToString(data), `var hash = "`, 2)[1], `"`, 2)[0] + "&search=" + s
-		r, err := web.GetDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		r, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
 		if err == nil {
 			return "base64://" + gjson.Get(helper.BytesToString(r), "img").String()
 		}

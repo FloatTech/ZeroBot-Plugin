@@ -2,7 +2,7 @@
 package nbnhhsh
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11,12 +11,10 @@ import (
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 func init() {
-	control.Register("nbnhhsh", order.AcquirePrio(), &control.Options{
+	control.Register("nbnhhsh", &control.Options{
 		DisableOnDefault: false,
 		Help:             "拼音首字母释义工具\n- ?? [缩写]",
 	}).OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).
@@ -31,7 +29,7 @@ func getValue(text string) []string {
 	urlValues.Add("text", text)
 	resp, err := http.PostForm("https://lab.magiconch.com/api/nbnhhsh/guess", urlValues)
 	if err == nil {
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err == nil {
 			resp.Body.Close()
 			json := gjson.ParseBytes(body)

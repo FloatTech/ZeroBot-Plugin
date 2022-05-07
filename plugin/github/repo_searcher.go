@@ -4,7 +4,7 @@ package github
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -13,13 +13,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/zbputils/control/order"
-
 	"github.com/tidwall/gjson"
 )
 
 func init() { // 插件主体
-	control.Register("github", order.AcquirePrio(), &control.Options{
+	control.Register("github", &control.Options{
 		DisableOnDefault: false,
 		Help: "GitHub仓库搜索\n" +
 			"- >github [xxx]\n" +
@@ -36,12 +34,12 @@ func init() { // 插件主体
 			}.Encode()
 			body, err := netGet(api.String(), header)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			}
 			// 解析请求
 			info := gjson.ParseBytes(body)
 			if info.Get("total_count").Int() == 0 {
-				ctx.SendChain(message.Text("ERROR: 没有找到这样的仓库"))
+				ctx.SendChain(message.Text("ERROR:没有找到这样的仓库"))
 				return
 			}
 			repo := info.Get("items.0")
@@ -97,7 +95,7 @@ func init() { // 插件主体
 }
 
 // notnull 如果传入文本为空，则返回默认值
-//nolint: unparam
+
 func notnull(text, defstr string) string {
 	if text == "" {
 		return defstr
@@ -119,7 +117,7 @@ func netGet(dest string, header http.Header) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

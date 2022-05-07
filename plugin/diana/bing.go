@@ -6,13 +6,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
-
-	"github.com/FloatTech/zbputils/control/order"
+	"github.com/FloatTech/zbputils/ctxext"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/diana/data"
 )
 
-var engine = control.Register("diana", order.AcquirePrio(), &control.Options{
+var engine = control.Register("diana", &control.Options{
 	DisableOnDefault: false,
 	Help: "嘉然\n" +
 		"- 小作文\n" +
@@ -23,30 +22,33 @@ var engine = control.Register("diana", order.AcquirePrio(), &control.Options{
 })
 
 func init() {
-	go func() {
-		datapath := engine.DataFolder()
-		dbfile := datapath + "text.db"
-		data.LoadText(dbfile)
-	}()
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		err := data.LoadText(engine.DataFolder() + "text.db")
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		return true
+	})
 
 	// 随机发送一篇上面的小作文
-	engine.OnFullMatch("小作文").SetBlock(true).
+	engine.OnFullMatch("小作文", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 绕过第一行发病
 			ctx.SendChain(message.Text(data.RandText()))
 		})
 	// 逆天
-	engine.OnFullMatch("发大病").SetBlock(true).
+	engine.OnFullMatch("发大病", getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 第一行是发病
 			ctx.SendChain(message.Text(data.HentaiText()))
 		})
 	// 增加小作文
-	engine.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^教你一篇小作文(.*)$`, zero.AdminPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			err := data.AddText(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			} else {
 				ctx.SendChain(message.Text("记住啦!"))
 			}

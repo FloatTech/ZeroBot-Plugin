@@ -11,8 +11,6 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
 var (
@@ -22,7 +20,7 @@ var (
 )
 
 func init() { // 插件主体
-	en := control.Register("gif", order.AcquirePrio(), &control.Options{
+	en := control.Register("gif", &control.Options{
 		DisableOnDefault:  false,
 		Help:              "制图\n- " + strings.Join(cmds, "\n- "),
 		PrivateDataFolder: "gif",

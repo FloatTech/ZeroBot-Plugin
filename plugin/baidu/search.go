@@ -8,12 +8,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/control/order"
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
 func init() {
-	control.Register("baidu", order.AcquirePrio(), &control.Options{
+	control.Register("baidu", &control.Options{
 		DisableOnDefault: false,
 		Help: "baidu\n" +
 			"- 百度下[xxx]",

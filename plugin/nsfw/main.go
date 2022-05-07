@@ -8,49 +8,48 @@ import (
 	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/zbputils/control/order"
 )
 
+const hso = "https://gchat.qpic.cn/gchatpic_new//--4234EDEC5F147A4C319A41149D7E0EA9/0"
+
 func init() {
-	engine := control.Register("nsfw", order.AcquirePrio(), &control.Options{
+	engine := control.Register("nsfw", &control.Options{
 		DisableOnDefault: false,
 		Help:             "nsfw图片识别\n- nsfw打分[图片]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	// 上传一张图进行评价
-	engine.OnKeywordGroup([]string{"nsfw打分"}, zero.OnlyGroup, ctxext.MustProvidePicture).SetBlock(true).
+	engine.OnKeywordGroup([]string{"nsfw打分"}, zero.OnlyGroup, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
 				ctx.SendChain(message.Text("少女祈祷中..."))
-				p, err := nsfw.Classify(url...)
+				p, err := nsfw.Classify(url[0])
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p[0]))))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))
 			}
 		})
-	en := control.Register("nsfwauto", order.AcquirePrio(), &control.Options{
+	control.Register("nsfwauto", &control.Options{
 		DisableOnDefault: true,
 		Help:             "nsfw图片自动识别\n- 当图片属于非 neutral 类别时自动发送评价",
-	})
-	en.OnMessage(ctxext.IsPicExists).SetBlock(false).
+	}).OnMessage(zero.HasPicture).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
 				process.SleepAbout1sTo2s()
-				p, err := nsfw.Classify(url...)
+				p, err := nsfw.Classify(url[0])
 				if err != nil {
 					return
 				}
 				process.SleepAbout1sTo2s()
-				autojudge(ctx, p[0])
+				autojudge(ctx, p)
 			}
 		})
 }
 
-func judge(p nsfw.Picture) string {
+func judge(p *nsfw.Picture) string {
 	if p.Neutral > 0.3 {
 		return "普通哦"
 	}
@@ -72,7 +71,7 @@ func judge(p nsfw.Picture) string {
 	return c
 }
 
-func autojudge(ctx *zero.Ctx, p nsfw.Picture) {
+func autojudge(ctx *zero.Ctx, p *nsfw.Picture) {
 	if p.Neutral > 0.3 {
 		return
 	}
@@ -96,6 +95,6 @@ func autojudge(ctx *zero.Ctx, p nsfw.Picture) {
 		i++
 	}
 	if i > 0 {
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(c)))
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(c, "\n"), message.Image(hso)))
 	}
 }
