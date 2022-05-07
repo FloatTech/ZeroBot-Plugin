@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -15,13 +16,14 @@ import (
 
 const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
+type cardInfo struct {
+	Description        string `json:"description"`
+	ReverseDescription string `json:"reverseDescription"`
+	ImgURL             string `json:"imgUrl"`
+}
 type card struct {
-	Name string `json:"name"`
-	Info struct {
-		Description        string `json:"description"`
-		ReverseDescription string `json:"reverseDescription"`
-		ImgURL             string `json:"imgUrl"`
-	} `json:"info"`
+	Name     string `json:"name"`
+	cardInfo `json:"info"`
 }
 type cardSet = map[string]card
 
@@ -30,6 +32,7 @@ var reasons = [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言�
 var position = [...]string{"正位", "逆位"}
 var reverse = [...]string{"", "Reverse"}
 var randomIntMap = make(map[int]int, 30)
+var infoMap = make(map[string]cardInfo, 30)
 
 func init() {
 	engine := control.Register("tarot", &control.Options{
@@ -94,6 +97,42 @@ func init() {
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		return
 	})
+
+	engine.OnRegex(`^解塔罗牌\s?(.*)`, ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			tempMap := make(cardSet, 30)
+			data, err := engine.GetLazyData("tarots.json", true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = json.Unmarshal(data, &tempMap)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			value := make([]string, 22)
+			for _, card := range tempMap {
+				infoMapKey := strings.Split(card.Name, "(")[0]
+				infoMap[infoMapKey] = card.cardInfo
+				value = append(value, infoMapKey)
+			}
+			ctx.SendChain(message.Text("Keys:", value))
+			return true
+		},
+	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		match := ctx.State["regex_matched"].([]string)[1]
+		info, ok := infoMap[match]
+		ctx.SendChain(message.Text("match:", match))
+		if ok {
+			ctx.SendChain(message.Text(match, "的含义是~"),
+				message.Text("\n正位:", info.Description),
+				message.Text("\n逆位:", info.ReverseDescription))
+		} else {
+			ctx.SendChain(message.Text("没有找到", match, "噢~"))
+		}
+		return
+	})
 }
 
 func randTarot() []message.MessageSegment {
@@ -109,9 +148,9 @@ func randTarot() []message.MessageSegment {
 	name := card.Name
 	var info string
 	if p == 0 {
-		info = card.Info.Description
+		info = card.cardInfo.Description
 	} else {
-		info = card.Info.ReverseDescription
+		info = card.cardInfo.ReverseDescription
 	}
 	return []message.MessageSegment{
 		message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
