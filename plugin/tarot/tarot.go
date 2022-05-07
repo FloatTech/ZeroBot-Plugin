@@ -23,11 +23,13 @@ type card struct {
 		ImgURL             string `json:"imgUrl"`
 	} `json:"info"`
 }
-type cardset = map[string]card
+type cardSet = map[string]card
 
-var cardMap = make(cardset, 256)
+var cardMap = make(cardSet, 30)
 var reasons = [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 var position = [...]string{"正位", "逆位"}
+var reverse = [...]string{"", "Reverse"}
+var randomIntMap = make(map[int]int, 30)
 
 func init() {
 	engine := control.Register("tarot", &control.Options{
@@ -87,6 +89,8 @@ func init() {
 		for i := range msg {
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, randTarot()...)
 		}
+		// 还原随机数map
+		randomIntMap = make(map[int]int, 30)
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		return
 	})
@@ -94,6 +98,12 @@ func init() {
 
 func randTarot() []message.MessageSegment {
 	i := rand.Intn(22)
+	_, ok := randomIntMap[i]
+	for ok {
+		i = rand.Intn(22)
+		_, ok = randomIntMap[i]
+	}
+	randomIntMap[i] = 0
 	p := rand.Intn(2)
 	card := cardMap[(strconv.Itoa(i))]
 	name := card.Name
@@ -105,7 +115,7 @@ func randTarot() []message.MessageSegment {
 	}
 	return []message.MessageSegment{
 		message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
-		message.Image(fmt.Sprintf(bed+"MajorArcana/%d.png", i)),
+		message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], i)),
 		message.Text("\n其意义为: ", info),
 	}
 }
