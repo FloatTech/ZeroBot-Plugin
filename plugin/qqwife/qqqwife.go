@@ -1,5 +1,5 @@
-// Package groupwife 群老婆
-package groupwife
+// Package qqwife 娶群友
+package qqwife
 
 import (
 	"fmt"
