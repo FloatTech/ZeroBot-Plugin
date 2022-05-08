@@ -212,11 +212,8 @@ func init() {
 			}
 		})
 
-	en.OnMessage().SetBlock(false).
+	en.On(`message/group`).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			if ctx.Event.GroupID != 0 {
-				return
-			}
 			global.mu.RLock()
 			defer global.mu.RUnlock()
 
