@@ -41,6 +41,5 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(gjson.GetBytes(data, "data.text").String()))
-
 	})
 }
