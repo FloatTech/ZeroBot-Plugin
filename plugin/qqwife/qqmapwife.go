@@ -1,4 +1,4 @@
-// Package qqwife 娶群友
+// Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
 package qqwife
 
 import (
@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -17,8 +18,10 @@ import (
 )
 
 var (
+	setcp       = make(map[int64]int64, 60)           //初始化中间的map元素，虽然取了30个人数，以防万一翻个倍储存
 	qqwifegroup = make(map[int64]map[int64]int64, 50) //50个群的预算大小
 	lastdate    time.Time
+	rock        sync.RWMutex
 )
 
 func init() {
@@ -29,6 +32,7 @@ func init() {
 	})
 	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
+			rock.RLock()
 			if time.Now().Day() != lastdate.Day() {
 				qqwifegroup = make(map[int64]map[int64]int64, 50) //跨天就重新初始化数据
 			}
@@ -49,6 +53,7 @@ func init() {
 						"(", strconv.FormatInt(userinfo, 10), ")哒",
 					),
 				)
+				rock.RUnlock()
 				return
 			}
 			//如果被娶过
@@ -64,9 +69,11 @@ func init() {
 							"(", strconv.FormatInt(k, 10), ")哒",
 						),
 					)
+					rock.RUnlock()
 					return
 				}
 			}
+			rock.RUnlock()
 			// 无缓存获取群员列表
 			temp := ctx.GetThisGroupMemberListNoCache().Array()
 			sort.SliceStable(temp, func(i, j int) bool {
@@ -99,9 +106,10 @@ func init() {
 				return
 			}
 			//绑定CP
-			setcp := make(map[int64]int64, 60) //初始化中间的map元素，虽然取了30个人数，以防万一翻个倍储存
+			rock.Lock()
 			setcp[uid] = who
 			qqwifegroup[groupid] = setcp
+			rock.Unlock()
 			//输出结果
 			ctx.SendChain(
 				message.Text(status),
