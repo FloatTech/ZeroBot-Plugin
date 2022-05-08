@@ -99,7 +99,7 @@ func init() {
 				return
 			}
 			//绑定CP
-			setcp := make(map[int64]int64, 1) //初始化中间的map元素，个数为1
+			setcp := make(map[int64]int64, 60) //初始化中间的map元素，虽然取了30个人数，以防万一翻个倍储存
 			setcp[uid] = who
 			qqwifegroup[groupid] = setcp
 			//输出结果
