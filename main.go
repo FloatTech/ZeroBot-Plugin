@@ -27,6 +27,9 @@ import (
 
 	// webctrl "github.com/FloatTech/zbputils/control/web"           // web 后端控制
 
+	// copy
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/regexqa"
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
@@ -142,7 +145,7 @@ import (
 
 	// personal
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cloudmusic" // 网易云热评
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/groupwife" // 群老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/groupwife"  // 群老婆
 
 	// todo
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"
@@ -152,9 +155,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin"
-
-	// copy
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/regexqa"
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
 

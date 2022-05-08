@@ -44,6 +44,6 @@ func customjrrp(ctx *zero.Ctx, strjrrp string) string {
 	jrrp := ctxext.RandSenderPerDayN(ctx, 100) + 1
 	jrrps := strconv.Itoa(jrrp)
 	str := strings.ReplaceAll(strjrrp, "{jrrp}", jrrps)
-	str = strings.ReplaceAll(strjrrp, "{at}", at)
+	str = strings.ReplaceAll(str, "{at}", at)
 	return str
 }
