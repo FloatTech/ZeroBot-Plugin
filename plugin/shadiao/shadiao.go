@@ -2,7 +2,6 @@
 package shadiao
 
 import (
-	"fmt"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
@@ -35,7 +34,6 @@ var (
 
 func init() {
 	engine.OnFullMatchGroup([]string{"哄我", "来碗毒鸡汤", "发个朋友圈"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		fmt.Println(ctx.State["matched"].(string))
 		requestURL := sdMap[ctx.State["matched"].(string)]
 		data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", sdReferer, ua)
 		if err != nil {

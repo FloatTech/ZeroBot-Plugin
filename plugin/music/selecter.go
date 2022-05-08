@@ -36,9 +36,9 @@ func init() {
 			case "酷狗":
 				ctx.SendChain(kugou(ctx.State["regex_matched"].([]string)[2]))
 			case "网易":
-				ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[2]))
+				ctx.SendChain(cloud163(ctx, ctx.State["regex_matched"].([]string)[2]))
 			default: // 默认 QQ音乐
-				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
+				ctx.SendChain(qqmusic(ctx, ctx.State["regex_matched"].([]string)[2]))
 			}
 		})
 }
@@ -135,18 +135,28 @@ func kugou(keyword string) message.MessageSegment {
 }
 
 // cloud163 返回网易云音乐卡片
-func cloud163(keyword string) message.MessageSegment {
+func cloud163(ctx *zero.Ctx, keyword string) (msg message.MessageSegment) {
 	requestURL := "https://autumnfish.cn/search?keywords=" + url.QueryEscape(keyword)
-	data, _ := web.GetData(requestURL)
-	return message.Music("163", gjson.ParseBytes(data).Get("result.songs.0.id").Int())
+	data, err := web.GetData(requestURL)
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
+	}
+	msg = message.Music("163", gjson.ParseBytes(data).Get("result.songs.0.id").Int())
+	return
 }
 
 // qqmusic 返回QQ音乐卡片
-func qqmusic(keyword string) message.MessageSegment {
+func qqmusic(ctx *zero.Ctx, keyword string) (msg message.MessageSegment) {
 	requestURL := "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w=" + url.QueryEscape(keyword)
-	data, _ := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA())
+	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA())
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR:", err))
+		return
+	}
 	info := gjson.ParseBytes(data[9 : len(data)-1]).Get("data.song.list.0")
-	return message.Music("qq", info.Get("songid").Int())
+	msg = message.Music("qq", info.Get("songid").Int())
+	return
 }
 
 // md5str 返回字符串 MD5
