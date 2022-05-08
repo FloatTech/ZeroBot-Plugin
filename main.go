@@ -142,16 +142,19 @@ import (
 
 	// personal
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cloudmusic" // 网易云热评
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/groupwife" // 群老婆
 
 	// todo
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin"
+
+	// copy
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/regexqa"
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
 
