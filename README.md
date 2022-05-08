@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/zerobot-v1.5.1-black?style=flat-square&logo=go" />
   <img src="https://img.shields.io/github/license/FloatTech/ZeroBot-Plugin.svg?style=flat-square&logo=gnu" />
   <img src="https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq" />
-  <img src="https://img.shields.io/badge/Telegram-click%20me-informational?style=flat-square&logo=telegram&link=https://t.me/zerobotplugin" /><br><br>
+  <img src="https://img.shields.io/badge/Telegram Group-t.me/zerobotplugin-blue" /><br><br>
 
 
 本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
