@@ -78,8 +78,9 @@ func initRegex() {
 
 func init() {
 	en := control.Register("regexqa", &control.Options{
-		DisableOnDefault: true,
-		Help:             "",
+		DisableOnDefault:  true,
+		Help:              "[我|大家|有人][说|问]\"触发词\"(支持正则)你[答|说]\n[查看|看看][我|大家|有人][说|问]\n删除[大家|有人|我][说|问]",
+		PrivateDataFolder: "regexqa",
 	})
 	initRegex()
 	en.OnRegex(`^(我|大家|有人)(说|问)(.*)你(答|说)`, zero.OnlyGroup).SetBlock(false).
@@ -92,7 +93,7 @@ func init() {
 			if matched[1] == "我" {
 				all = false
 			}
-			if all && ctx.Event.Sender.Role == "member" {
+			if all && !zero.AdminPermission(ctx) {
 				ctx.Send("非管理员无法设置全局问答")
 				return
 			}
@@ -184,7 +185,7 @@ func init() {
 			if matched[1] == "我" {
 				all = false
 			}
-			if all && ctx.Event.Sender.Role == "member" {
+			if all && !zero.AdminPermission(ctx) {
 				ctx.Send("非管理员无法删除全局问答")
 				return
 			}
