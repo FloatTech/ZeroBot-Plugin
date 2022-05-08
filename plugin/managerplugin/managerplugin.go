@@ -1,7 +1,7 @@
 package managerplugin
 
 import (
-	"fmt"
+	"strconv"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -35,18 +35,10 @@ func init() {
 		})
 	engine.OnRegex(`^\[CQ:xml`, zero.OnlyGroup, zero.KeywordRule("serviceID=\"60\"")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupKick(
-				ctx.Event.GroupID,
-				ctx.Event.UserID,
-				false,
-			)
-			nickname := ctx.GetGroupMemberInfo(
-				ctx.Event.GroupID,
-				ctx.Event.UserID,
-				false,
-			).Get("nickname").Str
+			nickname := ctx.CardOrNickName(ctx.Event.UserID)
+			ctx.SetGroupKick(ctx.Event.GroupID, ctx.Event.UserID, false)
 			ctx.SetGroupBan(ctx.Event.GroupID, ctx.Event.UserID, 7*24*60*60)
-			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(fmt.Sprintf("检测到 [%s](%d) 发送了干扰性消息,已处理", nickname, ctx.Event.UserID)))...)
+			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("检测到 ["+nickname+"]("+strconv.FormatInt(ctx.Event.UserID, 10)+") 发送了干扰性消息,已处理"))...)
 			ctx.DeleteMessage(ctx.Event.MessageID.(message.MessageID))
 		})
 }

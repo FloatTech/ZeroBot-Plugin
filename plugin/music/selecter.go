@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/zbputils/web"
+
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/tidwall/gjson"
@@ -134,72 +136,28 @@ func kugou(keyword string) message.MessageSegment {
 }
 
 // cloud163 返回网易云音乐卡片
-func cloud163(keyword string) message.MessageSegment {
-	headers := http.Header{
-		"Content-Type": []string{"application/x-www-form-urlencoded"},
-		"User-Agent":   []string{"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"},
+func cloud163(keyword string) (msg message.MessageSegment) {
+	requestURL := "https://autumnfish.cn/search?keywords=" + url.QueryEscape(keyword)
+	data, err := web.GetData(requestURL)
+	if err != nil {
+		msg = message.Text("ERROR:", err)
+		return
 	}
-	data := url.Values{
-		"keywords": []string{keyword},
-	}
-	// 通过API 搜索音乐信息 第一首
-	// 返回音乐卡片
-	return message.Music("163", gjson.ParseBytes(netPost("https://nemapi.windis.xyz/search", data, headers)).Get("result.songs.0.id").Int())
+	msg = message.Music("163", gjson.ParseBytes(data).Get("result.songs.0.id").Int())
+	return
 }
 
 // qqmusic 返回QQ音乐卡片
-func qqmusic(keyword string) message.MessageSegment {
-	// 搜索音乐信息 第一首歌
-	h1 := http.Header{
-		"User-Agent": []string{"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"},
+func qqmusic(keyword string) (msg message.MessageSegment) {
+	requestURL := "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w=" + url.QueryEscape(keyword)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA())
+	if err != nil {
+		msg = message.Text("ERROR:", err)
+		return
 	}
-	search, _ := url.Parse("https://c.y.qq.com/soso/fcgi-bin/client_search_cp")
-	search.RawQuery = url.Values{
-		"w": []string{keyword},
-	}.Encode()
-	res := netGet(search.String(), h1)
-	info := gjson.ParseBytes(res[9 : len(res)-1]).Get("data.song.list.0")
-	// 获得音乐直链
-	h2 := http.Header{
-		"User-Agent": []string{"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"},
-		"referer":    []string{"http://y.qq.com"},
-	}
-	music, _ := url.Parse("https://u.y.qq.com/cgi-bin/musicu.fcg")
-	music.RawQuery = url.Values{
-		"data": []string{`{"req": {"module": "CDN.SrfCdnDispatchServer", "method": "GetCdnDispatch", "param": {"guid": "3982823384", "calltype": 0, "userip": ""}}, "req_0": {"module": "vkey.GetVkeyServer", "method": "CgiGetVkey", "param": {"guid": "3982823384", "songmid": ["` + info.Get("songmid").Str + `"], "songtype": [0], "uin": "0", "loginflag": 1, "platform": "20"}}, "comm": {"uin": 0, "format": "json", "ct": 24, "cv": 0}}`},
-	}.Encode()
-	audio := gjson.ParseBytes(netGet(music.String(), h2))
-	// 获得音乐封面
-	image := "https://y.gtimg.cn/music/photo_new/" +
-		find(
-			`photo_new\u002F`,
-			"?max_age",
-			string(
-				netGet("https://y.qq.com/n/yqq/song/"+info.Get("songmid").Str+".html", nil),
-			),
-		)
-	// 返回音乐卡片
-	return message.CustomMusic(
-		"https://y.qq.com/n/yqq/song/"+info.Get("songmid").Str+".html",
-		"https://isure.stream.qqmusic.qq.com/"+audio.Get("req_0.data.midurlinfo.0.purl").Str,
-		info.Get("songname").Str,
-	).Add("content", info.Get("singer.0.name").Str).Add("image", image)
-}
-
-// find 返回 pre 到 suf 之间的文本
-func find(pre string, suf string, str string) string {
-	n := strings.Index(str, pre)
-	if n == -1 {
-		n = 0
-	} else {
-		n += len(pre)
-	}
-	str = str[n:]
-	m := strings.Index(str, suf)
-	if m == -1 {
-		m = len(str)
-	}
-	return str[:m]
+	info := gjson.ParseBytes(data[9 : len(data)-1]).Get("data.song.list.0")
+	msg = message.Music("qq", info.Get("songid").Int())
+	return
 }
 
 // md5str 返回字符串 MD5
@@ -214,20 +172,6 @@ func md5str(s string) string {
 func netGet(url string, header http.Header) []byte {
 	client := &http.Client{}
 	request, _ := http.NewRequest("GET", url, nil)
-	request.Header = header
-	res, err := client.Do(request)
-	if err != nil {
-		return nil
-	}
-	defer res.Body.Close()
-	result, _ := io.ReadAll(res.Body)
-	return result
-}
-
-// netPost 返回请求数据
-func netPost(url string, data url.Values, header http.Header) []byte {
-	client := &http.Client{}
-	request, _ := http.NewRequest("POST", url, strings.NewReader(data.Encode()))
 	request.Header = header
 	res, err := client.Do(request)
 	if err != nil {

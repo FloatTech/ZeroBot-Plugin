@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -15,27 +16,29 @@ import (
 
 const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
-type card struct {
-	Name string `json:"name"`
-	Info struct {
-		Description        string `json:"description"`
-		ReverseDescription string `json:"reverseDescription"`
-		ImgURL             string `json:"imgUrl"`
-	} `json:"info"`
+type cardInfo struct {
+	Description        string `json:"description"`
+	ReverseDescription string `json:"reverseDescription"`
+	ImgURL             string `json:"imgUrl"`
 }
-type cardset = map[string]card
+type card struct {
+	Name     string `json:"name"`
+	cardInfo `json:"info"`
+}
+type cardSet = map[string]card
 
-var cardMap = make(cardset, 256)
-var reasons = [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
-var position = [...]string{"正位", "逆位"}
+var cardMap = make(cardSet, 30)
+var infoMap = make(map[string]cardInfo, 30)
+
+// var cardName = make([]string, 22)
 
 func init() {
 	engine := control.Register("tarot", &control.Options{
 		DisableOnDefault: false,
 		Help: "塔罗牌\n" +
 			"- 抽塔罗牌\n" +
-			"- 抽n张塔罗牌",
-		// TODO 抽X张塔罗牌 解塔罗牌[牌名]
+			"- 抽n张塔罗牌\n" +
+			"- 解塔罗牌[牌名]",
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
@@ -57,6 +60,9 @@ func init() {
 	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		n := 1
+		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
+		position := [...]string{"正位", "逆位"}
+		reverse := [...]string{"", "Reverse"}
 		if match != "" {
 			var err error
 			n, err = strconv.Atoi(match[:len(match)-3])
@@ -78,34 +84,82 @@ func init() {
 			}
 		}
 		if n == 1 {
-			if id := ctx.Send(randTarot()); id.ID() == 0 {
+			i := rand.Intn(22)
+			p := rand.Intn(2)
+			card := cardMap[(strconv.Itoa(i))]
+			name := card.Name
+			if id := ctx.SendChain(
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
+				message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], i))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 			return
 		}
 		msg := make([]message.MessageSegment, n)
+		randomIntMap := make(map[int]int, 30)
 		for i := range msg {
-			msg[i] = ctxext.FakeSenderForwardNode(ctx, randTarot()...)
+			j := rand.Intn(22)
+			_, ok := randomIntMap[j]
+			for ok {
+				j = rand.Intn(22)
+				_, ok = randomIntMap[j]
+			}
+			randomIntMap[j] = 0
+			p := rand.Intn(2)
+			card := cardMap[(strconv.Itoa(j))]
+			name := card.Name
+			tarotMsg := []message.MessageSegment{
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
+				message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], j))}
+			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		return
 	})
-}
 
-func randTarot() []message.MessageSegment {
-	i := rand.Intn(22)
-	p := rand.Intn(2)
-	card := cardMap[(strconv.Itoa(i))]
-	name := card.Name
-	var info string
-	if p == 0 {
-		info = card.Info.Description
-	} else {
-		info = card.Info.ReverseDescription
-	}
-	return []message.MessageSegment{
-		message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
-		message.Image(fmt.Sprintf(bed+"MajorArcana/%d.png", i)),
-		message.Text("\n其意义为: ", info),
-	}
+	engine.OnRegex(`^解塔罗牌\s?(.*)`, ctxext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			if len(cardMap) > 0 {
+				for _, card := range cardMap {
+					infoMapKey := strings.Split(card.Name, "(")[0]
+					infoMap[infoMapKey] = card.cardInfo
+					// 可以拿来显示大阿尔卡纳列表
+					// cardName = append(cardName, infoMapKey)
+				}
+				return true
+			}
+			tempMap := make(cardSet, 30)
+			data, err := engine.GetLazyData("tarots.json", true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = json.Unmarshal(data, &tempMap)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+
+			for _, card := range tempMap {
+				infoMapKey := strings.Split(card.Name, "(")[0]
+				infoMap[infoMapKey] = card.cardInfo
+				// 可以拿来显示大阿尔卡纳列表
+				// cardName = append(cardName, infoMapKey)
+			}
+			return true
+		},
+	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		match := ctx.State["regex_matched"].([]string)[1]
+		info, ok := infoMap[match]
+		if ok {
+			ctx.SendChain(
+				message.Image(bed+info.ImgURL),
+				message.Text("\n", match, "的含义是~"),
+				message.Text("\n正位:", info.Description),
+				message.Text("\n逆位:", info.ReverseDescription))
+		} else {
+			ctx.SendChain(message.Text("没有找到", match, "噢~"))
+		}
+		return
+	})
 }

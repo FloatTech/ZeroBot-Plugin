@@ -71,11 +71,16 @@ func init() {
 				ctx.SendChain(message.Text("出错啦: ", err))
 			}
 		})
-	engine.OnRegex(`^[.。]set\s*([0-9]{1,3})`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]set\s*([0-9])`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			dint := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
+			if dint > 1000 {
+				dint = 1000
+				ctx.SendChain(message.Text("最多1000哟~已自动设为1000"))
+			}
 			d := &set{
 				UserID: ctx.Event.UserID,
-				D:      int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1])),
+				D:      dint,
 			}
 			err := db.Insert("set", d)
 			if err == nil {

@@ -28,15 +28,7 @@ func init() { // 来自mayuri的插件
 				ctx.SendPrivateMessage(
 					su,
 					message.Text(
-						"在"+
-							now+
-							"收到来自"+
-							username+
-							"("+
-							strconv.FormatInt(userid, 10)+
-							")好友请求:"+comment+
-							"\n输入:\n-通过申请"+flag+
-							"\n-拒绝申请"+flag),
+						"在"+now+"收到来自"+username+"("+strconv.FormatInt(userid, 10)+")好友请求:\n"+comment+"\n输入:\n-通过申请"+flag+"\n-拒绝申请"+flag),
 				)
 			}
 		})
@@ -54,22 +46,7 @@ func init() { // 来自mayuri的插件
 				su := zero.BotConfig.SuperUsers[0]
 				ctx.SendPrivateMessage(
 					su,
-					message.Text(
-						"在"+
-							now+
-							"收到来自"+
-							invitername+
-							"("+
-							strconv.FormatInt(inviterid, 10)+
-							")群邀请\n群:"+
-							groupname+
-							"("+
-							strconv.FormatInt(groupid, 10)+
-							")"+
-							"\n验证信息:"+
-							comment+
-							"\n输入:\n-通过邀请"+flag+
-							"\n-拒绝邀请"+flag),
+					message.Text("在"+now+"收到来自"+invitername+"("+strconv.FormatInt(inviterid, 10)+")群邀请\n群:"+groupname+"("+strconv.FormatInt(groupid, 10)+")"+"\n验证信息:\n"+comment+"\n输入:\n-通过邀请"+flag+"\n-拒绝邀请"+flag),
 				)
 			}
 		})
@@ -110,11 +87,13 @@ func init() { // 来自mayuri的插件
 			switch eventtype {
 			case "kickme":
 				{
-					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("呜呜呜，我在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
+					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0],
+						message.Text("呜呜呜，我在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
 				}
 			case "kick":
 				{
-					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("好可怕，", username, "(", userid, ")", "在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
+					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0],
+						message.Text("好可怕，", username, "(", userid, ")", "在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
 				}
 			}
 		})
