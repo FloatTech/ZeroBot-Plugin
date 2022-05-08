@@ -28,12 +28,9 @@ type card struct {
 type cardSet = map[string]card
 
 var cardMap = make(cardSet, 30)
-var reasons = [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
-var position = [...]string{"正位", "逆位"}
-var reverse = [...]string{"", "Reverse"}
-var randomIntMap = make(map[int]int, 30)
 var infoMap = make(map[string]cardInfo, 30)
-var cardName = make([]string, 22)
+
+// var cardName = make([]string, 22)
 
 func init() {
 	engine := control.Register("tarot", &control.Options{
@@ -63,6 +60,9 @@ func init() {
 	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		n := 1
+		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
+		position := [...]string{"正位", "逆位"}
+		reverse := [...]string{"", "Reverse"}
 		if match != "" {
 			var err error
 			n, err = strconv.Atoi(match[:len(match)-3])
@@ -84,23 +84,50 @@ func init() {
 			}
 		}
 		if n == 1 {
-			if id := ctx.Send(randTarot()); id.ID() == 0 {
+			i := rand.Intn(22)
+			p := rand.Intn(2)
+			card := cardMap[(strconv.Itoa(i))]
+			name := card.Name
+			if id := ctx.SendChain(
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
+				message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], i))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 			return
 		}
 		msg := make([]message.MessageSegment, n)
+		randomIntMap := make(map[int]int, 30)
 		for i := range msg {
-			msg[i] = ctxext.FakeSenderForwardNode(ctx, randTarot()...)
+			j := rand.Intn(22)
+			_, ok := randomIntMap[j]
+			for ok {
+				j = rand.Intn(22)
+				_, ok = randomIntMap[j]
+			}
+			randomIntMap[j] = 0
+			p := rand.Intn(2)
+			card := cardMap[(strconv.Itoa(j))]
+			name := card.Name
+			tarotMsg := []message.MessageSegment{
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
+				message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], j))}
+			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
-		// 还原随机数map
-		randomIntMap = make(map[int]int, 30)
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		return
 	})
 
 	engine.OnRegex(`^解塔罗牌\s?(.*)`, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
+			if len(cardMap) > 0 {
+				for _, card := range cardMap {
+					infoMapKey := strings.Split(card.Name, "(")[0]
+					infoMap[infoMapKey] = card.cardInfo
+					// 可以拿来显示大阿尔卡纳列表
+					// cardName = append(cardName, infoMapKey)
+				}
+				return true
+			}
 			tempMap := make(cardSet, 30)
 			data, err := engine.GetLazyData("tarots.json", true)
 			if err != nil {
@@ -116,7 +143,8 @@ func init() {
 			for _, card := range tempMap {
 				infoMapKey := strings.Split(card.Name, "(")[0]
 				infoMap[infoMapKey] = card.cardInfo
-				cardName = append(cardName, infoMapKey)
+				// 可以拿来显示大阿尔卡纳列表
+				// cardName = append(cardName, infoMapKey)
 			}
 			return true
 		},
@@ -124,7 +152,9 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
 		if ok {
-			ctx.SendChain(message.Text(match, "的含义是~"),
+			ctx.SendChain(
+				message.Image(bed+info.ImgURL),
+				message.Text("\n", match, "的含义是~"),
 				message.Text("\n正位:", info.Description),
 				message.Text("\n逆位:", info.ReverseDescription))
 		} else {
@@ -132,28 +162,4 @@ func init() {
 		}
 		return
 	})
-}
-
-func randTarot() []message.MessageSegment {
-	i := rand.Intn(22)
-	_, ok := randomIntMap[i]
-	for ok {
-		i = rand.Intn(22)
-		_, ok = randomIntMap[i]
-	}
-	randomIntMap[i] = 0
-	p := rand.Intn(2)
-	card := cardMap[(strconv.Itoa(i))]
-	name := card.Name
-	var info string
-	if p == 0 {
-		info = card.cardInfo.Description
-	} else {
-		info = card.cardInfo.ReverseDescription
-	}
-	return []message.MessageSegment{
-		message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
-		message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], i)),
-		message.Text("\n其意义为: ", info),
-	}
 }
