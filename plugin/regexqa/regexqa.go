@@ -79,11 +79,11 @@ func initRegex() {
 func init() {
 	en := control.Register("regexqa", &control.Options{
 		DisableOnDefault:  true,
-		Help:              "[我|大家|有人][说|问]\"触发词\"(支持正则)你[答|说]\n[查看|看看][我|大家|有人][说|问]\n删除[大家|有人|我][说|问]",
+		Help:              " - [我|大家|有人][说|问]\"触发词\"(支持正则)你[答|说]\n - [查看|看看][我|大家|有人][说|问]\n - 删除[我|大家|有人][说|问]\"触发词\"",
 		PrivateDataFolder: "regexqa",
 	})
 	initRegex()
-	en.OnRegex(`^(我|大家|有人)(说|问)(.*)你(答|说)`, zero.OnlyGroup).SetBlock(false).
+	en.OnRegex(`^(我|大家|有人)(说|问)(.*)你(答|说)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			global.mu.Lock()
 			defer global.mu.Unlock()
@@ -125,7 +125,7 @@ func init() {
 			saveRegex(ctx)
 		})
 
-	en.OnRegex(`^(查看|看看)(我|大家|有人)(说|问)`).SetBlock(false).
+	en.OnRegex(`^(查看|看看)(我|大家|有人)(说|问)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			global.mu.RLock()
 			defer global.mu.RUnlock()
@@ -168,7 +168,7 @@ func init() {
 			saveRegex(ctx)
 		})
 
-	en.OnRegex(`^删除(大家|有人|我)(说|问)`).SetBlock(false).
+	en.OnRegex(`^删除(大家|有人|我)(说|问)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			global.mu.Lock()
 			defer global.mu.Unlock()
@@ -213,7 +213,7 @@ func init() {
 			}
 		})
 
-	en.On(`message/group`).SetBlock(false).
+	en.On(`message/group`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			global.mu.RLock()
 			defer global.mu.RUnlock()

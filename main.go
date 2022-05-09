@@ -146,7 +146,6 @@ import (
 
 	// personal
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cloudmusic" // 网易云热评
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/groupwife"  // 群老婆
 
 	// todo
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"
