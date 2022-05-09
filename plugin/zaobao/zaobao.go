@@ -49,7 +49,7 @@ func init() { // 插件主体
 func getdata() error { // 获取图片链接并且下载
 	mu.Lock()
 	defer mu.Unlock()
-	if picdata != nil && time.Since(pictime) <= time.Hour*20 {
+	if picdata != nil && time.Since(pictime) <= time.Hour*8 && time.Now().Day() == pictime.Day() {
 		return nil
 	}
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", "", ua)
