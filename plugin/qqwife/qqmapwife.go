@@ -46,7 +46,7 @@ func init() {
 				ctx.SendChain(
 					message.At(uid),
 					message.Text("今天你的群老婆是"),
-					message.Image("http:// q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640"),
+					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640"),
 					message.Text(
 						"\n",
 						"[", ctx.CardOrNickName(wife), "]",
@@ -61,7 +61,7 @@ func init() {
 					ctx.SendChain(
 						message.At(uid),
 						message.Text("今天你被娶了，群老公是"),
-						message.Image("http:// q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(husband, 10)+"&s=640"),
+						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(husband, 10)+"&s=640"),
 						message.Text(
 							"\n",
 							"[", ctx.CardOrNickName(husband), "]",
@@ -111,7 +111,7 @@ func init() {
 			ctx.SendChain(
 				message.At(uid),
 				message.Text("今天你的群老婆是"),
-				message.Image("http:// q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640"),
+				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640"),
 				message.Text(
 					"\n",
 					"[", ctx.CardOrNickName(wife), "]",
