@@ -483,6 +483,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>一群一天一夫一妻制群老婆</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
+
+  - [x] 娶群友
+
+  - [x] 群老婆列表
+
+</details>
+<details>
   <summary>合成emoji</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"`
