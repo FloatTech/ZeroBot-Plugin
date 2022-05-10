@@ -213,7 +213,7 @@ func init() {
 			}
 		})
 
-	en.On(`message/group`).SetBlock(true).
+	en.On(`message/group`).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			global.mu.RLock()
 			defer global.mu.RUnlock()
