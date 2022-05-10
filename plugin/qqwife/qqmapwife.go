@@ -131,10 +131,10 @@ func init() {
 	engine.OnRegex(`^娶(\d+|\[CQ:at,qq=(\d+)\])`, zero.OnlyGroup).SetBlock(true).Limit(singledogCD.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			//fmt.Println("1:", fiancee)
+			// fmt.Println("1:", fiancee)
 			if err != nil {
 				fiancee, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-				//fmt.Println("2:", fiancee)
+				// fmt.Println("2:", fiancee)
 			}
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
