@@ -11,6 +11,7 @@ import (
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -147,11 +148,12 @@ func init() {
 					cplist = append(cplist, ctx.CardOrNickName(husband)+" & "+ctx.CardOrNickName(wife))
 				}
 			}
-			msg, err := text.RenderToBase64(strings.Join(cplist, "\n"), text.FontFile, 400, 20)
+			list := strings.Join(cplist, "\n")
+			msg, err := text.RenderToBase64(list, text.FontFile, 400, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.ImageBytes(msg))
+			ctx.SendChain(message.Image("base//" + helper.BytesToString(msg)))
 		})
 }
