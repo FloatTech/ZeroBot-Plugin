@@ -117,7 +117,7 @@ func init() {
 			ctx.SendChain(
 				message.At(uid),
 				message.Text("今天你的群老婆是"),
-				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640,cache=0").Add("cache", 0),
+				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640").Add("cache", 0),
 				message.Text(
 					"\n",
 					"[", ctx.CardOrNickName(wife), "]",
