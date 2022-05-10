@@ -154,6 +154,8 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.Image("base//" + helper.BytesToString(msg)))
+			if id := ctx.SendChain(message.Image("base://" + helper.BytesToString(msg))); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+			}
 		})
 }
