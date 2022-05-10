@@ -1,5 +1,7 @@
 github.com/FloatTech/AnimeAPI v1.3.4-0.20220509041030-b9aee01996bc h1:FZ+LegVsPIBhtrB4575oOL6nqMomnF987X5LmSifRxg=
 github.com/FloatTech/AnimeAPI v1.3.4-0.20220509041030-b9aee01996bc/go.mod h1:KSdH8fZyz/v+8p4WIrk7xyBsf2BOqkyEFBbn65NUNIU=
+github.com/FloatTech/AnimeAPI v1.3.4-0.20220510082952-693d8704f125 h1:zjQYBgv8yQUAbgNHCMESo7BecSSWd9naBjN/HCihRik=
+github.com/FloatTech/AnimeAPI v1.3.4-0.20220510082952-693d8704f125/go.mod h1:KSdH8fZyz/v+8p4WIrk7xyBsf2BOqkyEFBbn65NUNIU=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
 github.com/FloatTech/zbputils v1.3.4-0.20220509040909-1ba8aa47f58e h1:XjtabNVPvZlMXa/8A9gnyeE0j79mfI2oqVtopUBn8Rk=

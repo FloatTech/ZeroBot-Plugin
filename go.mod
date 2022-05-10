@@ -3,7 +3,7 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.18
 
 require (
-	github.com/FloatTech/AnimeAPI v1.3.4-0.20220509041030-b9aee01996bc
+	github.com/FloatTech/AnimeAPI v1.3.4-0.20220510082952-693d8704f125
 	github.com/FloatTech/sqlite v0.2.1
 	github.com/FloatTech/zbputils v1.3.4-0.20220509040909-1ba8aa47f58e
 	github.com/antchfx/htmlquery v1.2.4
