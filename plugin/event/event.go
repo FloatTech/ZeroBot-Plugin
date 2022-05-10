@@ -1,3 +1,4 @@
+// Package event 好友申请
 package event
 
 import (
@@ -13,7 +14,7 @@ import (
 func init() { // 来自mayuri的插件
 	engine := control.Register("event", &control.Options{
 		DisableOnDefault: false,
-		Help:             "",
+		Help:             "好友申请，默认发送给主人列表第一位",
 	})
 	engine.OnRequest().SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

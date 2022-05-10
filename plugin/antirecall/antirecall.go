@@ -1,3 +1,4 @@
+// Package antirecall 反闪照、反撤回
 package antirecall
 
 import (
@@ -12,7 +13,7 @@ import (
 func init() {
 	engine := control.Register("antirecall", &control.Options{
 		DisableOnDefault: true,
-		Help:             "",
+		Help:             "反闪照、反撤回",
 	})
 	engine.OnRegex(`^\[CQ:image,file=`, zero.KeywordRule("type=flash")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

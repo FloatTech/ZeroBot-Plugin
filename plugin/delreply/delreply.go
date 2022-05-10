@@ -11,7 +11,7 @@ import (
 func init() {
 	engine := control.Register("delreply", &control.Options{
 		DisableOnDefault: false,
-		Help:             "",
+		Help:             "回复bot自身消息\"撤回\"以撤回bot消息",
 	})
 	engine.OnRegex(`^\[CQ:reply,id=(.*)].*`, zero.AdminPermission, zero.KeywordRule("撤回")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

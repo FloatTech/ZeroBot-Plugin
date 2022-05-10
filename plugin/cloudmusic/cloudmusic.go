@@ -2,19 +2,28 @@
 package cloudmusic
 
 import (
-	"io/ioutil"
-	"net/http"
-	"strings"
+	"encoding/json"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/web"
 )
 
+type result struct {
+	ID       string `json:"id"`
+	Songid   string `json:"songid"`
+	Name     string `json:"name"`
+	Songname string `json:"songname"`
+	Userid   string `json:"userid"`
+	Username string `json:"username"`
+	Content  string `json:"content"`
+}
+
 const (
-	api = "https://api.4gml.com/NeteaseMusic?type=bq"
+	api = "https://api.4gml.com/NeteaseMusic?type=json"
 )
 
 func init() { // 插件主体
@@ -24,18 +33,17 @@ func init() { // 插件主体
 			"- 来句网易云热评",
 	}).OnFullMatch("来句网易云热评").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			res, err := http.Get(api)
+			data, err := web.GetData(api)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			if res.StatusCode != http.StatusOK {
-				ctx.SendChain(message.Text("ERROR: code ", res.StatusCode))
-				return
+			var r result
+			err = json.Unmarshal(data, &r)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			body, _ := ioutil.ReadAll(res.Body)
-			res.Body.Close()
-			original := strings.ReplaceAll(string(body), "&nbsp;", "")
-			ctx.SendChain(message.Text("歌曲名:", original[strings.Index(original, "「"):strings.Index(original, "」")+len("」")], "\n评论内容:", original[strings.Index(original, "『"):strings.Index(original, "』")+len("』")], "\n评论者:", original[strings.LastIndex(original, "「"):strings.LastIndex(original, "」")+len("」")]))
+			ctx.SendChain(message.Text("歌曲名:", r.Songname,
+				"\n评论内容:", r.Content,
+				"\n评论者:", r.Username))
 		})
 }

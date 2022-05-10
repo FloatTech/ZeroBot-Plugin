@@ -1,4 +1,4 @@
-//  Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
+// Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
 package qqwife
 
 import (
@@ -11,9 +11,11 @@ import (
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/math"
 )
 
@@ -46,7 +48,7 @@ func init() {
 				ctx.SendChain(
 					message.At(uid),
 					message.Text("今天你的群老婆是"),
-					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640"),
+					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
 						"[", ctx.CardOrNickName(wife), "]",
@@ -56,20 +58,19 @@ func init() {
 				return
 			}
 			// 如果被娶过
-			for husband, wife := range qqwifegroup[gid] {
-				if wife == uid { // 如果为0且是在本群抽的就输出
-					ctx.SendChain(
-						message.At(uid),
-						message.Text("今天你被娶了，群老公是"),
-						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(husband, 10)+"&s=640"),
-						message.Text(
-							"\n",
-							"[", ctx.CardOrNickName(husband), "]",
-							"(", husband, ")哒",
-						),
-					)
-					return
-				}
+			husband, ok := qqwifegroup[gid][-uid]
+			if ok {
+				ctx.SendChain(
+					message.At(uid),
+					message.Text("今天你被娶了，群老公是"),
+					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(husband, 10)+"&s=640").Add("cache", 0),
+					message.Text(
+						"\n",
+						"[", ctx.CardOrNickName(husband), "]",
+						"(", husband, ")哒",
+					),
+				)
+				return
 			}
 			//  无缓存获取群员列表
 			temp := ctx.GetThisGroupMemberListNoCache().Array()
@@ -86,9 +87,14 @@ func init() {
 			} else {
 				for k := 0; k < len(temp); k++ {
 					_, ok := qqwifegroup[gid][temp[k].Get("user_id").Int()]
-					if !ok {
-						qqgrouplist = append(qqgrouplist, temp[k].Get("user_id").Int())
+					if ok {
+						continue
 					}
+					_, ok = qqwifegroup[gid][-temp[k].Get("user_id").Int()]
+					if ok {
+						continue
+					}
+					qqgrouplist = append(qqgrouplist, temp[k].Get("user_id").Int())
 				}
 			}
 			// 没有人（只剩自己）的时候
@@ -107,11 +113,12 @@ func init() {
 				qqwifegroup[gid] = make(map[int64]int64, 32)
 			}
 			qqwifegroup[gid][uid] = wife
+			qqwifegroup[gid][-wife] = uid
 			// 输出结果
 			ctx.SendChain(
 				message.At(uid),
 				message.Text("今天你的群老婆是"),
-				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640"),
+				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640").Add("cache", 0),
 				message.Text(
 					"\n",
 					"[", ctx.CardOrNickName(wife), "]",
@@ -137,8 +144,15 @@ func init() {
 			cplist := make([]string, 1, len(group)+1)
 			cplist[0] = "群老公←———→群老婆\n--------------------------"
 			for husband, wife := range group {
-				cplist = append(cplist, ctx.CardOrNickName(husband)+" & "+ctx.CardOrNickName(wife))
+				if husband > 0 {
+					cplist = append(cplist, ctx.CardOrNickName(husband)+" & "+ctx.CardOrNickName(wife))
+				}
 			}
-			ctx.SendChain(message.Text(strings.Join(cplist, "\n")))
+			msg, err := text.RenderToBase64(strings.Join(cplist, "\n"), text.FontFile, 400, 20)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Image("base://" + helper.BytesToString(msg)))
 		})
 }
