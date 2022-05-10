@@ -42,7 +42,7 @@ func init() { // 插件主体
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			ctx.SendChain(message.Text("歌曲名:", r.Songname,
+			ctx.SendChain(message.Text("歌曲名:", r.Name,
 				"\n评论内容:", r.Content,
 				"\n评论者:", r.Username))
 		})
