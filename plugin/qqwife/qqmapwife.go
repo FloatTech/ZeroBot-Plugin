@@ -11,11 +11,9 @@ import (
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/math"
 )
 
@@ -30,6 +28,7 @@ func init() {
 		DisableOnDefault: false,
 		Help: "一群一天一夫一妻制群老婆\n" +
 			"- 娶群友\n" +
+			"- 娶[老婆QQ号|@老婆QQ]\n（注：群单身狗专属,CD为24H,不跨天刷新）\n" +
 			"- 群老婆列表",
 	})
 	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
@@ -118,7 +117,7 @@ func init() {
 			ctx.SendChain(
 				message.At(uid),
 				message.Text("今天你的群老婆是"),
-				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640").Add("cache", 0),
+				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(wife, 10)+"&s=640,cache=0").Add("cache", 0),
 				message.Text(
 					"\n",
 					"[", ctx.CardOrNickName(wife), "]",
@@ -127,6 +126,68 @@ func init() {
 			)
 			// 更新时间
 			lastdate = time.Now()
+		})
+	var singledogCD = ctxext.NewLimiterManager(time.Hour*24, 1)
+	engine.OnRegex(`^娶(\d+|\[CQ:at,qq=(\d+)\])`, zero.OnlyGroup).SetBlock(true).Limit(singledogCD.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+			//fmt.Println("1:", fiancee)
+			if err != nil {
+				fiancee, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+				//fmt.Println("2:", fiancee)
+			}
+			gid := ctx.Event.GroupID
+			uid := ctx.Event.UserID
+			if uid == fiancee {
+				ctx.SendChain(message.Text("自恋狂（CD冷却开始计时"))
+				return
+			}
+			// 如果用户娶过
+			_, ok := qqwifegroup[gid][uid]
+			if ok {
+				ctx.SendChain(message.Text("你这渣男，居然想找小三！"))
+				return
+			}
+			// 如果用户被娶过
+			_, ok = qqwifegroup[gid][-fiancee]
+			if ok {
+				ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
+				return
+			}
+			// 如果未婚妻娶过
+			_, ok = qqwifegroup[gid][fiancee]
+			if ok {
+				ctx.SendChain(message.Text("他已经取了别的女人，你放弃吧"))
+				return
+			}
+			// 如果未婚妻被娶过
+			_, ok = qqwifegroup[gid][-fiancee]
+			if ok {
+				ctx.SendChain(message.Text("你这渣男，跟别人抢女人！"))
+				return
+			}
+			if rand.Intn(2) == 1 {
+				// 绑定CP
+				if qqwifegroup[gid] == nil {
+					qqwifegroup[gid] = make(map[int64]int64, 32)
+				}
+				qqwifegroup[gid][uid] = fiancee
+				qqwifegroup[gid][-fiancee] = uid
+				// 输出结果
+				ctx.SendChain(
+					message.Text("今天你向她表白了，ta羞涩的点了点头同意了！\n"),
+					message.At(uid),
+					message.Text("今天你的群老婆是"),
+					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
+					message.Text(
+						"\n",
+						"[", ctx.CardOrNickName(fiancee), "]",
+						"(", fiancee, ")哒",
+					),
+				)
+			} else {
+				ctx.SendChain(message.Text("今天你向她表白了，ta毫无感情的拒绝了你\n噢，此时此刻你还是一只单身狗\n别灰心，等待下一次情缘吧"))
+			}
 		})
 	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
@@ -148,14 +209,6 @@ func init() {
 					cplist = append(cplist, ctx.CardOrNickName(husband)+" & "+ctx.CardOrNickName(wife))
 				}
 			}
-			list := strings.Join(cplist, "\n")
-			msg, err := text.RenderToBase64(list, text.FontFile, 400, 20)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			if id := ctx.SendChain(message.Image("base://" + helper.BytesToString(msg))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
-			}
+			ctx.SendChain(message.Text(strings.Join(cplist, "\n")))
 		})
 }
