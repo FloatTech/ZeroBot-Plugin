@@ -71,7 +71,7 @@ func init() {
 				ctx.SendChain(message.Text("出错啦: ", err))
 			}
 		})
-	engine.OnRegex(`^[.。]set\s*([0-9])`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[.。]set\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			dint := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
 			if dint > 1000 {
