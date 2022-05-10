@@ -159,7 +159,7 @@ func init() {
 			// 如果未婚妻娶过
 			_, ok = qqwifegroup[gid][fiancee]
 			if ok {
-				ctx.SendChain(message.Text("他已经取了别的女人，你放弃吧"))
+				ctx.SendChain(message.Text("他已经娶了别的女人，你放弃吧"))
 				return
 			}
 			// 如果未婚妻被娶过
