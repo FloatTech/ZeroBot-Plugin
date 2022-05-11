@@ -21,15 +21,15 @@ var (
 	qqwifegroup = make(map[int64]map[int64]int64, 64) // 64个群的预算大小
 	lastdate    time.Time
 	mu          sync.Mutex
-	sendtext    = [][]string{
+	sendtext    = [...][]string{
 		{
 			"今天你向ta表白了，ta羞涩的点了点头同意了！\n",
-			"你对ta说“以我之名，冠你指间，一天相伴，一天相随”.ta捂着嘴点了点头\n\n",
+			"你对ta说：“以我之名，冠你指间，一天相伴，一天相随。”，ta捂着嘴点了点头\n",
 		},
 		{
 			"今天你向ta表白了，ta毫无感情的拒绝了你\n",
-			"今天你向ta表白了，ta对你说“你是一个非常好的人”\n",
-			"今天你向ta表白了，ta给了你一个拥抱后插肩而过\n",
+			"今天你向ta表白了，ta对你说：“你是一个非常好的人”\n",
+			"今天你向ta表白了，ta给了你一个拥抱后擦肩而过\n",
 		},
 	}
 )
@@ -68,6 +68,9 @@ func init() {
 				return
 			}
 			// 如果被娶过
+			if qqwifegroup[gid] == nil {
+				qqwifegroup[gid] = make(map[int64]int64, 32)
+			}
 			husband, ok := qqwifegroup[gid][-uid]
 			if ok {
 				ctx.SendChain(
@@ -119,9 +122,6 @@ func init() {
 				return
 			}
 			// 绑定CP
-			if qqwifegroup[gid] == nil {
-				qqwifegroup[gid] = make(map[int64]int64, 32)
-			}
 			qqwifegroup[gid][uid] = wife
 			qqwifegroup[gid][-wife] = uid
 			// 输出结果
@@ -140,7 +140,7 @@ func init() {
 		})
 	// 单生狗专属技能
 	var singledogCD = ctxext.NewLimiterManager(time.Hour*24, 1)
-	engine.OnRegex(`^娶(\d+|\[CQ:at,qq=(\d+)\])`, checkdog, zero.OnlyGroup).SetBlock(true).Limit(singledogCD.LimitByUser).
+	engine.OnRegex(`^娶(\d+|\[CQ:at,qq=(\d+)\])`, zero.OnlyGroup, checkdog).SetBlock(true).Limit(singledogCD.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			mu.Lock()
 			defer mu.Unlock()
