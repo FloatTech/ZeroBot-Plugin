@@ -11,13 +11,13 @@ import (
 )
 
 func init() {
-	engine := control.Register("mine", &control.Options{
+	engine := control.Register("custom", &control.Options{
 		DisableOnDefault: true,
 		Help: "自定义插件集合\n" +
 			" - /kill@bot\n" +
 			" - 来114514份涩图",
 	})
-	engine.OnFullMatchGroup([]string{"pause", "restart", "/kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"pause", "restart", "/kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			os.Exit(0)
 		})
