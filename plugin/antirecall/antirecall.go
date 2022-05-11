@@ -37,9 +37,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			su := zero.BotConfig.SuperUsers[0]
 			t := time.Now()
-			id := ctx.SendPrivateMessage(ctx.Event.SelfID, ctx.Event.MessageID)
-			mid := ctx.GetMessage(message.NewMessageIDFromInteger(id))
-			raw := ctx.GetMessage(message.NewMessageIDFromString(mid.Elements.String())).Elements.String()
+			raw := ctx.GetMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))).Elements.String()
 			uid := ctx.Event.UserID
 			gid := ctx.Event.GroupID
 			username := ctx.CardOrNickName(uid)
