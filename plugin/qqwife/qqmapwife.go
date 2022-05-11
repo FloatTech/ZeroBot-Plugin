@@ -138,7 +138,7 @@ func init() {
 			// 更新时间
 			lastdate = time.Now()
 		})
-	//单生狗专属技能
+	// 单生狗专属技能
 	var singledogCD = ctxext.NewLimiterManager(time.Hour*24, 1)
 	engine.OnRegex(`^娶(\d+|\[CQ:at,qq=(\d+)\])`, checkdog, zero.OnlyGroup).SetBlock(true).Limit(singledogCD.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
@@ -197,13 +197,13 @@ func init() {
 		})
 }
 
-//注入判断 是否为单身狗
+// 注入判断 是否为单身狗
 func checkdog(ctx *zero.Ctx) bool {
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-	//fmt.Println("1:", fiancee)
+	// fmt.Println("1:", fiancee)
 	if err != nil {
 		fiancee, _ = strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-		//fmt.Println("2:", fiancee)
+		// fmt.Println("2:", fiancee)
 	}
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
