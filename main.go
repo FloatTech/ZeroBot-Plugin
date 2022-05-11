@@ -30,6 +30,8 @@ import (
 	// copy
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/regexqa"
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push" // b站推送
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
@@ -120,8 +122,8 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"         // 早报
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push" // b站推送
 
+	//
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^中优先级区^^^^^^^                      //
