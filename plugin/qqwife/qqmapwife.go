@@ -1,4 +1,4 @@
-//  Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
+// Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
 package qqwife
 
 import (
