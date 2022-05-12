@@ -489,6 +489,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 娶群友
 
+  - [x] 娶[ 老婆QQ号 | @老婆QQ ]
+
   - [x] 群老婆列表
 
 </details>
