@@ -166,7 +166,6 @@ func init() { // 插件主体
 							continue
 						}
 					}
-					ctx.SendChain(message.Text("ERROR:", err))
 				} else {
 					ctx.SendChain(message.Text("请私聊发送 设置 saucenao api key [apikey] 以启用 saucenao 搜图, key 请前往 https://saucenao.com/user.php?page=search-api 获取"))
 				}
