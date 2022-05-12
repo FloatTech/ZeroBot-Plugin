@@ -170,7 +170,7 @@ func init() {
 					),
 				)
 			} else {
-				ctx.SendChain(message.Text(sendtext[0][rand.Intn(len(sendtext[1]))]))
+				ctx.SendChain(message.Text(sendtext[1][rand.Intn(len(sendtext[1]))]))
 			}
 		})
 	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
