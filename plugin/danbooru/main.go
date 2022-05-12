@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 
 	"github.com/FloatTech/AnimeAPI/danbooru"
-	"github.com/FloatTech/AnimeAPI/saucenao"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -30,14 +29,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
-				name := ""
-				r, err := saucenao.SauceNAO(url)
-				if err != nil {
-					name = "未知图片"
-				} else {
-					name = r[0].Title
-				}
-				t, err := danbooru.TagURL(name, url)
+				t, err := danbooru.TagURL("", url)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return

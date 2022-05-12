@@ -1,6 +1,6 @@
 # ZeroBot-Plugin-Gif
 [ZeroBot QQ机器人](https://github.com/wdvxdr1123/ZeroBot)插件，可以制作各种沙雕gif图
-> 素材包地址: https://codechina.csdn.net/u011570312/imagematerials
+> 素材包地址: https://gitcode.net/u011570312/imagematerials
 
 ## 触发方式
 1. [指令词]+[qq号] 如：爬123456
