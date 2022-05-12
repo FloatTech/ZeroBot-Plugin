@@ -3,7 +3,9 @@ package saucenao
 
 import (
 	"fmt"
+	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -113,70 +115,54 @@ func init() { // 插件主体
 					if err == nil && resp.Count() > 0 {
 						result := resp.First()
 						// 返回SauceNAO的结果
-						picid := 0
-						picidstr := ""
 						source := ""
 						switch {
 						case result.IsPixiv():
-							picid = result.Data.PixivID
 							source = "Pixiv"
 						case result.IsAniDB():
-							picid = result.Data.AniDBAID
 							source = "AniDB"
 						case result.IsBcy():
-							picid = result.Data.BcyID
 							source = "Bcy"
 						case result.IsDanbooru():
-							picid = result.Data.DanbooruID
 							source = "Danbooru"
 						case result.IsDeviantArt():
-							picid = result.Data.DeviantArtID
 							source = "DeviantArt"
 						case result.IsIMDb():
-							picidstr = result.Data.IMDbID
 							source = "IMDb"
 						case result.IsPawoo():
-							picid = result.Data.PawooID
 							source = "Pawoo"
 						case result.IsSankaku():
-							picid = result.Data.SankakuID
 							source = "Sankaku"
 						case result.IsSeiga():
-							picid = result.Data.SeigaID
 							source = "Seiga"
 						}
-						if picid != 0 {
-							ctx.SendChain(
-								message.Text("我有把握是这个！"),
-								message.Image(result.Header.Thumbnail),
-								message.Text(
-									"\n",
-									"图源: ", source, "\n",
-									"相似度: ", result.Header.Similarity, "\n",
-									"标题: ", result.Data.Title, "\n",
-									"插画ID: ", picid, "\n",
-									"画师: ", result.Data.MemberName, "\n",
-									"画师ID: ", result.Data.MemberID, "\n",
-									"直链: ", "https://pixivel.moe/detail?id=", result.Data.PixivID,
-								),
-							)
-							continue
-						}
-						if picidstr != "" {
-							ctx.SendChain(
-								message.Text("我有把握是这个！"),
-								message.Image(result.Header.Thumbnail),
-								message.Text(
-									"\n",
-									"图源: ", source, "\n",
-									"相似度: ", result.Header.Similarity, "\n",
-									"标题: ", result.Data.Title, "\n",
-									"插画ID: ", picidstr, "\n",
-									"画师: ", result.Data.MemberName, "\n",
-									"画师ID: ", result.Data.MemberID, "\n",
-									"直链: ", "https://pixivel.moe/detail?id=", result.Data.PixivID,
-								),
-							)
+						if source != "" {
+							rr := reflect.ValueOf(&result).Elem()
+							b := binary.NewWriterF(func(w *binary.Writer) {
+								r := rr.Type()
+								for i := 0; i < r.NumField(); i++ {
+									if !rr.Field(i).IsZero() {
+										w.WriteString("\n")
+										w.WriteString(r.Field(i).Name)
+										w.WriteString(": ")
+										w.WriteString(fmt.Sprint(rr.Field(i).Interface()))
+									}
+								}
+							})
+							resp, err := http.Head(result.Header.Thumbnail)
+							if err == nil && resp.StatusCode == http.StatusOK {
+								ctx.SendChain(
+									message.Text("我有把握是这个！"),
+									message.Image(result.Header.Thumbnail),
+									message.Text("\n图源: ", source, binary.BytesToString(b)),
+								)
+							} else {
+								ctx.SendChain(
+									message.Text("我有把握是这个！"),
+									message.Image(pic),
+									message.Text("\n图源: ", source, binary.BytesToString(b)),
+								)
+							}
 							continue
 						}
 					}
