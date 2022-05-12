@@ -89,7 +89,7 @@ func init() {
 					"无症状人数：", data.Total.Wzz, "\n",
 					"新增无症状：", data.Today.Wzzadd, "\n",
 					"更新时间：\n『", time, "』")
-				txt, err := text.RenderToBase64(temp, text.FontFile, 400, 20)
+				txt, err := text.RenderToBase64(temp, text.FontFile, 300, 20)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
