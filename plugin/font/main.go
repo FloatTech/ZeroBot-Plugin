@@ -29,6 +29,7 @@ func init() {
 		case "用Consolas体":
 			fnt = text.ConsolasFontFile
 		case "用苹方体":
+			fallthrough
 		default:
 			fnt = text.FontFile
 		}
