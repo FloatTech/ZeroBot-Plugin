@@ -30,7 +30,7 @@ func init() { // 插件主体
 				"* CPU占用: ", cpuPercent(), "%\n",
 				"* RAM占用: ", memPercent(), "%\n",
 				"* 硬盘使用: ", diskPercent())
-			txt, err := text.RenderToBase64(temp, text.FontFile, 230, 20)
+			txt, err := text.RenderToBase64(temp, text.FontFile, 320, 30)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return

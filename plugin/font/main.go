@@ -29,10 +29,11 @@ func init() {
 		case "用Consolas体":
 			fnt = text.ConsolasFontFile
 		case "用苹方体":
+			fallthrough
 		default:
 			fnt = text.FontFile
 		}
-		b, err := text.RenderToBase64(txt, fnt, 400, 20)
+		b, err := text.RenderToBase64(txt, fnt, 500, 40)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
