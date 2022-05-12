@@ -1,9 +1,9 @@
-github.com/FloatTech/AnimeAPI v1.4.1-0.20220510153300-44a0551f6f51 h1:eTfn1HRSS3l7VmfUGmKjnw6Y1i0xU1asAJsYuv3boyw=
-github.com/FloatTech/AnimeAPI v1.4.1-0.20220510153300-44a0551f6f51/go.mod h1:isziaRAqDpCpekOZcOqA/S5PwOGiKYVW1qAZms6cK/Y=
+github.com/FloatTech/AnimeAPI v1.4.1-0.20220512034947-4dd25b414348 h1:UQRYPg3hXqF/tcqMMcNKPdgOWkjhfNamC1FXi6e1cek=
+github.com/FloatTech/AnimeAPI v1.4.1-0.20220512034947-4dd25b414348/go.mod h1:NAGWR4TXLwEVEx0e8yoMj6j5DS0bNWrFcuATozNkT2I=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
-github.com/FloatTech/zbputils v1.4.0 h1:zjFiTJ5UHFjnDX6iP+f1KMCO9uqFbDjFFVzW8cyMbe8=
-github.com/FloatTech/zbputils v1.4.0/go.mod h1:Cf2wAFtq7OUj4RUHcSQtcAYgAspP06wQseKZwtCJRXQ=
+github.com/FloatTech/zbputils v1.4.1-0.20220510155433-a0cc1629b1df h1:zt+Um+D9UqF5SZmYPmklLh7ff/u0ByU53KX1pqlFEhM=
+github.com/FloatTech/zbputils v1.4.1-0.20220510155433-a0cc1629b1df/go.mod h1:Cf2wAFtq7OUj4RUHcSQtcAYgAspP06wQseKZwtCJRXQ=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c h1:cNPOdTNiVwxLpROLjXCgbIPvdkE+BwvxDvgmdYmWx6Q=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c/go.mod h1:KqZzu7slNKROh3TSYEH/IUMG6f4M+1qubZ5e52QypsE=
@@ -43,6 +43,8 @@ github.com/fumiama/gotracemoe v0.0.3 h1:iI5EbE9A3UUbfukG6+/soYPjp1S31eCNYf4tw7s6
 github.com/fumiama/gotracemoe v0.0.3/go.mod h1:tyqahdUzHf0bQIAVY/GYmDWvYYe5ik1ZbhnGYh+zl40=
 github.com/fumiama/sqlite3 v1.14.6 h1:+e+iygyiDXQJVi7xeXIviBvR7hAc5y20WA9hRwfKn10=
 github.com/fumiama/sqlite3 v1.14.6/go.mod h1:Xx9a2/OtHuy9pBjow0N+bE/RhNeZ7zZz5xh25vqbA5A=
+github.com/gabriel-vasile/mimetype v1.0.4 h1:uBejfH8l3/2f+5vjl1e4xIaSyNEhRBZ5N/ij7ohpNd8=
+github.com/gabriel-vasile/mimetype v1.0.4/go.mod h1:6CDPel/o/3/s4+bp6kIbsWATq8pmgOisOPG40CJa6To=
 github.com/go-ole/go-ole v1.2.6 h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-playground/assert/v2 v2.0.1 h1:MsBgLAaY856+nPRTKrp3/OZK38U/wa0CcBYNjji3q3A=
@@ -71,6 +73,8 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.0.1 h1:HjfetcXq097iXP0uoPCdnM4Efp5/9MsM0/M+XOTeR3M=
 github.com/jinzhu/now v1.0.1/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
+github.com/jozsefsallai/gophersauce v1.0.1 h1:BA3ovtQRrAb1qYU9JoRLbDHpxnDunlNcEkEfhCvDDCM=
+github.com/jozsefsallai/gophersauce v1.0.1/go.mod h1:YVEI7djliMTmZ1Vh01YPF8bUHi+oKhe3yXgKf1T49vg=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
 github.com/lib/pq v1.1.1 h1:sJZmqHoEaY7f+NPP8pgLB/WxulyR3fewgCM2qaSlBb4=
 github.com/lib/pq v1.1.1/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=

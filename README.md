@@ -489,6 +489,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 娶群友
 
+  - [x] 娶[ 老婆QQ号 | @老婆QQ ]
+
   - [x] 群老婆列表
 
 </details>
@@ -629,7 +631,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"`
 
   - [x] 来份萝莉
+
   - [x] 设置随机图片地址[http...]
+
+  - 每一小时发一张图
+```
+记录在"@every 1h"触发的指令
+来份萝莉
+```
 
 </details>
 <details>

@@ -3,9 +3,9 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.18
 
 require (
-	github.com/FloatTech/AnimeAPI v1.4.1-0.20220510153300-44a0551f6f51
+	github.com/FloatTech/AnimeAPI v1.4.1-0.20220512034947-4dd25b414348
 	github.com/FloatTech/sqlite v0.2.1
-	github.com/FloatTech/zbputils v1.4.0
+	github.com/FloatTech/zbputils v1.4.1-0.20220510155433-a0cc1629b1df
 	github.com/antchfx/htmlquery v1.2.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
@@ -17,6 +17,7 @@ require (
 	github.com/fumiama/sqlite3 v1.14.6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
+	github.com/jozsefsallai/gophersauce v1.0.1
 	github.com/mroth/weightedrand v0.4.1
 	github.com/pkumza/numcn v1.0.0
 	github.com/shirou/gopsutil/v3 v3.22.3
@@ -33,6 +34,7 @@ require (
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
+	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect

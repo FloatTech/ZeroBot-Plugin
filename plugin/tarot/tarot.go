@@ -1,3 +1,4 @@
+// Package tarot 塔罗牌
 package tarot
 
 import (
@@ -114,7 +115,6 @@ func init() {
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
-		return
 	})
 
 	engine.OnRegex(`^解塔罗牌\s?(.*)`, ctxext.DoOnceOnSuccess(
@@ -160,6 +160,5 @@ func init() {
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))
 		}
-		return
 	})
 }

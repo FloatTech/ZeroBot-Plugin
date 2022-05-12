@@ -16,6 +16,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/web"
 )
 
@@ -69,13 +70,18 @@ func init() {
 
 // soutuapi 请求api
 func soutuapi(keyword string) (r resultjson, err error) {
-	data, err := web.GetData("https://copymanga.azurewebsites.net/api/pixivel?" + url.QueryEscape(keyword) + "?page=0")
-	if err != nil {
+	var data []byte
+	for i := 0; i < 3; i++ {
+		data, err = web.GetData("https://copymanga.azurewebsites.net/api/pixivel?" + url.QueryEscape(keyword) + "?page=0")
+		if err != nil {
+			process.SleepAbout1sTo2s()
+			continue
+		}
+		err = json.Unmarshal(data, &r)
+		if err == nil && r.Error {
+			err = errors.New(r.Message)
+		}
 		return
-	}
-	err = json.Unmarshal(data, &r)
-	if err == nil && r.Error {
-		err = errors.New(r.Message)
 	}
 	return
 }
