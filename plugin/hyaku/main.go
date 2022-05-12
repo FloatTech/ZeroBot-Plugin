@@ -1,3 +1,4 @@
+// Package hyaku 百人一首
 package hyaku
 
 import (

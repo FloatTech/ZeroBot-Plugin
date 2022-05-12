@@ -94,10 +94,7 @@ func updateVup() error {
 			uname := value.Get("uname").String()
 			roomid := value.Get("roomid").Int()
 			err = vdb.insertVupByMid(mid, uname, roomid)
-			if err != nil {
-				return false
-			}
-			return true
+			return err == nil
 		})
 		if err != nil {
 			return err
