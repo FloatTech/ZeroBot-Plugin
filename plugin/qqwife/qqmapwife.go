@@ -17,16 +17,19 @@ import (
 	"github.com/FloatTech/zbputils/math"
 )
 
+//nolint: asciicheck
 type 婚姻登记 struct {
 	sync.Mutex
 	mp map[int64]map[int64]int64
 }
 
+//nolint: asciicheck
 func 新登记处() (db 婚姻登记) {
 	db.mp = make(map[int64]map[int64]int64, 64)
 	return
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -35,6 +38,7 @@ func (db *婚姻登记) 重置() {
 	}
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 有登记在(gid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -48,6 +52,7 @@ func (db *婚姻登记) 有登记在(gid int64) (ok bool) {
 	return
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 登记情况(gid int64, ctx *zero.Ctx) string {
 	db.Lock()
 	defer db.Unlock()
@@ -68,6 +73,7 @@ func (db *婚姻登记) 登记情况(gid int64, ctx *zero.Ctx) string {
 	}))
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 有妻子(gid, uid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -79,6 +85,7 @@ func (db *婚姻登记) 有妻子(gid, uid int64) (ok bool) {
 	return
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 查询妻子(gid, uid int64) (wife int64) {
 	db.Lock()
 	defer db.Unlock()
@@ -89,6 +96,7 @@ func (db *婚姻登记) 查询妻子(gid, uid int64) (wife int64) {
 	return mp[uid]
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 有丈夫(gid, uid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -100,6 +108,7 @@ func (db *婚姻登记) 有丈夫(gid, uid int64) (ok bool) {
 	return
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 查询丈夫(gid, uid int64) (husband int64) {
 	db.Lock()
 	defer db.Unlock()
@@ -110,6 +119,7 @@ func (db *婚姻登记) 查询丈夫(gid, uid int64) (husband int64) {
 	return mp[-uid]
 }
 
+//nolint: asciicheck
 func (db *婚姻登记) 登记(gid, wife, husband int64) {
 	db.Lock()
 	defer db.Unlock()
@@ -124,6 +134,7 @@ func (db *婚姻登记) 登记(gid, wife, husband int64) {
 }
 
 var (
+	//nolint: asciicheck
 	民政局      = 新登记处()
 	lastdate time.Time
 	sendtext = [...][]string{
