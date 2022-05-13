@@ -29,7 +29,6 @@ func 新登记处() (db 婚姻登记) {
 	return
 }
 
-
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -37,7 +36,6 @@ func (db *婚姻登记) 重置() {
 		delete(db.mp, k)
 	}
 }
-
 
 func (db *婚姻登记) 有登记在(gid int64) (ok bool) {
 	db.Lock()
@@ -51,7 +49,6 @@ func (db *婚姻登记) 有登记在(gid int64) (ok bool) {
 	}
 	return
 }
-
 
 func (db *婚姻登记) 登记情况(gid int64, ctx *zero.Ctx) string {
 	db.Lock()
@@ -73,7 +70,6 @@ func (db *婚姻登记) 登记情况(gid int64, ctx *zero.Ctx) string {
 	}))
 }
 
-
 func (db *婚姻登记) 有妻子(gid, uid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -85,7 +81,6 @@ func (db *婚姻登记) 有妻子(gid, uid int64) (ok bool) {
 	return
 }
 
-
 func (db *婚姻登记) 查询妻子(gid, uid int64) (wife int64) {
 	db.Lock()
 	defer db.Unlock()
@@ -95,7 +90,6 @@ func (db *婚姻登记) 查询妻子(gid, uid int64) (wife int64) {
 	}
 	return mp[uid]
 }
-
 
 func (db *婚姻登记) 有丈夫(gid, uid int64) (ok bool) {
 	db.Lock()
@@ -108,7 +102,6 @@ func (db *婚姻登记) 有丈夫(gid, uid int64) (ok bool) {
 	return
 }
 
-
 func (db *婚姻登记) 查询丈夫(gid, uid int64) (husband int64) {
 	db.Lock()
 	defer db.Unlock()
@@ -118,7 +111,6 @@ func (db *婚姻登记) 查询丈夫(gid, uid int64) (husband int64) {
 	}
 	return mp[-uid]
 }
-
 
 func (db *婚姻登记) 登记(gid, wife, husband int64) {
 	db.Lock()
