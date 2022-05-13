@@ -129,19 +129,19 @@ func init() { // 插件主体
 								}
 							})
 							resp, err := http.Head(result.Header.Thumbnail)
-							// msg := make(message.Message, 0, 3)
+							//msg := make(message.Message, 0, 3)
 							msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("搜图结果"))}
 							if s > 0.8 {
-								msg = append(msg, message.Text("我有把握是这个!"))
+								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("我有把握是这个!")))
 							} else {
-								msg = append(msg, message.Text("也许是这个?"))
+								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("也许是这个?")))
 							}
 							if err == nil && resp.StatusCode == http.StatusOK {
-								msg = append(msg, message.Image(result.Header.Thumbnail))
+								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Image(result.Header.Thumbnail)))
 							} else {
-								msg = append(msg, message.Image(pic))
+								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Image(pic)))
 							}
-							msg = append(msg, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b)))
+							msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b))))
 							if id := ctx.SendGroupForwardMessage(
 								ctx.Event.GroupID,
 								msg,
