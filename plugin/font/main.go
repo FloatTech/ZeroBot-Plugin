@@ -33,7 +33,7 @@ func init() {
 		default:
 			fnt = text.FontFile
 		}
-		b, err := text.RenderToBase64(txt, fnt, 500, 40)
+		b, err := text.RenderToBase64(txt, fnt, 1000, 40)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return

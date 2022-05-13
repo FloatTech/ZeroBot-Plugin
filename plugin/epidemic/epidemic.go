@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	limit = rate.NewManager[int64](time.Second*60, 1)
+	limit = ctxext.NewLimiterManager(time.Second*60, 1)
 )
 
 // result 疫情查询结果
@@ -63,7 +63,7 @@ func init() {
 		Help: "城市疫情查询\n" +
 			"- xxx疫情\n",
 	})
-	engine.OnSuffix("疫情").SetBlock(true).
+	engine.OnSuffix("疫情").SetBlock(true).Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			city := ctx.State["args"].(string)
 			if city == "" {
@@ -79,26 +79,22 @@ func init() {
 				ctx.SendChain(message.Text("没有找到【", city, "】城市的疫情数据."))
 				return
 			}
-			if limit.Load(ctx.Event.UserID).Acquire() {
-				temp := fmt.Sprint("【", data.Name, "】疫情数据\n",
-					"新增人数：", data.Today.Confirm, "\n",
-					"现有确诊：", data.Total.NowConfirm, "\n",
-					"累计确诊：", data.Total.Confirm, "\n",
-					"治愈人数：", data.Total.Heal, "\n",
-					"死亡人数：", data.Total.Dead, "\n",
-					"无症状人数：", data.Total.Wzz, "\n",
-					"新增无症状：", data.Today.Wzzadd, "\n",
-					"更新时间：\n『", time, "』")
-				txt, err := text.RenderToBase64(temp, text.FontFile, 360, 30)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-					return
-				}
-				if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(txt))); id.ID() == 0 {
-					ctx.SendChain(message.Text("ERROR:可能被风控了"))
-				}
-			} else {
-				ctx.SendChain(message.Text("您的操作太频繁了！（冷却时间为1分钟）"))
+			temp := fmt.Sprint("【", data.Name, "】疫情数据\n",
+				"新增人数：", data.Today.Confirm, "\n",
+				"现有确诊：", data.Total.NowConfirm, "\n",
+				"累计确诊：", data.Total.Confirm, "\n",
+				"治愈人数：", data.Total.Heal, "\n",
+				"死亡人数：", data.Total.Dead, "\n",
+				"无症状人数：", data.Total.Wzz, "\n",
+				"新增无症状：", data.Today.Wzzadd, "\n",
+				"更新时间：\n『", time, "』")
+			txt, err := text.RenderToBase64(temp, text.FontFile, 360, 30)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(txt))); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 		})
 }
