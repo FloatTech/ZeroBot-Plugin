@@ -129,7 +129,7 @@ func init() { // 插件主体
 								}
 							})
 							resp, err := http.Head(result.Header.Thumbnail)
-							var msg message.Message = make(message.Message, 0, 3)
+							msg := make(message.Message, 0, 3)
 							if s > 0.8 {
 								msg = append(msg, message.Text("我有把握是这个!"))
 							} else {

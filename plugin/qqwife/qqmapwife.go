@@ -61,7 +61,7 @@ func (db *婚姻登记) 登记情况(gid int64, ctx *zero.Ctx) string {
 		w.WriteString("群老公←———→群老婆\n-----------")
 		for husband, wife := range mp {
 			if husband > 0 {
-				w.WriteByte('\n')
+				_ = w.WriteByte('\n')
 				w.WriteString(ctx.CardOrNickName(husband))
 				w.WriteString(" & ")
 				w.WriteString(ctx.CardOrNickName(wife))
