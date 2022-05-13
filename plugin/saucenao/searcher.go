@@ -108,36 +108,15 @@ func init() { // 插件主体
 	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.OnlyGroup, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
-			ctx.SendChain(message.Text("少女祈祷中......"))
+			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, pic := range ctx.State["image_url"].([]string) {
 				if saucenaocli != nil {
 					resp, err := saucenaocli.FromURL(pic)
 					if err == nil && resp.Count() > 0 {
 						result := resp.First()
-						// 返回SauceNAO的结果
-						source := ""
-						switch {
-						case result.IsPixiv():
-							source = "Pixiv"
-						case result.IsAniDB():
-							source = "AniDB"
-						case result.IsBcy():
-							source = "Bcy"
-						case result.IsDanbooru():
-							source = "Danbooru"
-						case result.IsDeviantArt():
-							source = "DeviantArt"
-						case result.IsIMDb():
-							source = "IMDb"
-						case result.IsPawoo():
-							source = "Pawoo"
-						case result.IsSankaku():
-							source = "Sankaku"
-						case result.IsSeiga():
-							source = "Seiga"
-						}
-						if source != "" {
-							rr := reflect.ValueOf(&result).Elem()
+						s, err := strconv.ParseFloat(result.Header.Similarity, 64)
+						if err == nil {
+							rr := reflect.ValueOf(&result.Data).Elem()
 							b := binary.NewWriterF(func(w *binary.Writer) {
 								r := rr.Type()
 								for i := 0; i < r.NumField(); i++ {
@@ -150,23 +129,24 @@ func init() { // 插件主体
 								}
 							})
 							resp, err := http.Head(result.Header.Thumbnail)
-							if err == nil && resp.StatusCode == http.StatusOK {
-								ctx.SendChain(
-									message.Text("我有把握是这个！"),
-									message.Image(result.Header.Thumbnail),
-									message.Text("\n图源: ", source, binary.BytesToString(b)),
-								)
+							msg := make(message.Message, 0, 3)
+							if s > 0.8 {
+								msg = append(msg, message.Text("我有把握是这个!"))
 							} else {
-								ctx.SendChain(
-									message.Text("我有把握是这个！"),
-									message.Image(pic),
-									message.Text("\n图源: ", source, binary.BytesToString(b)),
-								)
+								msg = append(msg, message.Text("也许是这个?"))
 							}
-							continue
+							if err == nil && resp.StatusCode == http.StatusOK {
+								msg = append(msg, message.Image(result.Header.Thumbnail))
+							} else {
+								msg = append(msg, message.Image(pic))
+							}
+							msg = append(msg, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b)))
+							ctx.Send(msg)
+							if s > 0.8 {
+								continue
+							}
 						}
 					}
-					ctx.SendChain(message.Text("ERROR:", err))
 				} else {
 					ctx.SendChain(message.Text("请私聊发送 设置 saucenao api key [apikey] 以启用 saucenao 搜图, key 请前往 https://saucenao.com/user.php?page=search-api 获取"))
 				}
