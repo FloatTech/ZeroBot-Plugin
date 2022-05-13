@@ -129,7 +129,7 @@ func init() { // 插件主体
 								}
 							})
 							resp, err := http.Head(result.Header.Thumbnail)
-							//msg := make(message.Message, 0, 3)
+							// msg := make(message.Message, 0, 3)
 							msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("搜图结果"))}
 							if s > 0.8 {
 								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("我有把握是这个!")))
