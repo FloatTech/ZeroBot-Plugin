@@ -17,11 +17,13 @@ import (
 	"github.com/FloatTech/zbputils/math"
 )
 
+//nolint: asciicheck
 type 婚姻登记 struct {
 	sync.Mutex
 	mp map[int64]map[int64]int64
 }
 
+//nolint: asciicheck
 func 新登记处() (db 婚姻登记) {
 	db.mp = make(map[int64]map[int64]int64, 64)
 	return
@@ -59,7 +61,7 @@ func (db *婚姻登记) 登记情况(gid int64, ctx *zero.Ctx) string {
 		w.WriteString("群老公←———→群老婆\n-----------")
 		for husband, wife := range mp {
 			if husband > 0 {
-				w.WriteByte('\n')
+				_ = w.WriteByte('\n')
 				w.WriteString(ctx.CardOrNickName(husband))
 				w.WriteString(" & ")
 				w.WriteString(ctx.CardOrNickName(wife))
@@ -124,6 +126,7 @@ func (db *婚姻登记) 登记(gid, wife, husband int64) {
 }
 
 var (
+	//nolint: asciicheck
 	民政局      = 新登记处()
 	lastdate time.Time
 	sendtext = [...][]string{
