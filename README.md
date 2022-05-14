@@ -796,12 +796,26 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>​签到得分</summary>
+  <summary>签到得分</summary>
 
-`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin_score"` 
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"` 
 
   - [x] 签到
-  - [x] 获得签到背景[@xxx] | 获得签到背景
+  - [x] 获得签到背景[@xxx] | 获得签到背景
+
+</details>
+<details>
+  <summary>沙雕app</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"`
+
+- [x] 哄我
+- [x] 渣我
+- [x] 来碗绿茶
+- [x] 发个朋友圈
+- [x] 来碗毒鸡汤
+- [x] 讲个段子
+- [x] 马丁路德骂我
 
 </details>
 <details>
