@@ -17,6 +17,7 @@ const (
 	yduanziURL      = "http://www.yduanzi.com/duanzi/getduanzi"
 	chayiURL        = "https://api.lovelive.tools/api/SweetNothings/Web/0"
 	ganhaiURL       = "https://api.lovelive.tools/api/SweetNothings/Web/1"
+	ergofabulousURL = "https://ergofabulous.org/luther/?"
 	ua              = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 	sdReferer       = "https://api.shadiao.app/"
 	yduanziReferer  = "http://www.yduanzi.com/?utm_source=shadiao.app"
@@ -27,7 +28,7 @@ var (
 	engine = control.Register("shadiao", &control.Options{
 		DisableOnDefault: false,
 		Help: "沙雕app\n" +
-			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子",
+			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子\n- 马丁路德骂我\n",
 	})
 	sdMap = map[string]string{"哄我": chpURL, "来碗毒鸡汤": duURL, "发个朋友圈": pyqURL}
 )
