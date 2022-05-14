@@ -130,7 +130,7 @@ func init() { // 插件主体
 							})
 							resp, err := http.Head(result.Header.Thumbnail)
 							msg := make(message.Message, 0, 3)
-							if s > 0.8 {
+							if s > 80.0 {
 								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("我有把握是这个!")))
 							} else {
 								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("也许是这个?")))
@@ -147,7 +147,7 @@ func init() { // 插件主体
 							).Get("message_id").Int(); id == 0 {
 								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
-							if s > 0.8 {
+							if s > 80.0 {
 								continue
 							}
 						}
