@@ -21,26 +21,29 @@ import (
 //nolint: asciicheck
 type 婚姻登记 struct {
 	sync.Mutex
-	mp map[int64]map[int64]*证件信息
+	mp map[int64]map[int64]*userinfo
 }
-//nolint: asciicheck
-type 证件信息 struct {
-	对象证号 int64
-	用户名称 string
-	对象名称 string
+
+//结婚证信息
+type userinfo struct {
+	target     int64  //对象身份证号
+	username   string //户主名称
+	targetname string //对象名称
 }
 
 //nolint: asciicheck
 func 新登记处() (db 婚姻登记) {
-	db.mp = make(map[int64]map[int64]*证件信息, 64)
+	db.mp = make(map[int64]map[int64]*userinfo, 64)
 	return
 }
+
 //nolint: asciicheck
-func (db *婚姻登记) 新档案柜(gid int64) {
+func (db *婚姻登记) 新档案(gid int64) {
 	db.Lock()
 	defer db.Unlock()
-	db.mp[gid] = make(map[int64]*证件信息, 32)
+	db.mp[gid] = make(map[int64]*userinfo, 32)
 }
+
 //nolint: asciicheck
 func (db *婚姻登记) 重置() {
 	db.Lock()
@@ -49,17 +52,19 @@ func (db *婚姻登记) 重置() {
 		delete(db.mp, k)
 	}
 }
+
 //nolint: asciicheck
-func (db *婚姻登记) 办理离婚(地区, 你的对象 int64) {
+func (db *婚姻登记) 办理离婚(gid, wife int64) {
 	db.Lock()
 	defer db.Unlock()
-	delete(db.mp[地区], 你的对象)
+	delete(db.mp[gid], wife)
 }
+
 //nolint: asciicheck
-func (db *婚姻登记) 登记情况(地区 int64) (ok bool) {
+func (db *婚姻登记) 登记情况(gid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
-	mp, ok := db.mp[地区]
+	mp, ok := db.mp[gid]
 	if !ok {
 		return
 	}
@@ -68,11 +73,12 @@ func (db *婚姻登记) 登记情况(地区 int64) (ok bool) {
 	}
 	return
 }
+
 //nolint: asciicheck
-func (db *婚姻登记) 花名册(ctx *zero.Ctx, 地区 int64) string {
+func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	db.Lock()
 	defer db.Unlock()
-	mp, ok := db.mp[地区]
+	mp, ok := db.mp[gid]
 	if !ok {
 		return ""
 	}
@@ -81,56 +87,57 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, 地区 int64) string {
 		for 用户证号, 结婚证 := range mp {
 			if 用户证号 > 0 {
 				_ = w.WriteByte('\n')
-				w.WriteString(结婚证.用户名称)
+				w.WriteString(结婚证.username)
 				w.WriteString(" & ")
-				w.WriteString(结婚证.对象名称)
+				w.WriteString(结婚证.targetname)
 			}
 		}
 	}))
 }
+
 //nolint: asciicheck
-func (db *婚姻登记) 查户口(地区, 用户证号 int64) (证件信息 *证件信息, 户主性别 int, ok bool) {
+func (db *婚姻登记) 查户口(gid, 用户证号 int64) (userinfo *userinfo, uid性别 int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
-	户主性别 = 0
-	mp, ok := db.mp[地区]
+	uid性别 = 0
+	mp, ok := db.mp[gid]
 	if !ok {
 		return
 	}
-	证件信息, ok = mp[用户证号]
+	userinfo, ok = mp[用户证号]
 	if !ok {
-		户主性别 = 1
-		证件信息, ok = mp[-用户证号]
+		uid性别 = 1
+		userinfo, ok = mp[-用户证号]
 	}
 	return
 }
+
 //nolint: asciicheck
-func (db *婚姻登记) 登记(ctx *zero.Ctx, 地区, 户主, 对象 int64) {
+func (db *婚姻登记) 登记(ctx *zero.Ctx, gid, uid, target int64) {
 	db.Lock()
 	defer db.Unlock()
 	//填写夫妻信息
-	户主名称 := ctx.CardOrNickName(户主)
-	对象名称 := ctx.CardOrNickName(对象)
-	户主信息 := &证件信息{
-		对象证号: 对象,
-		用户名称: 户主名称,
-		对象名称: 对象名称,
+	username := ctx.CardOrNickName(uid)
+	targetname := ctx.CardOrNickName(target)
+	uidinfo := &userinfo{
+		target:     target,
+		username:   username,
+		targetname: targetname,
 	}
-	对象信息 := &证件信息{
-		对象证号: 户主,
-		用户名称: 对象名称,
-		对象名称: 户主名称,
+	targetinfo := &userinfo{
+		target:     uid,
+		username:   targetname,
+		targetname: username,
 	}
 	//民政局登记数据
-	db.mp[地区][户主] = 户主信息
-	db.mp[地区][-对象] = 对象信息
+	db.mp[gid][uid] = uidinfo
+	db.mp[gid][-target] = targetinfo
 }
 
 var (
 	//nolint: asciicheck
 	民政局      = 新登记处()
-	//nolint: asciicheck
-	技能CD     = rate.NewManager[string](time.Hour*24, 1) //技能CD时间
+	skillCD  = rate.NewManager[string](time.Hour*24, 1)
 	lastdate time.Time
 	sendtext = [...][]string{
 		{ //表白成功
@@ -165,8 +172,9 @@ func init() {
 			}
 			//判断列表是否为空
 			gid := ctx.Event.GroupID
-			if !民政局.登记情况(gid){
-				民政局.新档案柜(gid)
+			if !民政局.登记情况(gid) {
+				//如果没有任何登记就开新档案
+				民政局.新档案(gid)
 			}
 			uid := ctx.Event.UserID
 			targetinfo, status, ok := 民政局.查户口(gid, uid)
@@ -176,22 +184,22 @@ func init() {
 					ctx.SendChain(
 						message.At(uid),
 						message.Text("今天你的群老婆是"),
-						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.对象证号, 10)+"&s=640").Add("cache", 0),
+						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.target, 10)+"&s=640").Add("cache", 0),
 						message.Text(
 							"\n",
-							"[", targetinfo.对象名称, "]",
-							"(", targetinfo.对象证号, ")哒",
+							"[", targetinfo.targetname, "]",
+							"(", targetinfo.target, ")哒",
 						),
 					)
-				default:
+				default: //嫁给别人
 					ctx.SendChain(
 						message.At(uid),
 						message.Text("今天你的群老公是"),
-						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.对象证号, 10)+"&s=640").Add("cache", 0),
+						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.target, 10)+"&s=640").Add("cache", 0),
 						message.Text(
 							"\n",
-							"[", targetinfo.对象名称, "]",
-							"(", targetinfo.对象证号, ")哒",
+							"[", targetinfo.targetname, "]",
+							"(", targetinfo.target, ")哒",
 						),
 					)
 				}
@@ -250,8 +258,8 @@ func init() {
 			}
 			if rand.Intn(2) == 1 { //二分之一的概率表白成功
 				gid := ctx.Event.GroupID
-				if !民政局.登记情况(gid){
-					民政局.新档案柜(gid)
+				if !民政局.登记情况(gid) {
+					民政局.新档案(gid)
 				}
 				//根据技能分配0和1
 				var choicetext string
@@ -290,13 +298,13 @@ func init() {
 			}
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
-			//判断对象是0还是1
+			//判断target是0还是1
 			choicetext := "婆"
 			targetinfo, status, _ := 民政局.查户口(gid, fiancee)
 			if status == 0 {
-				民政局.办理离婚(gid, -targetinfo.对象证号)
+				民政局.办理离婚(gid, -targetinfo.target)
 			} else {
-				民政局.办理离婚(gid, targetinfo.对象证号)
+				民政局.办理离婚(gid, targetinfo.target)
 				choicetext = "公"
 			}
 			//重新绑定CP
@@ -334,7 +342,7 @@ func init() {
 //以群号和昵称为限制
 func cdcheck(ctx *zero.Ctx) *rate.Limiter {
 	limitID := strconv.FormatInt(ctx.Event.GroupID, 10) + strconv.FormatInt(ctx.Event.UserID, 10)
-	return 技能CD.Load(limitID)
+	return skillCD.Load(limitID)
 }
 func iscding(ctx *zero.Ctx) {
 	ctx.SendChain(message.Text("你的技能现在正在CD中"))
@@ -344,11 +352,11 @@ func iscding(ctx *zero.Ctx) {
 func checkdog(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	if !民政局.登记情况(gid) {
-		return true //如果没有人登记
+		return true //如果没有人登记，说明全是单身
 	}
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
-		ctx.SendChain(message.Text("额，你的对象好像不存在？"))
+		ctx.SendChain(message.Text("额，你的target好像不存在？"))
 		return false
 	}
 	uid := ctx.Event.UserID
@@ -356,13 +364,13 @@ func checkdog(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("今日获得成就：自恋狂"))
 		return false
 	}
-	//获取用户信息
+	//获取用户info
 	uidtarget, uidstatus, ok1 := 民政局.查户口(gid, uid)
 	_, fianceestatus, ok2 := 民政局.查户口(gid, fiancee)
 	if !ok1 && !ok2 { //必须是两个单生狗
 		return true
 	}
-	if uidtarget.对象证号 == fiancee { //如果本就是一块
+	if uidtarget.target == fiancee { //如果本就是一块
 		ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
 		return false
 	}
@@ -407,11 +415,11 @@ func checkcp(ctx *zero.Ctx) bool {
 		}
 		return false
 	}
-	//检查对象是否登记过
+	//检查target是否登记过
 	fid := ctx.State["regex_matched"].([]string)
 	fiancee, err := strconv.ParseInt(fid[2]+fid[3], 10, 64)
 	if err != nil {
-		ctx.SendChain(message.Text("额，你的对象好像不存在?"))
+		ctx.SendChain(message.Text("额，你的target好像不存在?"))
 		return false
 	}
 	_, _, ok = 民政局.查户口(gid, fiancee)
