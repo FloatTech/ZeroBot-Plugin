@@ -1,4 +1,4 @@
-//  Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
+//Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品
 package qqwife
 
 import (
@@ -287,10 +287,10 @@ func (db *qqcpgroup) checkuser(gid, uid int64) (info *userinfo, status int, ok b
 func (db *qqcpgroup) writeinfo(ctx *zero.Ctx, gid, husband, wife int64) {
 	db.Lock()
 	defer db.Unlock()
-	mp, ok := db.mp[gid]
+	mpinfo, ok := db.mp[gid]
 	if !ok {
-		mp = make(map[int64]*userinfo, 32)
-		db.mp[gid] = mp
+		mpinfo = make(map[int64]*userinfo, 32)
+		db.mp[gid] = mpinfo
 	}
 	//填写夫妻信息
 	husbandname := ctx.CardOrNickName(husband)
