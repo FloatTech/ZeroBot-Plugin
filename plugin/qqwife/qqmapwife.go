@@ -18,22 +18,118 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 )
 
-type qqcpgroup struct {
+//nolint: asciicheck
+type 婚姻登记 struct {
 	sync.Mutex
-	mp map[int64]map[int64]*userinfo
+	mp map[int64]map[int64]*证件信息
+}
+type 证件信息 struct {
+	对象证号 int64
+	用户名称 string
+	对象名称 string
 }
 
-type userinfo struct {
-	target int64  //对象的QQ号
-	uName  string //用户名称
-	tName  string //对象名称
+//nolint: asciicheck
+func 新登记处() (db 婚姻登记) {
+	db.mp = make(map[int64]map[int64]*证件信息, 64)
+	return
+}
+
+func (db *婚姻登记) 重置() {
+	db.Lock()
+	defer db.Unlock()
+	for k := range db.mp {
+		delete(db.mp, k)
+	}
+}
+
+func (db *婚姻登记) 办理离婚(地区, 你的对象 int64) {
+	db.Lock()
+	defer db.Unlock()
+	delete(db.mp[地区], 你的对象)
+}
+
+func (db *婚姻登记) 登记情况(地区 int64) (ok bool) {
+	db.Lock()
+	defer db.Unlock()
+	mp, ok := db.mp[地区]
+	if !ok {
+		return
+	}
+	for range mp {
+		return true
+	}
+	return
+}
+
+func (db *婚姻登记) 花名册(ctx *zero.Ctx, 地区 int64) string {
+	db.Lock()
+	defer db.Unlock()
+	mp, ok := db.mp[地区]
+	if !ok {
+		return ""
+	}
+	return binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
+		w.WriteString("群老公←———→群老婆\n-----------")
+		for 用户证号, 结婚证 := range mp {
+			if 用户证号 > 0 {
+				_ = w.WriteByte('\n')
+				w.WriteString(结婚证.用户名称)
+				w.WriteString(" & ")
+				w.WriteString(结婚证.对象名称)
+			}
+		}
+	}))
+}
+
+func (db *婚姻登记) 查户口(地区, 用户证号 int64) (证件信息 *证件信息, 户主性别 int, ok bool) {
+	db.Lock()
+	defer db.Unlock()
+	户主性别 = 0
+	mp, ok := db.mp[地区]
+	if !ok {
+		return
+	}
+	证件信息, ok = mp[用户证号]
+	if !ok {
+		户主性别 = 1
+		证件信息, ok = mp[-用户证号]
+	}
+	return
+}
+
+func (db *婚姻登记) 登记(ctx *zero.Ctx, 地区, 户主, 对象 int64) {
+	db.Lock()
+	defer db.Unlock()
+	mp, ok := db.mp[地区]
+	if !ok { //如果没有结过婚就颁发证件
+		mp = make(map[int64]*证件信息, 32)
+		db.mp[地区] = mp
+	}
+	//填写夫妻信息
+	户主名称 := ctx.CardOrNickName(户主)
+	对象名称 := ctx.CardOrNickName(对象)
+	户主信息 := &证件信息{
+		对象证号: 对象,
+		用户名称: 户主名称,
+		对象名称: 对象名称,
+	}
+	对象信息 := &证件信息{
+		对象证号: 户主,
+		用户名称: 对象名称,
+		对象名称: 户主名称,
+	}
+	//民政局登记数据
+	db.mp[地区][户主] = 户主信息
+	db.mp[地区][-对象] = 对象信息
 }
 
 var (
-	qqwifegroup = initgroupinfo()
-	singledogCD = rate.NewManager[string](time.Hour*24, 1) //技能CD时间
-	lastdate    time.Time
-	sendtext    = [...][]string{
+	//nolint: asciicheck
+	民政局      = 新登记处()
+	技能CD     = rate.NewManager[string](time.Hour*24, 1) //技能CD时间
+	lastdate time.Time
+	sendtext = [...][]string{
 		{ //表白成功
 			"今天你向ta表白了，ta羞涩的点了点头同意了！\n",
 			"你对ta说“以我之名，冠你指间，一天相伴，一天相随”.ta捂着嘴点了点头\n\n",
@@ -60,38 +156,36 @@ func init() {
 	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			if time.Now().Day() != lastdate.Day() {
-				qqwifegroup = initgroupinfo() // 跨天就重新初始化数据
+				民政局.重置()
+				// 更新时间
+				lastdate = time.Now()
 			}
 			//判断列表是否为空
 			gid := ctx.Event.GroupID
-			if !qqwifegroup.cpisnil(gid) {
-				qqwifegroup.initroster(gid)
-			}
-			// 先判断是否已经娶过或者被娶
 			uid := ctx.Event.UserID
-			targetinfo, status, ok := qqwifegroup.checkuser(gid, uid)
+			targetinfo, status, ok := 民政局.查户口(gid, uid)
 			if ok {
 				switch status {
 				case 0: //娶过别人
 					ctx.SendChain(
 						message.At(uid),
 						message.Text("今天你的群老婆是"),
-						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.target, 10)+"&s=640").Add("cache", 0),
+						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.对象证号, 10)+"&s=640").Add("cache", 0),
 						message.Text(
 							"\n",
-							"[", targetinfo.tName, "]",
-							"(", targetinfo.target, ")哒",
+							"[", targetinfo.对象名称, "]",
+							"(", targetinfo.对象证号, ")哒",
 						),
 					)
 				default:
 					ctx.SendChain(
 						message.At(uid),
 						message.Text("今天你的群老公是"),
-						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.target, 10)+"&s=640").Add("cache", 0),
+						message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.对象证号, 10)+"&s=640").Add("cache", 0),
 						message.Text(
 							"\n",
-							"[", targetinfo.tName, "]",
-							"(", targetinfo.target, ")哒",
+							"[", targetinfo.对象名称, "]",
+							"(", targetinfo.对象证号, ")哒",
 						),
 					)
 				}
@@ -105,33 +199,28 @@ func init() {
 			temp = temp[math.Max(0, len(temp)-30):]
 			// 将已经娶过的人剔除
 			qqgrouplist := make([]int64, 0, len(temp))
-			if !qqwifegroup.cpisnil(gid) {
-				for k := 0; k < len(temp); k++ {
-					qqgrouplist = append(qqgrouplist, temp[k].Get("user_id").Int())
+			for k := 0; k < len(temp); k++ {
+				usr := temp[k].Get("user_id").Int()
+				_, _, ok := 民政局.查户口(gid, usr)
+				if ok {
+					continue
 				}
-			} else {
-				for k := 0; k < len(temp); k++ {
-					_, _, ok := qqwifegroup.checkuser(gid, temp[k].Get("user_id").Int())
-					if ok {
-						continue
-					}
-					qqgrouplist = append(qqgrouplist, temp[k].Get("user_id").Int())
-				}
+				qqgrouplist = append(qqgrouplist, usr)
 			}
 			// 没有人（只剩自己）的时候
 			if len(qqgrouplist) == 0 {
-				ctx.SendChain(message.Text("噢，此时此刻你还是一只单身狗，等待下一次情缘吧"))
+				ctx.SendChain(message.Text("噢, 此时此刻你还是一只单身狗, 等待下一次情缘吧"))
 				return
 			}
 			// 随机抽娶
 			fiancee := qqgrouplist[rand.Intn(len(qqgrouplist))]
 			if fiancee == uid { // 如果是自己
-				ctx.SendChain(message.Text("噢，此时此刻你还是一只单身狗，等待下一次情缘吧"))
+				ctx.SendChain(message.Text("噢, 此时此刻你还是一只单身狗, 等待下一次情缘吧"))
 				return
 			}
 			//去民政局办证
-			qqwifegroup.writeinfo(ctx, gid, uid, fiancee)
-			// 让大家吃席
+			民政局.登记(ctx, gid, uid, fiancee)
+			// 请大家吃席
 			ctx.SendChain(
 				message.At(uid),
 				message.Text("今天你的群老婆是"),
@@ -142,8 +231,6 @@ func init() {
 					"(", fiancee, ")哒",
 				),
 			)
-			//记录结婚时间
-			lastdate = time.Now()
 		})
 	//单生狗专属技能
 	engine.OnRegex(`^(娶|嫁)\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, checkdog).SetBlock(true).Limit(cdcheck, iscding).
@@ -156,22 +243,18 @@ func init() {
 				return
 			}
 			if rand.Intn(2) == 1 { //二分之一的概率表白成功
-				//判断列表是否为空
 				gid := ctx.Event.GroupID
-				if !qqwifegroup.cpisnil(gid) {
-					qqwifegroup.initroster(gid)
-				}
 				//根据技能分配0和1
 				var choicetext string
 				switch choice {
 				case "娶":
-					qqwifegroup.writeinfo(ctx, gid, uid, fiancee)
+					民政局.登记(ctx, gid, uid, fiancee)
 					choicetext = "今天你的群老婆是"
 				default:
-					qqwifegroup.writeinfo(ctx, gid, fiancee, uid)
+					民政局.登记(ctx, gid, fiancee, uid)
 					choicetext = "今天你的群老公是"
 				}
-				// 输出结果
+				//请大家吃席
 				ctx.SendChain(
 					message.Text(sendtext[0][rand.Intn(len(sendtext[0]))]),
 					message.At(uid),
@@ -183,9 +266,9 @@ func init() {
 						"(", fiancee, ")哒",
 					),
 				)
-			} else {
-				ctx.SendChain(message.Text(sendtext[1][rand.Intn(len(sendtext[1]))]))
+				return
 			}
+			ctx.SendChain(message.Text(sendtext[1][rand.Intn(len(sendtext[1]))]))
 		})
 	//NTR技能
 	engine.OnRegex(`^当(\[CQ:at,qq=(\d+)\] |(\d+))的小三`, zero.OnlyGroup, checkcp).SetBlock(true).Limit(cdcheck, iscding).
@@ -200,20 +283,20 @@ func init() {
 			uid := ctx.Event.UserID
 			//判断对象是0还是1
 			choicetext := "婆"
-			targetinfo, status, _ := qqwifegroup.checkuser(gid, fiancee)
+			targetinfo, status, _ := 民政局.查户口(gid, fiancee)
 			if status == 0 {
-				qqwifegroup.divorce(gid, -targetinfo.target)
+				民政局.办理离婚(gid, -targetinfo.对象证号)
 			} else {
-				qqwifegroup.divorce(gid, targetinfo.target)
+				民政局.办理离婚(gid, targetinfo.对象证号)
 				choicetext = "公"
 			}
 			//重新绑定CP
 			switch choicetext {
 			case "婆":
-				qqwifegroup.writeinfo(ctx, gid, uid, fiancee)
+				民政局.登记(ctx, gid, uid, fiancee)
 				choicetext = "今天你的群老婆是"
 			default:
-				qqwifegroup.writeinfo(ctx, gid, fiancee, uid)
+				民政局.登记(ctx, gid, fiancee, uid)
 				choicetext = "今天你的群老公是"
 			}
 			// 输出结果
@@ -229,116 +312,30 @@ func init() {
 				),
 			)
 		})
-	//显示群CP
 	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !qqwifegroup.cpisnil(ctx.Event.GroupID) {
+			if !民政局.登记情况(ctx.Event.GroupID) {
 				ctx.SendChain(message.Text("你群并没有任何的CP额"))
 				return
 			}
-			ctx.SendChain(message.Text(qqwifegroup.roster(ctx.Event.GroupID)))
+			ctx.SendChain(message.Text(民政局.花名册(ctx, ctx.Event.GroupID)))
 		})
 }
 
-//判断列表是否为空（true 有值，false 为空）
-func (db *qqcpgroup) cpisnil(gid int64) (ok bool) {
-	db.Lock()
-	defer db.Unlock()
-	mpinfo, ok := db.mp[gid]
-	if !ok {
-		return
-	}
-	for range mpinfo {
-		return true
-	}
-	return
+//以群号和昵称为限制
+func cdcheck(ctx *zero.Ctx) *rate.Limiter {
+	limitID := strconv.FormatInt(ctx.Event.GroupID, 10) + strconv.FormatInt(ctx.Event.UserID, 10)
+	return 技能CD.Load(limitID)
+}
+func iscding(ctx *zero.Ctx) {
+	ctx.SendChain(message.Text("你的技能现在正在CD中"))
 }
 
-//民政局初始化
-func initgroupinfo() (db qqcpgroup) {
-	db.mp = make(map[int64]map[int64]*userinfo, 64) // 64个群的预算大小
-	return
-}
-
-//花名册初始化
-func (db *qqcpgroup) initroster(gid int64) {
-	db.Lock()
-	defer db.Unlock()
-	db.mp[gid] = make(map[int64]*userinfo, 32)
-}
-
-//民政局离婚手续
-func (db *qqcpgroup) divorce(gid, uid int64) {
-	db.Lock()
-	defer db.Unlock()
-	delete(db.mp[gid], uid)
-}
-
-//查询用户是否登记过[info：用户信息，status：攻受状态，ok：是否登记]
-func (db *qqcpgroup) checkuser(gid, uid int64) (info *userinfo, status int, ok bool) {
-	db.Lock()
-	defer db.Unlock()
-	status = 0
-	mp, ok := db.mp[gid]
-	if !ok {
-		return
-	}
-	info, ok = mp[uid]
-	if !ok {
-		status = 1
-		info, ok = mp[-uid]
-	}
-	return
-}
-
-//记录CP
-func (db *qqcpgroup) writeinfo(ctx *zero.Ctx, gid, husband, wife int64) {
-	db.Lock()
-	defer db.Unlock()
-	//填写夫妻信息
-	husbandname := ctx.CardOrNickName(husband)
-	wifename := ctx.CardOrNickName(wife)
-	husbandinfo := &userinfo{
-		target: wife,
-		tName:  wifename,
-		uName:  husbandname,
-	}
-	wifeinfo := &userinfo{
-		target: husband,
-		tName:  husbandname,
-		uName:  wifename,
-	}
-	//民政局登记数据
-	db.mp[gid][husband] = husbandinfo
-	db.mp[gid][-wife] = wifeinfo
-}
-
-//民政局的结婚花名册
-func (db *qqcpgroup) roster(gid int64) string {
-	db.Lock()
-	defer db.Unlock()
-	mp, ok := db.mp[gid]
-	if !ok {
-		return ""
-	}
-	return binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
-		w.WriteString("群老公←———→群老婆\n-----------")
-		for uid, info := range mp {
-			if uid > 0 {
-				_ = w.WriteByte('\n')
-				w.WriteString(info.uName)
-				w.WriteString(" & ")
-				w.WriteString(info.tName)
-			}
-		}
-	}))
-}
-
-//注入判断 是否为单身狗
+// 注入判断 是否为单身狗
 func checkdog(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
-	if !qqwifegroup.cpisnil(gid) {
-		return true
+	if !民政局.登记情况(gid) {
+		return true //如果没有人登记
 	}
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
@@ -346,13 +343,17 @@ func checkdog(ctx *zero.Ctx) bool {
 		return false
 	}
 	uid := ctx.Event.UserID
+	if uid == fiancee {
+		ctx.SendChain(message.Text("今日获得成就：自恋狂"))
+		return false
+	}
 	//获取用户信息
-	uidtarget, uidstatus, ok1 := qqwifegroup.checkuser(gid, uid)
-	_, fianceestatus, ok2 := qqwifegroup.checkuser(gid, fiancee)
+	uidtarget, uidstatus, ok1 := 民政局.查户口(gid, uid)
+	_, fianceestatus, ok2 := 民政局.查户口(gid, fiancee)
 	if !ok1 && !ok2 { //必须是两个单生狗
 		return true
 	}
-	if uidtarget.target == fiancee { //如果本就是一块
+	if uidtarget.对象证号 == fiancee { //如果本就是一块
 		ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
 		return false
 	}
@@ -381,13 +382,13 @@ func checkdog(ctx *zero.Ctx) bool {
 func checkcp(ctx *zero.Ctx) bool {
 	//检查群内是否有人登记了
 	gid := ctx.Event.GroupID
-	if !qqwifegroup.cpisnil(gid) {
+	if !民政局.登记情况(gid) {
 		ctx.SendChain(message.Text("ta无法达成你当小三的条件"))
 		return false
 	}
 	//检查用户是否登记过
 	uid := ctx.Event.UserID
-	_, uidstatus, ok := qqwifegroup.checkuser(gid, uid)
+	_, uidstatus, ok := 民政局.查户口(gid, uid)
 	if ok {
 		switch uidstatus {
 		case 0: //如果如为攻
@@ -404,19 +405,10 @@ func checkcp(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("额，你的对象好像不存在?"))
 		return false
 	}
-	_, _, ok = qqwifegroup.checkuser(gid, fiancee)
+	_, _, ok = 民政局.查户口(gid, fiancee)
 	if !ok {
 		ctx.SendChain(message.Text("ta无法达成你当小三的条件"))
 		return false
 	}
 	return true
-}
-
-//以群号和昵称为限制
-func cdcheck(ctx *zero.Ctx) *rate.Limiter {
-	limitID := strconv.FormatInt(ctx.Event.GroupID, 10) + strconv.FormatInt(ctx.Event.UserID, 10)
-	return singledogCD.Load(limitID)
-}
-func iscding(ctx *zero.Ctx) {
-	ctx.SendChain(message.Text("今日你的技能正在CD中"))
 }
