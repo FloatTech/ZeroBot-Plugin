@@ -84,30 +84,30 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	}
 	return binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
 		w.WriteString("群老公←———→群老婆\n-----------")
-		for 用户证号, 结婚证 := range mp {
-			if 用户证号 > 0 {
+		for uid, userinfo := range mp {
+			if uid > 0 {
 				_ = w.WriteByte('\n')
-				w.WriteString(结婚证.username)
+				w.WriteString(userinfo.username)
 				w.WriteString(" & ")
-				w.WriteString(结婚证.targetname)
+				w.WriteString(userinfo.targetname)
 			}
 		}
 	}))
 }
 
 //nolint: asciicheck
-func (db *婚姻登记) 查户口(gid, 用户证号 int64) (userinfo *userinfo, uid性别 int, ok bool) {
+func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
-	uid性别 = 0
+	gender = 0
 	mp, ok := db.mp[gid]
 	if !ok {
 		return
 	}
-	userinfo, ok = mp[用户证号]
+	userinfo, ok = mp[uid]
 	if !ok {
-		uid性别 = 1
-		userinfo, ok = mp[-用户证号]
+		gender = 1
+		userinfo, ok = mp[-uid]
 	}
 	return
 }
@@ -403,23 +403,27 @@ func checkcp(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("ta无法达成你当小三的条件"))
 		return false
 	}
+	//检查target
+	fid := ctx.State["regex_matched"].([]string)
+	fiancee, err := strconv.ParseInt(fid[2]+fid[3], 10, 64)
+	if err != nil {
+		ctx.SendChain(message.Text("额，你的对象好像不存在?"))
+		return false
+	}
 	//检查用户是否登记过
 	uid := ctx.Event.UserID
-	_, uidstatus, ok := 民政局.查户口(gid, uid)
+	userinfo, uidstatus, ok := 民政局.查户口(gid, uid)
 	if ok {
+		if userinfo.target == fiancee { //如果本就是一块
+			ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
+			return false
+		}
 		switch uidstatus {
 		case 0: //如果如为攻
 			ctx.SendChain(message.Text("抱歉，建国之后不支持后宫"))
 		default: //如果为受
 			ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
 		}
-		return false
-	}
-	//检查target是否登记过
-	fid := ctx.State["regex_matched"].([]string)
-	fiancee, err := strconv.ParseInt(fid[2]+fid[3], 10, 64)
-	if err != nil {
-		ctx.SendChain(message.Text("额，你的target好像不存在?"))
 		return false
 	}
 	_, _, ok = 民政局.查户口(gid, fiancee)
