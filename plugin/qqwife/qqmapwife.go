@@ -65,7 +65,7 @@ func init() {
 			//判断列表是否为空
 			gid := ctx.Event.GroupID
 			if !qqwifegroup.cpisnil(gid) {
-				qqwifegroup = initgroupinfo()
+				qqwifegroup.initroster(gid)
 			}
 			// 先判断是否已经娶过或者被娶
 			uid := ctx.Event.UserID
@@ -159,7 +159,7 @@ func init() {
 				//判断列表是否为空
 				gid := ctx.Event.GroupID
 				if !qqwifegroup.cpisnil(gid) {
-					qqwifegroup = initgroupinfo()
+					qqwifegroup.initroster(gid)
 				}
 				//根据技能分配0和1
 				var choicetext string
@@ -240,10 +240,31 @@ func init() {
 		})
 }
 
+//判断列表是否为空（true 有值，false 为空）
+func (db *qqcpgroup) cpisnil(gid int64) (ok bool) {
+	db.Lock()
+	defer db.Unlock()
+	mpinfo, ok := db.mp[gid]
+	if !ok {
+		return
+	}
+	for range mpinfo {
+		return true
+	}
+	return
+}
+
 //民政局初始化
 func initgroupinfo() (db qqcpgroup) {
 	db.mp = make(map[int64]map[int64]*userinfo, 64) // 64个群的预算大小
 	return
+}
+
+//花名册初始化
+func (db *qqcpgroup) initroster(gid int64) {
+	db.Lock()
+	defer db.Unlock()
+	db.mp[gid] = make(map[int64]*userinfo, 32)
 }
 
 //民政局离婚手续
@@ -253,24 +274,11 @@ func (db *qqcpgroup) divorce(gid, uid int64) {
 	delete(db.mp[gid], uid)
 }
 
-//判断列表是否为空（true 有值，false 为空）
-func (db *qqcpgroup) cpisnil(gid int64) (ok bool) {
-	db.Lock()
-	defer db.Unlock()
-	mp, ok := db.mp[gid]
-	if !ok {
-		return
-	}
-	for range mp {
-		return true
-	}
-	return
-}
-
 //查询用户是否登记过[info：用户信息，status：攻受状态，ok：是否登记]
 func (db *qqcpgroup) checkuser(gid, uid int64) (info *userinfo, status int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
+	status = 0
 	mp, ok := db.mp[gid]
 	if !ok {
 		return
@@ -287,9 +295,6 @@ func (db *qqcpgroup) checkuser(gid, uid int64) (info *userinfo, status int, ok b
 func (db *qqcpgroup) writeinfo(ctx *zero.Ctx, gid, husband, wife int64) {
 	db.Lock()
 	defer db.Unlock()
-	if !db.cpisnil(gid) {
-		db.mp[gid] = make(map[int64]*userinfo, 32)
-	}
 	//填写夫妻信息
 	husbandname := ctx.CardOrNickName(husband)
 	wifename := ctx.CardOrNickName(wife)
@@ -351,19 +356,25 @@ func checkdog(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
 		return false
 	}
-	switch uidstatus {
-	case 0: //如果如为攻
-		ctx.SendChain(message.Text("笨蛋~你家里还有个吃白饭的w"))
-	default: //如果为受
-		ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
+	if ok1 {
+		switch uidstatus {
+		case 0: //如果如为攻
+			ctx.SendChain(message.Text("笨蛋~你家里还有个吃白饭的w"))
+		default: //如果为受
+			ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
+		}
+		return false
 	}
-	switch fianceestatus {
-	case 0: //如果如为攻
-		ctx.SendChain(message.Text("他有别的女人了，你该放下了"))
-	default: //如果为受
-		ctx.SendChain(message.Text("这是一个纯爱的世界，拒绝NTR"))
+	if ok2 {
+		switch fianceestatus {
+		case 0: //如果如为攻
+			ctx.SendChain(message.Text("他有别的女人了，你该放下了"))
+		default: //如果为受
+			ctx.SendChain(message.Text("这是一个纯爱的世界，拒绝NTR"))
+		}
+		return false
 	}
-	return false
+	return true
 }
 
 //注入判断 是否满足小三要求
