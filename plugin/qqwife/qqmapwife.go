@@ -202,9 +202,9 @@ func init() {
 			choicetext := "婆"
 			targetinfo, status, _ := qqwifegroup.checkuser(gid, fiancee)
 			if status == 0 {
-				delete(qqwifegroup.mp[gid], -targetinfo.target)
+				qqwifegroup.divorce(gid, -targetinfo.target)
 			} else {
-				delete(qqwifegroup.mp[gid], targetinfo.target)
+				qqwifegroup.divorce(gid, targetinfo.target)
 				choicetext = "公"
 			}
 			//重新绑定CP
@@ -244,6 +244,13 @@ func init() {
 func initgroupinfo() (db qqcpgroup) {
 	db.mp = make(map[int64]map[int64]*userinfo, 64) // 64个群的预算大小
 	return
+}
+
+//民政局离婚手续
+func (db *qqcpgroup) divorce(gid, uid int64) {
+	db.Lock()
+	defer db.Unlock()
+	delete(db.mp[gid], uid)
 }
 
 //判断列表是否为空（true 有值，false 为空）
