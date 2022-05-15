@@ -23,7 +23,6 @@ type 婚姻登记 struct {
 	sync.Mutex
 	mp map[int64]map[int64]*证件信息
 }
-//nolint: asciicheck
 type 证件信息 struct {
 	对象证号 int64
 	用户名称 string
@@ -35,8 +34,12 @@ func 新登记处() (db 婚姻登记) {
 	db.mp = make(map[int64]map[int64]*证件信息, 64)
 	return
 }
-
 //nolint: asciicheck
+func (db *婚姻登记) 新档案柜(gid int64) {
+	db.Lock()
+	defer db.Unlock()
+	db.mp[gid] = make(map[int64]*证件信息, 32)
+}
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -45,14 +48,12 @@ func (db *婚姻登记) 重置() {
 	}
 }
 
-//nolint: asciicheck
 func (db *婚姻登记) 办理离婚(地区, 你的对象 int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[地区], 你的对象)
 }
 
-//nolint: asciicheck
 func (db *婚姻登记) 登记情况(地区 int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -66,7 +67,6 @@ func (db *婚姻登记) 登记情况(地区 int64) (ok bool) {
 	return
 }
 
-//nolint: asciicheck
 func (db *婚姻登记) 花名册(ctx *zero.Ctx, 地区 int64) string {
 	db.Lock()
 	defer db.Unlock()
@@ -87,7 +87,6 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, 地区 int64) string {
 	}))
 }
 
-//nolint: asciicheck
 func (db *婚姻登记) 查户口(地区, 用户证号 int64) (证件信息 *证件信息, 户主性别 int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -104,15 +103,9 @@ func (db *婚姻登记) 查户口(地区, 用户证号 int64) (证件信息 *证
 	return
 }
 
-//nolint: asciicheck
 func (db *婚姻登记) 登记(ctx *zero.Ctx, 地区, 户主, 对象 int64) {
 	db.Lock()
 	defer db.Unlock()
-	mp, ok := db.mp[地区]
-	if !ok { //如果没有结过婚就颁发证件
-		mp = make(map[int64]*证件信息, 32)
-		db.mp[地区] = mp
-	}
 	//填写夫妻信息
 	户主名称 := ctx.CardOrNickName(户主)
 	对象名称 := ctx.CardOrNickName(对象)
@@ -169,6 +162,9 @@ func init() {
 			}
 			//判断列表是否为空
 			gid := ctx.Event.GroupID
+			if !民政局.登记情况(gid){
+				民政局.新档案柜(gid)
+			}
 			uid := ctx.Event.UserID
 			targetinfo, status, ok := 民政局.查户口(gid, uid)
 			if ok {
@@ -251,6 +247,9 @@ func init() {
 			}
 			if rand.Intn(2) == 1 { //二分之一的概率表白成功
 				gid := ctx.Event.GroupID
+				if !民政局.登记情况(gid){
+					民政局.新档案柜(gid)
+				}
 				//根据技能分配0和1
 				var choicetext string
 				switch choice {
