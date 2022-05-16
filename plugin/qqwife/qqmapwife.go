@@ -116,8 +116,8 @@ func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender in
 func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname string) {
 	db.Lock()
 	defer db.Unlock()
-	_,ok := db.mp[gid]
-	if !ok{
+	_, ok := db.mp[gid]
+	if !ok {
 		db.mp[gid] = make(map[int64]*userinfo, 32)
 	}
 	// 填写夫妻信息
@@ -295,7 +295,7 @@ func init() {
 			// 判断target是老公还是老婆
 			var choicetext string
 			targetinfo, gender, _ := 民政局.查户口(gid, fiancee)
-			switch gender{
+			switch gender {
 			case 0:
 				// 让对象离婚
 				民政局.离婚休妻(gid, targetinfo.target)
