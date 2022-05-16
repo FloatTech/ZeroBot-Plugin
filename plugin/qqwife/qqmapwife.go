@@ -228,7 +228,7 @@ func init() {
 				return
 			}
 			//去民政局办证
-			民政局.登记(ctx, gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+			民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
 			// 请大家吃席
 			ctx.SendChain(
 				message.At(uid),
@@ -257,10 +257,10 @@ func init() {
 				var choicetext string
 				switch choice {
 				case "娶":
-					民政局.登记(ctx, gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+					民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
 					choicetext = "今天你的群老婆是"
 				default:
-					民政局.登记(ctx, gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
+					民政局.登记(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
 					choicetext = "今天你的群老公是"
 				}
 				//请大家吃席
@@ -300,10 +300,10 @@ func init() {
 			//重新绑定CP
 			switch choicetext {
 			case "婆":
-				民政局.登记(ctx, gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+				民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
 				choicetext = "今天你的群老婆是"
 			default:
-				民政局.登记(ctx, gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
+				民政局.登记(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
 				choicetext = "今天你的群老公是"
 			}
 			// 输出结果
