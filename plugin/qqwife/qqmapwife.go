@@ -403,8 +403,12 @@ func checkcp(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("额，你的对象好像不存在?"))
 		return false
 	}
-	// 检查用户是否登记过
 	uid := ctx.Event.UserID
+	if fiancee == uid {
+		ctx.SendChain(message.Text("自我攻略?"))
+		return false
+	}
+	// 检查用户是否登记过
 	userinfo, uidstatus, ok := 民政局.查户口(gid, uid)
 	if ok {
 		if userinfo.target == fiancee { // 如果本就是一块
