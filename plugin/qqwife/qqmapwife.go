@@ -37,7 +37,6 @@ func 新登记处() (db 婚姻登记) {
 	return
 }
 
-
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -46,20 +45,17 @@ func (db *婚姻登记) 重置() {
 	}
 }
 
-
 func (db *婚姻登记) 离婚休妻(gid, wife int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[gid], -wife)
 }
 
-
 func (db *婚姻登记) 离婚休夫(gid, husband int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[gid], husband)
 }
-
 
 func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	db.Lock()
@@ -73,7 +69,6 @@ func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	}
 	return
 }
-
 
 func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	db.Lock()
@@ -95,7 +90,6 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	}))
 }
 
-
 func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -111,7 +105,6 @@ func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender in
 	}
 	return
 }
-
 
 func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname string) {
 	db.Lock()
