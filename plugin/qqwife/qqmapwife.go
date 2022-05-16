@@ -47,19 +47,21 @@ func (db *婚姻登记) 重置() {
 }
 
 //nolint: asciicheck
-func (db *婚姻登记) 办理离婚(gid, wife int64, gender int) {
+func (db *婚姻登记) 离婚休妻(gid, wife int64) {
 	db.Lock()
 	defer db.Unlock()
-	switch gender{
-		case 0://休妻
-			delete(db.mp[gid], -wife)
-		default://休夫
-			delete(db.mp[gid], wife)
-	}
+	delete(db.mp[gid], -wife)
 }
 
 //nolint: asciicheck
-func (db *婚姻登记) 登记情况(gid int64) (ok bool) {
+func (db *婚姻登记) 离婚休夫(gid, husband int64) {
+	db.Lock()
+	defer db.Unlock()
+	delete(db.mp[gid], husband)
+}
+
+//nolint: asciicheck
+func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
 	mp, ok := db.mp[gid]
@@ -241,7 +243,7 @@ func init() {
 				),
 			)
 		})
-	//单生狗专属技能
+	//单身技能
 	engine.OnRegex(`^(娶|嫁)\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, checkdog).SetBlock(true).Limit(cdcheck, iscding).
 		Handle(func(ctx *zero.Ctx) {
 			choice := ctx.State["regex_matched"].([]string)[1]
@@ -253,7 +255,7 @@ func init() {
 			}
 			if rand.Intn(2) == 1 { //二分之一的概率表白成功
 				gid := ctx.Event.GroupID
-				//根据技能分配0和1
+				//去民政局登记
 				var choicetext string
 				switch choice {
 				case "娶":
@@ -290,27 +292,28 @@ func init() {
 			}
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
-			//判断target是0还是1
-			choicetext := "婆"
+			//判断target是老公还是老婆
+			var choicetext string
 			targetinfo, gender, _ := 民政局.查户口(gid, fiancee)
-			民政局.办理离婚(gid, targetinfo.target,gender)
-			if gender == 1{
-				choicetext = "公"
-			}
-			//重新绑定CP
-			switch choicetext {
-			case "婆":
-				民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
-				choicetext = "今天你的群老婆是"
-			default:
+			switch gender{
+			case 0:
+				//让对象离婚
+				民政局.离婚休妻(gid, targetinfo.target)
+				//和对象结婚登记
+				choicetext = "老公"
 				民政局.登记(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
-				choicetext = "今天你的群老公是"
+			default:
+				//让对象离婚
+				民政局.离婚休夫(gid, targetinfo.target)
+				//和对象结婚登记
+				choicetext = "老婆"
+				民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
 			}
 			// 输出结果
 			ctx.SendChain(
 				message.Text(sendtext[2][rand.Intn(len(sendtext[2]))]),
 				message.At(uid),
-				message.Text("今天你的群老"+choicetext+"是"),
+				message.Text("今天你的群"+choicetext+"是"),
 				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
 				message.Text(
 					"\n",
@@ -321,7 +324,7 @@ func init() {
 		})
 	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if !民政局.登记情况(ctx.Event.GroupID) {
+			if !民政局.有登记(ctx.Event.GroupID) {
 				ctx.SendChain(message.Text("你群并没有任何的CP额"))
 				return
 			}
@@ -338,10 +341,10 @@ func iscding(ctx *zero.Ctx) {
 	ctx.SendChain(message.Text("你的技能现在正在CD中"))
 }
 
-// 注入判断 是否为单身狗
+// 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
-	if !民政局.登记情况(gid) {
+	if !民政局.有登记(gid) {
 		return true //如果没有人登记，说明全是单身
 	}
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
@@ -357,7 +360,7 @@ func checkdog(ctx *zero.Ctx) bool {
 	//获取用户info
 	uidtarget, uidstatus, ok1 := 民政局.查户口(gid, uid)
 	_, fianceestatus, ok2 := 民政局.查户口(gid, fiancee)
-	if !ok1 && !ok2 { //必须是两个单生狗
+	if !ok1 && !ok2 { //必须是两个单身
 		return true
 	}
 	if uidtarget.target == fiancee { //如果本就是一块
@@ -389,7 +392,7 @@ func checkdog(ctx *zero.Ctx) bool {
 func checkcp(ctx *zero.Ctx) bool {
 	//检查群内是否有人登记了
 	gid := ctx.Event.GroupID
-	if !民政局.登记情况(gid) {
+	if !民政局.有登记(gid) {
 		ctx.SendChain(message.Text("ta无法达成你当小三的条件"))
 		return false
 	}
