@@ -26,9 +26,9 @@ type 婚姻登记 struct {
 
 // 结婚证信息
 type userinfo struct {
-	target     int64  //对象身份证号
-	username   string //户主名称
-	targetname string //对象名称
+	target     int64  // 对象身份证号
+	username   string // 户主名称
+	targetname string // 对象名称
 }
 
 //nolint: asciicheck
@@ -37,7 +37,7 @@ func 新登记处() (db 婚姻登记) {
 	return
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -46,21 +46,21 @@ func (db *婚姻登记) 重置() {
 	}
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 离婚休妻(gid, wife int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[gid], -wife)
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 离婚休夫(gid, husband int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[gid], husband)
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -74,7 +74,7 @@ func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	return
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	db.Lock()
 	defer db.Unlock()
@@ -95,7 +95,7 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	}))
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -112,7 +112,7 @@ func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender in
 	return
 }
 
-//nolint: asciicheck
+
 func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname string) {
 	db.Lock()
 	defer db.Unlock()
@@ -151,7 +151,7 @@ var (
 			"今天你向ta表白了，ta对你说“你是一个非常好的人”",
 			"今天你向ta表白了，ta给了你一个拥抱后擦肩而过",
 		},
-		{ //ntr成功
+		{ // ntr成功
 			"你处心积虑的接近ta，ta最终选择跟随你\n",
 		},
 	}
@@ -414,7 +414,7 @@ func checkcp(ctx *zero.Ctx) bool {
 		switch uidstatus {
 		case 0: // 如果如为攻
 			ctx.SendChain(message.Text("抱歉，建国之后不支持后宫"))
-		default: //如果为受
+		default: // 如果为受
 			ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
 		}
 		return false
