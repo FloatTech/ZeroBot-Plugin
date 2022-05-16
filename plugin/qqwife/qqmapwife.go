@@ -170,6 +170,7 @@ func init() {
 				// 更新时间
 				lastdate = time.Now()
 			}
+			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			targetinfo, status, ok := 民政局.查户口(gid, uid)
 			if ok {
