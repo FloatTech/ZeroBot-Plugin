@@ -138,19 +138,19 @@ func init() { // 插件主体
 							resp, err := http.Head(result.Header.Thumbnail)
 							msg := make(message.Message, 0, 3)
 							if s > 80.0 {
-								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("我有把握是这个!")))
+								msg = append(msg, message.Text("我有把握是这个!\n"))
 							} else {
-								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("也许是这个?")))
+								msg = append(msg, message.Text("也许是这个?\n"))
 							}
 							if err == nil && resp.StatusCode == http.StatusOK {
-								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Image(result.Header.Thumbnail)))
+								msg = append(msg, message.Image(result.Header.Thumbnail))
 							} else {
-								msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Image(pic)))
+								msg = append(msg, message.Image(pic))
 							}
-							msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text("图源: ", result.Header.IndexName, binary.BytesToString(b))))
+							msg = append(msg, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b)))
 							if id := ctx.SendGroupForwardMessage(
 								ctx.Event.GroupID,
-								msg,
+								message.Message{ctxext.FakeSenderForwardNode(ctx, msg...)},
 							).Get("message_id").Int(); id == 0 {
 								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
