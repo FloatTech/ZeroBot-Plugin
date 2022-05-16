@@ -94,8 +94,15 @@ func init() { // 插件主体
 					"直链: ", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
 				if imgs != nil {
-					// 发送搜索结果
-					ctx.Send(append(imgs, message.Text("\n"), txt))
+					if zero.OnlyGroup(ctx) {
+						ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
+							ctxext.FakeSenderForwardNode(ctx, txt),
+							ctxext.FakeSenderForwardNode(ctx, imgs...),
+						})
+					} else {
+						// 发送搜索结果
+						ctx.Send(append(imgs, message.Text("\n"), txt))
+					}
 				} else {
 					// 图片下载失败，仅发送文字结果
 					ctx.SendChain(txt)
