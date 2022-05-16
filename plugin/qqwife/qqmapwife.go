@@ -38,13 +38,6 @@ func 新登记处() (db 婚姻登记) {
 }
 
 //nolint: asciicheck
-func (db *婚姻登记) 新档案(gid int64) {
-	db.Lock()
-	defer db.Unlock()
-	db.mp[gid] = make(map[int64]*userinfo, 32)
-}
-
-//nolint: asciicheck
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -54,10 +47,15 @@ func (db *婚姻登记) 重置() {
 }
 
 //nolint: asciicheck
-func (db *婚姻登记) 办理离婚(gid, wife int64) {
+func (db *婚姻登记) 办理离婚(gid, wife int64, gender int) {
 	db.Lock()
 	defer db.Unlock()
-	delete(db.mp[gid], wife)
+	switch gender{
+		case 0://休妻
+			delete(db.mp[gid], -wife)
+		default://休夫
+			delete(db.mp[gid], wife)
+	}
 }
 
 //nolint: asciicheck
@@ -80,7 +78,7 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	defer db.Unlock()
 	mp, ok := db.mp[gid]
 	if !ok {
-		return ""
+		return "民政局的花名册出问题了额..."
 	}
 	return binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
 		w.WriteString("群老公←———→群老婆\n-----------")
@@ -113,12 +111,14 @@ func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender in
 }
 
 //nolint: asciicheck
-func (db *婚姻登记) 登记(ctx *zero.Ctx, gid, uid, target int64) {
+func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname string) {
 	db.Lock()
 	defer db.Unlock()
+	_,ok := db.mp[gid]
+	if !ok{
+		db.mp[gid] = make(map[int64]*userinfo, 32)
+	}
 	//填写夫妻信息
-	username := ctx.CardOrNickName(uid)
-	targetname := ctx.CardOrNickName(target)
 	uidinfo := &userinfo{
 		target:     target,
 		username:   username,
@@ -169,12 +169,6 @@ func init() {
 				民政局.重置()
 				// 更新时间
 				lastdate = time.Now()
-			}
-			//判断列表是否为空
-			gid := ctx.Event.GroupID
-			if !民政局.登记情况(gid) {
-				//如果没有任何登记就开新档案
-				民政局.新档案(gid)
 			}
 			uid := ctx.Event.UserID
 			targetinfo, status, ok := 民政局.查户口(gid, uid)
@@ -233,7 +227,7 @@ func init() {
 				return
 			}
 			//去民政局办证
-			民政局.登记(ctx, gid, uid, fiancee)
+			民政局.登记(ctx, gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(target))
 			// 请大家吃席
 			ctx.SendChain(
 				message.At(uid),
@@ -258,17 +252,14 @@ func init() {
 			}
 			if rand.Intn(2) == 1 { //二分之一的概率表白成功
 				gid := ctx.Event.GroupID
-				if !民政局.登记情况(gid) {
-					民政局.新档案(gid)
-				}
 				//根据技能分配0和1
 				var choicetext string
 				switch choice {
 				case "娶":
-					民政局.登记(ctx, gid, uid, fiancee)
+					民政局.登记(ctx, gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(target))
 					choicetext = "今天你的群老婆是"
 				default:
-					民政局.登记(ctx, gid, fiancee, uid)
+					民政局.登记(ctx, gid, fiancee, uid, ctx.CardOrNickName(target), ctx.CardOrNickName(uid))
 					choicetext = "今天你的群老公是"
 				}
 				//请大家吃席
@@ -300,20 +291,18 @@ func init() {
 			uid := ctx.Event.UserID
 			//判断target是0还是1
 			choicetext := "婆"
-			targetinfo, status, _ := 民政局.查户口(gid, fiancee)
-			if status == 0 {
-				民政局.办理离婚(gid, -targetinfo.target)
-			} else {
-				民政局.办理离婚(gid, targetinfo.target)
+			targetinfo, gender, _ := 民政局.查户口(gid, fiancee)
+			民政局.办理离婚(gid, targetinfo.target,gender)
+			if gender == 1{
 				choicetext = "公"
 			}
 			//重新绑定CP
 			switch choicetext {
 			case "婆":
-				民政局.登记(ctx, gid, uid, fiancee)
+				民政局.登记(ctx, gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(target))
 				choicetext = "今天你的群老婆是"
 			default:
-				民政局.登记(ctx, gid, fiancee, uid)
+				民政局.登记(ctx, gid, fiancee, uid, ctx.CardOrNickName(target), ctx.CardOrNickName(uid))
 				choicetext = "今天你的群老公是"
 			}
 			// 输出结果
