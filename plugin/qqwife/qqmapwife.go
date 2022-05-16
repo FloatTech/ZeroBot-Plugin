@@ -38,7 +38,6 @@ func 新登记处() (db 婚姻登记) {
 	return
 }
 
-
 func (db *婚姻登记) 重置() {
 	db.Lock()
 	defer db.Unlock()
@@ -47,30 +46,18 @@ func (db *婚姻登记) 重置() {
 	}
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upsteram/master
 func (db *婚姻登记) 离婚休妻(gid, wife int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[gid], -wife)
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upsteram/master
 func (db *婚姻登记) 离婚休夫(gid, husband int64) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.mp[gid], husband)
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upsteram/master
 func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -84,10 +71,6 @@ func (db *婚姻登记) 有登记(gid int64) (ok bool) {
 	return
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upsteram/master
 func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	db.Lock()
 	defer db.Unlock()
@@ -108,10 +91,6 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 	}))
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upsteram/master
 func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender int, ok bool) {
 	db.Lock()
 	defer db.Unlock()
@@ -128,17 +107,12 @@ func (db *婚姻登记) 查户口(gid, uid int64) (userinfo *userinfo, gender in
 	return
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> upsteram/master
 func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname string) {
 	db.Lock()
 	defer db.Unlock()
 	_, ok := db.mp[gid]
 	if !ok {
 		db.mp[gid] = make(map[int64]*userinfo, 32)
-<<<<<<< HEAD
 	}
 	// 填写夫妻信息
 	uidinfo := &userinfo{
@@ -151,20 +125,6 @@ func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname stri
 		username:   targetname,
 		targetname: username,
 	}
-=======
-	}
-	// 填写夫妻信息
-	uidinfo := &userinfo{
-		target:     target,
-		username:   username,
-		targetname: targetname,
-	}
-	targetinfo := &userinfo{
-		target:     uid,
-		username:   targetname,
-		targetname: username,
-	}
->>>>>>> upsteram/master
 	// 民政局登记数据
 	db.mp[gid][uid] = uidinfo
 	db.mp[gid][-target] = targetinfo
@@ -442,17 +402,12 @@ func checkcp(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("额，你的对象好像不存在?"))
 		return false
 	}
-<<<<<<< HEAD
 	uid := ctx.Event.UserID
 	if fiancee == uid {
 		ctx.SendChain(message.Text("自我攻略?"))
 		return false
 	}
 	// 检查用户是否登记过
-=======
-	// 检查用户是否登记过
-	uid := ctx.Event.UserID
->>>>>>> upsteram/master
 	userinfo, uidstatus, ok := 民政局.查户口(gid, uid)
 	if ok {
 		if userinfo.target == fiancee { // 如果本就是一块
