@@ -79,13 +79,15 @@ func (db *婚姻登记) 花名册(ctx *zero.Ctx, gid int64) string {
 		return "民政局的花名册出问题了额..."
 	}
 	return binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
-		w.WriteString("群老公←———→群老婆\n-----------")
+		w.WriteString("群老公←——————————————————→群老婆\n--------------------")
 		for uid, userinfo := range mp {
 			if uid > 0 {
 				_ = w.WriteByte('\n')
 				w.WriteString(userinfo.username)
+				w.WriteString("(" + strconv.FormatInt(uid, 10) + ")")
 				w.WriteString(" & ")
 				w.WriteString(userinfo.targetname)
+				w.WriteString("(" + strconv.FormatInt(userinfo.target, 10) + ")")
 			}
 		}
 	}))
@@ -348,7 +350,7 @@ func checkdog(ctx *zero.Ctx) bool {
 	}
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
-		ctx.SendChain(message.Text("额，你的target好像不存在？"))
+		ctx.SendChain(message.Text("额，你的对象好像不存在？"))
 		return false
 	}
 	uid := ctx.Event.UserID
