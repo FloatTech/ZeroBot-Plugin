@@ -13,7 +13,7 @@ import (
 func init() {
 	engine := control.Register("managerplugin", &control.Options{
 		DisableOnDefault: true,
-		Help:             "自定义的群管插件",
+		Help:             "自定义的群管插件\n - 开启全员禁言 群号\n - 解除全员禁言 群号\n - 反\"XX召唤术\"\n - /公告 内容",
 	})
 	// 指定开启某群全群禁言 Usage: 开启全员禁言123456
 	engine.OnRegex(`^开启全员禁言.*?(\d+)`, zero.SuperUserPermission).SetBlock(true).
@@ -40,5 +40,17 @@ func init() {
 			ctx.SetGroupBan(ctx.Event.GroupID, ctx.Event.UserID, 7*24*60*60)
 			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("检测到 ["+nickname+"]("+strconv.FormatInt(ctx.Event.UserID, 10)+") 发送了干扰性消息,已处理"))...)
 			ctx.DeleteMessage(ctx.Event.MessageID.(message.MessageID))
+		})
+	engine.OnRegex(`^/公告(.*)`, zero.SuperUserPermission).SetBlock(false).
+		Handle(func(ctx *zero.Ctx) {
+			msg := ctx.State["regex_matched"].([]string)[1]
+			msg = message.UnescapeCQCodeText(msg)
+			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+				for _, g := range ctx.GetGroupList().Array() {
+					gid := g.Get("group_id").Int()
+					ctx.SendGroupMessage(gid, msg)
+				}
+				return true
+			})
 		})
 }
