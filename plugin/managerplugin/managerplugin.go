@@ -41,7 +41,7 @@ func init() {
 			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("检测到 ["+nickname+"]("+strconv.FormatInt(ctx.Event.UserID, 10)+") 发送了干扰性消息,已处理"))...)
 			ctx.DeleteMessage(ctx.Event.MessageID.(message.MessageID))
 		})
-	engine.OnRegex(`^/公告(.*)`, zero.SuperUserPermission).SetBlock(false).
+	engine.OnRegex(`^/公告(.*\W+)`, zero.SuperUserPermission).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.State["regex_matched"].([]string)[1]
 			msg = message.UnescapeCQCodeText(msg)
