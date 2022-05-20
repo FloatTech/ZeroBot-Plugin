@@ -25,13 +25,13 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	engine.OnPrefix("抽老婆").SetBlock(true).Limit(ctxext.LimitByGroup).
+	engine.OnFullMatch("抽老婆").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			wifes, err := os.ReadDir(cachePath)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			name := ctx.NickName()
+			name := ctx.CardOrNickName(ctx.Event.UserID)
 			n := ctxext.RandSenderPerDayN(ctx, len(wifes))
 			wn := wifes[n].Name()
 			reg := regexp.MustCompile(`[^\.]+`)
