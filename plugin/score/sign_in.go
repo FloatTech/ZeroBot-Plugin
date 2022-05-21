@@ -1,4 +1,4 @@
-// Package score 签到，答题得分
+// Package score 签到，答题得分 
 package score
 
 import (
