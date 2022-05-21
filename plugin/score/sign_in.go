@@ -1,4 +1,4 @@
-// Package score 签到，答题得分 
+// Package score 签到，答题得分
 package score
 
 import (
@@ -56,24 +56,23 @@ func init() {
 			today := now.Format("20060102")
 			si := sdb.GetSignInByUID(uid)
 			siUpdateTimeStr := si.UpdatedAt.Format("20060102")
-drawedFile := cachePath + strconv.FormatInt(uid, 10) + today + "signin.png"
-			
+			drawedFile := cachePath + strconv.FormatInt(uid, 10) + today + "signin.png"
 
 			picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
-			
-if si.Count >= signinMax && siUpdateTimeStr == today {
+
+			if si.Count >= signinMax && siUpdateTimeStr == today {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
 				if file.IsExist(drawedFile) {
 					ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 				}
 				return
 			}
-err := initPic(picFile)
+			err := initPic(picFile)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-back, err := gg.LoadImage(picFile)
+			back, err := gg.LoadImage(picFile)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -82,11 +81,7 @@ back, err := gg.LoadImage(picFile)
 				_ = sdb.InsertOrUpdateSignInCountByUID(uid, 0)
 			}
 
-			
-
 			_ = sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
-
-			
 
 			// 避免图片过大，最大 1280*720
 			back = img.Limit(back, 1280, 720)
