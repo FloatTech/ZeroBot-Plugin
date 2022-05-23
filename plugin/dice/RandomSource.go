@@ -76,7 +76,17 @@ func init() {
 			dint := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
 			if dint > 1000 {
 				dint = 1000
-				ctx.SendChain(message.Text("最多1000哟~已自动设为1000"))
+				d := &set{
+					UserID: ctx.Event.UserID,
+					D:      dint,
+				}
+				err := db.Insert("set", d)
+				if err == nil {
+					ctx.SendChain(message.Text("最多1000哟~已自动设为1000"))
+				} else {
+					ctx.SendChain(message.Text("出错啦: ", err))
+				}
+				return
 			}
 			d := &set{
 				UserID: ctx.Event.UserID,
@@ -132,7 +142,7 @@ func init() {
 		})
 }
 
-func rules(r, math, rule int) (win string) {
+func rules(r, math, rule int) string {
 	switch rule {
 	case 0:
 		switch {

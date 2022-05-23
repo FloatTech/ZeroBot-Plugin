@@ -41,10 +41,9 @@ func init() {
 			ctx.SendChain(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("检测到 ["+nickname+"]("+strconv.FormatInt(ctx.Event.UserID, 10)+") 发送了干扰性消息,已处理"))...)
 			ctx.DeleteMessage(ctx.Event.MessageID.(message.MessageID))
 		})
-	engine.OnPrefix("/公告", zero.SuperUserPermission).SetBlock(false).
+	engine.OnRegex(`^【.*】.*`, zero.SuperUserPermission).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			msg := ctx.State["args"].(string)
-			msg = message.UnescapeCQCodeText(msg)
+			msg := ctx.Event.Message
 			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
 				for _, g := range ctx.GetGroupList().Array() {
 					gid := g.Get("group_id").Int()
