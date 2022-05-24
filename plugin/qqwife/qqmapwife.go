@@ -353,22 +353,18 @@ func checkdog(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("额，你的对象好像不存在？"))
 		return false
 	}
-	uid := ctx.Event.UserID
-	if uid == fiancee {
-		ctx.SendChain(message.Text("今日获得成就：自恋狂"))
-		return false
-	}
 	// 获取用户信息
+	uid := ctx.Event.UserID
 	uidtarget, uidstatus, ok1 := 民政局.查户口(gid, uid)
 	_, fianceestatus, ok2 := 民政局.查户口(gid, fiancee)
 	if !ok1 && !ok2 { // 必须是两个单身
 		return true
 	}
-	if uidtarget.target == fiancee { // 如果本就是一块
-		ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
-		return false
-	}
 	if ok1 {
+		if uidtarget.target == fiancee { // 如果本就是一块
+			ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
+			return false
+		}
 		switch uidstatus {
 		case 0: // 如果如为攻
 			ctx.SendChain(message.Text("笨蛋~你家里还有个吃白饭的w"))
