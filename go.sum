@@ -2,8 +2,8 @@ github.com/FloatTech/AnimeAPI v1.4.1-0.20220520130802-b8c30f649145 h1:COSibysiEm
 github.com/FloatTech/AnimeAPI v1.4.1-0.20220520130802-b8c30f649145/go.mod h1:7lhHG03Mqoze1ig/zXnzT3WZGSzdwCl6jk1Eh0f/T9s=
 github.com/FloatTech/sqlite v0.2.1 h1:9t6Me48XJJCIoPy4nLRvcdhcVKfT0c2lilp7SEKROG8=
 github.com/FloatTech/sqlite v0.2.1/go.mod h1:6NfHRzqOo9RWeMJEoAQVuo51Omd5LFNxCNQhMF02/9U=
-github.com/FloatTech/zbputils v1.4.1-0.20220520130539-b9f8946dc8b4 h1:ZaREhnnjldgJ1VKdZjD1JAp6usL1IQYnI2dUoMODyiw=
-github.com/FloatTech/zbputils v1.4.1-0.20220520130539-b9f8946dc8b4/go.mod h1:Cf2wAFtq7OUj4RUHcSQtcAYgAspP06wQseKZwtCJRXQ=
+github.com/FloatTech/zbputils v1.4.1-0.20220524025141-dc0978da765b h1:o7U6nAJwd6JL3XVTrrShpA3QdAcIF4SHPCC64bU48ig=
+github.com/FloatTech/zbputils v1.4.1-0.20220524025141-dc0978da765b/go.mod h1:Cf2wAFtq7OUj4RUHcSQtcAYgAspP06wQseKZwtCJRXQ=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c h1:cNPOdTNiVwxLpROLjXCgbIPvdkE+BwvxDvgmdYmWx6Q=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c/go.mod h1:KqZzu7slNKROh3TSYEH/IUMG6f4M+1qubZ5e52QypsE=
