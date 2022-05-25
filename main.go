@@ -26,8 +26,8 @@ import (
 	//                               vvvv                               //
 
 	// webctrl "github.com/FloatTech/zbputils/control/web"           // web 后端控制
-
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push" // b站推送
+	
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply" // 回复撤回
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
@@ -119,6 +119,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"         // 早报
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push" // b站推送
 
 	//
 	//                               ^^^^                               //
@@ -149,7 +150,6 @@ import (
 	// todo
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"
