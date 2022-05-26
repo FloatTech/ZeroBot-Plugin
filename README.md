@@ -93,6 +93,8 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 
   - 注：当全局未配置或与默认相同时，状态取决于单独配置，后备为默认配置；当全局与默认不同时，状态取决于全局配置，单独配置失效。
 
+  - [x] /改变默认启用状态 xxx
+
   - [x] /禁止 service qq1 qq2... (禁止 qqs 使用服务 service)
 
   - [x] /允许 service qq1 qq2... (重新允许 qqs 使用服务 service)
