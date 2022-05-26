@@ -158,7 +158,7 @@ func init() {
 			"--------------------------------\n以下技能每人只能二选一\n   CD24H，不跨天刷新\n--------------------------------\n" +
 			"- (娶|嫁)@对方QQ\n- 当[对方Q号|@对方QQ]的小三\n",
 	})
-	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if time.Now().Day() != lastdate.Day() {
 				民政局.重置()
@@ -315,7 +315,7 @@ func init() {
 				),
 			)
 		})
-	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if !民政局.有登记(ctx.Event.GroupID) {
 				ctx.SendChain(message.Text("你群并没有任何的CP额"))

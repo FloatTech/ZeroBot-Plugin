@@ -105,7 +105,7 @@ func init() {
 			}
 			return true
 		},
-	)).SetBlock(true).
+	)).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取该群背景类型，默认车万
 			kind := "车万"
