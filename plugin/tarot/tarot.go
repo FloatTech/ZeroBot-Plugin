@@ -58,7 +58,7 @@ func init() {
 			logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
 			return true
 		},
-	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	)).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		n := 1
 		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
@@ -148,7 +148,7 @@ func init() {
 			}
 			return true
 		},
-	)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	)).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
 		if ok {

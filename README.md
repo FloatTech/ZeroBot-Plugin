@@ -93,6 +93,8 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 
   - 注：当全局未配置或与默认相同时，状态取决于单独配置，后备为默认配置；当全局与默认不同时，状态取决于全局配置，单独配置失效。
 
+  - [x] /改变默认启用状态 xxx
+
   - [x] /禁止 service qq1 qq2... (禁止 qqs 使用服务 service)
 
   - [x] /允许 service qq1 qq2... (重新允许 qqs 使用服务 service)
@@ -338,11 +340,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]
 
-  - [x] 清理缓存 (仅适用于 gocq 且需要 bot 的运行目录和 gocq 相同)
-
-  - [ ] 简易语音
-
-  - [ ] 爬图合成 [@xxx]
+  - [x] 设置默认限速为每 m [分钟 | 秒] n 次触发
 
 </details>
 <details>

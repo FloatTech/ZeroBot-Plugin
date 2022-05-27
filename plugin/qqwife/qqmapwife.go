@@ -158,7 +158,7 @@ func init() {
 			"--------------------------------\n以下技能每人只能二选一\n   CD24H，不跨天刷新\n--------------------------------\n" +
 			"- (娶|嫁)@对方QQ\n- 当[对方Q号|@对方QQ]的小三\n",
 	})
-	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnFullMatch("娶群友", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if time.Now().Day() != lastdate.Day() {
 				民政局.重置()
@@ -315,7 +315,7 @@ func init() {
 				),
 			)
 		})
-	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnFullMatch("群老婆列表", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if !民政局.有登记(ctx.Event.GroupID) {
 				ctx.SendChain(message.Text("你群并没有任何的CP额"))
@@ -345,22 +345,18 @@ func checkdog(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("额，你的target好像不存在？"))
 		return false
 	}
-	uid := ctx.Event.UserID
-	if uid == fiancee {
-		ctx.SendChain(message.Text("今日获得成就：自恋狂"))
-		return false
-	}
 	// 获取用户信息
+	uid := ctx.Event.UserID
 	uidtarget, uidstatus, ok1 := 民政局.查户口(gid, uid)
 	_, fianceestatus, ok2 := 民政局.查户口(gid, fiancee)
 	if !ok1 && !ok2 { // 必须是两个单身
 		return true
 	}
-	if uidtarget.target == fiancee { // 如果本就是一块
-		ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
-		return false
-	}
 	if ok1 {
+		if uidtarget.target == fiancee { // 如果本就是一块
+			ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
+			return false
+		}
 		switch uidstatus {
 		case 0: // 如果如为攻
 			ctx.SendChain(message.Text("笨蛋~你家里还有个吃白饭的w"))
