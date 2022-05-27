@@ -49,12 +49,12 @@ func parseURL(bilibiliURL string) (m message.Message, err error) {
 		err = errors.New("parse html error: invalid video url")
 		return
 	}
-	m = make(message.Message, 0, 8)
+	m = make(message.Message, 0, 9)
 	title := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/h1/span/text()").Data
 	m = append(m, message.Text(title, "\n"))
 	upName := strings.TrimSpace(htmlquery.FindOne(doc, "//*[@id='v_upinfo']/div[2]/div[1]/a[1]/text()").Data)
 	fanNumber := htmlquery.InnerText(htmlquery.FindOne(doc, "//i[@class='van-icon-general_addto_s']").NextSibling.NextSibling)
-	m = append(m, message.Text("up: "+upName+", 粉丝: "+fanNumber+"\n"))
+	m = append(m, message.Text("UP: ", upName, ", 粉丝: ", fanNumber, "\n"))
 	view := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='view']/text()").Data
 	dm := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='dm']/text()").Data
 	m = append(m, message.Text(view, dm, "\n"))
@@ -64,10 +64,13 @@ func parseURL(bilibiliURL string) (m message.Message, err error) {
 	m = append(m, message.Image(image))
 	like := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='like']/text()").Data
 	coin := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='coin']/text()").Data
-	m = append(m, message.Text("\n点赞: ", strings.TrimSpace(like)+", 投币: ", strings.TrimSpace(coin)+"\n"))
+	m = append(m, message.Text("\n点赞: ", strings.TrimSpace(like), ", 投币: ", strings.TrimSpace(coin), "\n"))
 	collect := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='collect']/text()").Data
 	share := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='share']/text()").Data
-	m = append(m, message.Text("收藏: ", strings.TrimSpace(collect)+", 分享: ", strings.TrimSpace(share)+"\n"))
+	m = append(m, message.Text("收藏: ", strings.TrimSpace(collect), ", 分享: ", strings.TrimSpace(share), "\n"))
+	play := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[1]/text()").Data
+	danmaku := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[2]/text()").Data
+	m = append(m, message.Text(strings.TrimSpace(play), "播放, ", strings.TrimSpace(danmaku), "弹幕\n"))
 	m = append(m, message.Text(videoURL))
 	return
 }
