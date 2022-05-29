@@ -159,11 +159,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-<<<<<<< HEAD
-	engine.OnPrefixGroup([]string{"获得签到背景", "获取签到背景"}, zero.OnlyGroup).SetBlock(true).
-=======
 	engine.OnPrefix("获得签到背景", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
->>>>>>> upsteram/master
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
 			var uidStr string
