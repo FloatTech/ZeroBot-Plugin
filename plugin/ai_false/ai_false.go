@@ -4,14 +4,16 @@ package aifalse
 import (
 	"fmt"
 	"math"
-	"os"
+	"strconv"
 	"time"
 
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/sirupsen/logrus"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -22,8 +24,20 @@ func init() { // 插件主体
 	engine := control.Register("aifalse", &control.Options{
 		DisableOnDefault: false,
 		Help: "AIfalse\n" +
-			"- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]",
+			"- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]\n" +
+			"- 设置默认限速为每 m [分钟 | 秒] n 次触发",
 	})
+	c, ok := control.Lookup("aifalse")
+	if !ok {
+		panic("register aifalse error")
+	}
+	m := c.GetData(0)
+	n := (m >> 16) & 0xffff
+	m &= 0xffff
+	if m != 0 || n != 0 {
+		ctxext.SetDefaultLimiterManagerParam(time.Duration(m)*time.Second, int(n))
+		logrus.Infoln("设置默认限速为每", m, "秒触发", n, "次")
+	}
 	engine.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			temp := fmt.Sprint(
@@ -39,14 +53,37 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 		})
-	engine.OnFullMatch("清理缓存", zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^设置默认限速为每\s*(\d+)\s*(分钟|秒)\s*(\d+)\s*次触发$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			err := os.RemoveAll("data/cache/*")
-			if err != nil {
-				ctx.SendChain(message.Text("错误: ", err.Error()))
-			} else {
-				ctx.SendChain(message.Text("成功!"))
+			c, ok := control.Lookup("aifalse")
+			if !ok {
+				ctx.SendChain(message.Text("ERROR:no such plugin"))
+				return
 			}
+			m, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			if ctx.State["regex_matched"].([]string)[2] == "分钟" {
+				m *= 60
+			}
+			if m >= 65536 || m <= 0 {
+				ctx.SendChain(message.Text("ERROR:interval too big"))
+				return
+			}
+			n, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[3], 10, 64)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			if n >= 65536 || n <= 0 {
+				ctx.SendChain(message.Text("ERROR:burst too big"))
+				return
+			}
+			ctxext.SetDefaultLimiterManagerParam(time.Duration(m)*time.Second, int(n))
+			c.SetData(0, (m&0xffff)|((n<<16)&0xffff0000))
+			ctx.SendChain(message.Text("设置默认限速为每", m, "秒触发", n, "次"))
 		})
 }
 
