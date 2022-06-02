@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

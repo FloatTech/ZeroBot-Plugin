@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
