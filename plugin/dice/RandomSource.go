@@ -37,7 +37,7 @@ func init() {
 					win = rules(rs, math, rule)
 					msg += fmt.Sprintf("\nD100=%d/%d %s", rs, math, win)
 				}
-				ctx.Send(msg)
+				ctx.SendChain(message.Text(msg))
 			} else {
 			}
 		})
@@ -54,9 +54,7 @@ func init() {
 			} else {
 				rule = 0
 			}
-			win = rules(rs, math, rule)
-			msg := fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, word, rs, math, win)
-			ctx.Send(msg)
+			ctx.SendChain(message.Text(fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, word, rs, math, win)))
 		})
 	engine.OnRegex(`^[.。]setcoc\s*([0-6]{1})`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -124,7 +122,7 @@ func init() {
 			}
 			if r <= 100 && d <= 100 {
 				sum := 0
-				res := fmt.Sprintf("")
+				res := ""
 				for i := 0; i < r; i++ {
 					rand := rand.Intn(d) + 1
 					sum += rand
@@ -134,8 +132,7 @@ func init() {
 						res += fmt.Sprintf("%d+", rand)
 					}
 				}
-				msg := fmt.Sprintf("阁下掷出了R%dD%d=%d\n%s=%d", r, d, sum, res, sum)
-				ctx.Send(msg)
+				ctx.SendChain(message.Text(fmt.Sprintf("阁下掷出了R%dD%d=%d\n%s=%d", r, d, sum, res, sum)))
 			} else {
 				ctx.SendChain(message.Text("骰子太多啦~~数不过来了！"))
 			}

@@ -1,3 +1,4 @@
+// Package dice dice！golang部分移植版
 package dice
 
 import (

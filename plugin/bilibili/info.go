@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"

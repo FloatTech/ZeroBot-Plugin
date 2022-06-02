@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

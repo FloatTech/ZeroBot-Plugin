@@ -10,7 +10,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	sql "github.com/FloatTech/sqlite"
-	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
 	imagepool "github.com/FloatTech/zbputils/img/pool"
