@@ -54,6 +54,7 @@ func init() {
 			} else {
 				rule = 0
 			}
+			win = rules(rs, math, rule)
 			ctx.SendChain(message.Text(fmt.Sprintf("%s进行%s检定:\nD100=%d/%d %s", nickname, word, rs, math, win)))
 		})
 	engine.OnRegex(`^[.。]setcoc\s*([0-6]{1})`, zero.OnlyGroup).SetBlock(true).
@@ -109,8 +110,7 @@ func init() {
 				d1 = 100
 			}
 			sum := rand.Intn(d1) + 1
-			msg := fmt.Sprintf("阁下掷出了R%dD%d=%d", r1, d1, sum)
-			ctx.Send(msg)
+			ctx.SendChain(message.Text(fmt.Sprintf("阁下掷出了R%dD%d=%d", r1, d1, sum)))
 		})
 	engine.OnRegex(`^[。.][Rr]\s*([0-9]+).*?[Dd].*?([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
