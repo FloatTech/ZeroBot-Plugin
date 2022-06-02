@@ -2,8 +2,9 @@
 package moyucalendar
 
 import (
-	"github.com/FloatTech/zbputils/control"
+	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/web"
+	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -18,11 +19,15 @@ func init() {
 			"   - 摸鱼人日历",
 	}).OnFullMatch("摸鱼人日历").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("https://api.vvhan.com/api/moyu")
+			data, err := web.RequestDataWith(web.NewDefaultClient(), "https://api.vvhan.com/api/moyu?type=json", "GET", "", "")
+			if err != nil {
+				return
+			}
+			picURL := gjson.Get(string(data), "url").String()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.ImageBytes(data))
+			ctx.SendChain(message.Image(picURL))
 		})
 }
