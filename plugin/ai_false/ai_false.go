@@ -74,7 +74,11 @@ func init() { // 插件主体
 				return
 			}
 			ctxext.SetDefaultLimiterManagerParam(time.Duration(m)*time.Second, int(n))
-			c.SetData(0, (m&0xffff)|((n<<16)&0xffff0000))
+			err = c.SetData(0, (m&0xffff)|((n<<16)&0xffff0000))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			ctx.SendChain(message.Text("设置默认限速为每", m, "秒触发", n, "次"))
 		})
 }
