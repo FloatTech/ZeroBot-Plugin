@@ -159,7 +159,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	engine.OnPrefix("获得签到背景", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
+	engine.OnPrefixGroup([]string{"获得签到背景", "获取签到背景"}, zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
 			var uidStr string
@@ -276,7 +276,7 @@ func initPic(picFile string) error {
 		if err != nil {
 			return err
 		}
-		picURL := gjson.Get(string(data), "pic").String()
+		picURL := gjson.Get(string(data), "pic.0").String()
 		data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
 		if err != nil {
 			return err

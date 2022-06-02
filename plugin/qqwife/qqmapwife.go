@@ -135,7 +135,7 @@ func (db *婚姻登记) 登记(gid, uid, target int64, username, targetname stri
 var (
 	//nolint: asciicheck
 	民政局      = 新登记处()
-	skillCD  = rate.NewManager[string](time.Hour*24, 1)
+	skillCD  = rate.NewManager[string](time.Hour*3, 1)
 	lastdate time.Time
 	sendtext = [...][]string{
 		{ // 表白成功
