@@ -276,7 +276,7 @@ func initPic(picFile string) error {
 		if err != nil {
 			return err
 		}
-		picURL := gjson.Get(string(data), "pic").String()
+		picURL := gjson.Get(string(data), "pic.0").String()
 		data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
 		if err != nil {
 			return err
