@@ -38,8 +38,8 @@ func init() {
 					msg += fmt.Sprintf("\nD100=%d/%d %s", rs, math, win)
 				}
 				ctx.SendChain(message.Text(msg))
-			} else {
 			}
+			ctx.SendChain(message.Text("最多检定10次哦~"))
 		})
 	engine.OnRegex(`^[。.][Rr][Aa|Cc]\s*(\S\D+)\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

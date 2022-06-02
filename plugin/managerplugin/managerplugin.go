@@ -1,7 +1,9 @@
+// Package managerplugin 自定义群管插件
 package managerplugin
 
 import (
 	"strconv"
+	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -43,13 +45,37 @@ func init() {
 		})
 	engine.OnRegex(`^【.*】.*`, zero.SuperUserPermission).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			msg := ctx.Event.Message
-			zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-				for _, g := range ctx.GetGroupList().Array() {
-					gid := g.Get("group_id").Int()
-					ctx.SendGroupMessage(gid, msg)
+			next := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, ctx.CheckSession())
+			recv, cancel := next.Repeat()
+			defer cancel()
+			ctx.SendChain(message.Text("请输入\"确定\"或者\"取消\"来决定是否发送此公告"))
+			for {
+				select {
+				case <-time.After(time.Second * 15):
+					ctx.SendChain(message.Text("时间太久啦！不发了！"))
+					return
+				case c := <-recv:
+					msg := c.Event.Message.ExtractPlainText()
+					if msg != "确定" && msg != "取消" {
+						ctx.SendChain(message.Text("请输入\"确定\"或者\"取消\"哟"))
+						continue
+					}
+					if msg == "确定" {
+						ctx.SendChain(message.Text("正在发送..."))
+						msg := ctx.Event.Message
+						zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+							for _, g := range ctx.GetGroupList().Array() {
+								gid := g.Get("group_id").Int()
+								ctx.SendGroupMessage(gid, msg)
+							}
+							return true
+						})
+						return
+					}
+					ctx.SendChain(message.Text("已取消！"))
+					return
+
 				}
-				return true
-			})
+			}
 		})
 }
