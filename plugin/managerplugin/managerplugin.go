@@ -70,11 +70,10 @@ func init() {
 							}
 							return true
 						})
-						return
+						cancel()
 					}
 					ctx.SendChain(message.Text("已取消！"))
-					return
-
+					cancel()
 				}
 			}
 		})
