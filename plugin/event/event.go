@@ -7,6 +7,7 @@ import (
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -14,7 +15,7 @@ import (
 func init() { // 来自mayuri的插件
 	engine := control.Register("event", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "好友申请，默认发送给主人列表第一位",
+		Help:             "好友申请以及群聊邀请事件处理，默认发送给主人列表第一位",
 	})
 	engine.OnRequest().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
@@ -24,16 +25,15 @@ func init() { // 来自mayuri的插件
 				flag := ctx.Event.Flag
 				userid := ctx.Event.UserID
 				username := ctx.CardOrNickName(userid)
-				// logrus.Infoln("[manager]收到好友申请, 用户:", username, "(", userid, ")", "验证消息:", comment, "Flag", flag)
+				logrus.Infoln("[manager]收到来自[", username, "](", userid, ")的好友申请")
 				su := zero.BotConfig.SuperUsers[0]
 				ctx.SendPrivateMessage(
 					su,
-					message.Text(
-						"在"+now+
-							"收到来自["+username+"]("+strconv.FormatInt(userid, 10)+")"+
-							"的好友请求:\n"+comment+
-							"\n输入:\n"+
-							"通过申请"+flag+"\n拒绝申请"+flag),
+					message.Text("在"+now+
+						"收到来自["+username+"]("+strconv.FormatInt(userid, 10)+")"+
+						"的好友请求:\n"+comment+
+						"\n输入:\n"+
+						"通过申请"+flag+"\n拒绝申请"+flag),
 				)
 			}
 		})
@@ -47,13 +47,13 @@ func init() { // 来自mayuri的插件
 				flag := ctx.Event.Flag
 				inviterid := ctx.Event.UserID
 				invitername := ctx.CardOrNickName(inviterid)
-				// logrus.Infoln("[manager]收到", "来自", invitername, "(", inviterid, ")", "的", "群邀请\n群:", groupname, "(", groupid, ")", "\n验证消息:", comment, "\nFlag", flag)
+				logrus.Infoln("[manager]收到来自[", invitername, "](", inviterid, ")的群聊邀请\n群:[", groupname, "](", groupid, ")")
 				su := zero.BotConfig.SuperUsers[0]
 				ctx.SendPrivateMessage(
 					su,
 					message.Text("在"+now+
-						"收到来自["+invitername+"]("+strconv.FormatInt(inviterid, 10)+")的群邀请\n"+
-						"群:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
+						"收到来自["+invitername+"]("+strconv.FormatInt(inviterid, 10)+")的群聊邀请\n"+
+						"群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
 						"\n验证信息:\n"+comment+
 						"\n输入:\n"+
 						"通过邀请"+flag+"\n拒绝邀请"+flag),
