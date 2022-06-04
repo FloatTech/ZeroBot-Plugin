@@ -2,6 +2,7 @@
 package moyucalendar
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -9,7 +10,7 @@ import (
 )
 
 func init() {
-	control.Register("moyucalendar", &control.Options{
+	control.Register("moyucalendar", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "摸鱼人日历\n" +
 			"- /启用 moyucalendar\n" +

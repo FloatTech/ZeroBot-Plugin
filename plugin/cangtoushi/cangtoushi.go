@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -29,7 +30,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("cangtoushi", &control.Options{
+	engine := control.Register("cangtoushi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "藏头诗\n" +
 			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",

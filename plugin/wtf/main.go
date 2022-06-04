@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -12,7 +13,7 @@ import (
 )
 
 func init() {
-	en := control.Register("wtf", &control.Options{
+	en := control.Register("wtf", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",
 	})

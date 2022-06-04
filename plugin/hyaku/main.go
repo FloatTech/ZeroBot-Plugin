@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"unsafe"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -51,7 +52,7 @@ func (l *line) String() string {
 var lines [100]*line
 
 func init() {
-	engine := control.Register("hyaku", &control.Options{
+	engine := control.Register("hyaku", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "百人一首\n" +
 			"- 百人一首(随机发一首)\n" +

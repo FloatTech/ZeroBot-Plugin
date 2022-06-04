@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync/atomic"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -33,7 +34,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("genshin", &control.Options{
+	engine := control.Register("genshin", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "原神抽卡\n- 原神十连\n- 切换原神卡池",
 		PublicDataFolder: "Genshin",
@@ -41,7 +42,7 @@ func init() {
 
 	engine.OnFullMatch("切换原神卡池").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := control.Lookup("genshin")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				ctx.SendChain(message.Text("找不到服务!"))
 				return
@@ -82,7 +83,7 @@ func init() {
 		},
 	)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := control.Lookup("genshin")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				ctx.SendChain(message.Text("找不到服务!"))
 				return

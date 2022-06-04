@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -19,7 +20,7 @@ const (
 var re = regexp.MustCompile(validRe)
 
 func init() {
-	engine := control.Register("bilibiliparse", &control.Options{
+	engine := control.Register("bilibiliparse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",

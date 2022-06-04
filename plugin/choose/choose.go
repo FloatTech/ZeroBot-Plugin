@@ -6,13 +6,14 @@ import (
 	"strconv"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	engine := control.Register("choose", &control.Options{
+	engine := control.Register("choose", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "choose\n" +
 			"- 选择可口可乐还是百事可乐\n" +

@@ -10,6 +10,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -20,7 +21,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", &control.Options{
+	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/shirou/gopsutil/v3/cpu"
@@ -19,7 +20,7 @@ import (
 )
 
 func init() { // 插件主体
-	engine := control.Register("aifalse", &control.Options{
+	engine := control.Register("aifalse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "AIfalse\n" +
 			"- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]\n" +
@@ -47,7 +48,7 @@ func init() { // 插件主体
 		})
 	engine.OnRegex(`^设置默认限速为每\s*(\d+)\s*(分钟|秒)\s*(\d+)\s*次触发$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := control.Lookup("aifalse")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				ctx.SendChain(message.Text("ERROR:no such plugin"))
 				return

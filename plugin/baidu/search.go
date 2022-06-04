@@ -7,12 +7,13 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
 func init() {
-	control.Register("baidu", &control.Options{
+	control.Register("baidu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "baidu\n" +
 			"- 百度下[xxx]",

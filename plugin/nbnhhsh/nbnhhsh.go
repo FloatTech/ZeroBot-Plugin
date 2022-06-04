@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -14,7 +15,7 @@ import (
 )
 
 func init() {
-	control.Register("nbnhhsh", &control.Options{
+	control.Register("nbnhhsh", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "拼音首字母释义工具\n- ?? [缩写]",
 	}).OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).

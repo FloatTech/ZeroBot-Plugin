@@ -10,6 +10,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	sql "github.com/FloatTech/sqlite"
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
@@ -49,7 +50,7 @@ var pool = &imgpool{
 }
 
 func init() { // 插件主体
-	engine := control.Register("setutime", &control.Options{
+	engine := control.Register("setutime", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +

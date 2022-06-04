@@ -2,6 +2,7 @@
 package shadiao
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
@@ -25,7 +26,7 @@ const (
 )
 
 var (
-	engine = control.Register("shadiao", &control.Options{
+	engine = control.Register("shadiao", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "沙雕app\n" +
 			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子\n- 马丁路德骂我\n",

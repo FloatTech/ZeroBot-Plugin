@@ -1,7 +1,6 @@
 package aireply
 
 import (
-	"errors"
 	"regexp"
 	"strconv"
 	"sync"
@@ -15,6 +14,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/tts"
 	"github.com/FloatTech/AnimeAPI/tts/baidutts"
 	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 )
@@ -50,7 +50,7 @@ func init() {
 		},
 		l: []string{"拟声鸟阿梓", "拟声鸟文静", "拟声鸟药水哥", "百度女声", "百度男声", "百度度逍遥", "百度度丫丫"},
 	}
-	engine := control.Register(ttsServiceName, &control.Options{
+	engine := control.Register(ttsServiceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "语音回复(包括拟声鸟和百度)\n" +
 			"- @Bot 任意文本(任意一句话回复)\n" +
@@ -144,10 +144,7 @@ func (t *ttsInstances) setSoundMode(ctx *zero.Ctx, name string) error {
 		}
 	}
 	t.RUnlock()
-	m, ok := control.Lookup(ttsServiceName)
-	if !ok {
-		return errors.New("no such plugin")
-	}
+	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	return m.SetData(gid, index)
 }
 
@@ -156,7 +153,7 @@ func (t *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	m, ok := control.Lookup(ttsServiceName)
+	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if ok {
 		t.RLock()
 		defer t.RUnlock()
