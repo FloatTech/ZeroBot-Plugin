@@ -27,9 +27,11 @@ import (
 
 	// webctrl "github.com/FloatTech/zbputils/control/web"           // web 后端控制
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply" // 回复撤回
-
+	// 高优先级自定义插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"     // 自杀（bushi
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply"   // 回复撤回
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"      // 事件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
@@ -151,10 +153,8 @@ import (
 
 	// todo
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin"
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
