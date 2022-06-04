@@ -22,7 +22,6 @@ import (
 	"github.com/golang/freetype"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -33,7 +32,7 @@ var (
 	filetree               = make(zipfilestructure, 32)
 	starN3, starN4, starN5 *zip.File
 	namereg                = regexp.MustCompile(`_(.*)\.png`)
-	limit                  = rate.NewManager[int64](time.Hour, 5)
+	limit                  = ctxext.NewLimiterManager(time.Minute*60, 5)
 )
 
 func init() {
@@ -83,35 +82,8 @@ func init() {
 			}
 			return true
 		},
-	)).SetBlock(true).
+	)).SetBlock(true).Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-<<<<<<< HEAD
-			if limit.Load(ctx.Event.UserID).Acquire() {
-				c, ok := control.Lookup("genshin")
-				if !ok {
-					ctx.SendChain(message.Text("找不到服务!"))
-					return
-				}
-				gid := ctx.Event.GroupID
-				if gid == 0 {
-					gid = -ctx.Event.UserID
-				}
-				store := (storage)(c.GetData(gid))
-				img, str, mode, err := randnums(10, store)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-					return
-				}
-				b, cl := writer.ToBytes(img)
-				if mode {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-						message.Text("恭喜你抽到了: \n", str), message.ImageBytes(b)))
-				} else {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-						message.Text("十连成功~"), message.ImageBytes(b)))
-				}
-				cl()
-=======
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				ctx.SendChain(message.Text("找不到服务!"))
@@ -131,10 +103,11 @@ func init() {
 			if mode {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
 					message.Text("恭喜你抽到了: \n", str), message.ImageBytes(b)))
->>>>>>> upsteram/master
 			} else {
-				ctx.SendChain(message.Text("一小时五次哟"))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("十连成功~"), message.ImageBytes(b)))
 			}
+			cl()
 		})
 }
 
