@@ -9,6 +9,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/web"
@@ -27,7 +28,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("zaobao", &control.Options{
+	engine := control.Register("zaobao", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "易即今日公众号api的今日早报\n" +
 			"api早上8点更新，推荐定时在8点30后\n" +

@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	engine := control.Register("antirecall", &control.Options{
+	engine := control.Register("antirecall", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "反闪照、反撤回",
 	})

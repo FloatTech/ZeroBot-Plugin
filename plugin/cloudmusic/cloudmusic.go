@@ -7,6 +7,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
@@ -27,7 +28,7 @@ const (
 )
 
 func init() { // 插件主体
-	control.Register("cloudmusic", &control.Options{
+	control.Register("cloudmusic", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "cloudmusic\n" +
 			"- 来句网易云热评",

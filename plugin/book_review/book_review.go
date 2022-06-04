@@ -6,6 +6,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -13,7 +14,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("bookreview", &control.Options{
+	engine := control.Register("bookreview", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "哀伤雪刃推书记录\n- 书评[xxx]\n- 随机书评",
 		PublicDataFolder: "BookReview",

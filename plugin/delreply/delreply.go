@@ -2,6 +2,7 @@
 package delreply
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -9,7 +10,7 @@ import (
 
 // 插件主体
 func init() {
-	engine := control.Register("delreply", &control.Options{
+	engine := control.Register("delreply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "回复bot自身消息\"撤回\"以撤回bot消息",
 	})

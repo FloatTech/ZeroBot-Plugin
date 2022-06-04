@@ -17,6 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -47,7 +48,7 @@ var (
 
 func init() {
 	// 插件主体
-	en := control.Register("fortune", &control.Options{
+	en := control.Register("fortune", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
@@ -71,7 +72,7 @@ func init() {
 			}
 			i, ok := index[ctx.State["regex_matched"].([]string)[1]]
 			if ok {
-				c, ok := control.Lookup("fortune")
+				c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 				if ok {
 					err := c.SetData(gid, int64(i)&0xff)
 					if err != nil {
@@ -115,7 +116,7 @@ func init() {
 				gid = -ctx.Event.UserID
 			}
 			logrus.Debugln("[fortune]gid:", ctx.Event.GroupID, "uid:", ctx.Event.UserID)
-			c, ok := control.Lookup("fortune")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if ok {
 				v := uint8(c.GetData(gid) & 0xff)
 				if int(v) < len(table) {

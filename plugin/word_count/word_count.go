@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -30,7 +31,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("wordcount", &control.Options{
+	engine := control.Register("wordcount", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "聊天热词\n" +
 			"- 热词 [群号] [消息数目]|热词 123456 1000",

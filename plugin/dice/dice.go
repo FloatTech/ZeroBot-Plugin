@@ -3,6 +3,7 @@ package dice
 
 import (
 	sql "github.com/FloatTech/sqlite"
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -10,7 +11,7 @@ import (
 
 var (
 	db     = &sql.Sqlite{}
-	engine = control.Register("dice", &control.Options{
+	engine = control.Register("dice", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "使用.help来查看帮助",
 		PublicDataFolder: "Dice",

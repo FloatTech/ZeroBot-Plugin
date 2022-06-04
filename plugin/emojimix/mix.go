@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/sirupsen/logrus"
@@ -16,7 +17,7 @@ import (
 const bed = "https://www.gstatic.com/android/keyboard/emojikitchen/%d/u%x/u%x_u%x.png"
 
 func init() {
-	control.Register("emojimix", &control.Options{
+	control.Register("emojimix", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "合成emoji\n" +
 			"- [emoji][emoji]",

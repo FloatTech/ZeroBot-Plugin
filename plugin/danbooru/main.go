@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 
 	"github.com/FloatTech/AnimeAPI/danbooru"
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -15,7 +16,7 @@ import (
 )
 
 func init() { // 插件主体
-	engine := control.Register("danbooru", &control.Options{
+	engine := control.Register("danbooru", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "二次元图片标签识别\n" +
 			"- 鉴赏图片[图片]",

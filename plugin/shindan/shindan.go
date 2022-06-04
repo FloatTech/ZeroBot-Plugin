@@ -7,13 +7,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
 func init() {
-	engine := control.Register("shindan", &control.Options{
+	engine := control.Register("shindan", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "shindan\n" +
 			"- 今天是什么少女[@xxx]\n" +

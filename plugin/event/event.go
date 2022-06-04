@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -12,7 +13,7 @@ import (
 )
 
 func init() { // 来自mayuri的插件
-	engine := control.Register("event", &control.Options{
+	engine := control.Register("event", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "好友申请，默认发送给主人列表第一位",
 	})

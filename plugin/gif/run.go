@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -20,7 +21,7 @@ var (
 )
 
 func init() { // 插件主体
-	en := control.Register("gif", &control.Options{
+	en := control.Register("gif", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "制图\n- " + strings.Join(cmds, "\n- "),
 		PrivateDataFolder: "gif",

@@ -11,6 +11,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 
@@ -58,7 +59,7 @@ type area struct {
 }
 
 func init() {
-	engine := control.Register(servicename, &control.Options{
+	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "城市疫情查询\n" +
 			"- xxx疫情\n",

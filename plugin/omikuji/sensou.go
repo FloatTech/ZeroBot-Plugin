@@ -9,6 +9,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -17,7 +18,7 @@ import (
 const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
 
 func init() { // 插件主体
-	engine := control.Register("omikuji", &control.Options{
+	engine := control.Register("omikuji", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",

@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -36,7 +37,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("genshin", &control.Options{
+	engine := control.Register("genshin", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "原神抽卡\n- 原神十连\n- 切换原神卡池",
 		PublicDataFolder: "Genshin",
@@ -44,7 +45,7 @@ func init() {
 
 	engine.OnFullMatch("切换原神卡池").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := control.Lookup("genshin")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				ctx.SendChain(message.Text("找不到服务!"))
 				return
@@ -84,6 +85,7 @@ func init() {
 		},
 	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+<<<<<<< HEAD
 			if limit.Load(ctx.Event.UserID).Acquire() {
 				c, ok := control.Lookup("genshin")
 				if !ok {
@@ -109,6 +111,27 @@ func init() {
 						message.Text("十连成功~"), message.ImageBytes(b)))
 				}
 				cl()
+=======
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				ctx.SendChain(message.Text("找不到服务!"))
+				return
+			}
+			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
+			store := (storage)(c.GetData(gid))
+			img, str, mode, err := randnums(10, store)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			b, cl := writer.ToBytes(img)
+			if mode {
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("恭喜你抽到了: \n", str), message.ImageBytes(b)))
+>>>>>>> upsteram/master
 			} else {
 				ctx.SendChain(message.Text("一小时五次哟"))
 			}

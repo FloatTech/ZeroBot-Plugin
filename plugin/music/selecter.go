@@ -13,6 +13,7 @@ import (
 
 	"github.com/FloatTech/zbputils/web"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/tidwall/gjson"
@@ -21,7 +22,7 @@ import (
 )
 
 func init() {
-	control.Register("music", &control.Options{
+	control.Register("music", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "点歌\n" +
 			"- 点歌[xxx]\n" +

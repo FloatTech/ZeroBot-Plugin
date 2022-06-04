@@ -14,6 +14,7 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/tl"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -59,7 +60,7 @@ type dictionary map[int]struct {
 var words = make(dictionary)
 
 func init() {
-	en := control.Register("wordle", &control.Options{
+	en := control.Register("wordle", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
 			"- 个人猜单词\n" +

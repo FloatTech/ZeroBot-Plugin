@@ -6,12 +6,13 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
 func init() {
-	en := control.Register("chouxianghua", &control.Options{
+	en := control.Register("chouxianghua", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx",
 		PublicDataFolder: "ChouXiangHua",

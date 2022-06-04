@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -26,7 +27,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var engine = control.Register("bilibili", &control.Options{
+var engine = control.Register("bilibili", &ctrl.Options[*zero.Ctx]{
 	DisableOnDefault: false,
 	Help: "bilibili\n" +
 		"- >vup info [xxx]\n" +

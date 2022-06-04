@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -17,7 +18,7 @@ import (
 )
 
 func init() { // 插件主体
-	control.Register("github", &control.Options{
+	control.Register("github", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "GitHub仓库搜索\n" +
 			"- >github [xxx]\n" +

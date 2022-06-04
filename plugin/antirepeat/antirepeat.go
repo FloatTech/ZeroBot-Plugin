@@ -2,6 +2,7 @@
 package antirepeat
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
@@ -12,7 +13,7 @@ var (
 )
 
 func init() {
-	en := control.Register("antirepeat", &control.Options{
+	en := control.Register("antirepeat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "限制复读",
 		PublicDataFolder: "Antirepeat",

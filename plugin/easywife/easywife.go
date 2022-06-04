@@ -8,13 +8,14 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 )
 
 func init() {
-	engine := control.Register("easywife", &control.Options{
+	engine := control.Register("easywife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "本地老婆\n" +
 			"抽老婆",

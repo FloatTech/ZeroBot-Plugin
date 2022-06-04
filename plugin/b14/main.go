@@ -4,6 +4,7 @@ package b14coder
 import (
 	"unsafe"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	base14 "github.com/fumiama/go-base16384"
 	tea "github.com/fumiama/gofastTEA"
@@ -13,7 +14,7 @@ import (
 )
 
 func init() {
-	en := control.Register("base16384", &control.Options{
+	en := control.Register("base16384", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "base16384加解密\n" +
 			"- 加密xxx\n- 解密xxx\n- 用yyy加密xxx\n- 用yyy解密xxx",

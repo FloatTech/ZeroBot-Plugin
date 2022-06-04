@@ -11,6 +11,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -154,7 +155,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("qqwife", &control.Options{
+	engine := control.Register("qqwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "一群一天一夫一妻制群老婆\n（每天凌晨刷新CP）\n" +
 			"- 娶群友\n- 群老婆列表\n" +

@@ -2,6 +2,7 @@
 package font
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -11,7 +12,7 @@ import (
 )
 
 func init() {
-	control.Register("font", &control.Options{
+	control.Register("font", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "渲染任意文字到图片\n- (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx",
 	}).OnRegex(`^(用.+)?渲染文字([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {

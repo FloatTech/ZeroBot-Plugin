@@ -4,14 +4,15 @@ package custom
 import (
 	"os"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	engine := control.Register("custom", &control.Options{
+	engine := control.Register("custom", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "自定义插件集合\n" +
 			" - /kill@bot\n" +

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -19,7 +20,7 @@ const (
 var replyModes = [...]string{"青云客", "小爱"}
 
 func init() { // 插件主体
-	engine := control.Register(replyServiceName, &control.Options{
+	engine := control.Register(replyServiceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "人工智能回复\n" +
 			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客  |  小爱]\n- ",
@@ -67,7 +68,7 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	if !ok {
 		return errors.New("no such mode")
 	}
-	m, ok := control.Lookup(replyServiceName)
+	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if !ok {
 		return errors.New("no such plugin")
 	}
@@ -79,7 +80,7 @@ func getReplyMode(ctx *zero.Ctx) (name string) {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	m, ok := control.Lookup(replyServiceName)
+	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if ok {
 		index := m.GetData(gid)
 		if int(index) < len(replyModes) {

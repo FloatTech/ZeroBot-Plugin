@@ -16,12 +16,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/file"
 )
 
 func init() {
-	engine := control.Register("nwife", &control.Options{
+	engine := control.Register("nwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  true,
 		Help:              "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让 | 不让]所有人均可添加wife",
 		PrivateDataFolder: "nwife",
@@ -123,9 +124,9 @@ func init() {
 			var err error
 			switch text {
 			case "设置", "授予", "让":
-				err = setEveryoneCanAddWife(ctx.Event.GroupID, true)
+				err = setEveryoneCanAddWife(ctx, true)
 			case "取消", "撤销", "不让":
-				err = setEveryoneCanAddWife(ctx.Event.GroupID, false)
+				err = setEveryoneCanAddWife(ctx, false)
 			}
 			if err == nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功！"))
@@ -138,7 +139,7 @@ func init() {
 func chkAddWifePermission(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	if gid > 0 {
-		m, ok := control.Lookup("nwife")
+		m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if ok {
 			data := m.GetData(gid)
 			if data&1 == 1 {
@@ -150,13 +151,13 @@ func chkAddWifePermission(ctx *zero.Ctx) bool {
 	return false
 }
 
-func setEveryoneCanAddWife(gid int64, canadd bool) error {
-	m, ok := control.Lookup("nwife")
+func setEveryoneCanAddWife(ctx *zero.Ctx, canadd bool) error {
+	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if ok {
 		if canadd {
-			return m.SetData(gid, 1)
+			return m.SetData(ctx.Event.GroupID, 1)
 		}
-		return m.SetData(gid, 0)
+		return m.SetData(ctx.Event.GroupID, 0)
 	}
 	return errors.New("no such plugin")
 }

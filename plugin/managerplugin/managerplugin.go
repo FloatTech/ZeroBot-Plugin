@@ -8,12 +8,13 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/math"
 )
 
 func init() {
-	engine := control.Register("managerplugin", &control.Options{
+	engine := control.Register("managerplugin", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "自定义的群管插件\n - 开启全员禁言 群号\n - 解除全员禁言 群号\n - 反\"XX召唤术\"\n -【公告】内容",
 	})
