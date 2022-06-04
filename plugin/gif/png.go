@@ -38,6 +38,32 @@ func (cc *context) A爬() (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(tou, 100, 100, 0, 400).Im)
 }
 
+// A一直
+func (cc *context) A一() (string, error) {
+	name := cc.usrdir + `一.png`
+	tou, err := cc.getLogo3(0, 0)
+	if err != nil {
+		return "", err
+	}
+	im1 := img.Size(tou, 300, 300)
+	im2 := img.Size(tou, 60, 60)
+	if file.IsNotExist(datapath + "materials/yizhi") {
+		err = os.MkdirAll(datapath+"materials/yizhi", 0755)
+		if err != nil {
+			return "", err
+		}
+	}
+	f, err := dlblock(`yizhi/0.png`)
+	if err != nil {
+		return "", err
+	}
+	imgf, err := img.LoadFirstFrame(f, 0, 0)
+	if err != nil {
+		return "", err
+	}
+	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(im1.Im, im1.W, im1.H, 0, 0).InsertBottom(im2.Im, im2.W, im2.H, 164, 306).Im)
+}
+
 // A撕
 func (cc *context) A撕() (string, error) {
 	name := cc.usrdir + `撕.png`

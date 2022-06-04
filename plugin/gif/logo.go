@@ -39,3 +39,11 @@ func (cc *context) getLogo2(w int, h int) (*image.NRGBA, error) {
 	}
 	return frame.Circle(0).Im, nil
 }
+
+func (cc *context) getLogo3(w int, h int) (*image.NRGBA, error) {
+	frame, err := img.LoadFirstFrame(cc.headimgsdir[0], w, h)
+	if err != nil {
+		return nil, err
+	}
+	return frame.Reshape(w, h).Im, nil
+}
