@@ -29,6 +29,8 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply" // 回复撤回
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
