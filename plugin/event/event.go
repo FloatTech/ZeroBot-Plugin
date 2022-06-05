@@ -33,9 +33,8 @@ func init() { // 来自mayuri的插件
 						"\n收到来自[", username, "](", strconv.FormatInt(userid, 10), ")",
 						"\n的好友请求:", comment,
 						"\n请在下方复制flag并在前面加上:",
-						"\n通过申请",
-						"\n拒绝申请",
-						"\n来决定通过还是拒绝"))
+						"\n通过/拒绝邀请，来决定通过还是拒绝"))
+				time.Sleep(time.Second * 1)
 				ctx.SendPrivateMessage(su, message.ReplyWithMessage(id, message.Text(flag)))
 			}
 		})
@@ -58,9 +57,8 @@ func init() { // 来自mayuri的插件
 						"\n群聊:[", groupname, "]("+strconv.FormatInt(groupid, 10), ")",
 						"\n验证信息:\n", comment,
 						"\n请在下方复制flag并在前面加上:",
-						"\n通过邀请",
-						"\n拒绝邀请",
-						"\n来决定通过还是拒绝"))
+						"\n通过/拒绝邀请，来决定通过还是拒绝"))
+				time.Sleep(time.Second * 1)
 				ctx.SendPrivateMessage(su, message.ReplyWithMessage(id, message.Text(flag)))
 			}
 		})
