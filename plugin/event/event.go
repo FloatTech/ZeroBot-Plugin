@@ -29,8 +29,8 @@ func init() { // 来自mayuri的插件
 				logrus.Infoln("[manager]收到来自[", username, "](", userid, ")的好友申请")
 				id := ctx.SendPrivateMessage(
 					su,
-					message.Text("在", now,
-						"\n收到来自[", username, "](", strconv.FormatInt(userid, 10), ")",
+					message.Text("在", now, "收到来自",
+						"\n用户:[", username, "](", strconv.FormatInt(userid, 10), ")",
 						"\n的好友请求:", comment,
 						"\n请在下方复制flag并在前面加上:",
 						"\n通过/拒绝邀请，来决定通过还是拒绝"))
@@ -52,9 +52,9 @@ func init() { // 来自mayuri的插件
 				logrus.Infoln("[manager]收到来自[", invitername, "](", inviterid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
 				id := ctx.SendPrivateMessage(
 					su,
-					message.Text("在", now,
-						"\n收到来自[", invitername, "]("+strconv.FormatInt(inviterid, 10), ")的群聊邀请",
-						"\n群聊:[", groupname, "]("+strconv.FormatInt(groupid, 10), ")",
+					message.Text("在", now, "收到来自",
+						"\n用户:[", invitername, "](", strconv.FormatInt(inviterid, 10), ")的群聊邀请",
+						"\n群聊:[", groupname, "](", strconv.FormatInt(groupid, 10), ")",
 						"\n验证信息:\n", comment,
 						"\n请在下方复制flag并在前面加上:",
 						"\n通过/拒绝邀请，来决定通过还是拒绝"))
