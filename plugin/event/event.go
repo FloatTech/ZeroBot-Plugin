@@ -95,15 +95,15 @@ func init() { // 来自mayuri的插件
 			groupid := ctx.Event.GroupID
 			groupname := ctx.GetGroupInfo(groupid, true).Name
 			switch subtype {
-			case "kick_me":
+			case "kickme":
 				{
 					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0],
-						message.Text("呜呜呜，我在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
+						message.Text("呜呜呜，我在", now, "被[", operatorname, "](", operatorid, ")", "丢出了裙[", groupname, "](", groupid, ")"))
 				}
 			case "kick":
 				{
 					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0],
-						message.Text("好可怕，", username, "(", userid, ")", "在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
+						message.Text("好可怕，[", username, "](", userid, ")", "在", now, "被[", operatorname, "](", operatorid, ")", "丢出了裙[", groupname, "](", groupid, ")"))
 				}
 			}
 		})
