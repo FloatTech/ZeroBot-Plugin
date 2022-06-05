@@ -86,7 +86,7 @@ func init() { // 来自mayuri的插件
 
 	engine.OnNotice().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			eventtype := ctx.Event.NoticeType
+			subtype := ctx.Event.SubType
 			userid := ctx.Event.UserID
 			username := ctx.CardOrNickName(userid)
 			operatorid := ctx.Event.OperatorID
@@ -94,8 +94,8 @@ func init() { // 来自mayuri的插件
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
 			groupid := ctx.Event.GroupID
 			groupname := ctx.GetGroupInfo(groupid, true).Name
-			switch eventtype {
-			case "kickme":
+			switch subtype {
+			case "kick_me":
 				{
 					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0],
 						message.Text("呜呜呜，我在", now, "被", operatorname, "(", operatorid, ")", "丢出了裙", groupname, "(", groupid, ")"))
