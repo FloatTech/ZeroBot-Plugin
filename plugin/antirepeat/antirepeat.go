@@ -15,11 +15,7 @@ import (
 type data struct {
 	GrpID       int64 `db:"gid"`
 	RepeatLimit int   `db:"repeatlimit"`
-}
-
-type datato struct {
-	GrpID   int64 `db:"gid"`
-	BanTime int64 `db:"bantime"`
+	BanTime     int64 `db:"bantime"`
 }
 
 var (
@@ -39,10 +35,6 @@ func init() {
 	go func() {
 		db.DBPath = en.DataFolder() + "antirepeat.db"
 		err := db.Create("data", &data{})
-		if err != nil {
-			panic(err)
-		}
-		err = db.Create("datato", &datato{})
 		if err != nil {
 			panic(err)
 		}
@@ -72,29 +64,35 @@ func init() {
 		})
 	en.OnRegex(`^(设置复读禁言次数\s*)([0-9]+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			_, bantime := readdb(gid)
 			d := &data{
-				GrpID:       ctx.Event.GroupID,
+				GrpID:       gid,
 				RepeatLimit: int(math.Str2Int64(ctx.State["regex_matched"].([]string)[2])),
+				BanTime:     bantime,
 			}
 			err := db.Insert("data", d)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("当前群聊设置复读限制次数为", d.RepeatLimit))
+			ctx.SendChain(message.Text("当前群聊设置复读禁言次数为", d.RepeatLimit))
 		})
 	en.OnRegex(`^(设置复读禁言时间\s*)([0-9]+)分钟`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			dto := &datato{
-				GrpID:   ctx.Event.GroupID,
-				BanTime: math.Str2Int64(ctx.State["regex_matched"].([]string)[2]),
+			gid := ctx.Event.GroupID
+			repeatlimit, _ := readdb(gid)
+			d := &data{
+				GrpID:       gid,
+				RepeatLimit: repeatlimit,
+				BanTime:     math.Str2Int64(ctx.State["regex_matched"].([]string)[2]),
 			}
-			err := db.Insert("data", dto)
+			err := db.Insert("data", d)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("当前群聊设置复读禁言时间为", dto.BanTime, "分钟"))
+			ctx.SendChain(message.Text("当前群聊设置复读禁言时间为", d.BanTime, "分钟"))
 		})
 }
 
@@ -104,10 +102,5 @@ func readdb(gid int64) (int, int64) {
 	if err != nil {
 		return 3, 60
 	}
-	var dto datato
-	err = db.Find("datato", &dto, "where gid = "+strconv.FormatInt(gid, 10))
-	if err != nil {
-		return 3, 60
-	}
-	return d.RepeatLimit, dto.BanTime
+	return d.RepeatLimit, d.BanTime
 }
