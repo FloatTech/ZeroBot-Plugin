@@ -32,7 +32,7 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("记住啦!"))
 			} else {
-				ctx.SendChain(message.Text("出错啦: ", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 }
