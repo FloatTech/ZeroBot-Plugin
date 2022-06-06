@@ -106,5 +106,8 @@ func readdb(gid int64) (int, int64) {
 	}
 	var dto datato
 	err = db.Find("datato", &dto, "where gid = "+strconv.FormatInt(gid, 10))
+	if err != nil {
+		return 3, 60
+	}
 	return d.RepeatLimit, dto.BanTime
 }
