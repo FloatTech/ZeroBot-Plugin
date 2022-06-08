@@ -238,8 +238,8 @@ func parse(url string) (m message.Message, err error) {
 	return
 }
 
-func getrealurl(realurl string) (url string, err error) {
-	data, err := http.Get(realurl)
+func getrealurl(fakeurl string) (url string, err error) {
+	data, err := http.Get(fakeurl)
 	if err != nil {
 		return
 	}
