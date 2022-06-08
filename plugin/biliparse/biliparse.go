@@ -204,6 +204,10 @@ func init() {
 			}
 			url = realurl
 			m, err := parse(url)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			ctx.Send(m)
 		})
 }
@@ -211,9 +215,9 @@ func init() {
 func parse(url string) (m message.Message, err error) {
 	var id string
 	switch {
-	case url[:2] == "av" || url[:2] == "AV":
+	case url[:2] == "av":
 		id = "aid=" + url[2:]
-	case url[:2] == "BV" || url[:2] == "bv":
+	case url[:2] == "BV":
 		id = "bvid=BV" + url[2:]
 	}
 	data, err := web.GetData(api + id)
