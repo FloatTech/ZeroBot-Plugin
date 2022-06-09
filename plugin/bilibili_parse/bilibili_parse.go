@@ -2,76 +2,192 @@
 package bilibiliparse
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http"
 	"regexp"
-	"strings"
+	"strconv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/antchfx/htmlquery"
+	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+type result struct {
+	Data struct {
+		Bvid      string `json:"bvid"`
+		Aid       int    `json:"aid"`
+		Copyright int    `json:"copyright"`
+		Pic       string `json:"pic"`
+		Title     string `json:"title"`
+		Pubdate   int    `json:"pubdate"`
+		Ctime     int    `json:"ctime"`
+		Rights    struct {
+			IsCooperation int `json:"is_cooperation"`
+		} `json:"rights"`
+		Owner struct {
+			Mid  int    `json:"mid"`
+			Name string `json:"name"`
+		} `json:"owner"`
+		Stat struct {
+			Aid      int `json:"aid"`
+			View     int `json:"view"`
+			Danmaku  int `json:"danmaku"`
+			Reply    int `json:"reply"`
+			Favorite int `json:"favorite"`
+			Coin     int `json:"coin"`
+			Share    int `json:"share"`
+			Like     int `json:"like"`
+		} `json:"stat"`
+		Staff []struct {
+			Title    string `json:"title"`
+			Name     string `json:"name"`
+			Follower int    `json:"follower"`
+		} `json:"staff"`
+	} `json:"data"`
+}
+
+type owner struct {
+	Data struct {
+		Card struct {
+			Fans int `json:"fans"`
+		} `json:"data"`
+	}
+}
+
 const (
-	validRe = "https://www.bilibili.com/video/(BV[0-9a-zA-Z]+)"
+	videoapi = "https://api.bilibili.com/x/web-interface/view?"
+	cardapi  = "http://api.bilibili.com/x/web-interface/card?"
+	origin   = "https://www.bilibili.com/video/"
 )
 
-var re = regexp.MustCompile(validRe)
+var reg = regexp.MustCompile(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`)
 
+// 插件主体
 func init() {
-	engine := control.Register("bilibiliparse", &ctrl.Options[*zero.Ctx]{
+	en := control.Register("bilibiliparse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",
 	})
-
-	engine.OnRegex("(av[0-9]+|BV[0-9a-zA-Z]+|https://b23.tv/[0-9a-zA-Z]+|bv[0-9a-zA-Z]+){1}").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		bilibiliURL := ctx.State["regex_matched"].([]string)[1]
-		if bilibiliURL[0] != 'h' {
-			bilibiliURL = "https://www.bilibili.com/video/" + bilibiliURL
-		}
-		m, err := parseURL(bilibiliURL)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		ctx.Send(m)
-	})
+	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			id := ctx.State["regex_matched"].([]string)[1]
+			m, err := parse(id)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.Send(m)
+		})
+	en.OnRegex(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			id := ctx.State["regex_matched"].([]string)[1]
+			m, err := parse(id)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.Send(m)
+		})
+	en.OnRegex(`(https://b23.tv/[0-9a-zA-Z]+)`).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			url := ctx.State["regex_matched"].([]string)[1]
+			realurl, err := getrealurl(url)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			url = realurl
+			id, err := cuturl(url)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			m, err := parse(id)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.Send(m)
+		})
 }
 
-func parseURL(bilibiliURL string) (m message.Message, err error) {
-	doc, err := htmlquery.LoadURL(bilibiliURL)
+// parse 解析视频数据
+func parse(id string) (m message.Message, err error) {
+	var vid string
+	switch {
+	case id[:2] == "av":
+		vid = "aid=" + id[2:]
+	case id[:2] == "BV":
+		vid = "bvid=" + id
+	}
+	data, err := web.GetData(videoapi + vid)
 	if err != nil {
 		return
 	}
-	videoURL := htmlquery.FindOne(doc, "/html/head/meta[@itemprop='url']").Attr[2].Val
-	if !re.MatchString(videoURL) {
-		err = errors.New("parse html error: invalid video url")
+	var r result
+	err = json.Unmarshal(data, &r)
+	if err != nil {
 		return
 	}
-	m = make(message.Message, 0, 9)
-	title := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/h1/span/text()").Data
-	m = append(m, message.Text(title, "\n"))
-	upName := strings.TrimSpace(htmlquery.FindOne(doc, "//*[@id='v_upinfo']/div[2]/div[1]/a[1]/text()").Data)
-	fanNumber := htmlquery.InnerText(htmlquery.FindOne(doc, "//i[@class='van-icon-general_addto_s']").NextSibling.NextSibling)
-	m = append(m, message.Text("UP: ", upName, ", 粉丝: ", fanNumber, "\n"))
-	view := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='view']/text()").Data
-	dm := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[@class='dm']/text()").Data
-	m = append(m, message.Text(view, dm, "\n"))
-	t := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[3]/text()").Data
-	m = append(m, message.Text(t))
-	image := htmlquery.FindOne(doc, "/html/head/meta[@itemprop='image']").Attr[2].Val
-	m = append(m, message.Image(image))
-	like := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='like']/text()").Data
-	coin := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='coin']/text()").Data
-	m = append(m, message.Text("\n点赞: ", strings.TrimSpace(like), ", 投币: ", strings.TrimSpace(coin), "\n"))
-	collect := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='collect']/text()").Data
-	share := htmlquery.FindOne(doc, "//*[@id='arc_toolbar_report']/div[1]/span[@class='share']/text()").Data
-	m = append(m, message.Text("收藏: ", strings.TrimSpace(collect), ", 分享: ", strings.TrimSpace(share), "\n"))
-	play := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[1]/text()").Data
-	danmaku := htmlquery.FindOne(doc, "//*[@id='viewbox_report']/div/span[2]/text()").Data
-	m = append(m, message.Text(strings.TrimSpace(play), "播放, ", strings.TrimSpace(danmaku), "弹幕\n"))
-	m = append(m, message.Text(videoURL))
+	m = make(message.Message, 0, 16)
+	m = append(m, message.Text("标题：", r.Data.Title, "\n"))
+	if r.Data.Rights.IsCooperation == 1 {
+		for i := 0; i < len(r.Data.Staff); i++ {
+			if i != len(r.Data.Staff) {
+				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", r.Data.Staff[i].Follower, "\n"))
+			} else {
+				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", r.Data.Staff[i].Follower))
+			}
+		}
+	} else {
+		o, err := getcard(r.Data.Owner.Mid)
+		if err != nil {
+			return m, err
+		}
+		m = append(m, message.Text("\nUP主：", r.Data.Owner.Name),
+			message.Text("粉丝：", o.Data.Card.Fans, "\n"))
+	}
+	m = append(m, message.Text("播放：", r.Data.Stat.View),
+		message.Text("弹幕：", r.Data.Stat.Danmaku, "\n"),
+		message.Image(r.Data.Pic),
+		message.Text("\n点赞：", r.Data.Stat.Like),
+		message.Text("，投币：", r.Data.Stat.Coin),
+		message.Text("\n收藏：", r.Data.Stat.Favorite),
+		message.Text("，分享：", r.Data.Stat.Share),
+		message.Text("\n", origin, id))
+	return
+}
+
+// getrealurl 获取跳转后的链接
+func getrealurl(url string) (realurl string, err error) {
+	data, err := http.Get(url)
+	if err != nil {
+		return
+	}
+	realurl = data.Request.URL.String()
+	return
+}
+
+// cuturl 获取aid或者bvid
+func cuturl(url string) (id string, err error) {
+	if !reg.MatchString(url) {
+		err = errors.New("invalid video url")
+		return
+	}
+	url = reg.FindStringSubmatch(url)[1]
+	return
+}
+
+// getcard 获取个人信息
+func getcard(mid int) (o owner, err error) {
+	data, err := web.GetData(cardapi + "mid=" + strconv.Itoa(mid))
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(data, &o)
 	return
 }
