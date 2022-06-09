@@ -178,7 +178,7 @@ func cuturl(url string) (id string, err error) {
 		err = errors.New("invalid video url")
 		return
 	}
-	url = reg.FindStringSubmatch(url)[1]
+	id = reg.FindStringSubmatch(url)[1]
 	return
 }
 
