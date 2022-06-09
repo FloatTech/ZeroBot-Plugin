@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -63,7 +65,10 @@ const (
 	origin   = "https://www.bilibili.com/video/"
 )
 
-var reg = regexp.MustCompile(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`)
+var (
+	reg   = regexp.MustCompile(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`)
+	limit = ctxext.NewLimiterManager(time.Second*10, 1)
+)
 
 // 插件主体
 func init() {
@@ -72,7 +77,7 @@ func init() {
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",
 	})
-	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).
+	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["regex_matched"].([]string)[1]
 			m, err := parse(id)
@@ -82,7 +87,7 @@ func init() {
 			}
 			ctx.Send(m)
 		})
-	en.OnRegex(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`).SetBlock(true).
+	en.OnRegex(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["regex_matched"].([]string)[1]
 			m, err := parse(id)
@@ -92,7 +97,7 @@ func init() {
 			}
 			ctx.Send(m)
 		})
-	en.OnRegex(`(https://b23.tv/[0-9a-zA-Z]+)`).SetBlock(true).
+	en.OnRegex(`(https://b23.tv/[0-9a-zA-Z]+)`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[1]
 			realurl, err := getrealurl(url)
@@ -100,8 +105,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			url = realurl
-			id, err := cuturl(url)
+			id, err := cuturl(realurl)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -118,10 +122,10 @@ func init() {
 // parse 解析视频数据
 func parse(id string) (m message.Message, err error) {
 	var vid string
-	switch {
-	case id[:2] == "av":
+	switch id[:2] {
+	case "av":
 		vid = "aid=" + id[2:]
-	case id[:2] == "BV":
+	case "BV":
 		vid = "bvid=" + id
 	}
 	data, err := web.GetData(videoapi + vid)
@@ -148,23 +152,17 @@ func parse(id string) (m message.Message, err error) {
 		if err != nil {
 			return m, err
 		}
-		m = append(m, message.Text("\nUP主：", r.Data.Owner.Name),
-			message.Text("粉丝：", o.Data.Card.Fans, "\n"))
+		m = append(m, message.Text("\nUP主：", r.Data.Owner.Name, "，粉丝：", o.Data.Card.Fans, "\n"))
 	}
-	m = append(m, message.Text("播放：", r.Data.Stat.View),
-		message.Text("弹幕：", r.Data.Stat.Danmaku, "\n"),
+	m = append(m, message.Text("播放：", r.Data.Stat.View, "，弹幕：", r.Data.Stat.Danmaku, "\n"),
 		message.Image(r.Data.Pic),
-		message.Text("\n点赞：", r.Data.Stat.Like),
-		message.Text("，投币：", r.Data.Stat.Coin),
-		message.Text("\n收藏：", r.Data.Stat.Favorite),
-		message.Text("，分享：", r.Data.Stat.Share),
-		message.Text("\n", origin, id))
+		message.Text("\n点赞：", r.Data.Stat.Like, "，投币：", r.Data.Stat.Coin, "\n收藏：", r.Data.Stat.Favorite, "，分享：", r.Data.Stat.Share, "\n", origin, id))
 	return
 }
 
 // getrealurl 获取跳转后的链接
 func getrealurl(url string) (realurl string, err error) {
-	data, err := http.Get(url)
+	data, err := http.Head(url)
 	if err != nil {
 		return
 	}
