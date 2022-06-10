@@ -28,8 +28,6 @@ import (
 	// webctrl "github.com/FloatTech/zbputils/control/web"           // web 后端控制
 
 	// 高优先级自定义插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/biliparse"  // b站解析
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"     // 自杀（bushi
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply"   // 回复撤回
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"      // 事件
@@ -124,7 +122,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/zaobao"         // 早报
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push" // b站推送
 
 	//
 	//                               ^^^^                               //
@@ -159,6 +156,8 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin"
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
+
+        _ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
