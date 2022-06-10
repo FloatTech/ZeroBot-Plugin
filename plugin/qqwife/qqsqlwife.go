@@ -54,7 +54,6 @@ var (
 		db: &sql.Sqlite{},
 	}
 	skillCD  = rate.NewManager[string](time.Hour*12, 1)
-	lastdate time.Time
 	sendtext = [...][]string{
 		{ // 表白成功
 			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
@@ -90,6 +89,7 @@ func init() {
 		// 如果数据库不存在则下载
 		//_, _ = engine.GetLazyData("结婚登记表.db", false)
 		//nolint: asciicheck
+		//err := 民政局.db.Open()
 		err := 民政局.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
@@ -162,7 +162,11 @@ func init() {
 				return
 			}
 			// 去民政局办证
-			民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+			err = 民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+			if err != nil {
+				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+				return
+			}
 			// 请大家吃席
 			ctx.SendChain(
 				message.At(uid),
@@ -192,32 +196,40 @@ func init() {
 				}
 				return
 			}
-			if rand.Intn(2) == 1 { // 二分之一的概率表白成功
-				// 去民政局登记
-				var choicetext string
-				switch choice {
-				case "娶":
-					民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
-					choicetext = "今天你的群老婆是"
-				default:
-					民政局.登记(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
-					choicetext = "今天你的群老公是"
-				}
-				// 请大家吃席
-				ctx.SendChain(
-					message.Text(sendtext[0][rand.Intn(len(sendtext[0]))]),
-					message.At(uid),
-					message.Text(choicetext),
-					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
-					message.Text(
-						"\n",
-						"[", ctx.CardOrNickName(fiancee), "]",
-						"(", fiancee, ")哒",
-					),
-				)
+			if rand.Intn(2) == 0 { // 二分之一的概率表白成功
+				ctx.SendChain(message.Text(sendtext[1][rand.Intn(len(sendtext[1]))]))
 				return
 			}
-			ctx.SendChain(message.Text(sendtext[1][rand.Intn(len(sendtext[1]))]))
+			// 去民政局登记
+			var choicetext string
+			switch choice {
+			case "娶":
+				err := 民政局.登记(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+				if err != nil {
+					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+					return
+				}
+				choicetext = "\n今天你的群老婆是"
+			default:
+				err := 民政局.登记(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
+				if err != nil {
+					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+					return
+				}
+				choicetext = "\n今天你的群老公是"
+			}
+			// 请大家吃席
+			ctx.SendChain(
+				message.Text(sendtext[0][rand.Intn(len(sendtext[0]))]),
+				message.At(uid),
+				message.Text(choicetext),
+				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
+				message.Text(
+					"\n",
+					"[", ctx.CardOrNickName(fiancee), "]",
+					"(", fiancee, ")哒",
+				),
+			)
 		})
 	// NTR技能
 	engine.OnRegex(`^当(\[CQ:at,qq=(\d+)\]\s?|(\d+))的小三`, zero.OnlyGroup, getdb, checkcp).SetBlock(true).Limit(cdcheck, iscding).
@@ -246,12 +258,20 @@ func init() {
 				return
 			case 1:
 				// 和对象结婚登记
+				err := 民政局.复婚(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
+				if err != nil {
+					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+					return
+				}
 				choicetext = "老公"
-				民政局.复婚(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
 			case 0:
 				// 和对象结婚登记
-				choicetext = "老婆"
 				民政局.复婚(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+				if err != nil {
+					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+					return
+				}
+				choicetext = "老婆"
 			default:
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员"))
 				return
