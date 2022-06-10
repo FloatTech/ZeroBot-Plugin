@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/lucas-clemente/quic-go/http3"
@@ -17,6 +18,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/pixiv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
@@ -51,9 +53,8 @@ type resultjson struct {
 			} `json:"statistic"`
 			Image string `json:"image"`
 		} `json:"illusts"`
-		Scores    []float64 `json:"scores"`
-		Highlight []string  `json:"highlight"`
-		HasNext   bool      `json:"has_next"`
+		Scores  []float64 `json:"scores"`
+		HasNext bool      `json:"has_next"`
 	} `json:"data"`
 }
 
@@ -71,7 +72,8 @@ func init() {
 				return
 			}
 			rannum := rand.Intn(len(soutujson.Data.Illusts))
-			illust, err := pixiv.Works(soutujson.Data.Illusts[rannum].ID)
+			il := soutujson.Data.Illusts[rannum]
+			illust, err := pixiv.Works(il.ID)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -83,7 +85,19 @@ func init() {
 			err = pool.SendImageFromPool(n, f, func() error {
 				// 下载图片
 				return illust.DownloadToCache(0)
-			}, ctxext.SendFakeForwardToGroup(ctx), ctxext.GetFirstMessageInForward(ctx))
+			}, ctxext.SendFakeForwardToGroup(ctx,
+				message.Text(
+					il.Width, "x", il.Height, "\n",
+					"标题: ", il.Title, "\n",
+					"副标题: ", il.AltTitle, "\n",
+					"ID: ", il.ID,
+					"简介: ", il.Description, "\n",
+					"画师: ", illust.UserName, "\n",
+					"画师ID: ", illust.UserId, "\n",
+					"分级:", il.Sanity, "\n",
+					printtags(reflect.ValueOf(&il.Tags)),
+				),
+			), ctxext.GetFirstMessageInForward(ctx))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -108,4 +122,22 @@ func soutuapi(keyword string) (r resultjson, err error) {
 		err = errors.New(r.Message)
 	}
 	return
+}
+
+func printtags(r reflect.Value) string {
+	tags := r.Elem()
+	s := binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
+		for i := 0; i < tags.Len(); i++ {
+			tag := tags.Index(i)
+			_ = w.WriteByte('#')
+			w.WriteString(tag.Field(0).String())
+			w.WriteString(" (")
+			w.WriteString(tag.Field(1).String())
+			w.WriteString(")\n")
+		}
+	}))
+	if len(s) > 0 {
+		s = s[:len(s)-1]
+	}
+	return s
 }
