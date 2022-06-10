@@ -69,7 +69,7 @@ func init() {
 				maxErrorCount = 3
 			} else {
 				mode = 1
-				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^[A-G][b|#]?\d{0,2}$`)),
+				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^[A-G][b|#]?\d{0,2}$`),
 					zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID))
 				maxErrorCount = 10
 			}
