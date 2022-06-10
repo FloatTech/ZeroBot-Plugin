@@ -130,9 +130,13 @@ func printtags(r reflect.Value) string {
 			tag := tags.Index(i)
 			_ = w.WriteByte('#')
 			w.WriteString(tag.Field(0).String())
-			w.WriteString(" (")
-			w.WriteString(tag.Field(1).String())
-			w.WriteString(")\n")
+			if !tag.Field(1).IsZero() {
+				w.WriteString(" (")
+				w.WriteString(tag.Field(1).String())
+				w.WriteString(")\n")
+			} else {
+				w.WriteByte('\n')
+			}
 		}
 	}))
 	if len(s) > 0 {
