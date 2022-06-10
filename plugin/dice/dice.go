@@ -2,6 +2,8 @@
 package dice
 
 import (
+	"time"
+
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -21,7 +23,11 @@ var (
 func init() {
 	go func() {
 		db.DBPath = engine.DataFolder() + "dice.db"
-		err := db.Create("strjrrp", &strjrrp{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			panic(err)
+		}
+		err = db.Create("strjrrp", &strjrrp{})
 		if err != nil {
 			panic(err)
 		}

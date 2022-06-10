@@ -3,6 +3,7 @@ package antirepeat
 
 import (
 	"strconv"
+	"time"
 
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -34,7 +35,11 @@ var (
 func init() {
 	go func() {
 		db.DBPath = en.DataFolder() + "antirepeat.db"
-		err := db.Create("data", &data{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			panic(err)
+		}
+		err = db.Create("data", &data{})
 		if err != nil {
 			panic(err)
 		}
@@ -59,7 +64,7 @@ func init() {
 			dblimit, time := readdb(gid)
 			if limit[gid] >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
-				ctx.SendChain(message.Text("您的发言太频繁了，已被禁言", time, "分钟"))
+				ctx.SendChain(message.Text("因为你是第", limit[gid], "个复读的，禁言", time, "分钟作为惩罚"))
 			}
 		})
 	en.OnRegex(`^(设置复读禁言次数\s*)([0-9]+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
