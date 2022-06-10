@@ -2,7 +2,6 @@
 package midicreate
 
 import (
-	"bytes"
 	"fmt"
 	"math/rand"
 	"os"
@@ -252,7 +251,6 @@ func mkMidi(filePath, input string) error {
 		return nil
 	}
 	var (
-		bf    bytes.Buffer
 		clock = smf.MetricTicks(96)
 		tr    smf.Track
 	)
@@ -335,11 +333,13 @@ func mkMidi(filePath, input string) error {
 	if err != nil {
 		return err
 	}
-	_, err = s.WriteTo(&bf)
+	f, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filePath, bf.Bytes(), 0666)
+	_, err = s.WriteTo(f)
+	f.Close()
+	return err
 }
 
 func o(base uint8, oct uint8) uint8 {
