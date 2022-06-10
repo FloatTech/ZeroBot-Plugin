@@ -73,9 +73,9 @@ func init() { // 插件主体
 						"只能..一点点..哦?",
 					}[rand.Intn(24)],
 				))
-				
+
 				ctx.Send(message.Poke(ctx.Event.UserID))
-				
+
 			case poke.Load(ctx.Event.GroupID).Acquire():
 				// 5分钟共8块命令牌 一次消耗1块命令牌
 				time.Sleep(time.Second * 1)
@@ -109,11 +109,11 @@ func init() { // 插件主体
 						"只能..一点点..哦?",
 					}[rand.Intn(25)],
 				))
-				
+
 				ctx.Send(message.Poke(ctx.Event.UserID))
 				ctx.Send(message.Poke(ctx.Event.UserID))
 				ctx.Send(message.Poke(ctx.Event.UserID))
-				
+
 			default:
 				// 频繁触发，不回复
 			}
