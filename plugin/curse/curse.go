@@ -2,6 +2,8 @@
 package curse
 
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -27,6 +29,11 @@ func init() {
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "curse.db"
 		_, err := engine.GetLazyData("curse.db", true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

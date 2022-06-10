@@ -64,7 +64,7 @@ func init() { // 插件主体
 		// 如果数据库不存在则下载
 		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = engine.GetLazyData("SetuTime.db", false)
-		err := pool.db.Open()
+		err := pool.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

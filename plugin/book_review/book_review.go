@@ -2,6 +2,8 @@
 package bookreview
 
 import (
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -24,7 +26,12 @@ func init() {
 		db.DBPath = engine.DataFolder() + "bookreview.db"
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("bookreview.db", true)
-		err := db.Create("bookreview", &book{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Create("bookreview", &book{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

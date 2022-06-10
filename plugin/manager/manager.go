@@ -68,8 +68,12 @@ func init() { // 插件主体
 
 	go func() {
 		db.DBPath = engine.DataFolder() + "config.db"
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			panic(err)
+		}
 		clock = timer.NewClock(db)
-		err := db.Create("welcome", &welcome{})
+		err = db.Create("welcome", &welcome{})
 		if err != nil {
 			panic(err)
 		}
