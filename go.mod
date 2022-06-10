@@ -21,12 +21,15 @@ require (
 	github.com/jozsefsallai/gophersauce v1.0.1
 	github.com/lucas-clemente/quic-go v0.27.2
 	github.com/mroth/weightedrand v0.4.1
+	github.com/pkg/errors v0.8.1
 	github.com/pkumza/numcn v1.0.0
 	github.com/shirou/gopsutil/v3 v3.22.3
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.1
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220610070647-9eeffcb277ee
+	gitlab.com/gomidi/midi v1.23.7
+	gitlab.com/gomidi/midi/v2 v2.0.17
 	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd
 )
 
