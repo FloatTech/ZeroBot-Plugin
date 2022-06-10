@@ -39,7 +39,7 @@ type 婚姻登记 struct {
 
 // 结婚证信息
 type userinfo struct {
-	Id         int    //结婚证证号
+	ID         int    //结婚证证号
 	User       int64  //用户身份证
 	Target     int64  // 对象身份证号
 	Username   string // 户主名称
@@ -89,8 +89,8 @@ func init() {
 		// 如果数据库不存在则下载
 		//_, _ = engine.GetLazyData("结婚登记表.db", false)
 		//nolint: asciicheck
-		//err := 民政局.db.Open()
-		err := 民政局.db.Open(time.Hour * 24)
+		//err := 民政局.db.Open(time.Hour * 24)
+		err := 民政局.db.Open()
 		if err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
@@ -191,7 +191,11 @@ func init() {
 				case 0:
 					ctx.SendChain(message.Text("今日获得成就：自恋狂"))
 				default:
-					民政局.登记(gid, uid, 0, "", "")
+					err := 民政局.登记(gid, uid, 0, "", "")
+					if err != nil {
+						ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+						return
+					}
 					ctx.SendChain(message.Text("今日获得成就：单身贵族"))
 				}
 				return
@@ -258,7 +262,7 @@ func init() {
 				return
 			case 1:
 				// 和对象结婚登记
-				err := 民政局.复婚(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
+				err = 民政局.复婚(gid, fiancee, uid, ctx.CardOrNickName(fiancee), ctx.CardOrNickName(uid))
 				if err != nil {
 					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 					return
@@ -266,7 +270,7 @@ func init() {
 				choicetext = "老公"
 			case 0:
 				// 和对象结婚登记
-				民政局.复婚(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
+				err = 民政局.复婚(gid, uid, fiancee, ctx.CardOrNickName(uid), ctx.CardOrNickName(fiancee))
 				if err != nil {
 					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 					return
@@ -480,8 +484,8 @@ func (sql *婚姻登记) 重置(gid string) error {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	if gid != "ALL" {
-		//err := sql.db.Truncate(gid)
-		err := sql.db.Drop(gid)
+		err := sql.db.Truncate(gid)
+		//err := sql.db.Drop(gid)
 		return err
 	}
 	grouplist, err := sql.db.ListTables()
@@ -489,24 +493,11 @@ func (sql *婚姻登记) 重置(gid string) error {
 		return err
 	}
 	for _, gid := range grouplist {
-		//err = sql.db.Truncate(gid)
-		err = sql.db.Drop(gid)
+		err = sql.db.Truncate(gid)
+		//err = sql.db.Drop(gid)
 		if err != nil {
 			continue
 		}
-	}
-	return err
-}
-
-func (sql *婚姻登记) 有登记(gid, user string) error {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
-	if err := sql.db.Create(gid, &userinfo{}); err != nil {
-		return err
-	}
-	err := sql.db.Find(gid, &userinfo{}, "where user = "+user)
-	if err != nil {
-		err = sql.db.Find(gid, &userinfo{}, "where target = "+user)
 	}
 	return err
 }
@@ -526,10 +517,10 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 	var info userinfo
 	list = make([][4]string, number)
 	err = sql.db.FindFor(gidstr, &info, "GROUP BY user", func() error {
-		list[info.Id][0] = info.Username
-		list[info.Id][1] = strconv.FormatInt(info.User, 10)
-		list[info.Id][2] = info.Targetname
-		list[info.Id][3] = strconv.FormatInt(info.Target, 10)
+		list[info.ID][0] = info.Username
+		list[info.ID][1] = strconv.FormatInt(info.User, 10)
+		list[info.ID][2] = info.Targetname
+		list[info.ID][3] = strconv.FormatInt(info.Target, 10)
 		return nil
 	})
 	return
@@ -545,15 +536,15 @@ func slicename(name string) (resultname string) {
 	numberlen := 0                //字个数
 	var singlestr = ",.;:'|!()[]" //单宽度长度的字符集
 	for i, v := range usermane {
-		if usermanelen > 21 {
+		switch {
+		case usermanelen > 21:
 			numberlen = i
 			break
-		}
-		if v/10000 >= 1 { //如果是汉字
+		case v/10000 >= 1:
 			usermanelen += 3
-		} else if strings.Contains(singlestr, string(v)) {
-			usermanelen += 1
-		} else {
+		case strings.Contains(singlestr, string(v)):
+			usermanelen++
+		default:
 			usermanelen += 2
 		}
 	}
@@ -561,6 +552,20 @@ func slicename(name string) (resultname string) {
 	return
 }
 
+/*
+func (sql *婚姻登记) 有登记(gid, user string) error {
+	sql.dbmu.Lock()
+	defer sql.dbmu.Unlock()
+	if err := sql.db.Create(gid, &userinfo{}); err != nil {
+		return err
+	}
+	err := sql.db.Find(gid, &userinfo{}, "where user = "+user)
+	if err != nil {
+		err = sql.db.Find(gid, &userinfo{}, "where target = "+user)
+	}
+	return err
+}
+*/
 func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, status int, err error) {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
@@ -599,7 +604,7 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	updatetime := time.Now().Format("2006/01/02")
 	// 填写夫妻信息
 	uidinfo := userinfo{
-		Id:         number,
+		ID:         number,
 		User:       uid,
 		Username:   username,
 		Target:     target,
