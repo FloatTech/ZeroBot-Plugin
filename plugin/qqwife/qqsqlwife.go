@@ -89,8 +89,8 @@ func init() {
 		// 如果数据库不存在则下载
 		//_, _ = engine.GetLazyData("结婚登记表.db", false)
 		//nolint: asciicheck
-		//err := 民政局.db.Open(time.Hour * 24)
-		err := 民政局.db.Open()
+		//err := 民政局.db.Open()
+		err := 民政局.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
@@ -484,8 +484,8 @@ func (sql *婚姻登记) 重置(gid string) error {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	if gid != "ALL" {
-		err := sql.db.Truncate(gid)
-		//err := sql.db.Drop(gid)
+		//err := sql.db.Truncate(gid)
+		err := sql.db.Drop(gid)
 		return err
 	}
 	grouplist, err := sql.db.ListTables()
@@ -493,8 +493,8 @@ func (sql *婚姻登记) 重置(gid string) error {
 		return err
 	}
 	for _, gid := range grouplist {
-		err = sql.db.Truncate(gid)
-		//err = sql.db.Drop(gid)
+		//err = sql.db.Truncate(gid)
+		err = sql.db.Drop(gid)
 		if err != nil {
 			continue
 		}
