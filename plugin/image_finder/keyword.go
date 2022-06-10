@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"math/rand"
+	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
+
+	"github.com/lucas-clemente/quic-go/http3"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -14,25 +18,44 @@ import (
 	"github.com/FloatTech/AnimeAPI/pixiv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
-	"github.com/FloatTech/zbputils/process"
 	"github.com/FloatTech/zbputils/web"
 )
 
 type resultjson struct {
-	Data struct {
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
+	Data    struct {
 		Illusts []struct {
 			ID          int64  `json:"id"`
 			Title       string `json:"title"`
 			AltTitle    string `json:"altTitle"`
 			Description string `json:"description"`
-			Sanity      int    `json:"sanity"`
+			Type        int64  `json:"type"`
+			CreateDate  string `json:"createDate"`
+			UploadDate  string `json:"uploadDate"`
+			Sanity      int64  `json:"sanity"`
+			Width       int64  `json:"width"`
+			Height      int64  `json:"height"`
+			PageCount   int64  `json:"pageCount"`
+			Tags        []struct {
+				Name        string `json:"name"`
+				Translation string `json:"translation"`
+			} `json:"tags"`
+			Statistic struct {
+				Bookmarks int64 `json:"bookmarks"`
+				Likes     int64 `json:"likes"`
+				Comments  int64 `json:"comments"`
+				Views     int64 `json:"views"`
+			} `json:"statistic"`
+			Image string `json:"image"`
 		} `json:"illusts"`
+		Scores  []float64 `json:"scores"`
+		HasNext bool      `json:"has_next"`
 	} `json:"data"`
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
 }
 
 func init() {
@@ -49,7 +72,8 @@ func init() {
 				return
 			}
 			rannum := rand.Intn(len(soutujson.Data.Illusts))
-			illust, err := pixiv.Works(soutujson.Data.Illusts[rannum].ID)
+			il := soutujson.Data.Illusts[rannum]
+			illust, err := pixiv.Works(il.ID)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -61,7 +85,19 @@ func init() {
 			err = pool.SendImageFromPool(n, f, func() error {
 				// 下载图片
 				return illust.DownloadToCache(0)
-			}, ctxext.SendFakeForwardToGroup(ctx), ctxext.GetFirstMessageInForward(ctx))
+			}, ctxext.SendFakeForwardToGroup(ctx,
+				message.Text(
+					il.Width, "x", il.Height, "\n",
+					"标题: ", il.Title, "\n",
+					"副标题: ", il.AltTitle, "\n",
+					"ID: ", il.ID,
+					"简介: ", il.Description, "\n",
+					"画师: ", illust.UserName, "\n",
+					"画师ID: ", illust.UserId, "\n",
+					"分级:", il.Sanity, "\n",
+					printtags(reflect.ValueOf(&il.Tags)),
+				),
+			), ctxext.GetFirstMessageInForward(ctx))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -72,17 +108,36 @@ func init() {
 // soutuapi 请求api
 func soutuapi(keyword string) (r resultjson, err error) {
 	var data []byte
-	for i := 0; i < 3; i++ {
-		data, err = web.GetData("https://copymanga.azurewebsites.net/api/pixivel?" + url.QueryEscape(keyword) + "?page=0")
-		if err != nil {
-			process.SleepAbout1sTo2s()
-			continue
-		}
-		err = json.Unmarshal(data, &r)
-		if err == nil && r.Error {
-			err = errors.New(r.Message)
-		}
+	data, err = web.RequestDataWith(&http.Client{Transport: &http3.RoundTripper{}},
+		"https://api.pixivel.moe/v2/pixiv/illust/search/"+url.QueryEscape(keyword)+"?page=0",
+		"GET",
+		"https://pixivel.moe/",
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
+	)
+	if err != nil {
 		return
 	}
+	err = json.Unmarshal(data, &r)
+	if err == nil && r.Error {
+		err = errors.New(r.Message)
+	}
 	return
+}
+
+func printtags(r reflect.Value) string {
+	tags := r.Elem()
+	s := binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
+		for i := 0; i < tags.Len(); i++ {
+			tag := tags.Index(i)
+			_ = w.WriteByte('#')
+			w.WriteString(tag.Field(0).String())
+			w.WriteString(" (")
+			w.WriteString(tag.Field(1).String())
+			w.WriteString(")\n")
+		}
+	}))
+	if len(s) > 0 {
+		s = s[:len(s)-1]
+	}
+	return s
 }
