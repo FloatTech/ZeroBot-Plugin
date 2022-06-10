@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -20,7 +21,7 @@ func init() {
 		PrivateDataFolder: "driftbottle",
 	})
 	sea.DBPath = en.DataFolder() + "sea.db"
-	err := sea.Open()
+	err := sea.Open(time.Hour * 24)
 	if err != nil {
 		panic(err)
 	}

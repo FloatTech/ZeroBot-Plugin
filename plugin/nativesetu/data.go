@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/corona10/goimagehash"
 	"github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ type nsetu struct {
 
 func (n *nsetu) List() (l []string) {
 	if file.IsExist(n.db.DBPath) {
-		err := n.db.Open()
+		err := n.db.Open(time.Hour * 24)
 		if err == nil {
 			l, err = n.db.ListTables()
 		}
@@ -77,7 +78,8 @@ func (n *nsetu) scanclass(root fs.FS, path, clsn string) error {
 		return err
 	}
 	n.mu.Lock()
-	_ = n.db.Truncate(clsn)
+	_ = n.db.Drop(clsn)
+	_ = n.db.Create(clsn, &setuclass{})
 	n.mu.Unlock()
 	for _, d := range ds {
 		nm := d.Name()

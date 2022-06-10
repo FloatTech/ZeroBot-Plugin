@@ -6,6 +6,7 @@ import (
 	"hash/crc64"
 	"regexp"
 	"strconv"
+	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
@@ -31,7 +32,12 @@ func init() {
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "pics.db"
 		_, _ = engine.GetLazyData("pics.db", false)
-		err := db.Create("picture", &picture{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Create("picture", &picture{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

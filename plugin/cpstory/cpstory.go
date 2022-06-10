@@ -3,6 +3,7 @@ package cpstory
 
 import (
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -25,7 +26,12 @@ func init() {
 		db.DBPath = engine.DataFolder() + "cp.db"
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("cp.db", true)
-		err := db.Create("cp_story", &cpstory{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Create("cp_story", &cpstory{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

@@ -3,6 +3,7 @@ package omikuji
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -38,6 +39,11 @@ func init() { // 插件主体
 		func(ctx *zero.Ctx) bool {
 			db.DBPath = engine.DataFolder() + "kuji.db"
 			_, err := engine.GetLazyData("kuji.db", true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = db.Open(time.Hour * 24)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false

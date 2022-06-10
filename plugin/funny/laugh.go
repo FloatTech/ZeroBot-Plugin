@@ -3,6 +3,7 @@ package funny
 
 import (
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -32,6 +33,11 @@ func init() {
 	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = en.DataFolder() + "jokes.db"
 		_, err := en.GetLazyData("jokes.db", true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

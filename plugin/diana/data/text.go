@@ -4,6 +4,7 @@ package data
 import (
 	"crypto/md5"
 	"encoding/binary"
+	"time"
 
 	sql "github.com/FloatTech/sqlite"
 	binutils "github.com/FloatTech/zbputils/binary"
@@ -22,6 +23,10 @@ type text struct {
 func LoadText(dbfile string) error {
 	_, err := file.GetLazyData(dbfile, false)
 	db.DBPath = dbfile
+	if err != nil {
+		return err
+	}
+	err = db.Open(time.Hour * 24)
 	if err != nil {
 		return err
 	}
