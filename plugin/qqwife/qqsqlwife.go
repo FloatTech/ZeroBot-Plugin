@@ -536,10 +536,11 @@ func slicename(name string) (resultname string) {
 	numberlen := 0                //字个数
 	var singlestr = ",.;:'|!()[]" //单宽度长度的字符集
 	for i, v := range usermane {
-		switch {
-		case usermanelen > 21:
+		if usermanelen > 21{
 			numberlen = i
 			break
+		}
+		switch {
 		case v/10000 >= 1:
 			usermanelen += 3
 		case strings.Contains(singlestr, string(v)):
