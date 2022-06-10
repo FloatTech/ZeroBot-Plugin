@@ -28,9 +28,9 @@ import (
 	// webctrl "github.com/FloatTech/zbputils/control/web"           // web 后端控制
 
 	// 高优先级自定义插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"     // 自杀（bushi
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply"   // 回复撤回
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"      // 事件
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"   // 自杀（bushi
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply" // 回复撤回
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"    // 事件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
@@ -157,7 +157,7 @@ import (
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tts"
 
-        _ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
