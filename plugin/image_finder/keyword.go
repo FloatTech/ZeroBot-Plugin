@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/lucas-clemente/quic-go/http3"
@@ -58,6 +59,8 @@ type resultjson struct {
 	} `json:"data"`
 }
 
+var hrefre = regexp.MustCompile(`<a href=".*">`)
+
 func init() {
 	control.Register("imgfinder", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
@@ -91,9 +94,9 @@ func init() {
 					"标题: ", il.Title, "\n",
 					"副标题: ", il.AltTitle, "\n",
 					"ID: ", il.ID, "\n",
-					"画师: ", illust.UserName, "(", illust.UserId, ")", "\n",
+					"画师: ", illust.UserName, " (", illust.UserId, ")", "\n",
 					"分级:", il.Sanity, "\n",
-					strings.ReplaceAll(il.Description, "<br />", "\n"),
+					hrefre.ReplaceAllString(strings.ReplaceAll(strings.ReplaceAll(il.Description, "<br />", "\n"), "</a>", ""), ""),
 					printtags(reflect.ValueOf(&il.Tags)),
 				),
 			), ctxext.GetFirstMessageInForward(ctx))
@@ -127,20 +130,16 @@ func printtags(r reflect.Value) string {
 	tags := r.Elem()
 	s := binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
 		for i := 0; i < tags.Len(); i++ {
+			w.WriteByte('\n')
 			tag := tags.Index(i)
 			_ = w.WriteByte('#')
 			w.WriteString(tag.Field(0).String())
 			if !tag.Field(1).IsZero() {
 				w.WriteString(" (")
 				w.WriteString(tag.Field(1).String())
-				w.WriteString(")\n")
-			} else {
-				w.WriteByte('\n')
+				w.WriteString(")")
 			}
 		}
 	}))
-	if len(s) > 0 {
-		s = s[:len(s)-1]
-	}
 	return s
 }
