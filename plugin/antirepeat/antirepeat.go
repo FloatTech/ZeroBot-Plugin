@@ -64,7 +64,7 @@ func init() {
 			dblimit, time := readdb(gid)
 			if limit[gid] >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
-				ctx.SendChain(message.Text("因为你是第", limit[gid], "个复读的，禁言", time, "分钟作为惩罚"))
+				ctx.SendChain(message.Text("因为你是第", limit[gid]+1, "个复读的，禁言", time, "分钟作为惩罚"))
 			}
 		})
 	en.OnRegex(`^(设置复读禁言次数\s*)([0-9]+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
