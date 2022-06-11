@@ -3,10 +3,10 @@ package bilibiliparse
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -55,8 +55,8 @@ type owner struct {
 	Data struct {
 		Card struct {
 			Fans int `json:"fans"`
-		} `json:"data"`
-	}
+		} `json:"card"`
+	} `json:"data"`
 }
 
 const (
@@ -79,6 +79,9 @@ func init() {
 	})
 	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
+			if strings.Contains(ctx.MessageString(), "[CQ:forward") {
+				return
+			}
 			id := ctx.State["regex_matched"].([]string)[1]
 			m, err := parse(id)
 			if err != nil {
@@ -105,12 +108,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			id, err := cuturl(realurl)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			m, err := parse(id)
+			m, err := parse(cuturl(realurl))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -138,25 +136,21 @@ func parse(id string) (m message.Message, err error) {
 		return
 	}
 	m = make(message.Message, 0, 16)
-	m = append(m, message.Text("标题：", r.Data.Title, "\n"))
+	m = append(m, message.Text("标题: ", r.Data.Title, "\n"))
 	if r.Data.Rights.IsCooperation == 1 {
 		for i := 0; i < len(r.Data.Staff); i++ {
-			if i != len(r.Data.Staff) {
-				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", r.Data.Staff[i].Follower, "\n"))
-			} else {
-				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", r.Data.Staff[i].Follower))
-			}
+			m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower), "\n"))
 		}
 	} else {
 		o, err := getcard(r.Data.Owner.Mid)
 		if err != nil {
 			return m, err
 		}
-		m = append(m, message.Text("\nUP主：", r.Data.Owner.Name, "，粉丝：", o.Data.Card.Fans, "\n"))
+		m = append(m, message.Text("UP主: ", r.Data.Owner.Name, ", 粉丝: ", row(o.Data.Card.Fans), "\n"))
 	}
-	m = append(m, message.Text("播放：", r.Data.Stat.View, "，弹幕：", r.Data.Stat.Danmaku, "\n"),
+	m = append(m, message.Text("播放: ", row(r.Data.Stat.View), ", 弹幕: ", row(r.Data.Stat.Danmaku), "\n"),
 		message.Image(r.Data.Pic),
-		message.Text("\n点赞：", r.Data.Stat.Like, "，投币：", r.Data.Stat.Coin, "\n收藏：", r.Data.Stat.Favorite, "，分享：", r.Data.Stat.Share, "\n", origin, id))
+		message.Text("\n点赞: ", row(r.Data.Stat.Like), ", 投币: ", row(r.Data.Stat.Coin), "\n收藏: ", row(r.Data.Stat.Favorite), ", 分享: ", row(r.Data.Stat.Share), "\n", origin, id))
 	return
 }
 
@@ -171,13 +165,11 @@ func getrealurl(url string) (realurl string, err error) {
 }
 
 // cuturl 获取aid或者bvid
-func cuturl(url string) (id string, err error) {
+func cuturl(url string) (id string) {
 	if !reg.MatchString(url) {
-		err = errors.New("invalid video url")
 		return
 	}
-	id = reg.FindStringSubmatch(url)[1]
-	return
+	return reg.FindStringSubmatch(url)[1]
 }
 
 // getcard 获取个人信息
@@ -188,4 +180,11 @@ func getcard(mid int) (o owner, err error) {
 	}
 	err = json.Unmarshal(data, &o)
 	return
+}
+
+func row(res int) string {
+	if res/10000 != 0 {
+		return strconv.FormatFloat(float64(res)/10000, 'f', 2, 64) + "万"
+	}
+	return strconv.Itoa(res)
 }
