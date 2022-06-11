@@ -66,7 +66,6 @@ const (
 
 var (
 	reg   = regexp.MustCompile(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`)
-	stop  = regexp.MustCompile(`\[CQ:forward,id=.*\]`)
 	limit = ctxext.NewLimiterManager(time.Second*10, 1)
 )
 
@@ -77,11 +76,8 @@ func init() {
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",
 	})
-	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
+	en.OnRegex(`(?<!(\[CQ:forward.*))(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			if stop.MatchString(ctx.Event.RawMessage) {
-				return
-			}
 			id := ctx.State["regex_matched"].([]string)[1]
 			m, err := parse(id)
 			if err != nil {
