@@ -66,7 +66,6 @@ const (
 
 var (
 	reg   = regexp.MustCompile(`https://www.bilibili.com/video/([0-9a-zA-Z]+)`)
-	stop  = regexp.MustCompile(`\[CQ:forward,id=.*\]`)
 	limit = ctxext.NewLimiterManager(time.Second*10, 1)
 )
 
@@ -77,11 +76,8 @@ func init() {
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",
 	})
-	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
+	en.OnRegex(`(?<!(\[CQ:forward.*))(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			if stop.MatchString(ctx.Event.RawMessage) {
-				return
-			}
 			id := ctx.State["regex_matched"].([]string)[1]
 			m, err := parse(id)
 			if err != nil {
@@ -136,13 +132,13 @@ func parse(id string) (m message.Message, err error) {
 		return
 	}
 	m = make(message.Message, 0, 16)
-	m = append(m, message.Text("标题：", r.Data.Title, "\n"))
+	m = append(m, message.Text("标题: ", r.Data.Title, "\n"))
 	if r.Data.Rights.IsCooperation == 1 {
 		for i := 0; i < len(r.Data.Staff); i++ {
 			if i != len(r.Data.Staff) {
-				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", row(r.Data.Staff[i].Follower), "\n"))
+				m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower), "\n"))
 			} else {
-				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", row(r.Data.Staff[i].Follower)))
+				m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower)))
 			}
 		}
 	} else {
@@ -150,11 +146,11 @@ func parse(id string) (m message.Message, err error) {
 		if err != nil {
 			return m, err
 		}
-		m = append(m, message.Text("UP主：", r.Data.Owner.Name, "，粉丝：", row(o.Data.Card.Fans), "\n"))
+		m = append(m, message.Text("UP主: ", r.Data.Owner.Name, ", 粉丝: ", row(o.Data.Card.Fans), "\n"))
 	}
-	m = append(m, message.Text("播放：", row(r.Data.Stat.View), "，弹幕：", row(r.Data.Stat.Danmaku), "\n"),
+	m = append(m, message.Text("播放: ", row(r.Data.Stat.View), ", 弹幕: ", row(r.Data.Stat.Danmaku), "\n"),
 		message.Image(r.Data.Pic),
-		message.Text("\n点赞：", row(r.Data.Stat.Like), "，投币：", row(r.Data.Stat.Coin), "\n收藏：", row(r.Data.Stat.Favorite), "，分享：", row(r.Data.Stat.Share), "\n", origin, id))
+		message.Text("\n点赞: ", row(r.Data.Stat.Like), ", 投币: ", row(r.Data.Stat.Coin), "\n收藏: ", row(r.Data.Stat.Favorite), ", 分享: ", row(r.Data.Stat.Share), "\n", origin, id))
 	return
 }
 
