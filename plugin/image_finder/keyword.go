@@ -130,7 +130,7 @@ func printtags(r reflect.Value) string {
 	tags := r.Elem()
 	s := binary.BytesToString(binary.NewWriterF(func(w *binary.Writer) {
 		for i := 0; i < tags.Len(); i++ {
-			w.WriteByte('\n')
+			_ = w.WriteByte('\n')
 			tag := tags.Index(i)
 			_ = w.WriteByte('#')
 			w.WriteString(tag.Field(0).String())
