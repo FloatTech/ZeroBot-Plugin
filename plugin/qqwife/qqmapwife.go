@@ -246,8 +246,7 @@ func init() {
 		// 如果数据库不存在则下载
 		//_, _ = engine.GetLazyData("结婚登记表.db", false)
 		//nolint: asciicheck
-		err := 民政局.db.Open()
-		//err := 民政局.db.Open(time.Hour * 24)
+		err := 民政局.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
