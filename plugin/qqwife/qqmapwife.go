@@ -325,7 +325,7 @@ func init() {
 				ctx.SendChain(message.Text("你群并没有任何的CP额"))
 				return
 			}
-			msg, err := text.RenderToBase64(民政局.花名册(ctx, ctx.Event.GroupID), text.FontFile, 760, 30)
+			msg, err := text.RenderToBase64(民政局.花名册(ctx, ctx.Event.GroupID), text.FontFile, 1000, 26)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
