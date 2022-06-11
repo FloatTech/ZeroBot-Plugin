@@ -136,13 +136,13 @@ func parse(id string) (m message.Message, err error) {
 		return
 	}
 	m = make(message.Message, 0, 16)
-	m = append(m, message.Text("标题：", r.Data.Title, "\n"))
+	m = append(m, message.Text("标题: ", r.Data.Title, "\n"))
 	if r.Data.Rights.IsCooperation == 1 {
 		for i := 0; i < len(r.Data.Staff); i++ {
 			if i != len(r.Data.Staff) {
-				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", row(r.Data.Staff[i].Follower), "\n"))
+				m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower), "\n"))
 			} else {
-				m = append(m, message.Text(r.Data.Staff[i].Title, "：", r.Data.Staff[i].Name, "，粉丝：", row(r.Data.Staff[i].Follower)))
+				m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower)))
 			}
 		}
 	} else {
@@ -150,11 +150,11 @@ func parse(id string) (m message.Message, err error) {
 		if err != nil {
 			return m, err
 		}
-		m = append(m, message.Text("UP主：", r.Data.Owner.Name, "，粉丝：", row(o.Data.Card.Fans), "\n"))
+		m = append(m, message.Text("UP主: ", r.Data.Owner.Name, ", 粉丝: ", row(o.Data.Card.Fans), "\n"))
 	}
-	m = append(m, message.Text("播放：", row(r.Data.Stat.View), "，弹幕：", row(r.Data.Stat.Danmaku), "\n"),
+	m = append(m, message.Text("播放: ", row(r.Data.Stat.View), ", 弹幕: ", row(r.Data.Stat.Danmaku), "\n"),
 		message.Image(r.Data.Pic),
-		message.Text("\n点赞：", row(r.Data.Stat.Like), "，投币：", row(r.Data.Stat.Coin), "\n收藏：", row(r.Data.Stat.Favorite), "，分享：", row(r.Data.Stat.Share), "\n", origin, id))
+		message.Text("\n点赞: ", row(r.Data.Stat.Like), ", 投币: ", row(r.Data.Stat.Coin), "\n收藏: ", row(r.Data.Stat.Favorite), ", 分享: ", row(r.Data.Stat.Share), "\n", origin, id))
 	return
 }
 
