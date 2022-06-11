@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -76,8 +77,11 @@ func init() {
 		Help: "b站视频链接解析\n" +
 			"- https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF",
 	})
-	en.OnRegex(`(?<!(\[CQ:forward.*))(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
+	en.OnRegex(`(av[0-9]+|BV[0-9a-zA-Z]{10}){1}`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
+			if strings.Contains(ctx.MessageString(), "[CQ:forward") {
+				return
+			}
 			id := ctx.State["regex_matched"].([]string)[1]
 			m, err := parse(id)
 			if err != nil {
@@ -135,11 +139,7 @@ func parse(id string) (m message.Message, err error) {
 	m = append(m, message.Text("标题: ", r.Data.Title, "\n"))
 	if r.Data.Rights.IsCooperation == 1 {
 		for i := 0; i < len(r.Data.Staff); i++ {
-			if i != len(r.Data.Staff) {
-				m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower), "\n"))
-			} else {
-				m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower)))
-			}
+			m = append(m, message.Text(r.Data.Staff[i].Title, ": ", r.Data.Staff[i].Name, ", 粉丝: ", row(r.Data.Staff[i].Follower), "\n"))
 		}
 	} else {
 		o, err := getcard(r.Data.Owner.Mid)
