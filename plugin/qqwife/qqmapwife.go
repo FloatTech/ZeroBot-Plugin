@@ -231,13 +231,12 @@ func init() {
 	if _, err := process.CronTab.AddFunc("59 23 * * *", func() { //每天凌晨清空数据
 		民政局.db.DBPath = engine.DataFolder() + "结婚登记表.db"
 		err := 民政局.db.Open(time.Hour * 24)
+		if err == nil {
+			err = 民政局.重置("ALL"); 
+		}
 		if err != nil {
 			panic(err)
 		}
-		if err := 民政局.重置("ALL"); err != nil {
-			panic(err)
-		}
-		return
 	}); err != nil {
 		panic(err)
 	}
