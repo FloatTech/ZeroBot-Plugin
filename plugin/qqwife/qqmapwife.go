@@ -50,6 +50,10 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, 
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	gidstr := strconv.FormatInt(gid, 10)
+	err = sql.db.Create(gidstr, &userinfo{})
+	if err != nil {
+		return
+	}
 	number, err = sql.db.Count(gidstr)
 	switch { //先判断数据库是否为空
 	case err != nil:
