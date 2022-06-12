@@ -71,6 +71,7 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, 
 	dbinfo := updateinfo{}
 	err = sql.db.Find("updateinfo", &dbinfo, "where gid is "+gidstr) //获取表格更新的时间
 	if err != nil {
+		err = sql.db.Insert("updateinfo", &updateinfo{GID: gid, Updatetime: time.Now().Format("2006/01/02")})
 		return
 	}
 	updatetime = dbinfo.Updatetime
