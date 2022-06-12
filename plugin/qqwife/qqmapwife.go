@@ -46,6 +46,26 @@ type userinfo struct {
 
 }
 
+func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, err error) {
+	sql.dbmu.Lock()
+	defer sql.dbmu.Unlock()
+	gidstr := strconv.FormatInt(gid, 10)
+	number, err = sql.db.Count(gidstr)
+	switch { //先判断数据库是否为空
+	case err != nil:
+		return
+	case number <= 0:
+		return
+	}
+	dbinfo := userinfo{}
+	err = sql.db.Pick(gidstr, &dbinfo) //获取表格更新的时间
+	if err != nil {
+		return
+	}
+	updatetime = dbinfo.Updatetime
+	return
+}
+
 //nolint: asciicheck
 func (sql *婚姻登记) 重置(gid string) error {
 	sql.dbmu.Lock()
@@ -122,18 +142,19 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 		return
 	}
 	number, err = sql.db.Count(gidstr)
-	if err != nil || number == 0 {
+	if err != nil || number <= 0 {
 		return
 	}
 	var info userinfo
-	list = make([][4]string, number)
-	oder := number
+	list = make([][4]string, 0, number)
 	err = sql.db.FindFor(gidstr, &info, "GROUP BY user", func() error {
-		oder--
-		list[oder][0] = info.Username
-		list[oder][1] = strconv.FormatInt(info.User, 10)
-		list[oder][2] = info.Targetname
-		list[oder][3] = strconv.FormatInt(info.Target, 10)
+		dbinfo := [4]string{
+			info.Username,
+			strconv.FormatInt(info.User, 10),
+			info.Targetname,
+			strconv.FormatInt(info.Target, 10),
+		}
+		list = append(list, dbinfo)
 		return nil
 	})
 	return
@@ -149,7 +170,7 @@ func slicename(name string) (resultname string) {
 	numberlen := 0                 //字个数
 	var singlestr = " ,.;:'|!()[]" //单宽度长度的字符集
 	for i, v := range usermane {
-		if usermanelen > 18 {
+		if usermanelen > 18 { //6个汉字或者9个字符
 			numberlen = i
 			break
 		}
@@ -217,7 +238,6 @@ var (
 		db: &sql.Sqlite{},
 	}
 	skillCD  = rate.NewManager[string](time.Hour*12, 1)
-	lastdate time.Time
 	sendtext = [...][]string{
 		{ // 表白成功
 			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
@@ -265,15 +285,18 @@ func init() {
 	})
 	engine.OnFullMatch("娶群友", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if time.Now().Day() != lastdate.Day() {
-				if err := 民政局.重置("ALL"); err != nil {
+			gid := ctx.Event.GroupID
+			updatetime, _, err := 民政局.checkupdate(gid)
+			switch {
+			case err != nil:
+				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+				return
+			case updatetime != "" && time.Now().Format("2006/01/02") != updatetime:
+				if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 					return
 				}
-				// 更新时间
-				lastdate = time.Now()
 			}
-			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			targetinfo, status, err := 民政局.查户口(gid, uid)
 			switch {
@@ -474,7 +497,7 @@ func init() {
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 				return
 			}
-			if number == 0 {
+			if number <= 0 {
 				ctx.SendChain(message.Text("今天还没有人结婚哦"))
 				return
 			}
@@ -596,16 +619,20 @@ func iscding(ctx *zero.Ctx) {
 
 // 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
-	if time.Now().Day() != lastdate.Day() {
-		if err := 民政局.重置("ALL"); err != nil {
+	gid := ctx.Event.GroupID
+	updatetime, number, err := 民政局.checkupdate(gid)
+	switch {
+	case err != nil:
+		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+		return false
+	case number <= 0: //没有任何记录就说明全是单身
+		return true
+	case time.Now().Format("2006/01/02") != updatetime:
+		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
 		}
-		// 更新时间
-		lastdate = time.Now()
-		return true
 	}
-	gid := ctx.Event.GroupID
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额，你的target好像不存在？"))
@@ -650,17 +677,21 @@ func checkdog(ctx *zero.Ctx) bool {
 
 // 注入判断 是否满足小三要求
 func checkcp(ctx *zero.Ctx) bool {
-	if time.Now().Day() != lastdate.Day() {
-		if err := 民政局.重置("ALL"); err != nil {
+	gid := ctx.Event.GroupID
+	updatetime, number, err := 民政局.checkupdate(gid)
+	switch {
+	case err != nil:
+		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+		return false
+	case number <= 0: //没有任何记录就说明全是单身
+		ctx.SendChain(message.Text("ta现在还是单身哦，快向ta表白吧！"))
+		return false
+	case time.Now().Format("2006/01/02") != updatetime:
+		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
 		}
-		// 更新时间
-		lastdate = time.Now()
-		return true
 	}
-	// 检查群内是否有人登记了
-	gid := ctx.Event.GroupID
 	// 检查target
 	fid := ctx.State["regex_matched"].([]string)
 	fiancee, err := strconv.ParseInt(fid[2]+fid[3], 10, 64)
