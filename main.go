@@ -29,7 +29,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"   // 自杀（bushi
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply" // 回复撤回
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"    // 事件
-	
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
