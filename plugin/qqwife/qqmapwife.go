@@ -48,7 +48,7 @@ type userinfo struct {
 
 // 民政局的当前时间
 type updateinfo struct {
-	Gid        int64
+	GID        int64
 	Updatetime string //登记时间
 
 }
@@ -144,7 +144,7 @@ func (sql *婚姻登记) 复婚(gid, uid, target int64, username, targetname str
 	if err != nil {
 		return err
 	}
-	err = sql.db.Insert("updateinfo", &updateinfo{Gid: gid, Updatetime: updatetime})
+	err = sql.db.Insert("updateinfo", &updateinfo{GID: gid, Updatetime: updatetime})
 	return err
 }
 
@@ -247,7 +247,7 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	if err != nil {
 		return err
 	}
-	err = sql.db.Insert("updateinfo", &updateinfo{Gid: gid, Updatetime: updatetime})
+	err = sql.db.Insert("updateinfo", &updateinfo{GID: gid, Updatetime: updatetime})
 	return err
 }
 
