@@ -46,23 +46,30 @@ type userinfo struct {
 
 }
 
+// 民政局的当前时间
+type updateinfo struct {
+	Gid        int64
+	Updatetime string //登记时间
+
+}
+
 func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, err error) {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
-	gidstr := strconv.FormatInt(gid, 10)
-	err = sql.db.Create(gidstr, &userinfo{})
+	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
 		return
 	}
-	number, err = sql.db.Count(gidstr)
+	number, err = sql.db.Count("updateinfo")
 	switch { //先判断数据库是否为空
 	case err != nil:
 		return
 	case number <= 0:
 		return
 	}
-	dbinfo := userinfo{}
-	err = sql.db.Pick(gidstr, &dbinfo) //获取表格更新的时间
+	gidstr := strconv.FormatInt(gid, 10)
+	dbinfo := updateinfo{}
+	err = sql.db.Find("updateinfo", &dbinfo, "where gid is "+gidstr) //获取表格更新的时间
 	if err != nil {
 		return
 	}
@@ -134,6 +141,10 @@ func (sql *婚姻登记) 复婚(gid, uid, target int64, username, targetname str
 	info.Updatetime = updatetime
 	// 民政局登记数据
 	err = sql.db.Insert(gidstr, &info)
+	if err != nil {
+		return err
+	}
+	err = sql.db.Insert("updateinfo", &updateinfo{Gid: gid, Updatetime: updatetime})
 	return err
 }
 
@@ -233,6 +244,10 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	}
 	// 民政局登记数据
 	err = sql.db.Insert(gidstr, &uidinfo)
+	if err != nil {
+		return err
+	}
+	err = sql.db.Insert("updateinfo", &updateinfo{Gid: gid, Updatetime: updatetime})
 	return err
 }
 
@@ -295,7 +310,7 @@ func init() {
 			case err != nil:
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 				return
-			case updatetime != "" && time.Now().Format("2006/01/02") != updatetime:
+			case time.Now().Format("2006/01/02") != updatetime:
 				if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 					return
@@ -629,13 +644,14 @@ func checkdog(ctx *zero.Ctx) bool {
 	case err != nil:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 		return false
-	case number <= 0: //没有任何记录就说明全是单身
+	case number == 0: //没有任何记录就说明全是单身
 		return true
 	case time.Now().Format("2006/01/02") != updatetime:
 		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
 		}
+		return true //重置后也全是单身
 	}
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
@@ -687,14 +703,16 @@ func checkcp(ctx *zero.Ctx) bool {
 	case err != nil:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 		return false
-	case number <= 0: //没有任何记录就说明全是单身
+	case number == 0: //没有任何记录就说明全是单身
 		ctx.SendChain(message.Text("ta现在还是单身哦，快向ta表白吧！"))
 		return false
 	case time.Now().Format("2006/01/02") != updatetime:
 		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
-			return false
+		} else {
+			ctx.SendChain(message.Text("ta现在还是单身哦，快向ta表白吧！"))
 		}
+		return false //重置后全是单身
 	}
 	// 检查target
 	fid := ctx.State["regex_matched"].([]string)
