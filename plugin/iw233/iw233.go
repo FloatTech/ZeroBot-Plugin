@@ -68,7 +68,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, m)
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 	en.OnRegex(`^随机([0-9]+)?[份|张]兽耳`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -78,7 +80,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, m)
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 	en.OnRegex(`^随机([0-9]+)?[份|张]白毛`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -88,7 +92,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, m)
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 	en.OnRegex(`^随机([0-9]+)?[份|张]星空`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -98,7 +104,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, m)
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 	en.OnRegex(`^随机([0-9]+)?[份|张]竖屏壁纸`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -108,7 +116,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, m)
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 	en.OnRegex(`^随机([0-9]+)?[份|张]横屏壁纸`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -118,7 +128,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, m)
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 	en.OnRegex(`^随机色图`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -128,7 +140,9 @@ func init() {
 				return
 			}
 			picURL := gjson.Get(helper.BytesToString(data), "pic").String()
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(picURL))})
+			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(picURL))}).Get("message_id").Int(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 }
 
