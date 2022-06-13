@@ -78,7 +78,6 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, 
 	return
 }
 
-
 func (sql *婚姻登记) 重置(gid string) error {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
@@ -295,7 +294,7 @@ func init() {
 		民政局.db.DBPath = engine.DataFolder() + "结婚登记表.db"
 		// 如果数据库不存在则下载
 		// _, _ = engine.GetLazyData("结婚登记表.db", false)
-		
+
 		err := 民政局.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
