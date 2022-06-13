@@ -53,18 +53,11 @@ type updateinfo struct {
 
 }
 
-func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, err error) {
+func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, err error) {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
-		return
-	}
-	number, err = sql.db.Count("updateinfo")
-	switch { // 先判断数据库是否为空
-	case err != nil:
-		return
-	case number <= 0:
 		return
 	}
 	gidstr := strconv.FormatInt(gid, 10)
@@ -305,7 +298,7 @@ func init() {
 	engine.OnFullMatch("娶群友", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
-			updatetime, _, err := 民政局.checkupdate(gid)
+			updatetime, err := 民政局.checkupdate(gid)
 			switch {
 			case err != nil:
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
@@ -638,25 +631,25 @@ func iscding(ctx *zero.Ctx) {
 
 // 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
+	//得先判断用户是否存在才行在，再重置
+	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+	if err != nil {
+		ctx.SendChain(message.Text("额，你的target好像不存在？"))
+		return false
+	}
+	//判断是否需要重置
 	gid := ctx.Event.GroupID
-	updatetime, number, err := 民政局.checkupdate(gid)
+	updatetime, err := 民政局.checkupdate(gid)
 	switch {
 	case err != nil:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 		return false
-	case number == 0: // 没有任何记录就说明全是单身
-		return true
 	case time.Now().Format("2006/01/02") != updatetime:
 		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
 		}
 		return true // 重置后也全是单身
-	}
-	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-	if err != nil {
-		ctx.SendChain(message.Text("额，你的target好像不存在？"))
-		return false
 	}
 	uid := ctx.Event.UserID
 	// 获取用户信息
@@ -698,13 +691,10 @@ func checkdog(ctx *zero.Ctx) bool {
 // 注入判断 是否满足小三要求
 func checkcp(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
-	updatetime, number, err := 民政局.checkupdate(gid)
+	updatetime, err := 民政局.checkupdate(gid)
 	switch {
 	case err != nil:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
-		return false
-	case number == 0: // 没有任何记录就说明全是单身
-		ctx.SendChain(message.Text("ta现在还是单身哦，快向ta表白吧！"))
 		return false
 	case time.Now().Format("2006/01/02") != updatetime:
 		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
