@@ -504,7 +504,21 @@ func init() {
 		})
 	engine.OnFullMatch("群老婆列表", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			list, number, err := 民政局.花名册(ctx.Event.GroupID)
+			gid := ctx.Event.GroupID
+			updatetime, err := 民政局.checkupdate(gid)
+			switch {
+			case err != nil:
+				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+				return
+			case time.Now().Format("2006/01/02") != updatetime:
+				if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
+					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+					return
+				}
+				ctx.SendChain(message.Text("今天还没有人结婚哦"))
+				return
+			}
+			list, number, err := 民政局.花名册(gid)
 			if err != nil {
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 				return
@@ -556,9 +570,22 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"闹离婚", "办离婚"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(cdcheck, iscding2).
 		Handle(func(ctx *zero.Ctx) {
-			uid := ctx.Event.UserID
 			gid := ctx.Event.GroupID
+			updatetime, err := 民政局.checkupdate(gid)
+			switch {
+			case err != nil:
+				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+				return
+			case time.Now().Format("2006/01/02") != updatetime:
+				if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
+					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+					return
+				}
+				ctx.SendChain(message.Text("今天你还没有结婚哦"))
+				return
+			}
 			// 获取用户信息
+			uid := ctx.Event.UserID
 			info, uidstatus, err := 民政局.查户口(gid, uid)
 			switch uidstatus {
 			case 3:
