@@ -28,7 +28,7 @@ func init() { // 插件主体
 
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			i := ctxext.RandSenderPerDayN(ctx, 100) + 1
+			i := ctxext.RandSenderPerDayN(ctx.Event.UserID, 100) + 1
 			ctx.SendChain(
 				message.At(ctx.Event.UserID),
 				message.Image(fmt.Sprintf(bed, i, 0)),
@@ -65,7 +65,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			kujiBytes, err := text.RenderToBase64(
 				getKujiByBango(
-					uint8(ctxext.RandSenderPerDayN(ctx, 100)+1),
+					uint8(ctxext.RandSenderPerDayN(ctx.Event.UserID, 100)+1),
 				),
 				text.FontFile, 400, 20,
 			)
