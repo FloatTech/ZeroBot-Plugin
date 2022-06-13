@@ -78,7 +78,7 @@ func init() { // 插件主体
 		return true
 	})
 
-	engine.OnRegex(`^来份(.+)$`, getdb, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^来份(.+)$`, getdb, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
@@ -116,7 +116,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]

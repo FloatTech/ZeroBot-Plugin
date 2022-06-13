@@ -32,8 +32,9 @@ func init() {
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			name := ctx.CardOrNickName(ctx.Event.UserID)
-			n := ctxext.RandSenderPerDayN(ctx, len(wifes))
+			uid := ctx.Event.UserID
+			name := ctx.CardOrNickName(uid)
+			n := ctxext.RandSenderPerDayN(uid, len(wifes))
 			wn := wifes[n].Name()
 			reg := regexp.MustCompile(`[^\.]+`)
 			list := reg.FindAllString(wn, -1)

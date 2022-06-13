@@ -13,7 +13,7 @@ func init() {
 	engine.OnRegex(`^[.。]jrrp`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
-			jrrp := ctxext.RandSenderPerDayN(ctx, 100) + 1
+			jrrp := ctxext.RandSenderPerDayN(ctx.Event.UserID, 100) + 1
 			var j strjrrp
 			err := db.Find("strjrrp", &j, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {
@@ -41,7 +41,7 @@ func init() {
 func customjrrp(ctx *zero.Ctx, strjrrp string) string {
 	uid := strconv.FormatInt(ctx.Event.UserID, 10)
 	at := "[CQ:at,qq=" + uid + "]"
-	jrrp := ctxext.RandSenderPerDayN(ctx, 100) + 1
+	jrrp := ctxext.RandSenderPerDayN(ctx.Event.UserID, 100) + 1
 	jrrps := strconv.Itoa(jrrp)
 	str := strings.ReplaceAll(strjrrp, "{jrrp}", jrrps)
 	str = strings.ReplaceAll(str, "{at}", at)

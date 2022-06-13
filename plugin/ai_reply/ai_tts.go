@@ -88,7 +88,7 @@ func init() {
 				}
 			}
 		})
-	engine.OnRegex(`^设置语音模式(.*)$`, ctxext.FirstValueInList(t)).SetBlock(true).
+	engine.OnRegex(`^设置语音模式(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, t)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["regex_matched"].([]string)[1]
 			err := t.setSoundMode(ctx, param)
@@ -98,7 +98,7 @@ func init() {
 			}
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前模式为", param))
 		})
-	engine.OnRegex(`^设置默认语音模式(.*)$`, ctxext.FirstValueInList(t)).SetBlock(true).
+	engine.OnRegex(`^设置默认语音模式(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, t)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["regex_matched"].([]string)[1]
 			t.setDefaultSoundMode(param)
