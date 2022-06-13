@@ -17,13 +17,13 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 
-	//数据库
+	// 数据库
 	sql "github.com/FloatTech/sqlite"
-	//定时器
+	// 定时器
 
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 
-	//画图
+	// 画图
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
@@ -38,18 +38,18 @@ type 婚姻登记 struct {
 
 // 结婚证信息
 type userinfo struct {
-	User       int64  //用户身份证
+	User       int64  // 用户身份证
 	Target     int64  // 对象身份证号
 	Username   string // 户主名称
 	Targetname string // 对象名称
-	Updatetime string //登记时间
+	Updatetime string // 登记时间
 
 }
 
 // 民政局的当前时间
 type updateinfo struct {
 	GID        int64
-	Updatetime string //登记时间
+	Updatetime string // 登记时间
 
 }
 
@@ -61,7 +61,7 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, 
 		return
 	}
 	number, err = sql.db.Count("updateinfo")
-	switch { //先判断数据库是否为空
+	switch { // 先判断数据库是否为空
 	case err != nil:
 		return
 	case number <= 0:
@@ -69,7 +69,7 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, 
 	}
 	gidstr := strconv.FormatInt(gid, 10)
 	dbinfo := updateinfo{}
-	err = sql.db.Find("updateinfo", &dbinfo, "where gid is "+gidstr) //获取表格更新的时间
+	err = sql.db.Find("updateinfo", &dbinfo, "where gid is "+gidstr) // 获取表格更新的时间
 	if err != nil {
 		err = sql.db.Insert("updateinfo", &updateinfo{GID: gid})
 		return
@@ -78,7 +78,7 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, number int, 
 	return
 }
 
-//nolint: asciicheck
+
 func (sql *婚姻登记) 重置(gid string) error {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
@@ -104,7 +104,7 @@ func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
 	defer sql.dbmu.Unlock()
 	gidstr := strconv.FormatInt(gid, 10)
 	wifestr := strconv.FormatInt(wife, 10)
-	//先判断用户是否存在
+	// 先判断用户是否存在
 	err := sql.db.Del(gidstr, "where target = "+wifestr)
 	return err
 }
@@ -114,7 +114,7 @@ func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
 	defer sql.dbmu.Unlock()
 	gidstr := strconv.FormatInt(gid, 10)
 	husbandstr := strconv.FormatInt(husband, 10)
-	//先判断用户是否存在
+	// 先判断用户是否存在
 	err := sql.db.Del(gidstr, "where target = "+husbandstr)
 	return err
 }
@@ -177,16 +177,16 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 }
 
 func slicename(name string) (resultname string) {
-	if len(name) <= 21 { //如果长度在宽度之内直接输出
+	if len(name) <= 21 { // 如果长度在宽度之内直接输出
 		resultname = name
 		return
 	}
-	usermane := []rune(name)       //转utf8形式
-	usermanelen := 0               //总长度
-	numberlen := 0                 //字个数
-	var singlestr = " ,.;:'|!()[]" //单宽度长度的字符集
+	usermane := []rune(name)       // 转utf8形式
+	usermanelen := 0               // 总长度
+	numberlen := 0                 // 字个数
+	var singlestr = " ,.;:'|!()[]" // 单宽度长度的字符集
 	for i, v := range usermane {
-		if usermanelen > 18 { //6个汉字或者9个字符
+		if usermanelen > 18 { // 6个汉字或者9个字符
 			numberlen = i
 			break
 		}
@@ -199,7 +199,7 @@ func slicename(name string) (resultname string) {
 			usermanelen += 2
 		}
 	}
-	resultname = string(usermane[:numberlen-2]) + "......" //名字切片
+	resultname = string(usermane[:numberlen-2]) + "......" // 名字切片
 	return
 }
 
@@ -294,8 +294,8 @@ func init() {
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		民政局.db.DBPath = engine.DataFolder() + "结婚登记表.db"
 		// 如果数据库不存在则下载
-		//_, _ = engine.GetLazyData("结婚登记表.db", false)
-		//nolint: asciicheck
+		// _, _ = engine.GetLazyData("结婚登记表.db", false)
+		
 		err := 民政局.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
@@ -323,7 +323,7 @@ func init() {
 			case status == 2:
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 				return
-			case status != 3 && targetinfo.Target == 0: //如果为单身贵族
+			case status != 3 && targetinfo.Target == 0: // 如果为单身贵族
 				ctx.SendChain(message.Text("今天你是单身贵族噢"))
 				return
 			case status == 1: // 娶过别人
@@ -404,7 +404,7 @@ func init() {
 			uid := ctx.Event.UserID
 			gid := ctx.Event.GroupID
 			if uid == fiancee { // 如果是自己
-				switch rand.Intn(2) { //二分之一概率浪费技能
+				switch rand.Intn(2) { // 二分之一概率浪费技能
 				case 0:
 					ctx.SendChain(message.Text("今日获得成就：自恋狂"))
 				default:
@@ -527,7 +527,7 @@ func init() {
 				number = 10
 			}
 			canvas := gg.NewContext(1500, int(250+fontSize*float64(number)))
-			canvas.SetRGB(1, 1, 1) //白色
+			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
 			_, err = file.GetLazyData(text.BoldFontFile, true)
@@ -543,7 +543,7 @@ func init() {
 			}
 			sl, h := canvas.MeasureString("群老婆列表")
 			/***********绘制标题***********/
-			canvas.DrawString("群老婆列表", (1500-sl)/2, 160-h) //放置在中间位置
+			canvas.DrawString("群老婆列表", (1500-sl)/2, 160-h) // 放置在中间位置
 			canvas.DrawString("————————————————————", 0, 250-h)
 			/***********设置字体大小,并获取字体高度用来定位***********/
 			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
@@ -645,14 +645,14 @@ func checkdog(ctx *zero.Ctx) bool {
 	case err != nil:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 		return false
-	case number == 0: //没有任何记录就说明全是单身
+	case number == 0: // 没有任何记录就说明全是单身
 		return true
 	case time.Now().Format("2006/01/02") != updatetime:
 		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 			return false
 		}
-		return true //重置后也全是单身
+		return true // 重置后也全是单身
 	}
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
@@ -680,7 +680,7 @@ func checkdog(ctx *zero.Ctx) bool {
 	case uidstatus == 0: // 如果为受
 		ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
 		return false
-	case uidstatus != 3 && uidtarget.Target == 0: //如果是单身贵族
+	case uidstatus != 3 && uidtarget.Target == 0: // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
 		return false
 	case fianceestatus == 1: // 如果如为攻
@@ -704,7 +704,7 @@ func checkcp(ctx *zero.Ctx) bool {
 	case err != nil:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 		return false
-	case number == 0: //没有任何记录就说明全是单身
+	case number == 0: // 没有任何记录就说明全是单身
 		ctx.SendChain(message.Text("ta现在还是单身哦，快向ta表白吧！"))
 		return false
 	case time.Now().Format("2006/01/02") != updatetime:
@@ -713,7 +713,7 @@ func checkcp(ctx *zero.Ctx) bool {
 		} else {
 			ctx.SendChain(message.Text("ta现在还是单身哦，快向ta表白吧！"))
 		}
-		return false //重置后全是单身
+		return false // 重置后全是单身
 	}
 	// 检查target
 	fid := ctx.State["regex_matched"].([]string)
