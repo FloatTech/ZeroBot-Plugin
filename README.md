@@ -640,6 +640,22 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>简易midi音乐制作</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"`
+
+  - [x] midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR
+
+  - [x] 个人听音练习
+  
+  - [x] 团队听音练习
+  
+  - [x] 注: 该插件需要安装timidity,安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh
+  
+  - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<2代表音长×4,<-1代表音长×0.5,<-2代表音长×0.25
+
+</details>
+<details>
   <summary>摸鱼</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"`
@@ -988,26 +1004,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] @Bot 任意文本(任意一句话回复)
 
   - [x] 设置回复模式[青云客 | 小爱]
-
-</details>
-<details>
-  <summary>简易midi音乐制作</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"`
-
-  - [x] midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR
-
-  - [x] 个人听音练习
-  
-  - [x] 团队听音练习
-  
-  - [x] 注: 该插件需要安装timidity,安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh
-  
-  - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<2代表音长×4,<-1代表音长×0.5,<-2代表音长×0.25
-
-</details>
-<details>
-  <summary>TODO...</summary>
 
 </details>
 

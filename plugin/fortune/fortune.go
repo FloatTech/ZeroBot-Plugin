@@ -139,7 +139,7 @@ func init() {
 			}
 
 			// 随机获取签文
-			randtextindex := ctxext.RandSenderPerDayN(ctx, len(omikujis))
+			randtextindex := ctxext.RandSenderPerDayN(ctx.Event.UserID, len(omikujis))
 			title, text := omikujis[randtextindex]["title"], omikujis[randtextindex]["content"]
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
@@ -171,7 +171,7 @@ func randimage(path string, ctx *zero.Ctx) (im image.Image, index int, err error
 	}
 	defer reader.Close()
 
-	file := reader.File[ctxext.RandSenderPerDayN(ctx, len(reader.File))]
+	file := reader.File[ctxext.RandSenderPerDayN(ctx.Event.UserID, len(reader.File))]
 	f, err := file.Open()
 	if err != nil {
 		return
