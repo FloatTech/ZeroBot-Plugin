@@ -154,9 +154,7 @@ func getimage(ctx *zero.Ctx, api string, i int) (m message.Message, err error) {
 	case !zero.SuperUserPermission(ctx) && i > 30:
 		i = 30
 		ctx.SendChain(message.Text("管理员最多只能随机30张图片哦~"))
-	case i > 50:
-		ctx.SendChain(message.Text("那么多真的好吗（￣▽￣）"))
-	case i > 100:
+	case zero.SuperUserPermission(ctx) && i > 100:
 		i = 100
 		ctx.SendChain(message.Text("太贪心啦！最多只能随机100张图片哦~"))
 	}
