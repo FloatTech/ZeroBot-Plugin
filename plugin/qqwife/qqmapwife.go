@@ -64,7 +64,8 @@ func (sql *婚姻登记) checkupdate(gid int64) (updatetime string, err error) {
 	dbinfo := updateinfo{}
 	err = sql.db.Find("updateinfo", &dbinfo, "where gid is "+gidstr) // 获取表格更新的时间
 	if err != nil {
-		err = sql.db.Insert("updateinfo", &updateinfo{GID: gid})
+		updatetime = time.Now().Format("2006/01/02")
+		err = sql.db.Insert("updateinfo", &updateinfo{GID: gid, Updatetime: updatetime})
 		return
 	}
 	updatetime = dbinfo.Updatetime
@@ -76,6 +77,16 @@ func (sql *婚姻登记) 重置(gid string) error {
 	defer sql.dbmu.Unlock()
 	if gid != "ALL" {
 		err := sql.db.Drop(gid)
+		if err != nil {
+			err = sql.db.Create(gid, &userinfo{})
+			return err
+		}
+		gidint, _ := strconv.ParseInt(gid, 10, 64)
+		updateinfo := updateinfo{
+			GID:        gidint,
+			Updatetime: time.Now().Format("2006/01/02"),
+		}
+		err = sql.db.Insert("updateinfo", &updateinfo)
 		return err
 	}
 	grouplist, err := sql.db.ListTables()
@@ -87,6 +98,12 @@ func (sql *婚姻登记) 重置(gid string) error {
 		if err != nil {
 			continue
 		}
+		gidint, _ := strconv.ParseInt(gid, 10, 64)
+		updateinfo := updateinfo{
+			GID:        gidint,
+			Updatetime: time.Now().Format("2006/01/02"),
+		}
+		err = sql.db.Insert("updateinfo", &updateinfo)
 	}
 	return err
 }
@@ -134,10 +151,6 @@ func (sql *婚姻登记) 复婚(gid, uid, target int64, username, targetname str
 	info.Updatetime = updatetime
 	// 民政局登记数据
 	err = sql.db.Insert(gidstr, &info)
-	if err != nil {
-		return err
-	}
-	err = sql.db.Insert("updateinfo", &updateinfo{GID: gid, Updatetime: updatetime})
 	return err
 }
 
@@ -237,10 +250,6 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	}
 	// 民政局登记数据
 	err = sql.db.Insert(gidstr, &uidinfo)
-	if err != nil {
-		return err
-	}
-	err = sql.db.Insert("updateinfo", &updateinfo{GID: gid, Updatetime: updatetime})
 	return err
 }
 
