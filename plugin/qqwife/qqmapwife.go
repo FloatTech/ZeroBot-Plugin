@@ -667,13 +667,13 @@ func iscding(ctx *zero.Ctx) {
 
 // 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
-	//得先判断用户是否存在才行在，再重置
+	// 得先判断用户是否存在才行在，再重置
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额，你的target好像不存在？"))
 		return false
 	}
-	//判断是否需要重置
+	// 判断是否需要重置
 	gid := ctx.Event.GroupID
 	updatetime, err := 民政局.checkupdate(gid)
 	switch {
