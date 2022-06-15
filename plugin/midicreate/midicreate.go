@@ -258,7 +258,7 @@ func mkMidi(filePath, input string) error {
 	tr.Add(0, smf.MetaMeter(4, 4))
 	tr.Add(0, smf.MetaTempo(60))
 	tr.Add(0, smf.MetaInstrument("Violin"))
-	tr.Add(0, midi.ProgramChange(0, gm.Instr_MusicBox.Value()))
+	tr.Add(0, midi.ProgramChange(0, gm.Instr_ElectricPiano1.Value()))
 
 	k := strings.ReplaceAll(input, " ", "")
 
