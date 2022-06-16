@@ -30,7 +30,7 @@ import (
 func init() {
 	engine := control.Register("midicreate", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "midi音乐制作,该插件需要安装timidity,安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh\n" +
+		Help: "midi音乐制作,该插件需要安装timidity,linux安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh,windows安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat,windows需要管理员模式运行\n" +
 			"- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +
 			"- 个人听音练习\n" +
 			"- 团队听音练习\n" +
