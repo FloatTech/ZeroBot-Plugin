@@ -15,6 +15,7 @@ import (
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -232,7 +233,14 @@ func init() {
 				return
 			}
 			midStr := mid2txt(data)
-			ctx.SendChain(message.Text("文件名:", ctx.Event.File.Name, "\n转化的midi字符:", midStr))
+			if len(midStr) < 1000 {
+				ctx.SendChain(message.Text("文件名:", ctx.Event.File.Name, "\n转化的midi字符:", midStr))
+			} else {
+				fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", ".txt")
+				_ = os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
+				ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
+			}
+
 		})
 }
 
