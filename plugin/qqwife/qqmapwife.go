@@ -181,14 +181,14 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 }
 
 func slicename(name string, canvas *gg.Context) (resultname string) {
-	usermane := []rune(name) //将每个字符单独放置
+	usermane := []rune(name) // 将每个字符单独放置
 	widthlen := 0
 	numberlen := 0
 	for i, v := range usermane {
-		width, _ := canvas.MeasureString(string(v)) //获取单个字符的宽度
+		width, _ := canvas.MeasureString(string(v)) // 获取单个字符的宽度
 		widthlen += int(width)
 		if widthlen > 350 {
-			break //总宽度不能超过350
+			break // 总宽度不能超过350
 		}
 		numberlen = i
 	}
@@ -659,13 +659,13 @@ func iscding(ctx *zero.Ctx) {
 
 // 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
-	//得先判断用户是否存在才行在，再重置
+	// 得先判断用户是否存在才行在，再重置
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额，你的target好像不存在？"))
 		return false
 	}
-	//判断是否需要重置
+	// 判断是否需要重置
 	gid := ctx.Event.GroupID
 	updatetime, err := 民政局.checkupdate(gid)
 	switch {
