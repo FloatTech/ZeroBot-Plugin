@@ -3,10 +3,8 @@ package qqwife
 
 import (
 	"math/rand"
-	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -182,35 +180,23 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 	return
 }
 
-func slicename(name string) (resultname string) {
-	if len(name) <= 21 { // 如果长度在宽度之内直接输出
-		resultname = name
-		return
-	}
-	usermane := []rune(name)       // 转utf8形式
-	usermanelen := 0               // 总长度
-	numberlen := 0                 // 字个数
-	var singlestr = " ,.;:'|!()[]" // 单宽度长度的字符集
-	var reg = regexp.MustCompile(`[0-9]+`)
+func slicename(name string, canvas *gg.Context) (resultname string) {
+	usermane := []rune(name) // 将每个字符单独放置
+	widthlen := 0
+	numberlen := 0
 	for i, v := range usermane {
-		if usermanelen > 18 { // 6个汉字或者9个字符
-			numberlen = i
-			break
+		width, _ := canvas.MeasureString(string(v)) // 获取单个字符的宽度
+		widthlen += int(width)
+		if widthlen > 350 {
+			break // 总宽度不能超过350
 		}
-		if reg.MatchString(string(v)) {
-			r := reg.FindStringSubmatch(string(v))[1]
-			usermanelen += len(r) * 3
-		}
-		switch {
-		case v/10000 >= 1:
-			usermanelen += 3
-		case strings.Contains(singlestr, string(v)):
-			usermanelen++
-		default:
-			usermanelen += 2
-		}
+		numberlen = i
 	}
-	resultname = string(usermane[:numberlen-2]) + "......" // 名字切片
+	if widthlen > 350 {
+		resultname = string(usermane[:numberlen-1]) + "......" // 名字切片
+	} else {
+		resultname = name
+	}
 	return
 }
 
@@ -573,10 +559,10 @@ func init() {
 			}
 			_, h = canvas.MeasureString("焯")
 			for i, info := range list {
-				canvas.DrawString(slicename(info[0]), 0, float64(260+50*i)-h)
+				canvas.DrawString(slicename(info[0], canvas), 0, float64(260+50*i)-h)
 				canvas.DrawString("("+info[1]+")", 350, float64(260+50*i)-h)
 				canvas.DrawString("←→", 700, float64(260+50*i)-h)
-				canvas.DrawString(slicename(info[2]), 800, float64(260+50*i)-h)
+				canvas.DrawString(slicename(info[2], canvas), 800, float64(260+50*i)-h)
 				canvas.DrawString("("+info[3]+")", 1150, float64(260+50*i)-h)
 			}
 			data, cl := writer.ToBytes(canvas.Image())
@@ -673,13 +659,13 @@ func iscding(ctx *zero.Ctx) {
 
 // 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
-	//得先判断用户是否存在才行在，再重置
+	// 得先判断用户是否存在才行在，再重置
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额，你的target好像不存在？"))
 		return false
 	}
-	//判断是否需要重置
+	// 判断是否需要重置
 	gid := ctx.Event.GroupID
 	updatetime, err := 民政局.checkupdate(gid)
 	switch {
