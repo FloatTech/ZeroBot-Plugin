@@ -233,10 +233,21 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			midStr := mid2txt(data)
-			fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", ".txt")
-			_ = os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
-			ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
+			s, err := smf.ReadFrom(bytes.NewReader(data))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			for i := 0; i < int(s.NumTracks()); i++ {
+				midStr := mid2txt(data, i)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", fmt.Sprintf("-%d.txt", i))
+				_ = os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
+				ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
+			}
 		})
 	engine.On("notice/group_upload", func(ctx *zero.Ctx) bool {
 		return path.Ext(ctx.Event.File.Name) == ".txt" && strings.Contains(ctx.Event.File.Name, "midi制作")
@@ -448,44 +459,43 @@ func processOne(note string) uint8 {
 	return o(base, level)
 }
 
-func mid2txt(midBytes []byte) (midStr string) {
+func mid2txt(midBytes []byte, trackNo int) (midStr string) {
 	var (
-		absTicksStart  float64
-		absTicksEnd    float64
-		startNote      byte
-		endNote        byte
-		defaultMetric  = 960.0
-		defaultTrackNo = 0
+		absTicksStart float64
+		absTicksEnd   float64
+		startNote     byte
+		endNote       byte
+		defaultMetric = 960.0
 	)
-	_ = smf.ReadTracksFrom(bytes.NewReader(midBytes)).
+	_ = smf.ReadTracksFrom(bytes.NewReader(midBytes), trackNo).
 		Do(
 			func(te smf.TrackEvent) {
-				if !te.Message.IsMeta() && te.TrackNo == defaultTrackNo {
+				if !te.Message.IsMeta() {
 					b := te.Message.Bytes()
-					if te.Message.Type().String() == "NoteOn" && b[2] > 0 {
+					if te.Message.Is(midi.NoteOnMsg) && b[2] > 0 {
 						absTicksStart = float64(te.AbsTicks)
 						startNote = b[1]
 					}
-					if te.Message.Type().String() == "NoteOff" || (te.Message.Type().String() == "NoteOn" && b[2] == 0x00) {
+					if te.Message.Is(midi.NoteOffMsg) || (te.Message.Is(midi.NoteOnMsg) && b[2] == 0x00) {
 						absTicksEnd = float64(te.AbsTicks)
 						endNote = b[1]
-					}
-					if (te.Message.Type().String() == "NoteOff" || (te.Message.Type().String() == "NoteOn" && b[2] == 0x00)) && startNote == endNote {
-						sign := name(b[1])
-						level := b[1] / 12
-						length := (absTicksEnd - absTicksStart) / defaultMetric
-						midStr += sign
-						if level != 5 {
-							midStr += strconv.Itoa(int(level))
+						if startNote == endNote {
+							sign := name(b[1])
+							level := b[1] / 12
+							length := (absTicksEnd - absTicksStart) / defaultMetric
+							midStr += sign
+							if level != 5 {
+								midStr += strconv.Itoa(int(level))
+							}
+							pow := int(math.Round(math.Log2(length)))
+							if pow >= -4 && pow != 0 {
+								midStr += "<" + strconv.Itoa(pow)
+							}
+							startNote = 0
+							endNote = 0
 						}
-						pow := int(math.Round(math.Log2(length)))
-						if pow >= -4 && pow != 0 {
-							midStr += "<" + strconv.Itoa(pow)
-						}
-						startNote = 0
-						endNote = 0
 					}
-					if (te.Message.Type().String() == "NoteOn" && b[2] > 0) && absTicksStart > absTicksEnd {
+					if (te.Message.Is(midi.NoteOnMsg) && b[2] > 0) && absTicksStart > absTicksEnd {
 						length := (absTicksStart - absTicksEnd) / defaultMetric
 						pow := int(math.Round(math.Log2(length)))
 						if pow == 0 {
