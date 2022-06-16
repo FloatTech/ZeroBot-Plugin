@@ -38,7 +38,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	engine.OnRegex(`^midi制作\s?(.{1,1000})$`).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^midi制作\s?(.*)$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			input := ctx.State["regex_matched"].([]string)[1]
@@ -258,7 +258,7 @@ func mkMidi(filePath, input string) error {
 	tr.Add(0, smf.MetaMeter(4, 4))
 	tr.Add(0, smf.MetaTempo(60))
 	tr.Add(0, smf.MetaInstrument("Violin"))
-	tr.Add(0, midi.ProgramChange(0, gm.Instr_Violin.Value()))
+	tr.Add(0, midi.ProgramChange(0, gm.Instr_AcousticGrandPiano.Value()))
 
 	k := strings.ReplaceAll(input, " ", "")
 

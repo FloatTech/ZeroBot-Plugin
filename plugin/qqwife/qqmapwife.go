@@ -3,6 +3,7 @@ package qqwife
 
 import (
 	"math/rand"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -190,10 +191,15 @@ func slicename(name string) (resultname string) {
 	usermanelen := 0               // 总长度
 	numberlen := 0                 // 字个数
 	var singlestr = " ,.;:'|!()[]" // 单宽度长度的字符集
+	var reg = regexp.MustCompile(`[0-9]+`)
 	for i, v := range usermane {
 		if usermanelen > 18 { // 6个汉字或者9个字符
 			numberlen = i
 			break
+		}
+		if reg.MatchString(string(v)) {
+			r := reg.FindStringSubmatch(string(v))[1]
+			usermanelen += len(r) * 3
 		}
 		switch {
 		case v/10000 >= 1:
