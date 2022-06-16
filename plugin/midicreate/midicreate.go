@@ -35,7 +35,8 @@ func init() {
 			"- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +
 			"- 个人听音练习\n" +
 			"- 团队听音练习\n" +
-			"- *.mid (解析上传的mid文件)",
+			"- *.mid (midi 转 txt)\n" +
+			"- midi制作*.txt (txt 转 midi)",
 		PrivateDataFolder: "midicreate",
 	})
 	cachePath := engine.DataFolder() + "cache/"
@@ -241,6 +242,25 @@ func init() {
 				ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
 			}
 
+		})
+	engine.On("notice/group_upload", func(ctx *zero.Ctx) bool {
+		return path.Ext(ctx.Event.File.Name) == ".txt" && strings.Contains(ctx.Event.File.Name, "midi制作")
+	}).SetBlock(false).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			fileURL := ctx.GetThisGroupFileUrl(ctx.Event.File.BusID, ctx.Event.File.ID)
+			data, err := web.GetData(fileURL)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			uid := ctx.Event.UserID
+			midiFile := cachePath + strconv.FormatInt(uid, 10) + time.Now().Format("20060102150405") + "_midicreate.mid"
+			cmidiFile, err := str2music(binary.BytesToString(data), midiFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:无法转换midi文件,", err))
+				return
+			}
+			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + cmidiFile))
 		})
 }
 

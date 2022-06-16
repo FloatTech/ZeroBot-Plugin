@@ -650,7 +650,9 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 团队听音练习
   
-  - [x] *.mid (解析上传的mid文件)
+  - [x] *.mid (midi 转 txt)
+  
+  - [x] midi制作*.txt (txt 转 midi)
   
   - [x] 注: 该插件需要安装timidity,安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh
   
