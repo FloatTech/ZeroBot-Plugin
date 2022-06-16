@@ -234,13 +234,9 @@ func init() {
 				return
 			}
 			midStr := mid2txt(data)
-			if len(midStr) < 1000 {
-				ctx.SendChain(message.Text("文件名:", ctx.Event.File.Name, "\n转化的midi字符:", midStr))
-			} else {
-				fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", ".txt")
-				_ = os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
-				ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
-			}
+			fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", ".txt")
+			_ = os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
+			ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
 		})
 	engine.On("notice/group_upload", func(ctx *zero.Ctx) bool {
 		return path.Ext(ctx.Event.File.Name) == ".txt" && strings.Contains(ctx.Event.File.Name, "midi制作")
@@ -466,17 +462,15 @@ func mid2txt(midBytes []byte) (midStr string) {
 			func(te smf.TrackEvent) {
 				if !te.Message.IsMeta() && te.TrackNo == defaultTrackNo {
 					b := te.Message.Bytes()
-					if len(b) == 3 {
-						if b[0] == 0x90 && b[2] > 0 {
-							absTicksStart = float64(te.AbsTicks)
-							startNote = b[1]
-						}
-						if b[0] == 0x80 || (b[0] == 0x90 && b[2] == 0x00) {
-							absTicksEnd = float64(te.AbsTicks)
-							endNote = b[1]
-						}
+					if te.Message.Type().String() == "NoteOn" && b[2] > 0 {
+						absTicksStart = float64(te.AbsTicks)
+						startNote = b[1]
 					}
-					if (b[0] == 0x80 || (b[0] == 0x90 && b[2] == 0x00)) && startNote == endNote {
+					if te.Message.Type().String() == "NoteOff" || (te.Message.Type().String() == "NoteOn" && b[2] == 0x00) {
+						absTicksEnd = float64(te.AbsTicks)
+						endNote = b[1]
+					}
+					if (te.Message.Type().String() == "NoteOff" || (te.Message.Type().String() == "NoteOn" && b[2] == 0x00)) && startNote == endNote {
 						sign := name(b[1])
 						level := b[1] / 12
 						length := (absTicksEnd - absTicksStart) / defaultMetric
@@ -491,7 +485,7 @@ func mid2txt(midBytes []byte) (midStr string) {
 						startNote = 0
 						endNote = 0
 					}
-					if (b[0] == 0x90 && b[2] > 0) && absTicksStart > absTicksEnd {
+					if (te.Message.Type().String() == "NoteOn" && b[2] > 0) && absTicksStart > absTicksEnd {
 						length := (absTicksStart - absTicksEnd) / defaultMetric
 						pow := int(math.Round(math.Log2(length)))
 						if pow == 0 {
