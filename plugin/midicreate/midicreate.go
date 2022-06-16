@@ -2,10 +2,13 @@
 package midicreate
 
 import (
+	"bytes"
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -15,6 +18,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/zbputils/web"
 	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -29,7 +33,8 @@ func init() {
 		Help: "midi音乐制作,该插件需要安装timidity,安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh\n" +
 			"- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +
 			"- 个人听音练习\n" +
-			"- 团队听音练习",
+			"- 团队听音练习\n" +
+			"- *.mid (解析上传的mid文件)",
 		PrivateDataFolder: "midicreate",
 	})
 	cachePath := engine.DataFolder() + "cache/"
@@ -38,10 +43,10 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	engine.OnRegex(`^midi制作\s?(.{1,1000})$`).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnPrefix("midi制作").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
-			input := ctx.State["regex_matched"].([]string)[1]
+			input := ctx.State["args"].(string)
 			midiFile := cachePath + strconv.FormatInt(uid, 10) + time.Now().Format("20060102150405") + "_midicreate.mid"
 			cmidiFile, err := str2music(input, midiFile)
 			if err != nil {
@@ -216,6 +221,19 @@ func init() {
 				}
 			}
 		})
+	engine.On("notice/group_upload", func(ctx *zero.Ctx) bool {
+		return path.Ext(ctx.Event.File.Name) == ".mid"
+	}).SetBlock(false).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			fileURL := ctx.GetThisGroupFileUrl(ctx.Event.File.BusID, ctx.Event.File.ID)
+			data, err := web.GetData(fileURL)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			midStr := mid2txt(data)
+			ctx.SendChain(message.Text("文件名:", ctx.Event.File.Name, "\n转化的midi字符:", midStr))
+		})
 }
 
 var (
@@ -251,12 +269,12 @@ func mkMidi(filePath, input string) error {
 		return nil
 	}
 	var (
-		clock = smf.MetricTicks(96)
+		clock smf.MetricTicks
 		tr    smf.Track
 	)
 
 	tr.Add(0, smf.MetaMeter(4, 4))
-	tr.Add(0, smf.MetaTempo(60))
+	tr.Add(0, smf.MetaTempo(72))
 	tr.Add(0, smf.MetaInstrument("Violin"))
 	tr.Add(0, midi.ProgramChange(0, gm.Instr_Violin.Value()))
 
@@ -390,4 +408,58 @@ func processOne(note string) uint8 {
 		level = 5
 	}
 	return o(base, level)
+}
+
+func mid2txt(midBytes []byte) (midStr string) {
+	var (
+		absTicksStart  float64
+		absTicksEnd    float64
+		startNote      byte
+		endNote        byte
+		defaultMetric  = 960.0
+		defaultTrackNo = 0
+	)
+	_ = smf.ReadTracksFrom(bytes.NewReader(midBytes)).
+		Do(
+			func(te smf.TrackEvent) {
+				if !te.Message.IsMeta() && te.TrackNo == defaultTrackNo {
+					b := te.Message.Bytes()
+					if len(b) == 3 {
+						if b[0] == 0x90 && b[2] > 0 {
+							absTicksStart = float64(te.AbsTicks)
+							startNote = b[1]
+						}
+						if b[0] == 0x80 || (b[0] == 0x90 && b[2] == 0x00) {
+							absTicksEnd = float64(te.AbsTicks)
+							endNote = b[1]
+						}
+					}
+					if (b[0] == 0x80 || (b[0] == 0x90 && b[2] == 0x00)) && startNote == endNote {
+						sign := name(b[1])
+						level := b[1] / 12
+						length := (absTicksEnd - absTicksStart) / defaultMetric
+						midStr += sign
+						if level != 5 {
+							midStr += strconv.Itoa(int(level))
+						}
+						pow := int(math.Round(math.Log2(length)))
+						if pow >= -4 && pow != 0 {
+							midStr += "<" + strconv.Itoa(pow)
+						}
+						startNote = 0
+						endNote = 0
+					}
+					if (b[0] == 0x90 && b[2] > 0) && absTicksStart > absTicksEnd {
+						length := (absTicksStart - absTicksEnd) / defaultMetric
+						pow := int(math.Round(math.Log2(length)))
+						if pow == 0 {
+							midStr += "R"
+						} else if pow >= -4 {
+							midStr += "R<" + strconv.Itoa(pow)
+						}
+					}
+				}
+			},
+		)
+	return
 }
