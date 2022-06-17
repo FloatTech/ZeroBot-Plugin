@@ -656,7 +656,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置音色40 (0~127)
 
-  - [x] 注: 该插件需要安装timidity,linux安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh,,windows安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat,windows需要管理员模式运行
+  - [x] 注: 该插件需要安装timidity,linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh , windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat , windows需要管理员模式运行
   
   - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<3代表音长×8,<-1代表音长×0.5,<-3代表音长×0.125,R是休止符
 
