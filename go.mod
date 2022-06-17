@@ -28,7 +28,6 @@ require (
 	github.com/tidwall/gjson v1.14.1
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220610070647-9eeffcb277ee
-	gitlab.com/gomidi/midi v1.23.7
 	gitlab.com/gomidi/midi/v2 v2.0.17
 	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd
 )
