@@ -9,8 +9,10 @@ import (
 	"strings"
 
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -188,12 +190,12 @@ func init() {
 				}
 				logrus.Infof("[tarot]读取%d张大阿尔卡纳塔罗牌", len(cardMap))
 			}
-			data, err := engine.GetLazyData("formation.json", true)
+			formation, err := engine.GetLazyData("formation.json", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
-			err = json.Unmarshal(data, &formationMap)
+			err = json.Unmarshal(formation, &formationMap)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
@@ -206,6 +208,9 @@ func init() {
 		position := [...]string{"正位", "逆位"}
 		reverse := [...]string{"", "Reverse"}
 		if ok {
+			var build strings.Builder
+			build.WriteString(ctx.CardOrNickName(ctx.Event.UserID))
+			build.WriteString("\n")
 			msg := make([]message.MessageSegment, info.CardsNum)
 			randomIntMap := make(map[int]int, 30)
 			for i := range msg {
@@ -219,11 +224,24 @@ func init() {
 				p := rand.Intn(2)
 				card := cardMap[(strconv.Itoa(j))]
 				name := card.Name
-				tarotMsg := []message.MessageSegment{
-					message.Text(info.Represent[0][i], ":", position[p], " 的 ", name, "\n"),
-					message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], j))}
+				tarotMsg := []message.MessageSegment{message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], j))}
+				build.WriteString(info.Represent[0][i])
+				build.WriteString(": ")
+				build.WriteString(position[p])
+				build.WriteString(" 的 ")
+				build.WriteString(name)
+				build.WriteString("\n")
 				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 			}
+			txt := build.String()
+			b, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
+			// formationMsg := []message.MessageSegment{message.Image("base64://" + binary.BytesToString(b))}
+			// msg[0] = ctxext.FakeSenderForwardNode(ctx, formationMsg...)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))
