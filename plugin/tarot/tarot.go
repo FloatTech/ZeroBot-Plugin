@@ -54,6 +54,9 @@ func init() {
 
 	engine.OnRegex(`^抽(\d{1,2}张)?塔罗牌$`, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
+			if len(cardMap) > 0 {
+				return true
+			}
 			data, err := engine.GetLazyData("tarots.json", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
@@ -172,7 +175,7 @@ func init() {
 	})
 	engine.OnRegex(`^塔罗牌阵\s?(.*)`, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			if len(cardMap) <= 0 {
+			if len(cardMap) == 0 {
 				data, err := engine.GetLazyData("tarots.json", true)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
