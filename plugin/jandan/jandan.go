@@ -6,7 +6,9 @@ import (
 	"hash/crc64"
 	"regexp"
 	"strconv"
+	"time"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -21,7 +23,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("jandan", &control.Options{
+	engine := control.Register("jandan", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "煎蛋网无聊图\n- 来份[屌|弔|吊]图\n- 更新[屌|弔|吊]图\n",
 		PublicDataFolder: "Jandan",
@@ -30,7 +32,12 @@ func init() {
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "pics.db"
 		_, _ = engine.GetLazyData("pics.db", false)
-		err := db.Create("picture", &picture{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Create("picture", &picture{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

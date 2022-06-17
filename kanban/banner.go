@@ -10,13 +10,13 @@ import (
 var (
 	info = [...]string{
 		"* OneBot + ZeroBot + Golang",
-		"* Version 1.4.1-beta3 - 2022-05-25 11:58:18 +0800 CST",
+		"* Version 1.4.1 - 2022-06-16 13:31:06 +0800 CST",
 		"* Copyright © 2020 - 2022 FloatTech. All Rights Reserved.",
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
 	}
 	// Banner ...
 	Banner = strings.Join(info[:], "\n")
-	reg    = registry.NewRegReader("reilia.westeurope.cloudapp.azure.com:32664", "fumiama")
+	reg    = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
 )
 
 // PrintBanner ...

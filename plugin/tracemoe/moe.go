@@ -2,7 +2,8 @@
 package tracemoe
 
 import (
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	trmoe "github.com/fumiama/gotracemoe"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -13,7 +14,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("tracemoe", &control.Options{
+	engine := control.Register("tracemoe", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "tracemoe\n- 搜番 | 搜索番剧[图片]",
 	})

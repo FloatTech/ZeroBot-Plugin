@@ -36,7 +36,7 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [-g 监听地址:端口] [qq1 qq2 qq3 ...] [&]
+zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [qq1 qq2 qq3 ...] [&]
 ```
 - **-c config.json**: 从`config.json`加载`bot`配置
 - **-h**: 显示帮助
@@ -46,7 +46,6 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
 - **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
-- **-g 监听地址:端口**: 在 http://监听地址:端口 上开启 [webgui](https://github.com/FloatTech/bot-manager)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 
@@ -122,16 +121,6 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 </details>
 
 ### *高优先级*
-<details>
-  <summary>web管理</summary>
-
-  `import _ "github.com/FloatTech/zbputils/control/web"`
-
-  - 开启后可执行文件大约增加 5M ，默认注释不开启。如需开启请自行编辑`main.go`取消注释
-
-  - 需要配合 [webgui](https://github.com/FloatTech/bot-manager) 使用
-
-</details>
 <details>
   <summary>聊天</summary>
 
@@ -496,7 +485,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 娶群友
 
-  - [x] 娶[ 老婆QQ号 | @老婆QQ ]
+  - [x] (娶|嫁)[@对方QQ]
+  
+  - [x] 当[对方Q号|@对方QQ]的小三
 
   - [x] 群老婆列表
 
@@ -531,7 +522,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 运势 | 抽签
 
-  - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录 奇异恩典 夏日口袋]
+  - [x] 设置底图[车万 DC4 爱因斯坦 星空列车 樱云之恋 富婆妹 李清歌 公主连结 原神 明日方舟 碧蓝航线 碧蓝幻想 战双 阴阳师 赛马娘 东方归言录 奇异恩典 夏日口袋 ASoul]
 
 </details>
 <details>
@@ -646,6 +637,28 @@ print("run[CQ:image,file="+j["img"]+"]")
 记录在"@every 1h"触发的指令
 来份萝莉
 ```
+
+</details>
+<details>
+  <summary>简易midi音乐制作</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"`
+
+  - [x] midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR
+
+  - [x] 个人听音练习
+  
+  - [x] 团队听音练习
+  
+  - [x] *.mid (midi 转 txt)
+  
+  - [x] midi制作*.txt (txt 转 midi)
+  
+  - [x] 设置音色40 (0~127)
+
+  - [x] 注: 该插件需要安装timidity,linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh , windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat , windows需要管理员模式运行
+  
+  - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<3代表音长×8,<-1代表音长×0.5,<-3代表音长×0.125,R是休止符
 
 </details>
 <details>
@@ -998,10 +1011,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] @Bot 任意文本(任意一句话回复)
 
   - [x] 设置回复模式[青云客 | 小爱]
-
-</details>
-<details>
-  <summary>TODO...</summary>
 
 </details>
 

@@ -10,7 +10,8 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	sql "github.com/FloatTech/sqlite"
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	fileutil "github.com/FloatTech/zbputils/file"
 	imagepool "github.com/FloatTech/zbputils/img/pool"
@@ -49,7 +50,7 @@ var pool = &imgpool{
 }
 
 func init() { // 插件主体
-	engine := control.Register("setutime", &control.Options{
+	engine := control.Register("setutime", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +
@@ -63,7 +64,7 @@ func init() { // 插件主体
 		// 如果数据库不存在则下载
 		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = engine.GetLazyData("SetuTime.db", false)
-		err := pool.db.Open()
+		err := pool.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
@@ -77,7 +78,7 @@ func init() { // 插件主体
 		return true
 	})
 
-	engine.OnRegex(`^来份(.+)$`, getdb, ctxext.FirstValueInList(pool)).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^来份(.+)$`, getdb, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
@@ -111,7 +112,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.FirstValueInList(pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]

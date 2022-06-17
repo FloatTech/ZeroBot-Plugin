@@ -11,7 +11,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
@@ -40,7 +41,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("hs", &control.Options{
+	engine := control.Register("hs", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +

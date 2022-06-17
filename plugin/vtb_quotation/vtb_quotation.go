@@ -18,7 +18,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
@@ -30,7 +31,7 @@ import (
 var reg = regexp.MustCompile(".*/(.*)")
 
 func init() {
-	engine := control.Register("vtbquotation", &control.Options{
+	engine := control.Register("vtbquotation", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
 		PublicDataFolder: "VtbQuotation",

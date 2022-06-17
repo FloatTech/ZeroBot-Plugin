@@ -2,16 +2,19 @@
 package chouxianghua
 
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
 func init() {
-	en := control.Register("chouxianghua", &control.Options{
+	en := control.Register("chouxianghua", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "抽象话\n- 抽象翻译xxx",
 		PublicDataFolder: "ChouXiangHua",
@@ -22,7 +25,12 @@ func init() {
 			db.DBPath = en.DataFolder() + "cxh.db"
 			// os.RemoveAll(dbpath)
 			_, _ = en.GetLazyData("cxh.db", true)
-			err := db.Create("pinyin", &pinyin{})
+			err := db.Open(time.Hour * 24)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = db.Create("pinyin", &pinyin{})
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false

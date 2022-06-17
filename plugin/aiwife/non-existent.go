@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -16,7 +17,7 @@ const (
 )
 
 func init() { // 插件主体
-	control.Register("aiwife", &control.Options{
+	control.Register("aiwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "AIWife\n" +
 			"- waifu | 随机waifu",

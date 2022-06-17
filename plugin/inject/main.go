@@ -2,13 +2,14 @@
 package inject
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	en := control.Register("inject", &control.Options{
+	en := control.Register("inject", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "注入指令\n" +
 			"- run[CQ码]",

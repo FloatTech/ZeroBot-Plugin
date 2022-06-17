@@ -10,6 +10,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -20,7 +21,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", &control.Options{
+	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +
@@ -41,7 +42,7 @@ func init() {
 		}
 	}
 
-	engine.OnRegex(`^本地(.*)$`, ctxext.FirstValueInList(ns)).SetBlock(true).
+	engine.OnRegex(`^本地(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -62,7 +63,7 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, ctxext.FirstValueInList(ns), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)

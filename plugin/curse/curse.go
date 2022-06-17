@@ -2,11 +2,14 @@
 package curse
 
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/process"
 )
@@ -17,7 +20,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("curse", &control.Options{
+	engine := control.Register("curse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "骂人(求骂,自卫)\n- 骂我\n- 大力骂我",
 		PublicDataFolder: "Curse",
@@ -26,6 +29,11 @@ func init() {
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "curse.db"
 		_, err := engine.GetLazyData("curse.db", true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

@@ -15,7 +15,9 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
@@ -36,7 +38,7 @@ const (
 var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 
 func init() {
-	engine := control.Register("score", &control.Options{
+	engine := control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
 		PrivateDataFolder: "score",
@@ -207,14 +209,17 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
+			f, err := os.Create(drawedFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
 			bars := make([]chart.Value, len(st))
 			for i, v := range st {
-				bars[i] = chart.Value{
-					Value: float64(v.Score),
-					Label: ctx.CardOrNickName(v.UID),
-				}
+				bars[i].Value = float64(v.Score)
+				bars[i].Label = ctx.CardOrNickName(v.UID)
 			}
-			graph := chart.BarChart{
+			err = chart.BarChart{
 				Font:  font,
 				Title: "饼干排名",
 				Background: chart.Style{
@@ -225,13 +230,7 @@ func init() {
 				Height:   500,
 				BarWidth: 50,
 				Bars:     bars,
-			}
-			f, err := os.Create(drawedFile)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			err = graph.Render(chart.PNG, f)
+			}.Render(chart.PNG, f)
 			_ = f.Close()
 			if err != nil {
 				_ = os.Remove(drawedFile)
@@ -243,16 +242,17 @@ func init() {
 }
 
 func getHourWord(t time.Time) string {
+	h := t.Hour()
 	switch {
-	case 6 <= t.Hour() && t.Hour() < 12:
+	case 6 <= h && h < 12:
 		return "早上好"
-	case 12 <= t.Hour() && t.Hour() < 14:
+	case 12 <= h && h < 14:
 		return "中午好"
-	case 14 <= t.Hour() && t.Hour() < 19:
+	case 14 <= h && h < 19:
 		return "下午好"
-	case 19 <= t.Hour() && t.Hour() < 24:
+	case 19 <= h && h < 24:
 		return "晚上好"
-	case 0 <= t.Hour() && t.Hour() < 6:
+	case 0 <= h && h < 6:
 		return "凌晨好"
 	default:
 		return ""
@@ -271,20 +271,17 @@ func getLevel(count int) int {
 }
 
 func initPic(picFile string) error {
-	if file.IsNotExist(picFile) {
-		data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
-		if err != nil {
-			return err
-		}
-		picURL := gjson.Get(string(data), "pic").String()
-		data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
-		if err != nil {
-			return err
-		}
-		err = os.WriteFile(picFile, data, 0666)
-		if err != nil {
-			return err
-		}
+	if file.IsExist(picFile) {
+		return nil
 	}
-	return nil
+	data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
+	if err != nil {
+		return err
+	}
+	picURL := gjson.Get(binary.BytesToString(data), "pic.0").Str
+	data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(picFile, data, 0644)
 }

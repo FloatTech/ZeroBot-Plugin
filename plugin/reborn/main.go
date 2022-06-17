@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	wr "github.com/mroth/weightedrand"
@@ -14,7 +15,7 @@ import (
 )
 
 func init() {
-	en := control.Register("reborn", &control.Options{
+	en := control.Register("reborn", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "投胎\n- reborn",
 		PublicDataFolder: "Reborn",

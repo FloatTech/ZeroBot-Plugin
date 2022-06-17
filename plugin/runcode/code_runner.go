@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -91,7 +92,7 @@ var (
 )
 
 func init() {
-	control.Register("runcode", &control.Options{
+	control.Register("runcode", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "在线代码运行: \n" +
 			">runcode [language] [code block]\n" +

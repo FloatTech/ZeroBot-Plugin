@@ -21,6 +21,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/nsfw"
 	"github.com/FloatTech/AnimeAPI/scale"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -31,7 +32,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("scale", &control.Options{
+	engine := control.Register("scale", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
 		PrivateDataFolder: "scale",

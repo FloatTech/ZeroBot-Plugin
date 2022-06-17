@@ -2,6 +2,7 @@
 package wangyiyun
 
 import (
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
@@ -17,7 +18,7 @@ const (
 )
 
 func init() {
-	control.Register("wangyiyun", &control.Options{
+	control.Register("wangyiyun", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "wangyiyun \n- 来份网易云热评",
 	}).OnFullMatch("来份网易云热评").SetBlock(true).Limit(ctxext.LimitByUser).

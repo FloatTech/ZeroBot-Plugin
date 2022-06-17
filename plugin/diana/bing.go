@@ -5,13 +5,14 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/diana/data"
 )
 
-var engine = control.Register("diana", &control.Options{
+var engine = control.Register("diana", &ctrl.Options[*zero.Ctx]{
 	DisableOnDefault: false,
 	Help: "嘉然\n" +
 		"- 小作文\n" +

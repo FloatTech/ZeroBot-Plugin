@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"math/rand"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -14,7 +15,7 @@ import (
 type kimo = map[string]*[]string
 
 func init() {
-	engine := control.Register("thesaurus", &control.Options{
+	engine := control.Register("thesaurus", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "thesaurus\n- 词典匹配回复",
 		PublicDataFolder: "Chat",

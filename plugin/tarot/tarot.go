@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/sirupsen/logrus"
@@ -41,7 +42,7 @@ var formationMap = make(map[string]formation, 10)
 // var cardName = make([]string, 22)
 
 func init() {
-	engine := control.Register("tarot", &control.Options{
+	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "塔罗牌\n" +
 			"- 抽塔罗牌\n" +

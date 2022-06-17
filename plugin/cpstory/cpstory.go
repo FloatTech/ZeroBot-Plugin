@@ -3,18 +3,20 @@ package cpstory
 
 import (
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 )
 
 func init() {
-	engine := control.Register("cpstory", &control.Options{
+	engine := control.Register("cpstory", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "cp短打\n- 组cp[@xxx][@xxx]\n- 磕cp大老师 雪乃",
 		PublicDataFolder: "CpStory",
@@ -24,7 +26,12 @@ func init() {
 		db.DBPath = engine.DataFolder() + "cp.db"
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("cp.db", true)
-		err := db.Create("cp_story", &cpstory{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Create("cp_story", &cpstory{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

@@ -16,6 +16,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/jozsefsallai/gophersauce"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -28,7 +29,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("saucenao", &control.Options{
+	engine := control.Register("saucenao", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "搜图\n" +
 			"- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +

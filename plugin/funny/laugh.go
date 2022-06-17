@@ -3,13 +3,15 @@ package funny
 
 import (
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	sql "github.com/FloatTech/sqlite"
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
@@ -21,7 +23,7 @@ type joke struct {
 var db = &sql.Sqlite{}
 
 func init() {
-	en := control.Register("funny", &control.Options{
+	en := control.Register("funny", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx|qq号|人名] | 夸夸[@xxx|qq号|人名] ",
@@ -31,6 +33,11 @@ func init() {
 	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = en.DataFolder() + "jokes.db"
 		_, err := en.GetLazyData("jokes.db", true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
