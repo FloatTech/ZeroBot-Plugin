@@ -2,7 +2,10 @@
 package tiangou
 
 import (
+	"time"
+
 	sql "github.com/FloatTech/sqlite"
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/sirupsen/logrus"
@@ -18,7 +21,7 @@ type tiangou struct {
 var db = &sql.Sqlite{}
 
 func init() {
-	en := control.Register("tiangou", &control.Options{
+	en := control.Register("tiangou", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "舔狗日记\n" +
 			"- 舔狗日记",
@@ -29,6 +32,11 @@ func init() {
 		func(ctx *zero.Ctx) bool {
 			db.DBPath = en.DataFolder() + "tiangou.db"
 			_, err := en.GetLazyData("tiangou.db", true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = db.Open(time.Hour * 24)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false

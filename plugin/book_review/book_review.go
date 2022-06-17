@@ -2,10 +2,13 @@
 package bookreview
 
 import (
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -13,7 +16,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("bookreview", &control.Options{
+	engine := control.Register("bookreview", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "哀伤雪刃推书记录\n- 书评[xxx]\n- 随机书评",
 		PublicDataFolder: "BookReview",
@@ -23,7 +26,12 @@ func init() {
 		db.DBPath = engine.DataFolder() + "bookreview.db"
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("bookreview.db", true)
-		err := db.Create("bookreview", &book{})
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Create("bookreview", &book{})
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false

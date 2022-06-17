@@ -12,7 +12,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/process"
 )
 
@@ -24,7 +25,7 @@ const (
 )
 
 func init() { // 插件主体
-	engine := control.Register(servicename, &control.Options{
+	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "本插件基于 ATRI ，为 Golang 移植版\n" +
 			"- ATRI醒醒\n- ATRI睡吧\n- 萝卜子\n- 喜欢 | 爱你 | 爱 | suki | daisuki | すき | 好き | 贴贴 | 老婆 | 亲一个 | mua\n" +

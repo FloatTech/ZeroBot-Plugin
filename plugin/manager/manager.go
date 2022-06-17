@@ -14,7 +14,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	sql "github.com/FloatTech/sqlite"
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/math"
 	"github.com/FloatTech/zbputils/process"
@@ -59,7 +60,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("manager", &control.Options{
+	engine := control.Register("manager", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              hint,
 		PrivateDataFolder: "manager",
@@ -67,8 +68,12 @@ func init() { // 插件主体
 
 	go func() {
 		db.DBPath = engine.DataFolder() + "config.db"
+		err := db.Open(time.Hour * 24)
+		if err != nil {
+			panic(err)
+		}
 		clock = timer.NewClock(db)
-		err := db.Create("welcome", &welcome{})
+		err = db.Create("welcome", &welcome{})
 		if err != nil {
 			panic(err)
 		}
@@ -385,7 +390,7 @@ func init() { // 插件主体
 				} else {
 					ctx.SendChain(message.Text("欢迎~"))
 				}
-				c, ok := control.Lookup("manager")
+				c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 				if ok {
 					enable := c.GetData(ctx.Event.GroupID)&1 == 1
 					if enable {
@@ -499,7 +504,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^(.*)入群验证$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			option := ctx.State["regex_matched"].([]string)[1]
-			c, ok := control.Lookup("manager")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if ok {
 				data := c.GetData(ctx.Event.GroupID)
 				switch option {
@@ -524,7 +529,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^(.*)gist加群自动审批$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			option := ctx.State["regex_matched"].([]string)[1]
-			c, ok := control.Lookup("manager")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if ok {
 				data := c.GetData(ctx.Event.GroupID)
 				switch option {
@@ -552,7 +557,7 @@ func init() { // 插件主体
 		/*if ctx.Event.RequestType == "friend" {
 			ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
 		}*/
-		c, ok := control.Lookup("manager")
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 && ctx.Event.RequestType == "group" && ctx.Event.SubType == "add" {
 			// gist 文件名是群号的 ascii 编码的 md5
 			// gist 内容是当前 uinx 时间戳，在 10 分钟内视为有效

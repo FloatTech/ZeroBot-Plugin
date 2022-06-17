@@ -3,13 +3,15 @@ package omikuji
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 )
@@ -17,7 +19,7 @@ import (
 const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/%d_%d.jpg"
 
 func init() { // 插件主体
-	engine := control.Register("omikuji", &control.Options{
+	engine := control.Register("omikuji", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "浅草寺求签\n" +
 			"- 求签 | 占卜\n- 解签",
@@ -26,7 +28,7 @@ func init() { // 插件主体
 
 	engine.OnFullMatchGroup([]string{"求签", "占卜"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			i := ctxext.RandSenderPerDayN(ctx, 100) + 1
+			i := ctxext.RandSenderPerDayN(ctx.Event.UserID, 100) + 1
 			ctx.SendChain(
 				message.At(ctx.Event.UserID),
 				message.Image(fmt.Sprintf(bed, i, 0)),
@@ -37,6 +39,11 @@ func init() { // 插件主体
 		func(ctx *zero.Ctx) bool {
 			db.DBPath = engine.DataFolder() + "kuji.db"
 			_, err := engine.GetLazyData("kuji.db", true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return false
+			}
+			err = db.Open(time.Hour * 24)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return false
@@ -58,7 +65,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			kujiBytes, err := text.RenderToBase64(
 				getKujiByBango(
-					uint8(ctxext.RandSenderPerDayN(ctx, 100)+1),
+					uint8(ctxext.RandSenderPerDayN(ctx.Event.UserID, 100)+1),
 				),
 				text.FontFile, 400, 20,
 			)

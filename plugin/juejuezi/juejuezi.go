@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -22,7 +23,7 @@ const (
 )
 
 func init() {
-	control.Register("juejuezi", &control.Options{
+	control.Register("juejuezi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "绝绝子生成器\n" +
 			"- 喝奶茶绝绝子 | 绝绝子吃饭",

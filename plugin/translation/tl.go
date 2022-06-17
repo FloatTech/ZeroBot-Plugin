@@ -3,14 +3,15 @@ package translation
 
 import (
 	"github.com/FloatTech/AnimeAPI/tl"
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
-	control.Register("translation", &control.Options{
+	control.Register("translation", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "翻译\n" +
 			">TL 你好",

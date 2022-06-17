@@ -4,6 +4,7 @@ package ymgal
 import (
 	"strings"
 
+	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -11,7 +12,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("ymgal", &control.Options{
+	engine := control.Register("ymgal", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "月幕galgame\n- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal\n",
 		PublicDataFolder: "Ymgal",

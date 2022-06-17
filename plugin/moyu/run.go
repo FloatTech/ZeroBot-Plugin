@@ -5,7 +5,8 @@ import (
 	"sync"
 	"time"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -17,7 +18,7 @@ var (
 )
 
 func init() { // 插件主体
-	control.Register("moyu", &control.Options{
+	control.Register("moyu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "moyu\n" +
 			"- /启用 moyu\n" +

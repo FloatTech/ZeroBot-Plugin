@@ -10,7 +10,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/web"
 )
@@ -22,7 +23,7 @@ var (
 )
 
 func init() {
-	control.Register("coser", &control.Options{
+	control.Register("coser", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "三次元小姐姐\n- coser",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).

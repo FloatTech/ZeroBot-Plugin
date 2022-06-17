@@ -17,7 +17,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/pool"
@@ -38,7 +39,7 @@ const (
 
 var (
 	// 底图类型列表
-	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘", "东方归言录", "奇异恩典", "夏日口袋"}
+	table = [...]string{"车万", "DC4", "爱因斯坦", "星空列车", "樱云之恋", "富婆妹", "李清歌", "公主连结", "原神", "明日方舟", "碧蓝航线", "碧蓝幻想", "战双", "阴阳师", "赛马娘", "东方归言录", "奇异恩典", "夏日口袋", "ASoul"}
 	// 映射底图与 index
 	index = make(map[string]uint8)
 	// 签文
@@ -47,11 +48,11 @@ var (
 
 func init() {
 	// 插件主体
-	en := control.Register("fortune", &control.Options{
+	en := control.Register("fortune", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
-			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录 | 奇异恩典 | 夏日口袋]",
+			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录 | 奇异恩典 | 夏日口袋 | ASoul]",
 		PublicDataFolder: "Fortune",
 	})
 	_ = os.RemoveAll(cache)
@@ -71,7 +72,7 @@ func init() {
 			}
 			i, ok := index[ctx.State["regex_matched"].([]string)[1]]
 			if ok {
-				c, ok := control.Lookup("fortune")
+				c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 				if ok {
 					err := c.SetData(gid, int64(i)&0xff)
 					if err != nil {
@@ -115,7 +116,7 @@ func init() {
 				gid = -ctx.Event.UserID
 			}
 			logrus.Debugln("[fortune]gid:", ctx.Event.GroupID, "uid:", ctx.Event.UserID)
-			c, ok := control.Lookup("fortune")
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if ok {
 				v := uint8(c.GetData(gid) & 0xff)
 				if int(v) < len(table) {
@@ -138,7 +139,7 @@ func init() {
 			}
 
 			// 随机获取签文
-			randtextindex := ctxext.RandSenderPerDayN(ctx, len(omikujis))
+			randtextindex := ctxext.RandSenderPerDayN(ctx.Event.UserID, len(omikujis))
 			title, text := omikujis[randtextindex]["title"], omikujis[randtextindex]["content"]
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
@@ -170,7 +171,7 @@ func randimage(path string, ctx *zero.Ctx) (im image.Image, index int, err error
 	}
 	defer reader.Close()
 
-	file := reader.File[ctxext.RandSenderPerDayN(ctx, len(reader.File))]
+	file := reader.File[ctxext.RandSenderPerDayN(ctx.Event.UserID, len(reader.File))]
 	f, err := file.Open()
 	if err != nil {
 		return

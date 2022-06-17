@@ -10,7 +10,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/math"
@@ -29,7 +30,7 @@ var (
 )
 
 func init() {
-	en := control.Register("lolicon", &control.Options{
+	en := control.Register("lolicon", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
 			"- 来份萝莉\n" +
