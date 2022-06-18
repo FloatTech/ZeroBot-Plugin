@@ -191,7 +191,7 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 	widthlen := 0
 	numberlen := 0
 	for i, v := range usermane {
-		width, _ := canvas.MeasureString(string(v)) //获取单个字符的宽度
+		width, _ := canvas.MeasureString(string(v)) // 获取单个字符的宽度
 		widthlen += int(width)
 		if widthlen > 350 {
 			break // 总宽度不能超过350
@@ -756,7 +756,7 @@ func checkcp(ctx *zero.Ctx) bool {
 	case uidstatus != 3 && userinfo.Target == 0: // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族哦"))
 		return false
-	case fiancee == uid: //自我攻略
+	case fiancee == uid: // 自我攻略
 		return true
 	case uidstatus == 1: // 如果如为攻
 		ctx.SendChain(message.Text("打灭，不给纳小妾！"))
