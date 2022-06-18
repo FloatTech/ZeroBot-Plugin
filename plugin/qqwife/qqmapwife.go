@@ -168,6 +168,9 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 	var info userinfo
 	list = make([][4]string, 0, number)
 	err = sql.db.FindFor(gidstr, &info, "GROUP BY user", func() error {
+		if info.Target == 0 {
+			return nil
+		}
 		dbinfo := [4]string{
 			info.Username,
 			strconv.FormatInt(info.User, 10),
@@ -177,6 +180,9 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 		list = append(list, dbinfo)
 		return nil
 	})
+	if len(list) == 0 {
+		number = 0
+	}
 	return
 }
 
@@ -185,7 +191,7 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 	widthlen := 0
 	numberlen := 0
 	for i, v := range usermane {
-		width, _ := canvas.MeasureString(string(v)) // 获取单个字符的宽度
+		width, _ := canvas.MeasureString(string(v)) //获取单个字符的宽度
 		widthlen += int(width)
 		if widthlen > 350 {
 			break // 总宽度不能超过350
@@ -397,16 +403,16 @@ func init() {
 			uid := ctx.Event.UserID
 			gid := ctx.Event.GroupID
 			if uid == fiancee { // 如果是自己
-				switch rand.Intn(2) { // 二分之一概率浪费技能
-				case 0:
-					ctx.SendChain(message.Text("今日获得成就：自恋狂"))
-				default:
+				switch rand.Intn(3) {
+				case 1:
 					err := 民政局.登记(gid, uid, 0, "", "")
 					if err != nil {
 						ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 						return
 					}
 					ctx.SendChain(message.Text("今日获得成就：单身贵族"))
+				default:
+					ctx.SendChain(message.Text("今日获得成就：自恋狂"))
 				}
 				return
 			}
@@ -683,16 +689,17 @@ func checkdog(ctx *zero.Ctx) bool {
 	// 获取用户信息
 	uidtarget, uidstatus, err1 := 民政局.查户口(gid, uid)
 	fianceeinfo, fianceestatus, err2 := 民政局.查户口(gid, fiancee)
-	if uidstatus == 2 || fianceestatus == 2 {
+	switch {
+	case uidstatus == 2 || fianceestatus == 2:
 		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err1, "\n", err2))
 		return false
-	}
-	if uidstatus == 3 && fianceestatus == 3 { // 必须是两个单身
+	case uidstatus == 3 && fianceestatus == 3: // 必须是两个单身
 		return true
-	}
-	switch {
 	case uidtarget.Target == fiancee: // 如果本就是一块
 		ctx.SendChain(message.Text("笨蛋~你们明明已经在一起了啊w"))
+		return false
+	case uidstatus != 3 && uidtarget.Target == 0: // 如果是单身贵族
+		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
 		return false
 	case uidstatus == 1: // 如果如为攻
 		ctx.SendChain(message.Text("笨蛋~你家里还有个吃白饭的w"))
@@ -700,17 +707,14 @@ func checkdog(ctx *zero.Ctx) bool {
 	case uidstatus == 0: // 如果为受
 		ctx.SendChain(message.Text("该是0就是0，当0有什么不好"))
 		return false
-	case uidstatus != 3 && uidtarget.Target == 0: // 如果是单身贵族
-		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
+	case fianceestatus != 3 && fianceeinfo.Target == 0:
+		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
 	case fianceestatus == 1: // 如果如为攻
 		ctx.SendChain(message.Text("他有别的女人了，你该放下了"))
 		return false
 	case fianceestatus == 0: // 如果为受
 		ctx.SendChain(message.Text("这是一个纯爱的世界，拒绝NTR"))
-		return false
-	case fianceestatus != 3 && fianceeinfo.Target == 0:
-		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
 	}
 	return true
@@ -739,11 +743,8 @@ func checkcp(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("额，你的对象好像不存在?"))
 		return false
 	}
-	uid := ctx.Event.UserID
-	if fiancee == uid {
-		return true
-	}
 	// 检查用户是否登记过
+	uid := ctx.Event.UserID
 	userinfo, uidstatus, err := 民政局.查户口(gid, uid)
 	switch {
 	case uidstatus == 2:
@@ -755,6 +756,8 @@ func checkcp(ctx *zero.Ctx) bool {
 	case uidstatus != 3 && userinfo.Target == 0: // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族哦"))
 		return false
+	case fiancee == uid: //自我攻略
+		return true
 	case uidstatus == 1: // 如果如为攻
 		ctx.SendChain(message.Text("打灭，不给纳小妾！"))
 		return false
