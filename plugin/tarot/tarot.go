@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -195,7 +196,7 @@ func init() {
 				return
 			}
 			// TODO 视gocq变化将牌阵信息加入转发列表中
-			ctx.SendChain(message.ImageBytes(formation))
+			ctx.SendChain(message.Image("base64://" + binary.BytesToString(formation)))
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))
