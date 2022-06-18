@@ -189,13 +189,13 @@ func init() {
 				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 			}
 			txt := build.String()
-			b, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
+			formation, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			//TODO 视gocq变化将牌阵信息加入转发列表中
-			ctx.SendChain(message.ImageBytes(b))
+			ctx.SendChain(message.ImageBytes(formation))
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))
