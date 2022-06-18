@@ -194,7 +194,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			//TODO 视gocq变化将牌阵信息加入转发列表中
+			// TODO 视gocq变化将牌阵信息加入转发列表中
 			ctx.SendChain(message.ImageBytes(formation))
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		} else {
