@@ -774,6 +774,7 @@ func checkfiancee(ctx *zero.Ctx) bool {
 	case time.Now().Format("2006/01/02") != updatetime:
 		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
 			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+			return false
 		}
 		ctx.SendChain(message.Text("今天你还没有结婚哦"))
 		return false
