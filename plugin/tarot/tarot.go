@@ -167,7 +167,7 @@ func init() {
 			var build strings.Builder
 			build.WriteString(ctx.CardOrNickName(ctx.Event.UserID))
 			build.WriteString("\n")
-			msg := make([]message.MessageSegment, info.CardsNum)
+			msg := make([]message.MessageSegment, 0, info.CardsNum)
 			randomIntMap := make(map[int]int, 30)
 			for i := range msg {
 				j := rand.Intn(22)
