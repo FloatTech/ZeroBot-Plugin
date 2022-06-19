@@ -25,33 +25,85 @@ func init() { // 插件主体
 	// 被喊名字
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(message.Text(
-				at[rand.Intn(len(at))],
+				randText(
+					nickname+"在此，有何贵干~",
+					"(っ●ω●)っ在~",
+					"这里是"+nickname+"(っ●ω●)っ",
+					nickname+"不在呢~",
+				),
 			))
 		})
 	// 戳一戳
 	engine.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
+			var nickname = zero.BotConfig.NickName[0]
 			switch {
 			case poke.Load(ctx.Event.GroupID).AcquireN(3):
 				// 5分钟共8块命令牌 一次消耗3块命令牌
 				time.Sleep(time.Second * 1)
-				// ctx.SendChain(message.Text("请不要戳", nickname, " >_<"))
-				// pokereply(ctx, nickname)
 				ctx.SendChain(message.Text(
-					poke1[rand.Intn(len(poke1))],
+					randText(
+						"请不要戳"+nickname+" >_<",
+						"喂(#`O′) 戳"+nickname+"干嘛!",
+						"别戳了…痒……",
+						"呜…别戳了…",
+						"别戳了！",
+						"喵~",
+						"…把手拿开",
+						"有笨蛋在戳我，我不说是谁",
+						"达咩呦，达咩达咩",
+						"好怪..你不要过来啊啊啊啊啊",
+						"嗯。嗯~嗯？嗯！",
+						"咿呀！吓我一跳~",
+						"别戳啦！",
+						"你一定是变态对吧？！！",
+						"你再戳我要生气了！",
+						"好怪..你不要过来啊啊啊啊啊",
+						"我好像瞌睡了",
+						"可恶啊...性御旺盛的大人真是讨厌..",
+						"不...不行的啦！",
+						"好啦..今天就满足你吧~",
+						"我家也没什么值钱的了，唯一能拿得出手的也就是我了",
+						"你干嘛！",
+						"变态变态变态变态！！！",
+						"只能..一点点..哦?",
+					),
 				))
-
 			case poke.Load(ctx.Event.GroupID).Acquire():
 				// 5分钟共8块命令牌 一次消耗1块命令牌
 				time.Sleep(time.Second * 1)
-				// ctx.SendChain(message.Text("喂(#`O′) 戳", nickname, "干嘛！"))
-				// pokereply(ctx, nickname)
 				ctx.SendChain(message.Text(
-					poke2[rand.Intn(len(poke2))],
+					randText(
+						"请不要戳"+nickname+" >_<",
+						"喂(#`O′) 戳"+nickname+"干嘛!",
+						"别戳了…痒……",
+						"呜…别戳了…",
+						"别戳了！",
+						"喵~",
+						"…把手拿开",
+						"戳回去<( ￣^￣)",
+						"有笨蛋在戳我，我不说是谁",
+						"达咩呦，达咩达咩",
+						"好怪..你不要过来啊啊啊啊啊",
+						"嗯。嗯~嗯？嗯！",
+						"咿呀！吓我一跳~",
+						"别戳啦！",
+						"你一定是变态对吧？！！",
+						"你再戳我要生气了！",
+						"好怪..你不要过来啊啊啊啊啊",
+						"我好像瞌睡了",
+						"可恶啊...性御旺盛的大人真是讨厌..",
+						"不...不行的啦！",
+						"好啦..今天就满足你吧~",
+						"我家也没什么值钱的了，唯一能拿得出手的也就是我了",
+						"你干嘛！",
+						"变态变态变态变态！！！",
+						"只能..一点点..哦?",
+					),
 				))
-
 				ctx.Send(message.Poke(ctx.Event.UserID))
 			default:
 				// 频繁触发，不回复
@@ -109,20 +161,6 @@ func init() { // 插件主体
 		})
 }
 
-/*
-func pokereply(ctx *zero.Ctx, nickname string) {
-	ctx.SendChain(message.Text(
-		[]string{
-			"请不要戳" + nickname + " >_<",
-			"喂(#`O′) 戳" + nickname + "干嘛!",
-			"别戳了…痒……",
-			"呜…别戳了…",
-			"别戳了！",
-			"喵~",
-			"…把手拿开",
-			"戳回去<( ￣^￣)",
-			"有笨蛋在戳我，我不说是谁",
-		}[rand.Intn(9)],
-	))
+func randText(text ...string) message.MessageSegment {
+	return message.Text(text[rand.Intn(len(text))])
 }
-*/
