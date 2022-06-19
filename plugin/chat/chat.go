@@ -28,12 +28,12 @@ func init() { // 插件主体
 			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(message.Text(
-				randText(
-					nickname+"在此，有何贵干~",
+				[]string{
+					nickname + "在此，有何贵干~",
 					"(っ●ω●)っ在~",
-					"这里是"+nickname+"(っ●ω●)っ",
-					nickname+"不在呢~",
-				),
+					"这里是" + nickname + "(っ●ω●)っ",
+					nickname + "不在呢~",
+				}[rand.Intn(4)],
 			))
 		})
 	// 戳一戳
@@ -45,9 +45,9 @@ func init() { // 插件主体
 				// 5分钟共8块命令牌 一次消耗3块命令牌
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(message.Text(
-					randText(
-						"请不要戳"+nickname+" >_<",
-						"喂(#`O′) 戳"+nickname+"干嘛!",
+					[]string{
+						"请不要戳" + nickname + " >_<",
+						"喂(#`O′) 戳" + nickname + "干嘛!",
 						"别戳了…痒……",
 						"呜…别戳了…",
 						"别戳了！",
@@ -70,15 +70,16 @@ func init() { // 插件主体
 						"你干嘛！",
 						"变态变态变态变态！！！",
 						"只能..一点点..哦?",
-					),
+					}[rand.Intn(24)],
 				))
+
 			case poke.Load(ctx.Event.GroupID).Acquire():
 				// 5分钟共8块命令牌 一次消耗1块命令牌
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(message.Text(
-					randText(
-						"请不要戳"+nickname+" >_<",
-						"喂(#`O′) 戳"+nickname+"干嘛!",
+					[]string{
+						"请不要戳" + nickname + " >_<",
+						"喂(#`O′) 戳" + nickname + "干嘛!",
 						"别戳了…痒……",
 						"呜…别戳了…",
 						"别戳了！",
@@ -102,8 +103,9 @@ func init() { // 插件主体
 						"你干嘛！",
 						"变态变态变态变态！！！",
 						"只能..一点点..哦?",
-					),
+					}[rand.Intn(25)],
 				))
+
 				ctx.Send(message.Poke(ctx.Event.UserID))
 			default:
 				// 频繁触发，不回复
@@ -159,8 +161,4 @@ func init() { // 插件主体
 				))
 			}
 		})
-}
-
-func randText(text ...string) message.MessageSegment {
-	return message.Text(text[rand.Intn(len(text))])
 }
