@@ -575,28 +575,12 @@ func init() {
 			ctx.SendChain(message.ImageBytes(data))
 			cl()
 		})
-	engine.OnFullMatchGroup([]string{"闹离婚", "办离婚"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(cdcheck, iscding2).
+	engine.OnFullMatchGroup([]string{"闹离婚", "办离婚"}, zero.OnlyGroup, getdb, checkfiancee).SetBlock(true).Limit(cdcheck, iscding2).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
-			updatetime, err := 民政局.checkupdate(gid)
-			switch {
-			case err != nil:
-				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
-				return
-			case time.Now().Format("2006/01/02") != updatetime:
-				if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
-					ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
-					return
-				}
-				ctx.SendChain(message.Text("今天你还没有结婚哦"))
-				return
-			}
-			// 获取用户信息
 			uid := ctx.Event.UserID
 			info, uidstatus, err := 民政局.查户口(gid, uid)
 			switch uidstatus {
-			case 3:
-				return
 			case 2:
 				ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
 				return
@@ -779,6 +763,36 @@ func checkcp(ctx *zero.Ctx) bool {
 	}
 	return true
 }
+
+func checkfiancee(ctx *zero.Ctx) bool {
+	gid := ctx.Event.GroupID
+	updatetime, err := 民政局.checkupdate(gid)
+	switch {
+	case err != nil:
+		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+		return false
+	case time.Now().Format("2006/01/02") != updatetime:
+		if err := 民政局.重置(strconv.FormatInt(gid, 10)); err != nil {
+			ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+			return false
+		}
+		ctx.SendChain(message.Text("今天你还没有结婚哦"))
+		return false
+	}
+	// 获取用户信息
+	uid := ctx.Event.UserID
+	_, uidstatus, err := 民政局.查户口(gid, uid)
+	switch uidstatus {
+	case 2:
+		ctx.SendChain(message.Text("数据库发生问题力，请联系bot管理员\n[error]", err))
+		return false
+	case 3: // 如果是单身
+		ctx.SendChain(message.Text("今天你还没有结婚哦"))
+		return false
+	}
+	return true
+}
+
 func iscding2(ctx *zero.Ctx) {
-	ctx.SendChain(message.Text("打灭，禁止离婚"))
+	ctx.SendChain(message.Text("打灭，禁止离婚  (你的技能正在CD中)"))
 }
