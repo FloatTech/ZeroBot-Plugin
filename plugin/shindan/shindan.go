@@ -26,7 +26,7 @@ func init() {
 	engine.OnPrefix("今天是什么少女", number(162207)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlepic)
 	engine.OnPrefix("卖萌", number(360578)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handletxt)
 	// engine.OnPrefix("抽老婆", number(1075116)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlecq)
-	// engine.OnPrefix("黄油角色", number(1115465)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlepic)
+	engine.OnPrefix("黄油角色", number(1115465)).SetBlock(true).Limit(ctxext.LimitByUser).Handle(handlepic)
 }
 
 func handletxt(ctx *zero.Ctx) {
@@ -41,7 +41,7 @@ func handletxt(ctx *zero.Ctx) {
 	ctx.SendChain(message.Text(txt))
 }
 
-func handlecq(ctx *zero.Ctx) {
+/*func handlecq(ctx *zero.Ctx) {
 	// 获取名字
 	name := ctx.NickName()
 	// 调用接口
@@ -51,7 +51,7 @@ func handlecq(ctx *zero.Ctx) {
 		return
 	}
 	ctx.Send(txt)
-}
+}*/
 
 func handlepic(ctx *zero.Ctx) {
 	// 获取名字

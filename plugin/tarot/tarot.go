@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -190,13 +190,16 @@ func init() {
 				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 			}
 			txt := build.String()
-			formation, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
+			formation, err := text.Render(txt, text.FontFile, 600, 30)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
+			byteimage, cl := writer.ToBytes(formation.Image())
+			cl()
+			ctx.SendPrivateMessage(ctx.Event.SelfID, message.ImageBytes(byteimage))
 			// TODO 视gocq变化将牌阵信息加入转发列表中
-			ctx.SendChain(message.Image("base64://" + binary.BytesToString(formation)))
+			msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.ImageBytes(byteimage)))
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))

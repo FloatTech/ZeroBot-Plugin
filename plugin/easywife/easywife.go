@@ -1,4 +1,4 @@
-// Package easywife 简单本地老婆
+// Package easywife 简单本地老婆,可以去https://github.com/FloatTech/zbpwife下载素材
 package easywife
 
 import (
@@ -18,7 +18,7 @@ func init() {
 	engine := control.Register("easywife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "本地老婆\n" +
-			"抽老婆",
+			" - 抽老婆\n可以去https://github.com/FloatTech/zbpwife下载素材",
 		PrivateDataFolder: "easywife",
 	})
 	cachePath := engine.DataFolder() + "wife/"
