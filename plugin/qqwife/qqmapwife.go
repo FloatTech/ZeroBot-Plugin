@@ -256,11 +256,11 @@ var (
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
 	}
-	skillCD  = rate.NewManager[string](time.Hour*12, 1)
+	skillCD  = rate.NewManager[string](time.Hour*3, 1)
 	sendtext = [...][]string{
 		{ // 表白成功
-			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
-			"(´･ω･`)对方答应了你 并表示愿意当今天的CP\n\n",
+			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n",
+			"(´･ω･`)对方答应了你 并表示愿意当今天的CP\n",
 		},
 		{ // 表白失败
 			"今天的运气有一点背哦~明天再试试叭",
@@ -268,10 +268,10 @@ var (
 			"今天失败了惹. 摸摸头~咱明天还有机会",
 		},
 		{ // ntr成功
-			"因为你的个人魅力~~今天他就是你的了w\n\n",
+			"因为你的个人魅力~~今天他就是你的了w\n",
 		},
 		{ // 离婚失败
-			"打是情，骂是爱，,不打不亲不相爱。答应我不要分手。",
+			"打是情，骂是爱。不打不亲不相爱。答应我不要分手。",
 			"床头打架床尾和，夫妻没有隔夜仇。安啦安啦，不要闹变扭。",
 		},
 		{ // 离婚成功
@@ -328,24 +328,24 @@ func init() {
 			case status == 1: // 娶过别人
 				ctx.SendChain(
 					message.At(uid),
-					message.Text("\n今天你已经娶过了，群老婆是"),
+					message.Text("\n明明今天你已经娶了她，快去和她道歉叭~"),
 					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.Target, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
 						"[", targetinfo.Targetname, "]",
-						"(", targetinfo.Target, ")哒",
+						"(", targetinfo.Target, ")",
 					),
 				)
 				return
 			case status == 0: // 嫁给别人
 				ctx.SendChain(
 					message.At(uid),
-					message.Text("\n今天你被娶了，群老公是"),
+					message.Text("\n今天你已经被娶走了哦，你的老公是"),
 					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.User, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
 						"[", targetinfo.Username, "]",
-						"(", targetinfo.User, ")哒",
+						"(", targetinfo.User, ")",
 					),
 				)
 				return
@@ -386,12 +386,13 @@ func init() {
 			// 请大家吃席
 			ctx.SendChain(
 				message.At(uid),
-				message.Text("今天你的群老婆是"),
+				message.Text([]string{"丘比特降临成功在你身边，今天你的群友老婆是\n",
+					"勾指起誓，今天你的群友老婆是\n"}[rand.Intn(3)]),
 				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
 				message.Text(
 					"\n",
 					"[", ctx.CardOrNickName(fiancee), "]",
-					"(", fiancee, ")哒",
+					"(", fiancee, ")",
 				),
 			)
 		})
@@ -652,7 +653,7 @@ func checkdog(ctx *zero.Ctx) bool {
 	// 得先判断用户是否存在才行在，再重置
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 	if err != nil {
-		ctx.SendChain(message.Text("额，你的target好像不存在？"))
+		ctx.SendChain(message.Text("额，你的对象好像不存在？"))
 		return false
 	}
 	// 判断是否需要重置

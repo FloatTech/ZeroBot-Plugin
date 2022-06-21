@@ -147,12 +147,13 @@ import (
 
 	// personal
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"    // 反撤回
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat"    // 限制复读
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cloudmusic"    // 网易云热评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"          // 骰子
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"      // 本地老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/iw233"         // 图库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin" // 自定义群管插件
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
