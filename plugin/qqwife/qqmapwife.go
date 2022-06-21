@@ -387,7 +387,7 @@ func init() {
 			ctx.SendChain(
 				message.At(uid),
 				message.Text([]string{"丘比特降临成功在你身边，今天你的群友老婆是\n",
-					"勾指起誓，今天你的群友老婆是\n"}[rand.Intn(3)]),
+					"勾指起誓，今天你的群友老婆是\n"}[rand.Intn(2)]),
 				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
 				message.Text(
 					"\n",
