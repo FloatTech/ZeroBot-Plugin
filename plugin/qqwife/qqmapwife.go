@@ -328,7 +328,7 @@ func init() {
 			case status == 1: // 娶过别人
 				ctx.SendChain(
 					message.At(uid),
-					message.Text("\n明明今天你已经娶了她，快去和她道歉叭~"),
+					message.Text("明明今天你已经娶了她，快去和她道歉叭~"),
 					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.Target, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
@@ -340,7 +340,7 @@ func init() {
 			case status == 0: // 嫁给别人
 				ctx.SendChain(
 					message.At(uid),
-					message.Text("\n今天你已经被娶走了哦，你的老公是"),
+					message.Text("今天你已经被娶走了哦，你的老公是"),
 					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(targetinfo.User, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
