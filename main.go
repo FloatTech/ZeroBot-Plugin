@@ -54,7 +54,9 @@ import (
 	//                      vvvvvvv中优先级区vvvvvvv                      //
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
-
+        _ "github.com/tlogn/plugin_random_setu/randsetu"
+	_ "github.com/tlogn/plugin_random_setu/searchsetu"
+	_ "github.com/tlogn/plugin_random_setu/dingzhen"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"       // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"         // 随机老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"            // base16384加解密
