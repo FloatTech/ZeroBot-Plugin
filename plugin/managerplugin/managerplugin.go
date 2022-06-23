@@ -16,7 +16,7 @@ import (
 func init() {
 	engine := control.Register("managerplugin", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Help:             "自定义的群管插件\n - 开启全员禁言 群号\n - 解除全员禁言 群号\n - 反\"XX召唤术\"\n -【公告】内容",
+		Help:             "自定义的群管插件\n - 开启全员禁言 群号\n - 解除全员禁言 群号\n - 踢出并拉黑 QQ号\n - 反\"XX召唤术\"\n - /发送公告",
 	})
 	// 指定开启某群全群禁言 Usage: 开启全员禁言123456
 	engine.OnRegex(`^开启全员禁言.*?(\d+)`, zero.SuperUserPermission).SetBlock(true).
@@ -35,6 +35,13 @@ func init() {
 				false,
 			)
 			ctx.SendChain(message.Text("全员自闭结束"))
+		})
+	engine.OnRegex(`^踢出并拉黑.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			uid := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
+			ctx.SetGroupKick(ctx.Event.GroupID, uid, true)
+			nickname := ctx.CardOrNickName(uid)
+			ctx.SendChain(message.Text("已将", nickname, "流放到边界外~"))
 		})
 	engine.OnRegex(`^\[CQ:xml`, zero.OnlyGroup, zero.KeywordRule("serviceID=\"60\"")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
