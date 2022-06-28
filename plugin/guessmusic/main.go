@@ -117,7 +117,7 @@ func init() { // 插件主体
 			}
 			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
-			answerstring := strings.Split(musicname, "-")
+			answerstring := strings.Split(musicname, " - ")
 			var next *zero.FutureEvent
 			if ctx.State["regex_matched"].([]string)[1] == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), ctx.CheckSession())
@@ -369,7 +369,7 @@ func getpaugramdata(musicPath string) (musicname string, err error) {
 		err = errors.Errorf("the music is missed")
 		return
 	}
-	musicname = name + "-" + artistsname
+	musicname = name + " - " + artistsname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
@@ -405,7 +405,7 @@ func getanimedata(musicPath string) (musicname string, err error) {
 		err = errors.Errorf("the music is missed")
 		return
 	}
-	musicname = name + "-" + artistsname + "-" + acgname
+	musicname = name + " - " + artistsname + " - " + acgname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
@@ -437,7 +437,7 @@ func getuomgdata(musicPath string) (musicname string, err error) {
 	name := musicdata.Get("name").String()
 	musicurl := musicdata.Get("url").String()
 	artistsname := musicdata.Get("artistsname").String()
-	musicname = name + "-" + artistsname
+	musicname = name + " - " + artistsname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	if file.IsNotExist(downmusic) {
 		data, err = web.GetData(musicurl + ".mp3")
