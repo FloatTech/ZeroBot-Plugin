@@ -300,14 +300,14 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 	default:
 		pathofmusic = musicPath + "歌榜/"
 	}
-	errs := os.MkdirAll(pathofmusic, 0755)
-	if errs != nil {
-		err = errors.Errorf("[生成文件夹错误]ERROR:%s", errs)
+	err = os.MkdirAll(pathofmusic, 0755)
+	if err != nil {
+		err = errors.Errorf("[生成文件夹错误]ERROR:%s", err)
 		return
 	}
-	files, errs := ioutil.ReadDir(pathofmusic)
-	if errs != nil {
-		err = errors.Errorf("[读取本地列表错误]ERROR:%s", errs)
+	files, err := ioutil.ReadDir(pathofmusic)
+	if err != nil {
+		err = errors.Errorf("[读取本地列表错误]ERROR:%s", err)
 		return
 	}
 	// 随机抽取音乐从本地或者线上
@@ -316,14 +316,14 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 		// 如果没有任何本地就下载歌曲
 		switch mode {
 		case "-动漫":
-			musicname, errs = getpaugramdata(pathofmusic)
+			musicname, err = getpaugramdata(pathofmusic)
 		case "-动漫2":
-			musicname, errs = getanimedata(pathofmusic)
+			musicname, err = getanimedata(pathofmusic)
 		default:
-			musicname, errs = getuomgdata(pathofmusic)
+			musicname, err = getuomgdata(pathofmusic)
 		}
-		if errs != nil {
-			err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", errs)
+		if err != nil {
+			err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
 			return
 		}
 	case rand.Intn(2) == 0:
