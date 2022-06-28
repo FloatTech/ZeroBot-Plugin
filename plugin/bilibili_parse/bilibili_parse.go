@@ -316,7 +316,7 @@ func getrealurl(url string) (realurl string, err error) {
 
 // checkurl 检查链接属于哪个类型
 func checkurl(url string) (id string, check int) {
-	switch true {
+	switch {
 	// 视频
 	case videoreg.MatchString(url):
 		return videoreg.FindStringSubmatch(url)[1], 0
