@@ -12,9 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	//"sync"
-
+	
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -34,9 +32,8 @@ const (
 )
 
 var (
-	musicPath = file.BOTPATH + "/data/guessmusic/music/" // 绝对路径，歌库根目录
-	cuttime   = [...]string{"00:00:05", "00:00:30", "00:01:00"}
-	//mu      sync.RWMutex
+	musicPath = file.BOTPATH + "/data/guessmusic/music/" // 绝对路径，歌库根目录,通过指令进行更改
+	cuttime   = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
 )
 
 func init() { // 插件主体
@@ -47,9 +44,8 @@ func init() { // 插件主体
 			"- 团队猜歌\n" +
 			"- 设置缓存歌库路径 [绝对路径]\n" +
 			"注：默认歌库为网易云热歌榜\n" +
-			"1.可在后面添加“-（简单|普通|困难）练习”进行猜歌练习\n" +
-			"2.可在后面添加“-动漫”进行动漫歌猜歌\n-这个只能猜歌名和歌手\n" +
-			"3.可在后面添加“-动漫2”进行动漫歌猜歌\n-这个可以猜番名，但歌手经常“未知”",
+			"1.可在后面添加“-动漫”进行动漫歌猜歌\n-这个只能猜歌名和歌手\n" +
+			"2.可在后面添加“-动漫2”进行动漫歌猜歌\n-这个可以猜番名，但歌手经常“未知”",
 		PrivateDataFolder: "guessmusic",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -95,157 +91,6 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("成功！"))
 			} else {
 				ctx.SendChain(message.Text("ERROR:", err))
-			}
-		})
-	engine.OnRegex(`^(个人|团队)猜歌-(简单|普通|困难)练习$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			mode := ctx.State["regex_matched"].([]string)[2]
-			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|番名|取消]”\n一共1个语音3次机会"))
-			//随机抽歌
-			pathofmusic := engine.DataFolder() + "music/练习/"
-			switch mode {
-			case "困难":
-				pathofmusic += "困难/"
-			case "普通":
-				pathofmusic += "普通/"
-			default:
-				pathofmusic += "简单/"
-			}
-			err = os.MkdirAll(pathofmusic, 0755)
-			if err != nil {
-				err = errors.New(fmt.Sprintf("[生成文件夹错误]ERROR:%s", err))
-				return
-			}
-			files, err := ioutil.ReadDir(pathofmusic)
-			if err != nil {
-				err = errors.New(fmt.Sprintf("[读取本地列表错误]ERROR:%s", err))
-				return
-			}
-			musicname := files[rand.Intn(len(files))].Name()
-			//进行猜歌环节
-			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + pathofmusic + musicname))
-			answerstring := strings.Split(strings.Replace(musicname, ".mp3", "", 1), "-")
-			var next *zero.FutureEvent
-			if ctx.State["regex_matched"].([]string)[1] == "个人" {
-				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), ctx.CheckSession())
-			} else {
-				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), zero.CheckGroup(ctx.Event.GroupID))
-			}
-			var countofmusic = 0 //音频数量
-			recv, cancel := next.Repeat()
-			defer cancel()
-			tick := time.NewTimer(105 * time.Second)
-			after := time.NewTimer(120 * time.Second)
-			for {
-				select {
-				case <-tick.C:
-					ctx.SendChain(message.Text("猜歌游戏，你还有15s作答时间"))
-				case <-after.C:
-					msg := make(message.Message, 0, 6)
-					msg = append(msg, message.Reply(ctx.Event.MessageID))
-					msg = append(msg, message.Text("猜歌超时，游戏结束...答案是:\n"))
-					msg = append(msg, message.Text("歌名:", answerstring[1]))
-					msg = append(msg, message.Text("\n歌手:", answerstring[0]))
-					if answerstring[2] != "" {
-						msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-					}
-					msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
-					ctx.Send(msg)
-					return
-				case c := <-recv:
-					tick.Reset(105 * time.Second)
-					after.Reset(120 * time.Second)
-					answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
-					switch {
-					case answer == "取消":
-						if c.Event.UserID == ctx.Event.UserID {
-							tick.Stop()
-							after.Stop()
-							msg := make(message.Message, 0, 6)
-							msg = append(msg, message.Reply(ctx.Event.MessageID))
-							msg = append(msg, message.Text("游戏已取消，猜歌答案是:\n"))
-							msg = append(msg, message.Text("歌名:", answerstring[1]))
-							msg = append(msg, message.Text("\n歌手:", answerstring[0]))
-							if answerstring[2] != "" {
-								msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-							}
-							msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
-							ctx.Send(msg)
-							return
-						}
-						ctx.Send(
-							message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("你无权限取消"),
-							),
-						)
-					case strings.Contains(answerstring[0], answer) || strings.EqualFold(answerstring[0], answer):
-						tick.Stop()
-						after.Stop()
-						msg := make(message.Message, 0, 6)
-						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌手名了！答案是:\n"))
-						msg = append(msg, message.Text("歌名:", answerstring[1]))
-						msg = append(msg, message.Text("\n歌手:", answerstring[0]))
-						if answerstring[2] != "" {
-							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-						}
-						msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
-						ctx.Send(msg)
-						return
-					case strings.Contains(answerstring[1], answer) || strings.EqualFold(answerstring[1], answer):
-						tick.Stop()
-						after.Stop()
-						msg := make(message.Message, 0, 6)
-						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌曲名了！答案是:\n"))
-						msg = append(msg, message.Text("歌名:", answerstring[1]))
-						msg = append(msg, message.Text("\n歌手:", answerstring[0]))
-						if answerstring[2] != "" {
-							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-						}
-						msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
-						ctx.Send(msg)
-						return
-					case strings.Contains(answerstring[2], answer) || strings.EqualFold(answerstring[2], answer):
-						tick.Stop()
-						after.Stop()
-						msg := make(message.Message, 0, 6)
-						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌出处了！答案是:\n"))
-						msg = append(msg, message.Text("歌名:", answerstring[1]))
-						msg = append(msg, message.Text("\n歌手:", answerstring[0]))
-						if answerstring[2] != "" {
-							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-						}
-						msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
-						ctx.Send(msg)
-						return
-					default:
-						countofmusic++
-						switch {
-						case countofmusic > 2:
-							tick.Stop()
-							after.Stop()
-							msg := make(message.Message, 0, 6)
-							msg = append(msg, message.Reply(c.Event.MessageID))
-							msg = append(msg, message.Text("次数到了，你没能猜出来。答案是:\n"))
-							msg = append(msg, message.Text("歌名:", answerstring[1]))
-							msg = append(msg, message.Text("\n歌手:", answerstring[0]))
-							if answerstring[2] != "" {
-								msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-							}
-							msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
-							ctx.Send(msg)
-							return
-						default:
-							ctx.Send(
-								message.ReplyWithMessage(c.Event.MessageID,
-									message.Text("答案不对哦，加油啊~"),
-								),
-							)
-						}
-					}
-				}
 			}
 		})
 	engine.OnRegex(`^(个人|团队)猜歌(-动漫|-动漫2)?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
