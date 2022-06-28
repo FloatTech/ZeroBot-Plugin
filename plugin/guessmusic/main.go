@@ -102,20 +102,20 @@ func init() { // 插件主体
 			} else {
 				ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|提示|取消]”\n一共3段语音，6次机会"))
 			}
-			//随机抽歌
+			// 随机抽歌
 			musicname, pathofmusic, err := musiclottery(mode, musicPath)
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 				return
 			}
-			//切割音频，生成3个10秒的音频
+			// 切割音频，生成3个10秒的音频
 			outputPath := cachePath + gid + "/"
 			err = musiccut(musicname, pathofmusic, outputPath)
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 				return
 			}
-			//进行猜歌环节
+			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
 			answerstring := strings.Split(musicname, "-")
 			var next *zero.FutureEvent
@@ -124,8 +124,8 @@ func init() { // 插件主体
 			} else {
 				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), zero.CheckGroup(ctx.Event.GroupID))
 			}
-			var countofmusic = 0  //音频数量
-			var countofanswer = 0 //问答次数
+			var countofmusic = 0  // 音频数量
+			var countofanswer = 0 // 问答次数
 			recv, cancel := next.Repeat()
 			defer cancel()
 			wait := time.NewTimer(40 * time.Second)
@@ -290,7 +290,7 @@ func init() { // 插件主体
 		})
 }
 
-//随机抽取音乐
+// 随机抽取音乐
 func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err error) {
 	switch mode {
 	case "-动漫":
@@ -310,10 +310,10 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 		err = errors.New(fmt.Sprintf("[读取本地列表错误]ERROR:%s", err))
 		return
 	}
-	//随机抽取音乐从本地或者线上
+	// 随机抽取音乐从本地或者线上
 	switch {
 	case len(files) == 0:
-		//如果没有任何本地就下载歌曲
+		// 如果没有任何本地就下载歌曲
 		switch mode {
 		case "-动漫":
 			musicname, err = getpaugramdata(pathofmusic)
@@ -326,7 +326,7 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 			err = errors.New(fmt.Sprintf("[本地数据为0，歌曲下载错误]ERROR:%s", err))
 		}
 	case rand.Intn(2) == 0:
-		//[0,1)只会取到0，rand不允许的
+		// [0,1)只会取到0，rand不允许的
 		if len(files) > 1 {
 			musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
 		} else {
@@ -342,7 +342,7 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 			musicname, err = getuomgdata(pathofmusic)
 		}
 		if err != nil {
-			//如果下载失败就从本地抽一个歌曲
+			// 如果下载失败就从本地抽一个歌曲
 			if len(files) > 1 {
 				musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
 			} else {
@@ -354,10 +354,8 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 	return
 }
 
-//下载保罗API的歌曲
+// 下载保罗API的歌曲
 func getpaugramdata(musicPath string) (musicname string, err error) {
-	//mu.Lock()
-	//defer mu.Unlock()
 	api := "https://api.paugram.com/acgm/?list=1"
 	referer := "https://api.paugram.com/"
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
@@ -389,10 +387,8 @@ func getpaugramdata(musicPath string) (musicname string, err error) {
 	return
 }
 
-//下载animeMusic API的歌曲
+// 下载animeMusic API的歌曲
 func getanimedata(musicPath string) (musicname string, err error) {
-	//mu.Lock()
-	//defer mu.Unlock()
 	api := "https://anime-music.jijidown.com/api/v2/music"
 	referer := "https://anime-music.jijidown.com/"
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
@@ -425,7 +421,7 @@ func getanimedata(musicPath string) (musicname string, err error) {
 	return
 }
 
-//下载网易云热歌榜音乐
+// 下载网易云热歌榜音乐
 func getuomgdata(musicPath string) (musicname string, err error) {
 	api := "https://api.uomg.com/api/rand.music?sort=%E7%83%AD%E6%AD%8C%E6%A6%9C&format=json"
 	referer := "https://api.uomg.com/api/rand.music"
@@ -452,7 +448,7 @@ func getuomgdata(musicPath string) (musicname string, err error) {
 	return
 }
 
-//切割音乐成三个10s音频
+// 切割音乐成三个10s音频
 func musiccut(musicname, pathofmusic, outputPath string) (err error) {
 	err = os.MkdirAll(outputPath, 0755)
 	if err != nil {
