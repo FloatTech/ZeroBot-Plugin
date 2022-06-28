@@ -1,4 +1,4 @@
-// package guessmusic 基于zbp的猜歌插件
+// Package guessmusic 基于zbp的猜歌插件
 package guessmusic
 
 import (
@@ -302,10 +302,12 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 	}
 	errs := os.MkdirAll(pathofmusic, 0755)
 	if errs != nil {
+		err = errors.Errorf("[生成文件夹错误]ERROR:%s", errs)
 		return
 	}
 	files, errs := ioutil.ReadDir(pathofmusic)
 	if errs != nil {
+		err = errors.Errorf("[读取本地列表错误]ERROR:%s", errs)
 		return
 	}
 	// 随机抽取音乐从本地或者线上
@@ -321,6 +323,7 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 			musicname, errs = getuomgdata(pathofmusic)
 		}
 		if errs != nil {
+			err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", errs)
 			return
 		}
 	case rand.Intn(2) == 0:
@@ -364,14 +367,14 @@ func getpaugramdata(musicPath string) (musicname string, err error) {
 	artistsname := gjson.Get(binary.BytesToString(data), "artist").String()
 	musicurl := gjson.Get(binary.BytesToString(data), "link").String()
 	if name == "" || artistsname == "" {
-		err = fmt.Errorf("the music miss!")
+		err = errors.Errorf("the music miss!")
 		return
 	}
 	musicname = name + "-" + artistsname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
-		err = fmt.Errorf("the music miss!")
+		err = errors.Errorf("the music miss!")
 		return
 	}
 	if file.IsNotExist(downmusic) {
@@ -400,14 +403,14 @@ func getanimedata(musicPath string) (musicname string, err error) {
 	acgname := gjson.Get(binary.BytesToString(data), "res").Get("anime_info").Get("title").String()
 	musicurl := gjson.Get(binary.BytesToString(data), "res").Get("play_url").String()
 	if name == "" || artistsname == "" {
-		err = fmt.Errorf("the music miss!")
+		err = errors.Errorf("the music miss!")
 		return
 	}
 	musicname = name + "-" + artistsname + "-" + acgname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
-		err = fmt.Errorf("the music miss!")
+		err = errors.Errorf("the music miss!")
 		return
 	}
 	if file.IsNotExist(downmusic) {
@@ -454,7 +457,7 @@ func getuomgdata(musicPath string) (musicname string, err error) {
 func musiccut(musicname, pathofmusic, outputPath string) (err error) {
 	err = os.MkdirAll(outputPath, 0755)
 	if err != nil {
-		err = fmt.Errorf("[生成歌曲目录错误]ERROR:%s", err)
+		err = errors.Errorf("[生成歌曲目录错误]ERROR:%s", err)
 		return
 	}
 	var stderr bytes.Buffer
@@ -466,7 +469,7 @@ func musiccut(musicname, pathofmusic, outputPath string) (err error) {
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if err != nil {
-		err = fmt.Errorf("[生成歌曲错误]ERROR:%s", stderr)
+		err = errors.Errorf("[生成歌曲错误]ERROR:%s", stderr)
 		return
 	}
 	return
