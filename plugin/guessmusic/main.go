@@ -3,7 +3,6 @@ package guessmusic
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -13,6 +12,7 @@ import (
 	"strings"
 	"time"
 	
+	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -136,11 +136,11 @@ func init() { // 插件主体
 				case <-tick.C:
 					ctx.SendChain(message.Text("猜歌游戏，你还有15s作答时间"))
 				case <-after.C:
-					msg := make(message.Message, 0, 6)
+					msg := make(message.Message, 0, 3)
 					msg = append(msg, message.Reply(ctx.Event.MessageID))
-					msg = append(msg, message.Text("猜歌超时，游戏结束\n答案是:\n"))
-					msg = append(msg, message.Text("歌名:", answerstring[0]))
-					msg = append(msg, message.Text("\n歌手:", answerstring[1]))
+					msg = append(msg, message.Text("猜歌超时，游戏结束\n答案是:\n",
+						"\n歌名:", answerstring[0],
+						"\n歌手:", answerstring[1]))
 					if mode == "-动漫2" {
 						msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
 					}
@@ -168,11 +168,11 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 6)
+							msg := make(message.Message, 0, 3)
 							msg = append(msg, message.Reply(c.Event.MessageID))
-							msg = append(msg, message.Text("游戏已取消，猜歌答案是:\n"))
-							msg = append(msg, message.Text("歌名:", answerstring[0]))
-							msg = append(msg, message.Text("\n歌手:", answerstring[1]))
+							msg = append(msg, message.Text("游戏已取消，猜歌答案是",
+								"\n歌名:", answerstring[0],
+								"\n歌手:", answerstring[1]))
 							if mode == "-动漫2" {
 								msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
 							}
@@ -206,11 +206,11 @@ func init() { // 插件主体
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						msg := make(message.Message, 0, 6)
+						msg := make(message.Message, 0, 3)
 						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌曲名了！答案是:\n"))
-						msg = append(msg, message.Text("歌名:", answerstring[0]))
-						msg = append(msg, message.Text("\n歌手:", answerstring[1]))
+						msg = append(msg, message.Text("太棒了，你猜对歌曲名了！答案是",
+							"\n歌名:", answerstring[0],
+							"\n歌手:", answerstring[1]))
 						if mode == "-动漫2" {
 							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
 						}
@@ -226,11 +226,11 @@ func init() { // 插件主体
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						msg := make(message.Message, 0, 6)
+						msg := make(message.Message, 0, 3)
 						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌手名了！答案是:\n"))
-						msg = append(msg, message.Text("歌名:", answerstring[0]))
-						msg = append(msg, message.Text("\n歌手:", answerstring[1]))
+						msg = append(msg, message.Text("太棒了，你猜对歌手名了！答案是",
+							"\n歌名:", answerstring[0],
+							"\n歌手:", answerstring[1]))
 						if mode == "-动漫2" {
 							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
 						}
@@ -241,13 +241,12 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 6)
-							msg = append(msg, message.Reply(c.Event.MessageID))
-							msg = append(msg, message.Text("太棒了，你猜对番剧名了！答案是:\n"))
-							msg = append(msg, message.Text("歌名:", answerstring[0]))
-							msg = append(msg, message.Text("\n歌手:", answerstring[1]))
-							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
-							ctx.Send(msg)
+							ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+								message.Text("太棒了，你猜对番剧名了！答案是:",
+									"\n歌名:", answerstring[0],
+									"\n歌手:", answerstring[1],
+									"\n歌曲出自:", answerstring[2]),
+							))
 							return
 						}
 						countofmusic++
@@ -264,11 +263,11 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 6)
+							msg := make(message.Message, 0, 3)
 							msg = append(msg, message.Reply(c.Event.MessageID))
-							msg = append(msg, message.Text("次数到了，你没能猜出来。\n答案是:"))
-							msg = append(msg, message.Text("\n歌名:", answerstring[0]))
-							msg = append(msg, message.Text("\n歌手:", answerstring[1]))
+							msg = append(msg, message.Text("次数到了，你没能猜出来。\n答案是:",
+								"\n歌名:", answerstring[0],
+								"\n歌手:", answerstring[1]))
 							if mode == "-动漫2" {
 								msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
 							}
