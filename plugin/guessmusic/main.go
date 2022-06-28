@@ -468,7 +468,7 @@ func musiccut(musicname, pathofmusic, outputPath string) (err error) {
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if err != nil {
-		err = errors.Errorf("[生成歌曲错误]ERROR:%s", stderr)
+		err = errors.Errorf("[生成歌曲错误]ERROR:%s", stderr.String())
 		return
 	}
 	return
