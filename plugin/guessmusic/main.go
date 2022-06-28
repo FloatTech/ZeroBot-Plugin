@@ -1,3 +1,4 @@
+// guessmusic 基于zbp的猜歌插件
 package guessmusic
 
 import (
@@ -92,6 +93,157 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR:", err))
 			}
 		})
+	engine.OnRegex(`^(个人|团队)猜歌-(简单|普通|困难)练习$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			mode := ctx.State["regex_matched"].([]string)[2]
+			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|番名|取消]”\n一共1个语音3次机会"))
+			// 随机抽歌
+			pathofmusic := engine.DataFolder() + "music/练习/"
+			switch mode {
+			case "困难":
+				pathofmusic += "困难/"
+			case "普通":
+				pathofmusic += "普通/"
+			default:
+				pathofmusic += "简单/"
+			}
+			err = os.MkdirAll(pathofmusic, 0755)
+			if err != nil {
+				err = fmt.Errorf("[生成文件夹错误]ERROR:%s", err)
+				return
+			}
+			files, err := ioutil.ReadDir(pathofmusic)
+			if err != nil {
+				err = fmt.Errorf("[读取本地列表错误]ERROR:%s", err)
+				return
+			}
+			musicname := files[rand.Intn(len(files))].Name()
+			// 进行猜歌环节
+			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + pathofmusic + musicname))
+			answerstring := strings.Split(strings.Replace(musicname, ".mp3", "", 1), "-")
+			var next *zero.FutureEvent
+			if ctx.State["regex_matched"].([]string)[1] == "个人" {
+				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), ctx.CheckSession())
+			} else {
+				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), zero.CheckGroup(ctx.Event.GroupID))
+			}
+			var countofmusic = 0 // 音频数量
+			recv, cancel := next.Repeat()
+			defer cancel()
+			tick := time.NewTimer(105 * time.Second)
+			after := time.NewTimer(120 * time.Second)
+			for {
+				select {
+				case <-tick.C:
+					ctx.SendChain(message.Text("猜歌游戏，你还有15s作答时间"))
+				case <-after.C:
+					msg := make(message.Message, 0, 6)
+					msg = append(msg, message.Reply(ctx.Event.MessageID))
+					msg = append(msg, message.Text("猜歌超时，游戏结束...答案是:\n"))
+					msg = append(msg, message.Text("歌名:", answerstring[1]))
+					msg = append(msg, message.Text("\n歌手:", answerstring[0]))
+					if answerstring[2] != "" {
+						msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
+					}
+					msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
+					ctx.Send(msg)
+					return
+				case c := <-recv:
+					tick.Reset(105 * time.Second)
+					after.Reset(120 * time.Second)
+					answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
+					switch {
+					case answer == "取消":
+						if c.Event.UserID == ctx.Event.UserID {
+							tick.Stop()
+							after.Stop()
+							msg := make(message.Message, 0, 6)
+							msg = append(msg, message.Reply(ctx.Event.MessageID))
+							msg = append(msg, message.Text("游戏已取消，猜歌答案是:\n"))
+							msg = append(msg, message.Text("歌名:", answerstring[1]))
+							msg = append(msg, message.Text("\n歌手:", answerstring[0]))
+							if answerstring[2] != "" {
+								msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
+							}
+							msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
+							ctx.Send(msg)
+							return
+						}
+						ctx.Send(
+							message.ReplyWithMessage(c.Event.MessageID,
+								message.Text("你无权限取消"),
+							),
+						)
+					case strings.Contains(answerstring[0], answer) || strings.EqualFold(answerstring[0], answer):
+						tick.Stop()
+						after.Stop()
+						msg := make(message.Message, 0, 6)
+						msg = append(msg, message.Reply(c.Event.MessageID))
+						msg = append(msg, message.Text("太棒了，你猜对歌手名了！答案是:\n"))
+						msg = append(msg, message.Text("歌名:", answerstring[1]))
+						msg = append(msg, message.Text("\n歌手:", answerstring[0]))
+						if answerstring[2] != "" {
+							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
+						}
+						msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
+						ctx.Send(msg)
+						return
+					case strings.Contains(answerstring[1], answer) || strings.EqualFold(answerstring[1], answer):
+						tick.Stop()
+						after.Stop()
+						msg := make(message.Message, 0, 6)
+						msg = append(msg, message.Reply(c.Event.MessageID))
+						msg = append(msg, message.Text("太棒了，你猜对歌曲名了！答案是:\n"))
+						msg = append(msg, message.Text("歌名:", answerstring[1]))
+						msg = append(msg, message.Text("\n歌手:", answerstring[0]))
+						if answerstring[2] != "" {
+							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
+						}
+						msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
+						ctx.Send(msg)
+						return
+					case strings.Contains(answerstring[2], answer) || strings.EqualFold(answerstring[2], answer):
+						tick.Stop()
+						after.Stop()
+						msg := make(message.Message, 0, 6)
+						msg = append(msg, message.Reply(c.Event.MessageID))
+						msg = append(msg, message.Text("太棒了，你猜对歌出处了！答案是:\n"))
+						msg = append(msg, message.Text("歌名:", answerstring[1]))
+						msg = append(msg, message.Text("\n歌手:", answerstring[0]))
+						if answerstring[2] != "" {
+							msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
+						}
+						msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
+						ctx.Send(msg)
+						return
+					default:
+						countofmusic++
+						switch {
+						case countofmusic > 2:
+							tick.Stop()
+							after.Stop()
+							msg := make(message.Message, 0, 6)
+							msg = append(msg, message.Reply(c.Event.MessageID))
+							msg = append(msg, message.Text("次数到了，你没能猜出来。答案是:\n"))
+							msg = append(msg, message.Text("歌名:", answerstring[1]))
+							msg = append(msg, message.Text("\n歌手:", answerstring[0]))
+							if answerstring[2] != "" {
+								msg = append(msg, message.Text("\n歌曲出自:", answerstring[2]))
+							}
+							msg = append(msg, message.Text("\n时长选自:", answerstring[3]))
+							ctx.Send(msg)
+							return
+						default:
+							ctx.Send(
+								message.ReplyWithMessage(c.Event.MessageID,
+									message.Text("答案不对哦，加油啊~"),
+								),
+							)
+						}
+					}
+				}
+			}
+		})
 	engine.OnRegex(`^(个人|团队)猜歌(-动漫|-动漫2)?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			mode := ctx.State["regex_matched"].([]string)[2]
@@ -101,20 +253,20 @@ func init() { // 插件主体
 			} else {
 				ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|提示|取消]”\n一共3段语音，6次机会"))
 			}
-			//随机抽歌
+			// 随机抽歌
 			musicname, pathofmusic, err := musiclottery(mode, musicPath)
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 				return
 			}
-			//切割音频，生成3个10秒的音频
+			// 切割音频，生成3个10秒的音频
 			outputPath := cachePath + gid + "/"
 			err = musiccut(musicname, pathofmusic, outputPath)
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 				return
 			}
-			//进行猜歌环节
+			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
 			answerstring := strings.Split(musicname, "-")
 			var next *zero.FutureEvent
@@ -123,8 +275,8 @@ func init() { // 插件主体
 			} else {
 				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), zero.CheckGroup(ctx.Event.GroupID))
 			}
-			var countofmusic = 0  //音频数量
-			var countofanswer = 0 //问答次数
+			var countofmusic = 0  // 音频数量
+			var countofanswer = 0 // 问答次数
 			recv, cancel := next.Repeat()
 			defer cancel()
 			wait := time.NewTimer(40 * time.Second)
@@ -289,7 +441,7 @@ func init() { // 插件主体
 		})
 }
 
-//随机抽取音乐
+// 随机抽取音乐
 func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err error) {
 	switch mode {
 	case "-动漫":
@@ -299,33 +451,33 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 	default:
 		pathofmusic = musicPath + "歌榜/"
 	}
-	err = os.MkdirAll(pathofmusic, 0755)
-	if err != nil {
-		err = fmt.Errorf("[生成文件夹错误]ERROR:%s", err)
+	errs := os.MkdirAll(pathofmusic, 0755)
+	if errs != nil {
+		err = fmt.Errorf("[生成文件夹错误]ERROR:%s", errs)
 		return
 	}
-	files, err := ioutil.ReadDir(pathofmusic)
-	if err != nil {
-		err = fmt.Errorf("[读取本地列表错误]ERROR:%s", err)
+	files, errs := ioutil.ReadDir(pathofmusic)
+	if errs != nil {
+		err = fmt.Errorf("[读取本地列表错误]ERROR:%s", errs)
 		return
 	}
-	//随机抽取音乐从本地或者线上
+	// 随机抽取音乐从本地或者线上
 	switch {
 	case len(files) == 0:
-		//如果没有任何本地就下载歌曲
+		// 如果没有任何本地就下载歌曲
 		switch mode {
 		case "-动漫":
-			musicname, err = getpaugramdata(pathofmusic)
+			musicname, errs = getpaugramdata(pathofmusic)
 		case "-动漫2":
-			musicname, err = getanimedata(pathofmusic)
+			musicname, errs = getanimedata(pathofmusic)
 		default:
-			musicname, err = getuomgdata(pathofmusic)
+			musicname, errs = getuomgdata(pathofmusic)
 		}
-		if err != nil {
-			err = fmt.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
+		if errs != nil {
+			err = fmt.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", errs)
 		}
 	case rand.Intn(2) == 0:
-		//[0,1)只会取到0，rand不允许的
+		// [0,1)只会取到0，rand不允许的
 		if len(files) > 1 {
 			musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
 		} else {
@@ -341,7 +493,7 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 			musicname, err = getuomgdata(pathofmusic)
 		}
 		if err != nil {
-			//如果下载失败就从本地抽一个歌曲
+			// 如果下载失败就从本地抽一个歌曲
 			if len(files) > 1 {
 				musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
 			} else {
@@ -353,10 +505,8 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 	return
 }
 
-//下载保罗API的歌曲
+// 下载保罗API的歌曲
 func getpaugramdata(musicPath string) (musicname string, err error) {
-	//mu.Lock()
-	//defer mu.Unlock()
 	api := "https://api.paugram.com/acgm/?list=1"
 	referer := "https://api.paugram.com/"
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
@@ -388,10 +538,8 @@ func getpaugramdata(musicPath string) (musicname string, err error) {
 	return
 }
 
-//下载animeMusic API的歌曲
+// 下载animeMusic API的歌曲
 func getanimedata(musicPath string) (musicname string, err error) {
-	//mu.Lock()
-	//defer mu.Unlock()
 	api := "https://anime-music.jijidown.com/api/v2/music"
 	referer := "https://anime-music.jijidown.com/"
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
@@ -424,7 +572,7 @@ func getanimedata(musicPath string) (musicname string, err error) {
 	return
 }
 
-//下载网易云热歌榜音乐
+// 下载网易云热歌榜音乐
 func getuomgdata(musicPath string) (musicname string, err error) {
 	api := "https://api.uomg.com/api/rand.music?sort=%E7%83%AD%E6%AD%8C%E6%A6%9C&format=json"
 	referer := "https://api.uomg.com/api/rand.music"
@@ -451,7 +599,7 @@ func getuomgdata(musicPath string) (musicname string, err error) {
 	return
 }
 
-//切割音乐成三个10s音频
+// 切割音乐成三个10s音频
 func musiccut(musicname, pathofmusic, outputPath string) (err error) {
 	err = os.MkdirAll(outputPath, 0755)
 	if err != nil {
