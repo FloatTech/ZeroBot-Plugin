@@ -366,14 +366,14 @@ func getpaugramdata(musicPath string) (musicname string, err error) {
 	artistsname := gjson.Get(binary.BytesToString(data), "artist").String()
 	musicurl := gjson.Get(binary.BytesToString(data), "link").String()
 	if name == "" || artistsname == "" {
-		err = errors.Errorf("the music miss!")
+		err = errors.Errorf("the music is missed")
 		return
 	}
 	musicname = name + "-" + artistsname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
-		err = errors.Errorf("the music miss!")
+		err = errors.Errorf("the music is missed")
 		return
 	}
 	if file.IsNotExist(downmusic) {
@@ -402,14 +402,14 @@ func getanimedata(musicPath string) (musicname string, err error) {
 	acgname := gjson.Get(binary.BytesToString(data), "res").Get("anime_info").Get("title").String()
 	musicurl := gjson.Get(binary.BytesToString(data), "res").Get("play_url").String()
 	if name == "" || artistsname == "" {
-		err = errors.Errorf("the music miss!")
+		err = errors.Errorf("the music is missed")
 		return
 	}
 	musicname = name + "-" + artistsname + "-" + acgname
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
-		err = errors.Errorf("the music miss!")
+		err = errors.Errorf("the music is missed")
 		return
 	}
 	if file.IsNotExist(downmusic) {
