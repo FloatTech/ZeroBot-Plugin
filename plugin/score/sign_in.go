@@ -175,7 +175,9 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请先签到！"))
 				return
 			}
-			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
+			if id := ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile)); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR:消息发送失败，账号可能被风控"))
+			}
 		})
 	engine.OnFullMatch("查看分数排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

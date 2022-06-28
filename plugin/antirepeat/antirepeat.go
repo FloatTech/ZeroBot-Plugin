@@ -47,6 +47,9 @@ func init() {
 	// 只接收群聊消息
 	en.On(`message/group`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
+			if zero.AdminPermission(ctx) {
+				return
+			}
 			// 定义常用变量
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
