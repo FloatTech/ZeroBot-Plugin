@@ -3,6 +3,8 @@ package guessmusic
 
 import (
 	"bytes"
+	"encoding/json"
+	"io/fs"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -22,7 +24,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
-	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 )
@@ -32,9 +33,19 @@ const (
 )
 
 var (
-	musicPath = file.BOTPATH + "/data/guessmusic/music/"        // 绝对路径，歌库根目录,通过指令进行更改
-	cuttime   = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
+	cuttime = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
+	config  = Config{                                         // 默认 Config
+		MusicPath: file.BOTPATH + "/data/guessmusic/music/", // 绝对路径，歌库根目录,通过指令进行更改
+		Local:     true,                                     // 是否使用本地音乐库
+		Api:       true,                                     // 是否使用 Api
+	}
 )
+
+type Config struct {
+	MusicPath string `json:"musicPath"`
+	Local     bool   `json:"local"`
+	Api       bool   `json:"api"`
+}
 
 func init() { // 插件主体
 	engine := control.Register("guessmusic", &ctrl.Options[*zero.Ctx]{
@@ -42,7 +53,7 @@ func init() { // 插件主体
 		Help: "猜歌插件（该插件依赖ffmpeg）\n" +
 			"- 个人猜歌\n" +
 			"- 团队猜歌\n" +
-			"- 设置缓存歌库路径 [绝对路径]\n" +
+			"- 设置猜歌缓存歌库路径 [绝对路径]\n" +
 			"注：默认歌库为网易云热歌榜\n" +
 			"1.可在后面添加“-动漫”进行动漫歌猜歌\n-这个只能猜歌名和歌手\n" +
 			"2.可在后面添加“-动漫2”进行动漫歌猜歌\n-这个可以猜番名，但歌手经常“未知”",
@@ -62,15 +73,20 @@ func init() { // 插件主体
 	if err != nil {
 		panic(err)
 	}
-	cfgfile := engine.DataFolder() + "setpath.txt"
-	if file.IsExist(cfgfile) {
-		b, err := os.ReadFile(cfgfile)
-		if err == nil {
-			musicPath = binary.BytesToString(b)
-			logrus.Infoln("[guessmusic] set dir to", musicPath)
+	cfgFile := engine.DataFolder() + "config.json"
+	if file.IsExist(cfgFile) {
+		b, err := os.ReadFile(cfgFile)
+		if err != nil {
+			return
 		}
+		if err = json.Unmarshal(b, &config); err != nil {
+			return
+		}
+	} else {
+		k, _ := json.MarshalIndent(config, "", " ")
+		_ = os.WriteFile(cfgFile, k, 0644)
 	}
-	engine.OnRegex(`^设置缓存歌库路径(.*)$`, func(ctx *zero.Ctx) bool {
+	engine.OnRegex(`^设置猜歌(.*)(.*)$`, func(ctx *zero.Ctx) bool {
 		if !zero.SuperUserPermission(ctx) {
 			ctx.SendChain(message.Text("只有bot主人可以设置！"))
 			return false
@@ -78,20 +94,41 @@ func init() { // 插件主体
 		return true
 	}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			musicPath = ctx.State["regex_matched"].([]string)[1]
-			if musicPath == "" {
-				ctx.SendChain(message.Text("请输入正确的路径!"))
+			option := ctx.State["regex_matched"].([]string)[1]
+			value := ctx.State["regex_matched"].([]string)[2]
+			switch option {
+			case "缓存歌库路径":
+				if value == "" {
+					ctx.SendChain(message.Text("请输入正确的路径!"))
+				}
+				musicPath := strings.ReplaceAll(value, "\\", "/")
+				if !strings.HasSuffix(musicPath, "/") {
+					musicPath += "/"
+				}
+				config.MusicPath = musicPath
+				k, _ := json.MarshalIndent(config, "", " ")
+				_ = os.WriteFile(cfgFile, k, 0644)
+				if err == nil {
+					ctx.SendChain(message.Text("成功！"))
+				} else {
+					ctx.SendChain(message.Text("ERROR:", err))
+				}
+			case "本地":
+				choice, err := strconv.ParseBool(value)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+				}
+				config.Local = choice
+			case "Api":
+				choice, err := strconv.ParseBool(value)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+				}
+				config.Api = choice
+			default:
+				ctx.SendChain(message.Text("未知的设置类型，允许的类型为 缓存歌库路径, 本地, Api"))
 			}
-			musicPath = strings.ReplaceAll(musicPath, "\\", "/")
-			if !strings.HasSuffix(musicPath, "/") {
-				musicPath += "/"
-			}
-			err := os.WriteFile(cfgfile, binary.StringToBytes(musicPath), 0644)
-			if err == nil {
-				ctx.SendChain(message.Text("成功！"))
-			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
-			}
+
 		})
 	engine.OnRegex(`^(个人|团队)猜歌(-动漫|-动漫2)?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -103,7 +140,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|提示|取消]”\n一共3段语音，6次机会"))
 			}
 			// 随机抽歌
-			musicname, pathofmusic, err := musiclottery(mode, musicPath)
+			musicname, pathofmusic, err := musicLottery(mode, config.MusicPath)
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 				return
@@ -290,7 +327,7 @@ func init() { // 插件主体
 }
 
 // 随机抽取音乐
-func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err error) {
+func musicLottery(mode, musicPath string) (musicname, pathofmusic string, err error) {
 	switch mode {
 	case "-动漫":
 		pathofmusic = musicPath + "动漫/"
@@ -309,47 +346,65 @@ func musiclottery(mode, musicPath string) (musicname, pathofmusic string, err er
 		err = errors.Errorf("[读取本地列表错误]ERROR:%s", err)
 		return
 	}
-	// 随机抽取音乐从本地或者线上
-	switch {
-	case len(files) == 0:
-		// 如果没有任何本地就下载歌曲
-		switch mode {
-		case "-动漫":
-			musicname, err = getpaugramdata(pathofmusic)
-		case "-动漫2":
-			musicname, err = getanimedata(pathofmusic)
+
+	if config.Local && config.Api {
+		switch {
+		case len(files) == 0:
+			// 如果没有任何本地就下载歌曲
+			musicname, err = getApiMusic(mode, pathofmusic)
+			if err != nil {
+				err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
+				return
+			}
+		case rand.Intn(2) == 0:
+			// [0,1)只会取到0，rand不允许的
+			musicname = getLocalMusic(files)
 		default:
-			musicname, err = getuomgdata(pathofmusic)
+			musicname, err = getApiMusic(mode, pathofmusic)
+			if err != nil {
+				// 如果下载失败就从本地抽一个歌曲
+				musicname = getLocalMusic(files)
+				err = nil
+			}
 		}
-		if err != nil {
-			err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
+		return
+	}
+	if config.Local {
+		if len(files) == 0 {
+			err = errors.Errorf("[本地数据为0，未开启API数据]")
 			return
 		}
-	case rand.Intn(2) == 0:
-		// [0,1)只会取到0，rand不允许的
-		if len(files) > 1 {
-			musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
-		} else {
-			musicname = strings.Replace(files[0].Name(), ".mp3", "", 1)
-		}
-	default:
-		switch mode {
-		case "-动漫":
-			musicname, err = getpaugramdata(pathofmusic)
-		case "-动漫2":
-			musicname, err = getanimedata(pathofmusic)
-		default:
-			musicname, err = getuomgdata(pathofmusic)
-		}
+		musicname = getLocalMusic(files)
+		return
+	}
+	if config.Api {
+		musicname, err = getApiMusic(mode, pathofmusic)
 		if err != nil {
-			// 如果下载失败就从本地抽一个歌曲
-			if len(files) > 1 {
-				musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
-			} else {
-				musicname = strings.Replace(files[0].Name(), ".mp3", "", 1)
-			}
-			err = nil
+			err = errors.Errorf("[获取API失败，未开启本地数据]ERROR:%s", err)
 		}
+		return
+	}
+	err = errors.Errorf("[未开启API以及本地数据]")
+	return
+}
+
+func getApiMusic(mode string, pathofmusic string) (musicname string, err error) {
+	switch mode {
+	case "-动漫":
+		musicname, err = getpaugramdata(pathofmusic)
+	case "-动漫2":
+		musicname, err = getanimedata(pathofmusic)
+	default:
+		musicname, err = getuomgdata(pathofmusic)
+	}
+	return
+}
+
+func getLocalMusic(files []fs.FileInfo) (musicname string) {
+	if len(files) > 1 {
+		musicname = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
+	} else {
+		musicname = strings.Replace(files[0].Name(), ".mp3", "", 1)
 	}
 	return
 }
