@@ -8,10 +8,13 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/math"
 )
+
+var db = &sql.Sqlite{}
 
 func init() {
 	engine := control.Register("managerplugin", &ctrl.Options[*zero.Ctx]{
