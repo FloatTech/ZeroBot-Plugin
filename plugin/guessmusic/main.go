@@ -138,7 +138,7 @@ func init() { // 插件主体
 				case <-after.C:
 					msg := make(message.Message, 0, 3)
 					msg = append(msg, message.Reply(ctx.Event.MessageID))
-					msg = append(msg, message.Text("猜歌超时，游戏结束\n答案是:\n",
+					msg = append(msg, message.Text("猜歌超时，游戏结束\n答案是:",
 						"\n歌名:", answerstring[0],
 						"\n歌手:", answerstring[1]))
 					if mode == "-动漫2" {
