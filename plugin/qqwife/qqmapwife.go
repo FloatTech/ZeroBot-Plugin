@@ -608,7 +608,7 @@ func init() {
 				ctx.SendChain(message.Text(sendtext[4][1]))
 			}
 		})
-	engine.OnRegex(`重置(所有|本群|/d+)?花名册`, zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^重置(所有|本群|/d+)?花名册$`, zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			cmd := "ALL"
 			switch ctx.State["regex_matched"].([]string)[1] {
