@@ -116,10 +116,13 @@ func init() {
 			var i int
 			for _, ban := range banlist {
 				banid := ban.Get("user_id").Int()
-				banlevel := ban.Get("level").Int()
-				if banlevel == setlevel {
-					ctx.SetGroupKick(gid, banid, false)
-					i++
+				banlevel := ban.Get("level").String()
+				levelint := math.Str2Int64(banlevel)
+				for _, adminid := range zero.BotConfig.SuperUsers {
+					if levelint == setlevel && banid != ctx.Event.SelfID && banid != adminid {
+						ctx.SetGroupKick(gid, banid, false)
+						i++
+					}
 				}
 			}
 			ctx.SendChain(message.Text("本次一共踢出了", i, "个人"))
@@ -136,10 +139,13 @@ func init() {
 			var i int
 			for _, ban := range banlist {
 				banid := ban.Get("user_id").Int()
-				banlevel := ban.Get("level").Int()
-				if banlevel == setlevel {
-					ctx.SetGroupKick(gid, banid, true)
-					i++
+				banlevel := ban.Get("level").String()
+				levelint := math.Str2Int64(banlevel)
+				for _, adminid := range zero.BotConfig.SuperUsers {
+					if levelint == setlevel && banid != ctx.Event.SelfID && banid != adminid {
+						ctx.SetGroupKick(gid, banid, true)
+						i++
+					}
 				}
 			}
 			ctx.SendChain(message.Text("本次一共踢出了", i, "个人"))
