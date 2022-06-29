@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
+
 	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -32,7 +32,7 @@ const (
 )
 
 var (
-	musicPath = file.BOTPATH + "/data/guessmusic/music/" // 绝对路径，歌库根目录,通过指令进行更改
+	musicPath = file.BOTPATH + "/data/guessmusic/music/"        // 绝对路径，歌库根目录,通过指令进行更改
 	cuttime   = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
 )
 
