@@ -104,7 +104,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text(blacklist))
 		})
-	engine.OnRegex(`踢出等级为([0-9]{3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`踢出等级为([0-9]{1,3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setlevel := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 			if setlevel > 100 {
@@ -112,15 +112,19 @@ func init() {
 			}
 			gid := ctx.Event.GroupID
 			banlist := ctx.GetGroupMemberListNoCache(gid).Array()
+			ctx.SendChain(message.Text("正在执行中..."))
+			var i int
 			for _, ban := range banlist {
 				banid := ban.Get("user_id").Int()
 				banlevel := ban.Get("level").Int()
 				if banlevel == setlevel {
 					ctx.SetGroupKick(gid, banid, false)
+					i++
 				}
 			}
+			ctx.SendChain(message.Text("本次一共踢出了", i, "个人"))
 		})
-	engine.OnRegex(`踢出并拉黑等级为([0-9]{3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`踢出并拉黑等级为([0-9]{1,3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setlevel := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 			if setlevel > 100 {
@@ -128,13 +132,17 @@ func init() {
 			}
 			gid := ctx.Event.GroupID
 			banlist := ctx.GetGroupMemberListNoCache(gid).Array()
+			ctx.SendChain(message.Text("正在执行中..."))
+			var i int
 			for _, ban := range banlist {
 				banid := ban.Get("user_id").Int()
 				banlevel := ban.Get("level").Int()
 				if banlevel == setlevel {
 					ctx.SetGroupKick(gid, banid, true)
+					i++
 				}
 			}
+			ctx.SendChain(message.Text("本次一共踢出了", i, "个人"))
 		})
 	engine.OnRegex(`^\[CQ:xml`, zero.OnlyGroup, zero.KeywordRule("serviceID=\"60\"")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
