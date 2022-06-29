@@ -23,7 +23,7 @@ func init() {
 			" - 开启全员禁言 群号\n" +
 			" - 解除全员禁言 群号\n" +
 			" - 踢出并拉黑 QQ号\n" +
-			" - 踢出(并拉黑)等级为[1-100]的人" +
+			" - 踢出(并拉黑)等级为[1-100]的人\n" +
 			" - 反\"XX召唤术\"\n",
 		PrivateDataFolder: "managerplugin",
 	})
@@ -102,7 +102,7 @@ func init() {
 				ctx.SendChain(message.Text("黑名单列表是空的~"))
 				return
 			}
-			ctx.SendChain(message.Text(blacklist))
+			ctx.SendChain(message.Text(blacklist...))
 		})
 	engine.OnRegex(`踢出等级为([0-9]{1,3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -168,8 +168,9 @@ func writeblacklist(groupid, userid int64) (err error) {
 
 func readblacklist(groupid int64) (bl []any, err error) {
 	var b blacklist
+	bl = make([]any, 1, 128)
+	bl[0] = "黑名单列表\n"
 	err = db.FindFor("blacklist", b, "GROUP BY gid", func() error {
-		var bl []any
 		bl = append(bl, b.UserID, "\n")
 		return nil
 	})
