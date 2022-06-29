@@ -104,7 +104,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text(blacklist...))
 		})
-	engine.OnRegex(`踢出等级为([0-9]{1,3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	/*engine.OnRegex(`踢出等级为([0-9]{1,3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setlevel := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 			if setlevel > 100 {
@@ -141,6 +141,7 @@ func init() {
 				banid := ban.Get("user_id").Int()
 				banlevel := ban.Get("level").String()
 				levelint := math.Str2Int64(banlevel)
+
 				for _, adminid := range zero.BotConfig.SuperUsers {
 					if levelint == setlevel && banid != ctx.Event.SelfID && banid != adminid {
 						ctx.SetGroupKick(gid, banid, true)
@@ -150,6 +151,20 @@ func init() {
 			}
 			ctx.SendChain(message.Text("本次一共踢出了", i, "个人"))
 		})
+	engine.OnFullMatch("获取群成员信息", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			temp := ctx.GetGroupMemberListNoCache(gid).Array()
+			l := make(message.Message, 1, 2000)
+			l[0] = ctxext.FakeSenderForwardNode(ctx, message.Text("--群成员信息--"))
+			for _, v := range temp {
+				id := v.Get("user_id").Int()
+				te := ctx.GetGroupMemberInfo(gid, id, true)
+				level := te.Get("level").String()
+				l = append(l, ctxext.FakeSenderForwardNode(ctx, message.Text("qq号:", id, "\n", "群等级:", level)))
+			}
+			ctx.SendGroupForwardMessage(gid, l)
+		})*/
 	engine.OnRegex(`^\[CQ:xml`, zero.OnlyGroup, zero.KeywordRule("serviceID=\"60\"")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
