@@ -104,7 +104,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text(blacklist))
 		})
-	engine.OnRegex(`踢出等级为([0-9]+{3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`踢出等级为([0-9]{3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setlevel := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 			if setlevel > 100 {
@@ -120,7 +120,7 @@ func init() {
 				}
 			}
 		})
-	engine.OnRegex(`踢出并拉黑等级为([0-9]+{3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`踢出并拉黑等级为([0-9]{3})的人`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setlevel := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 			if setlevel > 100 {
