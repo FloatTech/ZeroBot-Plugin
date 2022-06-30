@@ -136,6 +136,7 @@ func init() { // 插件主体
 			k, err := json.MarshalIndent(config, "", " ")
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
 			err = os.WriteFile(cfgFile, k, 0644)
 			if err == nil {
