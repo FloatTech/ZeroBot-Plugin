@@ -19,12 +19,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
-	"github.com/tidwall/gjson"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 )
 
@@ -40,12 +38,6 @@ var (
 		Api:       true,                                     // 是否使用 Api
 	}
 )
-
-type config struct {
-	MusicPath string `json:"musicPath"`
-	Local     bool   `json:"local"`
-	Api       bool   `json:"api"`
-}
 
 func init() { // 插件主体
 	engine := control.Register("guessmusic", &ctrl.Options[*zero.Ctx]{
@@ -78,20 +70,16 @@ func init() { // 插件主体
 	cfgFile := engine.DataFolder() + "config.json"
 	if file.IsExist(cfgFile) {
 		reader, err := os.Open(cfgFile)
-
-		defer func(reader *os.File) {
-			err = reader.Close()
-			if err != nil {
-				panic(err)
-			}
-		}(reader)
-
 		if err == nil {
 			err = json.NewDecoder(reader).Decode(&cfg)
 			if err != nil {
 				panic(err)
 			}
 		} else {
+			panic(err)
+		}
+		err = reader.Close()
+		if err != nil {
 			panic(err)
 		}
 	} else {
@@ -421,7 +409,7 @@ func getApiMusic(mode string, musicPath string) (musicName string, err error) {
 	case "-动漫2":
 		musicName, err = getAnimeData(musicPath)
 	default:
-		musicName, err = getUOMGData(musicPath)
+		musicName, err = getNetEaseData(musicPath)
 	}
 	return
 }
@@ -443,9 +431,14 @@ func getPaugramData(musicPath string) (musicName string, err error) {
 	if err != nil {
 		return
 	}
-	name := gjson.Get(binary.BytesToString(data), "title").String()
-	artistsName := gjson.Get(binary.BytesToString(data), "artist").String()
-	musicURL := gjson.Get(binary.BytesToString(data), "link").String()
+	var parsed paugramData
+	err = json.Unmarshal(data, &parsed)
+	if err != nil {
+		return
+	}
+	name := parsed.Title
+	artistsName := parsed.Artist
+	musicURL := parsed.Link
 	if name == "" || artistsName == "" {
 		err = errors.New("下载音乐失败")
 		return
@@ -482,10 +475,15 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 	if err != nil {
 		return
 	}
-	name := gjson.Get(binary.BytesToString(data), "res").Get("title").String()
-	artistName := gjson.Get(binary.BytesToString(data), "res").Get("author").String()
-	acgName := gjson.Get(binary.BytesToString(data), "res").Get("anime_info").Get("title").String()
-	musicURL := gjson.Get(binary.BytesToString(data), "res").Get("play_url").String()
+	var parsed animeData
+	err = json.Unmarshal(data, &parsed)
+	if err != nil {
+		return
+	}
+	name := parsed.Res.Title
+	artistName := parsed.Res.Author
+	acgName := parsed.Res.AnimeInfo.Title
+	musicURL := parsed.Res.PlayURL
 	if name == "" || artistName == "" {
 		err = errors.New("下载音乐失败")
 		return
@@ -515,19 +513,23 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 }
 
 // 下载网易云热歌榜音乐
-func getUOMGData(musicPath string) (musicname string, err error) {
+func getNetEaseData(musicPath string) (musicName string, err error) {
 	api := "https://api.uomg.com/api/rand.music?sort=%E7%83%AD%E6%AD%8C%E6%A6%9C&format=json"
 	referer := "https://api.uomg.com/api/rand.music"
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
 	if err != nil {
 		return
 	}
-	musicData := gjson.Get(binary.BytesToString(data), "data")
-	name := musicData.Get("name").String()
-	musicURL := musicData.Get("url").String()
-	artistsName := musicData.Get("artistsname").String()
-	musicname = name + " - " + artistsName
-	downMusic := musicPath + "/" + musicname + ".mp3"
+	var parsed netEaseData
+	err = json.Unmarshal(data, &parsed)
+	if err != nil {
+		return
+	}
+	name := parsed.Data.Name
+	musicURL := parsed.Data.URL
+	artistsName := parsed.Data.Artistsname
+	musicName = name + " - " + artistsName
+	downMusic := musicPath + "/" + musicName + ".mp3"
 	if file.IsNotExist(downMusic) {
 		data, err = web.GetData(musicURL + ".mp3")
 		if err != nil {
