@@ -108,8 +108,6 @@ func init() { // 插件主体
 					musicPath += "/"
 				}
 				config.MusicPath = musicPath
-				k, _ := json.MarshalIndent(config, "", " ")
-				_ = os.WriteFile(cfgFile, k, 0644)
 				if err == nil {
 					ctx.SendChain(message.Text("成功！"))
 				} else {
@@ -130,7 +128,8 @@ func init() { // 插件主体
 			default:
 				ctx.SendChain(message.Text("未知的设置类型，允许的类型为 缓存歌库路径, 本地, Api"))
 			}
-
+			k, _ := json.MarshalIndent(config, "", " ")
+			_ = os.WriteFile(cfgFile, k, 0644)
 		})
 	engine.OnRegex(`^(个人|团队)猜歌(-动漫|-动漫2)?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
@@ -430,7 +429,7 @@ func getpaugramdata(musicPath string) (musicname string, err error) {
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
-		err = errors.Errorf("the music is missed")
+		err = errors.Errorf("the music is missed, %s", err)
 		return
 	}
 	if file.IsNotExist(downmusic) {
@@ -466,7 +465,7 @@ func getanimedata(musicPath string) (musicname string, err error) {
 	downmusic := musicPath + "/" + musicname + ".mp3"
 	response, err := http.Head(musicurl)
 	if err != nil || response.StatusCode != 200 {
-		err = errors.Errorf("the music is missed")
+		err = errors.Errorf("the music is missed, %s", err)
 		return
 	}
 	if file.IsNotExist(downmusic) {
