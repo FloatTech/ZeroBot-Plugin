@@ -580,9 +580,9 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置猜歌缓存歌库路径 [绝对路径]
 
-  - [x] 设置猜歌本地 [t/f]
+  - [x] 设置猜歌本地 [true/false]
 
-  - [x] 设置猜歌Api [t/f]
+  - [x] 设置猜歌Api [true/false]
   
   - 注：默认歌库为网易云热歌榜
   
