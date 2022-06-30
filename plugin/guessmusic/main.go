@@ -85,8 +85,14 @@ func init() { // 插件主体
 			return
 		}
 	} else {
-		k, _ := json.MarshalIndent(config, "", " ")
-		_ = os.WriteFile(cfgFile, k, 0644)
+		k, err := json.MarshalIndent(config, "", " ")
+		if err != nil {
+			return
+		}
+		err = os.WriteFile(cfgFile, k, 0644)
+		if err != nil {
+			return
+		}
 	}
 	engine.OnRegex(`^设置猜歌(.*)(.*)$`, func(ctx *zero.Ctx) bool {
 		if !zero.SuperUserPermission(ctx) {
@@ -102,34 +108,41 @@ func init() { // 插件主体
 			case "缓存歌库路径":
 				if value == "" {
 					ctx.SendChain(message.Text("请输入正确的路径!"))
+					return
 				}
 				musicPath := strings.ReplaceAll(value, "\\", "/")
 				if !strings.HasSuffix(musicPath, "/") {
 					musicPath += "/"
 				}
 				config.MusicPath = musicPath
-				if err == nil {
-					ctx.SendChain(message.Text("成功！"))
-				} else {
-					ctx.SendChain(message.Text("ERROR:", err))
-				}
 			case "本地":
 				choice, err := strconv.ParseBool(value)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
 				config.Local = choice
 			case "Api":
 				choice, err := strconv.ParseBool(value)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
+					return
 				}
 				config.Api = choice
 			default:
 				ctx.SendChain(message.Text("未知的设置类型，允许的类型为 缓存歌库路径, 本地, Api"))
+				return
 			}
-			k, _ := json.MarshalIndent(config, "", " ")
-			_ = os.WriteFile(cfgFile, k, 0644)
+			k, err := json.MarshalIndent(config, "", " ")
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
+			err = os.WriteFile(cfgFile, k, 0644)
+			if err == nil {
+				ctx.SendChain(message.Text("成功！"))
+			} else {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
 		})
 	engine.OnRegex(`^(个人|团队)猜歌(-动漫|-动漫2)?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
