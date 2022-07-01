@@ -440,7 +440,7 @@ func getPaugramData(musicPath string) (musicName string, err error) {
 	artistsName := parsed.Artist
 	musicURL := parsed.Link
 	if name == "" || artistsName == "" {
-		err = errors.New("下载音乐失败")
+		err = errors.New("无法获API取歌曲信息")
 		return
 	}
 	musicName = name + " - " + artistsName
@@ -455,7 +455,7 @@ func getPaugramData(musicPath string) (musicName string, err error) {
 		return
 	}
 	if file.IsNotExist(downMusic) {
-		data, err = web.GetData(musicURL + ".mp3")
+		data, err = web.GetData(musicURL)
 		if err != nil {
 			return
 		}
@@ -483,13 +483,36 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 	name := parsed.Res.Title
 	artistName := parsed.Res.Author
 	acgName := parsed.Res.AnimeInfo.Title
-	musicURL := parsed.Res.PlayURL
+	//musicURL := parsed.Res.PlayURL
 	if name == "" || artistName == "" {
-		err = errors.New("下载音乐失败")
+		err = errors.New("无法获API取歌曲信息")
 		return
+	}
+	requestURL := "https://autumnfish.cn/search?keywords=" + url.QueryEscape(name+" "+artistName) + "&limit=1"
+	if artistName == "未知" {
+		requestURL = "https://autumnfish.cn/search?keywords=" + url.QueryEscape(acgName+" "+name) + "&limit=1"
+	}
+	data, err = web.GetData(requestURL)
+	if err != nil {
+		err = errors.Errorf("API歌曲查询失败, ERROR: %s", err)
+		return
+	}
+	var autumnfish autumnfishData
+	err = json.Unmarshal(data, &autumnfish)
+	if err != nil {
+		return
+	}
+	if autumnfish.Code != 200 {
+		err = errors.Errorf("下载音乐失败, Status Code: %d", autumnfish.Code)
+		return
+	}
+	musicID := strconv.Itoa(autumnfish.Result.Songs[0].ID)
+	if artistName == "未知" {
+		artistName = strings.ReplaceAll(autumnfish.Result.Songs[0].Artists[0].Name, " - ", "-")
 	}
 	musicName = name + " - " + artistName + " - " + acgName
 	downMusic := musicPath + "/" + musicName + ".mp3"
+	musicURL := "http://music.163.com/song/media/outer/url?id=" + musicID
 	response, err := http.Head(musicURL)
 	if err != nil {
 		err = errors.Errorf("下载音乐失败, ERROR: %s", err)
@@ -500,7 +523,7 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 		return
 	}
 	if file.IsNotExist(downMusic) {
-		data, err = web.GetData(musicURL + ".mp3")
+		data, err = web.GetData(musicURL)
 		if err != nil {
 			return
 		}
@@ -528,10 +551,14 @@ func getNetEaseData(musicPath string) (musicName string, err error) {
 	name := parsed.Data.Name
 	musicURL := parsed.Data.URL
 	artistsName := parsed.Data.Artistsname
+	if name == "" || artistsName == "" {
+		err = errors.New("无法获API取歌曲信息")
+		return
+	}
 	musicName = name + " - " + artistsName
 	downMusic := musicPath + "/" + musicName + ".mp3"
 	if file.IsNotExist(downMusic) {
-		data, err = web.GetData(musicURL + ".mp3")
+		data, err = web.GetData(musicURL)
 		if err != nil {
 			return
 		}
