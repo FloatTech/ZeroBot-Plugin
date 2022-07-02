@@ -3,7 +3,7 @@ package guessmusic
 type config struct {
 	MusicPath string `json:"musicPath"`
 	Local     bool   `json:"local"`
-	Api       bool   `json:"api"`
+	API       bool   `json:"api"`
 }
 
 type paugramData struct {

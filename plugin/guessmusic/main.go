@@ -1,3 +1,4 @@
+// Package guessmusic GitHub 仓库搜索
 package guessmusic
 
 import (
@@ -35,7 +36,7 @@ var (
 	cfg     = config{                                         // 默认 config
 		MusicPath: file.BOTPATH + "/data/guessmusic/music/", // 绝对路径，歌库根目录,通过指令进行更改
 		Local:     true,                                     // 是否使用本地音乐库
-		Api:       true,                                     // 是否使用 Api
+		API:       true,                                     // 是否使用 Api
 	}
 )
 
@@ -122,7 +123,7 @@ func init() { // 插件主体
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				cfg.Api = choice
+				cfg.API = choice
 			}
 			err = saveConfig(cfgFile)
 			if err == nil {
@@ -360,11 +361,11 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 		return
 	}
 
-	if cfg.Local && cfg.Api {
+	if cfg.Local && cfg.API {
 		switch {
 		case len(files) == 0:
 			// 如果没有任何本地就下载歌曲
-			musicName, err = getApiMusic(mode, pathOfMusic)
+			musicName, err = getAPIMusic(mode, pathOfMusic)
 			if err != nil {
 				err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
 				return
@@ -373,7 +374,7 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 			// [0,1)只会取到0，rand不允许的
 			musicName = getLocalMusic(files)
 		default:
-			musicName, err = getApiMusic(mode, pathOfMusic)
+			musicName, err = getAPIMusic(mode, pathOfMusic)
 			if err != nil {
 				// 如果下载失败就从本地抽一个歌曲
 				musicName = getLocalMusic(files)
@@ -390,8 +391,8 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 		musicName = getLocalMusic(files)
 		return
 	}
-	if cfg.Api {
-		musicName, err = getApiMusic(mode, pathOfMusic)
+	if cfg.API {
+		musicName, err = getAPIMusic(mode, pathOfMusic)
 		if err != nil {
 			err = errors.Errorf("[获取API失败，未开启本地数据] ERROR:%s", err)
 			return
@@ -402,7 +403,7 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 	return
 }
 
-func getApiMusic(mode string, musicPath string) (musicName string, err error) {
+func getAPIMusic(mode string, musicPath string) (musicName string, err error) {
 	switch mode {
 	case "-动漫":
 		musicName, err = getPaugramData(musicPath)
