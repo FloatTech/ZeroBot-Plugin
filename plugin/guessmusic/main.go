@@ -1,4 +1,4 @@
-// Package guessmusic GitHub 仓库搜索
+// Package guessmusic 基于zbp的猜歌插件
 package guessmusic
 
 import (
