@@ -1,4 +1,3 @@
-// Package guessmusic 基于zbp的猜歌插件
 package guessmusic
 
 import (
@@ -8,6 +7,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
