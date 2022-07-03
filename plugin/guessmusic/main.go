@@ -329,7 +329,7 @@ func init() { // 插件主体
 }
 
 func saveConfig(cfgFile string) (err error) {
-	if reader, err := os.OpenFile(cfgFile, os.O_CREATE, os.ModePerm); err == nil {
+	if reader, err := os.Create(cfgFile); err == nil {
 		err = json.NewEncoder(reader).Encode(&cfg)
 		if err != nil {
 			return err
