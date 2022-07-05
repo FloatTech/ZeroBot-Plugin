@@ -189,7 +189,7 @@ func init() {
 }
 
 // parseVideo 解析视频数据
-func parsevideo(id string) (m message.Message, err error) {
+func parsevideo(id, oid string) (m message.Message, err error) {
 	data, err := web.GetData(videoInfoAPI + id)
 	if err != nil {
 		return
@@ -214,7 +214,7 @@ func parsevideo(id string) (m message.Message, err error) {
 	}
 	m = append(m, message.Text("播放: ", row(vd.Data.Stat.View), ", 弹幕: ", row(vd.Data.Stat.Danmaku), "\n"),
 		message.Image(vd.Data.Pic),
-		message.Text("\n点赞: ", row(vd.Data.Stat.Like), ", 投币: ", row(vd.Data.Stat.Coin), "\n收藏: ", row(vd.Data.Stat.Favorite), ", 分享: ", row(vd.Data.Stat.Share), "\n", videoorigin, id))
+		message.Text("\n点赞: ", row(vd.Data.Stat.Like), ", 投币: ", row(vd.Data.Stat.Coin), "\n收藏: ", row(vd.Data.Stat.Favorite), ", 分享: ", row(vd.Data.Stat.Share), "\n", videoorigin, oid))
 	return
 }
 
@@ -286,12 +286,12 @@ func parselive(id string) (m message.Message, err error) {
 func parse(id string) (m message.Message, err error) {
 	switch id[:2] {
 	case "av":
-		m, err = parsevideo("aid=" + id[2:])
+		m, err = parsevideo("aid="+id[2:], "av"+id[2:])
 		if err != nil {
 			return
 		}
 	case "BV":
-		m, err = parsevideo("bvid=" + id[2:])
+		m, err = parsevideo("bvid="+id[2:], "BV"+id[2:])
 		if err != nil {
 			return
 		}
