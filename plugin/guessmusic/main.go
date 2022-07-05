@@ -489,9 +489,9 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 		err = errors.New("无法获API取歌曲信息")
 		return
 	}
-	requestURL := "https://autumnfish.cn/search?keywords=" + url.QueryEscape(name+" "+artistName) + "&limit=1"
+	requestURL := "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(name+" "+artistName) + "&limit=1"
 	if artistName == "未知" {
-		requestURL = "https://autumnfish.cn/search?keywords=" + url.QueryEscape(acgName+" "+name) + "&limit=1"
+		requestURL = "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(acgName+" "+name) + "&limit=1"
 	}
 	data, err = web.GetData(requestURL)
 	if err != nil {
