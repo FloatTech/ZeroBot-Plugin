@@ -80,6 +80,10 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>插件控制</summary>
 
+  - [x] /响应 (在发送的群/用户开始工作)
+
+  - [x] /沉默 (在发送的群/用户停止工作)
+
   - [x] /启用 xxx (在发送的群/用户启用xxx)
 
   - [x] /禁用 xxx (在发送的群/用户禁用xxx)
