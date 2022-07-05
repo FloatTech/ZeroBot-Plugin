@@ -138,7 +138,7 @@ func kugou(keyword string) message.MessageSegment {
 
 // cloud163 返回网易云音乐卡片
 func cloud163(keyword string) (msg message.MessageSegment) {
-	requestURL := "https://autumnfish.cn/search?keywords=" + url.QueryEscape(keyword)
+	requestURL := "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(keyword)
 	data, err := web.GetData(requestURL)
 	if err != nil {
 		msg = message.Text("ERROR:", err)
