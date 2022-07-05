@@ -80,6 +80,10 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>插件控制</summary>
 
+  - [x] /响应 (在发送的群/用户开始工作)
+
+  - [x] /沉默 (在发送的群/用户停止工作)
+
   - [x] /启用 xxx (在发送的群/用户启用xxx)
 
   - [x] /禁用 xxx (在发送的群/用户禁用xxx)
@@ -578,7 +582,11 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 团队猜歌
   
-  - [x] 设置缓存歌库路径 [绝对路径]
+  - [x] 设置猜歌缓存歌库路径 [绝对路径]
+
+  - [x] 设置猜歌本地 [true/false]
+
+  - [x] 设置猜歌Api [true/false]
   
   - 注：默认歌库为网易云热歌榜
   
