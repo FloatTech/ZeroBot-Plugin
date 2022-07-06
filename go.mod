@@ -6,12 +6,12 @@ require (
 	github.com/FloatTech/AnimeAPI v1.4.1-0.20220613042537-0adf8c5616ec
 	github.com/FloatTech/sqlite v0.3.2
 	github.com/FloatTech/zbpctrl v1.4.1-0.20220706075314-7fdbbc2a2345
-	github.com/FloatTech/zbputils v1.4.1-0.20220706075514-0ba0bb2b8953
+	github.com/FloatTech/zbputils v1.4.1-0.20220706162215-fd9437e83a63
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.5.3
+	github.com/fumiama/go-base16384 v1.5.4
 	github.com/fumiama/go-registry v0.1.6
 	github.com/fumiama/gofastTEA v0.0.10
 	github.com/fumiama/gotracemoe v0.0.3
