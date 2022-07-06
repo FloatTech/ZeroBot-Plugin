@@ -118,7 +118,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>动态加载插件</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader"`
 
   - 本功能需要`cgo`，故已分离出主线。详见[ZeroBot-Plugin-Dynamic](https://github.com/FloatTech/ZeroBot-Plugin-Dynamic)
 
@@ -146,7 +146,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>睡眠管理</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage"`
 
   - [x] 早安 | 晚安
 
@@ -447,7 +447,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>DeepDanbooru二次元图标签识别</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"`
 
   - [x] 鉴赏图片[图片]
 
@@ -522,7 +522,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>每日运势</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"`
 
   - [x] 运势 | 抽签
 
@@ -540,7 +540,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>原神抽卡</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"`
 
   - [x] 切换原神卡池
 
@@ -796,7 +796,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>浅草寺求签</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji"`
 
   - [x] 求签 | 占卜
 
