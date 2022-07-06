@@ -31,15 +31,15 @@ func TestSetHoliday(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = SetHoliday("清明节", 1, 2022, 4, 3)
+	err = SetHoliday("清明节", 1, 2023, 4, 5)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = SetHoliday("劳动节", 1, 2022, 4, 30)
+	err = SetHoliday("劳动节", 1, 2023, 5, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = SetHoliday("端午节", 1, 2022, 6, 3)
+	err = SetHoliday("端午节", 1, 2023, 6, 22)
 	if err != nil {
 		t.Fatal(err)
 	}

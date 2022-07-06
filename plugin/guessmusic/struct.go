@@ -95,6 +95,7 @@ type autumnfishData struct {
 			Alias       []interface{} `json:"alias"`
 			Rtype       int           `json:"rtype"`
 			Ftype       int           `json:"ftype"`
+			TransNames  []string      `json:"transNames"`
 			Mvid        int           `json:"mvid"`
 			Fee         int           `json:"fee"`
 			RURL        interface{}   `json:"rUrl"`
