@@ -49,9 +49,9 @@ func init() { // 插件主体
 			"- 设置猜歌缓存歌库路径 [绝对路径]\n" +
 			"- 设置猜歌本地 [true/false]\n" +
 			"- 设置猜歌Api [true/false]\n" +
-			"注：默认歌库为网易云热歌榜\n" +
-			"1.可在后面添加“-动漫”进行动漫歌猜歌\n-这个只能猜歌名和歌手\n" +
-			"2.可在后面添加“-动漫2”进行动漫歌猜歌\n-这个可以猜番名，但歌手经常“未知”",
+			"注：默认歌库为网易云热歌榜\n- 本地歌榜歌库歌曲命名规格“歌名 - 歌手”\n" +
+			"1.可在后面添加“-动漫”进行动漫歌猜歌\n- 这个只能猜歌名和歌手\n- 本地动漫歌库歌曲命名规格“歌名 - 歌手”\n" +
+			"2.可在后面添加“-动漫2”进行动漫歌猜歌\n- 这个可以猜番名，但歌手经常“未知”\n- 本地动漫2歌库歌曲命名规格“歌名 - 歌手 - 番名”",
 		PrivateDataFolder: "guessmusic",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -489,9 +489,9 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 		err = errors.New("无法获API取歌曲信息")
 		return
 	}
-	requestURL := "https://autumnfish.cn/search?keywords=" + url.QueryEscape(name+" "+artistName) + "&limit=1"
+	requestURL := "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(name+" "+artistName) + "&limit=1"
 	if artistName == "未知" {
-		requestURL = "https://autumnfish.cn/search?keywords=" + url.QueryEscape(acgName+" "+name) + "&limit=1"
+		requestURL = "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(acgName+" "+name) + "&limit=1"
 	}
 	data, err = web.GetData(requestURL)
 	if err != nil {
