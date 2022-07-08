@@ -15,13 +15,13 @@ import (
 
 type data struct {
 	GrpID       int64 `db:"gid"`
-	RepeatLimit int   `db:"repeatlimit"`
+	RepeatLimit int64 `db:"repeatlimit"`
 	BanTime     int64 `db:"bantime"`
 }
 
 var (
 	db     = &sql.Sqlite{}
-	limit  = make(map[int64]int, 256)
+	limit  = make(map[int64]int64, 256)
 	rawMsg = make(map[int64]string, 256)
 )
 var (
@@ -44,26 +44,20 @@ func init() {
 			panic(err)
 		}
 	}()
-	// 只接收群聊消息
 	en.On(`message/group`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			if zero.AdminPermission(ctx) {
 				return
 			}
-			// 定义常用变量
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			raw := ctx.Event.RawMessage
-			// 检查是否不是复读
 			if rawMsg[gid] != raw {
-				// 重置rawMsg
 				rawMsg[gid] = raw
-				// 重置limit
 				limit[gid] = 0
 				return
 			}
 			limit[gid]++
-			// 检查是否到达limit
 			dblimit, time := readdb(gid)
 			if limit[gid] >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
@@ -76,7 +70,7 @@ func init() {
 			_, bantime := readdb(gid)
 			d := &data{
 				GrpID:       gid,
-				RepeatLimit: int(math.Str2Int64(ctx.State["regex_matched"].([]string)[2])),
+				RepeatLimit: math.Str2Int64(ctx.State["regex_matched"].([]string)[2]),
 				BanTime:     bantime,
 			}
 			err := db.Insert("data", d)
@@ -104,7 +98,7 @@ func init() {
 		})
 }
 
-func readdb(gid int64) (int, int64) {
+func readdb(gid int64) (int64, int64) {
 	var d data
 	err := db.Find("data", &d, "where gid = "+strconv.FormatInt(gid, 10))
 	if err != nil {
