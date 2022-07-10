@@ -65,8 +65,8 @@ func (cc *context) A撕() (string, error) {
 }
 
 // A一直
-func (cc *context) A一直() (string, error) {
-	name := cc.usrdir + `一直.png`
+func (cc *context) A一() (string, error) {
+	name := cc.usrdir + `一.png`
 	tou, err := cc.getLogo3(0, 0)
 	if err != nil {
 		return "", err
@@ -91,8 +91,8 @@ func (cc *context) A一直() (string, error) {
 }
 
 // A乱摸
-func (cc *context) A乱摸() (string, error) {
-	name := cc.usrdir + `乱摸.png`
+func (cc *context) A乱() (string, error) {
+	name := cc.usrdir + `乱.png`
 	tou, err := cc.getLogo(0, 0)
 	if err != nil {
 		return "", err
