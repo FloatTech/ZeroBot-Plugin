@@ -45,8 +45,7 @@ const (
 )
 
 var (
-	// GroupSingle 按群号反并发
-	GroupSingle = single.New(
+	groupSingle = single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 {
 			return ctx.Event.GroupID
 		}),
@@ -58,7 +57,7 @@ var (
 		DisableOnDefault:  true,
 		Help:              "iw233\n - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]",
 		PrivateDataFolder: "iw233",
-	}).ApplySingle(GroupSingle)
+	}).ApplySingle(groupSingle)
 	allAPI = map[string]string{
 		"全部":   randomAPI,
 		"兽耳":   animalAPI,
