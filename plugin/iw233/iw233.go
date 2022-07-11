@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"os"
 	"strconv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -70,14 +71,14 @@ var (
 )
 
 func init() {
-	en.OnRegex(`^随机([0-9[份|张]]+)?(.*)`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+	en.OnRegex(`^随机(([0-9]+)[份|张])?(.*)`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			msg := ctx.State["regex_matched"].([]string)[2]
+			msg := ctx.State["regex_matched"].([]string)[3]
 			api, ok := API[msg]
 			if !ok {
 				return
 			}
-			i := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
+			i := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
 			m, err := getimage(ctx, api, msg, i)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -127,16 +128,23 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 	if err != nil {
 		return
 	}
+	err = os.Mkdir(file.BOTPATH+"/"+filepath+rename, 0664)
+	if err != nil {
+		return
+	}
 	md5 := md5.New()
+	m = make(message.Message, 0, 100)
 	for _, v := range r.Pic {
-		f := file.BOTPATH + "/" + filepath + rename + hex.EncodeToString(md5.Sum(binary.StringToBytes(v)))[:8] + ".jpg"
-		if file.IsExist(f) {
-			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
-		} else {
+		md5.Write(binary.StringToBytes(v))
+		name := hex.EncodeToString(md5.Sum(nil))[:8] + ".jpg"
+		f := file.BOTPATH + "/" + filepath + rename + "/" + name
+		if file.IsNotExist(f) {
 			err = file.DownloadTo(v, f, false)
 			if err != nil {
 				return
 			}
+			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
+		} else {
 			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
 		}
 	}
