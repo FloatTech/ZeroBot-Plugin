@@ -10,8 +10,8 @@ import (
 	"github.com/fogleman/gg"
 )
 
-// Mo 摸
-func (cc *context) Mo(value ...string) (string, error) {
+// mo 摸
+func mo(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -46,8 +46,8 @@ func (cc *context) Mo(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, mo))
 }
 
-// Cuo 搓
-func (cc *context) Cuo(value ...string) (string, error) {
+// cuo 搓
+func cuo(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -86,8 +86,8 @@ func (cc *context) Cuo(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(5, cuo))
 }
 
-// Qiao 敲
-func (cc *context) Qiao(value ...string) (string, error) {
+// qiao 敲
+func qiao(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -119,8 +119,8 @@ func (cc *context) Qiao(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, qiao))
 }
 
-// Chi 吃
-func (cc *context) Chi(value ...string) (string, error) {
+// chi 吃
+func chi(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -153,8 +153,8 @@ func (cc *context) Chi(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, chi))
 }
 
-// Ceng 蹭
-func (cc *context) Ceng(value ...string) (string, error) {
+// ceng 蹭
+func ceng(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -194,8 +194,8 @@ func (cc *context) Ceng(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, ceng))
 }
 
-// Ken 啃
-func (cc *context) Ken(value ...string) (string, error) {
+// ken 啃
+func ken(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -241,8 +241,8 @@ func (cc *context) Ken(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ken))
 }
 
-// Pai 拍
-func (cc *context) Pai(value ...string) (string, error) {
+// pai 拍
+func pai(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -274,8 +274,8 @@ func (cc *context) Pai(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, pai))
 }
 
-// Xqe 冲
-func (cc *context) Xqe(value ...string) (string, error) {
+// xqe 冲
+func xqe(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -307,8 +307,8 @@ func (cc *context) Xqe(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, chong))
 }
 
-// Diu 丢
-func (cc *context) Diu(value ...string) (string, error) {
+// diu 丢
+func diu(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -346,8 +346,8 @@ func (cc *context) Diu(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, diu))
 }
 
-// Kiss 亲
-func (cc *context) Kiss(value ...string) (string, error) {
+// kiss 亲
+func kiss(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -384,8 +384,8 @@ func (cc *context) Kiss(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, kiss))
 }
 
-// Garbage 垃圾 垃圾桶
-func (cc *context) Garbage(value ...string) (string, error) {
+// garbage 垃圾 垃圾桶
+func garbage(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -416,8 +416,8 @@ func (cc *context) Garbage(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, garbage))
 }
 
-// Thump 捶
-func (cc *context) Thump(value ...string) (string, error) {
+// thump 捶
+func thump(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -448,8 +448,8 @@ func (cc *context) Thump(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, thump))
 }
 
-// Jiujiu 啾啾
-func (cc *context) Jiujiu(value ...string) (string, error) {
+// jiujiu 啾啾
+func jiujiu(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -479,8 +479,8 @@ func (cc *context) Jiujiu(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, jiujiu))
 }
 
-// Knock 2敲
-func (cc *context) Knock(value ...string) (string, error) {
+// knock 2敲
+func knock(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -511,8 +511,8 @@ func (cc *context) Knock(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, knock))
 }
 
-// 听音乐 ListenMusic
-func (cc *context) ListenMusic(value ...string) (string, error) {
+// 听音乐 listenMusic
+func listenMusic(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -542,8 +542,8 @@ func (cc *context) ListenMusic(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, listenmusic))
 }
 
-// LoveYou 永远爱你
-func (cc *context) LoveYou(value ...string) (string, error) {
+// loveYou 永远爱你
+func loveYou(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -574,8 +574,8 @@ func (cc *context) LoveYou(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, loveyou))
 }
 
-// Pat 2拍
-func (cc *context) Pat(value ...string) (string, error) {
+// pat 2拍
+func pat(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -615,8 +615,8 @@ func (cc *context) Pat(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, pat))
 }
 
-// JackUp 顶
-func (cc *context) JackUp(value ...string) (string, error) {
+// jackUp 顶
+func jackUp(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -657,8 +657,8 @@ func (cc *context) JackUp(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, play))
 }
 
-// Pound 捣
-func (cc *context) Pound(value ...string) (string, error) {
+// pound 捣
+func pound(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -689,8 +689,8 @@ func (cc *context) Pound(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, pound))
 }
 
-// Punch 打拳
-func (cc *context) Punch(value ...string) (string, error) {
+// punch 打拳
+func punch(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -721,8 +721,8 @@ func (cc *context) Punch(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, punch))
 }
 
-// Roll 滚
-func (cc *context) Roll(value ...string) (string, error) {
+// roll 滚
+func roll(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -753,8 +753,8 @@ func (cc *context) Roll(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, roll))
 }
 
-// Suck 吸 嗦
-func (cc *context) Suck(value ...string) (string, error) {
+// suck 吸 嗦
+func suck(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -785,8 +785,8 @@ func (cc *context) Suck(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, suck))
 }
 
-// Hammer 锤
-func (cc *context) Hammer(value ...string) (string, error) {
+// hammer 锤
+func hammer(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -817,8 +817,8 @@ func (cc *context) Hammer(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, hammer))
 }
 
-// Tightly 紧贴 紧紧贴着
-func (cc *context) Tightly(value ...string) (string, error) {
+// tightly 紧贴 紧紧贴着
+func tightly(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
@@ -849,8 +849,8 @@ func (cc *context) Tightly(value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, tightly))
 }
 
-// Turn 转
-func (cc *context) Turn(value ...string) (string, error) {
+// turn 转
+func turn(cc *context, value ...string) (string, error) {
 	name := cc.usrdir + "Turn.gif"
 	face, err := cc.getLogo(0, 0)
 	if err != nil {

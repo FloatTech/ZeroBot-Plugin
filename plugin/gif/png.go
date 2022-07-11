@@ -15,8 +15,8 @@ import (
 	"github.com/fogleman/gg"
 )
 
-// Pa 爬
-func (cc *context) Pa(value ...string) (string, error) {
+// pa 爬
+func pa(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "爬.png"
 	tou, err := cc.getLogo(0, 0)
 	if err != nil {
@@ -41,8 +41,8 @@ func (cc *context) Pa(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(tou, 100, 100, 0, 400).Im)
 }
 
-// Si 撕
-func (cc *context) Si(value ...string) (string, error) {
+// si 撕
+func si(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "撕.png"
 	tou, err := cc.getLogo(0, 0)
 	if err != nil {
@@ -67,8 +67,8 @@ func (cc *context) Si(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(im1.Im, im1.W, im1.H, -3, 370).InsertBottom(im2.Im, im2.W, im2.H, 653, 310).Im)
 }
 
-// FlipV 上翻,下翻
-func (cc *context) FlipV(value ...string) (string, error) {
+// flipV 上翻,下翻
+func flipV(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "FlipV.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -79,8 +79,8 @@ func (cc *context) FlipV(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// FlipH 左翻,右翻
-func (cc *context) FlipH(value ...string) (string, error) {
+// flipH 左翻,右翻
+func flipH(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "FlipH.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -91,8 +91,8 @@ func (cc *context) FlipH(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Invert 反色
-func (cc *context) Invert(value ...string) (string, error) {
+// invert 反色
+func invert(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Invert.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -103,8 +103,8 @@ func (cc *context) Invert(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Blur 反色
-func (cc *context) Blur(value ...string) (string, error) {
+// blur 反色
+func blur(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Blur.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -115,8 +115,8 @@ func (cc *context) Blur(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Grayscale 灰度
-func (cc *context) Grayscale(value ...string) (string, error) {
+// grayscale 灰度
+func grayscale(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Grayscale.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -127,8 +127,8 @@ func (cc *context) Grayscale(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// InvertAndGrayscale 负片
-func (cc *context) InvertAndGrayscale(value ...string) (string, error) {
+// invertAndGrayscale 负片
+func invertAndGrayscale(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "InvertAndGrayscale.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -139,8 +139,8 @@ func (cc *context) InvertAndGrayscale(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Convolve3x3 浮雕
-func (cc *context) Convolve3x3(value ...string) (string, error) {
+// convolve3x3 浮雕
+func convolve3x3(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Convolve3x3.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -151,32 +151,32 @@ func (cc *context) Convolve3x3(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Rotate 旋转,带参数暂时不用
-func (cc *context) Rotate(value ...string) (string, error) {
+// rotate 旋转,带参数暂时不用
+func rotate(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Rotate.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
-	r, _ := strconv.ParseFloat(value[0], 64)
+	r, _ := strconv.ParseFloat(args[0], 64)
 	imgnrgba := img.Rotate(im.Im, r, 0, 0).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Deformation 变形,带参数暂时不用
-func (cc *context) Deformation(value ...string) (string, error) {
+// deformation 变形,带参数暂时不用
+func deformation(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Deformation.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
-	w, err := strconv.Atoi(value[0])
+	w, err := strconv.Atoi(args[0])
 	if err != nil {
 		return "", err
 	}
-	h, err := strconv.Atoi(value[1])
+	h, err := strconv.Atoi(args[1])
 	if err != nil {
 		return "", err
 	}
@@ -184,8 +184,8 @@ func (cc *context) Deformation(value ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Alike 你像个xxx一样
-func (cc *context) Alike(args ...string) (string, error) {
+// alike 你像个xxx一样
+func alike(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -211,8 +211,8 @@ func (cc *context) Alike(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Marriage
-func (cc *context) Marriage(args ...string) (string, error) {
+// marriage
+func marriage(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -238,8 +238,8 @@ func (cc *context) Marriage(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Anyasuki 阿尼亚喜欢
-func (cc *context) Anyasuki(args ...string) (string, error) {
+// anyasuki 阿尼亚喜欢
+func anyasuki(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -283,8 +283,8 @@ func (cc *context) Anyasuki(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// AlwaysLike 我永远喜欢
-func (cc *context) AlwaysLike(args ...string) (string, error) {
+// alwaysLike 我永远喜欢
+func alwaysLike(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -329,8 +329,8 @@ func (cc *context) AlwaysLike(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// DecentKiss 像样的亲亲
-func (cc *context) DecentKiss(args ...string) (string, error) {
+// decentKiss 像样的亲亲
+func decentKiss(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -356,8 +356,8 @@ func (cc *context) DecentKiss(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// ChinaFlag 国旗
-func (cc *context) ChinaFlag(args ...string) (string, error) {
+// chinaFlag 国旗
+func chinaFlag(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -383,8 +383,8 @@ func (cc *context) ChinaFlag(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// DontTouch 不要靠近
-func (cc *context) DontTouch(args ...string) (string, error) {
+// dontTouch 不要靠近
+func dontTouch(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -410,8 +410,8 @@ func (cc *context) DontTouch(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Universal 万能表情 空白表情
-func (cc *context) Universal(args ...string) (string, error) {
+// universal 万能表情 空白表情
+func universal(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Universal.png"
 	face, err := gg.LoadImage(cc.headimgsdir[0])
 	if err != nil {
@@ -438,8 +438,8 @@ func (cc *context) Universal(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// Interview 采访
-func (cc *context) Interview(args ...string) (string, error) {
+// interview 采访
+func interview(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -488,8 +488,8 @@ func (cc *context) Interview(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// Need 需要 你可能需要
-func (cc *context) Need(args ...string) (string, error) {
+// need 需要 你可能需要
+func need(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -515,8 +515,8 @@ func (cc *context) Need(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Paint 这像画吗
-func (cc *context) Paint(args ...string) (string, error) {
+// paint 这像画吗
+func paint(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -542,8 +542,8 @@ func (cc *context) Paint(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Painter 小画家
-func (cc *context) Painter(args ...string) (string, error) {
+// painter 小画家
+func painter(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -569,8 +569,8 @@ func (cc *context) Painter(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Perfect 完美
-func (cc *context) Perfect(args ...string) (string, error) {
+// perfect 完美
+func perfect(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -596,8 +596,8 @@ func (cc *context) Perfect(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// PlayGame 玩游戏
-func (cc *context) PlayGame(args ...string) (string, error) {
+// playGame 玩游戏
+func playGame(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -641,8 +641,8 @@ func (cc *context) PlayGame(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// Police 出警
-func (cc *context) Police(args ...string) (string, error) {
+// police 出警
+func police(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -668,8 +668,8 @@ func (cc *context) Police(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Police1 警察
-func (cc *context) Police1(args ...string) (string, error) {
+// police1 警察
+func police1(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -695,8 +695,8 @@ func (cc *context) Police1(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Prpr 舔 舔屏 prpr
-func (cc *context) Prpr(args ...string) (string, error) {
+// prpr 舔 舔屏 prpr
+func prpr(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -722,8 +722,8 @@ func (cc *context) Prpr(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// SafeSense 安全感
-func (cc *context) SafeSense(args ...string) (string, error) {
+// safeSense 安全感
+func safeSense(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -769,8 +769,8 @@ func (cc *context) SafeSense(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// Support 精神支柱
-func (cc *context) Support(args ...string) (string, error) {
+// support 精神支柱
+func support(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -796,8 +796,8 @@ func (cc *context) Support(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Thinkwhat 想什么
-func (cc *context) Thinkwhat(args ...string) (string, error) {
+// thinkwhat 想什么
+func thinkwhat(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -823,8 +823,8 @@ func (cc *context) Thinkwhat(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Wallpaper 墙纸
-func (cc *context) Wallpaper(args ...string) (string, error) {
+// wallpaper 墙纸
+func wallpaper(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -850,8 +850,8 @@ func (cc *context) Wallpaper(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Whyatme 为什么at我
-func (cc *context) Whyatme(args ...string) (string, error) {
+// whyatme 为什么at我
+func whyatme(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -877,8 +877,8 @@ func (cc *context) Whyatme(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// MakeFriend 交个朋友
-func (cc *context) MakeFriend(args ...string) (string, error) {
+// makeFriend 交个朋友
+func makeFriend(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -925,8 +925,8 @@ func (cc *context) MakeFriend(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// BackToWork 打工人, 继续干活
-func (cc *context) BackToWork(args ...string) (string, error) {
+// backToWork 打工人, 继续干活
+func backToWork(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -952,8 +952,8 @@ func (cc *context) BackToWork(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Coupon 兑换券
-func (cc *context) Coupon(args ...string) (string, error) {
+// coupon 兑换券
+func coupon(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1002,8 +1002,8 @@ func (cc *context) Coupon(args ...string) (string, error) {
 	return "file:///" + name, canvas.SavePNG(name)
 }
 
-// Distracted 注意力涣散
-func (cc *context) Distracted(args ...string) (string, error) {
+// distracted 注意力涣散
+func distracted(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1029,8 +1029,8 @@ func (cc *context) Distracted(args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// Throw 扔
-func (cc *context) Throw(args ...string) (string, error) {
+// throw 扔
+func throw(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
