@@ -16,9 +16,7 @@ func init() {
 	})
 	engine.OnRegex(`^\[CQ:reply,id=(-?[0-9]+)\].*`, zero.AdminPermission, zero.KeywordRule("撤回")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			// 获取消息id
-			mid := ctx.State["regex_matched"].([]string)[1]
-			// 撤回消息
-			ctx.DeleteMessage(message.NewMessageIDFromString(mid))
+			ctx.DeleteMessage(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
+			ctx.DeleteMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
 		})
 }

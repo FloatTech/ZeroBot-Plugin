@@ -7,10 +7,10 @@ type strjrrp struct {
 
 type rsl struct {
 	GrpID int64 `db:"gid"`
-	Rule  int   `db:"rule"`
+	Rule  int64 `db:"rule"`
 }
 
 type set struct {
 	UserID int64 `db:"uid"`
-	D      int   `db:"d"`
+	D      int64 `db:"d"`
 }

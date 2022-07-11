@@ -2,10 +2,13 @@
 package iw233
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"strconv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/file"
@@ -15,7 +18,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 type result struct {
@@ -53,77 +55,30 @@ var GroupSingle = single.New(
 
 var (
 	en = control.Register("iw233", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
-		Help:             "iw233\n - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]",
-		PublicDataFolder: "Iw233",
+		DisableOnDefault:  true,
+		Help:              "iw233\n - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]",
+		PrivateDataFolder: "iw233",
 	}).ApplySingle(GroupSingle)
+	API = map[string]string{
+		"全部":   randomAPI,
+		"兽耳":   animalAPI,
+		"白毛":   whiteAPI,
+		"星空":   starryAPI,
+		"竖屏壁纸": verticalAPI,
+		"横屏壁纸": horizontalAPI,
+	}
 )
 
 func init() {
-	en.OnRegex(`^随机([0-9]+)?[份|张]全部`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+	en.OnRegex(`^随机([0-9[份|张]]+)?(.*)`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-			m, err := getimage(ctx, randomAPI, i)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+			msg := ctx.State["regex_matched"].([]string)[2]
+			api, ok := API[msg]
+			if !ok {
 				return
 			}
-			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
-		})
-	en.OnRegex(`^随机([0-9]+)?[份|张]兽耳`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-			m, err := getimage(ctx, animalAPI, i)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
-		})
-	en.OnRegex(`^随机([0-9]+)?[份|张]白毛`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-			m, err := getimage(ctx, whiteAPI, i)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
-		})
-	en.OnRegex(`^随机([0-9]+)?[份|张]星空`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-			m, err := getimage(ctx, starryAPI, i)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
-		})
-	en.OnRegex(`^随机([0-9]+)?[份|张]竖屏壁纸`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-			m, err := getimage(ctx, verticalAPI, i)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
-		})
-	en.OnRegex(`^随机([0-9]+)?[份|张]横屏壁纸`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			i := int(math.Str2Int64(ctx.State["regex_matched"].([]string)[1]))
-			m, err := getimage(ctx, horizontalAPI, i)
+			i := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
+			m, err := getimage(ctx, api, msg, i)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -139,14 +94,17 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			picURL := gjson.Get(helper.BytesToString(data), "pic").String()
+			picURL := gjson.Get(binary.BytesToString(data), "pic").String()
 			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(picURL))}).Get("message_id").Int(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
 }
 
-func getimage(ctx *zero.Ctx, api string, i int) (m message.Message, err error) {
+func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, err error) {
+	if i == 0 {
+		i = 1
+	}
 	switch {
 	case !zero.AdminPermission(ctx) && i > 15:
 		i = 15
@@ -160,7 +118,7 @@ func getimage(ctx *zero.Ctx, api string, i int) (m message.Message, err error) {
 	}
 	ctx.SendChain(message.Text("少女祈祷中..."))
 	filepath := en.DataFolder()
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.Itoa(i), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", referer, ua)
 	if err != nil {
 		return
 	}
@@ -169,18 +127,17 @@ func getimage(ctx *zero.Ctx, api string, i int) (m message.Message, err error) {
 	if err != nil {
 		return
 	}
-	m = make(message.Message, 0, 100)
+	md5 := md5.New()
 	for _, v := range r.Pic {
-		name := filepath + v[40:]
-		f := "file:///" + file.BOTPATH + "/" + name
-		if file.IsExist(file.BOTPATH + "/" + name) {
-			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(f)))
+		f := file.BOTPATH + "/" + filepath + rename + hex.EncodeToString(md5.Sum(binary.StringToBytes(v)))[:8] + ".jpg"
+		if file.IsExist(f) {
+			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
 		} else {
-			err = file.DownloadTo(v, name, false)
+			err = file.DownloadTo(v, f, false)
 			if err != nil {
 				return
 			}
-			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(f)))
+			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
 		}
 	}
 	return
