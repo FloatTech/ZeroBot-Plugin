@@ -46,9 +46,6 @@ func init() {
 	}()
 	en.On(`message/group`, zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			if zero.AdminPermission(ctx) {
-				return
-			}
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			raw := ctx.Event.RawMessage
@@ -57,7 +54,9 @@ func init() {
 				limit[gid] = 0
 				return
 			}
-			limit[gid]++
+			if !zero.AdminPermission(ctx) {
+				limit[gid]++
+			}
 			dblimit, time := readdb(gid)
 			if limit[gid] >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
