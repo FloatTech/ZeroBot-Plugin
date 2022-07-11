@@ -44,23 +44,22 @@ const (
 	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36 Edg/102.0.1245.39"
 )
 
-// GroupSingle 按群号反并发
-var GroupSingle = single.New(
-	single.WithKeyFn(func(ctx *zero.Ctx) int64 {
-		return ctx.Event.GroupID
-	}),
-	single.WithPostFn[int64](func(ctx *zero.Ctx) {
-		ctx.Send("等一下，还有操作还未完成哦~")
-	}),
-)
-
 var (
+	// GroupSingle 按群号反并发
+	GroupSingle = single.New(
+		single.WithKeyFn(func(ctx *zero.Ctx) int64 {
+			return ctx.Event.GroupID
+		}),
+		single.WithPostFn[int64](func(ctx *zero.Ctx) {
+			ctx.Send("等一下，还有操作还未完成哦~")
+		}),
+	)
 	en = control.Register("iw233", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  true,
 		Help:              "iw233\n - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]",
 		PrivateDataFolder: "iw233",
 	}).ApplySingle(GroupSingle)
-	API = map[string]string{
+	allAPI = map[string]string{
 		"全部":   randomAPI,
 		"兽耳":   animalAPI,
 		"白毛":   whiteAPI,
@@ -74,7 +73,7 @@ func init() {
 	en.OnRegex(`^随机(([0-9]+)[份|张])?(.*)`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.State["regex_matched"].([]string)[3]
-			api, ok := API[msg]
+			api, ok := allAPI[msg]
 			if !ok {
 				return
 			}
