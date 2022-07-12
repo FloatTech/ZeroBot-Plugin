@@ -305,41 +305,6 @@ func (cc *context) A冲() (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, chong))
 }
 
-// A超市你
-func (cc *context) A超() (string, error) {
-	var wg sync.WaitGroup
-	var err error
-	var m sync.Mutex
-	name := cc.usrdir + "冲.gif"
-	c := dlrange("chao", 4, &wg, func(e error) {
-		m.Lock()
-		err = e
-		m.Unlock()
-	})
-	if err != nil {
-		return "", err
-	}
-	tou, err := cc.getLogo(0, 0)
-	if err != nil {
-		return "", err
-	}
-	wg.Wait()
-	if err != nil {
-		return "", err
-	}
-	imgs, err := loadFirstFrames(c, 4)
-	if err != nil {
-		return "", err
-	}
-	chao := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 36, 36, 102, 123).Im,
-		imgs[1].InsertUp(tou, 36, 36, 102, 123).Im,
-		imgs[2].InsertUp(tou, 36, 36, 102, 123).Im,
-		imgs[3].InsertUp(tou, 36, 36, 102, 117).Im,
-	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, chao))
-}
-
 // A丢
 func (cc *context) A丢() (string, error) {
 	var wg sync.WaitGroup
