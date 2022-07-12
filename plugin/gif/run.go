@@ -14,12 +14,7 @@ import (
 )
 
 var (
-<<<<<<< HEAD
-	cmds = []string{"搓", "冲", "摸", "拍", "丢", "吃", "敲", "啃", "一", "蹭", "爬", "撕",
-		"灰度", "上翻", "下翻", "左翻", "右翻", "反色", "浮雕", "打码", "负片"}
-=======
 	cmd      = make([]string, 0)
->>>>>>> upsteram/master
 	datapath string
 	cmdMap   = map[string]func(cc *context, args ...string) (string, error){
 		"搓":      cuo,
