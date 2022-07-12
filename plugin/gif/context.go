@@ -20,7 +20,7 @@ func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 	target := datapath + `materials/` + name
 	var err error
 	if file.IsNotExist(target) {
-		err = file.DownloadTo(`https://gitcode.net/u011570312/imagematerials/-/raw/main/`+name, target, true)
+		err = file.DownloadTo(`https://gitcode.net/anto_july/imagematerials/-/raw/main/`+name, target, true)
 		if err != nil {
 			exit(err)
 			return

@@ -80,6 +80,14 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>插件控制</summary>
 
+  - [x] /响应 (在发送的群/用户开始工作)
+
+  - [x] /沉默 (在发送的群/用户停止工作)
+
+  - [x] /全局响应 (在所有位置开始工作，无视单独的沉默)
+
+  - [x] /全局沉默 (在所有本应沉默的位置停止工作，显式指定启用的位置不受影响)
+
   - [x] /启用 xxx (在发送的群/用户启用xxx)
 
   - [x] /禁用 xxx (在发送的群/用户禁用xxx)
@@ -114,7 +122,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>动态加载插件</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin-Dynamic/dyloader"`
 
   - 本功能需要`cgo`，故已分离出主线。详见[ZeroBot-Plugin-Dynamic](https://github.com/FloatTech/ZeroBot-Plugin-Dynamic)
 
@@ -142,7 +150,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 <details>
   <summary>睡眠管理</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage"`
 
   - [x] 早安 | 晚安
 
@@ -443,7 +451,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>DeepDanbooru二次元图标签识别</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"`
 
   - [x] 鉴赏图片[图片]
 
@@ -518,7 +526,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>每日运势</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/fortune`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"`
 
   - [x] 运势 | 抽签
 
@@ -536,7 +544,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>原神抽卡</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/genshin`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"`
 
   - [x] 切换原神卡池
 
@@ -565,6 +573,30 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] >github [xxx]
 
   - [x] >github -p [xxx]
+
+</details>
+<details>
+  <summary>猜歌</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"`
+
+  - 猜歌插件（该插件依赖ffmpeg）
+
+  - [x] 个人猜歌
+  
+  - [x] 团队猜歌
+  
+  - [x] 设置猜歌缓存歌库路径 [绝对路径]
+
+  - [x] 设置猜歌本地 [true/false]
+
+  - [x] 设置猜歌Api [true/false]
+  
+  - 注：默认歌库为网易云热歌榜
+  
+  - 1.可在后面添加“-动漫”进行动漫歌猜歌(这个只能猜歌名和歌手)
+  
+  - 2.可在后面添加“-动漫2”进行动漫歌猜歌(这个可以猜番名，但歌手经常“未知”)
 
 </details>
 <details>
@@ -768,7 +800,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>浅草寺求签</summary>
 
-  `import _ github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji"`
 
   - [x] 求签 | 占卜
 
