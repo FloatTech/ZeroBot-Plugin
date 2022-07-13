@@ -286,12 +286,12 @@ func parselive(id string) (m message.Message, err error) {
 func parse(id string) (m message.Message, err error) {
 	switch id[:2] {
 	case "av":
-		m, err = parsevideo("aid="+id[2:], "av"+id[2:])
+		m, err = parsevideo("aid="+id[2:], id)
 		if err != nil {
 			return
 		}
 	case "BV":
-		m, err = parsevideo("bvid="+id[2:], "BV"+id[2:])
+		m, err = parsevideo("bvid="+id, id)
 		if err != nil {
 			return
 		}
