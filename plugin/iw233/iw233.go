@@ -55,7 +55,7 @@ var (
 	)
 	en = control.Register("iw233", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  true,
-		Help:              "iw233\n - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]",
+		Help:              "iw233\n - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]\n - 清空[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]缓存\n - 清空所有缓存 ",
 		PrivateDataFolder: "iw233",
 	}).ApplySingle(groupSingle)
 	allAPI = map[string]string{
@@ -66,6 +66,7 @@ var (
 		"竖屏壁纸": verticalAPI,
 		"横屏壁纸": horizontalAPI,
 	}
+	filepath = en.DataFolder()
 )
 
 func init() {
@@ -98,6 +99,27 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
+	en.OnRegex(`^清空(.*)缓存`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			rm := ctx.State["regex_matched"].([]string)[1]
+			_, ok := allAPI[rm]
+			if !ok {
+				return
+			}
+			if err := os.RemoveAll(file.BOTPATH + "/" + filepath + rm); err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("清空", rm, "成功"))
+		})
+	en.OnFullMatch("清空所有缓存", zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			if err := os.RemoveAll(file.BOTPATH + "/" + filepath); err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("清空所有缓存成功"))
+		})
 }
 
 func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, err error) {
@@ -116,7 +138,6 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 		ctx.SendChain(message.Text("太贪心啦！最多只能随机100张图片哦~"))
 	}
 	ctx.SendChain(message.Text("少女祈祷中..."))
-	filepath := en.DataFolder()
 	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", referer, ua)
 	if err != nil {
 		return
@@ -126,10 +147,7 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 	if err != nil {
 		return
 	}
-	err = os.Mkdir(file.BOTPATH+"/"+filepath+rename, 0664)
-	if err != nil {
-		return
-	}
+	_ = os.Mkdir(file.BOTPATH+"/"+filepath+rename, 0664)
 	md5 := md5.New()
 	m = make(message.Message, 0, 100)
 	for _, v := range r.Pic {
