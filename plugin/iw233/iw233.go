@@ -102,6 +102,15 @@ func init() {
 	en.OnRegex(`^清空(.*)缓存`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			rm := ctx.State["regex_matched"].([]string)[1]
+			if rm == "所有" {
+				if err := os.RemoveAll(file.BOTPATH + "/" + filepath); err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				_ = os.Mkdir(file.BOTPATH+"/"+filepath, 0664)
+				ctx.SendChain(message.Text("清空所有缓存成功~"))
+				return
+			}
 			_, ok := allAPI[rm]
 			if !ok {
 				return
@@ -110,15 +119,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("清空", rm, "成功"))
-		})
-	en.OnFullMatch("清空所有缓存", zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			if err := os.RemoveAll(file.BOTPATH + "/" + filepath); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			ctx.SendChain(message.Text("清空所有缓存成功"))
+			ctx.SendChain(message.Text("清空", rm, "缓存成功~"))
 		})
 }
 
