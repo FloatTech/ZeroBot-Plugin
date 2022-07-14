@@ -52,7 +52,7 @@ func init() { // 插件主体
 				ctx.SendChain(randText("抓住你了哦~小白鼠~"))
 			}
 		})
-	engine.OnFullMatchGroup([]string{"蛇蛇", "蛇~蛇~", "梅比乌斯"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"蛇蛇", "蛇~蛇~", "梅比乌斯"}, isAtriSleeping).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText("【蛇】在哦", "【蛇】盯上你了哦", "是想来找我玩吗~小白鼠？", "抓住你了哦~小白鼠~"))
@@ -124,10 +124,8 @@ func init() { // 插件主体
 			if now > 11 && now < 15 { // 中午
 				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"午安w",
-					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
-					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
-					"睡你午觉去！哼唧！！",
+					"午安哦~ 我的小白鼠~ ",
+					"午安，小白鼠，做个好梦~ 呵呵~",
 				))
 			}
 		})
@@ -140,37 +138,26 @@ func init() { // 插件主体
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"zzzz......",
 					"zzzzzzzz......",
-					"zzz...好涩哦..zzz....",
-					"别...不要..zzz..那..zzz..",
-					"嘻嘻..zzz..呐~..zzzz..",
-					"...zzz....哧溜哧溜....",
+					"梅比乌斯博士已经休息了，有什么事情找我就行...",
+					"不早了舰长，请注意休息...不然会影响实验结果",
 				))
 			case now >= 6 && now < 11:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"你可猝死算了吧！",
-					"？啊这",
-					"亲，这边建议赶快去睡觉呢~~~",
-					"不可忍不可忍不可忍！！为何这还不猝死！！",
+					"晚安？是我睡过头了吗？还是小白鼠你睡过头了呢~",
+					"晚上好？难不成，小白鼠~ 你是昼伏夜出吗？呵呵~",
+					"【蛇】要冬眠了哦~ 呵呵~",
 				))
-			case now >= 11 && now < 15:
+			case now >= 11 && now < 19:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"午安w",
-					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
-					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
-					"睡你午觉去！哼唧！！",
-				))
-			case now >= 15 && now < 19:
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"难不成？？晚上不想睡觉？？现在休息",
-					"就......挺离谱的...现在睡觉",
-					"现在还是白天哦，睡觉还太早了",
+					"纠正，应该是午安……舰长",
+					"这个时间...小白鼠~？来陪我做点有意思的事吧~",
 				))
 			case now >= 19 && now < 24:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"嗯哼哼~睡吧，就像平常一样安眠吧~o(≧▽≦)o",
-					"......(打瞌睡)",
-					"呼...呼...已经睡着了哦~...呼......",
-					"......我、我会在这守着你的，请务必好好睡着",
+					"晚安，我的小白鼠，做个好梦~",
+					"呵呵~ 小白鼠~ 明天见~",
+					"小白鼠~猜猜我会不会趁你睡着的时候………… 呵呵~这就怕了吗~",
+					"克莱因还需要继续完成博士的工作，舰长请先去休息",
 				))
 			}
 		})
