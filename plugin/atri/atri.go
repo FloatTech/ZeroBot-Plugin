@@ -47,7 +47,7 @@ func init() { // 插件主体
 			process.SleepAbout1sTo2s()
 			switch rand.Intn(2) {
 			case 0:
-				ctx.SendChain(randText("【蛇】在哦", "【蛇】盯上你了哦","是想来找我玩吗~小白鼠？"))
+				ctx.SendChain(randText("【蛇】在哦", "【蛇】盯上你了哦", "是想来找我玩吗~小白鼠？"))
 			case 1:
 				ctx.SendChain(randText("抓住你了哦~小白鼠~"))
 			}
