@@ -42,14 +42,14 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("Zzz……Zzz……"))
 		},
 	})
-	engine.OnFullMatch("萝卜子", isAtriSleeping).SetBlock(true).
+	engine.OnFullMatch("蛇", isAtriSleeping).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			switch rand.Intn(2) {
 			case 0:
-				ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
+				ctx.SendChain(randText("【蛇】在哦", "【蛇】盯上你了哦","是想来找我玩吗~小白鼠？"))
 			case 1:
-				ctx.SendChain(randRecord("RocketPunch.amr"))
+				ctx.SendChain(randText("抓住你了哦~小白鼠~"))
 			}
 		})
 	engine.OnFullMatchGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
