@@ -195,50 +195,43 @@ func init() { // 插件主体
 				return
 			}
 			ctx.SendChain(message.Text(qrInfo.Data.Qrurl), message.Image("base64://"+strings.ReplaceAll(qrInfo.Data.Qrimg, "data:image/png;base64,", "")))
-			wait := time.NewTimer(10 * time.Second)
 			i := 0
-			for {
-				select {
-				case <-wait.C: // 5s等待
-					apiURL := "https://music.cyrilstudio.top/login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
-					referer := "https://music.cyrilstudio.top"
-					data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
-					if err != nil {
-						ctx.SendChain(message.Text("无法获取登录状态, ERROR:", err))
-						i++
-						if i > 5 {
-							return
-						}
-						wait.Reset(5 * time.Second)
-						continue
-					}
-					var cookiesInfo cookyInfo
-					err = json.Unmarshal(data, &cookiesInfo)
-					if err != nil {
-						ctx.SendChain(message.Text("解析登录状态失败, ERROR:", err))
+			for range time.Tick(10 * time.Second) {
+				apiURL := "https://music.cyrilstudio.top/login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
+				referer := "https://music.cyrilstudio.top"
+				data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
+				if err != nil {
+					ctx.SendChain(message.Text("无法获取登录状态, ERROR:", err))
+					i++
+					if i > 5 {
 						return
 					}
-					switch cookiesInfo.Code {
-					case 803:
-						cfg.Cookie = cookiesInfo.Cookie
-						err = saveConfig(cfgFile)
-						if err == nil {
-							ctx.SendChain(message.Text("成功！"))
-						} else {
-							ctx.SendChain(message.Text("ERROR:", err))
-						}
-						return
-					case 801:
-						wait.Reset(5 * time.Second)
-						continue
-					case 800:
-						ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
-						return
-					default:
-						wait.Reset(5 * time.Second)
-						ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
-						continue
+					continue
+				}
+				var cookiesInfo cookyInfo
+				err = json.Unmarshal(data, &cookiesInfo)
+				if err != nil {
+					ctx.SendChain(message.Text("解析登录状态失败, ERROR:", err))
+					return
+				}
+				switch cookiesInfo.Code {
+				case 803:
+					cfg.Cookie = cookiesInfo.Cookie
+					err = saveConfig(cfgFile)
+					if err == nil {
+						ctx.SendChain(message.Text("成功！"))
+					} else {
+						ctx.SendChain(message.Text("ERROR:", err))
 					}
+					return
+				case 801:
+					continue
+				case 800:
+					ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
+					return
+				default:
+					ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
+					continue
 				}
 			}
 		})
@@ -281,15 +274,15 @@ func init() { // 插件主体
 			var playlist []listRaw
 			var newCatList = make(map[string]int64)
 			var ok = false
-			for name, musicId := range catlist {
-				if delList == name || delList == strconv.FormatInt(musicId, 10) {
+			for name, musicID := range catlist {
+				if delList == name || delList == strconv.FormatInt(musicID, 10) {
 					ok = true
 					continue
 				}
-				newCatList[name] = musicId
+				newCatList[name] = musicID
 				playlist = append(playlist, listRaw{
 					Name: name,
-					ID:   musicId,
+					ID:   musicID,
 				})
 			}
 			if !ok {
@@ -308,7 +301,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("获取歌单列表").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			var msg []string
-			// 获取网易云歌单列表
+			//获取网易云歌单列表
 			if cfg.API {
 				catlist = make(map[string]int64, 100)
 				msg = append(msg, "\n当前添加的API歌单含有以下：\n")
@@ -320,7 +313,7 @@ func init() { // 插件主体
 					}
 				}
 			}
-			// 获取本地歌单列表*/
+			//获取本地歌单列表*/
 			if cfg.Local {
 				err = os.MkdirAll(cfg.MusicPath, 0755)
 				if err == nil {
@@ -362,22 +355,22 @@ func init() { // 插件主体
 	engine.OnSuffix("歌单信息").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			list := ctx.State["args"].(string)
-			var listId string
+			var listIDStr string
 			for listName, listID := range catlist {
 				if list == listName || list == strconv.FormatInt(listID, 10) {
-					listId = strconv.FormatInt(listID, 10)
+					listIDStr = strconv.FormatInt(listID, 10)
 					break
 				}
 			}
-			if listId == "" {
+			if listIDStr == "" {
 				_, err := strconv.ParseInt(list, 10, 64)
 				if err != nil {
 					ctx.SendChain(message.Text("仅支持歌单ID查询"))
 					return
 				}
-				listId = list
+				listIDStr = list
 			}
-			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listId + "&cookie=" + url.QueryEscape(cfg.Cookie)
+			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listIDStr + "&cookie=" + url.QueryEscape(cfg.Cookie)
 			referer := "https://music.cyrilstudio.top"
 			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 			if err != nil {
@@ -409,14 +402,15 @@ func init() { // 插件主体
 			}
 			_, ok := catlist[mode]
 			switch {
-			// 如果API没有开，本地也不存在这个歌单
-			case cfg.API == false && !strings.Contains(strings.Join(filelist, " "), mode):
+			//如果API没有开，本地也不存在这个歌单
+			case !cfg.API && !strings.Contains(strings.Join(filelist, " "), mode):
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
-				// 如果本地没有开，网易云也不存在这个歌单
-			case cfg.Local == false && !ok:
+				//如果本地没有开，网易云也不存在这个歌单
+			case !cfg.Local && !ok:
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
+
 			}
 			gid := strconv.FormatInt(ctx.Event.GroupID, 10)
 			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲信息(歌名歌手等)|提示|取消]”\n一共3段语音，6次机会"))
@@ -637,26 +631,6 @@ func getcatlist(pathOfMusic string) error {
 	return nil
 }
 
-// 获取歌单封面图片
-func initFacePic(filename, faceURL string) error {
-	err := os.MkdirAll(filename, 0755)
-	if err != nil {
-		err = errors.Errorf("[生成文件夹错误]ERROR:%s", err)
-		return err
-	}
-	if file.IsNotExist(filename) {
-		data, err := web.GetData(faceURL)
-		if err != nil {
-			return err
-		}
-		err = os.WriteFile(filename, data, 0666)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // 随机抽取音乐
 func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err error) {
 	pathOfMusic = musicPath + mode + "/"
@@ -679,13 +653,12 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 				// 如果歌单是本地歌单
 				err = errors.New("本地歌单数据为0")
 				return
-			} else {
-				// 如果没有任何本地就下载歌曲
-				musicName, err = getListMusic(listIDstr, pathOfMusic)
-				if err != nil {
-					err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
-					return
-				}
+			}
+			// 如果没有任何本地就下载歌曲
+			musicName, err = getListMusic(listIDstr, pathOfMusic)
+			if err != nil {
+				err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
+				return
 			}
 		case rand.Intn(2) == 0 || !ok:
 			// 1/2概率抽本地或者歌单只有本地有时
