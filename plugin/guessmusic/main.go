@@ -308,7 +308,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("获取歌单列表").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			var msg []string
-			//获取网易云歌单列表
+			// 获取网易云歌单列表
 			if cfg.API {
 				catlist = make(map[string]int64, 100)
 				msg = append(msg, "\n当前添加的API歌单含有以下：\n")
@@ -320,7 +320,7 @@ func init() { // 插件主体
 					}
 				}
 			}
-			//获取本地歌单列表*/
+			// 获取本地歌单列表*/
 			if cfg.Local {
 				err = os.MkdirAll(cfg.MusicPath, 0755)
 				if err == nil {
@@ -409,15 +409,14 @@ func init() { // 插件主体
 			}
 			_, ok := catlist[mode]
 			switch {
-			//如果API没有开，本地也不存在这个歌单
+			// 如果API没有开，本地也不存在这个歌单
 			case cfg.API == false && !strings.Contains(strings.Join(filelist, " "), mode):
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
-				//如果本地没有开，网易云也不存在这个歌单
+				// 如果本地没有开，网易云也不存在这个歌单
 			case cfg.Local == false && !ok:
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
-
 			}
 			gid := strconv.FormatInt(ctx.Event.GroupID, 10)
 			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲信息(歌名歌手等)|提示|取消]”\n一共3段语音，6次机会"))
@@ -638,7 +637,7 @@ func getcatlist(pathOfMusic string) error {
 	return nil
 }
 
-//获取歌单封面图片
+// 获取歌单封面图片
 func initFacePic(filename, faceURL string) error {
 	err := os.MkdirAll(filename, 0755)
 	if err != nil {
