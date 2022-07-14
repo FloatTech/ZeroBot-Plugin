@@ -194,19 +194,14 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("解析网易云二维码失败, ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.Text(qrInfo.Data.Qrurl), message.Image("base64://"+strings.ReplaceAll(qrInfo.Data.Qrimg, "data:image/png;base64,", "")))
-			i := 0
-			for range time.Tick(10 * time.Second) {
+			ctx.SendChain(message.Text("[请使用手机APP扫描二维码或者进入网页扫码登录]\n", qrInfo.Data.Qrurl), message.Image("base64://"+strings.ReplaceAll(qrInfo.Data.Qrimg, "data:image/png;base64,", "")))
+			for range time.NewTicker(10 * time.Second).C {
 				apiURL := "https://music.cyrilstudio.top/login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
 				referer := "https://music.cyrilstudio.top"
 				data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 				if err != nil {
 					ctx.SendChain(message.Text("无法获取登录状态, ERROR:", err))
-					i++
-					if i > 5 {
-						return
-					}
-					continue
+					return
 				}
 				var cookiesInfo cookyInfo
 				err = json.Unmarshal(data, &cookiesInfo)
@@ -225,6 +220,7 @@ func init() { // 插件主体
 					}
 					return
 				case 801:
+					ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
 					continue
 				case 800:
 					ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
@@ -301,7 +297,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("获取歌单列表").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			var msg []string
-			// 获取网易云歌单列表
+			//获取网易云歌单列表
 			if cfg.API {
 				catlist = make(map[string]int64, 100)
 				msg = append(msg, "\n当前添加的API歌单含有以下：\n")
@@ -313,7 +309,7 @@ func init() { // 插件主体
 					}
 				}
 			}
-			// 获取本地歌单列表*/
+			//获取本地歌单列表*/
 			if cfg.Local {
 				err = os.MkdirAll(cfg.MusicPath, 0755)
 				if err == nil {
@@ -402,14 +398,15 @@ func init() { // 插件主体
 			}
 			_, ok := catlist[mode]
 			switch {
-			// 如果API没有开，本地也不存在这个歌单
+			//如果API没有开，本地也不存在这个歌单
 			case !cfg.API && !strings.Contains(strings.Join(filelist, " "), mode):
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
-				// 如果本地没有开，网易云也不存在这个歌单
+				//如果本地没有开，网易云也不存在这个歌单
 			case !cfg.Local && !ok:
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
+
 			}
 			gid := strconv.FormatInt(ctx.Event.GroupID, 10)
 			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲信息(歌名歌手等)|提示|取消]”\n一共3段语音，6次机会"))
