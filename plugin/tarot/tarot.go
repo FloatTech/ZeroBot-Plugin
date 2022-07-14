@@ -89,7 +89,7 @@ func init() {
 	engine.OnRegex(`^抽(\d{1,2}张)?塔罗牌$`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		n := 1
-		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
+		reasons := [...]string{"占卜？我并不喜欢呢~ 不过~\n", "有时间玩这些无趣的东西，不如来我实验室看看哦~ 小白鼠~\n", "玄学，你认为这有用吗？小白鼠~ 不过，这取决与你呢~\n"}
 		position := [...]string{"正位", "逆位"}
 		reverse := [...]string{"", "Reverse"}
 		if match != "" {
@@ -151,7 +151,7 @@ func init() {
 		if ok {
 			ctx.SendChain(
 				message.Image(bed+info.ImgURL),
-				message.Text("\n", match, "的含义是~"),
+				message.Text("真是会强人所难呢~ 不过这个我还是知道的哦~ \n", match, "的含义是~"),
 				message.Text("\n正位:", info.Description),
 				message.Text("\n逆位:", info.ReverseDescription))
 		} else {
