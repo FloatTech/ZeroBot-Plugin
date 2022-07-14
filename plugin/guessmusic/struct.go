@@ -99,7 +99,7 @@ type topList struct {
 			Anchor              bool        `json:"anchor"`
 			BackgroundImgIDStr  string      `json:"backgroundImgIdStr"`
 			AvatarImgIDStr      string      `json:"avatarImgIdStr"`
-			AvatarImgID_Str     string      `json:"avatarImgId_str"`
+			AvatarImgIDString   string      `json:"AvatarImgIDString"`
 		} `json:"subscribers"`
 		Subscribed interface{} `json:"subscribed"`
 		Creator    struct {
@@ -137,7 +137,7 @@ type topList struct {
 			Anchor             bool   `json:"anchor"`
 			BackgroundImgIDStr string `json:"backgroundImgIdStr"`
 			AvatarImgIDStr     string `json:"avatarImgIdStr"`
-			AvatarImgID_Str    string `json:"avatarImgId_str"`
+			AvatarImgIDString  string `json:"AvatarImgIDString"`
 		} `json:"creator"`
 		Tracks []struct {
 			Name string `json:"name"`
