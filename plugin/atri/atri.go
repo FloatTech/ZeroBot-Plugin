@@ -60,12 +60,28 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			ctx.SendChain(randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
+			ctx.SendChain(randText(
+				"是要隔着衣服贴，还是从领口伸进去贴呀?小~白~鼠~",
+				"小~白~鼠~？",
+				"贴这么近，是对我有什么想法吗？小白鼠？",
+				"来吧小白鼠，牵起我的手，加入这进化的路途吧~",
+				"可以哟小白鼠，来和我做点有意思的事吧~",
+				"看来我们都很闲呢，要去我的实验室里坐坐吗~？",
+				"这是...表白吗？真是意外呢，我的小白鼠~",
+				"你是喜欢我这副躯体呢？还是...（笑~",
+				"想让我也喜欢你？你知道该怎么做~ ",
+			))
 		})
 	engine.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			ctx.SendChain(randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
+			ctx.SendChain(randText(
+				"既然说出了这样的话~ 那你应该已经做好觉悟了吧，呵呵呵~",
+				"做好准备哦，小白鼠~接下来，可是会很痛的~",
+				"把你做成标本，怎么样~",
+				"呵呵呵~ 可不要~逃走哦~！",
+				"哎呀，生命可真是脆弱呢~ 你觉得呢？我的小白鼠~？",
+			))
 		})
 	engine.OnFullMatchGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う", "早好", "早", "早早早"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -76,34 +92,29 @@ func init() { // 插件主体
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"zzzz......",
 					"zzzzzzzz......",
-					"zzz...好涩哦..zzz....",
-					"别...不要..zzz..那..zzz..",
-					"嘻嘻..zzz..呐~..zzzz..",
-					"...zzz....哧溜哧溜....",
+					"克莱因...来..zzz..帮人家..zzz..",
+					"如果是要找梅比乌斯博士的话...博士还在休息",
+					"有什么我可以帮忙的吗",
 				))
 			case now >= 6 && now < 9:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"啊......早上好...(哈欠)",
-					"唔......吧唧...早上...哈啊啊~~~\n早上好......",
-					"早上好......",
-					"早上好呜......呼啊啊~~~~",
-					"啊......早上好。\n昨晚也很激情呢！",
-					"吧唧吧唧......怎么了...已经早上了么...",
-					"早上好！",
-					"......看起来像是傍晚，其实已经早上了吗？",
-					"早上好......欸~~~脸好近呢",
+					"啊......早上好...克莱因(哈欠)",
+					"唔...哈啊啊~~~克莱因？......不是啊~",
+					"早上好......无聊的早晨呢~陪我玩玩吧，小白鼠？",
+					"早上好...睡觉？博士的工作...还没有做完，我还能...工作...",
 				))
 			case now >= 9 && now < 18:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"哼！这个点还早啥，昨晚干啥去了！？",
-					"熬夜了对吧熬夜了对吧熬夜了对吧？？？！",
-					"是不是熬夜是不是熬夜是不是熬夜？！",
+					"现在可不是早上好的时间哦~ ",
+					"难道你昨天晚上做了什么吗？我的小白鼠~？",
+					"繁衍，也是生命延续的一种形式...没有？呵呵~",
+					"这个时间...小白鼠~？来陪我做点有意思的事吧~",
 				))
 			case now >= 18 && now < 24:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
-					"早个啥？哼唧！我都准备洗洗睡了！",
-					"不是...你看看几点了，哼！",
-					"晚上好哇",
+					"即使是【蛇】...这个时间也该睡觉了呢~",
+					"啊，早上...哦不对，晚上好",
+					"早上好？难不成，小白鼠~ 你是昼伏夜出？",
 				))
 			}
 		})
