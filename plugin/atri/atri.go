@@ -180,7 +180,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			if rand.Intn(2) == 0 {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID),randText(
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"是什么让你觉得无语了呢？说来听听吧，小白鼠~",
 					"发生什么了吗？我可爱的小白鼠~",
 				))
