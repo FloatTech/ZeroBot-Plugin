@@ -427,7 +427,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text(err))
 				return
 			}
-			//解析歌曲信息
+			// 解析歌曲信息
 			musicInfo := strings.Split(musicName, " - ")
 			infoNum := len(musicInfo)
 			answerString := "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
