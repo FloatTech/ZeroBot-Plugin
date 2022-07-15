@@ -96,14 +96,14 @@ func init() { // 插件主体
 					"如果是要找梅比乌斯博士的话...博士还在休息",
 					"有什么我可以帮忙的吗",
 				))
-			case now >= 6 && now < 9:
+			case now >= 6 && now < 12:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"啊......早上好...克莱因(哈欠)",
 					"唔...哈啊啊~~~克莱因？......不是啊~",
 					"早上好......无聊的早晨呢~陪我玩玩吧，小白鼠？",
 					"早上好...睡觉？博士的工作...还没有做完，我还能...工作...",
 				))
-			case now >= 9 && now < 18:
+			case now >= 12 && now < 18:
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"现在可不是早上好的时间哦~ ",
 					"难道你昨天晚上做了什么吗？我的小白鼠~？",
@@ -125,7 +125,7 @@ func init() { // 插件主体
 				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"午安哦~ 我的小白鼠~ ",
-					"午安，小白鼠，做个好梦~ 呵呵~",
+					"午安，小白鼠，做个好梦哦~ 呵呵~",
 				))
 			}
 		})
