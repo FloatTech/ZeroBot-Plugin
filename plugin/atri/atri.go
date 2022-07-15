@@ -165,38 +165,10 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText(
-				"当然，我是高性能的嘛~！",
-				"小事一桩，我是高性能的嘛",
-				"怎么样？还是我比较高性能吧？",
-				"哼哼！我果然是高性能的呢！",
-				"因为我是高性能的嘛！嗯哼！",
-				"因为我是高性能的呢！",
-				"哎呀~，我可真是太高性能了",
-				"正是，因为我是高性能的",
-				"是的。我是高性能的嘛♪",
-				"毕竟我可是高性能的！",
-				"嘿嘿，我的高性能发挥出来啦♪",
-				"我果然是很高性能的机器人吧！",
-				"是吧！谁叫我这么高性能呢！哼哼！",
-				"交给我吧，有高性能的我陪着呢",
-				"呣......我的高性能，毫无遗憾地施展出来了......",
+				"太棒了？你是说哪里呢？我的小白鼠~",
+				"觉得自己运气不错？要不要去我的实验室里试试呀~",
 			))
 		})
-	engine.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
-			ctx.SendChain(randText(
-				"当然，我是高性能的嘛~！",
-				"没事没事，因为我是高性能的嘛！嗯哼！",
-				"没事的，因为我是高性能的呢！",
-				"正是，因为我是高性能的",
-				"是的。我是高性能的嘛♪",
-				"毕竟我可是高性能的！",
-				"那种程度的事不算什么的。\n别看我这样，我可是高性能的",
-				"没问题的，我可是高性能的",
-			))
-		})
-
 	engine.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}, isAtriSleeping).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
@@ -208,37 +180,43 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			if rand.Intn(2) == 0 {
-				ctx.SendChain(randImage("AZ.jpg", "AZ1.jpg"))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID),randText(
+					"是什么让你觉得无语了呢？说来听听吧，小白鼠~",
+					"发生什么了吗？我可爱的小白鼠~",
+				))
 			}
 		})
 	engine.OnKeywordGroup([]string{"我好了"}, isAtriSleeping).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), randText("不许好！", "憋回去！"))
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
+				"你好了？你是说哪里呢？我的小白鼠~",
+				"觉得自己运气不错？要不要去我的实验室里试试呀~",
+			))
 		})
 	engine.OnFullMatchGroup([]string{"？", "?", "¿"}, isAtriSleeping).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			switch rand.Intn(5) {
 			case 0:
-				ctx.SendChain(randText("?", "？", "嗯？", "(。´・ω・)ん?", "ん？"))
+				ctx.SendChain(randText("?", "？", "嗯？"))
 			case 1, 2:
-				ctx.SendChain(randImage("WH.jpg", "WH1.jpg", "WH2.jpg", "WH3.jpg"))
+				ctx.SendChain(randText("有什么问题吗？小白鼠~", "ん？"))
 			}
 		})
 	engine.OnKeyword("离谱", isAtriSleeping).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			switch rand.Intn(5) {
 			case 0:
-				ctx.SendChain(randText("?", "？", "嗯？", "(。´・ω・)ん?", "ん？"))
+				ctx.SendChain(randText("?", "？", "嗯？", "有什么问题吗？小白鼠~", "ん？"))
 			case 1, 2:
-				ctx.SendChain(randImage("WH.jpg"))
+				ctx.SendChain(randText("需要一点小小的帮助吗？呵呵~", "需要蛇来帮你一下吗？我可爱的小白鼠~"))
 			}
 		})
 	engine.OnKeyword("答应我", isAtriSleeping, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			ctx.SendChain(randText("我无法回应你的请求"))
+			ctx.SendChain(randText("和蛇立约定？小心会被吞掉哦~"))
 		})
 }
 
