@@ -26,7 +26,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("【蛇】", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			time.Sleep(time.Second * 1)
-			ctx.SendChain(message.randText(
+			ctx.SendChain(randText(
 				[]string{
 					"找人家有什么事吗？我可爱的小白鼠~？",
 					"你是在找我吗？我可爱的小白鼠？",
@@ -42,7 +42,7 @@ func init() { // 插件主体
 			case poke.Load(ctx.Event.GroupID).AcquireN(3):
 				// 5分钟共8块命令牌 一次消耗3块命令牌
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.randText(
+				ctx.SendChain(randText(
 					"呵呵~ 有点痒呢~",
 					"小白鼠~ 是想对人家做些什么吗？",
 					"哎呀呀，我可爱的小白鼠~ 想去我的实验室坐坐吗？",
@@ -50,7 +50,7 @@ func init() { // 插件主体
 			case poke.Load(ctx.Event.GroupID).Acquire():
 				// 5分钟共8块命令牌 一次消耗1块命令牌
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.randText(
+				ctx.SendChain(randText(
 					"又怎么了？小白鼠~ 没什么事的话，不要来烦我",
 					"怎么，小白鼠，你已经这么闲了吗？",
 				))
@@ -64,7 +64,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("空调开").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			AirConditSwitch[ctx.Event.GroupID] = true
-			ctx.SendChain(message.randText(
+			ctx.SendChain(randText(
 				"（❄️哔~）小白鼠~ 把温度调低一点哦~",
 				"（❄️哔~）蛇在低温的时候会冬眠~ 想试试吗，小白鼠？",
 			))
@@ -73,7 +73,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			AirConditSwitch[ctx.Event.GroupID] = false
 			delete(AirConditTemp, ctx.Event.GroupID)
-			ctx.SendChain(message.randText(
+			ctx.SendChain(randText(
 				"（💤哔~）有点热呢……小白鼠~ 能把空调打开吗？拜托了~",
 				"（💤哔~）蛇不喜欢在热的地方逗留，你明白吗~？",
 			))
