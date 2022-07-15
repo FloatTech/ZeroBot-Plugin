@@ -27,7 +27,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
-			ctx.SendChain(message.Text(
+			ctx.SendChain(message.randText(
 				[]string{
 					"找人家有什么事吗？我可爱的小白鼠~？",
 					"你是在找我吗？我可爱的小白鼠？",
