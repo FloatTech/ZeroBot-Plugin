@@ -26,7 +26,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("【蛇】", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			time.Sleep(time.Second * 1)
-			ctx.SendChain(randText(
+			ctx.SendChain(message.Text(
 				[]string{
 					"找人家有什么事吗？我可爱的小白鼠~？",
 					"你是在找我吗？我可爱的小白鼠？",
