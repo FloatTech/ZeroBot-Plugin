@@ -4,7 +4,6 @@ package guessmusic
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"math/rand"
@@ -387,11 +386,13 @@ func init() { // 插件主体
 				message.Image(parsed.Playlist.CoverImgURL),
 				message.Text(
 					"歌单名称：", parsed.Playlist.Name,
-					fmt.Sprintf("\n歌单ID：%d", parsed.Playlist.ID),
+					"\n歌单ID：", parsed.Playlist.ID,
 					"\n创建人：", parsed.Playlist.Creator.Nickname,
-					fmt.Sprintf("\n标签：%s", strings.Join(parsed.Playlist.Tags, ";")),
-					fmt.Sprintf("\n歌曲数量：%d", parsed.Playlist.TrackCount),
+					"\n创建时间：", time.Unix(parsed.Playlist.CreateTime/1000, 0).Format("2006-01-02"),
+					"\n标签：", strings.Join(parsed.Playlist.Tags, ";"),
+					"\n歌曲数量：", parsed.Playlist.TrackCount,
 					"\n歌单简介:\n", parsed.Playlist.Description,
+					"\n更新时间：", time.Unix(parsed.Playlist.UpdateTime/1000, 0).Format("2006-01-02"),
 				))
 		})
 	engine.OnRegex(`^(个人|团队)猜歌(-(.*))?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
@@ -426,9 +427,17 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text(err))
 				return
 			}
+			//解析歌曲信息
+			musicInfo := strings.Split(musicName, " - ")
+			infoNum := len(musicInfo)
+			answerString := "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
+			musicAlia := ""
+			if infoNum > 2 {
+				musicAlia = musicInfo[2]
+				answerString += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
+			}
 			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
-			answerString := strings.Split(musicName, " - ")
 			var next *zero.FutureEvent
 			if ctx.State["regex_matched"].([]string)[1] == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), ctx.CheckSession())
@@ -447,15 +456,8 @@ func init() { // 插件主体
 				case <-tick.C:
 					ctx.SendChain(message.Text("猜歌游戏，你还有15s作答时间"))
 				case <-after.C:
-					msg := make(message.Message, 0, 3)
-					msg = append(msg, message.Reply(ctx.Event.MessageID))
-					msg = append(msg, message.Text("时间超时，猜歌结束，公布答案：",
-						"\n歌名:", answerString[0],
-						"\n歌手:", answerString[1]))
-					if len(answerString) > 2 {
-						msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-					}
-					ctx.Send(msg)
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Text("时间超时，猜歌结束，公布答案：\n", answerString)))
 					return
 				case <-wait.C:
 					wait.Reset(40 * time.Second)
@@ -479,15 +481,8 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 3)
-							msg = append(msg, message.Reply(ctx.Event.MessageID))
-							msg = append(msg, message.Text("游戏已取消，猜歌答案是",
-								"\n歌名:", answerString[0],
-								"\n歌手:", answerString[1]))
-							if len(answerString) > 2 {
-								msg = append(msg, message.Text("\n歌曲出自:\n", strings.ReplaceAll(answerString[2], "&", "\n")))
-							}
-							ctx.Send(msg)
+							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+								message.Text("游戏已取消，猜歌答案是\n", answerString)))
 							return
 						}
 						ctx.Send(
@@ -513,49 +508,27 @@ func init() { // 插件主体
 							),
 						)
 						ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(musicCount) + ".wav"))
-					case strings.Contains(answerString[0], answer) || strings.EqualFold(answerString[0], answer):
+					case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						msg := make(message.Message, 0, 3)
-						msg = append(msg, message.Reply(ctx.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌曲名了！答案是",
-							"\n歌名:", answerString[0],
-							"\n歌手:", answerString[1]))
-						if len(answerString) > 2 {
-							msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-						}
-						ctx.Send(msg)
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("太棒了，你猜对歌曲名了！答案是\n", answerString)))
 						return
-					case strings.Contains(answerString[1], answer) || strings.EqualFold(answerString[1], answer):
+					case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						msg := make(message.Message, 0, 3)
-						msg = append(msg, message.Reply(ctx.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌手名了！答案是",
-							"\n歌名:", answerString[0],
-							"\n歌手:", answerString[1]))
-						if len(answerString) > 2 {
-							msg = append(msg, message.Text("\n歌曲出自:\n", strings.ReplaceAll(answerString[2], "&", "\n")))
-						}
-						ctx.Send(msg)
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("太棒了，你猜对歌手名了！答案是\n", answerString)))
 						return
-					case len(answerString) > 2:
-						if strings.Contains(answerString[2], answer) || strings.EqualFold(answerString[2], answer) {
-							wait.Stop()
-							tick.Stop()
-							after.Stop()
-							ctx.Send(
-								message.ReplyWithMessage(c.Event.MessageID,
-									message.Text("太棒了，你猜对出处了！答案是",
-										"\n歌名:", answerString[0],
-										"\n歌手:", answerString[1],
-										"\n歌曲出自:\n", strings.ReplaceAll(answerString[2], "&", "\n")),
-								),
-							)
-							return
-						}
+					case strings.Contains(musicAlia, answer) || strings.EqualFold(musicAlia, answer):
+						wait.Stop()
+						tick.Stop()
+						after.Stop()
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("太棒了，你猜对出处了！答案是\n", answerString)))
+						return
 					default:
 						musicCount++
 						switch {
@@ -571,15 +544,8 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 3)
-							msg = append(msg, message.Reply(ctx.Event.MessageID))
-							msg = append(msg, message.Text("次数到了，你没能猜出来。答案是",
-								"\n歌名:", answerString[0],
-								"\n歌手:", answerString[1]))
-							if len(answerString) > 2 {
-								msg = append(msg, message.Text("\n歌曲出自:\n", strings.ReplaceAll(answerString[2], "&", "\n")))
-							}
-							ctx.Send(msg)
+							ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+								message.Text("次数到了，没能猜出来。答案是\n", answerString)))
 							return
 						default:
 							wait.Reset(40 * time.Second)
@@ -716,7 +682,8 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 	}
 	listlen := len(parsed.Songs)
 	randidx := rand.Intn(listlen)
-	name := parsed.Songs[randidx].Name
+	// 将"/"符号去除，不然无法下载
+	name := strings.ReplaceAll(parsed.Songs[randidx].Name, "/", "\\")
 	musicID := parsed.Songs[randidx].ID
 	artistName := ""
 	for i, ARInfo := range parsed.Songs[randidx].Ar {
@@ -729,6 +696,8 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 	cource := ""
 	if parsed.Songs[randidx].Alia != nil {
 		cource = strings.Join(parsed.Songs[randidx].Alia, "&")
+		// 将"/"符号去除，不然无法下载
+		cource = strings.ReplaceAll(cource, "/", "&")
 	}
 	if name == "" || musicID == 0 {
 		err = errors.New("无法获API取歌曲信息")
