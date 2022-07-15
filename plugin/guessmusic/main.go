@@ -682,8 +682,8 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 	}
 	listlen := len(parsed.Songs)
 	randidx := rand.Intn(listlen)
-	// 将"/"符号去除，不然无法下载
-	name := strings.ReplaceAll(parsed.Songs[randidx].Name, "/", "\\")
+	// 将"/"符号去除，不然无法生成文件
+	name := strings.ReplaceAll(parsed.Songs[randidx].Name, "/", "·")
 	musicID := parsed.Songs[randidx].ID
 	artistName := ""
 	for i, ARInfo := range parsed.Songs[randidx].Ar {
