@@ -23,9 +23,8 @@ var (
 
 func init() { // 插件主体
 	// 被喊名字
-	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).
+	engine.OnFullMatch("【蛇】", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(message.randText(
 				[]string{
@@ -33,14 +32,12 @@ func init() { // 插件主体
 					"你是在找我吗？我可爱的小白鼠？",
 					"呵呵~ 小白鼠，想和我来一起做些有趣的事情吗？",
 					"我就是梅比乌斯~ 唯一的，真正的梅比乌斯~",
-					NickName+"盯上你了哦~",
 				}[rand.Intn(4)],
 			))
 		})
 	// 戳一戳
 	engine.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			var nickname = zero.BotConfig.NickName[0]
 			switch {
 			case poke.Load(ctx.Event.GroupID).AcquireN(3):
 				// 5分钟共8块命令牌 一次消耗3块命令牌
