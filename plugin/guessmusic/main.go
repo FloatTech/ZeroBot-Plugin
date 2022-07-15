@@ -484,7 +484,7 @@ func getAnimeData(musicPath string) (musicName string, err error) {
 	name := parsed.Res.Title
 	artistName := parsed.Res.Author
 	acgName := parsed.Res.AnimeInfo.Title
-	//musicURL := parsed.Res.PlayURL
+	// musicURL := parsed.Res.PlayURL
 	if name == "" || artistName == "" {
 		err = errors.New("无法获API取歌曲信息")
 		return
