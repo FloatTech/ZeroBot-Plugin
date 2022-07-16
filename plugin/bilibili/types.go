@@ -1,30 +1,24 @@
 package bilibili
 
 const (
-	// TURL bilibili动态前缀
-	TURL = "https://t.bilibili.com/"
-	// SpaceHistoryURL 历史动态信息,一共12个card
-	SpaceHistoryURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=%v&offset_dynamic_id=%v&need_top=0"
-	// DynamicDetailURL 当前动态信息,一个card
-	DynamicDetailURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=%v"
-	// MemberCardURL 个人信息
-	MemberCardURL = "https://account.bilibili.com/api/member/getCardByMid?mid=%v"
-	// ArticleInfoURL 查看专栏信息
-	ArticleInfoURL = "https://api.bilibili.com/x/article/viewinfo?id=%v"
-	// CURL b站专栏前缀
-	CURL = "https://www.bilibili.com/read/cv"
-	// LiveRoomInfoURL 查看直播间信息
-	LiveRoomInfoURL = "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=%v"
-	// UserLiveURL 查看直播用户信息
-	UserLiveURL = "https://api.bilibili.com/x/space/acc/info?mid=%v"
-	// LURL b站直播间前缀
-	LURL = "https://live.bilibili.com/"
-	// VideoInfoURL 查看视频信息
-	VideoInfoURL = "https://api.bilibili.com/x/web-interface/view?aid=%v&bvid=%v"
-	// SearchVideoInfoURL 搜索视频信息
-	SearchVideoInfoURL = "https://api.bilibili.com/x/web-interface/search/all/v2?%v"
-	// VURL 视频网址前缀
-	VURL = "https://www.bilibili.com/video/"
+	// tURL bilibili动态前缀
+	tURL = "https://t.bilibili.com/"
+	// dynamicDetailURL 当前动态信息,一个card
+	dynamicDetailURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=%v"
+	// memberCardURL 个人信息
+	memberCardURL = "https://account.bilibili.com/api/member/getCardByMid?mid=%v"
+	// articleInfoURL 查看专栏信息
+	articleInfoURL = "https://api.bilibili.com/x/article/viewinfo?id=%v"
+	// cvURL b站专栏前缀
+	cvURL = "https://www.bilibili.com/read/cv"
+	// liveRoomInfoURL 查看直播间信息
+	liveRoomInfoURL = "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=%v"
+	// lURL b站直播间前缀
+	lURL = "https://live.bilibili.com/"
+	// videoInfoURL 查看视频信息
+	videoInfoURL = "https://api.bilibili.com/x/web-interface/view?aid=%v&bvid=%v"
+	// vURL 视频网址前缀
+	vURL = "https://www.bilibili.com/video/"
 	// searchUserURL 查找b站用户
 	searchUserURL = "http://api.bilibili.com/x/web-interface/search/type?search_type=bili_user&keyword=%v"
 	// vtbDetailURL 查找vtb信息
@@ -32,6 +26,20 @@ const (
 	// medalwallURL 查找牌子
 	medalwallURL = "https://api.live.bilibili.com/xlive/web-ucenter/user/MedalWall?target_id=%v"
 )
+
+// dynamicCard 总动态结构体,包括desc,card
+type dynamicCard struct {
+	Desc      Desc   `json:"desc"`
+	Card      string `json:"card"`
+	Extension struct {
+		VoteCfg struct {
+			VoteID  int    `json:"vote_id"`
+			Desc    string `json:"desc"`
+			JoinNum int    `json:"join_num"`
+		} `json:"vote_cfg"`
+		Vote string `json:"vote"`
+	} `json:"extension"`
+}
 
 // Card 卡片结构体
 type Card struct {
@@ -134,20 +142,6 @@ type Card struct {
 	} `json:"staff"`
 }
 
-// DynamicCard 总动态结构体,包括desc,card
-type DynamicCard struct {
-	Desc      Desc   `json:"desc"`
-	Card      string `json:"card"`
-	Extension struct {
-		VoteCfg struct {
-			VoteID  int    `json:"vote_id"`
-			Desc    string `json:"desc"`
-			JoinNum int    `json:"join_num"`
-		} `json:"vote_cfg"`
-		Vote string `json:"vote"`
-	} `json:"extension"`
-}
-
 // Desc 描述结构体
 type Desc struct {
 	Type         int    `json:"type"`
@@ -177,8 +171,8 @@ type Vote struct {
 	} `json:"options"`
 }
 
-// MemberCard 个人信息卡片
-type MemberCard struct {
+// memberCard 个人信息卡片
+type memberCard struct {
 	Mid        string  `json:"mid"`
 	Name       string  `json:"name"`
 	Sex        string  `json:"sex"`
@@ -196,8 +190,8 @@ type MemberCard struct {
 	} `json:"level_info"`
 }
 
-// RoomCard 直播间卡片
-type RoomCard struct {
+// roomCard 直播间卡片
+type roomCard struct {
 	RoomInfo struct {
 		RoomID         int    `json:"room_id"`
 		ShortID        int    `json:"short_id"`

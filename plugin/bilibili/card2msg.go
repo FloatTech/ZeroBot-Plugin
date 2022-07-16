@@ -30,7 +30,7 @@ var (
 // dynamicCard2msg cType=0时,处理DynCard字符串,cType=1, 2, 4, 8, 16, 64, 256, 2048, 4200, 4308时,处理Card字符串,cType为card类型
 func dynamicCard2msg(str string, cType int) (msg []message.MessageSegment, err error) {
 	var (
-		dynamicCard DynamicCard
+		dynamicCard dynamicCard
 		card        Card
 		vote        Vote
 	)
@@ -153,7 +153,7 @@ func dynamicCard2msg(str string, cType int) (msg []message.MessageSegment, err e
 		msg = append(msg, message.Text("动态id: ", dynamicCard.Desc.DynamicIDStr, "未知动态类型: ", cType, "\n"))
 	}
 	if dynamicCard.Desc.DynamicIDStr != "" {
-		msg = append(msg, message.Text("动态链接: ", TURL, dynamicCard.Desc.DynamicIDStr))
+		msg = append(msg, message.Text("动态链接: ", tURL, dynamicCard.Desc.DynamicIDStr))
 	}
 	return
 }
@@ -161,7 +161,7 @@ func dynamicCard2msg(str string, cType int) (msg []message.MessageSegment, err e
 // dynamicDetail 用动态id查动态信息
 func dynamicDetail(dynamicIDStr string) (msg []message.MessageSegment, err error) {
 	var data []byte
-	data, err = web.GetData(fmt.Sprintf(DynamicDetailURL, dynamicIDStr))
+	data, err = web.GetData(fmt.Sprintf(dynamicDetailURL, dynamicIDStr))
 	if err != nil {
 		return
 	}
@@ -176,12 +176,12 @@ func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment,
 	}
 	msg = append(msg, message.Text(card.Title, "\n", "UP主: ", card.AuthorName, "\n",
 		"阅读: ", humanNum(card.Stats.View), " 评论: ", humanNum(card.Stats.Reply), "\n",
-		CURL, defaultID))
+		cvURL, defaultID))
 	return
 }
 
 // liveCard2msg 直播卡片转消息
-func liveCard2msg(card RoomCard) (msg []message.MessageSegment, err error) {
+func liveCard2msg(card roomCard) (msg []message.MessageSegment, err error) {
 	msg = make([]message.MessageSegment, 0, 16)
 	msg = append(msg, message.Image(card.RoomInfo.Keyframe))
 	msg = append(msg, message.Text(card.RoomInfo.Title, "\n",
@@ -200,9 +200,9 @@ func liveCard2msg(card RoomCard) (msg []message.MessageSegment, err error) {
 		msg = append(msg, message.Text("直播中 ", humanNum(card.RoomInfo.Online), "人气\n"))
 	}
 	if card.RoomInfo.ShortID != 0 {
-		msg = append(msg, message.Text("直播间链接: ", LURL, card.RoomInfo.ShortID))
+		msg = append(msg, message.Text("直播间链接: ", lURL, card.RoomInfo.ShortID))
 	} else {
-		msg = append(msg, message.Text("直播间链接: ", LURL, card.RoomInfo.RoomID))
+		msg = append(msg, message.Text("直播间链接: ", lURL, card.RoomInfo.RoomID))
 	}
 
 	return
@@ -210,7 +210,7 @@ func liveCard2msg(card RoomCard) (msg []message.MessageSegment, err error) {
 
 // videoCard2msg 视频卡片转消息
 func videoCard2msg(card Card) (msg []message.MessageSegment, err error) {
-	var mCard MemberCard
+	var mCard memberCard
 	msg = make([]message.MessageSegment, 0, 16)
 	mCard, err = getMemberCard(card.Owner.Mid)
 	if err != nil {
@@ -228,6 +228,6 @@ func videoCard2msg(card Card) (msg []message.MessageSegment, err error) {
 	msg = append(msg, message.Image(card.Pic))
 	msg = append(msg, message.Text("点赞: ", humanNum(card.Stat.Like), " 投币: ", humanNum(card.Stat.Coin), "\n",
 		"收藏: ", humanNum(card.Stat.Favorite), " 分享: ", humanNum(card.Stat.Share), "\n",
-		VURL, card.BvID))
+		vURL, card.BvID))
 	return
 }

@@ -48,8 +48,8 @@ func getVtbDetail(uid string) (result vtbDetail, err error) {
 }
 
 // getMemberCard 获取b站个人详情
-func getMemberCard(uid interface{}) (result MemberCard, err error) {
-	data, err := web.GetData(fmt.Sprintf(MemberCardURL, uid))
+func getMemberCard(uid interface{}) (result memberCard, err error) {
+	data, err := web.GetData(fmt.Sprintf(memberCardURL, uid))
 	if err != nil {
 		return
 	}
@@ -93,7 +93,7 @@ func getMedalwall(uid string) (result []medal, err error) {
 // getArticleInfo 用id查专栏信息
 func getArticleInfo(id string) (card Card, err error) {
 	var data []byte
-	data, err = web.GetData(fmt.Sprintf(ArticleInfoURL, id))
+	data, err = web.GetData(fmt.Sprintf(articleInfoURL, id))
 	if err != nil {
 		return
 	}
@@ -103,9 +103,9 @@ func getArticleInfo(id string) (card Card, err error) {
 }
 
 // getLiveRoomInfo 用直播间id查直播间信息
-func getLiveRoomInfo(roomID string) (card RoomCard, err error) {
+func getLiveRoomInfo(roomID string) (card roomCard, err error) {
 	var data []byte
-	data, err = web.GetData(fmt.Sprintf(LiveRoomInfoURL, roomID))
+	data, err = web.GetData(fmt.Sprintf(liveRoomInfoURL, roomID))
 	if err != nil {
 		return
 	}
@@ -118,9 +118,9 @@ func getVideoInfo(id string) (card Card, err error) {
 	var data []byte
 	_, err = strconv.Atoi(id)
 	if err == nil {
-		data, err = web.GetData(fmt.Sprintf(VideoInfoURL, id, ""))
+		data, err = web.GetData(fmt.Sprintf(videoInfoURL, id, ""))
 	} else {
-		data, err = web.GetData(fmt.Sprintf(VideoInfoURL, "", id))
+		data, err = web.GetData(fmt.Sprintf(videoInfoURL, "", id))
 	}
 	if err != nil {
 		return

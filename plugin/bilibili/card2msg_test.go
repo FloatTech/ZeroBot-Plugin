@@ -1,13 +1,7 @@
 package bilibili
 
 import (
-	"encoding/json"
-	"fmt"
 	"testing"
-
-	"github.com/FloatTech/zbputils/binary"
-	"github.com/FloatTech/zbputils/web"
-	"github.com/tidwall/gjson"
 )
 
 func TestArticleInfo(t *testing.T) {
@@ -17,29 +11,6 @@ func TestArticleInfo(t *testing.T) {
 	}
 	t.Log(articleCard2msg(card, "17279244"))
 
-}
-
-func TestSpaceHistory(t *testing.T) {
-	data, err := web.GetData(fmt.Sprintf(SpaceHistoryURL, "667526012", "642279068898689029"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var desc Desc
-	_ = json.Unmarshal([]byte(gjson.ParseBytes(data).Get("data.cards.0.desc").Raw), &desc)
-	t.Logf("desc:%+v\n", desc)
-	var card Card
-	_ = json.Unmarshal([]byte(gjson.ParseBytes(data).Get("data.cards.0.card").Str), &card)
-	t.Logf("card:%+v\n", card)
-}
-
-func TestCard2msg(t *testing.T) {
-	data, err := web.GetData(fmt.Sprintf(SpaceHistoryURL, "667526012", "642279068898689029"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var dynamicCard DynamicCard
-	_ = json.Unmarshal([]byte(gjson.ParseBytes(data).Get("data.cards.0").Raw), &dynamicCard)
-	t.Logf("dynCard:%+v\n", dynamicCard)
 }
 
 func TestDynamicDetail(t *testing.T) {
@@ -72,15 +43,9 @@ func TestDynamicDetail(t *testing.T) {
 }
 
 func TestMemberCard(t *testing.T) {
-	var card MemberCard
-	data, err := web.GetData(fmt.Sprintf(MemberCardURL, 2))
+	card, err := getMemberCard(2)
 	if err != nil {
-		return
-	}
-	str := gjson.ParseBytes(data).Get("card").String()
-	err = json.Unmarshal(binary.StringToBytes(str), &card)
-	if err != nil {
-		return
+		t.Fatal(err)
 	}
 	t.Logf("%+v\n", card)
 }
