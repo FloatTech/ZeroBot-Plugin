@@ -387,11 +387,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>b站视频链接解析</summary>
+  <summary>b站动态、专栏、视频、直播解析</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
 
-  - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
+  - [x] t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245
 
 </details>
 <details>
