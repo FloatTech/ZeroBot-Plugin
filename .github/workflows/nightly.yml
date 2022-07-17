@@ -22,15 +22,19 @@ jobs:
             goarch: arm
           - goos: darwin
             goarch: "386"
-      fail-fast: false
+          - goos: windows
+            goarch: arm
+          - goos: windows
+            goarch: arm64
+      fail-fast: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
       - name: Setup Go environment
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@master
         with:
           go-version: 1.18
       - name: Cache downloaded module
-        uses: actions/cache@v2
+        uses: actions/cache@master
         with:
           path: |
             ~/.cache/go-build
@@ -48,7 +52,7 @@ jobs:
           export CGO_ENABLED=0
           go build -o "output/$BINARY_NAME" -trimpath -ldflags "$LD_FLAGS" .
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@master
         if: ${{ !github.head_ref }}
         with:
           name: ${{ matrix.goos }}_${{ matrix.goarch }}
