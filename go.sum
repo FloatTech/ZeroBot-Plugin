@@ -14,8 +14,6 @@ github.com/FloatTech/sqlite v0.3.2 h1:iTg2ZKnzjjZAdlSN3hXmpCBn15odc4Ud484OoM3yXG
 github.com/FloatTech/sqlite v0.3.2/go.mod h1:VFtLofV5qxw5eBneZRbWwD451SLSm50o9J3J43iB1iw=
 github.com/FloatTech/zbpctrl v1.4.1-0.20220708120020-996c0e071fca h1:uLeGuRiNI7ikVBi8FqKvYVgpDOwrE3XVNKDENERkN64=
 github.com/FloatTech/zbpctrl v1.4.1-0.20220708120020-996c0e071fca/go.mod h1:5FDkrlVaQCxUfeqH7XJPTfej0q+y9fzImhvZI4ofu9Y=
-github.com/FloatTech/zbputils v1.4.1-0.20220708131751-1c1d07981dd7 h1:0GsqNdhqa8ovJsfwY75bYM+w2p0L9AcuR7v7J9RxygY=
-github.com/FloatTech/zbputils v1.4.1-0.20220708131751-1c1d07981dd7/go.mod h1:sae5x2kfCC6bcJy8hb0mgcJzB/27YALgsDlrrB2ifso=
 github.com/FloatTech/zbputils v1.4.1-0.20220708133204-3fa802132b81 h1:SaSp9E3zX4cKp2H1/G3qPvLAMTELmtP5fnm/tW3YeI8=
 github.com/FloatTech/zbputils v1.4.1-0.20220708133204-3fa802132b81/go.mod h1:sae5x2kfCC6bcJy8hb0mgcJzB/27YALgsDlrrB2ifso=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
