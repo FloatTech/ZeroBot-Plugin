@@ -6,7 +6,7 @@ env:
   BINARY_PREFIX: "zbp_"
   BINARY_SUFFIX: ""
   PR_PROMPT: "::warning:: Build artifact will not be uploaded due to the workflow is trigged by pull request."
-  LD_FLAGS: "-w -s"
+  # LD_FLAGS: "-w -s"
 
 jobs:
   build:
@@ -18,10 +18,10 @@ jobs:
         goos: [linux, windows, darwin]
         goarch: ["386", amd64, arm, arm64]
         exclude:
-          - goos: windows
+          - goos: darwin
             goarch: arm
-          - goos: windows
-            goarch: arm64
+          - goos: darwin
+            goarch: "386"
       fail-fast: true
     steps:
       - uses: actions/checkout@master
