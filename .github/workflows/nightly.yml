@@ -18,10 +18,10 @@ jobs:
         goos: [linux, windows, darwin]
         goarch: ["386", amd64, arm, arm64]
         exclude:
-          - goos: darwin
+          - goos: windows
             goarch: arm
-          - goos: darwin
-            goarch: "386"
+          - goos: windows
+            goarch: arm64
       fail-fast: true
     steps:
       - uses: actions/checkout@master
