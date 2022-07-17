@@ -24,39 +24,43 @@ func init() {
 			raw := ctx.Event.RawMessage
 			uid := ctx.Event.UserID
 			gid := ctx.Event.GroupID
+			botid := ctx.Event.SelfID
+			botname := zero.BotConfig.NickName[0]
 			username := ctx.CardOrNickName(uid)
-			groupname := ctx.GetGroupInfo(gid, true).Name
+			msg := make(message.Message, 10)
+			msg = append(msg, message.CustomNode(botname, botid, "捕捉到了一个闪照！\n"+"时间:"+now+"\n"))
+			if gid != 0 {
+				groupname := ctx.GetGroupInfo(gid, true).Name
+				msg = append(msg, message.CustomNode(botname, botid, "来自群聊:["+groupname+"]("+strconv.FormatInt(gid, 10)+")\n来自用户:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是原图:"))
+			} else {
+				msg = append(msg, message.CustomNode(botname, botid, "来自私聊:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是原图:"))
+			}
 			img := strings.ReplaceAll(raw, ",type=flash", "")
-			text := "捕捉到了一个闪照！\n" +
-				"时间:" + now + "\n" +
-				"来自用户:[" + username + "](" + strconv.FormatInt(uid, 10) + ")\n" +
-				"来自群聊:[" + groupname + "](" + strconv.FormatInt(gid, 10) + ")\n" +
-				"以下是原图:"
-			fmsg := make(message.Message, 0, 10)
-			fmsg = append(fmsg, message.CustomNode(username, uid, text))
-			fmsg = append(fmsg, message.CustomNode(username, uid, img))
-			ctx.SendPrivateForwardMessage(su, fmsg)
+			msg = append(msg, message.CustomNode(username, uid, img))
+			ctx.SendPrivateForwardMessage(su, msg)
 		})
 	engine.On("notice/group_recall").SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			su := zero.BotConfig.SuperUsers[0]
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
 			raw := ctx.GetMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))).Elements.String()
-			if strings.Contains(raw, ",type=flash") {
+			uid := ctx.Event.UserID
+			if strings.Contains(raw, ",type=flash") || strings.Contains(raw, "CQ:reply") && strings.Contains(raw, "撤回") && uid == su {
 				return
 			}
-			uid := ctx.Event.UserID
 			gid := ctx.Event.GroupID
+			botid := ctx.Event.SelfID
+			botname := zero.BotConfig.NickName[0]
 			username := ctx.CardOrNickName(uid)
-			groupname := ctx.GetGroupInfo(gid, true).Name
-			text := "捕捉到了一条撤回的消息！\n" +
-				"时间:" + now + "\n" +
-				"来自用户:[" + username + "](" + strconv.FormatInt(uid, 10) + ")\n" +
-				"来自群聊:[" + groupname + "](" + strconv.FormatInt(gid, 10) + ")\n" +
-				"以下是源消息："
-			fmsg := make(message.Message, 0, 10)
-			fmsg = append(fmsg, message.CustomNode(username, uid, text))
-			fmsg = append(fmsg, message.CustomNode(username, uid, raw))
-			ctx.SendPrivateForwardMessage(su, fmsg)
+			msg := make(message.Message, 10)
+			msg = append(msg, message.CustomNode(botname, botid, "捕捉到了一条撤回的消息！\n"+"时间:"+now+"\n"))
+			if gid != 0 {
+				groupname := ctx.GetGroupInfo(gid, true).Name
+				msg = append(msg, message.CustomNode(botname, botid, "来自群聊:["+groupname+"]("+strconv.FormatInt(gid, 10)+")\n来自用户:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是源消息："))
+			} else {
+				msg = append(msg, message.CustomNode(botname, botid, "来自私聊:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是源消息："))
+			}
+			msg = append(msg, message.CustomNode(username, uid, raw))
+			ctx.SendPrivateForwardMessage(su, msg)
 		})
 }

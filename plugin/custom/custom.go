@@ -3,6 +3,7 @@ package custom
 
 import (
 	"os"
+	"strconv"
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -14,13 +15,14 @@ import (
 
 func init() {
 	engine := control.Register("custom", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "自定义插件集合\n" +
 			" - /kill\n" +
 			" - 来114514份涩图\n" +
-			" - /发送公告",
+			" - /发送公告\n" +
+			" - @bot给主人留言<内容>",
 	})
-	engine.OnFullMatchGroup([]string{"pause", "restart", "/kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(false).
+	engine.OnFullMatchGroup([]string{"pause", "restart", "/kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			os.Exit(0)
 		})
@@ -69,5 +71,27 @@ func init() {
 					}
 				}
 			}
+		})
+	engine.OnRegex(`给主人留言.*?(.*)`, zero.OnlyToMe).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			su := zero.BotConfig.SuperUsers[0]
+			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
+			uid := ctx.Event.UserID
+			gid := ctx.Event.GroupID
+			username := ctx.CardOrNickName(uid)
+			botid := ctx.Event.SelfID
+			botname := zero.BotConfig.NickName[0]
+			rawmsg := ctx.State["regex_matched"].([]string)[1]
+			rawmsg = message.UnescapeCQCodeText(rawmsg)
+			msg := make(message.Message, 10)
+			msg = append(msg, message.CustomNode(botname, botid, "有人给你留言啦！\"在"+now))
+			if gid != 0 {
+				groupname := ctx.GetGroupInfo(gid, true).Name
+				msg = append(msg, message.CustomNode(botname, botid, "来自群聊:["+groupname+"]("+strconv.FormatInt(gid, 10)+")\n来自群成员:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是留言内容"))
+			} else {
+				msg = append(msg, message.CustomNode(botname, botid, "来自私聊:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是留言内容:"))
+			}
+			msg = append(msg, message.CustomNode(username, uid, rawmsg))
+			ctx.SendPrivateForwardMessage(su, msg)
 		})
 }
