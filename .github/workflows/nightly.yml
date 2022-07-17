@@ -6,7 +6,7 @@ env:
   BINARY_PREFIX: "zbp_"
   BINARY_SUFFIX: ""
   PR_PROMPT: "::warning:: Build artifact will not be uploaded due to the workflow is trigged by pull request."
-  # LD_FLAGS: "-w -s"
+  LD_FLAGS: "-w -s"
 
 jobs:
   build:
@@ -22,15 +22,15 @@ jobs:
             goarch: arm
           - goos: darwin
             goarch: "386"
-      fail-fast: true
+      fail-fast: false
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - name: Setup Go environment
-        uses: actions/setup-go@master
+        uses: actions/setup-go@v2
         with:
           go-version: 1.18
       - name: Cache downloaded module
-        uses: actions/cache@master
+        uses: actions/cache@v2
         with:
           path: |
             ~/.cache/go-build
@@ -48,7 +48,7 @@ jobs:
           export CGO_ENABLED=0
           go build -o "output/$BINARY_NAME" -trimpath -ldflags "$LD_FLAGS" .
       - name: Upload artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         if: ${{ !github.head_ref }}
         with:
           name: ${{ matrix.goos }}_${{ matrix.goarch }}
