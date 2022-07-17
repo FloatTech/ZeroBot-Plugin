@@ -53,7 +53,7 @@ func init() {
 			botname := zero.BotConfig.NickName[0]
 			username := ctx.CardOrNickName(uid)
 			msg := make(message.Message, 10)
-			msg = append(msg, message.CustomNode(botname, botid, "捕捉到了一条撤回的消息！\n"+"时间:"+now+"\n"))
+			msg = append(msg, message.CustomNode(botname, botid, "捕捉到了一条撤回的消息！\n"+"时间:"+now))
 			if gid != 0 {
 				groupname := ctx.GetGroupInfo(gid, true).Name
 				msg = append(msg, message.CustomNode(botname, botid, "来自群聊:["+groupname+"]("+strconv.FormatInt(gid, 10)+")\n来自用户:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是源消息："))

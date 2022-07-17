@@ -84,7 +84,7 @@ func init() {
 			rawmsg := ctx.State["regex_matched"].([]string)[1]
 			rawmsg = message.UnescapeCQCodeText(rawmsg)
 			msg := make(message.Message, 10)
-			msg = append(msg, message.CustomNode(botname, botid, "有人给你留言啦！\"在"+now))
+			msg = append(msg, message.CustomNode(botname, botid, "有人给你留言啦！\n在"+now))
 			if gid != 0 {
 				groupname := ctx.GetGroupInfo(gid, true).Name
 				msg = append(msg, message.CustomNode(botname, botid, "来自群聊:["+groupname+"]("+strconv.FormatInt(gid, 10)+")\n来自群成员:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是留言内容"))
