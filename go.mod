@@ -3,10 +3,10 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.18
 
 require (
-	github.com/FloatTech/AnimeAPI v1.4.1-0.20220613042537-0adf8c5616ec
-	github.com/FloatTech/sqlite v0.3.2
-	github.com/FloatTech/zbpctrl v1.4.1-0.20220708120020-996c0e071fca
-	github.com/FloatTech/zbputils v1.4.1-0.20220708133204-3fa802132b81
+	github.com/FloatTech/AnimeAPI v1.4.1-0.20220715043235-1158db91e898
+	github.com/FloatTech/sqlite v0.3.3
+	github.com/FloatTech/zbpctrl v1.4.1-0.20220715042842-93f081cb0133
+	github.com/FloatTech/zbputils v1.4.1-0.20220715043109-4e1d708dffe9
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
@@ -27,12 +27,13 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.1
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220610070647-9eeffcb277ee
+	github.com/wdvxdr1123/ZeroBot v1.5.2-0.20220715040337-ef4327320c40
 	gitlab.com/gomidi/midi/v2 v2.0.17
 	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd
 )
 
 require (
+	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b // indirect
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c // indirect
 	github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect

@@ -29,7 +29,7 @@ func init() { // 插件主体
 				} else if len(result.Result) > 0 {
 					r := result.Result[0]
 					hint := "我有把握是这个！"
-					if r.Similarity < 0.8 {
+					if r.Similarity < 80 {
 						hint = "大概是这个？"
 					}
 					mf := int(r.From / 60)
