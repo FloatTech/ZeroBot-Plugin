@@ -239,14 +239,12 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 			}
 		}
 		return
-	} else {
-		m = make(message.Message, 0, len(r.Pic))
-		for _, v := range r.Pic {
-			m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(v)))
-		}
-		return
 	}
-
+	m = make(message.Message, 0, len(r.Pic))
+	for _, v := range r.Pic {
+		m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(v)))
+	}
+	return
 }
 
 func saveConfig(cfgFile string) (err error) {
