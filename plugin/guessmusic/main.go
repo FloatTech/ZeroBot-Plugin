@@ -15,6 +15,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+
 	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -25,6 +28,10 @@ import (
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/web"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
+
+	// 图片输出
+
+	"github.com/FloatTech/zbputils/img/text"
 )
 
 const (
@@ -32,26 +39,31 @@ const (
 )
 
 var (
-	cuttime = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
-	cfg     = config{                                         // 默认 config
-		MusicPath: file.BOTPATH + "/data/guessmusic/music/", // 绝对路径，歌库根目录,通过指令进行更改
-		Local:     true,                                     // 是否使用本地音乐库
-		API:       true,                                     // 是否使用 Api
-	}
+	catlist  = make(map[string]int64, 100)
+	filelist []string
+	cuttime  = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
+	cfg      config
 )
 
 func init() { // 插件主体
 	engine := control.Register("guessmusic", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "猜歌插件（该插件依赖ffmpeg）\n" +
-			"- 个人猜歌\n" +
-			"- 团队猜歌\n" +
+			"------bot主人指令------\n" +
 			"- 设置猜歌缓存歌库路径 [绝对路径]\n" +
-			"- 设置猜歌本地 [true/false]\n" +
-			"- 设置猜歌Api [true/false]\n" +
-			"注：默认歌库为网易云热歌榜\n- 本地歌榜歌库歌曲命名规格“歌名 - 歌手”\n" +
-			"1.可在后面添加“-动漫”进行动漫歌猜歌\n- 这个只能猜歌名和歌手\n- 本地动漫歌库歌曲命名规格“歌名 - 歌手”\n" +
-			"2.可在后面添加“-动漫2”进行动漫歌猜歌\n- 这个可以猜番名，但歌手经常“未知”\n- 本地动漫2歌库歌曲命名规格“歌名 - 歌手 - 番名”",
+			"- 设置猜歌[本地/Api] [true/false]\n" +
+			"- 登录网易云\n" +
+			"- 添加歌单 [网易云歌单ID] [歌单名称]\n" +
+			"- 删除歌单 [网易云歌单ID/API歌单名称]\n" +
+			"注：\n1.不登陆也能用，API有几率返回400\n" +
+			"2.[歌单名称]可为空，默认原标题\n" +
+			"------公 用 指 令------\n" +
+			"- 获取歌单列表\n" +
+			"- [网易云歌单ID/API歌单名称]歌单信息\n" +
+			"- [个人/团队]猜歌\n" +
+			"注：默认歌库为网易云ACG动画榜\n" +
+			"可在后面添加[-歌单名称]进行指定歌单猜歌\n" +
+			"歌单的歌曲命名规则为:\n歌名 - 歌手 - 其他(歌曲出处之类)",
 		PrivateDataFolder: "guessmusic",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -84,10 +96,27 @@ func init() { // 插件主体
 			panic(err)
 		}
 	} else {
+		var plist = []listRaw{
+			{
+				Name: "动画榜",
+				ID:   3001835560,
+			},
+		}
+		cfg = config{ // 默认 config
+			MusicPath: file.BOTPATH + "/data/guessmusic/music/", // 绝对路径，歌库根目录,通过指令进行更改
+			Local:     true,                                     // 是否使用本地音乐库
+			API:       true,                                     // 是否使用 Api
+			Cookie:    "",
+			Playlist:  plist,
+		}
 		err = saveConfig(cfgFile)
 		if err != nil {
 			panic(err)
 		}
+	}
+	err = getcatlist(cfg.MusicPath)
+	if err != nil {
+		logrus.Infof("[guessmusic2]无法获取歌单列表,[error]：%s", err)
 	}
 	engine.OnRegex(`^设置猜歌(缓存歌库路径|本地|Api)\s*(.*)$`, func(ctx *zero.Ctx) bool {
 		if !zero.SuperUserPermission(ctx) {
@@ -132,15 +161,259 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR:", err))
 			}
 		})
-	engine.OnRegex(`^(个人|团队)猜歌(-动漫|-动漫2)?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+	engine.OnFullMatch("登录网易云", zero.SuperUserPermission, func(ctx *zero.Ctx) bool {
+		if !zero.OnlyPrivate(ctx) {
+			ctx.SendChain(message.Text("为了保护登录过程，请bot主人私聊。"))
+			return false
+		}
+		return true
+	}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			mode := ctx.State["regex_matched"].([]string)[2]
-			gid := strconv.FormatInt(ctx.Event.GroupID, 10)
-			if mode == "-动漫2" {
-				ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|番剧|提示|取消]”\n一共3段语音，6次机会"))
-			} else {
-				ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲名称|歌手|提示|取消]”\n一共3段语音，6次机会"))
+			keyURL := "https://music.cyrilstudio.top/login/qr/key"
+			data, err := web.GetData(keyURL)
+			if err != nil {
+				ctx.SendChain(message.Text("获取网易云key失败, ERROR:", err))
+				return
 			}
+			var keyInfo keyInfo
+			err = json.Unmarshal(data, &keyInfo)
+			if err != nil {
+				ctx.SendChain(message.Text("解析网易云key失败, ERROR:", err))
+				return
+			}
+			qrURL := "https://music.cyrilstudio.top/login/qr/create?key=" + keyInfo.Data.Unikey + "&qrimg=1"
+			data, err = web.GetData(qrURL)
+			if err != nil {
+				ctx.SendChain(message.Text("获取网易云二维码失败, ERROR:", err))
+				return
+			}
+			var qrInfo qrInfo
+			err = json.Unmarshal(data, &qrInfo)
+			if err != nil {
+				ctx.SendChain(message.Text("解析网易云二维码失败, ERROR:", err))
+				return
+			}
+			ctx.SendChain(message.Text("[请使用手机APP扫描二维码或者进入网页扫码登录]\n", qrInfo.Data.Qrurl), message.Image("base64://"+strings.ReplaceAll(qrInfo.Data.Qrimg, "data:image/png;base64,", "")), message.Text("二维码有效时间为6分钟"))
+			i := 0
+			for range time.NewTicker(10 * time.Second).C {
+				apiURL := "https://music.cyrilstudio.top/login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
+				referer := "https://music.cyrilstudio.top"
+				data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
+				if err != nil {
+					ctx.SendChain(message.Text("无法获取登录状态, ERROR:", err))
+					return
+				}
+				var cookiesInfo cookyInfo
+				err = json.Unmarshal(data, &cookiesInfo)
+				if err != nil {
+					ctx.SendChain(message.Text("解析登录状态失败, ERROR:", err))
+					return
+				}
+				switch cookiesInfo.Code {
+				case 803:
+					cfg.Cookie = cookiesInfo.Cookie
+					err = saveConfig(cfgFile)
+					if err == nil {
+						ctx.SendChain(message.Text("成功！"))
+					} else {
+						ctx.SendChain(message.Text("ERROR:", err))
+					}
+					return
+				case 801:
+					i++
+					if i%6 == 0 { // 每1分钟才提醒一次,减少提示(380/60=6次)
+						ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
+					}
+					continue
+				case 800:
+					ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
+					return
+				default:
+					ctx.SendChain(message.Text("状态：", cookiesInfo.Message))
+					continue
+				}
+			}
+		})
+	engine.OnRegex(`^添加歌单\s?(\d*)(\s(.*))?$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			listID := ctx.State["regex_matched"].([]string)[1]
+			listName := ctx.State["regex_matched"].([]string)[3]
+			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listID + "&cookie=" + url.QueryEscape(cfg.Cookie)
+			referer := "https://music.cyrilstudio.top"
+			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
+			if err != nil {
+				ctx.SendChain(message.Text("无法连接歌单,[error]", err))
+				return
+			}
+			var parsed topList
+			err = json.Unmarshal(data, &parsed)
+			if err != nil {
+				ctx.SendChain(message.Text("无法解析歌单ID内容,[error]", err))
+				return
+			}
+			if listName == "" {
+				listName = parsed.Playlist.Name
+			}
+			playID, _ := strconv.ParseInt(listID, 10, 64)
+			catlist[listName] = playID
+			cfg.Playlist = append(cfg.Playlist, listRaw{
+				Name: listName,
+				ID:   playID,
+			})
+			err = saveConfig(cfgFile)
+			if err == nil {
+				ctx.SendChain(message.Text("成功！"))
+			} else {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
+		})
+	engine.OnRegex(`^删除歌单\s?(.*)$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			delList := ctx.State["regex_matched"].([]string)[1]
+			var playlist []listRaw
+			var newCatList = make(map[string]int64)
+			var ok = false
+			for name, musicID := range catlist {
+				if delList == name || delList == strconv.FormatInt(musicID, 10) {
+					ok = true
+					continue
+				}
+				newCatList[name] = musicID
+				playlist = append(playlist, listRaw{
+					Name: name,
+					ID:   musicID,
+				})
+			}
+			if !ok {
+				ctx.SendChain(message.Text("目标歌单未找到，请确认是否正确"))
+				return
+			}
+			catlist = newCatList
+			cfg.Playlist = playlist
+			err = saveConfig(cfgFile)
+			if err == nil {
+				ctx.SendChain(message.Text("成功！"))
+			} else {
+				ctx.SendChain(message.Text("ERROR:", err))
+			}
+		})
+	engine.OnFullMatch("获取歌单列表").SetBlock(true).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			var msg []string
+			// 获取网易云歌单列表
+			if cfg.API {
+				catlist = make(map[string]int64, 100)
+				msg = append(msg, "\n当前添加的API歌单含有以下：\n")
+				for i, listInfo := range cfg.Playlist {
+					catlist[listInfo.Name] = listInfo.ID
+					msg = append(msg, strconv.Itoa(i)+":"+listInfo.Name)
+					if i%3 == 2 {
+						msg = append(msg, "\n")
+					}
+				}
+			}
+			// 获取本地歌单列表*/
+			if cfg.Local {
+				err = os.MkdirAll(cfg.MusicPath, 0755)
+				if err == nil {
+					files, err := ioutil.ReadDir(cfg.MusicPath)
+					if err == nil {
+						msg = append(msg, "\n当前本地歌单含有以下：\n")
+						i := 0
+						for _, name := range files {
+							if !name.IsDir() {
+								continue
+							}
+							filelist[i] = strconv.Itoa(i) + ":" + name.Name()
+							msg = append(msg, filelist[i])
+							if i%3 == 2 {
+								msg = append(msg, "\n")
+							}
+							i++
+						}
+					} else {
+						ctx.SendChain(message.Text("[读取本地列表错误]ERROR:", err))
+					}
+				} else {
+					ctx.SendChain(message.Text("[生成文件夹错误]ERROR:", err))
+				}
+			}
+			if msg == nil {
+				ctx.SendChain(message.Text("本地和API均未开启！"))
+				return
+			}
+			msgs, err := text.RenderToBase64(strings.Join(msg, "    "), text.FontFile, 400, 20)
+			if err != nil {
+				ctx.SendChain(message.Text("生成列表图片失败，请重试"))
+				return
+			}
+			if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(msgs))); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
+		})
+	engine.OnSuffix("歌单信息").SetBlock(true).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			list := ctx.State["args"].(string)
+			var listIDStr string
+			for listName, listID := range catlist {
+				if list == listName || list == strconv.FormatInt(listID, 10) {
+					listIDStr = strconv.FormatInt(listID, 10)
+					break
+				}
+			}
+			if listIDStr == "" {
+				_, err := strconv.ParseInt(list, 10, 64)
+				if err != nil {
+					ctx.SendChain(message.Text("仅支持歌单ID查询"))
+					return
+				}
+				listIDStr = list
+			}
+			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listIDStr + "&cookie=" + url.QueryEscape(cfg.Cookie)
+			referer := "https://music.cyrilstudio.top"
+			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
+			if err != nil {
+				ctx.SendChain(message.Text("无法连接歌单,[error]", err))
+				return
+			}
+			var parsed topList
+			err = json.Unmarshal(data, &parsed)
+			if err != nil {
+				ctx.SendChain(message.Text("无法解析歌单ID内容,[error]", err))
+				return
+			}
+			ctx.SendChain(
+				message.Image(parsed.Playlist.CoverImgURL),
+				message.Text(
+					"歌单名称：", parsed.Playlist.Name,
+					"\n歌单ID：", parsed.Playlist.ID,
+					"\n创建人：", parsed.Playlist.Creator.Nickname,
+					"\n创建时间：", time.Unix(parsed.Playlist.CreateTime/1000, 0).Format("2006-01-02"),
+					"\n标签：", strings.Join(parsed.Playlist.Tags, ";"),
+					"\n歌曲数量：", parsed.Playlist.TrackCount,
+					"\n歌单简介:\n", parsed.Playlist.Description,
+					"\n更新时间：", time.Unix(parsed.Playlist.UpdateTime/1000, 0).Format("2006-01-02"),
+				))
+		})
+	engine.OnRegex(`^(个人|团队)猜歌(-(.*))?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			mode := ctx.State["regex_matched"].([]string)[3]
+			if mode == "" {
+				mode = "动画榜"
+			}
+			_, ok := catlist[mode]
+			switch {
+			// 如果API没有开，本地也不存在这个歌单
+			case !cfg.API && !strings.Contains(strings.Join(filelist, " "), mode):
+				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
+				return
+				// 如果本地没有开，网易云也不存在这个歌单
+			case !cfg.Local && !ok:
+				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
+				return
+			}
+			gid := strconv.FormatInt(ctx.Event.GroupID, 10)
+			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲信息(歌名歌手等)|提示|取消]”\n一共3段语音，6次机会"))
 			// 随机抽歌
 			musicName, pathOfMusic, err := musicLottery(mode, cfg.MusicPath)
 			if err != nil {
@@ -154,9 +427,17 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text(err))
 				return
 			}
+			// 解析歌曲信息
+			musicInfo := strings.Split(musicName, " - ")
+			infoNum := len(musicInfo)
+			answerString := "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
+			musicAlia := ""
+			if infoNum > 2 {
+				musicAlia = musicInfo[2]
+				answerString += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
+			}
 			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
-			answerString := strings.Split(musicName, " - ")
 			var next *zero.FutureEvent
 			if ctx.State["regex_matched"].([]string)[1] == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), ctx.CheckSession())
@@ -175,15 +456,8 @@ func init() { // 插件主体
 				case <-tick.C:
 					ctx.SendChain(message.Text("猜歌游戏，你还有15s作答时间"))
 				case <-after.C:
-					msg := make(message.Message, 0, 3)
-					msg = append(msg, message.Reply(ctx.Event.MessageID))
-					msg = append(msg, message.Text("猜歌超时，游戏结束\n答案是:",
-						"\n歌名:", answerString[0],
-						"\n歌手:", answerString[1]))
-					if mode == "-动漫2" {
-						msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-					}
-					ctx.Send(msg)
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Text("时间超时，猜歌结束，公布答案：\n", answerString)))
 					return
 				case <-wait.C:
 					wait.Reset(40 * time.Second)
@@ -207,15 +481,8 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 3)
-							msg = append(msg, message.Reply(c.Event.MessageID))
-							msg = append(msg, message.Text("游戏已取消，猜歌答案是",
-								"\n歌名:", answerString[0],
-								"\n歌手:", answerString[1]))
-							if mode == "-动漫2" {
-								msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-							}
-							ctx.Send(msg)
+							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+								message.Text("游戏已取消，猜歌答案是\n", answerString)))
 							return
 						}
 						ctx.Send(
@@ -241,53 +508,28 @@ func init() { // 插件主体
 							),
 						)
 						ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(musicCount) + ".wav"))
-					case strings.Contains(answerString[0], answer) || strings.EqualFold(answerString[0], answer):
+					case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						msg := make(message.Message, 0, 3)
-						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌曲名了！答案是",
-							"\n歌名:", answerString[0],
-							"\n歌手:", answerString[1]))
-						if mode == "-动漫2" {
-							msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-						}
-						ctx.Send(msg)
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("太棒了，你猜对歌曲名了！答案是\n", answerString)))
 						return
-					case answerString[1] == "未知" && answer == "未知":
-						ctx.Send(
-							message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("该模式禁止回答“未知”"),
-							),
-						)
-					case strings.Contains(answerString[1], answer) || strings.EqualFold(answerString[1], answer):
+					case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						msg := make(message.Message, 0, 3)
-						msg = append(msg, message.Reply(c.Event.MessageID))
-						msg = append(msg, message.Text("太棒了，你猜对歌手名了！答案是",
-							"\n歌名:", answerString[0],
-							"\n歌手:", answerString[1]))
-						if mode == "-动漫2" {
-							msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-						}
-						ctx.Send(msg)
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("太棒了，你猜对歌手名了！答案是\n", answerString)))
+						return
+					case strings.Contains(musicAlia, answer) || strings.EqualFold(musicAlia, answer):
+						wait.Stop()
+						tick.Stop()
+						after.Stop()
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("太棒了，你猜对出处了！答案是\n", answerString)))
 						return
 					default:
-						if mode == "-动漫2" && (strings.Contains(answerString[2], answer) || strings.EqualFold(answerString[2], answer)) {
-							wait.Stop()
-							tick.Stop()
-							after.Stop()
-							ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("太棒了，你猜对番剧名了！答案是:",
-									"\n歌名:", answerString[0],
-									"\n歌手:", answerString[1],
-									"\n歌曲出自:", answerString[2]),
-							))
-							return
-						}
 						musicCount++
 						switch {
 						case musicCount > 2 && answerCount < 6:
@@ -302,15 +544,8 @@ func init() { // 插件主体
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							msg := make(message.Message, 0, 3)
-							msg = append(msg, message.Reply(c.Event.MessageID))
-							msg = append(msg, message.Text("次数到了，你没能猜出来。\n答案是:",
-								"\n歌名:", answerString[0],
-								"\n歌手:", answerString[1]))
-							if mode == "-动漫2" {
-								msg = append(msg, message.Text("\n歌曲出自:", answerString[2]))
-							}
-							ctx.Send(msg)
+							ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+								message.Text("次数到了，没能猜出来。答案是\n", answerString)))
 							return
 						default:
 							wait.Reset(40 * time.Second)
@@ -340,16 +575,30 @@ func saveConfig(cfgFile string) (err error) {
 	return nil
 }
 
+func getcatlist(pathOfMusic string) error {
+	catlist = make(map[string]int64, 100)
+	for _, listInfo := range cfg.Playlist {
+		catlist[listInfo.Name] = listInfo.ID
+	}
+	err := os.MkdirAll(pathOfMusic, 0755)
+	if err != nil {
+		err = errors.Errorf("[生成文件夹错误]ERROR:%s", err)
+		return err
+	}
+	files, err := ioutil.ReadDir(pathOfMusic)
+	if err != nil {
+		err = errors.Errorf("[读取本地列表错误]ERROR:%s", err)
+		return err
+	}
+	for i, name := range files {
+		filelist = append(filelist, strconv.Itoa(i)+":"+name.Name())
+	}
+	return nil
+}
+
 // 随机抽取音乐
 func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err error) {
-	switch mode {
-	case "-动漫":
-		pathOfMusic = musicPath + "动漫/"
-	case "-动漫2":
-		pathOfMusic = musicPath + "动漫2/"
-	default:
-		pathOfMusic = musicPath + "歌榜/"
-	}
+	pathOfMusic = musicPath + mode + "/"
 	err = os.MkdirAll(pathOfMusic, 0755)
 	if err != nil {
 		err = errors.Errorf("[生成文件夹错误]ERROR:%s", err)
@@ -360,21 +609,27 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 		err = errors.Errorf("[读取本地列表错误]ERROR:%s", err)
 		return
 	}
-
+	listID, ok := catlist[mode]
+	listIDstr := strconv.FormatInt(listID, 10)
 	if cfg.Local && cfg.API {
 		switch {
 		case len(files) == 0:
+			if !ok {
+				// 如果歌单是本地歌单
+				err = errors.New("本地歌单数据为0")
+				return
+			}
 			// 如果没有任何本地就下载歌曲
-			musicName, err = getAPIMusic(mode, pathOfMusic)
+			musicName, err = getListMusic(listIDstr, pathOfMusic)
 			if err != nil {
 				err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
 				return
 			}
-		case rand.Intn(2) == 0:
-			// [0,1)只会取到0，rand不允许的
+		case rand.Intn(2) == 0 || !ok:
+			// 1/2概率抽本地或者歌单只有本地有时
 			musicName = getLocalMusic(files)
 		default:
-			musicName, err = getAPIMusic(mode, pathOfMusic)
+			musicName, err = getListMusic(listIDstr, pathOfMusic)
 			if err != nil {
 				// 如果下载失败就从本地抽一个歌曲
 				musicName = getLocalMusic(files)
@@ -391,27 +646,15 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 		musicName = getLocalMusic(files)
 		return
 	}
-	if cfg.API {
-		musicName, err = getAPIMusic(mode, pathOfMusic)
+	if cfg.API && ok {
+		musicName, err = getListMusic(listIDstr, pathOfMusic)
 		if err != nil {
 			err = errors.Errorf("[获取API失败，未开启本地数据] ERROR:%s", err)
 			return
 		}
 		return
 	}
-	err = errors.New("[未开启API以及本地数据]")
-	return
-}
-
-func getAPIMusic(mode string, musicPath string) (musicName string, err error) {
-	switch mode {
-	case "-动漫":
-		musicName, err = getPaugramData(musicPath)
-	case "-动漫2":
-		musicName, err = getAnimeData(musicPath)
-	default:
-		musicName, err = getNetEaseData(musicPath)
-	}
+	err = errors.New("[请确认本地和API设置已开启或歌单存在]")
 	return
 }
 
@@ -424,28 +667,43 @@ func getLocalMusic(files []fs.FileInfo) (musicName string) {
 	return
 }
 
-// 下载保罗API的歌曲
-func getPaugramData(musicPath string) (musicName string, err error) {
-	api := "https://api.paugram.com/acgm/?list=1"
-	referer := "https://api.paugram.com/"
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
+// 下载网易云歌单音乐
+func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
+	apiURL := "https://music.cyrilstudio.top/playlist/track/all?id=" + listID + "&cookie=" + url.QueryEscape(cfg.Cookie)
+	referer := "https://music.cyrilstudio.top"
+	data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 	if err != nil {
 		return
 	}
-	var parsed paugramData
+	var parsed topMusicInfo
 	err = json.Unmarshal(data, &parsed)
 	if err != nil {
 		return
 	}
-	name := parsed.Title
-	artistsName := parsed.Artist
-	musicURL := parsed.Link
-	if name == "" || artistsName == "" {
+	listlen := len(parsed.Songs)
+	randidx := rand.Intn(listlen)
+	// 将"/"符号去除，不然无法生成文件
+	name := strings.ReplaceAll(parsed.Songs[randidx].Name, "/", "·")
+	musicID := parsed.Songs[randidx].ID
+	artistName := ""
+	for i, ARInfo := range parsed.Songs[randidx].Ar {
+		if i != 0 {
+			artistName += "&" + ARInfo.Name
+		} else {
+			artistName += ARInfo.Name
+		}
+	}
+	cource := ""
+	if parsed.Songs[randidx].Alia != nil {
+		cource = strings.Join(parsed.Songs[randidx].Alia, "&")
+		// 将"/"符号去除，不然无法下载
+		cource = strings.ReplaceAll(cource, "/", "&")
+	}
+	if name == "" || musicID == 0 {
 		err = errors.New("无法获API取歌曲信息")
 		return
 	}
-	musicName = name + " - " + artistsName
-	downMusic := musicPath + "/" + musicName + ".mp3"
+	musicURL := "http://music.163.com/song/media/outer/url?id=" + strconv.Itoa(musicID)
 	response, err := http.Head(musicURL)
 	if err != nil {
 		err = errors.Errorf("下载音乐失败, ERROR: %s", err)
@@ -455,109 +713,12 @@ func getPaugramData(musicPath string) (musicName string, err error) {
 		err = errors.Errorf("下载音乐失败, Status Code: %d", response.StatusCode)
 		return
 	}
-	if file.IsNotExist(downMusic) {
-		data, err = web.GetData(musicURL)
-		if err != nil {
-			return
-		}
-		err = os.WriteFile(downMusic, data, 0666)
-		if err != nil {
-			return
-		}
+	if cource != "" {
+		musicName = name + " - " + artistName + " - " + cource
+	} else {
+		musicName = name + " - " + artistName
 	}
-	return
-}
-
-// 下载animeMusic API的歌曲
-func getAnimeData(musicPath string) (musicName string, err error) {
-	api := "https://anime-music.jijidown.com/api/v2/music"
-	referer := "https://anime-music.jijidown.com/"
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
-	if err != nil {
-		return
-	}
-	var parsed animeData
-	err = json.Unmarshal(data, &parsed)
-	if err != nil {
-		return
-	}
-	name := parsed.Res.Title
-	artistName := parsed.Res.Author
-	acgName := parsed.Res.AnimeInfo.Title
-	// musicURL := parsed.Res.PlayURL
-	if name == "" || artistName == "" {
-		err = errors.New("无法获API取歌曲信息")
-		return
-	}
-	requestURL := "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(name+" "+artistName) + "&limit=1"
-	if artistName == "未知" {
-		requestURL = "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(acgName+" "+name) + "&limit=1"
-	}
-	data, err = web.GetData(requestURL)
-	if err != nil {
-		err = errors.Errorf("API歌曲查询失败, ERROR: %s", err)
-		return
-	}
-	var autumnfish autumnfishData
-	err = json.Unmarshal(data, &autumnfish)
-	if err != nil {
-		return
-	}
-	if autumnfish.Code != 200 {
-		err = errors.Errorf("下载音乐失败, Status Code: %d", autumnfish.Code)
-		return
-	}
-	musicID := strconv.Itoa(autumnfish.Result.Songs[0].ID)
-	if artistName == "未知" {
-		artistName = strings.ReplaceAll(autumnfish.Result.Songs[0].Artists[0].Name, " - ", "-")
-	}
-	musicName = name + " - " + artistName + " - " + acgName
-	downMusic := musicPath + "/" + musicName + ".mp3"
-	musicURL := "http://music.163.com/song/media/outer/url?id=" + musicID
-	response, err := http.Head(musicURL)
-	if err != nil {
-		err = errors.Errorf("下载音乐失败, ERROR: %s", err)
-		return
-	}
-	if response.StatusCode != 200 {
-		err = errors.Errorf("下载音乐失败, Status Code: %d", response.StatusCode)
-		return
-	}
-	if file.IsNotExist(downMusic) {
-		data, err = web.GetData(musicURL)
-		if err != nil {
-			return
-		}
-		err = os.WriteFile(downMusic, data, 0666)
-		if err != nil {
-			return
-		}
-	}
-	return
-}
-
-// 下载网易云热歌榜音乐
-func getNetEaseData(musicPath string) (musicName string, err error) {
-	api := "https://api.uomg.com/api/rand.music?sort=%E7%83%AD%E6%AD%8C%E6%A6%9C&format=json"
-	referer := "https://api.uomg.com/api/rand.music"
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api, "GET", referer, ua)
-	if err != nil {
-		return
-	}
-	var parsed netEaseData
-	err = json.Unmarshal(data, &parsed)
-	if err != nil {
-		return
-	}
-	name := parsed.Data.Name
-	musicURL := parsed.Data.URL
-	artistsName := parsed.Data.Artistsname
-	if name == "" || artistsName == "" {
-		err = errors.New("无法获API取歌曲信息")
-		return
-	}
-	musicName = name + " - " + artistsName
-	downMusic := musicPath + "/" + musicName + ".mp3"
+	downMusic := pathOfMusic + musicName + ".mp3"
 	if file.IsNotExist(downMusic) {
 		data, err = web.GetData(musicURL)
 		if err != nil {
