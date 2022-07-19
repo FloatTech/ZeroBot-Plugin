@@ -32,8 +32,8 @@ func init() {
 	engine := control.Register("event", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "好友申请以及群聊邀请事件处理，默认发送给主人列表第一位\n" +
-			" - [开启|关闭]自动接受好友申请\n" +
-			" - [开启|关闭]自动接受群聊邀请",
+			" - [开启|关闭]自动同意申请\n" +
+			" - [开启|关闭]自动同意邀请",
 		PrivateDataFolder: "event",
 	})
 	path := engine.DataFolder()
