@@ -168,7 +168,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("清空", rm, "缓存成功~"))
 		})
-	en.OnRegex(`^(.*)使用缓存$`, zero.SuperUserPermission, zero.OnlyPrivate).SetBlock(true).
+	en.OnRegex(`^(.*)使用缓存$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			option := ctx.State["regex_matched"].([]string)[1]
 			switch option {
