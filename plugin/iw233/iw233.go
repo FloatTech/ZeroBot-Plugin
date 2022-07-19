@@ -217,10 +217,10 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 	if err != nil {
 		return
 	}
+	m = make(message.Message, 0, len(r.Pic))
 	if cfg.IsDownload {
 		_ = os.Mkdir(file.BOTPATH+"/"+filepath+rename, 0664)
 		md5 := md5.New()
-		m = make(message.Message, 0, len(r.Pic))
 		for _, v := range r.Pic {
 			_, err = md5.Write(binary.StringToBytes(v))
 			if err != nil {
@@ -240,7 +240,6 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 		}
 		return
 	}
-	m = make(message.Message, 0, len(r.Pic))
 	for _, v := range r.Pic {
 		m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(v)))
 	}
