@@ -86,7 +86,7 @@ func getMedalwall(uid string) (result []medal, err error) {
 	if j.Get("code").Int() != 0 {
 		err = errors.New(j.Get("message").String())
 	}
-	_ = json.Unmarshal(binary.StringToBytes(j.Get("data.list").Raw), &result)
+	err = json.Unmarshal(binary.StringToBytes(j.Get("data.list").Raw), &result)
 	return
 }
 
@@ -97,7 +97,6 @@ func getArticleInfo(id string) (card Card, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println(string(data))
 	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("data").Raw), &card)
 	return
 }

@@ -12,11 +12,15 @@ import (
 )
 
 var (
-	limit          = ctxext.NewLimiterManager(time.Second*10, 1)
-	searchVideo    = `bilibili.com/video/(?:av(\d+)|([bB][vV][0-9a-zA-Z]+))`
-	searchDynamic  = `(t.bilibili.com|m.bilibili.com/dynamic)/(\d+)`
-	searchArticle  = `bilibili.com/read/(?:cv|mobile/)(\d+)`
-	searchLiveRoom = `live.bilibili.com/(\d+)`
+	limit            = ctxext.NewLimiterManager(time.Second*10, 1)
+	searchVideo      = `bilibili.com/video/(?:av(\d+)|([bB][vV][0-9a-zA-Z]+))`
+	searchDynamic    = `(t.bilibili.com|m.bilibili.com/dynamic)/(\d+)`
+	searchArticle    = `bilibili.com/read/(?:cv|mobile/)(\d+)`
+	searchLiveRoom   = `live.bilibili.com/(\d+)`
+	searchVideoRe    = regexp.MustCompile(searchVideo)
+	searchDynamicRe  = regexp.MustCompile(searchDynamic)
+	searchArticleRe  = regexp.MustCompile(searchArticle)
+	searchLiveRoomRe = regexp.MustCompile(searchLiveRoom)
 )
 
 // 插件主体
@@ -34,10 +38,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			searchVideoRe := regexp.MustCompile(searchVideo)
-			searchDynamicRe := regexp.MustCompile(searchDynamic)
-			searchArticleRe := regexp.MustCompile(searchArticle)
-			searchLiveRoomRe := regexp.MustCompile(searchLiveRoom)
 			switch {
 			case searchVideoRe.MatchString(realurl):
 				ctx.State["regex_matched"] = searchVideoRe.FindStringSubmatch(realurl)
