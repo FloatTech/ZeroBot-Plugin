@@ -356,20 +356,7 @@ func init() {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
 			lt := len(temp)
-			switch {
-			case lt < 50:
-				temp = temp[math.Max(0, lt):]
-			case lt > 50 && lt < 100:
-				temp = temp[math.Max(0, lt-lt/3):]
-			case lt >= 100 && lt < 200:
-				temp = temp[math.Max(0, lt-lt/4):]
-			case lt >= 200 && lt < 500:
-				temp = temp[math.Max(0, lt-lt/6):]
-			case lt >= 500 && lt < 1000:
-				temp = temp[math.Max(0, lt-lt/9):]
-			case lt >= 1000 && lt < 2000:
-				temp = temp[math.Max(0, lt-lt/14):]
-			}
+			temp = temp[math.Max(0, len(temp)-50):]
 			// 将已经娶过的人剔除
 			qqgrouplist := make([]int64, 0, len(temp))
 			for k := 0; k < len(temp); k++ {
