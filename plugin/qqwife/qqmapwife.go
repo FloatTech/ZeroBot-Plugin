@@ -123,7 +123,7 @@ func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
 	gidstr := strconv.FormatInt(gid, 10)
 	husbandstr := strconv.FormatInt(husband, 10)
 	// 先判断用户是否存在
-	err := sql.db.Del(gidstr, "where target = "+husbandstr)
+	err := sql.db.Del(gidstr, "where user = "+husbandstr)
 	return err
 }
 
@@ -135,10 +135,10 @@ func (sql *婚姻登记) 复婚(gid, uid, target int64, username, targetname str
 	tagstr := strconv.FormatInt(target, 10)
 	var info userinfo
 	err := sql.db.Find(gidstr, &info, "where user = "+uidstr)
-	if err == nil {
+	if err != nil {
 		err = sql.db.Find(gidstr, &info, "where user = "+tagstr)
 	}
-	if err == nil {
+	if err != nil {
 		return err
 	}
 	updatetime := time.Now().Format("2006/01/02")
