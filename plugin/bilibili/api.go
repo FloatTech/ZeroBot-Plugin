@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 
@@ -74,19 +73,19 @@ func getMedalwall(uid string) (result []medal, err error) {
 		return
 	}
 	defer res.Body.Close()
-	data, err := io.ReadAll(res.Body)
+	var md medalData
+	err = json.NewDecoder(res.Body).Decode(&md)
 	if err != nil {
 		return
 	}
-	j := gjson.ParseBytes(data)
-	if j.Get("code").Int() == -101 {
+	if md.Code == -101 {
 		err = errNeedCookie
 		return
 	}
-	if j.Get("code").Int() != 0 {
-		err = errors.New(j.Get("message").String())
+	if md.Code != 0 {
+		err = errors.New(md.Message)
 	}
-	err = json.Unmarshal(binary.StringToBytes(j.Get("data.list").Raw), &result)
+	result = md.Data.List
 	return
 }
 

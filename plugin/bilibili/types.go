@@ -218,6 +218,15 @@ type searchResult struct {
 	Level  int64  `json:"level"`
 }
 
+// medalData 牌子接口返回结构体
+type medalData struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		List []medal `json:"list"`
+	} `json:"data"`
+}
+
 // medalInfo b站牌子信息
 type medalInfo struct {
 	Mid              int64  `json:"target_id"`
