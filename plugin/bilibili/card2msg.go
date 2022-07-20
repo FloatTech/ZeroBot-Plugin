@@ -169,7 +169,7 @@ func dynamicDetail(dynamicIDStr string) (msg []message.MessageSegment, err error
 }
 
 // articleCard2msg 专栏转消息
-func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment, err error) {
+func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment) {
 	msg = make([]message.MessageSegment, 0, 16)
 	for i := 0; i < len(card.OriginImageUrls); i++ {
 		msg = append(msg, message.Image(card.OriginImageUrls[i]))
@@ -181,7 +181,7 @@ func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment,
 }
 
 // liveCard2msg 直播卡片转消息
-func liveCard2msg(card roomCard) (msg []message.MessageSegment, err error) {
+func liveCard2msg(card roomCard) (msg []message.MessageSegment) {
 	msg = make([]message.MessageSegment, 0, 16)
 	msg = append(msg, message.Image(card.RoomInfo.Keyframe))
 	msg = append(msg, message.Text(card.RoomInfo.Title, "\n",

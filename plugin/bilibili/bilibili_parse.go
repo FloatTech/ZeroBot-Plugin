@@ -92,12 +92,7 @@ func handleArticle(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR:", err))
 		return
 	}
-	msg, err := articleCard2msg(card, ctx.State["regex_matched"].([]string)[1])
-	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
-		return
-	}
-	ctx.SendChain(msg...)
+	ctx.SendChain(articleCard2msg(card, ctx.State["regex_matched"].([]string)[1])...)
 }
 
 func handleLive(ctx *zero.Ctx) {
@@ -106,10 +101,5 @@ func handleLive(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR:", err))
 		return
 	}
-	msg, err := liveCard2msg(card)
-	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
-		return
-	}
-	ctx.SendChain(msg...)
+	ctx.SendChain(liveCard2msg(card)...)
 }

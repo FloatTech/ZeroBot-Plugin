@@ -952,6 +952,7 @@ func makeFriend(cc *context, args ...string) (string, error) {
 
 // backToWork 打工人, 继续干活
 func backToWork(cc *context, args ...string) (string, error) {
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1029,6 +1030,7 @@ func coupon(cc *context, args ...string) (string, error) {
 
 // distracted 注意力涣散
 func distracted(cc *context, args ...string) (string, error) {
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1056,6 +1058,7 @@ func distracted(cc *context, args ...string) (string, error) {
 
 // throw 扔
 func throw(cc *context, args ...string) (string, error) {
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
