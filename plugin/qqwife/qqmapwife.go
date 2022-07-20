@@ -355,7 +355,6 @@ func init() {
 			sort.SliceStable(temp, func(i, j int) bool {
 				return temp[i].Get("last_sent_time").Int() < temp[j].Get("last_sent_time").Int()
 			})
-			lt := len(temp)
 			temp = temp[math.Max(0, len(temp)-50):]
 			// 将已经娶过的人剔除
 			qqgrouplist := make([]int64, 0, len(temp))
