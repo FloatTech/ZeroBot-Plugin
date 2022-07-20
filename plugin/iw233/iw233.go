@@ -80,10 +80,10 @@ var (
 	en = control.Register("iw233", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "iw233+moehu两个API\n" +
-			" - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]" +
+			" - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]\n" +
 			" - 随机<数量>张[二次元图片|萝莉|古拉|雪花菈米|花园猫猫|天宫心|绊爱|神乐七奈|白上吹雪|猫羽雫|樱岛麻衣|初音未来|洛天依|五更琉璃|在原七海|鹿乃|车万|赛马娘]\n" +
 			" - 清空[与上面相同]缓存\n" +
-			" - 清空所有缓存 " +
+			" - 清空所有缓存\n" +
 			" - [开启|关闭]使用缓存",
 		PrivateDataFolder: "iw233",
 	}).ApplySingle(groupSingle)
