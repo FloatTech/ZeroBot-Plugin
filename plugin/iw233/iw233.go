@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"os"
 	"strconv"
-	"strings"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/binary"
@@ -193,9 +192,6 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 		i = 1
 	}
 	switch {
-	case strings.Contains(api, "https://img.moehu.org") && i > 10:
-		i = 10
-		ctx.SendChain(message.Text("这个api只能获取10张图片哦~"))
 	case !zero.AdminPermission(ctx) && i > 15:
 		i = 15
 		ctx.SendChain(message.Text("普通成员最多只能随机15张图片哦~"))
