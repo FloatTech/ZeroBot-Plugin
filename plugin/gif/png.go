@@ -264,6 +264,9 @@ func anyasuki(cc *context, args ...string) (string, error) {
 	canvas := gg.NewContext(475, 540)
 	canvas.DrawImage(img.Size(face, 347, 267).Im, 82, 53)
 	canvas.DrawImage(back, 0, 0)
+	canvas.SetRGB255(255, 255, 255)
+	canvas.DrawRectangle(0, 500, 475, 40)
+	canvas.Fill()
 	canvas.SetColor(color.Black)
 	_, err = file.GetLazyData(text.BoldFontFile, true)
 	if err != nil {
@@ -419,6 +422,9 @@ func universal(cc *context, args ...string) (string, error) {
 	}
 	canvas := gg.NewContext(500, 550)
 	canvas.DrawImage(img.Size(face, 500, 500).Im, 0, 0)
+	canvas.SetRGB255(255, 255, 255)
+	canvas.DrawRectangle(0, 500, 500, 50)
+	canvas.Fill()
 	canvas.SetColor(color.Black)
 	_, err = file.GetLazyData(text.BoldFontFile, true)
 	if err != nil {
