@@ -61,9 +61,9 @@ func init() { // 插件主体
 						"Star/Fork/Issue: ",
 						repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
 						"Language: ",
-						notnull(repo.Get("language").Str, "None"), "\n",
+						notnull(repo.Get("language").Str), "\n",
 						"License: ",
-						notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
+						notnull(strings.ToUpper(repo.Get("license.key").Str)), "\n",
 						"Last pushed: ",
 						repo.Get("pushed_at").Str, "\n",
 						"Jump: ",
@@ -79,9 +79,9 @@ func init() { // 插件主体
 						"Star/Fork/Issue: ",
 						repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
 						"Language: ",
-						notnull(repo.Get("language").Str, "None"), "\n",
+						notnull(repo.Get("language").Str), "\n",
 						"License: ",
-						notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
+						notnull(strings.ToUpper(repo.Get("license.key").Str)), "\n",
 						"Last pushed: ",
 						repo.Get("pushed_at").Str, "\n",
 						"Jump: ",
@@ -97,9 +97,9 @@ func init() { // 插件主体
 
 // notnull 如果传入文本为空，则返回默认值
 
-func notnull(text, defstr string) string {
+func notnull(text string) string {
 	if text == "" {
-		return defstr
+		return "None"
 	}
 	return text
 }
