@@ -54,9 +54,10 @@ func init() {
 				limit[gid] = 0
 				return
 			}
-			if !zero.AdminPermission(ctx) {
-				limit[gid]++
+			if zero.AdminPermission(ctx) {
+				return
 			}
+			limit[gid]++
 			dblimit, time := readdb(gid)
 			if limit[gid] >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
