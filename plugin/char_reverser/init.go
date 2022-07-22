@@ -2,7 +2,6 @@
 package charreverser
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -92,16 +91,16 @@ func init() {
 			// 将字符顺序翻转
 			var tempBuilder strings.Builder
 			for i := len(str) - 1; i >= 0; i-- {
-				fmt.Fprint(&tempBuilder, string(str[i]))
+				tempBuilder.WriteByte(str[i])
 			}
 
 			// 翻转字符字形
 			var reversedStrBuilder strings.Builder
 			for _, char := range tempBuilder.String() {
 				if char != ' ' {
-					fmt.Fprint(&reversedStrBuilder, string(charMap[char]))
+					reversedStrBuilder.WriteRune(charMap[char]) 
 				} else {
-					fmt.Fprint(&reversedStrBuilder, " ")
+					reversedStrBuilder.WriteRune(' ')
 				}
 			}
 
