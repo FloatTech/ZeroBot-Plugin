@@ -699,15 +699,7 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 		// 将"/"符号去除，不然无法下载
 		cource = strings.ReplaceAll(cource, "/", "&")
 	}
-<<<<<<< HEAD
-	name := parsed.Res.Title
-	artistName := parsed.Res.Author
-	acgName := parsed.Res.AnimeInfo.Title
-	// musicURL := parsed.Res.PlayURL
-	if name == "" || artistName == "" {
-=======
 	if name == "" || musicID == 0 {
->>>>>>> ceb3df513df8d74e92892a803cf4228067381857
 		err = errors.New("无法获API取歌曲信息")
 		return
 	}
