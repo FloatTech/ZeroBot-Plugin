@@ -39,10 +39,11 @@ const (
 )
 
 var (
-	catlist  = make(map[string]int64, 100)
-	filelist []string
-	cuttime  = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
-	cfg      config
+	catlist       = make(map[string]int64, 100)
+	filelist      []string
+	musictypelist = "mp3;MP3;wav;WAV;amr;AMR;3gp;3GP;3gpp;3GPP;acc;ACC"
+	cuttime       = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点，可自行调节时间（时：分：秒）
+	cfg           config
 )
 
 func init() { // 插件主体
@@ -138,6 +139,11 @@ func init() { // 插件主体
 				if !strings.HasSuffix(musicPath, "/") {
 					musicPath += "/"
 				}
+				err = os.MkdirAll(cfg.MusicPath, 0755)
+				if err != nil {
+					ctx.SendChain(message.Text("[生成文件夹错误]ERROR:", err))
+					return
+				}
 				cfg.MusicPath = musicPath
 			case "本地":
 				choice, err := strconv.ParseBool(value)
@@ -193,7 +199,9 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("解析网易云二维码失败, ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.Text("[请使用手机APP扫描二维码或者进入网页扫码登录]\n", qrInfo.Data.Qrurl), message.Image("base64://"+strings.ReplaceAll(qrInfo.Data.Qrimg, "data:image/png;base64,", "")), message.Text("二维码有效时间为6分钟"))
+			ctx.SendChain(message.Text("[请使用手机APP扫描二维码或者进入网页扫码登录]\n", qrInfo.Data.Qrurl),
+				message.Image("base64://"+strings.ReplaceAll(qrInfo.Data.Qrimg, "data:image/png;base64,", "")),
+				message.Text("二维码有效时间为6分钟,登陆后请耐心等待结果，获取cookie过程有些漫长。"))
 			i := 0
 			for range time.NewTicker(10 * time.Second).C {
 				apiURL := "https://music.cyrilstudio.top/login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
@@ -234,11 +242,13 @@ func init() { // 插件主体
 				}
 			}
 		})
-	engine.OnRegex(`^添加歌单\s?(\d*)(\s(.*))?$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByGroup).
+	engine.OnRegex(`^添加歌单\s?(\d+)(\s(.*))?$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			listID := ctx.State["regex_matched"].([]string)[1]
 			listName := ctx.State["regex_matched"].([]string)[3]
-			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listID + "&cookie=" + url.QueryEscape(cfg.Cookie)
+			ctx.SendChain(message.Text("正在校验歌单信息，请稍等"))
+			// 是否存在该歌单
+			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listID + "&cookie=" + cfg.Cookie
 			referer := "https://music.cyrilstudio.top"
 			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 			if err != nil {
@@ -251,6 +261,21 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("无法解析歌单ID内容,[error]", err))
 				return
 			}
+			// 是否有权限访问歌单列表内容
+			apiURL = "https://music.cyrilstudio.top/playlist/track/all?id=" + listID + "&cookie=" + cfg.Cookie
+			referer = "https://music.163.com/"
+			data, err = web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
+			if err != nil {
+				ctx.SendChain(message.Text("无法获取歌单列表\n ERROR: %s", err))
+				return
+			}
+			var musiclist topMusicInfo
+			err = json.Unmarshal(data, &musiclist)
+			if err != nil {
+				ctx.SendChain(message.Text("你的cookie在API中无权访问该歌单\n该歌单有可能是用户私人歌单"))
+				return
+			}
+			// 获取列表名字
 			if listName == "" {
 				listName = parsed.Playlist.Name
 			}
@@ -303,7 +328,7 @@ func init() { // 插件主体
 			// 获取网易云歌单列表
 			if cfg.API {
 				catlist = make(map[string]int64, 100)
-				msg = append(msg, "\n当前添加的API歌单含有以下：\n")
+				msg = append(msg, "当前添加的API歌单含有以下：\n")
 				for i, listInfo := range cfg.Playlist {
 					catlist[listInfo.Name] = listInfo.ID
 					msg = append(msg, strconv.Itoa(i)+":"+listInfo.Name)
@@ -318,18 +343,23 @@ func init() { // 插件主体
 				if err == nil {
 					files, err := ioutil.ReadDir(cfg.MusicPath)
 					if err == nil {
-						msg = append(msg, "\n当前本地歌单含有以下：\n")
-						i := 0
-						for _, name := range files {
-							if !name.IsDir() {
-								continue
+						if len(files) == 0 {
+							ctx.SendChain(message.Text("缓存目录没有读取到任何歌单"))
+							filelist = nil
+						} else {
+							msg = append(msg, "\n当前本地歌单含有以下：\n")
+							i := 0
+							for _, name := range files {
+								if !name.IsDir() {
+									continue
+								}
+								filelist[i] = strconv.Itoa(i) + ":" + name.Name()
+								msg = append(msg, filelist[i])
+								if i%3 == 2 {
+									msg = append(msg, "\n")
+								}
+								i++
 							}
-							filelist[i] = strconv.Itoa(i) + ":" + name.Name()
-							msg = append(msg, filelist[i])
-							if i%3 == 2 {
-								msg = append(msg, "\n")
-							}
-							i++
 						}
 					} else {
 						ctx.SendChain(message.Text("[读取本地列表错误]ERROR:", err))
@@ -354,6 +384,10 @@ func init() { // 插件主体
 	engine.OnSuffix("歌单信息").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			list := ctx.State["args"].(string)
+			if list == "" {
+				ctx.SendChain(message.Text("请输入歌单ID或者API歌单名称\n歌单ID为(网页/分享)链接的“id=”后面的第一串数字"))
+				return
+			}
 			var listIDStr string
 			for listName, listID := range catlist {
 				if list == listName || list == strconv.FormatInt(listID, 10) {
@@ -369,7 +403,7 @@ func init() { // 插件主体
 				}
 				listIDStr = list
 			}
-			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listIDStr + "&cookie=" + url.QueryEscape(cfg.Cookie)
+			apiURL := "https://music.cyrilstudio.top/playlist/detail?id=" + listIDStr + "&cookie=" + cfg.Cookie
 			referer := "https://music.cyrilstudio.top"
 			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 			if err != nil {
@@ -400,15 +434,11 @@ func init() { // 插件主体
 			mode := ctx.State["regex_matched"].([]string)[3]
 			if mode == "" {
 				mode = "动画榜"
+				catlist[mode] = 3001835560
 			}
 			_, ok := catlist[mode]
-			switch {
-			// 如果API没有开，本地也不存在这个歌单
-			case !cfg.API && !strings.Contains(strings.Join(filelist, " "), mode):
-				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
-				return
-				// 如果本地没有开，网易云也不存在这个歌单
-			case !cfg.Local && !ok:
+			// 如果本地和API不存在该歌单
+			if !strings.Contains(strings.Join(filelist, " "), mode) && !ok {
 				ctx.SendChain(message.Text("歌单名称错误，可以发送“获取歌单列表”获取歌单名称"))
 				return
 			}
@@ -420,21 +450,35 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text(err))
 				return
 			}
+			// 解析歌曲信息
+			music := strings.Split(musicName, ".")
+			// 获取音乐后缀
+			musictype := music[len(music)-1]
+			if !strings.Contains(musictypelist, musictype) {
+				ctx.SendChain(message.Text("抽取到了本地歌曲：\n",
+					musicName, "\n该歌曲不是音乐后缀，请联系bot主人修改"))
+				return
+			}
+			// 获取音乐信息
+			musicInfo := strings.Split(strings.ReplaceAll(musicName, "."+musictype, ""), " - ")
+			infoNum := len(musicInfo)
+			if infoNum == 1 {
+				ctx.SendChain(message.Text("抽取到了本地歌曲：\n",
+					musicName, "\n该歌曲命名不符合命名规则，请联系bot主人修改"))
+				return
+			}
+			answerString := "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
+			musicAlia := ""
+			if infoNum > 2 {
+				musicAlia = musicInfo[2]
+				answerString += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
+			}
 			// 切割音频，生成3个10秒的音频
 			outputPath := cachePath + gid + "/"
 			err = cutMusic(musicName, pathOfMusic, outputPath)
 			if err != nil {
 				ctx.SendChain(message.Text(err))
 				return
-			}
-			// 解析歌曲信息
-			musicInfo := strings.Split(musicName, " - ")
-			infoNum := len(musicInfo)
-			answerString := "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
-			musicAlia := ""
-			if infoNum > 2 {
-				musicAlia = musicInfo[2]
-				answerString += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
 			}
 			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
@@ -660,24 +704,26 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 
 func getLocalMusic(files []fs.FileInfo) (musicName string) {
 	if len(files) > 1 {
-		musicName = strings.Replace(files[rand.Intn(len(files))].Name(), ".mp3", "", 1)
+		musicName = files[rand.Intn(len(files))].Name()
 	} else {
-		musicName = strings.Replace(files[0].Name(), ".mp3", "", 1)
+		musicName = files[0].Name()
 	}
 	return
 }
 
 // 下载网易云歌单音乐
 func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
-	apiURL := "https://music.cyrilstudio.top/playlist/track/all?id=" + listID + "&cookie=" + url.QueryEscape(cfg.Cookie)
-	referer := "https://music.cyrilstudio.top"
+	apiURL := "https://music.cyrilstudio.top/playlist/track/all?id=" + listID + "&cookie=" + cfg.Cookie
+	referer := "https://music.163.com/"
 	data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 	if err != nil {
+		err = errors.Errorf("无法获取歌单列表\n ERROR: %s", err)
 		return
 	}
 	var parsed topMusicInfo
 	err = json.Unmarshal(data, &parsed)
 	if err != nil {
+		err = errors.Errorf("无法读取歌单列表\n ERROR: %s", err)
 		return
 	}
 	listlen := len(parsed.Songs)
@@ -714,11 +760,11 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 		return
 	}
 	if cource != "" {
-		musicName = name + " - " + artistName + " - " + cource
+		musicName = name + " - " + artistName + " - " + cource + ".mp3"
 	} else {
-		musicName = name + " - " + artistName
+		musicName = name + " - " + artistName + ".mp3"
 	}
-	downMusic := pathOfMusic + musicName + ".mp3"
+	downMusic := pathOfMusic + musicName
 	if file.IsNotExist(downMusic) {
 		data, err = web.GetData(musicURL)
 		if err != nil {
@@ -740,7 +786,7 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 		return
 	}
 	var stderr bytes.Buffer
-	cmdArguments := []string{"-y", "-i", pathOfMusic + musicName + ".mp3",
+	cmdArguments := []string{"-y", "-i", pathOfMusic + musicName,
 		"-ss", cuttime[0], "-t", "10", file.BOTPATH + "/" + outputPath + "0.wav",
 		"-ss", cuttime[1], "-t", "10", file.BOTPATH + "/" + outputPath + "1.wav",
 		"-ss", cuttime[2], "-t", "10", file.BOTPATH + "/" + outputPath + "2.wav", "-hide_banner"}
