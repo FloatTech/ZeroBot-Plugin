@@ -415,6 +415,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>英文字符翻转</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser"`
+
+  - [x] 翻转 [英文字符串]
+
+</details>
+<details>
   <summary>选择困难症帮手</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"`
