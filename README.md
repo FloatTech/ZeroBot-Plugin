@@ -387,11 +387,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>b站视频链接解析</summary>
+  <summary>b站动态、专栏、视频、直播解析</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
 
-  - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
+  - [x] t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245
 
 </details>
 <details>
@@ -412,6 +412,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 藏头诗[xxx]
 
   - [x] 藏尾诗[xxx]
+
+</details>
+<details>
+  <summary>英文字符翻转</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser"`
+
+  - [x] 翻转 [英文字符串]
 
 </details>
 <details>
@@ -581,22 +589,32 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"`
 
   - 猜歌插件（该插件依赖ffmpeg）
-
-  - [x] 个人猜歌
-  
-  - [x] 团队猜歌
   
   - [x] 设置猜歌缓存歌库路径 [绝对路径]
-
-  - [x] 设置猜歌本地 [true/false]
-
-  - [x] 设置猜歌Api [true/false]
   
-  - 注：默认歌库为网易云热歌榜
+  - [x] 设置猜歌[本地/Api] [true/false]
   
-  - 1.可在后面添加“-动漫”进行动漫歌猜歌(这个只能猜歌名和歌手)
+  - [x] 登录网易云
   
-  - 2.可在后面添加“-动漫2”进行动漫歌猜歌(这个可以猜番名，但歌手经常“未知”)
+  - 注：不登陆也能用，API有几率返回400
+  
+  - [x] 添加歌单 [网易云歌单ID] [歌单名称]
+  
+  - 注：[歌单名称]可为空，默认原标题
+  
+  - [x] 删除歌单 [网易云歌单ID/API歌单名称]
+  
+  - [x] 获取歌单列表
+  
+  - [x] [网易云歌单ID/API歌单名称]歌单信息
+  
+  - [x] [个人/团队]猜歌
+  
+  - 注：默认歌库为网易云ACG动画榜
+  
+  - 可在后面添加[-歌单名称]进行指定歌单猜歌
+  
+  - 歌单的歌曲命名规则为:歌名 - 歌手 - 其他(歌曲出处之类)
 
 </details>
 <details>
