@@ -385,7 +385,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			list := ctx.State["args"].(string)
 			if list == "" {
-				ctx.SendChain(message.Text("请输入歌单ID或者API歌单名称\n歌单ID为(网页/分享)链接的“id=”后面的第一串数字"))
+				ctx.SendChain(message.Text("请输入歌单ID或者API歌单名称\n歌单ID为(网页/分享)链接的“playlist”后面的第一串数字"))
 				return
 			}
 			var listIDStr string
