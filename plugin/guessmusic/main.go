@@ -266,7 +266,7 @@ func init() { // 插件主体
 			referer = "https://music.163.com/"
 			data, err = web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 			if err != nil {
-				ctx.SendChain(message.Text("无法获取歌单列表\n ERROR: %s", err))
+				ctx.SendChain(message.Text("无法获取歌单列表\n ERROR:", err))
 				return
 			}
 			var musiclist topMusicInfo
