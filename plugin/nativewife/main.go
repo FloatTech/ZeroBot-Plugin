@@ -111,7 +111,7 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有找到wife的名字！"))
 			}
 		})
-	engine.OnSuffix("所有人均可添加wife", zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).
+	engine.OnSuffix("所有人均可添加wf", zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			text := ""
 			for _, elem := range ctx.Event.Message {
