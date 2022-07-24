@@ -64,7 +64,9 @@ func init() {
 		DisableOnDefault: false,
 		Help: "猜单词\n" +
 			"- 个人猜单词\n" +
-			"- 团队猜单词",
+			"- 团队猜单词\n" +
+			"- 团队六阶猜单词\n" +
+			"- 团队七阶猜单词",
 		PublicDataFolder: "Wordle",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
