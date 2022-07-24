@@ -23,8 +23,12 @@ func init() {
 
 	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "nihongo.db"
-		_, _ = engine.GetLazyData("nihongo.db", true)
-		err := db.Open(time.Hour * 24)
+		_, err := engine.GetLazyData("nihongo.db", true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
