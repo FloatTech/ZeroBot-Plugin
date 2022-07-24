@@ -51,7 +51,7 @@ func init() {
 				r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
 				n := r.Intn(len(wifes))
 				wn := wifes[n].Name()
-				ctx.SendChain(message.Text(name, "的wife是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
+				ctx.SendChain(message.Text(name, "さんが二次元で結婚するであろうヒロインは、", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\nです！"))
 			}
 		})
 	// 上传一张图
