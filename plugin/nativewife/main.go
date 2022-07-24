@@ -24,12 +24,12 @@ import (
 func init() {
 	engine := control.Register("nwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Help:              "nativewife\n- 抽wife[@xxx]\n- 添加wife[名字][图片]\n- 删除wife[名字]\n- [让 | 不让]所有人均可添加wife",
+		Help:              "nativewife\n- 抽老婆[@xxx]\n- 添加wf[名字][图片]\n- 删除wf[名字]\n- [让 | 不让]所有人均可添加wife",
 		PrivateDataFolder: "nwife",
 	})
 	base := engine.DataFolder()
 	baseuri := "file:///" + file.BOTPATH + "/" + base
-	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).
+	engine.OnPrefix("抽老婆", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			grpf := strconv.FormatInt(ctx.Event.GroupID, 36)
 			wifes, err := os.ReadDir(base + "/" + grpf)
@@ -55,7 +55,7 @@ func init() {
 			}
 		})
 	// 上传一张图
-	engine.OnPrefix("添加wife", zero.OnlyGroup, chkAddWifePermission, zero.MustProvidePicture).SetBlock(true).
+	engine.OnPrefix("添加wf", zero.OnlyGroup, chkAddWifePermission, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
@@ -87,7 +87,7 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("没有找到wife的名字！"))
 			}
 		})
-	engine.OnPrefix("删除wife", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnPrefix("删除wf", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			name := ""
 			for _, elem := range ctx.Event.Message {
