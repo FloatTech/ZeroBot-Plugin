@@ -25,16 +25,16 @@ import (
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" //
 
-	_ "github.com/FloatTech/zbputils/job" // 
+	_ "github.com/FloatTech/zbputils/job" //
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^高优先级区^^^^^^^                      //
@@ -53,68 +53,68 @@ import (
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"           // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"   // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"    // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser" // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chouxianghua"  // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser"         // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"           //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"   //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"    //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser" //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chouxianghua"  //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser"         //
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"       //
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"  // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"          // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"           // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"    // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"            // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"  // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"          // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar" // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativesetu"    // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativewife"    // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw"          // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"   // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation" // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"     // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"    // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"  //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"          //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"           //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"    //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"            //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"  //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"          //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar" //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativesetu"    //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativewife"    //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw"          //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"   //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation" //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"     //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"    //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         //
 
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 
-	
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            //
+
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^中优先级区^^^^^^^                      //
@@ -198,7 +198,7 @@ func init() {
 	}
 
 	// 通过代码写死的方式添加主人账号
-	 sus = append(sus, 2574896927)
+	sus = append(sus, 2574896927)
 	// sus = append(sus, 2574896927)
 
 	if *runcfg != "" {
