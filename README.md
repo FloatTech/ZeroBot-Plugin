@@ -706,7 +706,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置音色40 (0~127)
 
-  - [x] 注: 该插件需要安装timidity,linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh , windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat , windows需要管理员模式运行
+  - [x] 注: 该插件需要安装timidity, linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh, windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行
   
   - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<3代表音长×8,<-1代表音长×0.5,<-3代表音长×0.125,R是休止符
 
@@ -795,6 +795,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"`
 
   - [x] ?? [缩写]
+
+</details>
+<details>
+  <summary>日语语法学习</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"`
+
+  - [x] 日语语法 [xxx] (使用tag随机)
 
 </details>
 <details>
@@ -932,6 +940,10 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 团队猜单词
 
+  - [x] 团队六阶猜单词
+
+  - [x] 团队七阶猜单词
+
 </details>
 <details>
   <summary>翻译</summary>
@@ -1003,24 +1015,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 查询鬼东西[序号][@xxx]
 
   - 注：由于需要科学，默认注释。
-
-</details>
-<details>
-  <summary>b站推送</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
-
-  - [x] 添加b站订阅[uid]
-
-  - [x] 取消b站订阅[uid]
-
-  - [x] 取消b站动态订阅[uid]
-
-  - [x] 取消b站直播订阅[uid]
-
-  - [x] b站推送列表
-
-  - 注：由于需要安装Chrome，默认注释，具体看[这里](https://www.yuque.com/xiangrikuidezhongzi/zerobot/qrwxth)
 
 </details>
 
