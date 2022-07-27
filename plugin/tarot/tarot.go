@@ -165,7 +165,7 @@ func init() {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))
 		}
 	})
-	//TODO 小阿卡纳牌阵
+	// TODO 小阿卡纳牌阵
 	engine.OnRegex(`^塔罗牌阵\s?(.*)`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := formationMap[match]
