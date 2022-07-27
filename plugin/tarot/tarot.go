@@ -37,8 +37,8 @@ type formation struct {
 }
 type cardSet = map[string]card
 
-var cardMap = make(cardSet, 30)
-var infoMap = make(map[string]cardInfo, 30)
+var cardMap = make(cardSet, 80)
+var infoMap = make(map[string]cardInfo, 80)
 var formationMap = make(map[string]formation, 10)
 
 // var cardName = make([]string, 30)
@@ -56,7 +56,7 @@ func init() {
 	}).ApplySingle(ctxext.DefaultSingle)
 
 	getTarot := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		data, err := engine.GetLazyData("tarots.json", true)
+		data, err := engine.GetLazyData("tarots.json", false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
@@ -69,10 +69,10 @@ func init() {
 		for _, card := range cardMap {
 			infoMapKey := strings.Split(card.Name, "(")[0]
 			infoMap[infoMapKey] = card.cardInfo
-			// 可以拿来显示大阿尔卡纳列表
+			// 可以拿来显示塔罗牌列表
 			// cardName = append(cardName, infoMapKey)
 		}
-		logrus.Infof("[tarot]读取%d张大阿尔卡纳塔罗牌", len(cardMap))
+		logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
 		formation, err := engine.GetLazyData("formation.json", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -86,12 +86,15 @@ func init() {
 		logrus.Infof("[tarot]读取%d组塔罗牌阵", len(formationMap))
 		return true
 	})
-	engine.OnRegex(`^抽(\d{1,2}张)?塔罗牌$`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^抽(\d{1,2}张)?((塔罗牌|大阿(尔)?卡纳)|小阿(尔)?卡纳)$`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
+		cardType := ctx.State["regex_matched"].([]string)[2]
 		n := 1
 		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 		position := [...]string{"正位", "逆位"}
 		reverse := [...]string{"", "Reverse"}
+		start := 0
+		length := 22
 		if match != "" {
 			var err error
 			n, err = strconv.Atoi(match[:len(match)-3])
@@ -112,14 +115,18 @@ func init() {
 				return
 			}
 		}
+		if strings.Contains(cardType, "小") {
+			start = 22
+			length = 55
+		}
 		if n == 1 {
-			i := rand.Intn(22)
+			i := rand.Intn(length) + start
 			p := rand.Intn(2)
 			card := cardMap[(strconv.Itoa(i))]
 			name := card.Name
 			if id := ctx.SendChain(
 				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
-				message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], i))); id.ID() == 0 {
+				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 			return
@@ -127,19 +134,19 @@ func init() {
 		msg := make([]message.MessageSegment, n)
 		randomIntMap := make(map[int]int, 30)
 		for i := range msg {
-			j := rand.Intn(22)
+			j := rand.Intn(length)
 			_, ok := randomIntMap[j]
 			for ok {
-				j = rand.Intn(22)
+				j = rand.Intn(length)
 				_, ok = randomIntMap[j]
 			}
 			randomIntMap[j] = 0
 			p := rand.Intn(2)
-			card := cardMap[(strconv.Itoa(j))]
+			card := cardMap[(strconv.Itoa(j + start))]
 			name := card.Name
 			tarotMsg := []message.MessageSegment{
 				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
-				message.Image(fmt.Sprintf(bed+"MajorArcana%s/%d.png", reverse[p], j))}
+				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))}
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
