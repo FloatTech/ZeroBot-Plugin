@@ -56,7 +56,7 @@ func init() {
 	}).ApplySingle(ctxext.DefaultSingle)
 
 	getTarot := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		data, err := engine.GetLazyData("tarots.json", false)
+		data, err := engine.GetLazyData("tarots.json", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
