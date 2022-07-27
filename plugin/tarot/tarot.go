@@ -48,7 +48,7 @@ func init() {
 	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "塔罗牌\n" +
-			"- 抽塔罗牌\n" +
+			"- 抽[塔罗牌|大阿卡纳|小阿卡纳]\n" +
 			"- 抽n张塔罗牌\n" +
 			"- 解塔罗牌[牌名]\n" +
 			"- 塔罗牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]",
@@ -165,6 +165,7 @@ func init() {
 			ctx.SendChain(message.Text("没有找到", match, "噢~"))
 		}
 	})
+	//TODO 小阿卡纳牌阵
 	engine.OnRegex(`^塔罗牌阵\s?(.*)`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := formationMap[match]
