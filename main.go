@@ -74,7 +74,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"      // 城市疫情查询
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"          // 渲染任意文字到图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"       // 运势
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"         // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"         //
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"       // 原神抽卡
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"           // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"        // 搜索GitHub仓库
@@ -88,7 +88,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 简易midi音乐制作
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"          // 摸鱼
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar" // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar" //
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"         // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativesetu"    // 本地涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativewife"    // 本地老婆
@@ -102,14 +102,14 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"       // 在线运行代码
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"      // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"         // 叔叔的AI二次元图片放大
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"         // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"         //
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"      // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"       // 沙雕app
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"       // 测定
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"         // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"       // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"      // 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"   // 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"         //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"       //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"      //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"   //
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation" // vtb语录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"     // 网易云音乐热评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"    // 聊天热词
