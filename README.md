@@ -6,7 +6,7 @@
   <h1>ZeroBot-Plugin</h1>
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
-
+ <img src="http://cmoe.azurewebsites.net/cmoe?name=ZeroBot-Plugin&theme=r34" /><br>
 
   [![miraigo](https://img.shields.io/badge/OneBot-MiraiGo-green.svg?style=social&logo=appveyor)](https://github.com/Mrs4s/MiraiGo)
   [![oicq](https://img.shields.io/badge/OneBot-OICQ-green.svg?style=social&logo=appveyor)](https://github.com/takayama-lily/oicq)
@@ -919,7 +919,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 抽[塔罗牌|大阿卡纳|小阿卡纳]
   - [x] 抽n张[塔罗牌|大阿卡纳|小阿卡纳]
   - [x] 解塔罗牌[牌名]
-  - [x] 塔罗牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]"
+  - [x] [塔罗|大阿卡纳|小阿卡纳|混合]牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]
 
 </details>
 <details>
