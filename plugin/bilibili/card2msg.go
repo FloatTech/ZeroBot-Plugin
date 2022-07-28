@@ -174,7 +174,7 @@ func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment)
 	for i := 0; i < len(card.OriginImageUrls); i++ {
 		msg = append(msg, message.Image(card.OriginImageUrls[i]))
 	}
-	msg = append(msg, message.Text(card.Title, "\n", "UP主: ", card.AuthorName, "\n",
+	msg = append(msg, message.Text("\n", card.Title, "\n", "UP主: ", card.AuthorName, "\n",
 		"阅读: ", humanNum(card.Stats.View), " 评论: ", humanNum(card.Stats.Reply), "\n",
 		cvURL, defaultID))
 	return
@@ -184,7 +184,7 @@ func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment)
 func liveCard2msg(card roomCard) (msg []message.MessageSegment) {
 	msg = make([]message.MessageSegment, 0, 16)
 	msg = append(msg, message.Image(card.RoomInfo.Keyframe))
-	msg = append(msg, message.Text(card.RoomInfo.Title, "\n",
+	msg = append(msg, message.Text("\n", card.RoomInfo.Title, "\n",
 		"主播: ", card.AnchorInfo.BaseInfo.Uname, "\n",
 		"房间号: ", card.RoomInfo.RoomID, "\n"))
 	if card.RoomInfo.ShortID != 0 {
