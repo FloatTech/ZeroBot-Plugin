@@ -98,7 +98,7 @@ func init() {
 			var reversedStrBuilder strings.Builder
 			for _, char := range tempBuilder.String() {
 				if char != ' ' {
-					reversedStrBuilder.WriteRune(charMap[char]) 
+					reversedStrBuilder.WriteRune(charMap[char])
 				} else {
 					reversedStrBuilder.WriteRune(' ')
 				}
