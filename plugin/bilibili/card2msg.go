@@ -137,7 +137,7 @@ func dynamicCard2msg(str string, cType int) (msg []message.MessageSegment, err e
 			msg = append(msg, message.Text(dynamicCard.Desc.UserProfile.Info.Uname, typeMsg[cType], "\n"))
 		}
 		msg = append(msg, message.Image(card.LivePlayInfo.Cover))
-		msg = append(msg, message.Text(card.LivePlayInfo.Title, "\n",
+		msg = append(msg, message.Text("\n", card.LivePlayInfo.Title, "\n",
 			"房间号: ", card.LivePlayInfo.RoomID, "\n",
 			"分区: ", card.LivePlayInfo.ParentAreaName))
 		if card.LivePlayInfo.ParentAreaName != card.LivePlayInfo.AreaName {
@@ -174,7 +174,7 @@ func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment)
 	for i := 0; i < len(card.OriginImageUrls); i++ {
 		msg = append(msg, message.Image(card.OriginImageUrls[i]))
 	}
-	msg = append(msg, message.Text(card.Title, "\n", "UP主: ", card.AuthorName, "\n",
+	msg = append(msg, message.Text("\n", card.Title, "\n", "UP主: ", card.AuthorName, "\n",
 		"阅读: ", humanNum(card.Stats.View), " 评论: ", humanNum(card.Stats.Reply), "\n",
 		cvURL, defaultID))
 	return
@@ -184,7 +184,7 @@ func articleCard2msg(card Card, defaultID string) (msg []message.MessageSegment)
 func liveCard2msg(card roomCard) (msg []message.MessageSegment) {
 	msg = make([]message.MessageSegment, 0, 16)
 	msg = append(msg, message.Image(card.RoomInfo.Keyframe))
-	msg = append(msg, message.Text(card.RoomInfo.Title, "\n",
+	msg = append(msg, message.Text("\n", card.RoomInfo.Title, "\n",
 		"主播: ", card.AnchorInfo.BaseInfo.Uname, "\n",
 		"房间号: ", card.RoomInfo.RoomID, "\n"))
 	if card.RoomInfo.ShortID != 0 {
@@ -226,7 +226,7 @@ func videoCard2msg(card Card) (msg []message.MessageSegment, err error) {
 	}
 	msg = append(msg, message.Text("播放: ", humanNum(card.Stat.View), " 弹幕: ", humanNum(card.Stat.Danmaku)))
 	msg = append(msg, message.Image(card.Pic))
-	msg = append(msg, message.Text("点赞: ", humanNum(card.Stat.Like), " 投币: ", humanNum(card.Stat.Coin), "\n",
+	msg = append(msg, message.Text("\n点赞: ", humanNum(card.Stat.Like), " 投币: ", humanNum(card.Stat.Coin), "\n",
 		"收藏: ", humanNum(card.Stat.Favorite), " 分享: ", humanNum(card.Stat.Share), "\n",
 		vURL, card.BvID))
 	return
