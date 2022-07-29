@@ -131,10 +131,10 @@ func init() {
 				case "申请":
 					ctx.SetFriendAddRequest(flag, true, other)
 					ctx.SendPrivateMessage(su, message.Text("已", cmd, org))
+				case "邀请":
+					ctx.SetGroupAddRequest(flag, "invite", true, "")
+					ctx.SendPrivateMessage(su, message.Text("已", cmd, org))
 				}
-			case "邀请":
-				ctx.SetGroupAddRequest(flag, "invite", true, "")
-				ctx.SendPrivateMessage(su, message.Text("已", cmd, org))
 			case "拒绝":
 				switch org {
 				case "申请":
