@@ -1,5 +1,5 @@
-// Package iw233 基于api制作的图插件
-package iw233
+// Package moehu 群友的API, 很好用
+package moehu
 
 import (
 	"crypto/md5"
@@ -30,10 +30,8 @@ type result struct {
 }
 
 const (
-	// iw233 api
-	iw233API = "https://mirlkoi.ifast3.vipnps.vip/api.php?type=json&"
 	// moehu api
-	moehuAPI = "https://img.moehu.org/pic.php?return=json&"
+	moehuAPI = "https://img.moehu.org/pic.php?return=json&id="
 	// 色图api
 	setuAPI = "http://iw233.fgimax2.fgnwctvip.com/API/Ghs.php?type=json"
 	referer = "https://mirlkoi.ifast3.vipnps.vip"
@@ -53,39 +51,147 @@ var (
 		}),
 	)
 	allAPI = map[string]string{
-		"全部":    iw233API + "sort=random",
-		"兽耳":    iw233API + "sort=cat",
-		"白毛":    iw233API + "sort=yin",
-		"星空":    iw233API + "sort=xing",
-		"竖屏壁纸":  iw233API + "sort=mp",
-		"横屏壁纸":  iw233API + "sort=pc",
-		"二次元图片": moehuAPI + "id=img",
-		"萝莉":    moehuAPI + "id=loli",
-		"古拉":    moehuAPI + "id=gawr-gura",
-		"花园猫猫":  moehuAPI + "id=hanazono-serena",
-		"天宫心":   moehuAPI + "id=amamiya-kokoro",
-		"绊爱":    moehuAPI + "id=kizunaai",
-		"神乐七奈":  moehuAPI + "id=kagura-nana",
-		"白上吹雪":  moehuAPI + "id=fubuki",
-		"猫羽雫":   moehuAPI + "id=myn",
-		"樱岛麻衣":  moehuAPI + "id=ydmy",
-		"初音未来":  moehuAPI + "id=miku",
-		"洛天依":   moehuAPI + "id=tianyi",
-		"五更琉璃":  moehuAPI + "id=gokou-ruri",
-		"在原七海":  moehuAPI + "id=arihara-nanami",
-		"鹿乃":    moehuAPI + "id=kona",
-		"车万":    moehuAPI + "id=dongf",
-		"赛马娘":   moehuAPI + "id=saima",
+		"兽耳":       moehuAPI + "kemonomimi",
+		"白毛":       moehuAPI + "yin",
+		"星空":       moehuAPI + "xing",
+		"竖屏壁纸":     moehuAPI + "sjpic",
+		"横屏壁纸":     moehuAPI + "pc",
+		"樱岛麻衣":     moehuAPI + "ydmy",
+		"猫羽雫":      moehuAPI + "myn",
+		"椎名真白":     moehuAPI + "mashiro",
+		"图来":       moehuAPI + "test",
+		"狗子":       moehuAPI + "inugami-korone",
+		"洛天依":      moehuAPI + "tianyi",
+		"小狐狸":      moehuAPI + "fubuki",
+		"三蹦子":      moehuAPI + "bh3",
+		"mea":      moehuAPI + "kagura-mea",
+		"黑猫":       moehuAPI + "gokou-ruri",
+		"狗妈":       moehuAPI + "kagura-nana",
+		"手机壁纸":     moehuAPI + "sjpic",
+		"高清壁纸":     moehuAPI + "gqbz",
+		"小鲨鱼":      moehuAPI + "gawr-gura",
+		"雪妈":       moehuAPI + "yukihana",
+		"马自立":      moehuAPI + "natsuiro",
+		"粽子":       moehuAPI + "uruha-rushia",
+		"花园猫猫":     moehuAPI + "hanazono-serena",
+		"熊猫人":      moehuAPI + "sasaki-saku",
+		"小绵羊":      moehuAPI + "tsunomaki-watame",
+		"常暗永远":     moehuAPI + "tokoyami-towa",
+		"天宫心":      moehuAPI + "amamiya-kokoro",
+		"peko":     moehuAPI + "usada-pekora",
+		"触手姬":      moehuAPI + "ninomae",
+		"樱巫女":      moehuAPI + "sakura-miko",
+		"miku":     moehuAPI + "miku",
+		"鹿乃":       moehuAPI + "kano",
+		"原神":       moehuAPI + "ys",
+		"明日方舟":     moehuAPI + "mrfz",
+		"碧蓝航线":     moehuAPI + "blhx",
+		"车万":       moehuAPI + "dongf",
+		"碧蓝档案":     moehuAPI + "blda",
+		"赛马娘":      moehuAPI + "saima",
+		"表情包":      moehuAPI + "bqb",
+		"甘城猫猫":     moehuAPI + "gcmm",
+		"mc":       moehuAPI + "mc",
+		"kemomimi": moehuAPI + "kemomimi",
+		"大神澪":      moehuAPI + "ookami-mio",
+		"星川沙拉":     moehuAPI + "sara-hoshikawa",
+		"木口EN":     moehuAPI + "holoen",
+		"绊爱":       moehuAPI + "kizunaai",
+		"少女前线":     moehuAPI + "snqx",
+		"缘之空":      moehuAPI + "yzk",
+		"鬼灭之刃":     moehuAPI + "gmzr",
+		"妖尾":       moehuAPI + "yaowei",
+		"re0":      moehuAPI + "re0",
+		"sao":      moehuAPI + "sao",
+		"萝莉":       moehuAPI + "loli",
+		"白丝":       moehuAPI + "acgbs",
+		"黑丝":       moehuAPI + "acghs",
+		"saber":    moehuAPI + "saber",
+		"四系乃":      moehuAPI + "yoshino",
+		"见崎鸣":      moehuAPI + "misakimei",
+		"阿卡林":      moehuAPI + "akari",
+		"康娜":       moehuAPI + "kanna",
+		"喵帕斯":      moehuAPI + "miaops",
+		"妮姆芙":      moehuAPI + "nymph",
+		"诺艾尔":      moehuAPI + "noel",
+		"时崎狂三":     moehuAPI + "kurumi",
+		"薇尔莉特":     moehuAPI + "violet",
+		"忍野忍":      moehuAPI + "shinobu",
+		"风见一姬":     moehuAPI + "kazuki",
+		"伊莉雅":      moehuAPI + "iliya",
+		"五等分的花嫁":   moehuAPI + "5huajia",
+		"雷姆":       moehuAPI + "rem",
+		"碧翠丝":      moehuAPI + "beatrice",
+		"土间埋":      moehuAPI + "umr",
+		"阿尼亚":      moehuAPI + "aniya",
+		"02":       moehuAPI + "02",
+		"约尔":       moehuAPI + "yor",
+		"阿波连":      moehuAPI + "aharen",
+		"御坂美琴":     moehuAPI + "misaka-mikoto",
+		"高木":       moehuAPI + "takagi",
+		"西片太太":     moehuAPI + "takagi",
+		"唐可可":      moehuAPI + "tangkk",
+		"水原千鹤":     moehuAPI + "mizuhara",
+		"妮可":       moehuAPI + "nico",
+		"智乃":       moehuAPI + "chiro",
+		"亚丝娜":      moehuAPI + "asuna",
+		"我很好奇":     moehuAPI + "eru",
+		"臭鼬":       moehuAPI + "karyl",
+		"灰原哀":      moehuAPI + "haibara",
+		"龙王的牢饭":    moehuAPI + "hinatsuru",
+		"志摩凛":      moehuAPI + "shimarin",
+		"六花":       moehuAPI + "rikka",
+		"冰菓":       moehuAPI + "bingg",
+		"你的名字":     moehuAPI + "kiminame",
+		"圣人惠":      moehuAPI + "katoumegumi",
+		"谢丝塔":      moehuAPI + "siesta",
+		"早坂爱":      moehuAPI + "hayasakaai",
+		"凉宫春日":     moehuAPI + "haruhi",
+		"藤原千花":     moehuAPI + "chika",
+		"弥豆子":      moehuAPI + "nezuko",
+		"小野寺":      moehuAPI + "onoderaoosaki",
+		"伊蕾娜":      moehuAPI + "elaina",
+		"三玖":       moehuAPI + "nakanomiku",
+		"四宫辉夜":     moehuAPI + "kaguya",
+		"佐天泪子":     moehuAPI + "ruiko",
+		"白井黑子":     moehuAPI + "kuroko",
+		"公主连接":     moehuAPI + "gongzhulj",
+		"泉此方":      moehuAPI + "konata",
+		"雪乃":       moehuAPI + "yukino",
+		"弥子":       moehuAPI + "linomiko",
+		"白银圭":      moehuAPI + "shiroganekei",
+		"立华奏":      moehuAPI + "kanade",
+		"摇曳露营":     moehuAPI + "camp",
+		"摇曳百合":     moehuAPI + "yuruyuri",
+		"喵内":       moehuAPI + "miyone",
+		"学不来":      moehuAPI + "xuebulai",
+		"悠哉日常大王":   moehuAPI + "nobiyori",
+		"猫猫":       moehuAPI + "miao",
+		"阿夸":       moehuAPI + "aqua",
+		"猫宫日向":     moehuAPI + "nekomiya-hinata",
+		"喜多川海梦":    moehuAPI + "kitagawa-marin",
+		"熊污女":      moehuAPI + "amayadori-machi",
+		"助手":       moehuAPI + "makise-kurisu",
+		"艾拉":       moehuAPI + "lsla",
+		"蝶祈":       moehuAPI + "yuzuriha-inori",
+		"伊卡洛斯":     moehuAPI + "uranus-queen",
+		"宁宁":       moehuAPI + "yashiro-nene",
+		"菲洛":       moehuAPI + "filo",
+		"食蜂操祈":     moehuAPI + "shokuho-isaki",
+		"我妻由乃":     moehuAPI + "gasai-yuno",
+		"长瀞同学":     moehuAPI + "nagatoro-hayase",
+		"蜘蛛子":      moehuAPI + "noname-kumo",
+		"flag大小姐":  moehuAPI + "flag-ojousama",
+		"崛与宫村":     moehuAPI + "hori-to-miyamura",
+		"路人女主":     moehuAPI + "saenai-heroine",
+		"命运长椅":     moehuAPI + "mydcy",
+		"高原魔女":     moehuAPI + "slime-300",
+		"幼妻狐仙":     moehuAPI + "fox-senko",
 	}
-	en = control.Register("iw233", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
-		Help: "iw233+moehu两个API\n" +
-			" - 随机<数量>张[全部|兽耳|白毛|星空|竖屏壁纸|横屏壁纸]\n" +
-			" - 随机<数量>张[二次元图片|萝莉|古拉|雪花菈米|花园猫猫|天宫心|绊爱|神乐七奈|白上吹雪|猫羽雫|樱岛麻衣|初音未来|洛天依|五更琉璃|在原七海|鹿乃|车万|赛马娘]\n" +
-			" - 清空[与上面相同]缓存\n" +
-			" - 清空所有缓存\n" +
-			" - [开启|关闭]使用缓存",
-		PrivateDataFolder: "iw233",
+	en = control.Register("moehu", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault:  true,
+		Help:              "moehuAPI\n - <数量>张[类型]\n -示例： 10张雷姆\n[兽耳|白毛|星空|竖屏壁纸|横屏壁纸|图来|小鲨鱼|雪妈|马自立|粽子|花园猫猫|熊猫人|小绵羊|常暗永远|天宫心|peko|触手姬|大神澪|星川莎拉|樱巫女|木口EN|绊爱|猫羽雫|樱岛麻衣|miku|鹿乃|原神|明日方舟|碧蓝航线|车万|在原七海|赛马娘|碧蓝档案|表情包|甘城猫猫|mc|kemomimi|手机壁纸|妖尾|少女前线|缘之空|鬼灭之刃|re0|sao|狗妈|黑猫|mea|三蹦子|洛天依|小狐狸|狗子|康娜|四系乃|时崎狂三|喵帕斯|见崎鸣|阿卡林|薇尔莉特|诺艾尔|saber|黑丝|白丝|伊莉雅|风见一姬|忍野忍|五等分的花嫁|妮姆芙|碧翠丝|雷姆|02|阿尼亚|高木|西片太太|约尔|御坂美琴|阿波连|土间埋|唐可可|水原千鹤|妮可|智乃|亚丝娜|我很好奇|臭鼬|灰原哀|龙王的牢饭|志摩凛|六花|冰菓|你的名字|圣人惠|谢丝塔|早坂爱|凉宫春日|藤原千花|弥子|祢豆子|小野寺|伊蕾娜|三玖|佐天泪子|白井黑子|公主连接|泉此方|雪乃|白银圭|间谍过家家|立华奏|摇曳露营|摇曳百合|学不来|悠哉日常大王|阿夸|喜多川海梦|flag大小姐|助手|崛与宫村|熊污女|命运长椅|路人女主|伊卡洛斯|蝶祈|艾拉|高原魔女|宁宁|猫宫日向|菲洛|食蜂操祈|我妻由乃|幼妻狐仙|长瀞同学|蜘蛛子] ",
+		PrivateDataFolder: "moehu",
 	}).ApplySingle(groupSingle)
 	filepath = en.DataFolder()
 )
@@ -204,7 +310,7 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 	default:
 		ctx.SendChain(message.Text("少女祈祷中..."))
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", "", ua)
 	if err != nil {
 		return
 	}
