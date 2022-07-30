@@ -30,8 +30,6 @@ type result struct {
 }
 
 const (
-	// iw233 api
-	iw233API = "https://mirlkoi.ifast3.vipnps.vip/api.php?type=json&"
 	// moehu api
 	moehuAPI = "https://img.moehu.org/pic.php?return=json&id="
 	// 色图api
