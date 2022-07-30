@@ -1,5 +1,5 @@
-// Package iw233 基于api制作的图插件
-package iw233
+// Package moehu 群友的API, 很好用
+package moehu
 
 import (
 	"crypto/md5"
@@ -188,10 +188,10 @@ var (
 		"高原魔女":     moehuAPI + "slime-300",
 		"幼妻狐仙":     moehuAPI + "fox-senko",
 	}
-	en = control.Register("iw233", &ctrl.Options[*zero.Ctx]{
+	en = control.Register("moehu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  true,
 		Help:              "moehuAPI\n - <数量>张[类型]\n -示例： 10张雷姆\n[兽耳|白毛|星空|竖屏壁纸|横屏壁纸|图来|小鲨鱼|雪妈|马自立|粽子|花园猫猫|熊猫人|小绵羊|常暗永远|天宫心|peko|触手姬|大神澪|星川莎拉|樱巫女|木口EN|绊爱|猫羽雫|樱岛麻衣|miku|鹿乃|原神|明日方舟|碧蓝航线|车万|在原七海|赛马娘|碧蓝档案|表情包|甘城猫猫|mc|kemomimi|手机壁纸|妖尾|少女前线|缘之空|鬼灭之刃|re0|sao|狗妈|黑猫|mea|三蹦子|洛天依|小狐狸|狗子|康娜|四系乃|时崎狂三|喵帕斯|见崎鸣|阿卡林|薇尔莉特|诺艾尔|saber|黑丝|白丝|伊莉雅|风见一姬|忍野忍|五等分的花嫁|妮姆芙|碧翠丝|雷姆|02|阿尼亚|高木|西片太太|约尔|御坂美琴|阿波连|土间埋|唐可可|水原千鹤|妮可|智乃|亚丝娜|我很好奇|臭鼬|灰原哀|龙王的牢饭|志摩凛|六花|冰菓|你的名字|圣人惠|谢丝塔|早坂爱|凉宫春日|藤原千花|弥子|祢豆子|小野寺|伊蕾娜|三玖|佐天泪子|白井黑子|公主连接|泉此方|雪乃|白银圭|间谍过家家|立华奏|摇曳露营|摇曳百合|学不来|悠哉日常大王|阿夸|喜多川海梦|flag大小姐|助手|崛与宫村|熊污女|命运长椅|路人女主|伊卡洛斯|蝶祈|艾拉|高原魔女|宁宁|猫宫日向|菲洛|食蜂操祈|我妻由乃|幼妻狐仙|长瀞同学|蜘蛛子] ",
-		PrivateDataFolder: "iw233",
+		PrivateDataFolder: "moehu",
 	}).ApplySingle(groupSingle)
 	filepath = en.DataFolder()
 )
@@ -310,7 +310,7 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 	default:
 		ctx.SendChain(message.Text("少女祈祷中..."))
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", "", ua)
 	if err != nil {
 		return
 	}
