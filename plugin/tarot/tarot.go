@@ -147,7 +147,7 @@ func init() {
 			card := cardMap[(strconv.Itoa(j + start))]
 			name := card.Name
 			tarotMsg := []message.MessageSegment{
-				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], "』的『", name, "』\n"),
 				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))}
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
