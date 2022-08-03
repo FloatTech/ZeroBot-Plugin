@@ -92,7 +92,7 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[1]
 		cardType := ctx.State["regex_matched"].([]string)[2]
 		n := 1
-		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
+		reasons := [...]string{"您抽到的是~\n『", "锵锵锵，塔罗牌的预言是~\n『", "诶，让我看看您抽到了~\n『"}
 		position := [...]string{"正位", "逆位"}
 		reverse := [...]string{"", "Reverse"}
 		start := 0
@@ -127,7 +127,7 @@ func init() {
 			card := cardMap[(strconv.Itoa(i))]
 			name := card.Name
 			if id := ctx.SendChain(
-				message.Text(reasons[rand.Intn(len(reasons))], position[p], " 的 ", name, "\n"),
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], "』的『", name, "』\n"),
 				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
@@ -216,11 +216,11 @@ func init() {
 				}
 				tarotMsg := []message.MessageSegment{message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))}
 				build.WriteString(info.Represent[0][i])
-				build.WriteString(": ")
+				build.WriteString(":『")
 				build.WriteString(position[p])
-				build.WriteString(" 的 ")
+				build.WriteString("』的『")
 				build.WriteString(name)
-				build.WriteString("\n其释义为: \n")
+				build.WriteString("』\n其释义为: \n")
 				build.WriteString(description)
 				build.WriteString("\n")
 				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
