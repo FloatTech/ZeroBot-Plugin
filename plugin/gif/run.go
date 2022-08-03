@@ -92,6 +92,14 @@ var (
 		"紧贴":     tightly,
 		"紧紧贴着":   tightly,
 		"转":      turn,
+		 "给我变":      bian,
+      "玩一下":      van,
+      "不要看":      neko,
+      "小天使":      xiaotianshi,
+      "你的":      youer,
+      "我老婆":      nowife,
+      "远离":      yuanli,
+      "抬棺":      taiguan,
 	}
 )
 
