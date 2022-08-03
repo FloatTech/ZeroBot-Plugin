@@ -74,8 +74,6 @@ func init() {
 			majorArcanaName = append(majorArcanaName, cardMap[strconv.Itoa(i)].Name)
 		}
 		logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
-		logrus.Infoln(cardMap)
-		logrus.Infoln(majorArcanaName)
 		formation, err := engine.GetLazyData("formation.json", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
