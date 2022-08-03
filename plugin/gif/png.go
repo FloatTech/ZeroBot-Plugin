@@ -1089,6 +1089,7 @@ func throw(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertUpC(img.Rotate(face, float64(rand.Intn(360)), 143, 143).Im, 0, 0, 86, 249).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // 远离
 func yuanli(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
@@ -1115,6 +1116,7 @@ func yuanli(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(im.Im, 420, 420, 45, 90).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // 不是你老婆
 func nowife(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
@@ -1141,6 +1143,7 @@ func nowife(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(im.Im, 400, 400, 112, 81).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // youer 你老婆
 func youer(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
@@ -1190,6 +1193,7 @@ func youer(cc *context, args ...string) (string, error) {
 	canvas.DrawString(args[0], (830-l)/3.0, 630)
 	return "file:///" + name, canvas.SavePNG(name)
 }
+
 // xiaotiamshi 小天使
 func xiaotianshi(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
@@ -1239,6 +1243,7 @@ func xiaotianshi(cc *context, args ...string) (string, error) {
 	canvas.DrawString(args[0], (830-l)/10, 50)
 	return "file:///" + name, canvas.SavePNG(name)
 }
+
 // 不要再看这些了
 func neko(cc *context, args ...string) (string, error) {
 	_ = args
@@ -1266,6 +1271,7 @@ func neko(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(img.Rotate(im.Im, 0, 0, 0).Im, 450, 450, 0, 170).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // 给我变
 func bian(cc *context, args ...string) (string, error) {
 	_ = args
@@ -1293,6 +1299,7 @@ func bian(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(img.Rotate(im.Im, 0, 0, 0).Im, 380, 380, 225, -20).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // van 玩一下
 func van(cc *context, args ...string) (string, error) {
 	var wg sync.WaitGroup
