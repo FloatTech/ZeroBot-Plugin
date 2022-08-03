@@ -41,8 +41,8 @@ var cardMap = make(cardSet, 80)
 var infoMap = make(map[string]cardInfo, 80)
 var formationMap = make(map[string]formation, 10)
 
-// var cardName = make([]string, 30)
-var formationName = make([]string, 10)
+// var cardName = make([]string, 0, 80)
+var formationName = make([]string, 0, 10)
 
 func init() {
 	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
@@ -68,7 +68,6 @@ func init() {
 		}
 		for _, card := range cardMap {
 			infoMap[card.Name] = card.cardInfo
-			// 可以拿来显示塔罗牌列表
 			// cardName = append(cardName, card.Name)
 		}
 		logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
@@ -164,16 +163,13 @@ func init() {
 				message.Text("\n正位:", info.Description),
 				message.Text("\n逆位:", info.ReverseDescription))
 		} else {
-			ctx.SendChain(message.Text("没有找到", match, "噢~"))
-			// TODO 显示塔罗牌列表，下方使用图片发出，但是图片过大
-			// var build strings.Builder
-			// build.WriteString("现有塔罗牌列表\n")
-			// build.WriteString(strings.Join(formationName, " "))
-			// txt := build.String()
-			// formation, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
-			// if err != nil {
-			// 	ctx.SendChain(message.Image("base64://" + binary.BytesToString(formation)))
-			// }
+			ctx.SendChain(message.Text("没有找到", match, "噢，将展示塔罗牌列表~"))
+			// msg := make([]message.MessageSegment, 2)
+			// cardNameMsg := message.Text("大阿尔卡纳：\n", strings.Join(cardName[:12], "\n"))
+			// msg[0] = ctxext.FakeSenderForwardNode(ctx, cardNameMsg)
+			// cardNameMsg = message.Text("大阿尔卡纳（续）：\n", strings.Join(cardName[11:22], "\n"), "小阿尔卡纳：\n[圣杯|星币|宝剑|权杖][0-10|侍从|骑士|王后|国王]")
+			// msg[1] = ctxext.FakeSenderForwardNode(ctx, cardNameMsg)
+			// ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		}
 	})
 	engine.OnRegex(`^((塔罗|大阿(尔)?卡纳)|小阿(尔)?卡纳|混合)牌阵\s?(.*)`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
@@ -234,7 +230,7 @@ func init() {
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, []message.MessageSegment{message.Image("base64://" + binary.BytesToString(formation))}...)
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
 		} else {
-			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: ", strings.Join(formationName, " ")))
+			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: \n", strings.Join(formationName, "\n")))
 		}
 	})
 }
