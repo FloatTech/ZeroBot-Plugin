@@ -891,6 +891,7 @@ func turn(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, turn))
 }
+
 // taiguan 抬棺
 func taiguan(cc *context, value ...string) (string, error) {
 	_ = value
@@ -927,19 +928,18 @@ func taiguan(cc *context, value ...string) (string, error) {
 		imgs[5].InsertUp(tou, 85, 85, 175, 65).Im,
 		imgs[6].InsertUp(tou, 85, 85, 173, 65).Im,
 		imgs[7].InsertUp(tou, 85, 85, 171, 65).Im,
-      imgs[8].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[9].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[10].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[11].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[12].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[13].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[14].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[15].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[16].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[17].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[18].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[19].InsertUp(tou, 85, 85, 175, 65).Im,
-           
+		imgs[8].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[9].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[10].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[11].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[12].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[13].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[14].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[15].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[16].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[17].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[18].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[19].InsertUp(tou, 85, 85, 175, 65).Im,
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, taiguan))
 }
