@@ -17,7 +17,21 @@ var (
 	cmd      = make([]string, 0)
 	datapath string
 	cmdMap   = map[string]func(cc *context, args ...string) (string, error){
-		"搓":      cuo,
+      "炖":      dun,
+      "2蹭":      ceng2,
+      "诶嘿":      eihei,
+      "膜拜":      mobai,
+      "吞":      tun,
+      "揍":      zou,
+      "给我变":      bian,
+      "玩一下":      van,
+      "不要看":      neko,
+      "小天使":      xiaotianshi,
+      "你的":      youer,
+      "我老婆":      nowife,
+      "远离":      yuanli,
+      "抬棺":      taiguan,
+      "搓":      cuo,
 		"冲":      xqe,
 		"摸":      mo,
 		"拍":      pai,
