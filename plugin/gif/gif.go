@@ -983,7 +983,7 @@ func ci(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tun := []*image.NRGBA{
+	ci := []*image.NRGBA{
 		imgs[0].InsertBottom(tou, 25, 25, 25, 57).Im,
 		imgs[1].InsertBottom(tou, 25, 25, 27, 58).Im,
 		imgs[2].InsertBottom(tou, 25, 25, 28, 57).Im,
@@ -1041,7 +1041,7 @@ func worship(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	mobai := []*image.NRGBA{
+	worship := []*image.NRGBA{
 		imgs[0].InsertBottom(face, 140, 140, 0, 0).Im,
 		imgs[1].InsertBottom(face, 140, 140, 0, 0).Im,
 		imgs[2].InsertBottom(face, 140, 140, 0, 0).Im,
