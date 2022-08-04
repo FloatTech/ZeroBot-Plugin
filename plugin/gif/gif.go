@@ -924,7 +924,7 @@ func zou(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
-	name := cc.usrdir + "蹭.gif"
+	name := cc.usrdir + "zou.gif"
 	c := dlrange("zou", 3, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -957,13 +957,13 @@ func zou(cc *context, value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, zou))
 }
 
-// tun 吞
+// ci 吞
 func tun(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
-	name := cc.usrdir + "吞.gif"
-	c := dlrange("tun", 26, &wg, func(e error) {
+	name := cc.usrdir + "ci.gif"
+	c := dlrange("ci", 26, &wg, func(e error) {
 		m.Lock()
 		err = e
 		m.Unlock()
@@ -1011,17 +1011,17 @@ func tun(cc *context, value ...string) (string, error) {
 		imgs[24].Im,
 		imgs[25].Im,
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, tun))
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ci))
 }
 
-// mobai 膜拜
-func mobai(cc *context, value ...string) (string, error) {
+// worship 膜拜
+func worship(cc *context, value ...string) (string, error) {
 	_ = value
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
-	name := cc.usrdir + "拜.gif"
-	c := dlrange("mobai", 9, &wg, func(e error) {
+	name := cc.usrdir + "worship.gif"
+	c := dlrange("worship", 9, &wg, func(e error) {
 		m.Lock()
 		err = e
 		m.Unlock()
@@ -1052,7 +1052,7 @@ func mobai(cc *context, value ...string) (string, error) {
 		imgs[7].InsertBottom(face, 140, 140, 0, 0).Im,
 		imgs[8].InsertBottom(face, 140, 140, 0, 0).Im,
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, mobai))
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, worship))
 }
 
 // 2ceng 2蹭
