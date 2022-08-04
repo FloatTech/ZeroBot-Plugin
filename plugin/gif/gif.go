@@ -958,7 +958,7 @@ func zou(cc *context, value ...string) (string, error) {
 }
 
 // ci 吞
-func tun(cc *context, value ...string) (string, error) {
+func ci(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
