@@ -866,6 +866,7 @@ func turn(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, turn))
 }
+
 // taiguan 抬棺
 func taiguan(cc *context, value ...string) (string, error) {
 	_ = value
@@ -902,22 +903,22 @@ func taiguan(cc *context, value ...string) (string, error) {
 		imgs[5].InsertUp(tou, 85, 85, 175, 65).Im,
 		imgs[6].InsertUp(tou, 85, 85, 173, 65).Im,
 		imgs[7].InsertUp(tou, 85, 85, 171, 65).Im,
-      imgs[8].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[9].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[10].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[11].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[12].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[13].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[14].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[15].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[16].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[17].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[18].InsertUp(tou, 85, 85, 170, 65).Im,
-      imgs[19].InsertUp(tou, 85, 85, 175, 65).Im,
-           
+		imgs[8].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[9].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[10].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[11].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[12].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[13].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[14].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[15].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[16].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[17].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[18].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[19].InsertUp(tou, 85, 85, 175, 65).Im,
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, taiguan))
 }
+
 // zou 揍
 func zou(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
@@ -955,7 +956,8 @@ func zou(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, zou))
 }
-//tun 吞
+
+// tun 吞
 func tun(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
@@ -1007,10 +1009,11 @@ func tun(cc *context, value ...string) (string, error) {
 		imgs[22].Im,
 		imgs[23].Im,
 		imgs[24].Im,
-        imgs[25].Im,
+		imgs[25].Im,
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, tun))
 }
+
 // mobai 膜拜
 func mobai(cc *context, value ...string) (string, error) {
 	_ = value
@@ -1051,6 +1054,7 @@ func mobai(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, mobai))
 }
+
 // 2ceng 2蹭
 func ceng2(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
@@ -1065,7 +1069,7 @@ func ceng2(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-tou, err := cc.getLogo(100, 100)
+	tou, err := cc.getLogo(100, 100)
 	if err != nil {
 		return "", err
 	}
@@ -1082,11 +1086,11 @@ tou, err := cc.getLogo(100, 100)
 		imgs[1].InsertBottom(tou, 175, 175, 78, 263).Im,
 		imgs[2].InsertBottom(tou, 175, 175, 78, 263).Im,
 		imgs[3].InsertBottom(tou, 175, 175, 78, 263).Im,
-
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ceng2))
 }
-//dun 炖
+
+// dun 炖
 func dun(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
@@ -1100,7 +1104,7 @@ func dun(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-tou, err := cc.getLogo(100, 100)
+	tou, err := cc.getLogo(100, 100)
 	if err != nil {
 		return "", err
 	}
