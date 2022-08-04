@@ -17,7 +17,7 @@ import (
 
 // pa 爬
 func pa(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "爬.png"
 	tou, err := cc.getLogo(0, 0)
 	if err != nil {
@@ -44,7 +44,7 @@ _ = args
 
 // si 撕
 func si(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "撕.png"
 	tou, err := cc.getLogo(0, 0)
 	if err != nil {
@@ -71,7 +71,7 @@ _ = args
 
 // flipV 上翻,下翻
 func flipV(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "FlipV.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -84,7 +84,7 @@ _ = args
 
 // flipH 左翻,右翻
 func flipH(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "FlipH.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -97,7 +97,7 @@ _ = args
 
 // invert 反色
 func invert(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Invert.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -110,7 +110,7 @@ _ = args
 
 // blur 反色
 func blur(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Blur.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -123,7 +123,7 @@ _ = args
 
 // grayscale 灰度
 func grayscale(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Grayscale.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -136,7 +136,7 @@ _ = args
 
 // invertAndGrayscale 负片
 func invertAndGrayscale(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "InvertAndGrayscale.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -149,7 +149,7 @@ _ = args
 
 // convolve3x3 浮雕
 func convolve3x3(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Convolve3x3.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -162,7 +162,7 @@ _ = args
 
 // rotate 旋转,带参数暂时不用
 func rotate(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Rotate.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -176,7 +176,7 @@ _ = args
 
 // deformation 变形,带参数暂时不用
 func deformation(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Deformation.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -197,7 +197,7 @@ _ = args
 
 // alike 你像个xxx一样
 func alike(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -225,7 +225,7 @@ _ = args
 
 // marriage
 func marriage(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -253,7 +253,7 @@ _ = args
 
 // anyasuki 阿尼亚喜欢
 func anyasuki(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -299,7 +299,7 @@ _ = args
 
 // alwaysLike 我永远喜欢
 func alwaysLike(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -346,7 +346,7 @@ _ = args
 
 // decentKiss 像样的亲亲
 func decentKiss(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -374,7 +374,7 @@ _ = args
 
 // chinaFlag 国旗
 func chinaFlag(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -402,7 +402,7 @@ _ = args
 
 // dontTouch 不要靠近
 func dontTouch(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -430,7 +430,7 @@ _ = args
 
 // universal 万能表情 空白表情
 func universal(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	name := cc.usrdir + "Universal.png"
 	face, err := gg.LoadImage(cc.headimgsdir[0])
 	if err != nil {
@@ -459,7 +459,7 @@ _ = args
 
 // interview 采访
 func interview(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -510,7 +510,7 @@ _ = args
 
 // need 需要 你可能需要
 func need(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -538,7 +538,7 @@ _ = args
 
 // paint 这像画吗
 func paint(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -566,7 +566,7 @@ _ = args
 
 // painter 小画家
 func painter(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -594,7 +594,7 @@ _ = args
 
 // perfect 完美
 func perfect(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -622,7 +622,7 @@ _ = args
 
 // playGame 玩游戏
 func playGame(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -668,7 +668,7 @@ _ = args
 
 // police 出警
 func police(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -696,7 +696,7 @@ _ = args
 
 // police1 警察
 func police1(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -724,7 +724,7 @@ _ = args
 
 // prpr 舔 舔屏 prpr
 func prpr(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -752,7 +752,7 @@ _ = args
 
 // safeSense 安全感
 func safeSense(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -800,7 +800,7 @@ _ = args
 
 // support 精神支柱
 func support(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -828,7 +828,7 @@ _ = args
 
 // thinkwhat 想什么
 func thinkwhat(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -856,7 +856,7 @@ _ = args
 
 // wallpaper 墙纸
 func wallpaper(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -884,7 +884,7 @@ _ = args
 
 // whyatme 为什么at我
 func whyatme(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -912,7 +912,7 @@ _ = args
 
 // makeFriend 交个朋友
 func makeFriend(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -961,7 +961,7 @@ _ = args
 
 // backToWork 打工人, 继续干活
 func backToWork(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -989,7 +989,7 @@ _ = args
 
 // coupon 兑换券
 func coupon(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1040,7 +1040,7 @@ _ = args
 
 // distracted 注意力涣散
 func distracted(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1068,7 +1068,7 @@ _ = args
 
 // throw 扔
 func throw(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1096,7 +1096,7 @@ _ = args
 
 // 远离
 func yuanli(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1124,7 +1124,7 @@ _ = args
 
 // 不是你老婆
 func nowife(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1152,7 +1152,7 @@ _ = args
 
 // youer 你老婆
 func youer(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1203,7 +1203,7 @@ _ = args
 
 // xiaotiamshi 小天使
 func xiaotianshi(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1254,7 +1254,7 @@ _ = args
 
 // 不要再看这些了
 func neko(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
@@ -1283,7 +1283,7 @@ _ = args
 
 // 给我变
 func bian(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
@@ -1312,7 +1312,7 @@ _ = args
 
 // van 玩一下
 func van(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
@@ -1363,7 +1363,7 @@ _ = args
 
 // eihei 诶嘿
 func eihei(cc *context, args ...string) (string, error) {
-_ = args
+	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex
 	var err error
