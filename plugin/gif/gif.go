@@ -891,3 +891,268 @@ func turn(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, turn))
 }
+
+// taiguan 抬棺
+func taiguan(cc *context, value ...string) (string, error) {
+	_ = value
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "taiguan.gif"
+	c := dlrange("taiguan", 20, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(0, 0)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 20)
+	if err != nil {
+		return "", err
+	}
+	taiguan := []*image.NRGBA{
+		imgs[0].InsertUp(tou, 85, 85, 180, 65).Im,
+		imgs[1].InsertUp(tou, 85, 85, 180, 65).Im,
+		imgs[2].InsertUp(tou, 85, 85, 180, 65).Im,
+		imgs[3].InsertUp(tou, 85, 85, 180, 65).Im,
+		imgs[4].InsertUp(tou, 85, 85, 177, 65).Im,
+		imgs[5].InsertUp(tou, 85, 85, 175, 65).Im,
+		imgs[6].InsertUp(tou, 85, 85, 173, 65).Im,
+		imgs[7].InsertUp(tou, 85, 85, 171, 65).Im,
+		imgs[8].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[9].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[10].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[11].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[12].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[13].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[14].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[15].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[16].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[17].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[18].InsertUp(tou, 85, 85, 170, 65).Im,
+		imgs[19].InsertUp(tou, 85, 85, 175, 65).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, taiguan))
+}
+
+// zou 揍
+func zou(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "zou.gif"
+	c := dlrange("zou", 3, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(100, 100)
+	if err != nil {
+		return "", err
+	}
+	tou2, err := cc.getLogo2(100, 100)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 3)
+	if err != nil {
+		return "", err
+	}
+	zou := []*image.NRGBA{
+		imgs[0].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 100, 45).Im,
+		imgs[1].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 101, 45).Im,
+		imgs[2].InsertUp(tou, 40, 40, 89, 140).InsertUp(tou2, 55, 55, 99, 40).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, zou))
+}
+
+// ci 吞
+func ci(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "ci.gif"
+	c := dlrange("ci", 26, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(100, 100)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 26)
+	if err != nil {
+		return "", err
+	}
+	ci := []*image.NRGBA{
+		imgs[0].InsertBottom(tou, 25, 25, 25, 57).Im,
+		imgs[1].InsertBottom(tou, 25, 25, 27, 58).Im,
+		imgs[2].InsertBottom(tou, 25, 25, 28, 57).Im,
+		imgs[3].InsertBottom(tou, 25, 25, 30, 57).Im,
+		imgs[4].InsertBottom(tou, 25, 25, 30, 58).Im,
+		imgs[5].InsertBottom(tou, 25, 25, 30, 59).Im,
+		imgs[6].Im,
+		imgs[7].Im,
+		imgs[8].Im,
+		imgs[9].Im,
+		imgs[10].Im,
+		imgs[11].Im,
+		imgs[12].Im,
+		imgs[13].Im,
+		imgs[14].Im,
+		imgs[15].Im,
+		imgs[16].Im,
+		imgs[17].Im,
+		imgs[18].Im,
+		imgs[19].Im,
+		imgs[20].Im,
+		imgs[21].Im,
+		imgs[22].Im,
+		imgs[23].Im,
+		imgs[24].Im,
+		imgs[25].Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ci))
+}
+
+// worship 膜拜
+func worship(cc *context, value ...string) (string, error) {
+	_ = value
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "worship.gif"
+	c := dlrange("worship", 9, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	face, err := gg.LoadImage(cc.headimgsdir[0])
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 9)
+	if err != nil {
+		return "", err
+	}
+	worship := []*image.NRGBA{
+		imgs[0].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[1].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[2].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[3].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[4].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[5].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[6].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[7].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[8].InsertBottom(face, 140, 140, 0, 0).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, worship))
+}
+
+// 2ceng 2蹭
+func ceng2(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "ceng2.gif"
+	c := dlrange("ceng2", 4, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(100, 100)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 4)
+	if err != nil {
+		return "", err
+	}
+	ceng2 := []*image.NRGBA{
+		imgs[0].InsertBottom(tou, 175, 175, 78, 263).Im,
+		imgs[1].InsertBottom(tou, 175, 175, 78, 263).Im,
+		imgs[2].InsertBottom(tou, 175, 175, 78, 263).Im,
+		imgs[3].InsertBottom(tou, 175, 175, 78, 263).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ceng2))
+}
+
+// dun 炖
+func dun(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "dun.gif"
+	c := dlrange("dun", 5, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(100, 100)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 5)
+	if err != nil {
+		return "", err
+	}
+	dun := []*image.NRGBA{
+		imgs[0].InsertBottom(tou, 80, 80, 85, 45).Im,
+		imgs[1].InsertBottom(tou, 80, 80, 85, 45).Im,
+		imgs[2].InsertBottom(tou, 80, 80, 85, 45).Im,
+		imgs[3].InsertBottom(tou, 80, 80, 85, 45).Im,
+		imgs[4].InsertBottom(tou, 80, 80, 85, 45).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, dun))
+}
