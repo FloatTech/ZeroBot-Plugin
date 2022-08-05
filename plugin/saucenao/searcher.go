@@ -143,8 +143,13 @@ func init() { // 插件主体
 							} else {
 								msg = append(msg, message.Text("也许是这个?\n"))
 							}
-							if err == nil && resp.StatusCode == http.StatusOK {
-								msg = append(msg, message.Image(result.Header.Thumbnail))
+							if err == nil {
+								_ = resp.Body.Close()
+								if resp.StatusCode == http.StatusOK {
+									msg = append(msg, message.Image(result.Header.Thumbnail))
+								} else {
+									msg = append(msg, message.Image(pic))
+								}
 							} else {
 								msg = append(msg, message.Image(pic))
 							}

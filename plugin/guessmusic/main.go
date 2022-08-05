@@ -755,6 +755,7 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 		err = errors.Errorf("下载音乐失败, ERROR: %s", err)
 		return
 	}
+	_ = response.Body.Close()
 	if response.StatusCode != 200 {
 		err = errors.Errorf("下载音乐失败, Status Code: %d", response.StatusCode)
 		return
