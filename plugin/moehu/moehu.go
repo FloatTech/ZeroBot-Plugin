@@ -349,8 +349,10 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 }
 
 func saveConfig(cfgFile string) (err error) {
-	if reader, err := os.Create(cfgFile); err == nil {
+	reader, err := os.Create(cfgFile)
+	if err == nil {
 		err = json.NewEncoder(reader).Encode(&cfg)
+		return
 	}
 	return
 }

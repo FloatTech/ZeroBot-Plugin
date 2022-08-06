@@ -29,7 +29,7 @@ import (
 	"github.com/fogleman/gg"
 )
 
-//nolint: asciicheck
+// nolint: asciicheck
 type 婚姻登记 struct {
 	db   *sql.Sqlite
 	dbmu sync.RWMutex
