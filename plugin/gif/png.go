@@ -160,9 +160,8 @@ func convolve3x3(cc *context, args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// rotate 旋转,带参数暂时不用
+// rotate 旋转
 func rotate(cc *context, args ...string) (string, error) {
-	_ = args
 	name := cc.usrdir + "Rotate.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -174,9 +173,8 @@ func rotate(cc *context, args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
 
-// deformation 变形,带参数暂时不用
+// deformation 变形
 func deformation(cc *context, args ...string) (string, error) {
-	_ = args
 	name := cc.usrdir + "Deformation.png"
 	// 加载图片
 	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
@@ -1254,7 +1252,6 @@ func xiaotianshi(cc *context, args ...string) (string, error) {
 
 // 不要再看这些了
 func neko(cc *context, args ...string) (string, error) {
-	_ = args
 	_ = args
 	var wg sync.WaitGroup
 	var m sync.Mutex

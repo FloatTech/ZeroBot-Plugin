@@ -41,8 +41,8 @@ func (config) TableName() string {
 	return "config"
 }
 
-// initialize 初始化vtb数据库
-func initialize(dbpath string) (*vupdb, error) {
+// initializeVup 初始化vup数据库
+func initializeVup(dbpath string) (*vupdb, error) {
 	if _, err := os.Stat(dbpath); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(dbpath)
