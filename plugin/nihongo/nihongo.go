@@ -47,7 +47,7 @@ func init() {
 		return true
 	})
 
-	engine.OnRegex(`^日语语法\s?([0-9A-Za-z]{1,6})$`, getdb).SetBlock(true).
+	engine.OnRegex(`^日语语法\s?([0-9A-Za-zぁ-んァ-ヶ]{1,6})$`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			g := getRandomGrammarByTag(ctx.State["regex_matched"].([]string)[1])
 			if g.ID == 0 {
