@@ -302,6 +302,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 					return err
 				}
 				for _, gid := range groupList {
+					time.Sleep(time.Millisecond * 100)
 					switch {
 					case gid > 0:
 						ctx.SendGroupMessage(gid, msg)
@@ -351,6 +352,7 @@ func sendLive(ctx *zero.Ctx) error {
 			msg = append(msg, message.Image(lCover))
 			msg = append(msg, message.Text("直播链接：", lURL))
 			for _, gid := range groupList {
+				time.Sleep(time.Millisecond * 100)
 				switch {
 				case gid > 0:
 					ctx.SendGroupMessage(gid, msg)
