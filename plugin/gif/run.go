@@ -17,20 +17,6 @@ var (
 	cmd      = make([]string, 0)
 	datapath string
 	cmdMap   = map[string]func(cc *context, args ...string) (string, error){
-		"炖":      dun,
-		"2蹭":     ceng2,
-		"诶嘿":     eihei,
-		"膜拜":     worship,
-		"吞":      ci,
-		"揍":      zou,
-		"给我变":    bian,
-		"玩一下":    van,
-		"不要看":    neko,
-		"小天使":    xiaotianshi,
-		"你的":     youer,
-		"我老婆":    nowife,
-		"远离":     yuanli,
-		"抬棺":     taiguan,
 		"搓":      cuo,
 		"冲":      xqe,
 		"摸":      mo,
@@ -106,6 +92,20 @@ var (
 		"紧贴":     tightly,
 		"紧紧贴着":   tightly,
 		"转":      turn,
+		"炖":      dun,
+		"2蹭":     ceng2,
+		"诶嘿":     eihei,
+		"膜拜":     worship,
+		"吞":      ci,
+		"揍":      zou,
+		"给我变":    bian,
+		"玩一下":    van,
+		"不要看":    neko,
+		"小天使":    xiaotianshi,
+		"你的":     youer,
+		"我老婆":    nowife,
+		"远离":     yuanli,
+		"抬棺":     taiguan,
 	}
 )
 
@@ -120,7 +120,7 @@ func init() { // 插件主体
 			"- 我永远喜欢|永远喜欢\n- 像样的亲亲\n- 国旗\n- 不要靠近\n- 万能表情|空白表情\n- 采访\n- 需要|你可能需要\n- 这像画吗\n- 小画家\n" +
 			"- 完美\n- 玩游戏\n- 出警\n- 警察\n- 舔|舔屏|prpr\n- 安全感\n- 精神支柱\n- 想什么\n- 墙纸\n- 为什么at我\n- 交个朋友\n- 打工人|继续干活\n" +
 			"- 兑换券\n- 注意力涣散\n- 垃圾桶|垃圾\n- 捶\n- 啾啾\n- 2敲\n- 听音乐\n- 永远爱你\n- 2拍\n- 顶\n- 捣\n- 打拳\n- 滚\n- 吸|嗦\n- 扔\n" +
-			"- 锤\n- 紧贴|紧紧贴着\n- 转\n",
+			"- 锤\n- 紧贴|紧紧贴着\n- 转\n- 炖\n- 2蹭\n- 诶嘿\n- 膜拜\n- 吞\n- 揍\n- 给我变\n- 玩一下\n- 不要看\n- 小天使\n- 你的\n- 我老婆\n- 远离\n- 抬棺\n",
 		PrivateDataFolder: "gif",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()
