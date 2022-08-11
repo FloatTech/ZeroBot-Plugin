@@ -31,15 +31,9 @@ const (
 var bdb *bilibilipushdb
 
 var (
-	lastTime    = map[int64]int64{}
-	liveStatus  = map[int64]int{}
-	uidErrorMsg = map[int]string{
-		0:    "输入的uid有效",
-		-400: "uid不存在, 注意uid不是房间号",
-		-402: "uid不存在, 注意uid不是房间号",
-		-412: "操作过于频繁IP暂时被风控, 请半小时后再尝试",
-	}
-	upMap = map[int64]string{}
+	lastTime   = map[int64]int64{}
+	liveStatus = map[int64]int{}
+	upMap      = map[int64]string{}
 )
 
 func init() {
@@ -174,38 +168,23 @@ func init() {
 	})
 }
 
-// 储存up的name,uid
-func checkBuid(buid int64) (status int, name string, err error) {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
-	if err != nil {
-		return
-	}
-	status = int(gjson.Get(binary.BytesToString(data), "code").Int())
-	name = gjson.Get(binary.BytesToString(data), "data.name").String()
-	if status == 0 {
-		bdb.insertBilibiliUp(buid, name)
-		upMap[buid] = name
-	}
-	return
-}
-
 // 取得uid的名字
 func getName(buid int64) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
-		var status int
-		status, name, err = checkBuid(buid)
+		var data []byte
+		data, err = web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
 		if err != nil {
 			return
 		}
+		status := int(gjson.Get(binary.BytesToString(data), "code").Int())
 		if status != 0 {
-			msg, ok := uidErrorMsg[status]
-			if !ok {
-				msg = "未知错误, 请私聊反馈给" + zero.BotConfig.NickName[0]
-			}
-			err = errors.New(msg)
+			err = errors.New(gjson.Get(binary.BytesToString(data), "message").String())
 			return
 		}
+		name = gjson.Get(binary.BytesToString(data), "data.name").String()
+		bdb.insertBilibiliUp(buid, name)
+		upMap[buid] = name
 	}
 	return
 }
@@ -218,8 +197,7 @@ func subscribe(buid, groupid int64) (err error) {
 		"live_disable":    0,
 		"dynamic_disable": 0,
 	}
-	err = bdb.insertOrUpdateLiveAndDynamic(bpMap)
-	return
+	return bdb.insertOrUpdateLiveAndDynamic(bpMap)
 }
 
 // unsubscribe 取消订阅
@@ -230,8 +208,7 @@ func unsubscribe(buid, groupid int64) (err error) {
 		"live_disable":    1,
 		"dynamic_disable": 1,
 	}
-	err = bdb.insertOrUpdateLiveAndDynamic(bpMap)
-	return
+	return bdb.insertOrUpdateLiveAndDynamic(bpMap)
 }
 
 func unsubscribeDynamic(buid, groupid int64) (err error) {
@@ -240,8 +217,7 @@ func unsubscribeDynamic(buid, groupid int64) (err error) {
 		"group_id":        groupid,
 		"dynamic_disable": 1,
 	}
-	err = bdb.insertOrUpdateLiveAndDynamic(bpMap)
-	return
+	return bdb.insertOrUpdateLiveAndDynamic(bpMap)
 }
 
 func unsubscribeLive(buid, groupid int64) (err error) {
@@ -250,8 +226,7 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 		"group_id":     groupid,
 		"live_disable": 1,
 	}
-	err = bdb.insertOrUpdateLiveAndDynamic(bpMap)
-	return
+	return bdb.insertOrUpdateLiveAndDynamic(bpMap)
 }
 
 func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
@@ -266,7 +241,10 @@ func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
 func getLiveList(uids ...int64) (string, error) {
 	m := make(map[string]interface{})
 	m["uids"] = uids
-	b, _ := json.Marshal(m)
+	b, err := json.Marshal(m)
+	if err != nil {
+		return "", err
+	}
 	data, err := web.PostData(liveListURL, "application/json", bytes.NewReader(b))
 	if err != nil {
 		return "", err
