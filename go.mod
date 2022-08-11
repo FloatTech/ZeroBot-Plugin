@@ -6,7 +6,7 @@ require (
 	github.com/FloatTech/AnimeAPI v1.5.0
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/zbpctrl v1.4.1-0.20220715042842-93f081cb0133
-	github.com/FloatTech/zbputils v1.5.0
+	github.com/FloatTech/zbputils v1.5.1-0.20220811111557-511c3fc0b485
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fogleman/gg v1.3.0
