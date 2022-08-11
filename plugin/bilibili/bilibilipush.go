@@ -45,11 +45,11 @@ var (
 func init() {
 	en := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "bilibilipush,需要配合job使用\n" +
-			"- 添加b站订阅[uid]\n" +
-			"- 取消b站订阅[uid]\n" +
-			"- 取消b站动态订阅[uid]\n" +
-			"- 取消b站直播订阅[uid]\n" +
+		Help: "bilibilipush,需要配合job一起使用\n" +
+			"- 添加b站订阅[uid|name]\n" +
+			"- 取消b站订阅[uid|name]\n" +
+			"- 取消b站动态订阅[uid|name]\n" +
+			"- 取消b站直播订阅[uid|name]\n" +
 			"- b站推送列表\n" +
 			"- 拉取b站推送 (使用job执行定时任务------记录在\"@every 10s\"触发的指令)",
 		PrivateDataFolder: serviceName,
@@ -60,8 +60,8 @@ func init() {
 	dbfile := dbpath + "push.db"
 	bdb = initializePush(dbfile)
 
-	en.OnRegex(`^添加b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+	en.OnRegex(`^添加b站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -77,8 +77,8 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 	})
-	en.OnRegex(`^取消b站订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+	en.OnRegex(`^取消b站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -94,8 +94,8 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 	})
-	en.OnRegex(`^取消b站动态订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+	en.OnRegex(`^取消b站动态订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -111,8 +111,8 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 	})
-	en.OnRegex(`^取消b站直播订阅\s?(\d+)$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		buid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+	en.OnRegex(`^取消b站直播订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
@@ -295,19 +295,24 @@ func sendDynamic(ctx *zero.Ctx) error {
 			ct := cardList[i].Get("desc.timestamp").Int()
 			if ct > t && ct > time.Now().Unix()-600 {
 				lastTime[buid] = ct
-				groupList := bdb.getAllGroupByBuidAndDynamic(buid)
-				msg, err := dynamicCard2msg(cardList[i].Raw, 0)
-				if err != nil {
-					err = errors.Errorf("动态%v的解析有问题,%v", cardList[i].Get("desc.dynamic_id_str"), err)
-					return err
-				}
-				for _, gid := range groupList {
-					time.Sleep(time.Millisecond * 100)
-					switch {
-					case gid > 0:
-						ctx.SendGroupMessage(gid, msg)
-					case gid < 0:
-						ctx.SendPrivateMessage(-gid, msg)
+				m, ok := control.Lookup(serviceName)
+				if ok {
+					groupList := bdb.getAllGroupByBuidAndDynamic(buid)
+					msg, err := dynamicCard2msg(cardList[i].Raw, 0)
+					if err != nil {
+						err = errors.Errorf("动态%v的解析有问题,%v", cardList[i].Get("desc.dynamic_id_str"), err)
+						return err
+					}
+					for _, gid := range groupList {
+						if m.IsEnabledIn(gid) {
+							time.Sleep(time.Millisecond * 100)
+							switch {
+							case gid > 0:
+								ctx.SendGroupMessage(gid, msg)
+							case gid < 0:
+								ctx.SendPrivateMessage(-gid, msg)
+							}
+						}
 					}
 				}
 			}
@@ -334,30 +339,35 @@ func sendLive(ctx *zero.Ctx) error {
 		oldStatus := liveStatus[key.Int()]
 		if newStatus != oldStatus && newStatus == 1 {
 			liveStatus[key.Int()] = newStatus
-			groupList := bdb.getAllGroupByBuidAndLive(key.Int())
-			roomID := value.Get("short_id").Int()
-			if roomID == 0 {
-				roomID = value.Get("room_id").Int()
-			}
-			lURL := liveURL + strconv.FormatInt(roomID, 10)
-			lName := value.Get("uname").String()
-			lTitle := value.Get("title").String()
-			lCover := value.Get("cover_from_user").String()
-			if lCover == "" {
-				lCover = value.Get("keyframe").String()
-			}
-			var msg []message.MessageSegment
-			msg = append(msg, message.Text(lName+" 正在直播：\n"))
-			msg = append(msg, message.Text(lTitle))
-			msg = append(msg, message.Image(lCover))
-			msg = append(msg, message.Text("直播链接：", lURL))
-			for _, gid := range groupList {
-				time.Sleep(time.Millisecond * 100)
-				switch {
-				case gid > 0:
-					ctx.SendGroupMessage(gid, msg)
-				case gid < 0:
-					ctx.SendPrivateMessage(-gid, msg)
+			m, ok := control.Lookup(serviceName)
+			if ok {
+				groupList := bdb.getAllGroupByBuidAndLive(key.Int())
+				roomID := value.Get("short_id").Int()
+				if roomID == 0 {
+					roomID = value.Get("room_id").Int()
+				}
+				lURL := liveURL + strconv.FormatInt(roomID, 10)
+				lName := value.Get("uname").String()
+				lTitle := value.Get("title").String()
+				lCover := value.Get("cover_from_user").String()
+				if lCover == "" {
+					lCover = value.Get("keyframe").String()
+				}
+				var msg []message.MessageSegment
+				msg = append(msg, message.Text(lName+" 正在直播：\n"))
+				msg = append(msg, message.Text(lTitle))
+				msg = append(msg, message.Image(lCover))
+				msg = append(msg, message.Text("直播链接：", lURL))
+				for _, gid := range groupList {
+					if m.IsEnabledIn(gid) {
+						time.Sleep(time.Millisecond * 100)
+						switch {
+						case gid > 0:
+							ctx.SendGroupMessage(gid, msg)
+						case gid < 0:
+							ctx.SendPrivateMessage(-gid, msg)
+						}
+					}
 				}
 			}
 		} else if newStatus != oldStatus {
