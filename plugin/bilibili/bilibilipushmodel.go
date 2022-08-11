@@ -61,7 +61,10 @@ func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interfa
 	if err != nil {
 		return
 	}
-	_ = json.Unmarshal(data, &bp)
+	err = json.Unmarshal(data, &bp)
+	if err != nil {
+		return
+	}
 	if err = db.Model(&bilibilipush{}).First(&bp, "bilibili_uid = ? and group_id = ?", bp.BilibiliUID, bp.GroupID).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			err = db.Model(&bilibilipush{}).Create(&bp).Error
