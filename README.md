@@ -395,6 +395,24 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>b站动态、直播推送,需要配合job一起使用</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+
+  - [x] 添加b站订阅[uid|name]
+
+  - [x] 取消b站订阅[uid|name]
+  
+  - [x] 取消b站动态订阅[uid|name]
+  
+  - [x] 取消b站直播订阅[uid|name]
+  
+  - [x] b站推送列表
+  
+  - [x] 拉取b站推送 (使用job执行定时任务------记录在"@every 10s"触发的指令) 
+
+</details>
+<details>
   <summary>书评</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"`

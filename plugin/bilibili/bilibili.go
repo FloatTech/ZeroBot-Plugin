@@ -47,7 +47,7 @@ func init() {
 	var getdb = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		var err error
 		_, _ = engine.GetLazyData("bilibili.db", false)
-		vdb, err = initialize(engine.DataFolder() + "bilibili.db")
+		vdb, err = initializeVup(engine.DataFolder() + "bilibili.db")
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
