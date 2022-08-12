@@ -15,16 +15,8 @@ import (
 	"github.com/fogleman/gg"
 )
 
-// pa 爬
-func pa(cc *context, args ...string) (string, error) {
-	_ = args
-	name := cc.usrdir + "爬.png"
-	tou, err := cc.getLogo(0, 0)
-	if err != nil {
-		return "", err
-	}
-	// 随机爬图序号
-	rand := rand.Intn(60) + 1
+// 随机爬图序号
+	rand := rand.Intn(92) + 1
 	if file.IsNotExist(datapath + "materials/pa") {
 		err = os.MkdirAll(datapath+"materials/pa", 0755)
 		if err != nil {
@@ -39,8 +31,9 @@ func pa(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertBottom(tou, 100, 100, 0, 400).Im)
+	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertUp(tou, 100, 100, 0, 400).Im)
 }
+
 
 // si 撕
 func si(cc *context, args ...string) (string, error) {
