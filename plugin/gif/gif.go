@@ -1206,11 +1206,11 @@ func peng(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-    m1 := img.Rotate(tou, 1, 80, 80)
-    m2 := img.Rotate(tou, 30, 80, 80)
+	m1 := img.Rotate(tou, 1, 80, 80)
+	m2 := img.Rotate(tou, 30, 80, 80)
 	m3 := img.Rotate(tou, 45, 85, 85)
 	m4 := img.Rotate(tou, 90, 80, 80)
-	
+
 	wg.Wait()
 	if err != nil {
 		return "", err
@@ -1227,28 +1227,28 @@ func peng(cc *context, value ...string) (string, error) {
 		imgs[4].Im,
 		imgs[5].Im,
 		imgs[6].Im,
-		imgs[7].InsertUp(m1.Im,0,0, 205, 80).Im,
-		imgs[8].InsertUp(m1.Im,0,0, 205, 80).Im,
-		imgs[9].InsertUp(m1.Im,0,0, 205, 80).Im, 
-		imgs[10].InsertUp(m1.Im,0,0, 205, 80).Im,  
-		imgs[11].InsertUp(m1.Im,0,0, 205, 80).Im,
-		imgs[12].InsertUp(m1.Im,0,0, 205, 80).Im,  
-		imgs[13].InsertUp(m1.Im,0,0, 205, 80).Im,
-		imgs[14].InsertUp(m1.Im,0,0, 205, 80).Im,  
-		imgs[15].InsertUp(m1.Im,0,0, 205, 80).Im,
-		imgs[16].InsertUp(m1.Im,0,0, 200, 80).Im,
-		imgs[17].InsertUp(m2.Im,0,0, 169, 65).Im, 
-		imgs[18].InsertUp(m2.Im,0,0, 160, 69).Im, 
-		imgs[19].InsertUp(m3.Im,0,0, 113, 90).Im, 
-		imgs[20].InsertUp(m4.Im,0,0, 89, 159).Im, 
-		imgs[21].InsertUp(m4.Im,0,0, 89, 159).Im,
-		imgs[22].InsertUp(m4.Im,0,0, 86, 160).Im,
-		imgs[23].InsertUp(m4.Im,0,0, 89, 159).Im,
-		imgs[24].InsertUp(m4.Im,0,0, 86, 160).Im,
-
+		imgs[7].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[8].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[9].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[10].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[11].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[12].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[13].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[14].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[15].InsertUp(m1.Im, 0, 0, 205, 80).Im,
+		imgs[16].InsertUp(m1.Im, 0, 0, 200, 80).Im,
+		imgs[17].InsertUp(m2.Im, 0, 0, 169, 65).Im,
+		imgs[18].InsertUp(m2.Im, 0, 0, 160, 69).Im,
+		imgs[19].InsertUp(m3.Im, 0, 0, 113, 90).Im,
+		imgs[20].InsertUp(m4.Im, 0, 0, 89, 159).Im,
+		imgs[21].InsertUp(m4.Im, 0, 0, 89, 159).Im,
+		imgs[22].InsertUp(m4.Im, 0, 0, 86, 160).Im,
+		imgs[23].InsertUp(m4.Im, 0, 0, 89, 159).Im,
+		imgs[24].InsertUp(m4.Im, 0, 0, 86, 160).Im,
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, peng))
 }
+
 // klee 可莉吃
 func klee(cc *context, value ...string) (string, error) {
 	_ = value
@@ -1281,6 +1281,7 @@ func klee(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, klee))
 }
+
 // hutaoken 胡桃啃
 func hutaoken(cc *context, value ...string) (string, error) {
 	_ = value
@@ -1314,6 +1315,7 @@ func hutaoken(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, hutaoken))
 }
+
 // lick 2舔
 func lick(cc *context, value ...string) (string, error) {
 	_ = value
@@ -1343,6 +1345,7 @@ func lick(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, lick))
 }
+
 // tiqiu 踢球
 func tiqiu(cc *context, value ...string) (string, error) {
 	_ = value
