@@ -1154,3 +1154,306 @@ func dun(cc *context, value ...string) (string, error) {
 	}
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, dun))
 }
+// push 滚高清重置版 过渡
+func push(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	piclen := 16
+	name := cc.usrdir + "push.gif"
+	c := dlrange("push", piclen, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	tou, err := cc.getLogo(0, 0)
+		if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, piclen)
+	if err != nil {
+		return "", err
+	}
+	push := make([]*image.NRGBA, piclen)
+	for i := 0; i < piclen; i++ {
+		push[i] = imgs[i].InsertUpC(img.Rotate(tou, float64(-22*i), 280, 280).Im, 0, 0, 523, 291).Im
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, push))
+}
+// peng 砰
+func peng(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "peng.gif"
+	c := dlrange("peng", 25, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(100, 100)
+	if err != nil {
+		return "", err
+	}
+    m1 := img.Rotate(tou, 1, 80, 80)
+	m2 := img.Rotate(tou, 1, 80, 80)
+	m3 := img.Rotate(tou, 1, 80, 80)
+	m4 := img.Rotate(tou, 1, 80, 80)
+	m5 := img.Rotate(tou, 1, 80, 80)
+	m6 := img.Rotate(tou, 1, 80, 80)
+	m7 := img.Rotate(tou, 1, 80, 80)
+	m8 := img.Rotate(tou, 1, 80, 80)
+	m9 := img.Rotate(tou, 1, 80, 80)
+	m10 := img.Rotate(tou, 1, 80, 80)
+    m11 := img.Rotate(tou, 30, 80, 80)
+	m12 := img.Rotate(tou, 30, 80, 80)
+	m13 := img.Rotate(tou, 45, 85, 85)
+	m14 := img.Rotate(tou, 90, 80, 80)
+	m15 := img.Rotate(tou, 90, 80, 80)
+	m16 := img.Rotate(tou, 90, 80, 80)
+	m17 := img.Rotate(tou, 90, 80, 80)
+	m18 := img.Rotate(tou, 90, 80, 80)
+	
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 25)
+	if err != nil {
+		return "", err
+	}
+	peng := []*image.NRGBA{
+		imgs[0].Im,
+		imgs[1].Im,
+		imgs[2].Im,
+		imgs[3].Im,
+		imgs[4].Im,
+		imgs[5].Im,
+		imgs[6].Im,
+		imgs[7].InsertUp(m1.Im,0,0, 205, 80).Im,
+        imgs[8].InsertUp(m2.Im,0,0, 205, 80).Im,
+        imgs[9].InsertUp(m3.Im,0,0, 205, 80).Im, 
+        imgs[10].InsertUp(m4.Im,0,0, 205, 80).Im,  
+		imgs[11].InsertUp(m5.Im,0,0, 205, 80).Im,
+        imgs[12].InsertUp(m6.Im,0,0, 205, 80).Im,  
+		imgs[13].InsertUp(m7.Im,0,0, 205, 80).Im,
+        imgs[14].InsertUp(m8.Im,0,0, 205, 80).Im,  
+		imgs[15].InsertUp(m9.Im,0,0, 205, 80).Im,
+        imgs[16].InsertUp(m10.Im,0,0, 200, 80).Im,
+		imgs[17].InsertUp(m11.Im,0,0, 169, 65).Im, 
+		imgs[18].InsertUp(m12.Im,0,0, 160, 69).Im, 
+		imgs[19].InsertUp(m13.Im,0,0, 113, 90).Im, 
+        imgs[20].InsertUp(m14.Im,0,0, 89, 159).Im, 
+		imgs[21].InsertUp(m15.Im,0,0, 89, 159).Im,
+        imgs[22].InsertUp(m16.Im,0,0, 86, 160).Im,
+		imgs[23].InsertUp(m17.Im,0,0, 89, 159).Im,
+        imgs[24].InsertUp(m18.Im,0,0, 86, 160).Im,
+
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, peng))
+}
+//klee 可莉吃
+func klee(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	piclen := 31
+	name := cc.usrdir + "klee.gif"
+	c := dlrange("klee", piclen, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 82, 83)
+	if err != nil {
+		return "", err
+	}
+	locs := [][]int{{0, 174},{0, 174},{0, 174},{0, 174},{0, 174}, {12, 160}, {19,152}, {23, 148}, {26,145}, {32,140}, {37, 136}, {42, 131}, {49, 127}, {70, 126}, {88, 128}, {-30, 210}, {-19, 207}, {-14, 200}, {-10, 188}, {-7, 179}, {-3, 170}, {-3, 175}, {-1, 174},{0,174}, {0,174},{0,174},{0,174},{0,174},{0,174},{0,174},{0,174}}
+	imgs, err := loadFirstFrames(c, piclen)
+	if err != nil {
+		return "", err
+	}
+	klee := make([]*image.NRGBA, piclen)
+	for i := 0; i < piclen; i++ {
+		klee[i] = imgs[i].InsertBottom(im.Im, 0, 0, locs[i][0], locs[i][1]).Im
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, klee))
+}
+
+//hutaoken 胡桃啃
+func hutaoken(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "hutaoken.gif"
+	c := dlrange("hutaoken", 2, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(55, 55)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 2)
+	if err != nil {
+		return "", err
+	}
+	hutaoken := []*image.NRGBA{
+		imgs[0].InsertBottom(tou,98,101, 108, 234).Im,
+		imgs[1].InsertBottom(tou,96,100, 108, 237).Im,
+
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, hutaoken))
+}
+//lick 2舔
+func lick(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "lick.gif"
+	c := dlrange("lick", 2, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	tou, err := cc.getLogo(100, 100)
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 2)
+	if err != nil {
+		return "", err
+	}
+	lick := []*image.NRGBA{
+		imgs[0].InsertUp(tou, 44, 44, 10, 138).Im,
+		imgs[1].InsertUp(tou, 44, 44, 10, 138).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, lick))
+}
+//tiqiu 踢球
+func tiqiu(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	piclen := 15
+	name := cc.usrdir + "tiqiu.gif"
+	c := dlrange("tiqiu", piclen, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	tou, err := cc.getLogo(78, 78)
+		if err != nil {
+		return "", err
+	}
+	locs := [][]int{{58,137},{57,118},{56,100},{53,114},{51,127},{49,140},{48,113},{48,86},{48,58},{49,98},{51,137},{52,177},{53,170},{56,182},{59,154}}
+	imgs, err := loadFirstFrames(c, piclen)
+	if err != nil {
+		return "", err
+	}
+	tiqiu := make([]*image.NRGBA, piclen)
+	for i := 0; i < piclen; i++ {
+		tiqiu[i] = imgs[i].InsertUpC(img.Rotate(tou, float64(-24*i), 0, 0).Im, 0, 0, locs[i][0]+38, locs[i][1]+38).Im
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, tiqiu))
+}
+// cai 踩
+func cai(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	name := cc.usrdir + "cai.gif"
+	c := dlrange("cai", 5, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+tou, err := cc.getLogo(0, 0)
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, 5)
+	if err != nil {
+		return "", err
+	}
+   m1 := img.Rotate(tou, -20, 130, 80)
+	cai := []*image.NRGBA{
+		imgs[0].InsertBottom(m1.Im, 123, 105, 39, 188).Im,
+		imgs[1].InsertBottom(m1.Im, 123, 105, 39, 188).Im,
+		imgs[2].InsertBottom(tou, 90, 71, 50, 209).Im,
+		imgs[3].InsertBottom(tou, 85, 76, 52, 203).Im,
+		imgs[4].InsertBottom(tou, 88, 82, 49, 198).Im,
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, cai))
+}
+// whir 2转
+func whirl(cc *context, value ...string) (string, error) {
+	_ = value
+	var wg sync.WaitGroup
+	var err error
+	var m sync.Mutex
+	piclen := 15
+	name := cc.usrdir + "whirl.gif"
+	c := dlrange("whirl", piclen, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	tou, err := cc.getLogo(0, 0)
+		if err != nil {
+		return "", err
+	}
+	imgs, err := loadFirstFrames(c, piclen)
+	if err != nil {
+		return "", err
+	}
+	whirl := make([]*image.NRGBA, piclen)
+	for i := 0; i < piclen; i++ {
+		whirl[i] = imgs[i].InsertUpC(img.Rotate(tou, float64(-24*i), 145, 145).Im, 0, 0, 115, 89).Im
+	}
+	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, whirl))
+}
