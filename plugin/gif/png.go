@@ -1385,3 +1385,136 @@ func eihei(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(im.Im, 450, 450, 121, 162).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+//fanfa 犯法
+func fanfa(cc *context, args ...string) (string, error) {
+	_ = args
+	var wg sync.WaitGroup
+	var m sync.Mutex
+	var err error
+	c := dlrange("fanfa", 1, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	imgs, err := loadFirstFrames(c, 1)
+	if err != nil {
+		return "", err
+	}
+	name := cc.usrdir + "fanfa.png"
+	face, err := cc.getLogo(0, 0)
+	if err != nil {
+		return "", err
+	}
+     m1 := img.Rotate(face, 45, 110, 110)
+	imgnrgba := imgs[0].InsertUp(m1.Im,0,0, 125, 360).Im
+	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
+}
+//huai 怀
+func huai(cc *context, args ...string) (string, error) {
+	_ = args
+	var wg sync.WaitGroup
+	var m sync.Mutex
+	var err error
+	c := dlrange("huai", 1, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	imgs, err := loadFirstFrames(c, 1)
+	if err != nil {
+		return "", err
+	}
+	name := cc.usrdir + "huai.png"
+	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 640, 640)
+	if err != nil {
+		return "", err
+	}
+	imgnrgba := imgs[0].InsertBottom(im.Im, 640, 640, 0, 0).Im
+	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
+}
+// haowan 好玩
+func haowan(cc *context, args ...string) (string, error) {
+	_ = args
+	var wg sync.WaitGroup
+	var m sync.Mutex
+	var err error
+	c := dlrange("haowan", 1, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	imgs, err := loadFirstFrames(c, 1)
+	if err != nil {
+		return "", err
+	}
+	name := cc.usrdir + "haowan.png"
+	face, err := cc.getLogo(0, 0)	
+	if err != nil {
+		return "", err
+	}
+	imgnrgba := imgs[0].InsertBottom(face,90, 90, 321, 172).Im
+	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
+}
+//mengbi 蒙蔽
+func mengbi(cc *context, args ...string) (string, error) {
+	_ = args
+	var wg sync.WaitGroup
+	var m sync.Mutex
+	var err error
+	c := dlrange("mengbi", 1, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	name := cc.usrdir + "mengbi.png"
+	back, err := gg.LoadImage(c[0])
+	if err != nil {
+		return "", err
+	}
+	face, err := cc.getLogo(0, 0)	
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	if err != nil {
+		return "", err
+	}
+	canvas := gg.NewContext(1080, 1080)
+	canvas.DrawImage(back, 0, 0)
+	canvas.DrawImage(img.Size(face, 100, 100).Im, 392, 460)
+	canvas.DrawImage(img.Size(face, 100, 100).Im, 606, 443)
+	canvas.SetColor(color.Black)
+	_, err = file.GetLazyData(text.BoldFontFile, true)
+	if err != nil {
+		return "", err
+	}
+	if err = canvas.LoadFontFace(text.BoldFontFile, 80); err != nil {
+		return "", err
+	}
+	if args[0] == "" {
+		args[0] = ""
+	}
+	args[0] =  args[0] 
+	l, _ := canvas.MeasureString(args[0])
+	if l > 1080 {
+		return "", errors.New("文字消息太长了")
+	}
+	canvas.DrawString(args[0], (1080-l)/2, 1000)
+	return "file:///" + name, canvas.SavePNG(name)
+}
