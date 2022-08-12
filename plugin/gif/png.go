@@ -42,7 +42,6 @@ func pa(cc *context, args ...string) (string, error) {
 	return "file:///" + name, writer.SavePNG2Path(name, imgf.InsertUp(tou, 100, 100, 0, 400).Im)
 }
 
-
 // si 撕
 func si(cc *context, args ...string) (string, error) {
 	_ = args
