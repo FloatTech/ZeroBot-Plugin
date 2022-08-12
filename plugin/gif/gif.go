@@ -1295,7 +1295,6 @@ func klee(cc *context, value ...string) (string, error) {
 	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, klee))
 }
 
-
 func hutaoken(cc *context, value ...string) (string, error) {
 	_ = value
 	var wg sync.WaitGroup
