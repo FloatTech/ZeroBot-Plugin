@@ -1385,6 +1385,7 @@ func eihei(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(im.Im, 450, 450, 121, 162).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // fanfa 犯法
 func fanfa(cc *context, args ...string) (string, error) {
 	_ = args
@@ -1413,6 +1414,7 @@ func fanfa(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertUp(m1.Im, 0, 0, 125, 360).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // huai 怀
 func huai(cc *context, args ...string) (string, error) {
 	_ = args
@@ -1468,6 +1470,7 @@ func haowan(cc *context, args ...string) (string, error) {
 	imgnrgba := imgs[0].InsertBottom(face, 90, 90, 321, 172).Im
 	return "file:///" + name, writer.SavePNG2Path(name, imgnrgba)
 }
+
 // mengbi 蒙蔽
 func mengbi(cc *context, args ...string) (string, error) {
 	_ = args
