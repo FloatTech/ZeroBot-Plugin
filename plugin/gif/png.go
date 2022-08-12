@@ -15,7 +15,15 @@ import (
 	"github.com/fogleman/gg"
 )
 
-// 随机爬图序号
+// pa 爬
+func pa(cc *context, args ...string) (string, error) {
+	_ = args
+	name := cc.usrdir + "爬.png"
+	tou, err := cc.getLogo(0, 0)
+	if err != nil {
+		return "", err
+	}
+	// 随机爬图序号
 	rand := rand.Intn(92) + 1
 	if file.IsNotExist(datapath + "materials/pa") {
 		err = os.MkdirAll(datapath+"materials/pa", 0755)
