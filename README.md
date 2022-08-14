@@ -738,11 +738,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 让[수아|미미르|아린|연화|유화|선배]说(韩语)
 
-```
-记录在"0 10 * * *"触发的指令
-摸鱼提醒
-```
-
 </details>
 <details>
   <summary>摸鱼</summary>
