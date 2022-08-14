@@ -1514,7 +1514,6 @@ func mengbi(cc *context, args ...string) (string, error) {
 	if args[0] == "" {
 		args[0] = ""
 	}
-	args[0] = args[0]
 	l, _ := canvas.MeasureString(args[0])
 	if l > 1080 {
 		return "", errors.New("文字消息太长了")
