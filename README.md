@@ -730,6 +730,21 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>日韩 VITS 模型拟声</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"`
+
+  - [x] 让[宁宁|爱瑠|芳乃|茉子|丛雨|小春|七海]说(日语)
+
+  - [x] 让[수아|미미르|아린|연화|유화|선배]说(韩语)
+
+```
+记录在"0 10 * * *"触发的指令
+摸鱼提醒
+```
+
+</details>
+<details>
   <summary>摸鱼</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"`
