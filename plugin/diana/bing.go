@@ -5,9 +5,9 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/diana/data"
 )
@@ -23,10 +23,10 @@ var engine = control.Register("diana", &ctrl.Options[*zero.Ctx]{
 })
 
 func init() {
-	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		err := data.LoadText(engine.DataFolder() + "text.db")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true
@@ -49,7 +49,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			err := data.AddText(ctx.State["regex_matched"].([]string)[1])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
 				ctx.SendChain(message.Text("记住啦!"))
 			}

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/sirupsen/logrus"
 )

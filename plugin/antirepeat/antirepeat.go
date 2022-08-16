@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/floatbox/math"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/math"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -54,10 +54,10 @@ func init() {
 				limit[gid] = 0
 				return
 			}
+			limit[gid]++
 			if zero.AdminPermission(ctx) {
 				return
 			}
-			limit[gid]++
 			dblimit, time := readdb(gid)
 			if limit[gid] >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)

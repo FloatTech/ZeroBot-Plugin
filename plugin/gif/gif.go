@@ -6,8 +6,8 @@ import (
 	"sync"
 
 	"github.com/Coloured-glaze/gg"
+	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/zbputils/img"
-	"github.com/FloatTech/zbputils/img/writer"
 )
 
 // mo 摸

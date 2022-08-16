@@ -3,10 +3,10 @@ package nsfw
 
 import (
 	"github.com/FloatTech/AnimeAPI/nsfw"
+	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -26,7 +26,7 @@ func init() {
 				ctx.SendChain(message.Text("少女祈祷中..."))
 				p, err := nsfw.Classify(url[0])
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))

@@ -4,10 +4,11 @@ go 1.18
 
 require (
 	github.com/Coloured-glaze/gg v1.3.2
-	github.com/FloatTech/AnimeAPI v1.5.1-0.20220816023211-5e11b0d21958
+	github.com/FloatTech/AnimeAPI v1.5.1-0.20220816053000-8a1d0dd9500b
+	github.com/FloatTech/floatbox v0.0.0-20220816052111-cbf40c78757a
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/zbpctrl v1.4.1-0.20220715042842-93f081cb0133
-	github.com/FloatTech/zbputils v1.5.1-0.20220816020252-0f57a5ae28aa
+	github.com/FloatTech/zbputils v1.5.1-0.20220816052531-0efa59cfb7b5
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fumiama/cron v1.3.0

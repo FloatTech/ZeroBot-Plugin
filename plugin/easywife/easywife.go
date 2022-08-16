@@ -8,10 +8,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 )
 
 func init() {
@@ -34,7 +35,7 @@ func init() {
 			}
 			uid := ctx.Event.UserID
 			name := ctx.CardOrNickName(uid)
-			n := ctxext.RandSenderPerDayN(uid, len(wifes))
+			n := fcext.RandSenderPerDayN(uid, len(wifes))
 			wn := wifes[n].Name()
 			reg := regexp.MustCompile(`[^\.]+`)
 			list := reg.FindAllString(wn, -1)

@@ -14,6 +14,7 @@ import (
 	"github.com/FloatTech/AnimeAPI/tts"
 	"github.com/FloatTech/AnimeAPI/tts/baidutts"
 	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -63,7 +64,7 @@ func init() {
 			r := aireply.NewAIReply(getReplyMode(ctx))
 			tts, err := t.new(t.getSoundMode(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			var reply string
@@ -88,7 +89,7 @@ func init() {
 				}
 			}
 		})
-	engine.OnRegex(`^设置语音模式(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, t)).SetBlock(true).
+	engine.OnRegex(`^设置语音模式(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, t)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["regex_matched"].([]string)[1]
 			err := t.setSoundMode(ctx, param)
@@ -98,7 +99,7 @@ func init() {
 			}
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前模式为", param))
 		})
-	engine.OnRegex(`^设置默认语音模式(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, t)).SetBlock(true).
+	engine.OnRegex(`^设置默认语音模式(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, t)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["regex_matched"].([]string)[1]
 			t.setDefaultSoundMode(param)

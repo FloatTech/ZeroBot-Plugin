@@ -4,6 +4,7 @@ package ymgal
 import (
 	"strings"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -17,16 +18,16 @@ func init() {
 		Help:             "月幕galgame\n- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal\n",
 		PublicDataFolder: "Ymgal",
 	})
-	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		dbfile := engine.DataFolder() + "ymgal.db"
 		_, err := engine.GetLazyData("ymgal.db", false)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		gdb, err = initialize(dbfile)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true
@@ -61,7 +62,7 @@ func init() {
 			ctx.Send("少女祈祷中......")
 			err := updatePic()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.Send("ymgal数据库已更新")
@@ -83,6 +84,6 @@ func sendYmgal(y ymgal, ctx *zero.Ctx) {
 	if id := ctx.SendGroupForwardMessage(
 		ctx.Event.GroupID,
 		m).Get("message_id").Int(); id == 0 {
-		ctx.SendChain(message.Text("ERROR:可能被风控了"))
+		ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 	}
 }

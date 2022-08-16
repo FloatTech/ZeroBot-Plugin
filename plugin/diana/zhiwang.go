@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/zbputils/binary"
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 	"github.com/tidwall/gjson"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -39,7 +39,7 @@ func init() {
 		msg := ctx.GetMessage(message.NewMessageIDFromString(ctx.Event.Message[0].Data["id"])).Elements[0].Data["text"]
 		result, err := zhiwangapi(msg)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		if result.Get("code").Int() != 0 {

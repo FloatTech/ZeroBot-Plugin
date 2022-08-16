@@ -9,10 +9,10 @@ import (
 	"sync"
 
 	"github.com/Coloured-glaze/gg"
-	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
-	"github.com/FloatTech/zbputils/img/writer"
 )
 
 // pa 爬

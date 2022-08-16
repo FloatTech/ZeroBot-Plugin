@@ -10,10 +10,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 )
 
 var (
@@ -42,7 +43,7 @@ func init() {
 		}
 	}
 
-	engine.OnRegex(`^本地(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -50,7 +51,7 @@ func init() {
 			err := ns.db.Pick(imgtype, sc)
 			ns.mu.RUnlock()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
 				p := "file:///" + setupath + "/" + sc.Path
 				if ctx.Event.GroupID != 0 {
@@ -63,14 +64,14 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnRegex(`^设置本地setu绝对路径(.*)$`, zero.SuperUserPermission).SetBlock(true).
@@ -80,7 +81,7 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnFullMatch("刷新所有本地setu", zero.SuperUserPermission).SetBlock(true).
@@ -89,7 +90,7 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnFullMatch("所有本地setu分类").SetBlock(true).

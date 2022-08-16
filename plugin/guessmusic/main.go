@@ -22,11 +22,11 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/web"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 
 	// 图片输出
@@ -141,21 +141,21 @@ func init() { // 插件主体
 				}
 				err = os.MkdirAll(cfg.MusicPath, 0755)
 				if err != nil {
-					ctx.SendChain(message.Text("[生成文件夹错误]ERROR:", err))
+					ctx.SendChain(message.Text("[生成文件夹错误]ERROR: ", err))
 					return
 				}
 				cfg.MusicPath = musicPath
 			case "本地":
 				choice, err := strconv.ParseBool(value)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				cfg.Local = choice
 			case "Api":
 				choice, err := strconv.ParseBool(value)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				cfg.API = choice
@@ -164,7 +164,7 @@ func init() { // 插件主体
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnFullMatch("登录网易云", zero.SuperUserPermission, func(ctx *zero.Ctx) bool {
@@ -178,25 +178,25 @@ func init() { // 插件主体
 			keyURL := "https://music.cyrilstudio.top/login/qr/key"
 			data, err := web.GetData(keyURL)
 			if err != nil {
-				ctx.SendChain(message.Text("获取网易云key失败, ERROR:", err))
+				ctx.SendChain(message.Text("获取网易云key失败, ERROR: ", err))
 				return
 			}
 			var keyInfo keyInfo
 			err = json.Unmarshal(data, &keyInfo)
 			if err != nil {
-				ctx.SendChain(message.Text("解析网易云key失败, ERROR:", err))
+				ctx.SendChain(message.Text("解析网易云key失败, ERROR: ", err))
 				return
 			}
 			qrURL := "https://music.cyrilstudio.top/login/qr/create?key=" + keyInfo.Data.Unikey + "&qrimg=1"
 			data, err = web.GetData(qrURL)
 			if err != nil {
-				ctx.SendChain(message.Text("获取网易云二维码失败, ERROR:", err))
+				ctx.SendChain(message.Text("获取网易云二维码失败, ERROR: ", err))
 				return
 			}
 			var qrInfo qrInfo
 			err = json.Unmarshal(data, &qrInfo)
 			if err != nil {
-				ctx.SendChain(message.Text("解析网易云二维码失败, ERROR:", err))
+				ctx.SendChain(message.Text("解析网易云二维码失败, ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("[请使用手机APP扫描二维码或者进入网页扫码登录]\n", qrInfo.Data.Qrurl),
@@ -208,13 +208,13 @@ func init() { // 插件主体
 				referer := "https://music.cyrilstudio.top"
 				data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 				if err != nil {
-					ctx.SendChain(message.Text("无法获取登录状态, ERROR:", err))
+					ctx.SendChain(message.Text("无法获取登录状态, ERROR: ", err))
 					return
 				}
 				var cookiesInfo cookyInfo
 				err = json.Unmarshal(data, &cookiesInfo)
 				if err != nil {
-					ctx.SendChain(message.Text("解析登录状态失败, ERROR:", err))
+					ctx.SendChain(message.Text("解析登录状态失败, ERROR: ", err))
 					return
 				}
 				switch cookiesInfo.Code {
@@ -224,7 +224,7 @@ func init() { // 插件主体
 					if err == nil {
 						ctx.SendChain(message.Text("成功！"))
 					} else {
-						ctx.SendChain(message.Text("ERROR:", err))
+						ctx.SendChain(message.Text("ERROR: ", err))
 					}
 					return
 				case 801:
@@ -266,7 +266,7 @@ func init() { // 插件主体
 			referer = "https://music.163.com/"
 			data, err = web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", referer, ua)
 			if err != nil {
-				ctx.SendChain(message.Text("无法获取歌单列表\n ERROR:", err))
+				ctx.SendChain(message.Text("无法获取歌单列表\n ERROR: ", err))
 				return
 			}
 			var musiclist topMusicInfo
@@ -289,7 +289,7 @@ func init() { // 插件主体
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnRegex(`^删除歌单\s?(.*)$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByGroup).
@@ -319,7 +319,7 @@ func init() { // 插件主体
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnFullMatch("获取歌单列表").SetBlock(true).Limit(ctxext.LimitByGroup).
@@ -362,10 +362,10 @@ func init() { // 插件主体
 							}
 						}
 					} else {
-						ctx.SendChain(message.Text("[读取本地列表错误]ERROR:", err))
+						ctx.SendChain(message.Text("[读取本地列表错误]ERROR: ", err))
 					}
 				} else {
-					ctx.SendChain(message.Text("[生成文件夹错误]ERROR:", err))
+					ctx.SendChain(message.Text("[生成文件夹错误]ERROR: ", err))
 				}
 			}
 			if msg == nil {
@@ -626,12 +626,12 @@ func getcatlist(pathOfMusic string) error {
 	}
 	err := os.MkdirAll(pathOfMusic, 0755)
 	if err != nil {
-		err = errors.Errorf("[生成文件夹错误]ERROR:%s", err)
+		err = errors.Errorf("[生成文件夹错误]ERROR: %s", err)
 		return err
 	}
 	files, err := ioutil.ReadDir(pathOfMusic)
 	if err != nil {
-		err = errors.Errorf("[读取本地列表错误]ERROR:%s", err)
+		err = errors.Errorf("[读取本地列表错误]ERROR: %s", err)
 		return err
 	}
 	for i, name := range files {
@@ -645,12 +645,12 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 	pathOfMusic = musicPath + mode + "/"
 	err = os.MkdirAll(pathOfMusic, 0755)
 	if err != nil {
-		err = errors.Errorf("[生成文件夹错误]ERROR:%s", err)
+		err = errors.Errorf("[生成文件夹错误]ERROR: %s", err)
 		return
 	}
 	files, err := ioutil.ReadDir(pathOfMusic)
 	if err != nil {
-		err = errors.Errorf("[读取本地列表错误]ERROR:%s", err)
+		err = errors.Errorf("[读取本地列表错误]ERROR: %s", err)
 		return
 	}
 	listID, ok := catlist[mode]
@@ -666,7 +666,7 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 			// 如果没有任何本地就下载歌曲
 			musicName, err = getListMusic(listIDstr, pathOfMusic)
 			if err != nil {
-				err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR:%s", err)
+				err = errors.Errorf("[本地数据为0，歌曲下载错误]ERROR: %s", err)
 				return
 			}
 		case rand.Intn(2) == 0 || !ok:
@@ -693,7 +693,7 @@ func musicLottery(mode, musicPath string) (musicName, pathOfMusic string, err er
 	if cfg.API && ok {
 		musicName, err = getListMusic(listIDstr, pathOfMusic)
 		if err != nil {
-			err = errors.Errorf("[获取API失败，未开启本地数据] ERROR:%s", err)
+			err = errors.Errorf("[获取API失败，未开启本地数据] ERROR: %s", err)
 			return
 		}
 		return
@@ -783,7 +783,7 @@ func getListMusic(listID, pathOfMusic string) (musicName string, err error) {
 func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 	err = os.MkdirAll(outputPath, 0755)
 	if err != nil {
-		err = errors.Errorf("[生成歌曲目录错误]ERROR:%s", err)
+		err = errors.Errorf("[生成歌曲目录错误]ERROR: %s", err)
 		return
 	}
 	var stderr bytes.Buffer
@@ -795,7 +795,7 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if err != nil {
-		err = errors.Errorf("[生成歌曲错误]ERROR:%s", stderr.String())
+		err = errors.Errorf("[生成歌曲错误]ERROR: %s", stderr.String())
 		return
 	}
 	return

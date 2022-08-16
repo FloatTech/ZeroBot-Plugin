@@ -2,10 +2,10 @@
 package shadiao
 
 import (
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -39,7 +39,7 @@ func init() {
 		requestURL := sdMap[ctx.State["matched"].(string)]
 		data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", sdReferer, ua)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(gjson.GetBytes(data, "data.text").String()))

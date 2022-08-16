@@ -58,34 +58,34 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
-				ctx.SendChain(message.Text("ERROR:no such plugin"))
+				ctx.SendChain(message.Text("ERROR: no such plugin"))
 				return
 			}
 			m, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if ctx.State["regex_matched"].([]string)[2] == "分钟" {
 				m *= 60
 			}
 			if m >= 65536 || m <= 0 {
-				ctx.SendChain(message.Text("ERROR:interval too big"))
+				ctx.SendChain(message.Text("ERROR: interval too big"))
 				return
 			}
 			n, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[3], 10, 64)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if n >= 65536 || n <= 0 {
-				ctx.SendChain(message.Text("ERROR:burst too big"))
+				ctx.SendChain(message.Text("ERROR: burst too big"))
 				return
 			}
 			ctxext.SetDefaultLimiterManagerParam(time.Duration(m)*time.Second, int(n))
 			err = c.SetData(0, (m&0xffff)|((n<<16)&0xffff0000))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("设置默认限速为每", m, "秒触发", n, "次"))
