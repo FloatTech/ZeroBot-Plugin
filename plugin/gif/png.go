@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
-	"github.com/fogleman/gg"
 )
 
 // pa 爬

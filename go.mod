@@ -3,13 +3,13 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.18
 
 require (
-	github.com/FloatTech/AnimeAPI v1.5.0
+	github.com/Coloured-glaze/gg v1.3.2
+	github.com/FloatTech/AnimeAPI v1.5.1-0.20220816023211-5e11b0d21958
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/zbpctrl v1.4.1-0.20220715042842-93f081cb0133
-	github.com/FloatTech/zbputils v1.5.1-0.20220811111557-511c3fc0b485
+	github.com/FloatTech/zbputils v1.5.1-0.20220816020252-0f57a5ae28aa
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.0.3
-	github.com/fogleman/gg v1.3.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.5.4
 	github.com/fumiama/go-registry v0.1.6

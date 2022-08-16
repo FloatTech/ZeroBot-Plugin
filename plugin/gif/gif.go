@@ -5,9 +5,9 @@ import (
 	"image/color"
 	"sync"
 
+	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/writer"
-	"github.com/fogleman/gg"
 )
 
 // mo 摸

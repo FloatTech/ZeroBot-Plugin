@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Coloured-glaze/gg"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -21,7 +22,6 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
 	"github.com/FloatTech/zbputils/web"
-	"github.com/fogleman/gg"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"

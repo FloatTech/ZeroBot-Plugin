@@ -23,10 +23,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 
 	// 画图
+	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/FloatTech/zbputils/img/writer"
-	"github.com/fogleman/gg"
 )
 
 //nolint: asciicheck

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fogleman/gg"
+	"github.com/Coloured-glaze/gg"
 	"github.com/golang/freetype"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
