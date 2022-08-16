@@ -34,17 +34,17 @@ func init() {
 		_, _ = engine.GetLazyData("pics.db", false)
 		err := db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Create("picture", &picture{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		n, err := db.Count("picture")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		logrus.Printf("[jandan]读取%d张图片", n)
@@ -55,7 +55,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			u, err := getRandomPicture()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Image(u))
@@ -67,13 +67,13 @@ func init() {
 			webpageURL := api
 			doc, err := htmlquery.LoadURL(webpageURL)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			re := regexp.MustCompile(`\d+`)
 			pageTotal, err := strconv.Atoi(re.FindString(htmlquery.FindOne(doc, "//*[@id='comments']/div[2]/div/span[@class='current-comment-page']/text()").Data))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		LOOP:
@@ -81,12 +81,12 @@ func init() {
 				logrus.Debugln("[jandan]", fmt.Sprintf("处理第%d/%d页...", i, pageTotal))
 				doc, err = htmlquery.LoadURL(webpageURL)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				picList, err := htmlquery.QueryAll(doc, "//*[@class='view_img_link']")
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				if len(picList) != 0 {

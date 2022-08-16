@@ -44,12 +44,12 @@ func init() {
 	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		_, err := engine.GetLazyData("stopwords.txt", false)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		data, err := os.ReadFile(engine.DataFolder() + "stopwords.txt")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		stopwords = strings.Split(strings.ReplaceAll(binary.BytesToString(data), "\r", ""), "\n")
@@ -60,17 +60,17 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			_, err := file.GetLazyData(text.FontFile, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			b, err := os.ReadFile(text.FontFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			font, err := freetype.ParseFont(b)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 
@@ -141,7 +141,7 @@ func init() {
 			}
 			// 绘图
 			if len(wc) == 0 {
-				ctx.SendChain(message.Text("ERROR:历史消息为空或者无法获得历史消息"))
+				ctx.SendChain(message.Text("ERROR: 历史消息为空或者无法获得历史消息"))
 				return
 			}
 			bars := make([]chart.Value, len(wc))
@@ -165,14 +165,14 @@ func init() {
 			}
 			f, err := os.Create(drawedFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			err = graph.Render(chart.PNG, f)
 			_ = f.Close()
 			if err != nil {
 				_ = os.Remove(drawedFile)
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))

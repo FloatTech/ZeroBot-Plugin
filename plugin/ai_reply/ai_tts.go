@@ -64,7 +64,7 @@ func init() {
 			r := aireply.NewAIReply(getReplyMode(ctx))
 			tts, err := t.new(t.getSoundMode(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			var reply string

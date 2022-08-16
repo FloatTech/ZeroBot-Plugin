@@ -27,17 +27,17 @@ func init() {
 			_, _ = en.GetLazyData("cxh.db", true)
 			err := db.Open(time.Hour * 24)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = db.Create("pinyin", &pinyin{})
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			n, err := db.Count("pinyin")
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			logrus.Printf("[chouxianghua]读取%d条拼音", n)

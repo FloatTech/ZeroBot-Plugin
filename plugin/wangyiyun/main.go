@@ -25,7 +25,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.RequestDataWith(web.NewDefaultClient(), wangyiyunURL, "GET", wangyiyunReferer, ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text(helper.BytesToString(data)))

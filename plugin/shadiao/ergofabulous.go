@@ -11,12 +11,12 @@ func init() {
 	engine.OnFullMatch("马丁路德骂我").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		doc, err := htmlquery.LoadURL(ergofabulousURL)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		node, err := htmlquery.Query(doc, "//main[@role=\"main\"]/p[@class=\"larger\"]/text()")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(node.Data))

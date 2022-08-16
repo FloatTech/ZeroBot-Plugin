@@ -32,7 +32,7 @@ func init() { // 插件主体
 			for _, url := range ctx.State["image_url"].([]string) {
 				t, err := danbooru.TagURL("", url)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				digest := md5.Sum(helper.StringToBytes(url))

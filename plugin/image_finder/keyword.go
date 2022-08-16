@@ -71,14 +71,14 @@ func init() {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			soutujson, err := soutuapi(keyword)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			rannum := rand.Intn(len(soutujson.Data.Illusts))
 			il := soutujson.Data.Illusts[rannum]
 			illust, err := pixiv.Works(il.ID)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			u := illust.ImageUrls[0]
@@ -101,7 +101,7 @@ func init() {
 				),
 			), ctxext.GetFirstMessageInForward(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		})

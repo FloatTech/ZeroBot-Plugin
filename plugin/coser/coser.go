@@ -31,7 +31,7 @@ func init() {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
@@ -50,7 +50,7 @@ func init() {
 			if id := ctx.SendGroupForwardMessage(
 				ctx.Event.GroupID,
 				m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控或下载图片用时过长，请耐心等待"))
+				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 			}
 		})
 }

@@ -51,7 +51,7 @@ func init() {
 			err := ns.db.Pick(imgtype, sc)
 			ns.mu.RUnlock()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
 				p := "file:///" + setupath + "/" + sc.Path
 				if ctx.Event.GroupID != 0 {
@@ -71,7 +71,7 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnRegex(`^设置本地setu绝对路径(.*)$`, zero.SuperUserPermission).SetBlock(true).
@@ -81,7 +81,7 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnFullMatch("刷新所有本地setu", zero.SuperUserPermission).SetBlock(true).
@@ -90,7 +90,7 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 	engine.OnFullMatch("所有本地setu分类").SetBlock(true).

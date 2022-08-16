@@ -49,7 +49,7 @@ func init() {
 		_, _ = engine.GetLazyData("bilibili.db", false)
 		vdb, err = initializeVup(engine.DataFolder() + "bilibili.db")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true
@@ -60,7 +60,7 @@ func init() {
 			id := ctx.State["uid"].(string)
 			card, err := getMemberCard(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text(
@@ -79,7 +79,7 @@ func init() {
 			// 获取详情
 			fo, err := getVtbDetail(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text(
@@ -107,19 +107,19 @@ func init() {
 			}
 			u, err := getMemberCard(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			vups, err := vdb.filterVup(u.Attentions)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			vupLen := len(vups)
 			medals, err := getMedalwall(id)
 			sort.Sort(medalSlice(medals))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 			frontVups := make([]vup, 0)
 			medalMap := make(map[int64]medal)
@@ -147,12 +147,12 @@ func init() {
 			if path.Ext(u.Face) != ".webp" {
 				err = initFacePic(facePath, u.Face)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				back, err = gg.LoadImage(facePath)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				back = img.Size(back, backX, backY).Im
@@ -171,10 +171,10 @@ func init() {
 			canvas.SetColor(color.Black)
 			_, err = file.GetLazyData(text.BoldFontFile, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			sl, _ := canvas.MeasureString("好")
@@ -248,7 +248,7 @@ func init() {
 			_, err = writer.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
@@ -259,7 +259,7 @@ func init() {
 			cookie := ctx.State["regex_matched"].([]string)[1]
 			err := vdb.setBilibiliCookie(cookie)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("成功设置b站cookie为" + cookie))
@@ -270,7 +270,7 @@ func init() {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			err := updateVup()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("vup已更新"))
@@ -303,7 +303,7 @@ func getPara(ctx *zero.Ctx) bool {
 	if !re.MatchString(keyword) {
 		searchRes, err := searchUser(keyword)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		ctx.State["uid"] = strconv.FormatInt(searchRes[0].Mid, 10)
@@ -336,7 +336,7 @@ func getPara(ctx *zero.Ctx) bool {
 			} else if num == 1 {
 				searchRes, err := searchUser(keyword)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return false
 				}
 				ctx.State["uid"] = strconv.FormatInt(searchRes[0].Mid, 10)

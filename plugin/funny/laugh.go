@@ -35,22 +35,22 @@ func init() {
 		db.DBPath = en.DataFolder() + "jokes.db"
 		_, err := en.GetLazyData("jokes.db", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Create("jokes", &joke{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		c, err := db.Count("jokes")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		logrus.Infoln("[funny]加载", c, "个笑话")
@@ -61,7 +61,7 @@ func init() {
 		var j joke
 		err := db.Pick("jokes", &j)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text(strings.ReplaceAll(j.Text, "%name", name)))

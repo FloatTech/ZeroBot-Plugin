@@ -58,7 +58,7 @@ func init() {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		gid := ctx.Event.GroupID
@@ -66,7 +66,7 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := subscribe(buid, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text("已添加" + name + "的订阅"))
@@ -75,7 +75,7 @@ func init() {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		gid := ctx.Event.GroupID
@@ -83,7 +83,7 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := unsubscribe(buid, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的订阅"))
@@ -92,7 +92,7 @@ func init() {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		gid := ctx.Event.GroupID
@@ -100,7 +100,7 @@ func init() {
 			gid = -ctx.Event.UserID
 		}
 		if err := unsubscribeDynamic(buid, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
@@ -113,11 +113,11 @@ func init() {
 		}
 		name, err := getName(buid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		if err := unsubscribeLive(buid, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
@@ -149,11 +149,11 @@ func init() {
 		}
 		data, err := text.RenderToBase64(msg, text.FontFile, 600, 20)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
-			ctx.SendChain(message.Text("ERROR:可能被风控了"))
+			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 		}
 	})
 	en.OnFullMatch("拉取b站推送").SetBlock(true).Handle(func(ctx *zero.Ctx) {

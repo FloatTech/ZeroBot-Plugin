@@ -25,22 +25,22 @@ func init() {
 		db.DBPath = engine.DataFolder() + "nihongo.db"
 		_, err := engine.GetLazyData("nihongo.db", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Create("grammar", &grammar{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		n, err := db.Count("grammar")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		log.Infof("[nihongo]读取%d条语法", n)
@@ -56,11 +56,11 @@ func init() {
 			}
 			data, err := text.RenderToBase64(g.string(), text.FontFile, 400, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
 }

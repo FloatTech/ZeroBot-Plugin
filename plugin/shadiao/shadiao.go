@@ -39,7 +39,7 @@ func init() {
 		requestURL := sdMap[ctx.State["matched"].(string)]
 		data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", sdReferer, ua)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(gjson.GetBytes(data, "data.text").String()))

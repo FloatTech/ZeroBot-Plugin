@@ -54,7 +54,7 @@ func init() {
 
 				p, err := nsfw.Classify(url[0])
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				if p.Drawings < 0.1 || p.Neutral > 0.8 {
@@ -64,12 +64,12 @@ func init() {
 
 				data := <-datachan
 				if errsub != nil {
-					ctx.SendChain(message.Text("ERROR:", errsub))
+					ctx.SendChain(message.Text("ERROR: ", errsub))
 					return
 				}
 				im, _, err := image.Decode(bytes.NewReader(data))
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				px := im.Bounds().Size().X * im.Bounds().Size().Y
@@ -85,7 +85,7 @@ func init() {
 					defer binary.PutWriter(w)
 					_, err = writer.WriteTo(im, w)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR:", err))
+						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
 					data, err = scale.Post(bytes.NewReader(w.Bytes()), paras[0], paras[1], 2)
@@ -93,14 +93,14 @@ func init() {
 					data, err = scale.Get(url[0], paras[0], paras[1], 2)
 				}
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 
 				n := cachedir + strconv.Itoa(int(ctx.Event.UserID))
 				f, err := os.Create(n)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				_, _ = f.Write(data)

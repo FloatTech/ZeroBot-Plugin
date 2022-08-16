@@ -58,7 +58,7 @@ func init() { // 插件主体
 			// 获取P站插图信息
 			illust, err := pixiv.Works(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if illust.Pid > 0 {
@@ -165,7 +165,7 @@ func init() { // 插件主体
 				}
 				// ascii2d 搜索
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					continue
 				} else {
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
@@ -186,7 +186,7 @@ func init() { // 插件主体
 						ctx.Event.GroupID,
 						msg,
 					).Get("message_id").Int(); id == 0 {
-						ctx.SendChain(message.Text("ERROR:可能被风控了"))
+						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 					}
 				}
 			}
@@ -199,12 +199,12 @@ func init() { // 插件主体
 				APIKey:     ctx.State["regex_matched"].([]string)[1],
 			})
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			err = os.WriteFile(apikeyfile, binary.StringToBytes(saucenaocli.APIKey), 0644)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("成功!"))

@@ -92,17 +92,17 @@ func init() {
 		func(ctx *zero.Ctx) bool {
 			data, err := file.GetLazyData(omikujson, false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = json.Unmarshal(data, &omikujis)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			_, err = file.GetLazyData(font, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			return true
@@ -128,14 +128,14 @@ func init() {
 			zipfile := images + kind + ".zip"
 			_, err := file.GetLazyData(zipfile, false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 
 			// 随机获取背景
 			background, index, err := randimage(zipfile, ctx)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 
@@ -155,7 +155,7 @@ func init() {
 				return err
 			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		})

@@ -46,18 +46,18 @@ func init() {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			err := login(username, password)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			searchKey := ctx.State["regex_matched"].([]string)[1]
 			searchHTML, err := search(searchKey)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			doc, err := htmlquery.Parse(strings.NewReader(searchHTML))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			htmlTitle := htmlquery.InnerText(htmlquery.FindOne(doc, "/html/head/title"))
@@ -65,7 +65,7 @@ func init() {
 			case websiteTitle:
 				list, err := htmlquery.QueryAll(doc, "//dl[@id='nr']")
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				if len(list) != 0 {
@@ -89,11 +89,11 @@ func init() {
 					}
 					data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR:", err))
+						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
 					if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
-						ctx.SendChain(message.Text("ERROR:可能被风控了"))
+						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 					}
 				} else {
 					text := htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@id='tipss']"))

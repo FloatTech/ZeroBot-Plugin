@@ -41,22 +41,22 @@ func init() { // 插件主体
 			db.DBPath = engine.DataFolder() + "kuji.db"
 			_, err := engine.GetLazyData("kuji.db", true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = db.Open(time.Hour * 24)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = db.Create("kuji", &kuji{})
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			n, err := db.Count("kuji")
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			logrus.Infof("[kuji]读取%d条签文", n)
@@ -71,11 +71,11 @@ func init() { // 插件主体
 				text.FontFile, 400, 20,
 			)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if id := ctx.SendChain(message.At(ctx.Event.UserID), message.Image("base64://"+helper.BytesToString(kujiBytes))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
 }

@@ -120,7 +120,7 @@ func init() {
 			}
 			wg.Wait()
 			if errcnt > 0 {
-				ctx.SendChain(message.Text("ERROR:下载字典时发生", errcnt, "个错误"))
+				ctx.SendChain(message.Text("ERROR: 下载字典时发生", errcnt, "个错误"))
 				return false
 			}
 			return true
@@ -131,7 +131,7 @@ func init() {
 			target := words[class].cet4[rand.Intn(len(words[class].cet4))]
 			tt, err := tl.Translate(target)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			game := newWordleGame(target)

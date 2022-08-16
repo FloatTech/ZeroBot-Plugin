@@ -22,12 +22,12 @@ func init() {
 		dbfile := engine.DataFolder() + "ymgal.db"
 		_, err := engine.GetLazyData("ymgal.db", false)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		gdb, err = initialize(dbfile)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true
@@ -62,7 +62,7 @@ func init() {
 			ctx.Send("少女祈祷中......")
 			err := updatePic()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.Send("ymgal数据库已更新")
@@ -84,6 +84,6 @@ func sendYmgal(y ymgal, ctx *zero.Ctx) {
 	if id := ctx.SendGroupForwardMessage(
 		ctx.Event.GroupID,
 		m).Get("message_id").Int(); id == 0 {
-		ctx.SendChain(message.Text("ERROR:可能被风控了"))
+		ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 	}
 }

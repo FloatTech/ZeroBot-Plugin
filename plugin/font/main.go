@@ -36,7 +36,7 @@ func init() {
 		}
 		b, err := text.RenderToBase64(txt, fnt, 400, 20)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))

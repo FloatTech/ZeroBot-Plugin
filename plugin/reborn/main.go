@@ -28,7 +28,7 @@ func init() {
 			area := make(rate, 226)
 			err := load(&area, jsonfile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			choices := make([]wr.Choice, len(area))
@@ -38,7 +38,7 @@ func init() {
 			}
 			areac, err = wr.NewChooser(choices...)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			logrus.Printf("[Reborn]读取%d个国家/地区", len(area))

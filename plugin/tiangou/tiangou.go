@@ -34,22 +34,22 @@ func init() {
 			db.DBPath = en.DataFolder() + "tiangou.db"
 			_, err := en.GetLazyData("tiangou.db", true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = db.Open(time.Hour * 24)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = db.Create("tiangou", &tiangou{})
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			c, err := db.Count("tiangou")
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			logrus.Infoln("[tiangou]加载", c, "条舔狗日记")
@@ -59,7 +59,7 @@ func init() {
 		var t tiangou
 		err := db.Pick("tiangou", &t)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text(t.Text))

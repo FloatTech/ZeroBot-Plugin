@@ -28,17 +28,17 @@ func init() {
 		_, _ = engine.GetLazyData("bookreview.db", true)
 		err := db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Create("bookreview", &book{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		n, err := db.Count("bookreview")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		log.Infof("[bookreview]读取%d条书评", n)
@@ -51,11 +51,11 @@ func init() {
 			b := getBookReviewByKeyword(ctx.State["regex_matched"].([]string)[1])
 			data, err := text.RenderToBase64(b.BookReview, text.FontFile, 400, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
 
@@ -64,11 +64,11 @@ func init() {
 			br := getRandomBookReview()
 			data, err := text.RenderToBase64(br.BookReview, text.FontFile, 400, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if id := ctx.SendChain(message.Image("base64://" + binary.BytesToString(data))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
 }

@@ -21,7 +21,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData("https://api.vvhan.com/api/moyu")
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.ImageBytes(data))

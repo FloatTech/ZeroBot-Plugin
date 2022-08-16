@@ -28,17 +28,17 @@ func init() {
 		_, _ = engine.GetLazyData("cp.db", true)
 		err := db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Create("cp_story", &cpstory{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		n, err := db.Count("cp_story")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		logrus.Printf("[cpstory]读取%d条故事", n)

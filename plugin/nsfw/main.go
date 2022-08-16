@@ -26,7 +26,7 @@ func init() {
 				ctx.SendChain(message.Text("少女祈祷中..."))
 				p, err := nsfw.Classify(url[0])
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))

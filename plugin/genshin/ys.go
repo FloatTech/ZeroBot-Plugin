@@ -63,7 +63,7 @@ func init() {
 			err := c.SetData(gid, int64(store))
 			if err != nil {
 				process.SleepAbout1sTo2s()
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 		})
 
@@ -72,12 +72,12 @@ func init() {
 			zipfile := engine.DataFolder() + "Genshin.zip"
 			_, err := engine.GetLazyData("Genshin.zip", false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = parsezip(zipfile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			return true
@@ -96,7 +96,7 @@ func init() {
 			store := (storage)(c.GetData(gid))
 			img, str, mode, err := randnums(10, store)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			b, cl := writer.ToBytes(img)

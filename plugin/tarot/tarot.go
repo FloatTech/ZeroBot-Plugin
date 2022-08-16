@@ -59,12 +59,12 @@ func init() {
 	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = json.Unmarshal(data, &cardMap)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		for _, card := range cardMap {
@@ -77,12 +77,12 @@ func init() {
 		logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
 		formation, err := engine.GetLazyData("formation.json", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = json.Unmarshal(formation, &formationMap)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		for k := range formationMap {
@@ -104,19 +104,19 @@ func init() {
 			var err error
 			n, err = strconv.Atoi(match[:len(match)-3])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if n <= 0 {
-				ctx.SendChain(message.Text("ERROR:张数必须为正"))
+				ctx.SendChain(message.Text("ERROR: 张数必须为正"))
 				return
 			}
 			if n > 1 && !zero.OnlyGroup(ctx) {
-				ctx.SendChain(message.Text("ERROR:抽取多张仅支持群聊"))
+				ctx.SendChain(message.Text("ERROR: 抽取多张仅支持群聊"))
 				return
 			}
 			if n > 20 {
-				ctx.SendChain(message.Text("ERROR:抽取张数过多"))
+				ctx.SendChain(message.Text("ERROR: 抽取张数过多"))
 				return
 			}
 		}
@@ -132,7 +132,7 @@ func init() {
 			if id := ctx.SendChain(
 				message.Text(reasons[rand.Intn(len(reasons))], position[p], "』的『", name, "』\n"),
 				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			return
 		}
@@ -179,7 +179,7 @@ func init() {
 			cardList, err := text.RenderToBase64(txt, text.FontFile, 420, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("没有找到", match, "噢~"))
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 			ctx.SendChain(message.Text("没有找到", match, "噢~"), message.Image("base64://"+binary.BytesToString(cardList)))
 		}
@@ -236,7 +236,7 @@ func init() {
 			txt := build.String()
 			formation, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, []message.MessageSegment{message.Image("base64://" + binary.BytesToString(formation))}...)
