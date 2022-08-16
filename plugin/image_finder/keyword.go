@@ -18,12 +18,12 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
 
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
-	"github.com/FloatTech/zbputils/web"
 )
 
 type resultjson struct {

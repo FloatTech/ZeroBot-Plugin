@@ -14,14 +14,14 @@ import (
 	"time"
 
 	"github.com/Coloured-glaze/gg"
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
-	"github.com/FloatTech/zbputils/img/writer"
-	"github.com/FloatTech/zbputils/web"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -44,7 +44,7 @@ func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
-	var getdb = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	var getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		var err error
 		_, _ = engine.GetLazyData("bilibili.db", false)
 		vdb, err = initializeVup(engine.DataFolder() + "bilibili.db")

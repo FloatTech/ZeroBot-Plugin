@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/floatbox/binary"
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/antchfx/htmlquery"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -29,7 +29,7 @@ func init() {
 		PublicDataFolder: "Jandan",
 	})
 
-	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "pics.db"
 		_, _ = engine.GetLazyData("pics.db", false)
 		err := db.Open(time.Hour * 24)

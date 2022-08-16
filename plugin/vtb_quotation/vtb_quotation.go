@@ -18,12 +18,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
-	"github.com/FloatTech/zbputils/web"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation/model"
 )
@@ -38,7 +38,7 @@ func init() {
 	})
 	dbfile := engine.DataFolder() + "vtb.db"
 	storePath := engine.DataFolder() + "store/"
-	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		err := os.MkdirAll(storePath, 0755)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))

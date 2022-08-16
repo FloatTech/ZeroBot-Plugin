@@ -4,6 +4,7 @@ package tiangou
 import (
 	"time"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -28,7 +29,7 @@ func init() {
 		PublicDataFolder: "Tiangou",
 	})
 
-	en.OnFullMatch("舔狗日记", ctxext.DoOnceOnSuccess(
+	en.OnFullMatch("舔狗日记", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			db.DBPath = en.DataFolder() + "tiangou.db"
 			_, err := en.GetLazyData("tiangou.db", true)

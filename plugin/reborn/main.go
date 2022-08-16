@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	wr "github.com/mroth/weightedrand"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -21,7 +21,7 @@ func init() {
 		PublicDataFolder: "Reborn",
 	})
 
-	en.OnFullMatch("reborn", ctxext.DoOnceOnSuccess(
+	en.OnFullMatch("reborn", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			datapath := en.DataFolder()
 			jsonfile := datapath + "rate.json"

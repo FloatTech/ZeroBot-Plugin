@@ -13,8 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 	_ "golang.org/x/image/webp" // import webp decoding
 
+	"github.com/FloatTech/floatbox/file"
 	sql "github.com/FloatTech/sqlite"
-	"github.com/FloatTech/zbputils/file"
 )
 
 // setuclass holds setus in a folder, which is the class name.

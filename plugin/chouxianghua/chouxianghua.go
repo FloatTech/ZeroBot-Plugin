@@ -8,9 +8,9 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 )
 
 func init() {
@@ -21,7 +21,7 @@ func init() {
 	})
 
 	en.OnRegex("^抽象翻译((\\s|[\\r\\n]|[\\p{Han}\\p{P}A-Za-z0-9])+)$",
-		ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 			db.DBPath = en.DataFolder() + "cxh.db"
 			// os.RemoveAll(dbpath)
 			_, _ = en.GetLazyData("cxh.db", true)

@@ -9,6 +9,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -30,7 +31,7 @@ func init() {
 		PublicDataFolder: "Funny",
 	})
 
-	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = en.DataFolder() + "jokes.db"
 		_, err := en.GetLazyData("jokes.db", true)
 		if err != nil {
