@@ -1,4 +1,4 @@
-// Package moegoe 日韩 VITS 模型拟声
+// Package moegoe 日韩中 VITS 模型拟声
 package moegoe
 
 import (
