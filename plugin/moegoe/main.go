@@ -47,5 +47,6 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			text := ctx.State["regex_matched"].([]string)[2]
 			id := ctx.State["regex_matched"].([]string)[1]
-			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), id)))
+			ctx.SendChain(message.Record(fmt.Sprintf(krapi, url.QueryEscape(text), id)))
+		})
 }
