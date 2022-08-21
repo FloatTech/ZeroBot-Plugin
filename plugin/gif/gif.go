@@ -1407,7 +1407,7 @@ func alwaysDoGif(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "AlwaysDo.gif"
 	face, err = img.LoadAllFrames(cc.headimgsdir[0], 500, 500)
 	if err != nil {
-		//载入失败尝试载入第一帧
+		// 载入失败尝试载入第一帧
 		face = make([]*image.NRGBA, 0)
 		first, err := img.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
 		if err != nil {
