@@ -82,7 +82,7 @@ var testRecord = map[string]string{
 
 var (
 	re        = regexp.MustCompile(`(\-|\+)?\d+(\.\d+)?`)
-	soundList = []string{
+	soundList = [...]string{
 		"派蒙", "凯亚", "安柏", "丽莎", "琴",
 		"香菱", "枫原万叶", "迪卢克", "温迪", "可莉",
 		"早柚", "托马", "芭芭拉", "优菈", "云堇",
@@ -98,14 +98,14 @@ var (
 
 type ttsInstances struct {
 	sync.RWMutex
-	DefaultSoundMode string
+	defaultSoundMode string
 	soundMode        []string
 }
 
 func init() {
 	tts := &ttsInstances{
-		DefaultSoundMode: "派蒙",
-		soundMode:        soundList,
+		defaultSoundMode: "派蒙",
+		soundMode:        soundList[:],
 	}
 	engine := control.Register(ttsServiceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
@@ -113,7 +113,7 @@ func init() {
 			"- @Bot 任意文本(任意一句话回复)\n" +
 			"- 设置语音模式[原神人物]\n" +
 			"- 设置默认语音模式[原神人物]\n" +
-			"当前适用的原神人物含有以下：\n" + strings.Join(soundList, " | "),
+			"当前适用的原神人物含有以下：\n" + strings.Join(soundList[:], " | "),
 	})
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
@@ -122,15 +122,6 @@ func init() {
 			r := aireply.NewAIReply(getReplyMode(ctx))
 			// 获取回复的文本
 			reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
-			// 将数字转文字
-			reply = re.ReplaceAllStringFunc(reply, func(s string) string {
-				f, err := strconv.ParseFloat(s, 64)
-				if err != nil {
-					log.Errorln("[tts]:", err)
-					return s
-				}
-				return numcn.EncodeFromFloat64(f)
-			})
 			// 获取角色
 			name := tts.getSoundMode(ctx)
 			if _, ok := testRecord[name]; !ok {
@@ -138,7 +129,17 @@ func init() {
 				return
 			}
 			// 获取语言
-			record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(reply))).Add("cache", 0)
+			record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(
+				// 将数字转文字
+				re.ReplaceAllStringFunc(reply, func(s string) string {
+					f, err := strconv.ParseFloat(s, 64)
+					if err != nil {
+						log.Errorln("[tts]:", err)
+						return s
+					}
+					return numcn.EncodeFromFloat64(f)
+				}),
+			))).Add("cache", 0)
 			if record.Data == nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			}
@@ -186,7 +187,7 @@ func init() {
 		// 保存设置
 		tts.setDefaultSoundMode(param)
 		// 设置验证
-		name := tts.DefaultSoundMode
+		name := tts.defaultSoundMode
 		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name]))).Add("cache", 0)
 		if ID := ctx.SendChain(record); ID.ID() == 0 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置失败！无法发送测试语言，请重试。"))
@@ -229,7 +230,7 @@ func (tts *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 			return tts.soundMode[index]
 		}
 	}
-	return tts.DefaultSoundMode
+	return tts.defaultSoundMode
 }
 
 func (tts *ttsInstances) setDefaultSoundMode(name string) {
@@ -241,6 +242,6 @@ func (tts *ttsInstances) setDefaultSoundMode(name string) {
 			break
 		}
 	}
-	tts.DefaultSoundMode = tts.soundMode[index]
+	tts.defaultSoundMode = tts.soundMode[index]
 	tts.RUnlock()
 }
