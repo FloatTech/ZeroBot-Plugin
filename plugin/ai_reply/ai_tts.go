@@ -102,16 +102,16 @@ type ttsInstances struct {
 }
 
 func list(list []string, num int) string {
-	String := ""
+	s := ""
 	for i, value := range list {
-		String += value
+		s += value
 		if (i+1)%num == 0 {
-			String += "\n"
+			s += "\n"
 		} else {
-			String += " | "
+			s += " | "
 		}
 	}
-	return String
+	return s
 }
 
 func init() {
