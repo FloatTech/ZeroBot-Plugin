@@ -23,7 +23,7 @@ import (
 const (
 	ttsServiceName = "tts"
 	cnapi          = "http://233366.proxy.nscc-gz.cn:8888?speaker=%s&text=%s"
-	//testString     = "这是测试语言......"
+	// testString     = "这是测试语言......"
 )
 
 // 每个角色的测试文案
@@ -118,11 +118,11 @@ func init() {
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
-			//获取回复模式
+			// 获取回复模式
 			r := aireply.NewAIReply(getReplyMode(ctx))
-			//获取回复的文本
+			// 获取回复的文本
 			reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
-			//将数字转文字
+			// 将数字转文字
 			reply = re.ReplaceAllStringFunc(reply, func(s string) string {
 				f, err := strconv.ParseFloat(s, 64)
 				if err != nil {
@@ -131,18 +131,18 @@ func init() {
 				}
 				return numcn.EncodeFromFloat64(f)
 			})
-			//获取角色
+			// 获取角色
 			name := tts.getSoundMode(ctx)
 			if _, ok := testRecord[name]; !ok {
 				ctx.SendChain(message.Text("配置的语言人物数据丢失！请重新设置语言人物。"))
 				return
 			}
-			//获取语言
-			record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(reply)))
+			// 获取语言
+			record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(reply))).Add("cache", 0)
 			if record.Data == nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			}
-			//发送语音
+			// 发送语音
 			if ID := ctx.SendChain(record); ID.ID() == 0 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			}
@@ -155,13 +155,13 @@ func init() {
 		return true
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
-		//保存设置
+		// 保存设置
 		err := tts.setSoundMode(ctx, param)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
-		//设置验证
+		// 设置验证
 		name := tts.getSoundMode(ctx)
 		if _, ok := testRecord[name]; !ok {
 			ctx.SendChain(message.Text("配置的语言人物数据丢失！请重新设置语言人物。"))
@@ -183,15 +183,15 @@ func init() {
 		return true
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
-		//保存设置
+		// 保存设置
 		err := tts.setDefaultSoundMode(param)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
-		//设置验证
+		// 设置验证
 		name := tts.DefaultSoundMode
-		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name])))
+		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name]))).Add("cache", 0)
 		if ID := ctx.SendChain(record); ID.ID() == 0 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置失败！无法发送测试语言，请重试。"))
 			return
