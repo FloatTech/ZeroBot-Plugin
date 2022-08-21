@@ -184,11 +184,7 @@ func init() {
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
 		// 保存设置
-		err := tts.setDefaultSoundMode(param)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
-			return
-		}
+		tts.setDefaultSoundMode(param)
 		// 设置验证
 		name := tts.DefaultSoundMode
 		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name]))).Add("cache", 0)
@@ -236,7 +232,7 @@ func (tts *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
 	return tts.DefaultSoundMode
 }
 
-func (tts *ttsInstances) setDefaultSoundMode(name string) (err error) {
+func (tts *ttsInstances) setDefaultSoundMode(name string) {
 	var index int64
 	tts.RLock()
 	for i, s := range tts.soundMode {
@@ -247,5 +243,4 @@ func (tts *ttsInstances) setDefaultSoundMode(name string) (err error) {
 	}
 	tts.DefaultSoundMode = tts.soundMode[index]
 	tts.RUnlock()
-	return nil
 }
