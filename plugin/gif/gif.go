@@ -1399,7 +1399,8 @@ func whirl(cc *context, value ...string) (string, error) {
 }
 
 // always 一直
-func alwaysDoGif(cc *context, args ...string) (string, error) {
+func alwaysDoGif(cc *context, value ...string) (string, error) {
+	_ = value
 	var wg sync.WaitGroup
 	var err error
 	var face []*image.NRGBA
@@ -1421,7 +1422,8 @@ func alwaysDoGif(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 40); err != nil {
+	err = canvas.LoadFontFace(text.BoldFontFile, 40)
+	if err != nil {
 		return "", err
 	}
 	length := len(face)
