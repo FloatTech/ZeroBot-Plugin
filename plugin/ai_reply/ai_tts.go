@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -102,6 +101,19 @@ type ttsInstances struct {
 	soundMode        []string
 }
 
+func list(list []string, num int) string {
+	String := ""
+	for i, value := range list {
+		String += value
+		if (i+1)%num == 0 {
+			String += "\n"
+		} else {
+			String += " | "
+		}
+	}
+	return String
+}
+
 func init() {
 	tts := &ttsInstances{
 		defaultSoundMode: "派蒙",
@@ -113,7 +125,7 @@ func init() {
 			"- @Bot 任意文本(任意一句话回复)\n" +
 			"- 设置语音模式[原神人物]\n" +
 			"- 设置默认语音模式[原神人物]\n" +
-			"当前适用的原神人物含有以下：\n" + strings.Join(soundList[:], " | "),
+			"当前适用的原神人物含有以下：\n" + list(soundList[:], 5),
 	})
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
