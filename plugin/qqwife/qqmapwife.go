@@ -30,7 +30,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-//nolint: asciicheck
+// nolint: asciicheck
 type 婚姻登记 struct {
 	db   *sql.Sqlite
 	dbmu sync.RWMutex
