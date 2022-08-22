@@ -118,6 +118,7 @@ var (
 		"我老婆":    nowife,
 		"远离":     yuanli,
 		"抬棺":     taiguan,
+		"一直":     alwaysDoGif,
 	}
 )
 
@@ -140,7 +141,7 @@ func init() { // 插件主体
 			"- 抬棺|- 远离|- 我老婆|- 小天使XXX|- 你的XXX|- 不要看\n" +
 			"- 玩一下XXX|- 给我变|- 揍|- 吞|- 膜拜|- 诶嘿|- 2蹭|- 你犯法了\n" +
 			"- 砰|- 注意力涣散|- 蒙蔽|- 踩|- 好玩|- 2转|- 踢球|- 2舔|\n" +
-			"- 可莉吃|- 胡桃啃|- 怀",
+			"- 可莉吃|- 胡桃啃|- 怀|- 一直（支持动图）",
 		PrivateDataFolder: "gif",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()
