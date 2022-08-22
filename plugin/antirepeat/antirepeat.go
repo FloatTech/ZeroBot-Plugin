@@ -27,7 +27,7 @@ type result struct {
 
 var (
 	db = &sql.Sqlite{}
-	sm syncx.Map[int64, result]
+	sm syncx.Map[int64, *result]
 	en = control.Register("antirepeat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "限制复读的插件，默认复读3次禁言，时长60分钟\n - 设置复读禁言次数 <次数>\n - 设置复读禁言时间 <时间> 分钟",
@@ -53,14 +53,14 @@ func init() {
 			uid := ctx.Event.UserID
 			raw := ctx.Event.RawMessage
 			if r, ok := sm.Load(gid); !ok || r.RM != raw {
-				sm.Store(gid, result{
+				sm.Store(gid, &result{
 					LI: 0,
 					RM: raw,
 				})
 				return
 			}
 			if r, ok := sm.Load(gid); ok {
-				sm.Store(gid, result{
+				sm.Store(gid, &result{
 					LI: r.LI + 1,
 					RM: raw,
 				})
