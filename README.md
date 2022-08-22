@@ -493,8 +493,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 教你一篇小作文[作文]
 
-  - [x] [回复]查重
-
 </details>
 <details>
   <summary>漂流瓶</summary>
