@@ -20,12 +20,14 @@ type data struct {
 	BanTime     int64 `db:"bantime"`
 }
 
+type result struct {
+	LI int64
+	RM string
+}
+
 var (
-	db     = &sql.Sqlite{}
-	limit  syncx.Map[int64, int64]
-	rawMsg syncx.Map[int64, string]
-)
-var (
+	db = &sql.Sqlite{}
+	sm syncx.Map[int64, result]
 	en = control.Register("antirepeat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help:             "限制复读的插件，默认复读3次禁言，时长60分钟\n - 设置复读禁言次数 <次数>\n - 设置复读禁言时间 <时间> 分钟",
@@ -50,21 +52,26 @@ func init() {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			raw := ctx.Event.RawMessage
-			if rawm, ok := rawMsg.Load(gid); !ok || rawm != raw {
-				rawMsg.Store(gid, raw)
-				limit.Store(gid, 0)
+			if r, ok := sm.Load(gid); !ok || r.RM != raw {
+				sm.Store(gid, result{
+					LI: 0,
+					RM: raw,
+				})
 				return
 			}
-			if l, ok := limit.Load(gid); ok {
-				limit.Store(gid, l+1)
+			if r, ok := sm.Load(gid); ok {
+				sm.Store(gid, result{
+					LI: r.LI + 1,
+					RM: raw,
+				})
 			}
 			if zero.AdminPermission(ctx) {
 				return
 			}
 			dblimit, time := readdb(gid)
-			if l, ok := limit.Load(gid); ok && l >= dblimit {
+			if r, ok := sm.Load(gid); ok && r.LI >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
-				ctx.SendChain(message.Text("因为你是第", l+1, "个复读的，禁言", time, "分钟作为惩罚"))
+				ctx.SendChain(message.Text("因为你是第", r.LI+1, "个复读的，禁言", time, "分钟作为惩罚"))
 			}
 		})
 	en.OnRegex(`^(设置复读禁言次数\s*)([0-9]+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
