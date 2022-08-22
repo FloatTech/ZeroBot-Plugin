@@ -1438,7 +1438,7 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 		canvas := gg.NewContext(500, 600)
 		canvas.DrawImage(f, 0, 0)
 		canvas.SetColor(color.Black)
-		canvas.LoadFontFace(text.BoldFontFile, 40)
+		_ = canvas.LoadFontFace(text.BoldFontFile, 40)
 		canvas.DrawString(arg, 280-l, 560)
 		canvas.DrawImage(img.Size(f, 90, 90).Im, 280, 505)
 		canvas.DrawString("吗", 370, 560)
