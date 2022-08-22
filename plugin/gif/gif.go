@@ -1401,10 +1401,8 @@ func whirl(cc *context, value ...string) (string, error) {
 // always 一直
 func alwaysDoGif(cc *context, value ...string) (string, error) {
 	_ = value
-	var wg sync.WaitGroup
 	var err error
 	var face []*image.NRGBA
-	wg.Wait()
 	name := cc.usrdir + "AlwaysDo.gif"
 	face, err = img.LoadAllFrames(cc.headimgsdir[0], 500, 500)
 	if err != nil {
