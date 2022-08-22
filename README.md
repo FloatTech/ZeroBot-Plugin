@@ -47,7 +47,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 - **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **qqs**: superusers 的 qq 号
-- **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
+- **&**: 驻留在后台，必须放在最后，仅`Linux`下有效f
 
 默认配置文件格式如下。当选择从配置文件加载时，将忽略相应命令行参数。
 ```json
@@ -492,8 +492,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 发大病
 
   - [x] 教你一篇小作文[作文]
-
-  - [x] [回复]查重
 
 </details>
 <details>
