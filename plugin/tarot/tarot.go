@@ -95,7 +95,7 @@ func init() {
 		n := 1
 		reasons := [...]string{"您抽到的是~\n『", "锵锵锵，塔罗牌的预言是~\n『", "诶，让我看看您抽到了~\n『"}
 		position := [...]string{"正位", "逆位"}
-		reverse := [...]string{"", "Reverse"}
+		reverse := [...]string{"", "Reverse/"}
 		start := 0
 		length := 22
 		if match != "" {
@@ -197,7 +197,7 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[5]
 		info, ok := formationMap[match]
 		position := [...]string{"正位", "逆位"}
-		reverse := [...]string{"", "Reverse"}
+		reverse := [...]string{"", "Reverse/"}
 		start, length := 0, 22
 		if strings.Contains(cardType, "小") {
 			start = 22
