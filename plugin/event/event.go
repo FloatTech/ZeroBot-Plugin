@@ -97,7 +97,7 @@ func init() {
 				groupid := ctx.Event.GroupID
 				groupname := ctx.GetGroupInfo(groupid, true).Name
 				logrus.Infoln("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
-				if cfg.AutoAcceptGroupInvite || isSuperUser(userid) {
+				if cfg.AutoAcceptGroupInvite || zero.SuperUserPermission(ctx) {
 					ctx.SetGroupAddRequest(flag, "invite", true, "")
 					ctx.SendPrivateMessage(su,
 						message.Text("已自动同意在", now, "收到来自",
@@ -194,13 +194,4 @@ func saveConfig(cfgFile string) (err error) {
 		return err
 	}
 	return nil
-}
-
-func isSuperUser(uid int64) bool {
-	for _, su := range zero.BotConfig.SuperUsers {
-		if uid == su {
-			return true
-		}
-	}
-	return false
 }

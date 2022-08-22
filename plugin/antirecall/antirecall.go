@@ -23,6 +23,9 @@ func init() {
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
 			raw := ctx.Event.RawMessage
 			uid := ctx.Event.UserID
+			if uid == su {
+				return
+			}
 			gid := ctx.Event.GroupID
 			botid := ctx.Event.SelfID
 			botname := zero.BotConfig.NickName[0]
@@ -45,7 +48,7 @@ func init() {
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
 			raw := ctx.GetMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))).Elements.String()
 			uid := ctx.Event.UserID
-			if strings.Contains(raw, ",type=flash") || strings.Contains(raw, "CQ:reply") && strings.Contains(raw, "撤回") && uid == su {
+			if uid == su || strings.Contains(raw, ",type=flash") || strings.Contains(raw, "CQ:reply") && strings.Contains(raw, "撤回") && uid == su {
 				return
 			}
 			gid := ctx.Event.GroupID
