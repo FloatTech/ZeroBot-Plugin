@@ -9,6 +9,7 @@ import (
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/RomiChan/syncx"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -21,8 +22,8 @@ type data struct {
 
 var (
 	db     = &sql.Sqlite{}
-	limit  = make(map[int64]int64, 256)
-	rawMsg = make(map[int64]string, 256)
+	limit  syncx.Map[int64, int64]
+	rawMsg syncx.Map[int64, string]
 )
 var (
 	en = control.Register("antirepeat", &ctrl.Options[*zero.Ctx]{
@@ -49,19 +50,21 @@ func init() {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			raw := ctx.Event.RawMessage
-			if rawMsg[gid] != raw {
-				rawMsg[gid] = raw
-				limit[gid] = 0
+			if rawm, ok := rawMsg.Load(gid); !ok || rawm != raw {
+				rawMsg.Store(gid, raw)
+				limit.Store(gid, 0)
 				return
 			}
-			limit[gid]++
+			if l, ok := limit.Load(gid); ok {
+				limit.Store(gid, l+1)
+			}
 			if zero.AdminPermission(ctx) {
 				return
 			}
 			dblimit, time := readdb(gid)
-			if limit[gid] >= dblimit {
+			if l, ok := limit.Load(gid); ok && l >= dblimit {
 				ctx.SetGroupBan(gid, uid, time*60)
-				ctx.SendChain(message.Text("因为你是第", limit[gid]+1, "个复读的，禁言", time, "分钟作为惩罚"))
+				ctx.SendChain(message.Text("因为你是第", l+1, "个复读的，禁言", time, "分钟作为惩罚"))
 			}
 		})
 	en.OnRegex(`^(设置复读禁言次数\s*)([0-9]+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
