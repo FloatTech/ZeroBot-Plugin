@@ -3,7 +3,6 @@ package tarot
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -134,7 +133,7 @@ func init() {
 			}
 			if id := ctx.SendChain(
 				message.Text(reasons[rand.Intn(len(reasons))], position[p], "』的『", name, "』\n"),
-				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL)),
+				message.Image(bed+reverse[p]+card.ImgURL),
 				message.Text("\n其释义为: ", description)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
@@ -159,7 +158,7 @@ func init() {
 			}
 			tarotMsg := []message.MessageSegment{
 				message.Text(position[p], "』的『", name, "』\n"),
-				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL)),
+				message.Image(bed + reverse[p] + card.ImgURL),
 				message.Text("\n其释义为: ", description)}
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
@@ -231,7 +230,7 @@ func init() {
 				if p == 1 {
 					description = card.ReverseDescription
 				}
-				tarotMsg := []message.MessageSegment{message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))}
+				tarotMsg := []message.MessageSegment{message.Image(bed + reverse[p] + card.ImgURL)}
 				build.WriteString(info.Represent[0][i])
 				build.WriteString(":『")
 				build.WriteString(position[p])
