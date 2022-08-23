@@ -23,7 +23,7 @@ func init() { // 插件主体
 	engine := control.Register(replyServiceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "人工智能回复\n" +
-			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客  |  小爱]\n- ",
+			"- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]",
 	})
 	// 回复 @和包括名字
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).

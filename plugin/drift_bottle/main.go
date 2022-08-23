@@ -55,7 +55,7 @@ func init() {
 				msg,
 			).throw(sea, channel)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你将它扔进大海，希望有人捞到吧~")))
@@ -78,7 +78,7 @@ func init() {
 			logrus.Debugln("[driftbottle]", grp, channel)
 			b, err := fetchBottle(sea, channel, grp)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			var wg sync.WaitGroup
@@ -96,7 +96,7 @@ func init() {
 			)
 			wg.Wait()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		})
@@ -109,7 +109,7 @@ func init() {
 			}
 			err := createChannel(sea, channel)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("成功~")))
@@ -125,7 +125,7 @@ func init() {
 			c, err := sea.Count(channel)
 			seamu.RUnlock()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你缓缓走入大海，感受着海浪轻柔地拍打着你的小腿，膝盖……\n波浪卷着你的腰腹，你感觉有些把握不住平衡了……\n……\n你沉入海中，", c, " 个物体与你一同沉浮。\n不知何处涌来一股暗流，你失去了意识。")))

@@ -35,7 +35,7 @@ func init() {
 		case 2:
 			data, err := juejuezi(string(toDealStr[0]), string(toDealStr[1]))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text(gjson.Get(helper.BytesToString(data), "text").String()))
@@ -43,7 +43,7 @@ func init() {
 			params := ctx.GetWordSlices(string(toDealStr)).Get("slices").Array()
 			data, err := juejuezi(params[0].String(), params[1].String())
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text(gjson.Get(helper.BytesToString(data), "text").String()))

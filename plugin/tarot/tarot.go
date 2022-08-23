@@ -3,13 +3,13 @@ package tarot
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
 
+	"github.com/FloatTech/floatbox/binary"
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -55,33 +55,32 @@ func init() {
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	getTarot := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = json.Unmarshal(data, &cardMap)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		for _, card := range cardMap {
 			infoMap[card.Name] = card.cardInfo
 		}
 		for i := 0; i < 22; i++ {
-			// 噢天哪，我应该把json里面序号设成int
 			majorArcanaName = append(majorArcanaName, cardMap[strconv.Itoa(i)].Name)
 		}
 		logrus.Infof("[tarot]读取%d张塔罗牌", len(cardMap))
 		formation, err := engine.GetLazyData("formation.json", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = json.Unmarshal(formation, &formationMap)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		for k := range formationMap {
@@ -94,28 +93,28 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[1]
 		cardType := ctx.State["regex_matched"].([]string)[2]
 		n := 1
-		reasons := [...]string{"您抽到的是~\n『", "锵锵锵，塔罗牌的预言是~\n『", "诶，让我看看您抽到了~\n『"}
-		position := [...]string{"正位", "逆位"}
-		reverse := [...]string{"", "Reverse"}
+		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
+		position := [...]string{"『正位』", "『逆位』"}
+		reverse := [...]string{"", "Reverse/"}
 		start := 0
 		length := 22
 		if match != "" {
 			var err error
 			n, err = strconv.Atoi(match[:len(match)-3])
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if n <= 0 {
-				ctx.SendChain(message.Text("ERROR:张数必须为正"))
+				ctx.SendChain(message.Text("ERROR: 张数必须为正"))
 				return
 			}
 			if n > 1 && !zero.OnlyGroup(ctx) {
-				ctx.SendChain(message.Text("ERROR:抽取多张仅支持群聊"))
+				ctx.SendChain(message.Text("ERROR: 抽取多张仅支持群聊"))
 				return
 			}
 			if n > 20 {
-				ctx.SendChain(message.Text("ERROR:抽取张数过多"))
+				ctx.SendChain(message.Text("ERROR: 抽取张数过多"))
 				return
 			}
 		}
@@ -128,10 +127,15 @@ func init() {
 			p := rand.Intn(2)
 			card := cardMap[strconv.Itoa(i)]
 			name := card.Name
+			description := card.Description
+			if p == 1 {
+				description = card.ReverseDescription
+			}
 			if id := ctx.SendChain(
-				message.Text(reasons[rand.Intn(len(reasons))], position[p], "』的『", name, "』\n"),
-				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:可能被风控了"))
+				message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n"),
+				message.Image(bed+reverse[p]+card.ImgURL),
+				message.Text("\n其释义为: ", description)); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			return
 		}
@@ -148,9 +152,14 @@ func init() {
 			p := rand.Intn(2)
 			card := cardMap[strconv.Itoa(j+start)]
 			name := card.Name
+			description := card.Description
+			if p == 1 {
+				description = card.ReverseDescription
+			}
 			tarotMsg := []message.MessageSegment{
-				message.Text(reasons[rand.Intn(len(reasons))], position[p], "』的『", name, "』\n"),
-				message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))}
+				message.Text(position[p], "的『", name, "』\n"),
+				message.Image(bed + reverse[p] + card.ImgURL),
+				message.Text("\n其释义为: ", description)}
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
 		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
@@ -163,8 +172,8 @@ func init() {
 			ctx.SendChain(
 				message.Image(bed+info.ImgURL),
 				message.Text("\n", match, "的含义是~"),
-				message.Text("\n正位:", info.Description),
-				message.Text("\n逆位:", info.ReverseDescription))
+				message.Text("\n『正位』:", info.Description),
+				message.Text("\n『逆位』:", info.ReverseDescription))
 		} else {
 			var build strings.Builder
 			build.WriteString("塔罗牌列表\n大阿尔卡纳:\n")
@@ -178,7 +187,7 @@ func init() {
 			cardList, err := text.RenderToBase64(txt, text.FontFile, 420, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("没有找到", match, "噢~"))
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 			ctx.SendChain(message.Text("没有找到", match, "噢~"), message.Image("base64://"+binary.BytesToString(cardList)))
 		}
@@ -187,8 +196,8 @@ func init() {
 		cardType := ctx.State["regex_matched"].([]string)[1]
 		match := ctx.State["regex_matched"].([]string)[5]
 		info, ok := formationMap[match]
-		position := [...]string{"正位", "逆位"}
-		reverse := [...]string{"", "Reverse"}
+		position := [...]string{"『正位』", "『逆位』"}
+		reverse := [...]string{"", "Reverse/"}
 		start, length := 0, 22
 		if strings.Contains(cardType, "小") {
 			start = 22
@@ -221,11 +230,11 @@ func init() {
 				if p == 1 {
 					description = card.ReverseDescription
 				}
-				tarotMsg := []message.MessageSegment{message.Image(fmt.Sprintf("%s/%s/%s", bed, reverse[p], card.ImgURL))}
+				tarotMsg := []message.MessageSegment{message.Image(bed + reverse[p] + card.ImgURL)}
 				build.WriteString(info.Represent[0][i])
-				build.WriteString(":『")
+				build.WriteString(":")
 				build.WriteString(position[p])
-				build.WriteString("』的『")
+				build.WriteString("的『")
 				build.WriteString(name)
 				build.WriteString("』\n其释义为: \n")
 				build.WriteString(description)
@@ -235,7 +244,7 @@ func init() {
 			txt := build.String()
 			formation, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, []message.MessageSegment{message.Image("base64://" + binary.BytesToString(formation))}...)

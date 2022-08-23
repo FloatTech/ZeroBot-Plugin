@@ -1,3 +1,4 @@
+// Package bilibili bilibili卡片解析
 package bilibili
 
 import (
@@ -66,12 +67,12 @@ func handleVideo(ctx *zero.Ctx) {
 	}
 	card, err := getVideoInfo(id)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
+		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
 	msg, err := videoCard2msg(card)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
+		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
 	ctx.SendChain(msg...)
@@ -80,7 +81,7 @@ func handleVideo(ctx *zero.Ctx) {
 func handleDynamic(ctx *zero.Ctx) {
 	msg, err := dynamicDetail(ctx.State["regex_matched"].([]string)[2])
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
+		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
 	ctx.SendChain(msg...)
@@ -89,7 +90,7 @@ func handleDynamic(ctx *zero.Ctx) {
 func handleArticle(ctx *zero.Ctx) {
 	card, err := getArticleInfo(ctx.State["regex_matched"].([]string)[1])
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
+		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
 	ctx.SendChain(articleCard2msg(card, ctx.State["regex_matched"].([]string)[1])...)
@@ -98,7 +99,7 @@ func handleArticle(ctx *zero.Ctx) {
 func handleLive(ctx *zero.Ctx) {
 	card, err := getLiveRoomInfo(ctx.State["regex_matched"].([]string)[1])
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR:", err))
+		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
 	ctx.SendChain(liveCard2msg(card)...)

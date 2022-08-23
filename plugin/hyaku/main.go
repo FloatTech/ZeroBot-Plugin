@@ -10,18 +10,18 @@ import (
 	"strconv"
 	"unsafe"
 
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 const bed = "https://gitcode.net/u011570312/OguraHyakuninIsshu/-/raw/master/"
 
-//nolint: asciicheck
+// nolint: asciicheck
 type line struct {
 	番号, 歌人, 上の句, 下の句, 上の句ひらがな, 下の句ひらがな string
 }
@@ -107,11 +107,11 @@ func init() {
 	engine.OnRegex(`^百人一首之\s?(\d+)$`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		i, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		if i > 100 || i < 1 {
-			ctx.SendChain(message.Text("ERROR:超出范围"))
+			ctx.SendChain(message.Text("ERROR: 超出范围"))
 			return
 		}
 		ctx.SendChain(

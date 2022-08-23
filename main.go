@@ -87,6 +87,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 简易midi音乐制作
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"        // 日韩 VITS 模型拟声
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"          // 摸鱼
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu_calendar" // 摸鱼人日历
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"         // 点歌
@@ -152,7 +153,7 @@ import (
 	//                                                                  //
 	//                                                                  //
 	// -----------------------以下为内置依赖，勿动------------------------ //
-	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/floatbox/process"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"

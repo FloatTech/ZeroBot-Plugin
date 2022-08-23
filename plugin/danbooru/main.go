@@ -6,10 +6,10 @@ import (
 	"encoding/hex"
 
 	"github.com/FloatTech/AnimeAPI/danbooru"
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/img/writer"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/img/writer"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -32,7 +32,7 @@ func init() { // 插件主体
 			for _, url := range ctx.State["image_url"].([]string) {
 				t, err := danbooru.TagURL("", url)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				digest := md5.Sum(helper.StringToBytes(url))

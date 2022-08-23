@@ -11,11 +11,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/web"
 )
 
 var reqconf = [...]string{"GET", "https://hs.fbigame.com",
@@ -81,7 +81,7 @@ func init() {
 			ctx.Event.GroupID,
 			sk,
 		).Get("message_id").Int(); id == 0 {
-			ctx.SendChain(message.Text("ERROR:可能被风控了"))
+			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 		}
 	})
 	// 卡组

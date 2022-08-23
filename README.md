@@ -395,6 +395,24 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>b站动态、直播推送,需要配合job一起使用</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+
+  - [x] 添加b站订阅[uid|name]
+
+  - [x] 取消b站订阅[uid|name]
+  
+  - [x] 取消b站动态订阅[uid|name]
+  
+  - [x] 取消b站直播订阅[uid|name]
+  
+  - [x] b站推送列表
+  
+  - [x] 拉取b站推送 (使用job执行定时任务------记录在"@every 10s"触发的指令) 
+
+</details>
+<details>
   <summary>书评</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"`
@@ -474,8 +492,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 发大病
 
   - [x] 教你一篇小作文[作文]
-
-  - [x] [回复]查重
 
 </details>
 <details>
@@ -709,6 +725,16 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 注: 该插件需要安装timidity, linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh, windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行
   
   - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<3代表音长×8,<-1代表音长×0.5,<-3代表音长×0.125,R是休止符
+
+</details>
+<details>
+  <summary>日韩 VITS 模型拟声</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"`
+
+  - [x] 让[宁宁|爱瑠|芳乃|茉子|丛雨|小春|七海]说(日语)
+
+  - [x] 让[수아|미미르|아린|연화|유화|선배]说(韩语)
 
 </details>
 <details>

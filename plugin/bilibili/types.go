@@ -3,6 +3,8 @@ package bilibili
 const (
 	// tURL bilibili动态前缀
 	tURL = "https://t.bilibili.com/"
+	// liveURL bilibili直播前缀
+	liveURL = "https://live.bilibili.com/"
 	// dynamicDetailURL 当前动态信息,一个card
 	dynamicDetailURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=%v"
 	// memberCardURL 个人信息
@@ -25,6 +27,10 @@ const (
 	vtbDetailURL = "https://api.vtbs.moe/v1/detail/%v"
 	// medalwallURL 查找牌子
 	medalwallURL = "https://api.live.bilibili.com/xlive/web-ucenter/user/MedalWall?target_id=%v"
+	// spaceHistoryURL 历史动态信息,一共12个card
+	spaceHistoryURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=%v&offset_dynamic_id=%v&need_top=0"
+	// liveListURL 获得直播状态
+	liveListURL = "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids"
 )
 
 // dynamicCard 总动态结构体,包括desc,card
