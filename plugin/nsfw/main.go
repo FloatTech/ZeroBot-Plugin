@@ -3,10 +3,10 @@ package nsfw
 
 import (
 	"github.com/FloatTech/AnimeAPI/nsfw"
-	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -15,7 +15,7 @@ const hso = "https://gchat.qpic.cn/gchatpic_new//--4234EDEC5F147A4C319A41149D7E0
 
 func init() {
 	engine := control.Register("nsfw", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "nsfw图片识别\n- nsfw打分[图片]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	// 上传一张图进行评价
@@ -23,10 +23,10 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)
 			if len(url) > 0 {
-				ctx.SendChain(message.Text("少女祈祷中..."))
+				ctx.SendChain(message.Text("♪"))
 				p, err := nsfw.Classify(url[0])
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("#", err))
 					return
 				}
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))

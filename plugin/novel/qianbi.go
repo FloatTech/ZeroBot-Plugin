@@ -15,8 +15,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	ub "github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
+	ub "github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -39,25 +39,25 @@ var gCurCookieJar *cookiejar.Jar
 
 func init() {
 	control.Register("novel", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "铅笔小说网搜索\n- 小说[xxx]",
 	}).OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			err := login(username, password)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			searchKey := ctx.State["regex_matched"].([]string)[1]
 			searchHTML, err := search(searchKey)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			doc, err := htmlquery.Parse(strings.NewReader(searchHTML))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			htmlTitle := htmlquery.InnerText(htmlquery.FindOne(doc, "/html/head/title"))
@@ -65,7 +65,7 @@ func init() {
 			case websiteTitle:
 				list, err := htmlquery.QueryAll(doc, "//dl[@id='nr']")
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 				if len(list) != 0 {
@@ -89,11 +89,11 @@ func init() {
 					}
 					data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
+						ctx.SendChain(message.Text("ERROR:", err))
 						return
 					}
 					if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
-						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+						ctx.SendChain(message.Text("ERROR:可能被风控了"))
 					}
 				} else {
 					text := htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@id='tipss']"))

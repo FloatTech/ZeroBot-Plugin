@@ -21,19 +21,19 @@ import (
 	"github.com/FloatTech/AnimeAPI/nsfw"
 	"github.com/FloatTech/AnimeAPI/scale"
 
-	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img"
+	"github.com/FloatTech/zbputils/img/writer"
+	"github.com/FloatTech/zbputils/web"
 )
 
 func init() {
 	engine := control.Register("scale", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
 		PrivateDataFolder: "scale",
 	}).ApplySingle(ctxext.DefaultSingle)
@@ -50,11 +50,11 @@ func init() {
 					d, errsub = web.GetData(url[0])
 					datachan <- d
 				}()
-				ctx.SendChain(message.Text("少女祈祷中..."))
+				ctx.SendChain(message.Text("♪"))
 
 				p, err := nsfw.Classify(url[0])
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("#", err))
 					return
 				}
 				if p.Drawings < 0.1 || p.Neutral > 0.8 {
@@ -64,12 +64,12 @@ func init() {
 
 				data := <-datachan
 				if errsub != nil {
-					ctx.SendChain(message.Text("ERROR: ", errsub))
+					ctx.SendChain(message.Text("#", errsub))
 					return
 				}
 				im, _, err := image.Decode(bytes.NewReader(data))
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("#", err))
 					return
 				}
 				px := im.Bounds().Size().X * im.Bounds().Size().Y
@@ -85,7 +85,7 @@ func init() {
 					defer binary.PutWriter(w)
 					_, err = writer.WriteTo(im, w)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
+						ctx.SendChain(message.Text("#", err))
 						return
 					}
 					data, err = scale.Post(bytes.NewReader(w.Bytes()), paras[0], paras[1], 2)
@@ -93,14 +93,14 @@ func init() {
 					data, err = scale.Get(url[0], paras[0], paras[1], 2)
 				}
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("#", err))
 					return
 				}
 
 				n := cachedir + strconv.Itoa(int(ctx.Event.UserID))
 				f, err := os.Create(n)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("#", err))
 					return
 				}
 				_, _ = f.Write(data)

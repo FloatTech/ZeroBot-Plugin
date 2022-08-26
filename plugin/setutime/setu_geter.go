@@ -9,15 +9,14 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	fileutil "github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/math"
-	"github.com/FloatTech/floatbox/process"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	fileutil "github.com/FloatTech/zbputils/file"
 	imagepool "github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/math"
+	"github.com/FloatTech/zbputils/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -52,7 +51,7 @@ var pool = &imgpool{
 
 func init() { // 插件主体
 	engine := control.Register("setutime", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "涩图\n" +
 			"- 来份[涩图/二次元/风景/车万]\n" +
 			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
@@ -61,41 +60,41 @@ func init() { // 插件主体
 		PublicDataFolder: "SetuTime",
 	})
 
-	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		// 如果数据库不存在则下载
 		pool.db.DBPath = engine.DataFolder() + "SetuTime.db"
 		_, _ = engine.GetLazyData("SetuTime.db", false)
 		err := pool.db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("#", err))
 			return false
 		}
 		for _, imgtype := range pool.List() {
 			if err := pool.db.Create(imgtype, &pixiv.Illust{}); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return false
 			}
 		}
 		return true
 	})
 
-	engine.OnRegex(`^来份(.+)$`, getdb, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool)).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^来份(.+)$`, getdb, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool)).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			var imgtype = ctx.State["regex_matched"].([]string)[1]
 			// 补充池子
 			go pool.fill(ctx, imgtype)
 			// 如果没有缓存，阻塞10秒
 			if pool.size(imgtype) == 0 {
-				ctx.SendChain(message.Text("INFO: 正在填充弹药......"))
+				ctx.SendChain(message.Text("LOADING...."))
 				time.Sleep(time.Second * 10)
 				if pool.size(imgtype) == 0 {
-					ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
+					ctx.SendChain(message.Text("#等待填充，请稍后再试......"))
 					return
 				}
 			}
 			// 从缓冲池里抽一张
 			if id := ctx.SendChain(*pool.pop(imgtype)); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+				ctx.SendChain(message.Text("#可能被风控了"))
 			}
 		})
 
@@ -107,13 +106,13 @@ func init() { // 插件主体
 			)
 			err := pool.add(ctx, imgtype, id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return
 			}
 			ctx.SendChain(message.Text("成功向分类", imgtype, "添加图片", id))
 		})
 
-	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^删除\s*([^0-9\s]+)\s*(\d+)$`, getdb, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, pool), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
 				imgtype = ctx.State["regex_matched"].([]string)[1]
@@ -121,7 +120,7 @@ func init() { // 插件主体
 			)
 			// 查询数据库
 			if err := pool.remove(imgtype, id); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return
 			}
 			ctx.SendChain(message.Text("删除成功"))
@@ -162,7 +161,7 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 		if fileutil.IsNotExist(f) {
 			// 下载图片
 			if err := illust.DownloadToCache(0); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 		}
@@ -200,7 +199,7 @@ func (p *imgpool) fill(ctx *zero.Ctx, imgtype string) {
 		illust := &pixiv.Illust{}
 		// 查询出一张图片
 		if err := p.db.Pick(imgtype, illust); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			continue
 		}
 		// 向缓冲池添加一张图片
@@ -215,7 +214,7 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 	if err := p.db.Create(imgtype, &pixiv.Illust{}); err != nil {
 		return err
 	}
-	ctx.SendChain(message.Text("少女祈祷中......"))
+	ctx.SendChain(message.Text("♪"))
 	// 查询P站插图信息
 	illust, err := pixiv.Works(id)
 	if err != nil {

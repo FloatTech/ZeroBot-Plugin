@@ -8,15 +8,15 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/web"
 )
 
 func init() {
 	engine.OnFullMatch("讲个段子").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		data, err := web.RequestDataWith(web.NewDefaultClient(), yduanziURL, "POST", yduanziReferer, ua)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 		text := gjson.Get(helper.BytesToString(data), "duanzi").String()

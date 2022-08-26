@@ -15,21 +15,21 @@ var (
 
 func init() { // 插件主体
 	engine := control.Register("tracemoe", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "tracemoe\n- 搜番 | 搜索番剧[图片]",
 	})
 	// 以图搜图
 	engine.OnKeywordGroup([]string{"搜番", "搜索番剧"}, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
-			ctx.SendChain(message.Text("少女祈祷中......"))
+			ctx.SendChain(message.Text("♪"))
 			for _, pic := range ctx.State["image_url"].([]string) {
 				if result, err := moe.Search(pic, true, true); err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 				} else if len(result.Result) > 0 {
 					r := result.Result[0]
 					hint := "我有把握是这个！"
-					if r.Similarity < 80 {
+					if r.Similarity < 0.8 {
 						hint = "大概是这个？"
 					}
 					mf := int(r.From / 60)

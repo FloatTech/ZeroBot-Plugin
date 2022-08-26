@@ -14,13 +14,12 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/tl"
 
-	"github.com/Coloured-glaze/gg"
-	"github.com/FloatTech/floatbox/binary"
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/img/writer"
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/writer"
+	"github.com/fogleman/gg"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -62,12 +61,10 @@ var words = make(dictionary)
 
 func init() {
 	en := control.Register("wordle", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "猜单词\n" +
 			"- 个人猜单词\n" +
-			"- 团队猜单词\n" +
-			"- 团队六阶猜单词\n" +
-			"- 团队七阶猜单词",
+			"- 团队猜单词",
 		PublicDataFolder: "Wordle",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -80,7 +77,7 @@ func init() {
 		}),
 	))
 
-	en.OnRegex(`^(个人|团队)(五阶|六阶|七阶)?猜单词$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(
+	en.OnRegex(`^(个人|团队)(五阶|六阶|七阶)?猜单词$`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			var errcnt uint32
 			var wg sync.WaitGroup
@@ -120,7 +117,7 @@ func init() {
 			}
 			wg.Wait()
 			if errcnt > 0 {
-				ctx.SendChain(message.Text("ERROR: 下载字典时发生", errcnt, "个错误"))
+				ctx.SendChain(message.Text("ERROR:下载字典时发生", errcnt, "个错误"))
 				return false
 			}
 			return true
@@ -131,7 +128,7 @@ func init() {
 			target := words[class].cet4[rand.Intn(len(words[class].cet4))]
 			tt, err := tl.Translate(target)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			game := newWordleGame(target)

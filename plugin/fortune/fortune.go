@@ -11,20 +11,19 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Coloured-glaze/gg" // 注册了 jpg png gif
+	"github.com/fogleman/gg" // 注册了 jpg png gif
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
-	"github.com/FloatTech/floatbox/math"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/img/writer"
+	"github.com/FloatTech/zbputils/math"
 )
 
 const (
@@ -50,7 +49,7 @@ var (
 func init() {
 	// 插件主体
 	en := control.Register("fortune", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
 			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录 | 奇异恩典 | 夏日口袋 | ASoul]",
@@ -88,21 +87,21 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
-	en.OnFullMatchGroup([]string{"运势", "抽签"}, fcext.DoOnceOnSuccess(
+	en.OnFullMatchGroup([]string{"运势", "抽签"}, ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			data, err := file.GetLazyData(omikujson, false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return false
 			}
 			err = json.Unmarshal(data, &omikujis)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return false
 			}
 			_, err = file.GetLazyData(font, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return false
 			}
 			return true
@@ -128,19 +127,19 @@ func init() {
 			zipfile := images + kind + ".zip"
 			_, err := file.GetLazyData(zipfile, false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return
 			}
 
 			// 随机获取背景
 			background, index, err := randimage(zipfile, ctx)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return
 			}
 
 			// 随机获取签文
-			randtextindex := fcext.RandSenderPerDayN(ctx.Event.UserID, len(omikujis))
+			randtextindex := ctxext.RandSenderPerDayN(ctx.Event.UserID, len(omikujis))
 			title, text := omikujis[randtextindex]["title"], omikujis[randtextindex]["content"]
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
@@ -155,7 +154,7 @@ func init() {
 				return err
 			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return
 			}
 		})
@@ -172,7 +171,7 @@ func randimage(path string, ctx *zero.Ctx) (im image.Image, index int, err error
 	}
 	defer reader.Close()
 
-	file := reader.File[fcext.RandSenderPerDayN(ctx.Event.UserID, len(reader.File))]
+	file := reader.File[ctxext.RandSenderPerDayN(ctx.Event.UserID, len(reader.File))]
 	f, err := file.Open()
 	if err != nil {
 		return

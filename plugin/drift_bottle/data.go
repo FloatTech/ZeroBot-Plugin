@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/FloatTech/floatbox/binary"
 	sql "github.com/FloatTech/sqlite"
+	"github.com/FloatTech/zbputils/binary"
 )
 
 type bottle struct {

@@ -6,9 +6,9 @@ import (
 	"encoding/binary"
 	"time"
 
-	binutils "github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
 	sql "github.com/FloatTech/sqlite"
+	binutils "github.com/FloatTech/zbputils/binary"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/sirupsen/logrus"
 )
 

@@ -10,10 +10,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/web"
 )
 
 var (
@@ -24,14 +24,14 @@ var (
 
 func init() {
 	control.Register("coser", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "三次元小姐姐\n- coser",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("少女祈祷中......"))
+			ctx.SendChain(message.Text("♪"))
 			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			text := gjson.Get(helper.BytesToString(data), "data.Title").String()
@@ -50,7 +50,7 @@ func init() {
 			if id := ctx.SendGroupForwardMessage(
 				ctx.Event.GroupID,
 				m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
+				ctx.SendChain(message.Text("#可能被风控或下载图片用时过长，请耐心等待"))
 			}
 		})
 }

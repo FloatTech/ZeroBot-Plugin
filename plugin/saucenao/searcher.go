@@ -16,11 +16,11 @@ import (
 	"github.com/FloatTech/AnimeAPI/pixiv"
 	"github.com/jozsefsallai/gophersauce"
 
-	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/pool"
 )
 
@@ -30,7 +30,7 @@ var (
 
 func init() { // 插件主体
 	engine := control.Register("saucenao", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "搜图\n" +
 			"- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +
 			"- 搜图[P站图片ID]",
@@ -58,7 +58,7 @@ func init() { // 插件主体
 			// 获取P站插图信息
 			illust, err := pixiv.Works(id)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			if illust.Pid > 0 {
@@ -143,13 +143,8 @@ func init() { // 插件主体
 							} else {
 								msg = append(msg, message.Text("也许是这个?"))
 							}
-							if err == nil {
-								_ = resp.Body.Close()
-								if resp.StatusCode == http.StatusOK {
-									msg = append(msg, message.Image(result.Header.Thumbnail))
-								} else {
-									msg = append(msg, message.Image(pic))
-								}
+							if err == nil && resp.StatusCode == http.StatusOK {
+								msg = append(msg, message.Image(result.Header.Thumbnail))
 							} else {
 								msg = append(msg, message.Image(pic))
 							}
@@ -165,7 +160,7 @@ func init() { // 插件主体
 				}
 				// ascii2d 搜索
 				if result, err := ascii2d.Ascii2d(pic); err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					continue
 				} else {
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
@@ -186,7 +181,7 @@ func init() { // 插件主体
 						ctx.Event.GroupID,
 						msg,
 					).Get("message_id").Int(); id == 0 {
-						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+						ctx.SendChain(message.Text("ERROR:可能被风控了"))
 					}
 				}
 			}
@@ -199,12 +194,12 @@ func init() { // 插件主体
 				APIKey:     ctx.State["regex_matched"].([]string)[1],
 			})
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			err = os.WriteFile(apikeyfile, binary.StringToBytes(saucenaocli.APIKey), 0644)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			ctx.SendChain(message.Text("成功!"))

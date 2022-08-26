@@ -9,36 +9,36 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/math"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/math"
 )
 
 func init() {
 	engine := control.Register("cpstory", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "cp短打\n- 组cp[@xxx][@xxx]\n- 磕cp大老师 雪乃",
 		PublicDataFolder: "CpStory",
 	})
 
-	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "cp.db"
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("cp.db", true)
 		err := db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		err = db.Create("cp_story", &cpstory{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		n, err := db.Count("cp_story")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		logrus.Printf("[cpstory]读取%d条故事", n)

@@ -8,11 +8,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/process"
 )
 
 const (
@@ -27,26 +26,26 @@ func init() {
 		PublicDataFolder: "Curse",
 	})
 
-	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "curse.db"
 		_, err := engine.GetLazyData("curse.db", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		err = db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		err = db.Create("curse", &curse{})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		c, err := db.Count("curse")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		logrus.Infoln("[curse]加载", c, "条骂人语录")

@@ -14,7 +14,7 @@ import (
 
 func init() {
 	control.Register("baidu", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "baidu\n" +
 			"- 百度下[xxx]",
 	}).OnPrefix("百度下").SetBlock(true).Limit(ctxext.LimitByGroup).

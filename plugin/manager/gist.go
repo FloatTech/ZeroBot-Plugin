@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	"github.com/FloatTech/floatbox/math"
-	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/zbputils/math"
+	"github.com/FloatTech/zbputils/web"
 )
 
 // user hash file

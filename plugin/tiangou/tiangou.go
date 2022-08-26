@@ -4,7 +4,6 @@ package tiangou
 import (
 	"time"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -23,33 +22,33 @@ var db = &sql.Sqlite{}
 
 func init() {
 	en := control.Register("tiangou", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "舔狗日记\n" +
 			"- 舔狗日记",
 		PublicDataFolder: "Tiangou",
 	})
 
-	en.OnFullMatch("舔狗日记", fcext.DoOnceOnSuccess(
+	en.OnFullMatch("舔狗日记", ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			db.DBPath = en.DataFolder() + "tiangou.db"
 			_, err := en.GetLazyData("tiangou.db", true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
 			err = db.Open(time.Hour * 24)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
 			err = db.Create("tiangou", &tiangou{})
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
 			c, err := db.Count("tiangou")
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return false
 			}
 			logrus.Infoln("[tiangou]加载", c, "条舔狗日记")
@@ -59,7 +58,7 @@ func init() {
 		var t tiangou
 		err := db.Pick("tiangou", &t)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 		ctx.SendChain(message.Text(t.Text))

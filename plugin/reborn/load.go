@@ -3,7 +3,7 @@ package reborn
 import (
 	"encoding/json"
 
-	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/zbputils/file"
 )
 
 // load 加载rate数据

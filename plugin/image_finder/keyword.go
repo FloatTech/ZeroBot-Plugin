@@ -18,12 +18,12 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/pixiv"
 
-	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/web"
 )
 
 type resultjson struct {
@@ -63,7 +63,7 @@ var hrefre = regexp.MustCompile(`<a href=".*">`)
 
 func init() {
 	control.Register("imgfinder", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "关键字搜图\n" +
 			"- 来张 [xxx]",
 	}).OnRegex(`^来张\s?(.*)$`, zero.AdminPermission).SetBlock(true).
@@ -71,14 +71,14 @@ func init() {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			soutujson, err := soutuapi(keyword)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			rannum := rand.Intn(len(soutujson.Data.Illusts))
 			il := soutujson.Data.Illusts[rannum]
 			illust, err := pixiv.Works(il.ID)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			u := illust.ImageUrls[0]
@@ -101,7 +101,7 @@ func init() {
 				),
 			), ctxext.GetFirstMessageInForward(ctx))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 		})

@@ -10,11 +10,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 )
 
 var (
@@ -23,13 +22,13 @@ var (
 
 func init() {
 	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +
 			"- 刷新本地[xxx]\n" +
-			"- 设置本地setu绝对路径[xxx]\n" +
-			"- 刷新所有本地setu\n" +
-			"- 所有本地setu分类",
+			"- 设置本地涩图绝对路径[xxx]\n" +
+			"- 刷新所有本地涩图\n" +
+			"- 所有本地涩图分类",
 		PrivateDataFolder: "nsetu",
 	})
 
@@ -43,7 +42,7 @@ func init() {
 		}
 	}
 
-	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	engine.OnRegex(`^本地(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -51,7 +50,7 @@ func init() {
 			err := ns.db.Pick(imgtype, sc)
 			ns.mu.RUnlock()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 			} else {
 				p := "file:///" + setupath + "/" + sc.Path
 				if ctx.Event.GroupID != 0 {
@@ -64,24 +63,24 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, ctxext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 			}
 		})
-	engine.OnRegex(`^设置本地setu绝对路径(.*)$`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^设置本地涩图绝对路径(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			setupath = ctx.State["regex_matched"].([]string)[1]
 			err := os.WriteFile(cfgfile, helper.StringToBytes(setupath), 0644)
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 			}
 		})
 	engine.OnFullMatch("刷新所有本地setu", zero.SuperUserPermission).SetBlock(true).
@@ -90,12 +89,12 @@ func init() {
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
 			} else {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 			}
 		})
-	engine.OnFullMatch("所有本地setu分类").SetBlock(true).
+	engine.OnFullMatch("所有本地涩图分类").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			msg := "所有本地setu分类"
+			msg := "所有本地涩图分类"
 			ns.mu.RLock()
 			for i, c := range ns.List() {
 				n, err := ns.db.Count(c)

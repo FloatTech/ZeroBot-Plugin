@@ -19,7 +19,7 @@ import (
 
 func init() { // 插件主体
 	control.Register("github", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "GitHub仓库搜索\n" +
 			"- >github [xxx]\n" +
 			"- >github -p [xxx]",
@@ -35,12 +35,12 @@ func init() { // 插件主体
 			}.Encode()
 			body, err := netGet(api.String(), header)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 			}
 			// 解析请求
 			info := gjson.ParseBytes(body)
 			if info.Get("total_count").Int() == 0 {
-				ctx.SendChain(message.Text("ERROR: 没有找到这样的仓库"))
+				ctx.SendChain(message.Text("ERROR:没有找到这样的仓库"))
 				return
 			}
 			repo := info.Get("items.0")
@@ -61,9 +61,9 @@ func init() { // 插件主体
 						"Star/Fork/Issue: ",
 						repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
 						"Language: ",
-						notnull(repo.Get("language").Str), "\n",
+						notnull(repo.Get("language").Str, "None"), "\n",
 						"License: ",
-						notnull(strings.ToUpper(repo.Get("license.key").Str)), "\n",
+						notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
 						"Last pushed: ",
 						repo.Get("pushed_at").Str, "\n",
 						"Jump: ",
@@ -79,9 +79,9 @@ func init() { // 插件主体
 						"Star/Fork/Issue: ",
 						repo.Get("watchers").Int(), "/", repo.Get("forks").Int(), "/", repo.Get("open_issues").Int(), "\n",
 						"Language: ",
-						notnull(repo.Get("language").Str), "\n",
+						notnull(repo.Get("language").Str, "None"), "\n",
 						"License: ",
-						notnull(strings.ToUpper(repo.Get("license.key").Str)), "\n",
+						notnull(strings.ToUpper(repo.Get("license.key").Str), "None"), "\n",
 						"Last pushed: ",
 						repo.Get("pushed_at").Str, "\n",
 						"Jump: ",
@@ -97,9 +97,9 @@ func init() { // 插件主体
 
 // notnull 如果传入文本为空，则返回默认值
 
-func notnull(text string) string {
+func notnull(text, defstr string) string {
 	if text == "" {
-		return "None"
+		return defstr
 	}
 	return text
 }

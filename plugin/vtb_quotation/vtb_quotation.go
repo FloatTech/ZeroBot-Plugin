@@ -18,12 +18,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/FloatTech/zbputils/web"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation/model"
 )
@@ -32,21 +32,21 @@ var reg = regexp.MustCompile(".*/(.*)")
 
 func init() {
 	engine := control.Register("vtbquotation", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
 		PublicDataFolder: "VtbQuotation",
 	})
 	dbfile := engine.DataFolder() + "vtb.db"
 	storePath := engine.DataFolder() + "store/"
-	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	getdb := ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		err := os.MkdirAll(storePath, 0755)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		_, err = engine.GetLazyData("vtb.db", false)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
 		return true
@@ -60,23 +60,23 @@ func init() {
 				Repeat()             // 不断监听复读
 			db, err := model.Open(dbfile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			defer db.Close()
 			defer cancel()
 			r, err := db.GetAllFirstCategoryMessage()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+				ctx.SendChain(message.Text("ERROR:可能被风控了"))
 			}
 			// 步骤0，1，2，依次选择3个类别
 			step := 0
@@ -102,33 +102,33 @@ func init() {
 						indexs[0] = num
 						secondStepMessage, err := db.GetAllSecondCategoryMessageByFirstIndex(indexs[0])
 						if err != nil {
-							ctx.SendChain(message.Text("ERROR: ", err))
+							ctx.SendChain(message.Text("ERROR:", err))
 							return
 						}
 						if secondStepMessage == "" {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
 							r, err := db.GetAllFirstCategoryMessage()
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
-								ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
 							errorCount++
 						} else {
 							secondStepMessageBytes, err := text.RenderToBase64(secondStepMessage, text.FontFile, 400, 20)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
-								ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
 							step++
 						}
@@ -137,33 +137,33 @@ func init() {
 						indexs[1] = num
 						thirdStepMessage, err := db.GetAllThirdCategoryMessageByFirstIndexAndSecondIndex(indexs[0], indexs[1])
 						if err != nil {
-							ctx.SendChain(message.Text("ERROR: ", err))
+							ctx.SendChain(message.Text("ERROR:", err))
 							return
 						}
 						if thirdStepMessage == "" {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你选择的序号没有内容，请重新选择，三次输入错误，指令可退出重输"))
 							r, err := db.GetAllSecondCategoryMessageByFirstIndex(indexs[0])
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							secondStepMessageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(secondStepMessageBytes))); id.ID() == 0 {
-								ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
 							errorCount++
 						} else {
 							thirdStepMessageBytes, err := text.RenderToBase64(thirdStepMessage, text.FontFile, 400, 20)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(thirdStepMessageBytes))); id.ID() == 0 {
-								ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
 							step++
 						}
@@ -175,16 +175,16 @@ func init() {
 							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("没有内容请重新选择，三次输入错误，指令可退出重输"))
 							r, err := db.GetAllFirstCategoryMessage()
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							firstStepImageBytes, err := text.RenderToBase64(r, text.FontFile, 400, 20)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							if id := ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("base64://"+helper.BytesToString(firstStepImageBytes))); id.ID() == 0 {
-								ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+								ctx.SendChain(message.Text("ERROR:可能被风控了"))
 							}
 							errorCount++
 							step = 1
@@ -201,7 +201,7 @@ func init() {
 							}
 							err = initRecord(recordFile, recURL)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR: ", err))
+								ctx.SendChain(message.Text("ERROR:", err))
 								return
 							}
 							ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
@@ -220,7 +220,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			db, err := model.Open(dbfile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 			defer db.Close()
@@ -240,7 +240,7 @@ func init() {
 				}
 				err = initRecord(recordFile, recURL)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 				ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
@@ -248,24 +248,24 @@ func init() {
 		})
 	engine.OnFullMatch("更新vtb", zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.Send("少女祈祷中......")
+			ctx.Send("♪")
 			db := model.Initialize(dbfile)
 			if db != nil {
 				vl, err := db.GetVtbList()
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 				for _, v := range vl {
 					err = db.StoreVtb(v)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
+						ctx.SendChain(message.Text("ERROR:", err))
 						return
 					}
 				}
 				err = db.Close()
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 			}

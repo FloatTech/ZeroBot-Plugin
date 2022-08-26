@@ -10,13 +10,13 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/floatbox/math"
-	"github.com/FloatTech/floatbox/process"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/pool"
+	"github.com/FloatTech/zbputils/math"
+	"github.com/FloatTech/zbputils/process"
+	"github.com/FloatTech/zbputils/web"
 )
 
 const (
@@ -31,7 +31,7 @@ var (
 
 func init() {
 	en := control.Register("lolicon", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "lolicon\n" +
 			"- 来份萝莉\n" +
 			"- 设置随机图片地址[http...]",
@@ -43,7 +43,7 @@ func init() {
 					if custapi != "" {
 						data, err := web.GetData(custapi)
 						if err != nil {
-							ctx.SendChain(message.Text("ERROR: ", err))
+							ctx.SendChain(message.Text("#", err))
 							continue
 						}
 						queue <- "base64://" + base64.StdEncoding.EncodeToString(data)
@@ -51,12 +51,12 @@ func init() {
 					}
 					data, err := web.GetData(api)
 					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
+						ctx.SendChain(message.Text("#", err))
 						continue
 					}
 					json := gjson.ParseBytes(data)
 					if e := json.Get("error").Str; e != "" {
-						ctx.SendChain(message.Text("ERROR: ", e))
+						ctx.SendChain(message.Text("#", e))
 						continue
 					}
 					url := json.Get("data.0.urls.original").Str
@@ -77,14 +77,14 @@ func init() {
 			}()
 			select {
 			case <-time.After(time.Minute):
-				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
+				ctx.SendChain(message.Text("#等待填充，请稍后再试......"))
 			case img := <-queue:
 				id := ctx.SendChain(message.Image(img))
 				if id.ID() == 0 {
 					process.SleepAbout1sTo2s()
 					id = ctx.SendChain(message.Image(img).Add("cache", "0"))
 					if id.ID() == 0 {
-						ctx.SendChain(message.Text("ERROR: 图片发送失败，可能被风控了~"))
+						ctx.SendChain(message.Text("#图片发送失败，可能被风控了~"))
 					}
 				}
 			}
@@ -93,7 +93,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
 			if !strings.HasPrefix(u, "http") {
-				ctx.SendChain(message.Text("ERROR: url非法!"))
+				ctx.SendChain(message.Text("#url非法!"))
 				return
 			}
 			custapi = u

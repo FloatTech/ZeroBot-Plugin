@@ -15,7 +15,7 @@ import (
 
 func init() {
 	engine := control.Register("shindan", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "shindan\n" +
 			"- 今天是什么少女[@xxx]\n" +
 			"- 异世界转生[@xxx]\n" +
@@ -35,7 +35,7 @@ func handletxt(ctx *zero.Ctx) {
 	// 调用接口
 	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
+		ctx.SendChain(message.Text("ERROR:", err))
 		return
 	}
 	ctx.SendChain(message.Text(txt))
@@ -47,7 +47,7 @@ func handlecq(ctx *zero.Ctx) {
 	// 调用接口
 	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
+		ctx.SendChain(message.Text("ERROR:", err))
 		return
 	}
 	ctx.Send(txt)
@@ -59,16 +59,16 @@ func handlepic(ctx *zero.Ctx) {
 	// 调用接口
 	txt, err := shindanmaker.Shindanmaker(ctx.State["id"].(int64), name)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
+		ctx.SendChain(message.Text("ERROR:", err))
 		return
 	}
 	data, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
+		ctx.SendChain(message.Text("ERROR:", err))
 		return
 	}
 	if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
-		ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+		ctx.SendChain(message.Text("ERROR:可能被风控了"))
 	}
 }
 

@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
-  <img src=".github/黒金.jpg" alt="看板娘" width = "400">
+  <a href="https://">
+  <img src=".github/糕糕.jpg" alt="看板娘" width = "400">
   </a><br>
 
   <h1>ZeroBot-Plugin</h1>
@@ -387,29 +387,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>b站动态、专栏、视频、直播解析</summary>
+  <summary>b站视频链接解析</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
 
-  - [x] t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245
-
-</details>
-<details>
-  <summary>b站动态、直播推送,需要配合job一起使用</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-
-  - [x] 添加b站订阅[uid|name]
-
-  - [x] 取消b站订阅[uid|name]
-  
-  - [x] 取消b站动态订阅[uid|name]
-  
-  - [x] 取消b站直播订阅[uid|name]
-  
-  - [x] b站推送列表
-  
-  - [x] 拉取b站推送 (使用job执行定时任务------记录在"@every 10s"触发的指令) 
+  - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
 
 </details>
 <details>
@@ -430,14 +412,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 藏头诗[xxx]
 
   - [x] 藏尾诗[xxx]
-
-</details>
-<details>
-  <summary>英文字符翻转</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser"`
-
-  - [x] 翻转 [英文字符串]
 
 </details>
 <details>
@@ -492,6 +466,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 发大病
 
   - [x] 教你一篇小作文[作文]
+
+  - [x] [回复]查重
 
 </details>
 <details>
@@ -605,32 +581,22 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"`
 
   - 猜歌插件（该插件依赖ffmpeg）
+
+  - [x] 个人猜歌
+  
+  - [x] 团队猜歌
   
   - [x] 设置猜歌缓存歌库路径 [绝对路径]
+
+  - [x] 设置猜歌本地 [true/false]
+
+  - [x] 设置猜歌Api [true/false]
   
-  - [x] 设置猜歌[本地/Api] [true/false]
+  - 注：默认歌库为网易云热歌榜
   
-  - [x] 登录网易云
+  - 1.可在后面添加“-动漫”进行动漫歌猜歌(这个只能猜歌名和歌手)
   
-  - 注：不登陆也能用，API有几率返回400
-  
-  - [x] 添加歌单 [网易云歌单ID] [歌单名称]
-  
-  - 注：[歌单名称]可为空，默认原标题
-  
-  - [x] 删除歌单 [网易云歌单ID/API歌单名称]
-  
-  - [x] 获取歌单列表
-  
-  - [x] [网易云歌单ID/API歌单名称]歌单信息
-  
-  - [x] [个人/团队]猜歌
-  
-  - 注：默认歌库为网易云ACG动画榜
-  
-  - 可在后面添加[-歌单名称]进行指定歌单猜歌
-  
-  - 歌单的歌曲命名规则为:歌名 - 歌手 - 其他(歌曲出处之类)
+  - 2.可在后面添加“-动漫2”进行动漫歌猜歌(这个可以猜番名，但歌手经常“未知”)
 
 </details>
 <details>
@@ -722,19 +688,9 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置音色40 (0~127)
 
-  - [x] 注: 该插件需要安装timidity, linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh, windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行
+  - [x] 注: 该插件需要安装timidity,linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh , windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat , windows需要管理员模式运行
   
   - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<3代表音长×8,<-1代表音长×0.5,<-3代表音长×0.125,R是休止符
-
-</details>
-<details>
-  <summary>日韩 VITS 模型拟声</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"`
-
-  - [x] 让[宁宁|爱瑠|芳乃|茉子|丛雨|小春|七海]说(日语)
-
-  - [x] 让[수아|미미르|아린|연화|유화|선배]说(韩语)
 
 </details>
 <details>
@@ -821,14 +777,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"`
 
   - [x] ?? [缩写]
-
-</details>
-<details>
-  <summary>日语语法学习</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"`
-
-  - [x] 日语语法 [xxx] (使用tag随机)
 
 </details>
 <details>
@@ -943,10 +891,10 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"`
 
-  - [x] 抽[塔罗牌|大阿卡纳|小阿卡纳]
-  - [x] 抽n张[塔罗牌|大阿卡纳|小阿卡纳]
+  - [x] 抽塔罗牌
+  - [x] 抽n张塔罗牌
   - [x] 解塔罗牌[牌名]
-  - [x] [塔罗|大阿卡纳|小阿卡纳|混合]牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]
+  - [x] 塔罗牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]"
 
 </details>
 <details>
@@ -965,10 +913,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 个人猜单词
 
   - [x] 团队猜单词
-
-  - [x] 团队六阶猜单词
-
-  - [x] 团队七阶猜单词
 
 </details>
 <details>
@@ -1041,6 +985,24 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 查询鬼东西[序号][@xxx]
 
   - 注：由于需要科学，默认注释。
+
+</details>
+<details>
+  <summary>b站推送</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
+
+  - [x] 添加b站订阅[uid]
+
+  - [x] 取消b站订阅[uid]
+
+  - [x] 取消b站动态订阅[uid]
+
+  - [x] 取消b站直播订阅[uid]
+
+  - [x] b站推送列表
+
+  - 注：由于需要安装Chrome，默认注释，具体看[这里](https://www.yuque.com/xiangrikuidezhongzi/zerobot/qrwxth)
 
 </details>
 

@@ -13,12 +13,11 @@ import (
 	"strings"
 	"sync/atomic"
 
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/img/writer"
-	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/writer"
+	"github.com/FloatTech/zbputils/process"
 	"github.com/golang/freetype"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -36,7 +35,7 @@ var (
 
 func init() {
 	engine := control.Register("genshin", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "原神抽卡\n- 原神十连\n- 切换原神卡池",
 		PublicDataFolder: "Genshin",
 	}).ApplySingle(ctxext.DefaultSingle)
@@ -63,21 +62,21 @@ func init() {
 			err := c.SetData(gid, int64(store))
 			if err != nil {
 				process.SleepAbout1sTo2s()
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 			}
 		})
 
-	engine.OnFullMatch("原神十连", fcext.DoOnceOnSuccess(
+	engine.OnFullMatch("原神十连", ctxext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			zipfile := engine.DataFolder() + "Genshin.zip"
 			_, err := engine.GetLazyData("Genshin.zip", false)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return false
 			}
 			err = parsezip(zipfile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return false
 			}
 			return true
@@ -96,7 +95,7 @@ func init() {
 			store := (storage)(c.GetData(gid))
 			img, str, mode, err := randnums(10, store)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("#", err))
 				return
 			}
 			b, cl := writer.ToBytes(img)
