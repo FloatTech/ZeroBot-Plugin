@@ -13,10 +13,6 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-const (
-	bilibiliCookie = "bilbili_cookie"
-)
-
 var (
 	vtbURLs = [...]string{"https://api.vtbs.moe/v1/short", "https://api.tokyo.vtbs.moe/v1/short", "https://vtbs.musedash.moe/v1/short"}
 	vdb     *vupdb
@@ -101,8 +97,7 @@ func setBilibiliCookie(cookie string) (err error) {
 	cfg = config{
 		BilibiliCookie: cookie,
 	}
-	saveConfig(cfg)
-	return
+	return saveConfig(cfg)
 }
 
 func reflushBilibiliCookie() (err error) {

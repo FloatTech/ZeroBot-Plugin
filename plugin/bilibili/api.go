@@ -23,7 +23,10 @@ func searchUser(keyword string) (r []searchResult, err error) {
 	if err != nil {
 		return
 	}
-	reflushBilibiliCookie()
+	err = reflushBilibiliCookie()
+	if err != nil {
+		return
+	}
 	req.Header.Add("cookie", cfg.BilibiliCookie)
 	res, err := client.Do(req)
 	if err != nil {
@@ -76,7 +79,10 @@ func getMedalwall(uid string) (result []medal, err error) {
 	if err != nil {
 		return
 	}
-	reflushBilibiliCookie()
+	err = reflushBilibiliCookie()
+	if err != nil {
+		return
+	}
 	req.Header.Add("cookie", cfg.BilibiliCookie)
 	res, err := client.Do(req)
 	if err != nil {
