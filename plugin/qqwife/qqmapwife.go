@@ -15,6 +15,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/wdvxdr1123/ZeroBot/extension/single"
 
 	// 数据库
 	sql "github.com/FloatTech/sqlite"
@@ -290,7 +291,16 @@ func init() {
 			"- 娶群友\n- 群老婆列表\n" +
 			"--------------------------------\n以下技能每人只能三选一\n   CD12H，不跨天刷新\n--------------------------------\n" +
 			"- (娶|嫁)@对方QQ\n- 当[对方Q号|@对方QQ]的小三\n- 闹离婚",
-	})
+	}).ApplySingle(single.New(
+		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
+		single.WithPostFn[int64](func(ctx *zero.Ctx) {
+			ctx.Send(
+				message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("民政局门口排长队了！你们一个个来，别着急......"),
+				),
+			)
+		}),
+	))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		民政局.db.DBPath = engine.DataFolder() + "结婚登记表.db"
 		// 如果数据库不存在则下载
