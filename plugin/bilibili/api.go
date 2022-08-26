@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 
@@ -24,8 +23,8 @@ func searchUser(keyword string) (r []searchResult, err error) {
 	if err != nil {
 		return
 	}
-	c := vdb.getBilibiliCookie()
-	req.Header.Add("cookie", c.Value)
+	reflushBilibiliCookie()
+	req.Header.Add("cookie", cfg.BilibiliCookie)
 	res, err := client.Do(req)
 	if err != nil {
 		return
@@ -36,19 +35,12 @@ func searchUser(keyword string) (r []searchResult, err error) {
 		err = errors.New(s)
 		return
 	}
-	data, err := io.ReadAll(res.Body)
+	var sd searchData
+	err = json.NewDecoder(res.Body).Decode(&sd)
 	if err != nil {
 		return
 	}
-	j := gjson.ParseBytes(data)
-	if j.Get("data.numResults").Int() == 0 {
-		err = errors.New("查无此人")
-		return
-	}
-	err = json.Unmarshal(binary.StringToBytes(j.Get("data.result").Raw), &r)
-	if err != nil {
-		return
-	}
+	r = sd.Data.Result
 	return
 }
 
@@ -84,8 +76,8 @@ func getMedalwall(uid string) (result []medal, err error) {
 	if err != nil {
 		return
 	}
-	c := vdb.getBilibiliCookie()
-	req.Header.Add("cookie", c.Value)
+	reflushBilibiliCookie()
+	req.Header.Add("cookie", cfg.BilibiliCookie)
 	res, err := client.Do(req)
 	if err != nil {
 		return

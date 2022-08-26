@@ -219,6 +219,14 @@ type roomCard struct {
 	} `json:"anchor_info"`
 }
 
+// searchData 查找b站用户总结构体
+type searchData struct {
+	Data struct {
+		NumResults int            `json:"numResults"`
+		Result     []searchResult `json:"result"`
+	} `json:"data"`
+}
+
 // searchResult 查找b站用户结果
 type searchResult struct {
 	Mid    int64  `json:"mid"`
@@ -315,4 +323,9 @@ type danmakusuki struct {
 		PageSize int64 `json:"pageSize"`
 		HasMore  bool  `json:"hasMore"`
 	} `json:"data"`
+}
+
+// 配置结构体
+type config struct {
+	BilibiliCookie string `json:"bilibili_cookie"`
 }

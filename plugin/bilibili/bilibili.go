@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/Coloured-glaze/gg"
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
@@ -39,6 +40,8 @@ var (
 		4: "进入直播间",
 		5: "标题变动",
 	}
+	cfgFile = "data/Bilibili/config.json"
+	cfg     config
 )
 
 // 查成分的
@@ -57,12 +60,16 @@ func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
-	var err error
-	_, _ = engine.GetLazyData("bilibili.db", false)
-	vdb, err = initializeVup(engine.DataFolder() + "bilibili.db")
-	if err != nil {
-		panic(err)
-	}
+	var getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		var err error
+		_, _ = engine.GetLazyData("bilibili.db", false)
+		vdb, err = initializeVup(engine.DataFolder() + "bilibili.db")
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		return true
+	})
 	engine.OnRegex(`^>user info\s?(.{1,25})$`, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
@@ -104,7 +111,7 @@ func init() {
 			))
 		})
 
-	engine.OnRegex(`^查成分\s?(.{1,25})$`, getPara).SetBlock(true).
+	engine.OnRegex(`^查成分\s?(.{1,25})$`, getPara, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
 			today := time.Now().Format("20060102")
@@ -520,7 +527,7 @@ func init() {
 	engine.OnRegex(`^设置b站cookie?\s+(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			cookie := ctx.State["regex_matched"].([]string)[1]
-			err := vdb.setBilibiliCookie(cookie)
+			err := setBilibiliCookie(cookie)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
