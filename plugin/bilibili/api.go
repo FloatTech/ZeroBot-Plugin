@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -18,7 +19,24 @@ var (
 
 // searchUser 查找b站用户
 func searchUser(keyword string) (r []searchResult, err error) {
-	data, err := web.GetData(fmt.Sprintf(searchUserURL, keyword))
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fmt.Sprintf(searchUserURL, keyword), nil)
+	if err != nil {
+		return
+	}
+	c := vdb.getBilibiliCookie()
+	req.Header.Add("cookie", c.Value)
+	res, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		s := fmt.Sprintf("status code: %d", res.StatusCode)
+		err = errors.New(s)
+		return
+	}
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		return
 	}

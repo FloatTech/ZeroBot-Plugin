@@ -34,7 +34,7 @@ func (vup) TableName() string {
 
 type config struct {
 	Key   string `gorm:"column:key;primary_key"`
-	Value string `gorm:"column:value"`
+	Value string `gorm:"column:value;type:varchar(2048)"`
 }
 
 func (config) TableName() string {
