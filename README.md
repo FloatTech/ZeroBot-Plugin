@@ -388,7 +388,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 查成分 [xxx]
 
-  - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31
+  - [x] 查弹幕 [xxx] 2 (最后一个参数是页码)
+
+  - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31 (最好把cookie设全)
 
   - [x] 更新vup
 
