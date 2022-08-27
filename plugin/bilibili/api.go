@@ -18,19 +18,32 @@ var (
 
 // searchUser 查找b站用户
 func searchUser(keyword string) (r []searchResult, err error) {
-	data, err := web.GetData(fmt.Sprintf(searchUserURL, keyword))
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fmt.Sprintf(searchUserURL, keyword), nil)
 	if err != nil {
 		return
 	}
-	j := gjson.ParseBytes(data)
-	if j.Get("data.numResults").Int() == 0 {
-		err = errors.New("查无此人")
-		return
-	}
-	err = json.Unmarshal(binary.StringToBytes(j.Get("data.result").Raw), &r)
+	err = reflushBilibiliCookie()
 	if err != nil {
 		return
 	}
+	req.Header.Add("cookie", cfg.BilibiliCookie)
+	res, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		s := fmt.Sprintf("status code: %d", res.StatusCode)
+		err = errors.New(s)
+		return
+	}
+	var sd searchData
+	err = json.NewDecoder(res.Body).Decode(&sd)
+	if err != nil {
+		return
+	}
+	r = sd.Data.Result
 	return
 }
 
@@ -66,8 +79,11 @@ func getMedalwall(uid string) (result []medal, err error) {
 	if err != nil {
 		return
 	}
-	c := vdb.getBilibiliCookie()
-	req.Header.Add("cookie", c.Value)
+	err = reflushBilibiliCookie()
+	if err != nil {
+		return
+	}
+	req.Header.Add("cookie", cfg.BilibiliCookie)
 	res, err := client.Do(req)
 	if err != nil {
 		return

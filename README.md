@@ -329,7 +329,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 </details>
 
 ### *中优先级*
+<details>
+  <summary>ahsai tts</summary>
 
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"`
+
+  - [x] 使[ 伊織弓鶴 | 紲星あかり | 結月ゆかり | 京町セイカ |東北きりたん | 東北イタコ | ついなちゃん標準語 | ついなちゃん関西弁 | 音街ウナ | 琴葉茜 | 吉田くん | 民安ともえ | 桜乃そら | 月読アイ | 琴葉葵 | 東北ずん子 | 月読ショウタ | 水奈瀬コウ ]说(日语)
+
+</details>
 <details>
   <summary>AIfalse</summary>
 
@@ -381,7 +388,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 查成分 [xxx]
 
-  - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31
+  - [x] 查弹幕 [xxx] 2 (最后一个参数是页码)
+
+  - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31 (最好把cookie设全)
 
   - [x] 更新vup
 
@@ -420,6 +429,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 书评[xxx]
 
   - [x] 随机书评
+
+</details>
+<details>
+  <summary>打断复读</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"`
+
+  - [x] (打断三次以上的复读)
 
 </details>
 <details>
