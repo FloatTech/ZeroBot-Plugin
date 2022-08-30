@@ -1,4 +1,4 @@
-package anti_abuse
+package antiabuse
 
 import (
 	"fmt"
@@ -9,27 +9,31 @@ import (
 
 var db = &sqlite.Sqlite{}
 
-type BanTime struct {
+type banUser struct {
 	UUID    string `db:"uuid"`
 	DueTime int64  `db:"due_time"`
 }
 
 func insertUser(gid, uid int64) error {
-	banTime := &BanTime{fmt.Sprintf("%d-%d", gid, uid), time.Now().Add(4 * time.Hour).UnixNano()}
-	return db.Insert("BanTime", banTime)
+	obj := &banUser{fmt.Sprintf("%d-%d", gid, uid), time.Now().Add(4 * time.Hour).UnixNano()}
+	return db.Insert("banUser", obj)
 }
 
 func deleteUser(gid, uid int64) error {
 	sql := fmt.Sprintf("WHERE uuid=%d-%d", gid, uid)
-	return db.Del("BanTime", sql)
+	return db.Del("banUser", sql)
 }
 
 func recoverUser() error {
-	banTime := &BanTime{}
+	obj := &banUser{}
 	var uuids []string
-	err := db.FindFor("BanTime", banTime, "", func() error {
-		if time.Now().UnixNano() < banTime.DueTime {
-			uuids = append(uuids, banTime.UUID)
+	err := db.FindFor("banUser", obj, "", func() error {
+		if time.Now().UnixNano() < obj.DueTime {
+			uuids = append(uuids, obj.UUID)
+		} else {
+			if err := db.Del("banUser", "WHERE uuid="+obj.UUID); err != nil {
+				return err
+			}
 		}
 		return nil
 	},
@@ -41,25 +45,25 @@ func recoverUser() error {
 	return nil
 }
 
-type BanWord struct {
+type banWord struct {
 	GroupWord string `db:"group_word"`
 }
 
 func insertWord(gid int64, word string) error {
-	banWord := &BanWord{fmt.Sprintf("%d-%s", gid, word)}
-	return db.Insert("BanWord", banWord)
+	obj := &banWord{fmt.Sprintf("%d-%s", gid, word)}
+	return db.Insert("banWord", obj)
 }
 
 func deleteWord(gid int64, word string) error {
 	sql := fmt.Sprintf("WHERE group_word = %d-%s", gid, word)
-	return db.Del("BanWord", sql)
+	return db.Del("banWord", sql)
 }
 
 func recoverWord() error {
-	banWord := &BanWord{}
+	obj := &banWord{}
 	var groupWords []string
-	err := db.FindFor("BanWord", banWord, "", func() error {
-		groupWords = append(groupWords, banWord.GroupWord)
+	err := db.FindFor("banWord", obj, "", func() error {
+		groupWords = append(groupWords, obj.GroupWord)
 		return nil
 	},
 	)

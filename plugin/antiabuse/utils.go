@@ -1,4 +1,4 @@
-package anti_abuse
+package antiabuse
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ func banRule(ctx *zero.Ctx) bool {
 					ctx.SendChain(message.Text("ban error: ", err))
 				}
 			})
-			ctx.Send(message.Text("检测到违禁词，已封禁4小时"))
+			ctx.SendChain(message.Text("检测到违禁词，已封禁/屏蔽4小时"))
 			return false
 		}
 	}

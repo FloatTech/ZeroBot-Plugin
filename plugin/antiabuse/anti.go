@@ -1,4 +1,5 @@
-package anti_abuse
+// Package antiabuse defines anti_abuse plugin ,support abuse words check and add/remove abuse words
+package antiabuse
 
 import (
 	"fmt"
@@ -20,18 +21,17 @@ func init() {
 	})
 	onceRule := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "anti_abuse.db"
-		_, _ = engine.GetLazyData("anti_abuse.db", true)
 		err := db.Open(time.Hour * 4)
 		if err != nil {
 			ctx.SendChain(message.Text("open db error: ", err))
 			return false
 		}
-		err = db.Create("BanTime", &BanTime{})
+		err = db.Create("banUser", &banUser{})
 		if err != nil {
 			ctx.SendChain(message.Text("create table error: ", err))
 			return false
 		}
-		err = db.Create("BanWord", &BanWord{})
+		err = db.Create("banWord", &banWord{})
 		if err != nil {
 			ctx.SendChain(message.Text("create table error: ", err))
 			return false
@@ -48,20 +48,20 @@ func init() {
 		}
 		return true
 	})
-	engine.OnMessage(onceRule, banRule)
-	engine.OnCommand("添加违禁词", zero.AdminPermission, onceRule).Handle(
+	engine.OnMessage(zero.OnlyGroup, onceRule, banRule)
+	engine.OnCommand("添加违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
 		func(ctx *zero.Ctx) {
 			if err := insertWord(ctx.Event.GroupID, ctx.State["args"].(string)); err != nil {
 				ctx.SendChain(message.Text("add ban word error:", err))
 			}
 		})
-	engine.OnCommand("删除违禁词", zero.AdminPermission, onceRule).Handle(
+	engine.OnCommand("删除违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
 		func(ctx *zero.Ctx) {
 			if err := deleteWord(ctx.Event.GroupID, ctx.State["args"].(string)); err != nil {
 				ctx.SendChain(message.Text("add ban word error:", err))
 			}
 		})
-	engine.OnCommand("查看违禁词", onceRule).Handle(
+	engine.OnCommand("查看违禁词", zero.OnlyGroup, onceRule).Handle(
 		func(ctx *zero.Ctx) {
 			gidPrefix := fmt.Sprintf("%d-", ctx.Event.GroupID)
 			var words []string
