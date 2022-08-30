@@ -10,6 +10,9 @@ import (
 )
 
 func banRule(ctx *zero.Ctx) bool {
+	if !ctx.Event.IsToMe {
+		return false
+	}
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	uuid := fmt.Sprintf("%d-%d", gid, uid)

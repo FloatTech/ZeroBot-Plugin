@@ -25,6 +25,9 @@ func deleteUser(gid, uid int64) error {
 }
 
 func recoverUser() error {
+	if !db.CanFind("banUser", "") {
+		return nil
+	}
 	obj := &banUser{}
 	var uuids []string
 	err := db.FindFor("banUser", obj, "", func() error {
@@ -60,6 +63,9 @@ func deleteWord(gid int64, word string) error {
 }
 
 func recoverWord() error {
+	if !db.CanFind("banWord", "") {
+		return nil
+	}
 	obj := &banWord{}
 	var groupWords []string
 	err := db.FindFor("banWord", obj, "", func() error {
