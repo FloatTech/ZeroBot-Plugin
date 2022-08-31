@@ -11,20 +11,14 @@ builds:
       - GO111MODULE=on
     goos:
       - linux
-      - darwin
     goarch:
-      - '386'
+      - 386
       - amd64
       - arm
       - arm64
     goarm:
       - 6
       - 7
-    ignore:
-      - goos: darwin
-        goarch: arm
-      - goos: darwin
-        goarch: '386'
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
       - -trimpath
@@ -37,7 +31,7 @@ builds:
     goos:
       - windows
     goarch:
-      - '386'
+      - 386
       - amd64
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
