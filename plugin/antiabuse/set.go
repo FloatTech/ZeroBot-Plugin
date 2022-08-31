@@ -2,7 +2,6 @@ package antiabuse
 
 import "sync"
 
-
 type Set struct {
 	sync.RWMutex
 	m map[string]struct{}
