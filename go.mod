@@ -3,17 +3,18 @@ module github.com/FloatTech/ZeroBot-Plugin
 go 1.18
 
 require (
-	github.com/Coloured-glaze/gg v1.3.2
-	github.com/FloatTech/AnimeAPI v1.5.1-0.20220816053000-8a1d0dd9500b
-	github.com/FloatTech/floatbox v0.0.0-20220816052111-cbf40c78757a
+	github.com/Coloured-glaze/gg v1.3.4
+	github.com/FloatTech/AnimeAPI v1.5.1-0.20220901132657-2585bbc03bf6
+	github.com/FloatTech/floatbox v0.0.0-20220822040527-f059031fec44
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/zbpctrl v1.4.1-0.20220715042842-93f081cb0133
-	github.com/FloatTech/zbputils v1.5.1-0.20220816052531-0efa59cfb7b5
+	github.com/FloatTech/zbputils v1.5.1-0.20220826103123-0c73a585e38f
+	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.0.3
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.5.4
+	github.com/fumiama/go-base16384 v1.5.5
 	github.com/fumiama/go-registry v0.1.6
 	github.com/fumiama/gofastTEA v0.0.10
 	github.com/fumiama/gotracemoe v0.0.3
@@ -36,7 +37,6 @@ require (
 
 require (
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b // indirect
-	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c // indirect
 	github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/cheekybits/genny v1.0.0 // indirect
