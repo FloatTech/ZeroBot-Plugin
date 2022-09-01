@@ -114,7 +114,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"         // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"          // 月幕galgame
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcping" //自制我的世界服务器ping
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcping" //自制我的世界服务器ping
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/msgid"  //自制消息ID
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/recall" //RECALL
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/xueya"  //自制血压

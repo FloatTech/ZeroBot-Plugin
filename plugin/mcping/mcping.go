@@ -11,7 +11,7 @@ import (
 
 func init() {
 	engine := control.Register("mcping", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "-",
 	})
 
