@@ -66,7 +66,7 @@ func init() {
 		Help: "一群一天一夫一妻制群老婆\n（每天凌晨刷新CP）\n" +
 			"- 娶群友\n- 群老婆列表\n- 我群老婆\n" +
 			"--------------------------------\n以下技能每个CD12H，不跨天刷新\n--------------------------------\n" +
-			"- (娶|嫁)@对方QQ\n- 牛[对方Q号|@对方QQ]\n- 闹离婚",
+			"- (娶|嫁)@对方QQ\n- 当[对方Q号|@对方QQ]的小三\n- 闹离婚",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -231,7 +231,7 @@ func init() {
 			)
 		})
 	// NTR技能
-	engine.OnRegex(`^牛(\[CQ:at,qq=(\d+)\]\s?|(\d+))`, zero.OnlyGroup, getdb, checkcp).SetBlock(true).Limit(cdcheck2, iscding).
+	engine.OnRegex(`^当(\[CQ:at,qq=(\d+)\]\s?|(\d+))的小三`, zero.OnlyGroup, getdb, checkcp).SetBlock(true).Limit(cdcheck2, iscding).
 		Handle(func(ctx *zero.Ctx) {
 			fid := ctx.State["regex_matched"].([]string)
 			fiancee, _ := strconv.ParseInt(fid[2]+fid[3], 10, 64)
