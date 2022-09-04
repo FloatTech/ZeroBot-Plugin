@@ -432,7 +432,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("重置成功"))
 		})
-	engine.OnFullMatchGroup([]string{"我群老婆"}, zero.OnlyGroup, getdb).SetBlock(true).
+	engine.OnFullMatch("我群老婆", zero.OnlyGroup, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			ok, err := 民政局.开门时间(gid)
