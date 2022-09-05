@@ -16,8 +16,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-// go:linkname managers github.com/FloatTech/zbpctrl.managers
-var managers *ctrl.Manager[*zero.Ctx]
+//go:linkname managers github.com/FloatTech/zbputils/control.managers
+var managers ctrl.Manager[*zero.Ctx]
 var breakFlag = errors.New("break")
 var db = &sqlite.Sqlite{}
 var crc32Table = crc32.MakeTable(crc32.IEEE)
