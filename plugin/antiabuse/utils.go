@@ -15,7 +15,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var managers *ctrl.Manager[*zero.Ctx] //managers lazy load
+var managers = &ctrl.Manager[*zero.Ctx]{} //managers lazy load
 var errBreak = errors.New("break")
 var db = &sqlite.Sqlite{}
 var crc32Table = crc32.MakeTable(crc32.IEEE)
