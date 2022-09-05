@@ -72,5 +72,4 @@ func init() {
 			})
 			ctx.SendChain(message.Text("本群违禁词有:\n", strings.Join(words, " |")))
 		})
-
 }
