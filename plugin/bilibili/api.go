@@ -15,42 +15,34 @@ var (
 	errNeedCookie = errors.New("该api需要设置b站cookie，请发送命令设置cookie，例如\"设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\"")
 )
 
-type searchResult struct {
-	Mid    int64  `json:"mid"`
-	Uname  string `json:"uname"`
-	Gender int64  `json:"gender"`
-	Usign  string `json:"usign"`
-	Level  int64  `json:"level"`
-}
-
-// 搜索api：通过把触发指令传入的昵称找出uid返回
-func search(keyword string) (r []searchResult, err error) {
-	searchURL := "http://api.bilibili.com/x/web-interface/search/type?search_type=bili_user&keyword=" + keyword
-	data, err := web.GetData(searchURL)
+// searchUser 查找b站用户
+func searchUser(keyword string) (r []searchResult, err error) {
+	data, err := web.GetData(fmt.Sprintf(searchUserURL, keyword))
 	if err != nil {
 		return
 	}
-	j := gjson.ParseBytes(data)
-	if j.Get("data.numResults").Int() == 0 {
-		err = errors.New("查无此人")
+	err = reflushBilibiliCookie()
+	if err != nil {
 		return
 	}
-	err = json.Unmarshal(binary.StringToBytes(j.Get("data.result").Raw), &r)
+	req.Header.Add("cookie", cfg.BilibiliCookie)
+	res, err := client.Do(req)
 	if err != nil {
 		return
 	}
 	return
 }
 
-type follower struct {
-	Mid      int    `json:"mid"`
-	Uname    string `json:"uname"`
-	Video    int    `json:"video"`
-	Roomid   int    `json:"roomid"`
-	Rise     int    `json:"rise"`
-	Follower int    `json:"follower"`
-	GuardNum int    `json:"guardNum"`
-	AreaRank int    `json:"areaRank"`
+// getVtbDetail 查找vtb信息
+func getVtbDetail(uid string) (result vtbDetail, err error) {
+	data, err := web.GetData(fmt.Sprintf(vtbDetailURL, uid))
+	if err != nil {
+		return
+	}
+	if err = json.Unmarshal(data, &result); err != nil {
+		return
+	}
+	return
 }
 
 // 请求api
@@ -74,8 +66,11 @@ func followings(uid string) (s string, err error) {
 	if err != nil {
 		return
 	}
-	c := vdb.getBilibiliCookie()
-	req.Header.Add("cookie", c.Value)
+	err = reflushBilibiliCookie()
+	if err != nil {
+		return
+	}
+	req.Header.Add("cookie", cfg.BilibiliCookie)
 	res, err := client.Do(req)
 	if err != nil {
 		return

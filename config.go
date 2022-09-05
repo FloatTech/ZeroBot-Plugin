@@ -1,3 +1,4 @@
+// package main 主函数
 package main
 
 import (

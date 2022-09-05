@@ -2,10 +2,13 @@
 package bilibili
 
 import (
+	"crypto/tls"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
+	"net/http"
 	"os"
 	"path"
 	"regexp"
@@ -27,20 +30,20 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var engine = control.Register("bilibili", &ctrl.Options[*zero.Ctx]{
-	DisableOnDefault: true,
-	Help: "bilibili\n" +
-		"- >vup info [xxx]\n" +
-		"- >user info [xxx]\n" +
-		"- 查成分 [xxx]\n" +
-		"- 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\n" +
-		"- 更新vup",
-	PublicDataFolder: "Bilibili",
-})
 var re = regexp.MustCompile(`^\d+$`)
 
 // 查成分的
 func init() {
+	engine := control.Register("bilibili", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault: false,
+		Help: "bilibili\n" +
+			"- >vup info [xxx]\n" +
+			"- >user info [xxx]\n" +
+			"- 查成分 [xxx]\n" +
+			"- 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\n" +
+			"- 更新vup",
+		PublicDataFolder: "Bilibili",
+	})
 	cachePath := engine.DataFolder() + "cache/"
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
@@ -55,7 +58,7 @@ func init() {
 		return true
 	})
 
-	engine.OnRegex(`^>user info\s?(.{1,25})$`, getdb).SetBlock(true).
+	engine.OnRegex(`^>user info\s?(.{1,25})$`, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			uidRes, err := search(keyword)
@@ -107,7 +110,7 @@ func init() {
 			))
 		})
 
-	engine.OnRegex(`^查成分\s?(.{1,25})$`, getdb, getPara).SetBlock(true).
+	engine.OnRegex(`^查成分\s?(.{1,25})$`, getPara, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
 			today := time.Now().Format("20060102")
@@ -259,7 +262,7 @@ func init() {
 			_, err = writer.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
@@ -268,7 +271,7 @@ func init() {
 	engine.OnRegex(`^设置b站cookie?\s+(.{1,100})$`, zero.SuperUserPermission, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			cookie := ctx.State["regex_matched"].([]string)[1]
-			err := vdb.setBilibiliCookie(cookie)
+			err := setBilibiliCookie(cookie)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -276,7 +279,7 @@ func init() {
 			ctx.SendChain(message.Text("成功设置b站cookie为" + cookie))
 		})
 
-	engine.OnFullMatch("更新vup", zero.SuperUserPermission, getdb).SetBlock(true).
+	engine.OnFullMatch("更新vup", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			err := updateVup()
