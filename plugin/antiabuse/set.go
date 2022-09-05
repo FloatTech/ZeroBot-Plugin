@@ -3,23 +3,27 @@ package antiabuse
 import "sync"
 
 // Set defines HashSet structure
-type Set struct {
+type Set[T comparable] struct {
 	sync.RWMutex
-	m map[string]struct{}
+	m map[T]struct{}
 }
 
-var banSet = &Set{m: make(map[string]struct{})}
-var wordSet = &Set{m: make(map[string]struct{})}
+// NewSet creates Set with optional key(s)
+func NewSet[T comparable]() *Set[T] {
+	return &Set[T]{m: make(map[T]struct{})}
+}
 
-// Add adds element to Set
-func (s *Set) Add(key string) {
+// Add adds key(s) to Set
+func (s *Set[T]) Add(key ...T) {
 	s.Lock()
 	defer s.Unlock()
-	s.m[key] = struct{}{}
+	for _, k := range key {
+		s.m[k] = struct{}{}
+	}
 }
 
-// Include asserts element in Set
-func (s *Set) Include(key string) bool {
+// Include asserts key in Set
+func (s *Set[T]) Include(key T) bool {
 	s.RLock()
 	defer s.RUnlock()
 	_, ok := s.m[key]
@@ -27,9 +31,9 @@ func (s *Set) Include(key string) bool {
 }
 
 // Iter calls f when traversing Set
-func (s *Set) Iter(f func(string) error) error {
-	s.Lock()
-	defer s.Unlock()
+func (s *Set[T]) Iter(f func(T) error) error {
+	s.RLock()
+	defer s.RUnlock()
 	var err error
 	for key := range s.m {
 		err = f(key)
@@ -40,18 +44,19 @@ func (s *Set) Iter(f func(string) error) error {
 	return nil
 }
 
-// Remove removes element from Set
-func (s *Set) Remove(key string) {
+// Remove removes key from Set
+func (s *Set[T]) Remove(key T) {
 	s.Lock()
 	defer s.Unlock()
 	delete(s.m, key)
 }
 
-// AddMany adds multiple elements to Set
-func (s *Set) AddMany(keys []string) {
-	s.Lock()
-	defer s.Unlock()
-	for _, k := range keys {
-		s.m[k] = struct{}{}
+// ToSlice convert Set to slice
+func (s *Set[T]) ToSlice() (res []T) {
+	s.RLock()
+	defer s.RUnlock()
+	for key := range s.m {
+		res = append(res, key)
 	}
+	return res
 }
