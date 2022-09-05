@@ -321,7 +321,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 </details><br>
 
 ### *中优先级*
-<<<<<<< HEAD
 =======
 <details>
   <summary>ahsai tts</summary>
@@ -331,7 +330,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 使[ 伊織弓鶴 | 紲星あかり | 結月ゆかり | 京町セイカ |東北きりたん | 東北イタコ | ついなちゃん標準語 | ついなちゃん関西弁 | 音街ウナ | 琴葉茜 | 吉田くん | 民安ともえ | 桜乃そら | 月読アイ | 琴葉葵 | 東北ずん子 | 月読ショウタ | 水奈瀬コウ ]说(日语)
 
 </details>
->>>>>>> 6b8ae2e8649aa86343db53851a36bb41a4ea61ee
 <details>
   <summary>AIfalse</summary>
 
@@ -1080,7 +1078,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 ## 三种使用方法，推荐第一种
 
-### 1. ~~~使用稳定版/测试版 (推荐)~~~
+### 1. ~~使用稳定版/测试版 (推荐)~~
 
 ***官方构建版, 非此修改版***  
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 或 [Package](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp)，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
