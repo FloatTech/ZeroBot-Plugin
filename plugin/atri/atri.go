@@ -295,6 +295,6 @@ func randImage(file ...string) message.MessageSegment {
 	return message.Image(res + file[rand.Intn(len(file))])
 }
 
-func randRecord(file ...string) message.MessageSegment {
-	return message.Record(res + file[rand.Intn(len(file))])
-}
+// func randRecord(file ...string) message.MessageSegment {
+// 	return message.Record(res + file[rand.Intn(len(file))])
+// }
