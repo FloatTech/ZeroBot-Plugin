@@ -1,6 +1,7 @@
 package aireply
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -300,7 +301,7 @@ func (tts *ttsInstances) setDefaultSoundMode(name string) error {
 	tts.RUnlock()
 	m, ok := control.Lookup(ttsServiceName)
 	if !ok {
-		return fmt.Errorf("[error]no fund service")
+		return errors.New("[error]no fund service")
 	}
 	err := m.SetData(-20220905, index)
 	if err == nil {
