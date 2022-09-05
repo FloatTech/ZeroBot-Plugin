@@ -53,18 +53,16 @@ func banRule(ctx *zero.Ctx) bool {
 				}
 			})
 			return breakFlag
-		} else {
-			return nil
 		}
+		return nil
 	})
 	if err != nil && err != breakFlag {
 		ctx.SendChain(message.Text("block user error:", err))
 		return true
-	} else {
-		ctx.SetGroupBan(gid, uid, 4*3600)
-		ctx.SendChain(message.Text("检测到违禁词,已封禁/屏蔽4小时"))
-		return false
 	}
+	ctx.SetGroupBan(gid, uid, 4*3600)
+	ctx.SendChain(message.Text("检测到违禁词,已封禁/屏蔽4小时"))
+	return false
 }
 
 func insertWord(gid int64, word string) error {
@@ -85,10 +83,9 @@ func insertWord(gid int64, word string) error {
 func deleteWord(gid int64, word string) error {
 	if _, ok := wordMap[gid]; !ok {
 		return errors.New("本群还没有违禁词~")
-	} else {
-		if !wordMap[gid].Include(word) {
-			return errors.New(word + " 不在本群违禁词集合中")
-		}
+	}
+	if !wordMap[gid].Include(word) {
+		return errors.New(word + " 不在本群违禁词集合中")
 	}
 	str := fmt.Sprintf("%d-%s", gid, word)
 	checksum := crc32.Checksum([]byte(str), crc32Table)

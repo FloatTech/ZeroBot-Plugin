@@ -61,7 +61,6 @@ func init() {
 		func(ctx *zero.Ctx) {
 			if set, ok := wordMap[ctx.Event.GroupID]; !ok {
 				ctx.SendChain(message.Text("本群无违禁词"))
-				return
 			} else {
 				ctx.SendChain(message.Text("本群违禁词有:", strings.Join(set.ToSlice(), " |")))
 			}
