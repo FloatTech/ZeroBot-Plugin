@@ -63,9 +63,12 @@ func banRule(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("block user error:", err))
 		return true
 	}
-	ctx.SetGroupBan(gid, uid, 4*3600)
-	ctx.SendChain(message.Text("检测到违禁词,已封禁/屏蔽4小时"))
-	return false
+	if err == errBreak {
+		ctx.SetGroupBan(gid, uid, 4*3600)
+		ctx.SendChain(message.Text("检测到违禁词,已封禁/屏蔽4小时"))
+		return false
+	}
+	return true
 }
 
 func insertWord(gid int64, word string) error {
