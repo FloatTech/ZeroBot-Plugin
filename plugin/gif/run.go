@@ -128,7 +128,7 @@ func init() { // 插件主体
 		cmd = append(cmd, k)
 	}
 	en := control.Register("gif", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "GIF制图，命令后艾特群友/QQ号/一张图方可触发命令\n其中XXX可以为任何文字，可以不写\n对机器人操作请先艾特机器人再执行命令\n" +
 			"- 搓|-冲|-摸|-拍|-丢|-吃|-敲|-啃|-蹭|-爬|-撕|-灰度|-上翻|-下翻\n" +
 			"- 左翻|-右翻|-反色|-浮雕|- 打码|- 负片|- 旋转|- 变形|- 亲\n" +

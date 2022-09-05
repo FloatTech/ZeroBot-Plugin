@@ -15,7 +15,7 @@ const hso = "https://gchat.qpic.cn/gchatpic_new//--4234EDEC5F147A4C319A41149D7E0
 
 func init() {
 	engine := control.Register("nsfw", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "nsfw图片识别\n- nsfw打分[图片]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	// 上传一张图进行评价
