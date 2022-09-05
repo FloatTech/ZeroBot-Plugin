@@ -1,13 +1,10 @@
 <div align="center">
-  <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
-  <img src=".github/黒金.jpg" alt="看板娘" width = "400">
+  <a href="https://github.com/SGK2401/ZeroBot-Plugin-SGKEdit/blob/master/.github/%E7%B3%95%E7%B3%95.jpg">
+  <img src=".github/糕糕.jpg" alt="看板娘" width = "400">
   </a><br>
 
   <h1>ZeroBot-Plugin</h1>
-  ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
-
-
-  <img src="http://cmoe.azurewebsites.net/cmoe?name=ZeroBot-Plugin&theme=r34" /><br>
+  ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><strong><em>此版本为年糕的魔改版本</strong></em><br>
 
   [![miraigo](https://img.shields.io/badge/OneBot-MiraiGo-green.svg?style=social&logo=appveyor)](https://github.com/Mrs4s/MiraiGo)
   [![oicq](https://img.shields.io/badge/OneBot-OICQ-green.svg?style=social&logo=appveyor)](https://github.com/takayama-lily/oicq)
@@ -17,8 +14,6 @@
   [![onebot](https://img.shields.io/badge/onebot-v11-black?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAxQTFRF////29vbr6+vAAAAk1hCcwAAAAR0Uk5T////AEAqqfQAAAKcSURBVHja7NrbctswDATQXfD//zlpO7FlmwAWIOnOtNaTM5JwDMa8E+PNFz7g3waJ24fviyDPgfhz8fHP39cBcBL9KoJbQUxjA2iYqHL3FAnvzhL4GtVNUcoSZe6eSHizBcK5LL7dBr2AUZlev1ARRHCljzRALIEog6H3U6bCIyqIZdAT0eBuJYaGiJaHSjmkYIZd+qSGWAQnIaz2OArVnX6vrItQvbhZJtVGB5qX9wKqCMkb9W7aexfCO/rwQRBzsDIsYx4AOz0nhAtWu7bqkEQBO0Pr+Ftjt5fFCUEbm0Sbgdu8WSgJ5NgH2iu46R/o1UcBXJsFusWF/QUaz3RwJMEgngfaGGdSxJkE/Yg4lOBryBiMwvAhZrVMUUvwqU7F05b5WLaUIN4M4hRocQQRnEedgsn7TZB3UCpRrIJwQfqvGwsg18EnI2uSVNC8t+0QmMXogvbPg/xk+Mnw/6kW/rraUlvqgmFreAA09xW5t0AFlHrQZ3CsgvZm0FbHNKyBmheBKIF2cCA8A600aHPmFtRB1XvMsJAiza7LpPog0UJwccKdzw8rdf8MyN2ePYF896LC5hTzdZqxb6VNXInaupARLDNBWgI8spq4T0Qb5H4vWfPmHo8OyB1ito+AysNNz0oglj1U955sjUN9d41LnrX2D/u7eRwxyOaOpfyevCWbTgDEoilsOnu7zsKhjRCsnD/QzhdkYLBLXjiK4f3UWmcx2M7PO21CKVTH84638NTplt6JIQH0ZwCNuiWAfvuLhdrcOYPVO9eW3A67l7hZtgaY9GZo9AFc6cryjoeFBIWeU+npnk/nLE0OxCHL1eQsc1IciehjpJv5mqCsjeopaH6r15/MrxNnVhu7tmcslay2gO2Z1QfcfX0JMACG41/u0RrI9QAAAABJRU5ErkJggg==)](https://t.me/zerobotplugin)
   [![zerobot](https://img.shields.io/badge/zerobot-v1.5.1-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
   [![license](https://img.shields.io/github/license/FloatTech/ZeroBot-Plugin.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
-  [![tencent-qq](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
-  [![telegram](https://img.shields.io/badge/Telegram-click%20me-informational?style=flat-square&logo=telegram)](https://t.me/zerobotplugin)
 
   本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
   | 项目地址 | 平台 | 核心作者 |
@@ -54,13 +49,10 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 {
     "zero": {
         "nickname": [
-            "椛椛",
-            "ATRI",
-            "atri",
-            "亚托莉",
-            "アトリ"
+            "糕糕",
+
         ],
-        "command_prefix": "/",
+        "command_prefix": "-",
         "super_users": []
     },
     "ws": [
@@ -73,7 +65,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 ```
 
 ## 功能
-> 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
+> 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而禁止加载，减小插件体积。
 > 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
 > 插件的优先级为`import`的先后顺序
 
@@ -126,7 +118,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 
   - 本功能需要`cgo`，故已分离出主线。详见[ZeroBot-Plugin-Dynamic](https://github.com/FloatTech/ZeroBot-Plugin-Dynamic)
 
-</details>
+</details><br>
 
 ### *高优先级*
 <details>
@@ -326,9 +318,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - 注：模版是指含有`$1` `$2`这样的未定参数，会在正则匹配时按顺序填入子匹配对应值
 
-</details>
+</details><br>
 
 ### *中优先级*
+<<<<<<< HEAD
+=======
 <details>
   <summary>ahsai tts</summary>
 
@@ -337,6 +331,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 使[ 伊織弓鶴 | 紲星あかり | 結月ゆかり | 京町セイカ |東北きりたん | 東北イタコ | ついなちゃん標準語 | ついなちゃん関西弁 | 音街ウナ | 琴葉茜 | 吉田くん | 民安ともえ | 桜乃そら | 月読アイ | 琴葉葵 | 東北ずん子 | 月読ショウタ | 水奈瀬コウ ]说(日语)
 
 </details>
+>>>>>>> 6b8ae2e8649aa86343db53851a36bb41a4ea61ee
 <details>
   <summary>AIfalse</summary>
 
@@ -396,29 +391,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>b站动态、专栏、视频、直播解析</summary>
+  <summary>b站视频链接解析</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_parse"`
 
-  - [x] t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245
-
-</details>
-<details>
-  <summary>b站动态、直播推送,需要配合job一起使用</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
-
-  - [x] 添加b站订阅[uid|name]
-
-  - [x] 取消b站订阅[uid|name]
-  
-  - [x] 取消b站动态订阅[uid|name]
-  
-  - [x] 取消b站直播订阅[uid|name]
-  
-  - [x] b站推送列表
-  
-  - [x] 拉取b站推送 (使用job执行定时任务------记录在"@every 10s"触发的指令) 
+  - [x] https://www.bilibili.com/video/BV1xx411c7BF | https://www.bilibili.com/video/av1605 | https://b23.tv/I8uzWCA | https://www.bilibili.com/video/bv1xx411c7BF
 
 </details>
 <details>
@@ -447,14 +424,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 藏头诗[xxx]
 
   - [x] 藏尾诗[xxx]
-
-</details>
-<details>
-  <summary>英文字符翻转</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser"`
-
-  - [x] 翻转 [英文字符串]
 
 </details>
 <details>
@@ -509,6 +478,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 发大病
 
   - [x] 教你一篇小作文[作文]
+
+  - [x] [回复]查重
 
 </details>
 <details>
@@ -622,32 +593,22 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"`
 
   - 猜歌插件（该插件依赖ffmpeg）
+
+  - [x] 个人猜歌
+  
+  - [x] 团队猜歌
   
   - [x] 设置猜歌缓存歌库路径 [绝对路径]
+
+  - [x] 设置猜歌本地 [true/false]
+
+  - [x] 设置猜歌Api [true/false]
   
-  - [x] 设置猜歌[本地/Api] [true/false]
+  - 注：默认歌库为网易云热歌榜
   
-  - [x] 登录网易云
+  - 1.可在后面添加“-动漫”进行动漫歌猜歌(这个只能猜歌名和歌手)
   
-  - 注：不登陆也能用，API有几率返回400
-  
-  - [x] 添加歌单 [网易云歌单ID] [歌单名称]
-  
-  - 注：[歌单名称]可为空，默认原标题
-  
-  - [x] 删除歌单 [网易云歌单ID/API歌单名称]
-  
-  - [x] 获取歌单列表
-  
-  - [x] [网易云歌单ID/API歌单名称]歌单信息
-  
-  - [x] [个人/团队]猜歌
-  
-  - 注：默认歌库为网易云ACG动画榜
-  
-  - 可在后面添加[-歌单名称]进行指定歌单猜歌
-  
-  - 歌单的歌曲命名规则为:歌名 - 歌手 - 其他(歌曲出处之类)
+  - 2.可在后面添加“-动漫2”进行动漫歌猜歌(这个可以猜番名，但歌手经常“未知”)
 
 </details>
 <details>
@@ -739,19 +700,9 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置音色40 (0~127)
 
-  - [x] 注: 该插件需要安装timidity, linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh, windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行
+  - [x] 注: 该插件需要安装timidity,linux安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh , windows安装脚本可参考 https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat , windows需要管理员模式运行
   
   - [x] 符号说明: C5是中央C,后面不写数字,默认接5,Cb6<1,b代表降调,#代表升调,6比5高八度,<1代表音长×2,<3代表音长×8,<-1代表音长×0.5,<-3代表音长×0.125,R是休止符
-
-</details>
-<details>
-  <summary>日韩 VITS 模型拟声</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"`
-
-  - [x] 让[宁宁|爱瑠|芳乃|茉子|丛雨|小春|七海]说(日语)
-
-  - [x] 让[수아|미미르|아린|연화|유화|선배]说(韩语)
 
 </details>
 <details>
@@ -838,14 +789,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"`
 
   - [x] ?? [缩写]
-
-</details>
-<details>
-  <summary>日语语法学习</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"`
-
-  - [x] 日语语法 [xxx] (使用tag随机)
 
 </details>
 <details>
@@ -960,10 +903,10 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"`
 
-  - [x] 抽[塔罗牌|大阿卡纳|小阿卡纳]
-  - [x] 抽n张[塔罗牌|大阿卡纳|小阿卡纳]
+  - [x] 抽塔罗牌
+  - [x] 抽n张塔罗牌
   - [x] 解塔罗牌[牌名]
-  - [x] [塔罗|大阿卡纳|小阿卡纳|混合]牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]
+  - [x] 塔罗牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]"
 
 </details>
 <details>
@@ -982,10 +925,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 个人猜单词
 
   - [x] 团队猜单词
-
-  - [x] 团队六阶猜单词
-
-  - [x] 团队七阶猜单词
 
 </details>
 <details>
@@ -1060,6 +999,24 @@ print("run[CQ:image,file="+j["img"]+"]")
   - 注：由于需要科学，默认注释。
 
 </details>
+<details>
+  <summary>b站推送</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili_push"`
+
+  - [x] 添加b站订阅[uid]
+
+  - [x] 取消b站订阅[uid]
+
+  - [x] 取消b站动态订阅[uid]
+
+  - [x] 取消b站直播订阅[uid]
+
+  - [x] b站推送列表
+
+  - 注：由于需要安装Chrome，默认注释，具体看[这里](https://www.yuque.com/xiangrikuidezhongzi/zerobot/qrwxth)
+
+</details><br>
 
 ### *低优先级*
 
@@ -1082,18 +1039,56 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 设置回复模式[青云客 | 小爱]
 
+</details><br>
+
+### 个人额外增加的中优先级插件
+
+<details>
+  <summary>我的世界服务器Ping</summary>
+  
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcping"`
+
+  - [ ] mcping[服务器链接]
+  - [ ] 设置我的世界服务器[服务器链接]
+</details>
+
+<details>
+  <summary>消息ID获取</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/msgid`
+
+  - [x] 回复任意一条消息[ID]
+</details>
+
+<details>
+ <summary>消息撤回</summary>
+
+ `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/recall`
+ - [x] 回复任意一条消息[Recall | recall]  
+ - 注: 触发命令需要管理员或者SuperUser权限.
+ - 撤回需要在两分钟之内, 非bot自己的消息需要管理员权限. 同时, 撤回目标消息的同时会尝试撤回Recall消息. 如果消息发送者为管理员或者更高权限的话将无法撤回.
+</details>
+
+<details>
+  <summary>血压记录</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/xueya`
+  - [ ] 在关键词匹配后增加一定量的血压值
+  - [ ] 血压[+ | -][数值]
+
 </details>
 
 ## 三种使用方法，推荐第一种
 
-### 1. 使用稳定版/测试版 (推荐)
+### 1. ~~~使用稳定版/测试版 (推荐)~~~
 
+***官方构建版, 非此修改版***  
 可以前往[Release](https://github.com/FloatTech/ZeroBot-Plugin/releases)页面下载对应系统版本可执行文件，编译时开启了全部插件。您还可以选择 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 或 [Package](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp)，它是 [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) 与本插件的合体。
 
 ### 2. 本地直接运行
 
 1. 下载安装最新 [Go](https://studygolang.com/dl) 环境
-2. 下载本项目[压缩包](https://github.com/FloatTech/ZeroBot-Plugin/archive/master.zip)，本地解压
+2. 下载本项目[压缩包](https://github.com/SGK2401/ZeroBot-Plugin-SGKEdit/archive/refs/heads/master.zip)，本地解压
 3. 编辑 main.go 文件，内容按需修改
 4. 运行 OneBot 框架
 5. `Windows`下双击 run.bat 文件，`Linux`下使用 run.sh 运行本插件
@@ -1116,8 +1111,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 2. clone 并进入本项目，下载所需包
 
 ```bash
-git clone --depth=1 https://github.com/FloatTech/ZeroBot-Plugin.git
-cd ZeroBot-Plugin
+git clone --depth=1 https://github.com/SGK2401/ZeroBot-Plugin-SGKEdit.git
+cd ZeroBot-Plugin-SGKEdit
 go version
 go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GO111MODULE=auto
@@ -1146,3 +1141,4 @@ GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" 
 
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
+- 群友
