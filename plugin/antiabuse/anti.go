@@ -20,6 +20,7 @@ func init() {
 		PrivateDataFolder: "anti_abuse",
 	})
 	onceRule := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		managers = ctx.State["managers"].(*ctrl.Control[*zero.Ctx]).Manager
 		db.DBPath = engine.DataFolder() + "anti_abuse.db"
 		err := db.Open(time.Hour * 4)
 		if err != nil {
@@ -38,7 +39,7 @@ func init() {
 		}
 		return true
 	})
-	engine.OnMessage(onceRule, banRule, zero.OnlyGroup)
+	engine.OnMessage(onceRule, zero.OnlyGroup, banRule)
 	engine.OnCommand("添加违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
 		func(ctx *zero.Ctx) {
 			args := ctx.State["args"].(string)

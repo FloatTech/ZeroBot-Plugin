@@ -7,21 +7,31 @@ import (
 	"strings"
 	"time"
 
-	_ "unsafe"
-
 	sqlite "github.com/FloatTech/sqlite"
+	"github.com/FloatTech/ttl"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-//go:linkname managers github.com/FloatTech/zbputils/control.managers
-var managers ctrl.Manager[*zero.Ctx]
-var breakFlag = errors.New("break")
+var managers *ctrl.Manager[*zero.Ctx] //managers lazy load
+var errBreak = errors.New("break")
 var db = &sqlite.Sqlite{}
 var crc32Table = crc32.MakeTable(crc32.IEEE)
 var wordMap = make(map[int64]*Set[string])
+
+func onDel(uid int64, _ struct{}) {
+	if managers == nil {
+		return
+	}
+	if err := managers.DoUnblock(uid); err != nil {
+		logrus.Error("do unblock error:", err)
+	}
+}
+
+var cache = ttl.NewCacheOn[int64, struct{}](4*time.Hour, [4]func(int64, struct{}){
+	nil, nil, onDel, nil})
 
 type banWord struct {
 	Crc32ID uint32 `db:"crc32_id"`
@@ -35,9 +45,6 @@ func banRule(ctx *zero.Ctx) bool {
 	}
 	uid := ctx.Event.UserID
 	gid := ctx.Event.GroupID
-	if managers.IsBlocked(uid) {
-		return false
-	}
 	wordSet := wordMap[gid]
 	if wordSet == nil {
 		return true
@@ -47,16 +54,12 @@ func banRule(ctx *zero.Ctx) bool {
 			if err := managers.DoBlock(uid); err != nil {
 				return err
 			}
-			time.AfterFunc(4*time.Hour, func() {
-				if err := managers.DoUnblock(uid); err != nil {
-					logrus.Error("do unblock error:", err)
-				}
-			})
-			return breakFlag
+			cache.Set(uid, struct{}{})
+			return errBreak
 		}
 		return nil
 	})
-	if err != nil && err != breakFlag {
+	if err != nil && err != errBreak {
 		ctx.SendChain(message.Text("block user error:", err))
 		return true
 	}
@@ -69,15 +72,11 @@ func insertWord(gid int64, word string) error {
 	str := fmt.Sprintf("%d-%s", gid, word)
 	checksum := crc32.Checksum([]byte(str), crc32Table)
 	obj := &banWord{checksum, gid, word}
-	err := db.Insert("banWord", obj)
-	if err != nil {
-		return err
-	}
 	if _, ok := wordMap[gid]; !ok {
 		wordMap[gid] = NewSet[string]()
 	}
 	wordMap[gid].Add(word)
-	return nil
+	return db.Insert("banWord", obj)
 }
 
 func deleteWord(gid int64, word string) error {
@@ -87,15 +86,11 @@ func deleteWord(gid int64, word string) error {
 	if !wordMap[gid].Include(word) {
 		return errors.New(word + " 不在本群违禁词集合中")
 	}
+	wordMap[gid].Remove(word)
 	str := fmt.Sprintf("%d-%s", gid, word)
 	checksum := crc32.Checksum([]byte(str), crc32Table)
 	sql := fmt.Sprintf("WHERE crc32_id = %d", checksum)
-	err := db.Del("banWord", sql)
-	if err != nil {
-		return err
-	}
-	wordMap[gid].Remove(word)
-	return nil
+	return db.Del("banWord", sql)
 }
 
 func recoverWord() error {
