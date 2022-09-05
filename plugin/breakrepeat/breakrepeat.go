@@ -25,7 +25,7 @@ var (
 
 func init() {
 	engine := control.Register("breakrepeat", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "打断复读,打断3次以上复读\n",
 	})
 	engine.On(`message/group`, zero.OnlyGroup).SetBlock(false).

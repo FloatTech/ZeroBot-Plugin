@@ -23,7 +23,7 @@ func init() { // 插件主体
 	engine := control.Register("aifalse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "AIfalse\n" +
-			"- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]\n" +
+			"- 查询计算机当前活跃度: [-状态]\n" +
 			"- 设置默认限速为每 m [分钟 | 秒] n 次触发",
 	})
 	c, ok := control.Lookup("aifalse")
@@ -37,7 +37,7 @@ func init() { // 插件主体
 		ctxext.SetDefaultLimiterManagerParam(time.Duration(m)*time.Second, int(n))
 		logrus.Infoln("设置默认限速为每", m, "秒触发", n, "次")
 	}
-	engine.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"-状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(
 				"* CPU占用: ", cpuPercent(), "%\n",

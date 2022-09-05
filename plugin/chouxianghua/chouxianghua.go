@@ -15,7 +15,7 @@ import (
 
 func init() {
 	en := control.Register("chouxianghua", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "抽象话\n- 抽象翻译xxx",
 		PublicDataFolder: "ChouXiangHua",
 	})

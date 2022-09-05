@@ -50,7 +50,7 @@ var (
 func init() {
 	// 插件主体
 	en := control.Register("fortune", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "每日运势: \n" +
 			"- 运势 | 抽签\n" +
 			"- 设置底图[车万 | DC4 | 爱因斯坦 | 星空列车 | 樱云之恋 | 富婆妹 | 李清歌 | 公主连结 | 原神 | 明日方舟 | 碧蓝航线 | 碧蓝幻想 | 战双 | 阴阳师 | 赛马娘 | 东方归言录 | 奇异恩典 | 夏日口袋 | ASoul]",

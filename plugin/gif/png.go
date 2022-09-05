@@ -1505,3 +1505,55 @@ func mengbi(cc *context, args ...string) (string, error) {
 	canvas.DrawString(args[0], (1080-l)/2, 1000)
 	return "file:///" + name, canvas.SavePNG(name)
 }
+
+// RBQ 绒布球
+func rbq(cc *context, args ...string) (string, error) {
+	var wg sync.WaitGroup
+	var m sync.Mutex
+	var err error
+	c := dlrange("rbq", 1, &wg, func(e error) {
+		m.Lock()
+		err = e
+		m.Unlock()
+	})
+	if err != nil {
+		return "", err
+	}
+	wg.Wait()
+	name := cc.usrdir + "rbq.png"
+	if args[0] == "" {
+		args[0] = "她"
+	}
+	back, err := gg.LoadImage(c[0])
+	if err != nil {
+		return "", err
+	}
+	face, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	if err != nil {
+		return "", err
+	}
+	canvas := gg.NewContext(600, 600)
+	canvas.DrawImage(back, 0, 0)
+	canvas.DrawImage(img.Size(face.Im, 380, 380).Im, 110, 100)
+	canvas.SetColor(color.Black)
+	_, err = file.GetLazyData(text.BoldFontFile, true)
+	if err != nil {
+		return "", err
+	}
+	if err = canvas.LoadFontFace(text.BoldFontFile, 50); err != nil {
+		return "", err
+	}
+	l, _ := canvas.MeasureString(args[0])
+	if l > 200 {
+		return "", errors.New("文本过长")
+	}
+	canvas.DrawStringAnchored("请问你们看到", 0, 75, 0, 0)
+	canvas.DrawStringAnchored("了吗", 600, 75, 1, 0)
+	canvas.DrawStringAnchored("非常可爱! 简直就是绒布球", 8, 500, 0, 1)
+	canvas.DrawStringAnchored(args[0], 400, 75, 0.5, 0)
+	if err = canvas.LoadFontFace(text.BoldFontFile, 28); err != nil {
+		return "", err
+	}
+	canvas.DrawStringAnchored("她没失踪也没怎么样 我只是觉得你们都该看一下", 0, 580, 0, 0)
+	return "file:///" + name, canvas.SavePNG(name)
+}

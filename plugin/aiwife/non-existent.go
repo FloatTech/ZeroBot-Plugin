@@ -18,7 +18,7 @@ const (
 
 func init() { // 插件主体
 	control.Register("aiwife", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "AIWife\n" +
 			"- waifu | 随机waifu",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetBlock(true).

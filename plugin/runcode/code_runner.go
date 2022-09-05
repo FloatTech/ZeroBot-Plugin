@@ -93,7 +93,7 @@ var (
 
 func init() {
 	control.Register("runcode", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "在线代码运行: \n" +
 			">runcode [language] [code block]\n" +
 			"模板查看: \n" +

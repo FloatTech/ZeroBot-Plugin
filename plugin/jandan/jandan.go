@@ -24,7 +24,7 @@ const (
 
 func init() {
 	engine := control.Register("jandan", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "煎蛋网无聊图\n- 来份[屌|弔|吊]图\n- 更新[屌|弔|吊]图\n",
 		PublicDataFolder: "Jandan",
 	})

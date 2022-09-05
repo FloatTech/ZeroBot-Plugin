@@ -16,7 +16,7 @@ import (
 
 func init() {
 	en := control.Register("driftbottle", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		Help:              "漂流瓶\n- (在群xxx)丢漂流瓶(到频道xxx) [消息]\n- (从频道xxx)捡漂流瓶\n- @BOT 创建频道 xxx\n- 跳入(频道)海中\n- 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global",
 		PrivateDataFolder: "driftbottle",
 	})

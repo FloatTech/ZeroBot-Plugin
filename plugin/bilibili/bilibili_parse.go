@@ -27,7 +27,7 @@ var (
 // 插件主体
 func init() {
 	en := control.Register("bilibiliparse", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "b站动态、专栏、视频、直播解析\n" +
 			"- t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245 ",
 	})

@@ -15,7 +15,7 @@ import (
 
 func init() {
 	engine := control.Register("anti_abuse", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		Help:              "违禁词检测",
 		PrivateDataFolder: "anti_abuse",
 	})

@@ -38,7 +38,7 @@ var (
 
 func init() {
 	en := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "bilibilipush,需要配合job一起使用\n" +
 			"- 添加b站订阅[uid|name]\n" +
 			"- 取消b站订阅[uid|name]\n" +

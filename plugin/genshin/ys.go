@@ -36,7 +36,7 @@ var (
 
 func init() {
 	engine := control.Register("genshin", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "原神抽卡\n- 原神十连\n- 切换原神卡池",
 		PublicDataFolder: "Genshin",
 	}).ApplySingle(ctxext.DefaultSingle)

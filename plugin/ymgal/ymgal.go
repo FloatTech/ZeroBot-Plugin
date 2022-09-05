@@ -14,7 +14,7 @@ import (
 
 func init() {
 	engine := control.Register("ymgal", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "月幕galgame\n- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal\n",
 		PublicDataFolder: "Ymgal",
 	})

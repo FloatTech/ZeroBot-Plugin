@@ -16,7 +16,7 @@ import (
 
 func init() {
 	en := control.Register("reborn", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "投胎\n- reborn",
 		PublicDataFolder: "Reborn",
 	})

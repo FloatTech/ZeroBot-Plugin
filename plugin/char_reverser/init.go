@@ -77,7 +77,7 @@ func init() {
 	engine := control.Register(
 		"charreverser",
 		&ctrl.Options[*zero.Ctx]{
-			DisableOnDefault: false,
+			DisableOnDefault: true,
 			Help:             "字符翻转\n -翻转 <英文字符串>",
 		},
 	)

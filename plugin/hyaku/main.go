@@ -53,7 +53,7 @@ var lines [100]*line
 
 func init() {
 	engine := control.Register("hyaku", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "百人一首\n" +
 			"- 百人一首(随机发一首)\n" +
 			"- 百人一首之n",

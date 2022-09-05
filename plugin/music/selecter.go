@@ -23,7 +23,7 @@ import (
 
 func init() {
 	control.Register("music", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "点歌\n" +
 			"- 点歌[xxx]\n" +
 			"- 网易点歌[xxx]\n" +

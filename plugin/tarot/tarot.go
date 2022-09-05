@@ -46,7 +46,7 @@ var formationName = make([]string, 0, 10)
 
 func init() {
 	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "塔罗牌\n" +
 			"- 抽[塔罗牌|大阿卡纳|小阿卡纳]\n" +
 			"- 抽n张[塔罗牌|大阿卡纳|小阿卡纳]\n" +

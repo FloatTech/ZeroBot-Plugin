@@ -31,7 +31,7 @@ var (
 
 func init() {
 	en := control.Register("lolicon", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "lolicon\n" +
 			"- 来份萝莉\n" +
 			"- 设置随机图片地址[http...]",

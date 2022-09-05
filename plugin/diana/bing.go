@@ -13,7 +13,7 @@ import (
 )
 
 var engine = control.Register("diana", &ctrl.Options[*zero.Ctx]{
-	DisableOnDefault: false,
+	DisableOnDefault: true,
 	Help: "嘉然\n" +
 		"- 小作文\n" +
 		"- 发大病\n" +

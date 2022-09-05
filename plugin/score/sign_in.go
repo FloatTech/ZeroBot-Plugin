@@ -39,7 +39,7 @@ var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
 
 func init() {
 	engine := control.Register("score", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
 		PrivateDataFolder: "score",
 	})

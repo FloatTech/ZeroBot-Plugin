@@ -15,7 +15,7 @@ var (
 
 func init() { // 插件主体
 	engine := control.Register("tracemoe", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "tracemoe\n- 搜番 | 搜索番剧[图片]",
 	})
 	// 以图搜图

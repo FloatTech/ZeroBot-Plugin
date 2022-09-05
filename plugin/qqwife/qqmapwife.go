@@ -285,7 +285,7 @@ var (
 
 func init() {
 	engine := control.Register("qqwife", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
+		DisableOnDefault:  true,
 		PrivateDataFolder: "qqwife",
 		Help: "一群一天一夫一妻制群老婆\n（每天凌晨刷新CP）\n" +
 			"- 娶群友\n- 群老婆列表\n" +

@@ -47,7 +47,7 @@ var (
 // 查成分的
 func init() {
 	engine := control.Register("bilibili", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "bilibili (412就是拦截的意思,建议私聊把cookie设全)\n" +
 			"- >vup info [xxx]\n" +
 			"- >user info [xxx]\n" +

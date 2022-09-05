@@ -14,7 +14,7 @@ import (
 
 func init() {
 	en := control.Register("wtf", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "鬼东西\n- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",
 	})
 	en.OnFullMatch("鬼东西列表").SetBlock(true).

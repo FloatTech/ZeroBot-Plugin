@@ -23,7 +23,7 @@ var (
 
 func init() {
 	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "本地涩图\n" +
 			"- 本地[xxx]\n" +
 			"- 刷新本地[xxx]\n" +

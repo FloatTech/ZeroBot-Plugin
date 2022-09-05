@@ -19,7 +19,7 @@ import (
 
 func init() { // 插件主体
 	control.Register("github", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "GitHub仓库搜索\n" +
 			"- >github [xxx]\n" +
 			"- >github -p [xxx]",

@@ -17,7 +17,7 @@ import (
 
 func init() {
 	engine := control.Register("cpstory", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help:             "cp短打\n- 组cp[@xxx][@xxx]\n- 磕cp大老师 雪乃",
 		PublicDataFolder: "CpStory",
 	})

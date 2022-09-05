@@ -48,7 +48,7 @@ var (
 
 func init() { // 插件主体
 	engine := control.Register("guessmusic", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "猜歌插件（该插件依赖ffmpeg）\n" +
 			"------bot主人指令------\n" +
 			"- 设置猜歌缓存歌库路径 [绝对路径]\n" +

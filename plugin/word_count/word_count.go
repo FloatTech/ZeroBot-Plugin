@@ -33,7 +33,7 @@ var (
 
 func init() {
 	engine := control.Register("wordcount", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "聊天热词\n" +
 			"- 热词 [群号] [消息数目]|热词 123456 1000",
 		PublicDataFolder: "WordCount",

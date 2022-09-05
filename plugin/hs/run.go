@@ -42,7 +42,7 @@ const (
 
 func init() {
 	engine := control.Register("hs", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "炉石\n" +
 			"- 搜卡[xxxx]\n" +
 			"- [卡组代码xxx]\n" +

@@ -15,7 +15,7 @@ import (
 
 func init() {
 	engine := control.Register("shindan", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Help: "shindan\n" +
 			"- 今天是什么少女[@xxx]\n" +
 			"- 异世界转生[@xxx]\n" +
