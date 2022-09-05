@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/FloatTech/zbputils/web"
+	"github.com/FloatTech/floatbox/web"
 	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"

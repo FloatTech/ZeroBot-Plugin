@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/FloatTech/zbputils/web"
+	"github.com/FloatTech/floatbox/web"
 )
 
 /* JS path getter for https://wtf.hiigara.net/ranking

@@ -2,10 +2,10 @@
 package shadiao
 
 import (
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -27,7 +27,7 @@ const (
 
 var (
 	engine = control.Register("shadiao", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "沙雕app\n" +
 			"- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子\n- 马丁路德骂我\n",
 	})
@@ -39,7 +39,7 @@ func init() {
 		requestURL := sdMap[ctx.State["matched"].(string)]
 		data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", sdReferer, ua)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(gjson.GetBytes(data, "data.text").String()))

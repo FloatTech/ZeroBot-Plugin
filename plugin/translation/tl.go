@@ -12,7 +12,7 @@ import (
 
 func init() {
 	control.Register("translation", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "翻译\n" +
 			">TL 你好",
 	}).OnRegex(`^>TL\s(-.{1,10}? )?(.*)$`).SetBlock(true).Limit(ctxext.LimitByUser).

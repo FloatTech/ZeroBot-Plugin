@@ -2,10 +2,10 @@
 package wangyiyun
 
 import (
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -19,13 +19,13 @@ const (
 
 func init() {
 	control.Register("wangyiyun", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help:             "wangyiyun \n- 来份网易云热评",
 	}).OnFullMatch("来份网易云热评").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.RequestDataWith(web.NewDefaultClient(), wangyiyunURL, "GET", wangyiyunReferer, ua)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text(helper.BytesToString(data)))

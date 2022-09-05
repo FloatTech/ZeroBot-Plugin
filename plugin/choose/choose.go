@@ -14,7 +14,7 @@ import (
 
 func init() {
 	engine := control.Register("choose", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "choose\n" +
 			"- 选择可口可乐还是百事可乐\n" +
 			"- 选择肯德基还是麦当劳还是必胜客",

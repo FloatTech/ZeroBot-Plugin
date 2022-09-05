@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/FloatTech/zbputils/file"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/sirupsen/logrus"
 )
@@ -20,7 +20,7 @@ func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 	target := datapath + `materials/` + name
 	var err error
 	if file.IsNotExist(target) {
-		err = file.DownloadTo(`https://gitcode.net/anto_july/imagematerials/-/raw/main/`+name, target, true)
+		err = file.DownloadTo(`https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, target, true)
 		if err != nil {
 			exit(err)
 			return
@@ -35,7 +35,7 @@ func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 func dlblock(name string) (string, error) {
 	target := datapath + `materials/` + name
 	if file.IsNotExist(target) {
-		err := file.DownloadTo(`https://gitcode.net/u011570312/imagematerials/-/raw/main/`+name, target, true)
+		err := file.DownloadTo(`https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, target, true)
 		if err != nil {
 			return "", err
 		}
@@ -73,8 +73,8 @@ func newContext(user int64) *context {
 	return c
 }
 
-func loadFirstFrames(paths []string, size int) (imgs []*img.ImgFactory, err error) {
-	imgs = make([]*img.ImgFactory, size)
+func loadFirstFrames(paths []string, size int) (imgs []*img.Factory, err error) {
+	imgs = make([]*img.Factory, size)
 	for i := range imgs {
 		imgs[i], err = img.LoadFirstFrame(paths[i], 0, 0)
 		if err != nil {

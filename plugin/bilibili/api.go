@@ -3,11 +3,12 @@ package bilibili
 import (
 	"encoding/json"
 	"errors"
-	"io"
+	"fmt"
 	"net/http"
+	"strconv"
 
-	"github.com/FloatTech/zbputils/binary"
-	"github.com/FloatTech/zbputils/web"
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/web"
 	"github.com/tidwall/gjson"
 )
 
@@ -17,7 +18,8 @@ var (
 
 // searchUser 查找b站用户
 func searchUser(keyword string) (r []searchResult, err error) {
-	data, err := web.GetData(fmt.Sprintf(searchUserURL, keyword))
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fmt.Sprintf(searchUserURL, keyword), nil)
 	if err != nil {
 		return
 	}
@@ -30,6 +32,18 @@ func searchUser(keyword string) (r []searchResult, err error) {
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		s := fmt.Sprintf("status code: %d", res.StatusCode)
+		err = errors.New(s)
+		return
+	}
+	var sd searchData
+	err = json.NewDecoder(res.Body).Decode(&sd)
+	if err != nil {
+		return
+	}
+	r = sd.Data.Result
 	return
 }
 
@@ -45,24 +59,23 @@ func getVtbDetail(uid string) (result vtbDetail, err error) {
 	return
 }
 
-// 请求api
-func fansapi(uid string) (result follower, err error) {
-	fanURL := "https://api.vtbs.moe/v1/detail/" + uid
-	data, err := web.GetData(fanURL)
+// getMemberCard 获取b站个人详情
+func getMemberCard(uid interface{}) (result memberCard, err error) {
+	data, err := web.GetData(fmt.Sprintf(memberCardURL, uid))
 	if err != nil {
 		return
 	}
-	if err = json.Unmarshal(data, &result); err != nil {
+	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("card").Raw), &result)
+	if err != nil {
 		return
 	}
 	return
 }
 
-func followings(uid string) (s string, err error) {
-	followingURL := "https://api.bilibili.com/x/relation/same/followings?vmid=" + uid
-	method := "GET"
+// getMedalwall 用b站uid获得牌子
+func getMedalwall(uid string) (result []medal, err error) {
 	client := &http.Client{}
-	req, err := http.NewRequest(method, followingURL, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf(medalwallURL, uid), nil)
 	if err != nil {
 		return
 	}
@@ -76,99 +89,56 @@ func followings(uid string) (s string, err error) {
 		return
 	}
 	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
+	var md medalData
+	err = json.NewDecoder(res.Body).Decode(&md)
 	if err != nil {
 		return
 	}
-	j := gjson.ParseBytes(body)
-	s = j.Get("data.list.#.uname").Raw
-	if j.Get("code").Int() == -101 {
+	if md.Code == -101 {
 		err = errNeedCookie
 		return
 	}
-	if j.Get("code").Int() != 0 {
-		err = errors.New(j.Get("message").String())
-		return
+	if md.Code != 0 {
+		err = errors.New(md.Message)
 	}
+	result = md.Data.List
 	return
 }
 
-type userinfo struct {
-	Name       string  `json:"name"`
-	Mid        string  `json:"mid"`
-	Face       string  `json:"face"`
-	Fans       int64   `json:"fans"`
-	Regtime    int64   `json:"regtime"`
-	Attentions []int64 `json:"attentions"`
-}
-
-type medalInfo struct {
-	Mid              int64  `json:"target_id"`
-	MedalName        string `json:"medal_name"`
-	Level            int64  `json:"level"`
-	MedalColorStart  int64  `json:"medal_color_start"`
-	MedalColorEnd    int64  `json:"medal_color_end"`
-	MedalColorBorder int64  `json:"medal_color_border"`
-}
-type medal struct {
-	Uname     string `json:"target_name"`
-	medalInfo `json:"medal_info"`
-}
-
-type medalSlice []medal
-
-func (m medalSlice) Len() int {
-	return len(m)
-}
-func (m medalSlice) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
-}
-func (m medalSlice) Less(i, j int) bool {
-	return m[i].Level > m[j].Level
-}
-
-// 获取详情
-func card(uid string) (result userinfo, err error) {
-	cardURL := "https://account.bilibili.com/api/member/getCardByMid?mid=" + uid
-	data, err := web.GetData(cardURL)
+// getArticleInfo 用id查专栏信息
+func getArticleInfo(id string) (card Card, err error) {
+	var data []byte
+	data, err = web.GetData(fmt.Sprintf(articleInfoURL, id))
 	if err != nil {
 		return
 	}
-	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("card").Raw), &result)
-	if err != nil {
-		return
-	}
+	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("data").Raw), &card)
 	return
 }
 
-// 获得牌子
-func medalwall(uid string) (result []medal, err error) {
-	medalwallURL := "https://api.live.bilibili.com/xlive/web-ucenter/user/MedalWall?target_id=" + uid
-	method := "GET"
-	client := &http.Client{}
-	req, err := http.NewRequest(method, medalwallURL, nil)
+// getLiveRoomInfo 用直播间id查直播间信息
+func getLiveRoomInfo(roomID string) (card roomCard, err error) {
+	var data []byte
+	data, err = web.GetData(fmt.Sprintf(liveRoomInfoURL, roomID))
 	if err != nil {
 		return
 	}
-	c := vdb.getBilibiliCookie()
-	req.Header.Add("cookie", c.Value)
-	res, err := client.Do(req)
+	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("data").Raw), &card)
+	return
+}
+
+// getVideoInfo 用av或bv查视频信息
+func getVideoInfo(id string) (card Card, err error) {
+	var data []byte
+	_, err = strconv.Atoi(id)
+	if err == nil {
+		data, err = web.GetData(fmt.Sprintf(videoInfoURL, id, ""))
+	} else {
+		data, err = web.GetData(fmt.Sprintf(videoInfoURL, "", id))
+	}
 	if err != nil {
 		return
 	}
-	defer res.Body.Close()
-	data, err := io.ReadAll(res.Body)
-	if err != nil {
-		return
-	}
-	j := gjson.ParseBytes(data)
-	if j.Get("code").Int() == -101 {
-		err = errNeedCookie
-		return
-	}
-	if j.Get("code").Int() != 0 {
-		err = errors.New(j.Get("message").String())
-	}
-	_ = json.Unmarshal(binary.StringToBytes(j.Get("data.list").Raw), &result)
+	err = json.Unmarshal(binary.StringToBytes(gjson.ParseBytes(data).Get("data").Raw), &card)
 	return
 }

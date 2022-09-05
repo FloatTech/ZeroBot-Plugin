@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -92,7 +92,33 @@ var (
 		"紧贴":     tightly,
 		"紧紧贴着":   tightly,
 		"转":      turn,
-		"绒布球":    rbq,
+		"蒙蔽":     mengbi,
+		"踩":      cai,
+		"好玩":     haowan,
+		"2转":     whirl,
+		"2滚":     push,
+		"踢球":     tiqiu,
+		"2舔":     lick,
+		"可莉吃":    klee,
+		"胡桃啃":    hutaoken,
+		"怀":      huai,
+		"砰":      peng,
+		"你犯法了":   fanfa,
+		"炖":      dun,
+		"2蹭":     ceng2,
+		"诶嘿":     eihei,
+		"膜拜":     worship,
+		"吞":      ci,
+		"揍":      zou,
+		"给我变":    bian,
+		"玩一下":    van,
+		"不要看":    neko,
+		"小天使":    xiaotianshi,
+		"你的":     youer,
+		"我老婆":    nowife,
+		"远离":     yuanli,
+		"抬棺":     taiguan,
+		"一直":     alwaysDoGif,
 	}
 )
 
@@ -101,15 +127,21 @@ func init() { // 插件主体
 		cmd = append(cmd, k)
 	}
 	en := control.Register("gif", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
-		Help: "制图 部分关键词后可添加参数, 如: [兑换券123@xxx]\n- 搓\n- 冲\n- 摸\n- 拍\n- 丢\n- 吃\n- 敲\n- 啃\n- 蹭\n- 爬\n- 撕\n- 灰度\n- 上翻|下翻\n" +
-			"- 左翻|右翻\n- 反色\n- 浮雕\n- 打码\n- 负片\n- 旋转 45\n- 变形 100 100\n- 亲\n- 结婚申请|结婚登记\n- 阿尼亚喜欢\n- 像只\n" +
-			"- 我永远喜欢|永远喜欢\n- 像样的亲亲\n- 国旗\n- 不要靠近\n- 万能表情|空白表情\n- 采访\n- 需要|你可能需要\n- 这像画吗\n- 小画家\n" +
-			"- 完美\n- 玩游戏\n- 出警\n- 警察\n- 舔|舔屏|prpr\n- 安全感\n- 精神支柱\n- 想什么\n- 墙纸\n- 为什么at我\n- 交个朋友\n- 打工人|继续干活\n" +
-			"- 兑换券\n- 注意力涣散\n- 垃圾桶|垃圾\n- 捶\n- 啾啾\n- 2敲\n- 听音乐\n- 永远爱你\n- 2拍\n- 顶\n- 捣\n- 打拳\n- 滚\n- 吸|嗦\n- 扔\n" +
-			"- 锤\n- 紧贴|紧紧贴着\n- 转\n" +
-			"\n↓年糕定制内容↓\n" +
-			"- 绒布球{string}",
+		DisableOnDefault: false,
+		Help: "GIF制图，命令后艾特群友/QQ号/一张图方可触发命令\n其中XXX可以为任何文字，可以不写\n对机器人操作请先艾特机器人再执行命令\n" +
+			"- 搓|-冲|-摸|-拍|-丢|-吃|-敲|-啃|-蹭|-爬|-撕|-灰度|-上翻|-下翻\n" +
+			"- 左翻|-右翻|-反色|-浮雕|- 打码|- 负片|- 旋转|- 变形|- 亲\n" +
+			"- 结婚申请|结婚登记|- 阿尼亚喜欢XXX|- 像只|- 我永远喜欢XXX\n" +
+			"- 像样的亲亲|- 国旗|- 不要靠近|- 万能表情|-空白表情|- 采访\n" +
+			"- 需要|-你可能需要|- 这像画吗|- 小画家|- 完美|- 玩游戏|- 出警\n" +
+			"- 警察|- 舔|舔屏|prpr|- 安全感|- 精神支柱|- 想什么|- 墙纸\n" +
+			"- 为什么at我|- 交个朋友|- 打工人|-继续干活|- 兑换券|- 炖\n" +
+			"- 垃圾桶|- 垃圾|- 捶|- 啾啾|- 2敲|- 听音乐|- 永远爱你|- 2拍\n" +
+			"- 顶|- 捣|- 打拳|- 滚|- 吸|- 嗦|- 扔|- 锤|- 紧贴|紧紧贴着|- 转\n" +
+			"- 抬棺|- 远离|- 我老婆|- 小天使XXX|- 你的XXX|- 不要看\n" +
+			"- 玩一下XXX|- 给我变|- 揍|- 吞|- 膜拜|- 诶嘿|- 2蹭|- 你犯法了\n" +
+			"- 砰|- 注意力涣散|- 蒙蔽|- 踩|- 好玩|- 2转|- 踢球|- 2舔|\n" +
+			"- 可莉吃|- 胡桃啃|- 怀|- 一直（支持动图）",
 		PrivateDataFolder: "gif",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()
@@ -119,13 +151,13 @@ func init() { // 插件主体
 		list := ctx.State["regex_matched"].([]string)
 		err := c.prepareLogos(list[4]+list[5]+list[6], strconv.FormatInt(ctx.Event.UserID, 10))
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		argslist := strings.Split(strings.TrimSuffix(strings.TrimPrefix(list[0], list[1]), list[2]), " ")
 		picurl, err := cmdMap[list[1]](c, argslist...)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Image(picurl))

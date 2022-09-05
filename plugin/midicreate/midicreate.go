@@ -14,12 +14,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
-	"github.com/FloatTech/zbputils/web"
 	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -29,8 +29,8 @@ import (
 
 func init() {
 	engine := control.Register("midicreate", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
-		Help: "midi音乐制作,该插件需要安装timidity,linux安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh,windows安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat,windows需要管理员模式运行\n" +
+		DisableOnDefault: false,
+		Help: "midi音乐制作, 该插件需要安装timidity, linux安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh, windows安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行\n" +
 			"- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +
 			"- 个人听音练习\n" +
 			"- 团队听音练习\n" +
@@ -56,7 +56,7 @@ func init() {
 					ctx.UploadThisGroupFile(file.BOTPATH+"/"+midiFile, filepath.Base(midiFile), "")
 					return
 				}
-				ctx.SendChain(message.Text("ERROR:无法转换midi文件,", err))
+				ctx.SendChain(message.Text("ERROR: 无法转换midi文件,", err))
 				return
 			}
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + cmidiFile))
@@ -91,7 +91,7 @@ func init() {
 			midiFile := cachePath + strconv.FormatInt(uid, 10) + time.Now().Format("20060102150405") + "_midicreate.mid"
 			cmidiFile, err := str2music(ctx, answer, midiFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:听音练习结束, 无法转换midi文件, ", err))
+				ctx.SendChain(message.Text("ERROR: 听音练习结束, 无法转换midi文件, ", err))
 				return
 			}
 			time.Sleep(time.Millisecond * 500)
@@ -176,7 +176,7 @@ func init() {
 							midiFile = cachePath + strconv.FormatInt(uid, 10) + time.Now().Format("20060102150405") + "_midicreate.mid"
 							cmidiFile, err = str2music(ctx, answer, midiFile)
 							if err != nil {
-								ctx.SendChain(message.Text("ERROR:听音练习结束, 无法转换midi文件, ", err))
+								ctx.SendChain(message.Text("ERROR: 听音练习结束, 无法转换midi文件, ", err))
 								return
 							}
 							time.Sleep(time.Millisecond * 500)
@@ -230,18 +230,18 @@ func init() {
 			fileURL := ctx.GetThisGroupFileUrl(ctx.Event.File.BusID, ctx.Event.File.ID)
 			data, err := web.GetData(fileURL)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			s, err := smf.ReadFrom(bytes.NewReader(data))
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			for i := 0; i < int(s.NumTracks()); i++ {
 				midStr := mid2txt(data, i)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", fmt.Sprintf("-%d.txt", i))
@@ -256,14 +256,14 @@ func init() {
 			fileURL := ctx.GetThisGroupFileUrl(ctx.Event.File.BusID, ctx.Event.File.ID)
 			data, err := web.GetData(fileURL)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			uid := ctx.Event.UserID
 			midiFile := cachePath + strconv.FormatInt(uid, 10) + time.Now().Format("20060102150405") + "_midicreate.mid"
 			cmidiFile, err := str2music(ctx, binary.BytesToString(data), midiFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:无法转换midi文件,", err))
+				ctx.SendChain(message.Text("ERROR: 无法转换midi文件,", err))
 				return
 			}
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + cmidiFile))
@@ -273,7 +273,7 @@ func init() {
 			param := ctx.State["args"].(string)
 			timbre, err := strconv.Atoi(param)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 			err = setTimbreMode(ctx, int64(timbre))
 			if err != nil {

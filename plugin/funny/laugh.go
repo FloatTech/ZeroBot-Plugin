@@ -9,6 +9,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -24,32 +25,32 @@ var db = &sql.Sqlite{}
 
 func init() {
 	en := control.Register("funny", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "讲个笑话\n" +
 			"- 讲个笑话[@xxx|qq号|人名] | 夸夸[@xxx|qq号|人名] ",
 		PublicDataFolder: "Funny",
 	})
 
-	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = en.DataFolder() + "jokes.db"
 		_, err := en.GetLazyData("jokes.db", true)
 		if err != nil {
-			ctx.SendChain(message.Text("#", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("#", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = db.Create("jokes", &joke{})
 		if err != nil {
-			ctx.SendChain(message.Text("#", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		c, err := db.Count("jokes")
 		if err != nil {
-			ctx.SendChain(message.Text("#", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		logrus.Infoln("[funny]加载", c, "个笑话")
@@ -60,7 +61,7 @@ func init() {
 		var j joke
 		err := db.Pick("jokes", &j)
 		if err != nil {
-			ctx.SendChain(message.Text("#", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text(strings.ReplaceAll(j.Text, "%name", name)))

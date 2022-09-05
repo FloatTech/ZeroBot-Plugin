@@ -7,10 +7,10 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/web"
 )
 
 const (
@@ -51,7 +51,7 @@ type area struct {
 
 func init() {
 	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "城市疫情查询\n" +
 			"- xxx疫情\n",
 	})
@@ -59,29 +59,29 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			city := ctx.State["args"].(string)
 			if city == "" {
-				ctx.SendChain(message.Text("需要城市名字!"))
+				ctx.SendChain(message.Text("你还没有输入城市名字呢！"))
 				return
 			}
 			data, time, err := queryEpidemic(city)
 			if err != nil {
-				ctx.SendChain(message.Text("#", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			if data == nil {
-				ctx.SendChain(message.Text("没有找到", city, "的疫情数据."))
+				ctx.SendChain(message.Text("没有找到【", city, "】城市的疫情数据."))
 				return
 			}
 			ctx.SendChain(
 				message.Text(
-					"", data.Name, "的疫情数据\n",
-					"新增人数: ", data.Today.Confirm, "\n",
-					"现有确诊: ", data.Total.NowConfirm, "\n",
-					"累计确诊: ", data.Total.Confirm, "\n",
-					"治愈人数: ", data.Total.Heal, "\n",
-					"死亡人数: ", data.Total.Dead, "\n",
-					"无症状人数: ", data.Total.Wzz, "\n",
-					"新增无症状: ", data.Today.Wzzadd, "\n",
-					"更新时间: \n『", time, "』",
+					"【", data.Name, "】疫情数据\n",
+					"新增人数：", data.Today.Confirm, "\n",
+					"现有确诊：", data.Total.NowConfirm, "\n",
+					"累计确诊：", data.Total.Confirm, "\n",
+					"治愈人数：", data.Total.Heal, "\n",
+					"死亡人数：", data.Total.Dead, "\n",
+					"无症状人数：", data.Total.Wzz, "\n",
+					"新增无症状：", data.Today.Wzzadd, "\n",
+					"更新时间：\n『", time, "』",
 				),
 			)
 		})

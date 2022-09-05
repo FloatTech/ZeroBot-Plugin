@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	_ "github.com/fumiama/sqlite3" // use sql
 	"github.com/jinzhu/gorm"
@@ -28,15 +29,6 @@ type vup struct {
 
 func (vup) TableName() string {
 	return "vup"
-}
-
-type config struct {
-	Key   string `gorm:"column:key;primary_key"`
-	Value string `gorm:"column:value"`
-}
-
-func (config) TableName() string {
-	return "config"
 }
 
 // initializeVup 初始化vup数据库

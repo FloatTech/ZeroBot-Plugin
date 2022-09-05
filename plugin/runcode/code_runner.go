@@ -93,7 +93,7 @@ var (
 
 func init() {
 	control.Register("runcode", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "在线代码运行: \n" +
 			">runcode [language] [code block]\n" +
 			"模板查看: \n" +
@@ -131,7 +131,7 @@ func init() {
 						// 运行失败
 						ctx.SendChain(
 							message.Text("> ", ctx.Event.Sender.NickName, "\n"),
-							message.Text("ERROR:", err),
+							message.Text("ERROR: ", err),
 						)
 					} else {
 						// 运行成功

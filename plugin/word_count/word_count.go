@@ -11,11 +11,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/FloatTech/floatbox/binary"
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/golang/freetype"
 	"github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ var (
 
 func init() {
 	engine := control.Register("wordcount", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "聊天热词\n" +
 			"- 热词 [群号] [消息数目]|热词 123456 1000",
 		PublicDataFolder: "WordCount",
@@ -40,15 +41,15 @@ func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
-	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		_, err := engine.GetLazyData("stopwords.txt", false)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		data, err := os.ReadFile(engine.DataFolder() + "stopwords.txt")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		stopwords = strings.Split(strings.ReplaceAll(binary.BytesToString(data), "\r", ""), "\n")
@@ -59,17 +60,17 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			_, err := file.GetLazyData(text.FontFile, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			b, err := os.ReadFile(text.FontFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			font, err := freetype.ParseFont(b)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 
@@ -140,7 +141,7 @@ func init() {
 			}
 			// 绘图
 			if len(wc) == 0 {
-				ctx.SendChain(message.Text("ERROR:历史消息为空或者无法获得历史消息"))
+				ctx.SendChain(message.Text("ERROR: 历史消息为空或者无法获得历史消息"))
 				return
 			}
 			bars := make([]chart.Value, len(wc))
@@ -164,14 +165,14 @@ func init() {
 			}
 			f, err := os.Create(drawedFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			err = graph.Render(chart.PNG, f)
 			_ = f.Close()
 			if err != nil {
 				_ = os.Remove(drawedFile)
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))

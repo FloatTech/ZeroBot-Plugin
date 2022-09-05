@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	wr "github.com/mroth/weightedrand"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -16,19 +16,19 @@ import (
 
 func init() {
 	en := control.Register("reborn", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help:             "投胎\n- reborn",
 		PublicDataFolder: "Reborn",
 	})
 
-	en.OnFullMatch("reborn", ctxext.DoOnceOnSuccess(
+	en.OnFullMatch("reborn", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			datapath := en.DataFolder()
 			jsonfile := datapath + "rate.json"
 			area := make(rate, 226)
 			err := load(&area, jsonfile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			choices := make([]wr.Choice, len(area))
@@ -38,7 +38,7 @@ func init() {
 			}
 			areac, err = wr.NewChooser(choices...)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			logrus.Printf("[Reborn]读取%d个国家/地区", len(area))

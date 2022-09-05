@@ -2,8 +2,8 @@
 package font
 
 import (
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/binary"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -13,7 +13,7 @@ import (
 
 func init() {
 	control.Register("font", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help:             "渲染任意文字到图片\n- (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx",
 	}).OnRegex(`^(用.+)?渲染文字([\s\S]+)$`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		fnt := ctx.State["regex_matched"].([]string)[1]
@@ -36,7 +36,7 @@ func init() {
 		}
 		b, err := text.RenderToBase64(txt, fnt, 400, 20)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))

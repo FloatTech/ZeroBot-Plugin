@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/zbputils/web"
+	"github.com/FloatTech/floatbox/web"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -23,7 +23,7 @@ import (
 
 func init() {
 	control.Register("music", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
+		DisableOnDefault: false,
 		Help: "点歌\n" +
 			"- 点歌[xxx]\n" +
 			"- 网易点歌[xxx]\n" +
@@ -141,7 +141,7 @@ func cloud163(keyword string) (msg message.MessageSegment) {
 	requestURL := "https://music.cyrilstudio.top/search?keywords=" + url.QueryEscape(keyword)
 	data, err := web.GetData(requestURL)
 	if err != nil {
-		msg = message.Text("ERROR:", err)
+		msg = message.Text("ERROR: ", err)
 		return
 	}
 	msg = message.Music("163", gjson.ParseBytes(data).Get("result.songs.0.id").Int())
@@ -153,7 +153,7 @@ func qqmusic(keyword string) (msg message.MessageSegment) {
 	requestURL := "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w=" + url.QueryEscape(keyword)
 	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA())
 	if err != nil {
-		msg = message.Text("ERROR:", err)
+		msg = message.Text("ERROR: ", err)
 		return
 	}
 	info := gjson.ParseBytes(data[9 : len(data)-1]).Get("data.song.list.0")
