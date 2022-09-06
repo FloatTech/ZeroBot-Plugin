@@ -54,7 +54,7 @@ func (db *antidb) listWords(gid int64) string {
 	sb := strings.Builder{}
 	db.Lock()
 	defer db.Unlock()
-	_ = db.FindFor(grp, &word, "", func() error {
+	_ = db.FindFor(grp, word, "", func() error {
 		sb.WriteString(word.Word)
 		sb.WriteString(" |")
 		return nil
