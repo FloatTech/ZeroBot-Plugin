@@ -43,12 +43,7 @@ func init() {
 		db.DBPath = engine.DataFolder() + "anti_abuse.db"
 		err := db.Open(time.Hour * 4)
 		if err != nil {
-			ctx.SendChain(message.Text("open db error: ", err))
-			return false
-		}
-		err = db.Create("banWord", &banWord{})
-		if err != nil {
-			ctx.SendChain(message.Text("create table error: ", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true
@@ -70,7 +65,7 @@ func init() {
 				ctx.SetGroupBan(gid, uid, 4*3600)
 				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽4小时"))
 			} else {
-				ctx.SendChain(message.Text("block user error: ", err))
+				ctx.SendChain(message.Text("ERROR: block user: ", err))
 			}
 			return false
 		}
