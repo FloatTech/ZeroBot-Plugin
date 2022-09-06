@@ -5,30 +5,14 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
-	"unsafe"
 
 	sqlite "github.com/FloatTech/sqlite"
-	"github.com/FloatTech/ttl"
-	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/sirupsen/logrus"
-	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
-var managers *ctrl.Manager[*zero.Ctx] // managers lazy load
-var db = &sqlite.Sqlite{}
-var mu sync.RWMutex
-
-func onDel(uid int64, _ struct{}) {
-	if managers == nil {
-		return
-	}
-	if err := managers.DoUnblock(uid); err != nil {
-		logrus.Errorln("[antiabuse] do unblock:", err)
-	}
+type antidb struct {
+	sync.RWMutex
+	sqlite.Sqlite
 }
-
-var cache = ttl.NewCacheOn(4*time.Hour, [4]func(int64, struct{}){nil, nil, onDel, nil})
 
 type banWord struct {
 	Word string `db:"word"`
@@ -36,36 +20,35 @@ type banWord struct {
 
 var nilban = &banWord{}
 
-func insertWord(gid int64, word string) error {
+func (db *antidb) insertWord(gid int64, word string) error {
 	grp := strconv.FormatInt(gid, 36)
-	mu.Lock()
-	defer mu.Unlock()
+	db.Lock()
+	defer db.Unlock()
 	err := db.Create(grp, nilban)
 	if err != nil {
 		return err
 	}
-	return db.Insert(grp, (*banWord)(unsafe.Pointer(&word)))
+	return db.Insert(grp, &banWord{Word: word})
 }
 
-func deleteWord(gid int64, word string) error {
+func (db *antidb) deleteWord(gid int64, word string) error {
 	grp := strconv.FormatInt(gid, 36)
-	mu.Lock()
-	defer mu.Unlock()
+	db.Lock()
+	defer db.Unlock()
 	if n, _ := db.Count(grp); n == 0 {
 		return errors.New("本群还没有违禁词~")
 	}
 	return db.Del(grp, "WHRER word='"+word+"'")
 }
 
-func listWords(gid int64) string {
+func (db *antidb) listWords(gid int64) string {
 	grp := strconv.FormatInt(gid, 36)
-	word := ""
-	ptr := (*banWord)(unsafe.Pointer(&word))
+	word := &banWord{}
 	sb := strings.Builder{}
-	mu.Lock()
-	defer mu.Unlock()
-	_ = db.FindFor(grp, ptr, "", func() error {
-		sb.WriteString(word)
+	db.Lock()
+	defer db.Unlock()
+	_ = db.FindFor(grp, &word, "", func() error {
+		sb.WriteString(word.Word)
 		sb.WriteString(" |")
 		return nil
 	})
