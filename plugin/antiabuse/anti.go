@@ -17,11 +17,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const banhour = 4
+const bandur time.Duration = time.Minute * 10
 
 var (
 	managers *ctrl.Manager[*zero.Ctx] // managers lazy load
-	cache    = ttl.NewCacheOn(banhour*time.Hour, [4]func(int64, struct{}){nil, nil, onDel, nil})
+	cache    = ttl.NewCacheOn(bandur, [4]func(int64, struct{}){nil, nil, onDel, nil})
 	db       *antidb
 )
 
@@ -69,8 +69,8 @@ func init() {
 			if err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.DoBlock(uid); err == nil {
 				t := time.Now().Unix()
 				cache.Set(uid, struct{}{})
-				ctx.SetGroupBan(gid, uid, banhour*3600)
-				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽", banhour, "小时"))
+				ctx.SetGroupBan(gid, uid, int64(bandur.Minutes()))
+				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽", bandur))
 				db.Lock()
 				defer db.Unlock()
 				err := db.Create("__bantime__", nilbt)

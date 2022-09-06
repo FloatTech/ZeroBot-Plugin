@@ -31,13 +31,13 @@ var (
 
 func newantidb(path string) (*antidb, error) {
 	db := &antidb{Sqlite: sqlite.Sqlite{DBPath: path}}
-	err := db.Open(time.Hour * banhour)
+	err := db.Open(bandur)
 	if err != nil {
 		return nil, err
 	}
 	_ = db.FindFor("__bantime__", nilbt, "", func() error {
 		t := time.Unix(nilbt.Time, 0)
-		ttl := time.Until(t.Add(time.Hour * banhour))
+		ttl := time.Until(t.Add(bandur))
 		if ttl < time.Minute {
 			_ = managers.DoUnblock(nilbt.ID)
 			return nil
@@ -46,7 +46,7 @@ func newantidb(path string) (*antidb, error) {
 		cache.Touch(nilbt.ID, -time.Since(t))
 		return nil
 	})
-	_ = db.Del("__bantime__", "WHERE time<="+strconv.FormatInt(time.Now().Add(time.Minute-time.Hour*banhour).Unix(), 10))
+	_ = db.Del("__bantime__", "WHERE time<="+strconv.FormatInt(time.Now().Add(time.Minute-bandur).Unix(), 10))
 	return db, nil
 }
 
