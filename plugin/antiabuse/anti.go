@@ -55,9 +55,9 @@ func init() {
 			if err := managers.DoBlock(uid); err == nil {
 				cache.Set(uid, struct{}{})
 				ctx.SetGroupBan(gid, uid, 4*3600)
-				ctx.SendChain(message.Text("检测到违禁词,已封禁/屏蔽4小时"))
+				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽4小时"))
 			} else {
-				ctx.SendChain(message.Text("block user error:", err))
+				ctx.SendChain(message.Text("block user error: ", err))
 			}
 			return false
 		}
@@ -70,7 +70,7 @@ func init() {
 			if err := insertWord(ctx.Event.GroupID, args); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
-				ctx.SendChain(message.Text("添加违禁词 ", args, " 成功"))
+				ctx.SendChain(message.Text("成功"))
 			}
 		})
 
@@ -80,7 +80,7 @@ func init() {
 			if err := deleteWord(ctx.Event.GroupID, args); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
-				ctx.SendChain(message.Text("删除违禁词 ", args, " 成功"))
+				ctx.SendChain(message.Text("成功"))
 			}
 		})
 
@@ -91,6 +91,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("本群违禁词有:\n"), message.Image("base64://"+binary.BytesToString(b)))
+			ctx.SendChain(message.Text("本群违禁词有\n"), message.Image("base64://"+binary.BytesToString(b)))
 		})
 }

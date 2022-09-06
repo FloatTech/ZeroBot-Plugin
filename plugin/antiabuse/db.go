@@ -24,7 +24,7 @@ func onDel(uid int64, _ struct{}) {
 		return
 	}
 	if err := managers.DoUnblock(uid); err != nil {
-		logrus.Error("do unblock error:", err)
+		logrus.Errorln("[antiabuse] do unblock:", err)
 	}
 }
 
