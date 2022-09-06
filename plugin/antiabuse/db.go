@@ -37,7 +37,7 @@ func newantidb(path string) (*antidb, error) {
 	}
 	_ = db.FindFor("__bantime__", nilbt, "", func() error {
 		t := time.Unix(nilbt.Time, 0)
-		ttl := time.Until(t.Add(time.Hour * banhour)) // second
+		ttl := time.Until(t.Add(time.Hour * banhour))
 		if ttl < time.Minute {
 			_ = managers.DoUnblock(nilbt.ID)
 			return nil
