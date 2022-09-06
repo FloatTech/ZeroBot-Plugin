@@ -20,6 +20,13 @@ type banWord struct {
 
 var nilban = &banWord{}
 
+func (db *antidb) isInAntiList(uid, gid int64, msg string) bool {
+	grp := strconv.FormatInt(gid, 36)
+	db.RLock()
+	defer db.RUnlock()
+	return db.CanFind(grp, "WHERE instr('"+msg+"', word)>=0")
+}
+
 func (db *antidb) insertWord(gid int64, word string) error {
 	grp := strconv.FormatInt(gid, 36)
 	db.Lock()

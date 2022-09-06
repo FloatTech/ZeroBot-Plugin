@@ -2,7 +2,6 @@
 package antiabuse
 
 import (
-	"strconv"
 	"strings"
 	"time"
 
@@ -61,14 +60,11 @@ func init() {
 		}
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		grp := strconv.FormatInt(gid, 36)
 		msg := strings.ReplaceAll(ctx.MessageString(), "\n", "")
 		msg = strings.ReplaceAll(msg, "\r", "")
 		msg = strings.ReplaceAll(msg, "\t", "")
 		msg = strings.ReplaceAll(msg, ";", "")
-		db.RLock()
-		defer db.RUnlock()
-		if db.CanFind(grp, "WHERE instr('"+msg+"', word)>=0") {
+		if db.isInAntiList(uid, gid, msg) {
 			if err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.DoBlock(uid); err == nil {
 				cache.Set(uid, struct{}{})
 				ctx.SetGroupBan(gid, uid, 4*3600)
