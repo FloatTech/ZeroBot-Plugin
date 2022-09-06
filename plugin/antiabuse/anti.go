@@ -23,7 +23,7 @@ func init() {
 	})
 
 	onceRule := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		managers = ctx.State["managers"].(*ctrl.Control[*zero.Ctx]).Manager
+		managers = ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager
 		db.DBPath = engine.DataFolder() + "anti_abuse.db"
 		err := db.Open(time.Hour * 4)
 		if err != nil {
