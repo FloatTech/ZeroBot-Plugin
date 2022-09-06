@@ -45,7 +45,7 @@ func (db *antidb) deleteWord(gid int64, word string) error {
 	if n, _ := db.Count(grp); n == 0 {
 		return errors.New("本群还没有违禁词~")
 	}
-	return db.Del(grp, "WHRER word='"+word+"'")
+	return db.Del(grp, "WHERE word='"+word+"'")
 }
 
 func (db *antidb) listWords(gid int64) string {
