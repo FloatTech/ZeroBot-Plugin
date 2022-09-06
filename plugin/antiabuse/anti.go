@@ -2,6 +2,7 @@
 package antiabuse
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,10 +17,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const banhour = 4
+
 var (
 	managers *ctrl.Manager[*zero.Ctx] // managers lazy load
-	cache    = ttl.NewCacheOn(4*time.Hour, [4]func(int64, struct{}){nil, nil, onDel, nil})
-	db       = &antidb{}
+	cache    = ttl.NewCacheOn(banhour*time.Hour, [4]func(int64, struct{}){nil, nil, onDel, nil})
+	db       *antidb
 )
 
 func onDel(uid int64, _ struct{}) {
@@ -27,7 +30,10 @@ func onDel(uid int64, _ struct{}) {
 		return
 	}
 	if err := managers.DoUnblock(uid); err != nil {
-		logrus.Errorln("[antiabuse] do unblock:", err)
+		logrus.Errorln("[antiabuse.onDel] unblock:", err)
+	}
+	if err := db.Del("__bantime__", "WHERE id="+strconv.FormatInt(uid, 10)); err != nil {
+		logrus.Errorln("[antiabuse.onDel] db:", err)
 	}
 }
 
@@ -40,8 +46,8 @@ func init() {
 
 	onceRule := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		managers = ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager
-		db.DBPath = engine.DataFolder() + "anti_abuse.db"
-		err := db.Open(time.Hour * 4)
+		var err error
+		db, err = newantidb(engine.DataFolder() + "anti_abuse.db")
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
@@ -61,9 +67,22 @@ func init() {
 		msg = strings.ReplaceAll(msg, ";", "")
 		if db.isInAntiList(uid, gid, msg) {
 			if err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.DoBlock(uid); err == nil {
+				t := time.Now().Unix()
 				cache.Set(uid, struct{}{})
-				ctx.SetGroupBan(gid, uid, 4*3600)
-				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽4小时"))
+				ctx.SetGroupBan(gid, uid, banhour*3600)
+				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽", banhour, "小时"))
+				db.Lock()
+				defer db.Unlock()
+				err := db.Create("__bantime__", nilbt)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return false
+				}
+				err = db.Insert("__bantime__", &banTime{ID: uid, Time: t})
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return false
+				}
 			} else {
 				ctx.SendChain(message.Text("ERROR: block user: ", err))
 			}

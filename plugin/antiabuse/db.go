@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	sqlite "github.com/FloatTech/sqlite"
 )
@@ -18,7 +19,34 @@ type banWord struct {
 	Word string `db:"word"`
 }
 
-var nilban = &banWord{}
+type banTime struct {
+	ID   int64 `db:"id"`
+	Time int64 `db:"time"`
+}
+
+var (
+	nilban = &banWord{}
+	nilbt  = &banTime{}
+)
+
+func newantidb(path string) (*antidb, error) {
+	db := &antidb{Sqlite: sqlite.Sqlite{DBPath: path}}
+	err := db.Open(time.Hour * banhour)
+	if err != nil {
+		return nil, err
+	}
+	_ = db.Del("__bantime__", "WHERE time<="+strconv.FormatInt(time.Now().Add(-time.Hour*banhour).Unix(), 10))
+	return db, db.FindFor("__bantime__", nilbt, "", func() error {
+		t := time.Unix(nilbt.Time, 0)
+		ttl := time.Until(t.Add(time.Hour * banhour)) // second
+		if ttl < time.Minute {
+			return nil
+		}
+		cache.Set(nilbt.ID, struct{}{})
+		cache.Touch(nilbt.ID, -time.Since(t))
+		return nil
+	})
+}
 
 func (db *antidb) isInAntiList(uid, gid int64, msg string) bool {
 	grp := strconv.FormatInt(gid, 36)
@@ -52,15 +80,21 @@ func (db *antidb) listWords(gid int64) string {
 	grp := strconv.FormatInt(gid, 36)
 	word := &banWord{}
 	sb := strings.Builder{}
-	db.Lock()
-	defer db.Unlock()
+	sb.WriteByte('[')
+	i := 0
+	db.RLock()
+	defer db.RUnlock()
 	_ = db.FindFor(grp, word, "", func() error {
+		if i > 0 {
+			sb.WriteString(" | ")
+		}
 		sb.WriteString(word.Word)
-		sb.WriteString(" | ")
+		i++
 		return nil
 	})
-	if sb.Len() <= 3 {
-		return ""
+	if sb.Len() <= 4 {
+		return "[]"
 	}
-	return sb.String()[:sb.Len()-3]
+	sb.WriteByte(']')
+	return sb.String()
 }
