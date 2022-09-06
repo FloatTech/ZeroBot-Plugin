@@ -59,7 +59,7 @@ func (db *antidb) listWords(gid int64) string {
 		sb.WriteString(" | ")
 		return nil
 	})
-	if sb.Len() <= 2 {
+	if sb.Len() <= 3 {
 		return ""
 	}
 	return sb.String()[:sb.Len()-3]
