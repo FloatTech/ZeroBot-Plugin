@@ -24,8 +24,10 @@ import (
 	//                      vvvvvvv高优先级区vvvvvvv                      //
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"      // 基础词库
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
 
@@ -162,6 +164,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	// -----------------------以上为内置依赖，勿动------------------------ //
 )
+
+type zbpcfg struct {
+	Z zero.Config        `json:"zero"`
+	W []*driver.WSClient `json:"ws"`
+}
+
+var config zbpcfg
 
 func init() {
 	sus := make([]int64, 0, 16)
