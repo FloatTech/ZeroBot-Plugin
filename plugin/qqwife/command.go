@@ -34,7 +34,7 @@ var (
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
 	}
-	skillCD  = rate.NewManager[string](time.Hour*12, 1)
+	skillCD  = rate.NewManager[string](time.Hour*3, 1)
 	sendtext = [...][]string{
 		{ // 表白成功
 			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
