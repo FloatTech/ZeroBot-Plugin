@@ -35,17 +35,19 @@ func newantidb(path string) (*antidb, error) {
 	if err != nil {
 		return nil, err
 	}
-	_ = db.Del("__bantime__", "WHERE time<="+strconv.FormatInt(time.Now().Add(-time.Hour*banhour).Unix(), 10))
-	return db, db.FindFor("__bantime__", nilbt, "", func() error {
+	_ = db.FindFor("__bantime__", nilbt, "", func() error {
 		t := time.Unix(nilbt.Time, 0)
 		ttl := time.Until(t.Add(time.Hour * banhour)) // second
 		if ttl < time.Minute {
+			_ = managers.DoUnblock(nilbt.ID)
 			return nil
 		}
 		cache.Set(nilbt.ID, struct{}{})
 		cache.Touch(nilbt.ID, -time.Since(t))
 		return nil
 	})
+	_ = db.Del("__bantime__", "WHERE time<="+strconv.FormatInt(time.Now().Add(time.Minute-time.Hour*banhour).Unix(), 10))
+	return db, nil
 }
 
 func (db *antidb) isInAntiList(uid, gid int64, msg string) bool {
