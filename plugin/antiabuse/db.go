@@ -56,11 +56,11 @@ func (db *antidb) listWords(gid int64) string {
 	defer db.Unlock()
 	_ = db.FindFor(grp, word, "", func() error {
 		sb.WriteString(word.Word)
-		sb.WriteString(" |")
+		sb.WriteString(" | ")
 		return nil
 	})
 	if sb.Len() <= 2 {
 		return ""
 	}
-	return sb.String()[:sb.Len()-2]
+	return sb.String()[:sb.Len()-3]
 }
