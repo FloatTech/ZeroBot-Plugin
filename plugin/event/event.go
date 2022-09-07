@@ -130,7 +130,7 @@ func init() {
 				case "邀请":
 					data &= 0x7fffffff_fffffffd
 				case "主人":
-					data &= 0x7fffffff_fffffffc
+					data &= 0x7fffffff_fffffffb
 				}
 			}
 			err := c.SetData(-su, data)
