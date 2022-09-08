@@ -31,50 +31,50 @@ func init() {
 				data := c.GetData(-su)
 				switch ctx.Event.RequestType {
 				case "friend":
-					logrus.Infoln("[event]收到来自[", username, "](", userid, ")的好友申请")
+					logrus.Info("[event]收到来自[", username, "](", userid, ")的好友申请")
 					if data&1 == 1 || data&0x20 == 0x20 && zero.SuperUserPermission(ctx) {
 						ctx.SetFriendAddRequest(flag, true, "")
 						ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
-							message.Text("已自动同意在", now, "收到来自",
-								"\n用户:[", username, "](", strconv.FormatInt(userid, 10), ")",
-								"\n的好友请求:", comment,
-								"\nflag:", flag))})
+							"已自动同意在"+now+"收到来自"+
+								"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")"+
+								"\n的好友请求:"+comment+
+								"\nflag:"+flag)})
 						return
 					}
 					ctx.SendPrivateForwardMessage(su,
 						message.Message{message.CustomNode(username, userid,
-							message.Text("在", now, "收到来自",
-								"\n用户:[", username, "](", strconv.FormatInt(userid, 10), ")",
-								"\n的好友请求:", comment,
-								"\n请在下方复制flag并在前面加上:",
-								"\n同意/拒绝申请，来决定同意还是拒绝")),
-							message.CustomNode(username, userid, message.Text(flag))})
+							"在"+now+"收到来自"+
+								"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")"+
+								"\n的好友请求:"+comment+
+								"\n请在下方复制flag并在前面加上:"+
+								"\n同意/拒绝申请，来决定同意还是拒绝"),
+							message.CustomNode(username, userid, flag)})
 				case "group":
 					if ctx.Event.SubType != "invite" {
 						return
 					}
 					groupid := ctx.Event.GroupID
 					groupname := ctx.GetGroupInfo(groupid, true).Name
-					logrus.Infoln("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
+					logrus.Info("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
 					if data&0x10 == 0x10 || data&0x20 == 0x20 && zero.SuperUserPermission(ctx) {
 						ctx.SetGroupAddRequest(flag, "invite", true, "")
 						ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
-							message.Text("已自动同意在", now, "收到来自",
-								"\n用户:[", username, "](", strconv.FormatInt(userid, 10), ")的群聊邀请",
-								"\n群聊:[", groupname, "](", strconv.FormatInt(groupid, 10), ")",
-								"\n验证信息:\n", comment,
-								"\nflag:", flag))})
+							"已自动同意在"+now+"收到来自"+
+								"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
+								"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
+								"\n验证信息:\n"+comment+
+								"\nflag:"+flag)})
 						return
 					}
 					ctx.SendPrivateForwardMessage(su,
 						message.Message{message.CustomNode(username, userid,
-							message.Text("在", now, "收到来自",
-								"\n用户:[", username, "](", strconv.FormatInt(userid, 10), ")的群聊邀请",
-								"\n群聊:[", groupname, "](", strconv.FormatInt(groupid, 10), ")",
-								"\n验证信息:\n", comment,
-								"\n请在下方复制flag并在前面加上:",
-								"\n同意/拒绝邀请，来决定同意还是拒绝")),
-							message.CustomNode(username, userid, message.Text(flag))})
+							"在"+now+"收到来自"+
+								"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
+								"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
+								"\n验证信息:\n"+comment+
+								"\n请在下方复制flag并在前面加上:"+
+								"\n同意/拒绝邀请，来决定同意还是拒绝"),
+							message.CustomNode(username, userid, flag)})
 				}
 			}
 		})
@@ -128,16 +128,16 @@ func init() {
 				case "申请":
 					data &= 0x7fffffff_fffffffe
 				case "邀请":
-					data &= 0x7fffffff_fffffffd
+					data &= 0x7fffffff_ffffffef
 				case "主人":
-					data &= 0x7fffffff_fffffffc
+					data &= 0x7fffffff_ffffffdf
 				}
 			}
 			err := c.SetData(-su, data)
-			if err == nil {
-				ctx.SendChain(message.Text("已设置自动同意" + from + "为" + option))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("已设置自动同意" + from + "为" + option))
 		})
 }
