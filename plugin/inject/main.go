@@ -12,10 +12,10 @@ func init() {
 	en := control.Register("inject", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Help: "注入指令\n" +
-			"- run[CQ码]",
+			"- execute[CQ码]",
 	})
 	// 运行 CQ 码
-	en.OnPrefix("run", zero.SuperUserPermission).SetBlock(true).
+	en.OnPrefix("execute", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 可注入，权限为主人
 			ctx.Send(message.UnescapeCQCodeText(ctx.State["args"].(string)))
