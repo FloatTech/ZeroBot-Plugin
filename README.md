@@ -558,6 +558,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>城市疫情查询</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"`
+
+  - [x] [开启|关闭]自动同意[申请|邀请|主人]
+
+</details>
+<details>
   <summary>渲染任意文字到图片</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
