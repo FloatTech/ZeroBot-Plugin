@@ -558,7 +558,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>城市疫情查询</summary>
+  <summary>好友申请及群聊邀请事件处理</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"`
 
