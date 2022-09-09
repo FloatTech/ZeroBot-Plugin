@@ -564,6 +564,10 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] [开启|关闭]自动同意[申请|邀请|主人]
 
+  - [x] [同意|拒绝][申请|邀请][flag]
+
+  - flag跟随事件一起发送, 默认同意主人的事件
+
 </details>
 <details>
   <summary>渲染任意文字到图片</summary>
