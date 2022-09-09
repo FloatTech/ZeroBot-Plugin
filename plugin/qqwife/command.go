@@ -14,7 +14,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	//反并发
+	// 反并发
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	// 数据库
 	sql "github.com/FloatTech/sqlite"
@@ -28,8 +28,8 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-//nolint: asciicheck
 // nolint: asciicheck
+//nolint: asciicheck
 var (
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
