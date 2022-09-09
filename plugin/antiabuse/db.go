@@ -50,7 +50,7 @@ func newantidb(path string) (*antidb, error) {
 	return db, nil
 }
 
-func (db *antidb) isInAntiList(uid, gid int64, msg string) bool {
+func (db *antidb) isInAntiList(gid int64, msg string) bool {
 	grp := strconv.FormatInt(gid, 36)
 	db.RLock()
 	defer db.RUnlock()
