@@ -18,7 +18,12 @@ import (
 )
 
 var (
-	namelist = []string{"伊織弓鶴", "紲星あかり", "結月ゆかり", "京町セイカ", "東北きりたん", "東北イタコ", "ついなちゃん標準語", "ついなちゃん関西弁", "音街ウナ", "琴葉茜", "吉田くん", "民安ともえ", "桜乃そら", "月読アイ", "琴葉葵", "東北ずん子", "月読ショウタ", "水奈瀬コウ"}
+	namelist = [...]string{"伊織弓鶴", "紲星あかり", "結月ゆかり", "京町セイカ", "東北きりたん", "東北イタコ", "ついなちゃん標準語", "ついなちゃん関西弁", "音街ウナ", "琴葉茜", "吉田くん", "民安ともえ", "桜乃そら", "月読アイ", "琴葉葵", "東北ずん子", "月読ショウタ", "水奈瀬コウ"}
+	namesort = func() []string {
+		nl := namelist[:]
+		sort.Strings(nl)
+		return nl
+	}()
 )
 
 func init() {
@@ -38,17 +43,17 @@ func init() {
 		s := ahsaitts.NewSpeaker()
 		err := s.SetName(ctx.State["ahsainame"].(string))
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		u, err := s.Speak(ctx.State["ahsaitext"].(string))
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		err = ahsaitts.SaveOggToFile(u, ahsaiFile)
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + ahsaiFile))
@@ -59,9 +64,8 @@ func selectName(ctx *zero.Ctx) bool {
 	regexMatched := ctx.State["regex_matched"].([]string)
 	ctx.State["ahsaitext"] = regexMatched[2]
 	name := regexMatched[1]
-	sort.Strings(namelist)
-	index := sort.SearchStrings(namelist, name)
-	if index < len(namelist) && namelist[index] == name {
+	index := sort.SearchStrings(namesort, name)
+	if index < len(namelist) && namesort[index] == name {
 		ctx.State["ahsainame"] = name
 		return true
 	}

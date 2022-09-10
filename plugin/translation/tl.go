@@ -20,7 +20,7 @@ func init() {
 			msg := []string{ctx.State["regex_matched"].([]string)[2]}
 			data, err := tl.Translate(msg[0])
 			if err != nil {
-				ctx.SendChain(message.Text("Error:", data))
+				ctx.SendChain(message.Text("ERROR: ", data))
 				return
 			}
 			ctx.SendChain(message.Text(data))

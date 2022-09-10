@@ -1,3 +1,4 @@
+// Package main ZeroBot-Plugin main file
 package main
 
 import (
@@ -24,8 +25,10 @@ import (
 	//                      vvvvvvv高优先级区vvvvvvv                      //
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"      // 基础词库
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
 
@@ -74,6 +77,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"  // 漂流瓶
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"      // 合成emoji
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"      // 城市疫情查询
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"         // 好友申请群聊邀请事件处理
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"          // 渲染任意文字到图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"       // 运势
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"         // 笑话
@@ -166,6 +170,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 	// -----------------------以上为内置依赖，勿动------------------------ //
 )
+
+type zbpcfg struct {
+	Z zero.Config        `json:"zero"`
+	W []*driver.WSClient `json:"ws"`
+}
+
+var config zbpcfg
 
 func init() {
 	sus := make([]int64, 0, 16)
