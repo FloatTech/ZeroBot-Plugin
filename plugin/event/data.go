@@ -40,6 +40,6 @@ func (s *storage) isinviteon() bool {
 }
 
 // 主人
-func (s *storage) ismasteron() bool {
+func (s *storage) ismasteroff() bool {
 	return *s&0b100 > 0
 }
