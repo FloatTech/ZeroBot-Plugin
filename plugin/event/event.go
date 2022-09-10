@@ -36,7 +36,6 @@ func init() {
 				var buf [8]byte
 				binary.BigEndian.PutUint64(buf[:], uint64(flag))
 				es := base14.EncodeToString(buf[1:])
-				comment := ctx.Event.Comment
 				userid := ctx.Event.UserID
 				username := ctx.CardOrNickName(userid)
 				data := (storage)(c.GetData(-su))
@@ -49,7 +48,6 @@ func init() {
 						"已自动同意在"+now+"收到来自"+
 							"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
 							"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
-							"\n验证信息:\n"+comment+
 							"\nflag:"+es)})
 					return
 				}
@@ -58,7 +56,6 @@ func init() {
 						"在"+now+"收到来自"+
 							"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
 							"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
-							"\n验证信息:\n"+comment+
 							"\n请在下方复制flag并在前面加上:"+
 							"\n同意/拒绝邀请，来决定同意还是拒绝"),
 						message.CustomNode(username, userid, es)})
