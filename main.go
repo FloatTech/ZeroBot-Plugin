@@ -29,7 +29,6 @@ import (
 	// 高优先级自定义插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/custom"   // 自杀（bushi
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/delreply" // 回复撤回
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"    // 事件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
 
