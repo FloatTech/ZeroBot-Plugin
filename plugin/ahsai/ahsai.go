@@ -38,17 +38,17 @@ func init() {
 		s := ahsaitts.NewSpeaker()
 		err := s.SetName(ctx.State["ahsainame"].(string))
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		u, err := s.Speak(ctx.State["ahsaitext"].(string))
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		err = ahsaitts.SaveOggToFile(u, ahsaiFile)
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + ahsaiFile))

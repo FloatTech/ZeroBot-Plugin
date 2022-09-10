@@ -65,7 +65,7 @@ func init() {
 		_, _ = engine.GetLazyData("bilibili.db", false)
 		vdb, err = initializeVup(engine.DataFolder() + "bilibili.db")
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true
@@ -277,7 +277,7 @@ func init() {
 		}
 		u, err := getMemberCard(id)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		var danmaku danmakusuki
@@ -289,12 +289,12 @@ func init() {
 		client := &http.Client{Transport: tr}
 		data, err := web.RequestDataWith(client, fmt.Sprintf(danmakuAPI, id, pagenum), "GET", "", web.RandUA())
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		err = json.Unmarshal(data, &danmaku)
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		today := time.Now().Format("20060102150415")
@@ -306,12 +306,12 @@ func init() {
 		if path.Ext(u.Face) != ".webp" {
 			err = initFacePic(facePath, u.Face)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			back, err = gg.LoadImage(facePath)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			back = img.Size(back, backX, backY).Im
@@ -320,10 +320,10 @@ func init() {
 		fontSize := 50.0
 		_, err = file.GetLazyData(text.BoldFontFile, true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 		}
 		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		dz, h := canvas.MeasureString("好")
@@ -342,7 +342,7 @@ func init() {
 		canvas.Clear()
 		canvas.SetColor(color.Black)
 		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		facestart := 100
@@ -372,12 +372,12 @@ func init() {
 			if path.Ext(item.Channel.FaceURL) != ".webp" {
 				err = initFacePic(facePath, item.Channel.FaceURL)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				back, err = gg.LoadImage(facePath)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				back = img.Size(back, backX, backY).Im
@@ -518,7 +518,7 @@ func init() {
 		_, err = writer.WriteTo(nim, f)
 		_ = f.Close()
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
