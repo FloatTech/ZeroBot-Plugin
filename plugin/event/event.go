@@ -43,7 +43,7 @@ func init() {
 				groupid := ctx.Event.GroupID
 				groupname := ctx.GetGroupInfo(groupid, true).Name
 				logrus.Info("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
-				if data.isinviteon() || (data.ismasteron() && zero.SuperUserPermission(ctx)) {
+				if data.isinviteon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
 					ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "")
 					ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
 						"已自动同意在"+now+"收到来自"+
@@ -83,7 +83,7 @@ func init() {
 				username := ctx.CardOrNickName(userid)
 				data := (storage)(c.GetData(-su))
 				logrus.Info("[event]收到来自[", username, "](", userid, ")的好友申请")
-				if data.isapplyon() || (data.ismasteron() && zero.SuperUserPermission(ctx)) {
+				if data.isapplyon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
 					ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
 					ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
 						"已自动同意在"+now+"收到来自"+
@@ -135,7 +135,7 @@ func init() {
 			case "邀请":
 				data.setinvite(option == "开启")
 			case "主人":
-				data.setmaster(option == "开启")
+				data.setmaster(option == "关闭")
 			}
 			err := c.SetData(-su, int64(data))
 			if err != nil {
