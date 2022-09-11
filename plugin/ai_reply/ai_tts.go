@@ -300,13 +300,13 @@ func (tts *ttsInstances) setDefaultSoundMode(name string) error {
 	tts.RUnlock()
 	m, ok := control.Lookup(ttsServiceName)
 	if !ok {
-		return errors.New("[error]no fund service")
+		return errors.New("[tts]service no fund ")
 	}
 	err := m.SetData(-2905, index)
 	if err == nil {
 		soundMode := tts.soundMode[m.GetData(-2905)]
 		if soundMode != tts.soundMode[index] {
-			return errors.New("检验数据错误\n当前写入的数据为" + soundMode)
+			return errors.New("[tts]检验数据失败,当前写入的数据为" + soundMode)
 		}
 		tts.defaultSoundMode = soundMode
 	}
