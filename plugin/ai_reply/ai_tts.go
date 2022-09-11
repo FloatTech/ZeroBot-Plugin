@@ -133,8 +133,7 @@ func init() {
 	defer tts.RUnlock()
 	m, ok := control.Lookup(ttsServiceName)
 	if ok {
-		// m.Enable(-20220905)
-		tts.defaultSoundMode = soundList[m.GetData(-20220905)]
+		tts.defaultSoundMode = soundList[m.GetData(-2905)]
 	}
 	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
@@ -303,9 +302,13 @@ func (tts *ttsInstances) setDefaultSoundMode(name string) error {
 	if !ok {
 		return errors.New("[error]no fund service")
 	}
-	err := m.SetData(-20220905, index)
+	err := m.SetData(-2905, index)
 	if err == nil {
-		tts.defaultSoundMode = tts.soundMode[m.GetData(-20220905)]
+		soundMode := tts.soundMode[m.GetData(-2905)]
+		if soundMode != tts.soundMode[index] {
+			return errors.New("检验数据错误\n当前写入的数据为" + soundMode)
+		}
+		tts.defaultSoundMode = soundMode
 	}
 	return err
 }
