@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -23,7 +24,7 @@ const (
 	url = "https://api.jikipedia.com/go/search_entities"
 )
 
-type Value struct {
+type value struct {
 	Phrase string `json:"phrase"`
 	Page   int    `json:"page"`
 	Size   int    `json:"size"`
@@ -38,9 +39,10 @@ func init() {
 			Help:             "小鸡词典\n -[查梗|小鸡词典][梗]",
 		},
 	)
-	engine.OnRegex(`小鸡词典\s?(.*)`).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(
+	engine.OnPrefix("小鸡词典").Limit(ctxext.LimitByGroup).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
-			keyWord := ctx.State["regex_matched"].([]string)[1]
+			keyWord := strings.Trim(ctx.State["args"].(string), " ")
+
 			definition, err := parseKeyword(keyWord)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -60,7 +62,7 @@ func init() {
 func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	client := &http.Client{}
 
-	values := Value{Phrase: keyWord, Page: 1, Size: 60}
+	values := value{Phrase: keyWord, Page: 1, Size: 60}
 	jsonData, err := json.Marshal(values)
 	if err != nil {
 		return
@@ -93,13 +95,19 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	request.Header.Set("Content-Type", "application/json;charset=UTF-8")
 	var response *http.Response
 	response, err = client.Do(request)
+	if err != nil {
+		return
+	}
+	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
 		s := fmt.Sprintf("status code: %d", response.StatusCode)
 		err = errors.New(s)
 		return
 	}
-	data, _ := io.ReadAll(response.Body)
-	response.Body.Close()
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
 	definition = gjson.Get(binary.BytesToString(data), "data.0.definitions.0")
 	return
 }

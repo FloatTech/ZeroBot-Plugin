@@ -713,7 +713,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>小鸡词典</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"`
 
   - [x] [查梗|小鸡词典][梗]
 
