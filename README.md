@@ -711,6 +711,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>小鸡词典</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"`
+
+  - [x] [查梗|小鸡词典][梗]
+
+</details>
+<details>
   <summary>绝绝子</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"`
