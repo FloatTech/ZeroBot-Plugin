@@ -1,4 +1,4 @@
-// package jikipedia 小鸡词典
+// Package jikipedia 小鸡词典
 // 修改自https://github.com/TeamPGM/PagerMaid_Plugins_Pyro ，非常感谢！！
 package jikipedia
 
@@ -61,12 +61,12 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	client := &http.Client{}
 
 	values := Value{Phrase: keyWord, Page: 1, Size: 60}
-	json_data, err := json.Marshal(values)
+	jsonData, err := json.Marshal(values)
 	if err != nil {
 		return
 	}
 	var request *http.Request
-	request, err = http.NewRequest("POST", url, bytes.NewBuffer(json_data))
+	request, err = http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return
 	}
