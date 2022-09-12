@@ -52,11 +52,11 @@ func init() {
 				ctx.SendChain(message.Text("好像什么都没查到，换个关键词试一试？"))
 				return
 			}
-			imgUrl := definition.Get("images.0.scaled.path").String()
+			imgURL := definition.Get("images.0.scaled.path").String()
 			ctx.SendChain(message.Text("【标题】:", definition.Get("term.title"),
 				"\n【释义】:", definition.Get("plaintext"),
 				"\n【原文】:https://jikipedia.com/definition/", definition.Get("id")),
-				message.Image(imgUrl))
+				message.Image(imgURL))
 		},
 	)
 }
