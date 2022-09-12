@@ -48,6 +48,7 @@ func init() {
 			}
 			if definition.String() == "" {
 				ctx.SendChain(message.Text("好像什么都没查到，换个关键词试一试？"))
+				return
 			}
 			ctx.SendChain(message.Text("【标题】:", definition.Get("term.title"),
 				"\n【释义】:", definition.Get("plaintext"),
