@@ -53,7 +53,6 @@ func init() {
 			ctx.SendChain(message.Text("【标题】:", definition.Get("term.title"),
 				"\n【释义】:", definition.Get("plaintext"),
 				"\n【原文】:https://jikipedia.com/definition/", definition.Get("id")))
-
 		},
 	)
 }
