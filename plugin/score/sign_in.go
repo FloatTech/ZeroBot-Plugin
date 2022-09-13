@@ -27,9 +27,7 @@ import (
 )
 
 const (
-	backgroundURL = "https://mirlkoi.ifast3.vipnps.vip/api.php?sort=pc&type=json"
-	referer       = "https://iw233.cn/main.html"
-	ua            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+	backgroundURL = "https://img.moehu.org/pic.php?id=pc&return=json"
 	signinMax     = 1
 	// SCOREMAX 分数上限定为120
 	SCOREMAX = 120
@@ -274,12 +272,12 @@ func initPic(picFile string) error {
 	if file.IsExist(picFile) {
 		return nil
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
+	data, err := web.GetData(backgroundURL)
 	if err != nil {
 		return err
 	}
-	picURL := gjson.Get(binary.BytesToString(data), "pic.0").Str
-	data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
+	picURL := gjson.Get(binary.BytesToString(data), "acgurl").Str
+	data, err = web.GetData(picURL)
 	if err != nil {
 		return err
 	}
