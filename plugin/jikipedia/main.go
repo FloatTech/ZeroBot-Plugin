@@ -116,10 +116,7 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	}
 	gjson.Get(binary.BytesToString(data), "data").ForEach(func(key, value gjson.Result) bool {
 		definition = value.Get("definitions.0")
-		if definition.String() != "" {
-			return false
-		}
-		return true
+		return definition.String() == ""
 	})
 	return
 }
