@@ -102,7 +102,11 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		s := fmt.Sprintf("status code: %d", response.StatusCode)
+		extraInfo := ""
+		if response.StatusCode == 423 {
+			extraInfo = "\n调用过多被网站暂时封禁，请等待数个小时后使用该功能~"
+		}
+		s := fmt.Sprintf("status code: %d%s", response.StatusCode, extraInfo)
 		err = errors.New(s)
 		return
 	}
@@ -110,11 +114,12 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	if err != nil {
 		return
 	}
-	for i := 0; definition.String() == ""; i++ {
-		definition = gjson.Get(binary.BytesToString(data), fmt.Sprintf("data.%d.definitions.0", i))
-		if i > 9 {
-			break
+	gjson.Get(binary.BytesToString(data), "data").ForEach(func(key, value gjson.Result) bool {
+		definition = value.Get("definitions.0")
+		if definition.String() != "" {
+			return false
 		}
-	}
+		return true
+	})
 	return
 }
