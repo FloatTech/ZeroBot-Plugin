@@ -10,12 +10,10 @@ import (
 	"github.com/Coloured-glaze/gg"
 	"github.com/golang/freetype"
 	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
@@ -272,7 +270,7 @@ func initPic(picFile string) error {
 	if file.IsExist(picFile) {
 		return nil
 	}
-	data, err = web.GetData(backgroundURL)
+	data, err := web.GetData(backgroundURL)
 	if err != nil {
 		return err
 	}
