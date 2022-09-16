@@ -553,12 +553,9 @@ func init() { // 插件主体
 	// 根据 gist 自动同意加群
 	// 加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。
 	// 然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
-	engine.OnRequest().SetBlock(false).Handle(func(ctx *zero.Ctx) {
-		/*if ctx.Event.RequestType == "friend" {
-			ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
-		}*/
+	engine.On("request/group/add").SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 && ctx.Event.RequestType == "group" && ctx.Event.SubType == "add" {
+		if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 {
 			// gist 文件名是群号的 ascii 编码的 md5
 			// gist 内容是当前 uinx 时间戳，在 10 分钟内视为有效
 			ans := ctx.Event.Comment[strings.Index(ctx.Event.Comment, "答案：")+len("答案："):]

@@ -31,6 +31,10 @@ const (
 	spaceHistoryURL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=%v&offset_dynamic_id=%v&need_top=0"
 	// liveListURL 获得直播状态
 	liveListURL = "https://api.live.bilibili.com/room/v1/Room/get_status_info_by_uids"
+	// danmakuAPI 弹幕网获得用户弹幕api
+	danmakuAPI = "https://danmaku.suki.club/api/search/user/detail?uid=%v&pagenum=%v&pagesize=5"
+	// danmakuURL 弹幕网链接
+	danmakuURL = "https://danmaku.suki.club/user/%v"
 )
 
 // dynamicCard 总动态结构体,包括desc,card
@@ -215,6 +219,14 @@ type roomCard struct {
 	} `json:"anchor_info"`
 }
 
+// searchData 查找b站用户总结构体
+type searchData struct {
+	Data struct {
+		NumResults int            `json:"numResults"`
+		Result     []searchResult `json:"result"`
+	} `json:"data"`
+}
+
 // searchResult 查找b站用户结果
 type searchResult struct {
 	Mid    int64  `json:"mid"`
@@ -270,4 +282,50 @@ type vtbDetail struct {
 	Follower int    `json:"follower"`
 	GuardNum int    `json:"guardNum"`
 	AreaRank int    `json:"areaRank"`
+}
+
+// danmakusuki 弹幕网结构体
+type danmakusuki struct {
+	Code    int64  `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		Data []struct {
+			Channel struct {
+				Name      string `json:"name"`
+				IsLiving  bool   `json:"isLiving"`
+				UID       int64  `json:"uId"`
+				RoomID    int64  `json:"roomId"`
+				FaceURL   string `json:"faceUrl"`
+				LiveCount int64  `json:"liveCount"`
+			} `json:"channel"`
+			Live struct {
+				LiveID        string  `json:"liveId"`
+				Title         string  `json:"title"`
+				IsFinish      bool    `json:"isFinish"`
+				CoverURL      string  `json:"coverUrl"`
+				StartDate     int64   `json:"startDate"`
+				StopDate      int64   `json:"stopDate"`
+				DanmakusCount int64   `json:"danmakusCount"`
+				TotalIncome   float64 `json:"totalIncome"`
+				WatchCount    int64   `json:"watchCount"`
+			} `json:"live"`
+			Danmakus []struct {
+				Name     string  `json:"name"`
+				Type     int64   `json:"type"`
+				UID      int64   `json:"uId"`
+				SendDate int64   `json:"sendDate"`
+				Price    float64 `json:"price"`
+				Message  string  `json:"message"`
+			} `json:"danmakus"`
+		} `json:"data"`
+		Total    int64 `json:"total"`
+		PageNum  int64 `json:"pageNum"`
+		PageSize int64 `json:"pageSize"`
+		HasMore  bool  `json:"hasMore"`
+	} `json:"data"`
+}
+
+// 配置结构体
+type config struct {
+	BilibiliCookie string `json:"bilibili_cookie"`
 }

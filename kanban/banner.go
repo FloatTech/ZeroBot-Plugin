@@ -2,21 +2,17 @@ package kanban
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/fumiama/go-registry"
 )
 
 var (
-	info = [...]string{
-		"* OneBot + ZeroBot + Golang",
-		"* Version 1.5.0 - 2022-08-16 11:16:21 +0800 CST",
-		"* Copyright © 2020 - 2022 FloatTech. All Rights Reserved.",
-		"* Project: https://github.com/FloatTech/ZeroBot-Plugin",
-	}
 	// Banner ...
-	Banner = strings.Join(info[:], "\n")
-	reg    = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
+	Banner = "* OneBot + ZeroBot + Golang\n" +
+		"* Version 1.5.1-beta2 - 2022-09-11 10:32:06 +0800 CST\n" +
+		"* Copyright © 2020 - 2022 FloatTech. All Rights Reserved.\n" +
+		"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
+	reg = registry.NewRegReader("reilia.fumiama.top:32664", "fumiama")
 )
 
 // PrintBanner ...
