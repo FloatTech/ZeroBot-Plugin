@@ -108,7 +108,7 @@ func (gdb *ymgaldb) getYmgalByKey(pictureType, key string) (y ymgal) {
 }
 
 const (
-	webURL       = "https://www.ymgal.com"
+	webURL       = "https://www.ymgal.games"
 	cgType       = "Gal CG"
 	emoticonType = "其他"
 	webPicURL    = webURL + "/co/picset/"

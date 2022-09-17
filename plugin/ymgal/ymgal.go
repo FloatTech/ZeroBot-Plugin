@@ -81,9 +81,7 @@ func sendYmgal(y ymgal, ctx *zero.Ctx) {
 	for _, v := range strings.Split(y.PictureList, ",") {
 		m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(v)))
 	}
-	if id := ctx.SendGroupForwardMessage(
-		ctx.Event.GroupID,
-		m).Get("message_id").Int(); id == 0 {
+	if id := ctx.Send(m).ID(); id == 0 {
 		ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 	}
 }
