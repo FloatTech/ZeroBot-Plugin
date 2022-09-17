@@ -272,8 +272,5 @@ func initPic(picFile string) error {
 		return nil
 	}
 	err := file.DownloadTo(backgroundURL, picFile, true)
-	if err != nil {
-		return err
-	}
 	return err
 }
