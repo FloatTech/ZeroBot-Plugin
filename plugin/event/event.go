@@ -61,10 +61,11 @@ func init() {
 						message.CustomNode(username, userid, es)})
 			}
 		})
-	engine.On("request/friend").SetBlock(false).
+	engine.OnRequest().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
+			types := ctx.Event.RequestType
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if ok {
+			if ok && types == "friend" {
 				su := zero.BotConfig.SuperUsers[0]
 				now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
 				flag, err := strconv.ParseInt(ctx.Event.Flag, 10, 64)

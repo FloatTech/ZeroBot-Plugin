@@ -167,7 +167,7 @@ func init() {
 			var uidStr string
 			if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
 				uidStr = ctx.Event.Message[1].Data["qq"]
-			} else if param == "" {
+			} else if param == "韵律源点" {
 				uidStr = strconv.FormatInt(ctx.Event.UserID, 10)
 			}
 			picFile := cachePath + uidStr + time.Now().Format("20060102") + ".png"
