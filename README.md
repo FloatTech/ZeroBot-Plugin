@@ -733,7 +733,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"`
 
-  - [x] 来份萝莉
+  - [x] 随机图片
+
+  - [x] 随机图片 萝莉|少女
 
   - [x] 设置随机图片地址[http...]
 

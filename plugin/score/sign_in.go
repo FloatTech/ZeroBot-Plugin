@@ -10,15 +10,12 @@ import (
 	"github.com/Coloured-glaze/gg"
 	"github.com/golang/freetype"
 	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -27,22 +24,22 @@ import (
 )
 
 const (
-	backgroundURL = "https://mirlkoi.ifast3.vipnps.vip/api.php?sort=pc&type=json"
-	referer       = "https://iw233.cn/main.html"
-	ua            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+	backgroundURL = "https://img.moehu.org/pic.php?id=pc"
 	signinMax     = 1
 	// SCOREMAX 分数上限定为120
 	SCOREMAX = 120
 )
 
-var levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
-
-func init() {
-	engine := control.Register("score", &ctrl.Options[*zero.Ctx]{
+var (
+	levelArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
+	engine     = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
 		PrivateDataFolder: "score",
 	})
+)
+
+func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
 		_ = os.RemoveAll(cachePath)
@@ -52,7 +49,7 @@ func init() {
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
-	engine.OnFullMatch("签到", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
+	engine.OnFullMatch("签到").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()
@@ -274,14 +271,5 @@ func initPic(picFile string) error {
 	if file.IsExist(picFile) {
 		return nil
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, ua)
-	if err != nil {
-		return err
-	}
-	picURL := gjson.Get(binary.BytesToString(data), "pic.0").Str
-	data, err = web.RequestDataWith(web.NewDefaultClient(), picURL, "GET", "", ua)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(picFile, data, 0644)
+	return file.DownloadTo(backgroundURL, picFile, true)
 }

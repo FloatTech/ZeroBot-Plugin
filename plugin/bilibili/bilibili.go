@@ -53,7 +53,7 @@ func init() {
 			"- >user info [xxx]\n" +
 			"- 查成分 [xxx]\n" +
 			"- 查弹幕 [xxx]\n" +
-			"- 设置b站cookie SESSDATA=82da790d,1663822823,06ecf*31\n" +
+			"- 设置b站cookie [xxx]\n" +
 			"- 更新vup",
 		PublicDataFolder: "Bilibili",
 	})
