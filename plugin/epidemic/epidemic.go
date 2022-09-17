@@ -7,6 +7,7 @@ import (
 	"time"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
@@ -14,8 +15,6 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
-
-	"github.com/FloatTech/zbputils/ctxext"
 )
 
 const (
@@ -24,7 +23,7 @@ const (
 )
 
 var (
-	limit = ctxext.NewLimiterManager(time.Second*60, 1)
+	customlimit = rate.NewManager[int64](time.Minute*1, 1)
 )
 
 // result 疫情查询结果
@@ -64,7 +63,13 @@ func init() {
 		Help: "城市疫情查询\n" +
 			"- xxx疫情\n",
 	})
-	engine.OnSuffix("疫情").SetBlock(true).Limit(limit.LimitByUser).
+	engine.OnSuffix("疫情").SetBlock(true).Limit(
+		func(c *zero.Ctx) *rate.Limiter {
+			return customlimit.Load(c.Event.UserID)
+		},
+		func(c *zero.Ctx) {
+			c.Send("一分钟内只能查一次哟")
+		}).
 		Handle(func(ctx *zero.Ctx) {
 			city := ctx.State["args"].(string)
 			if city == "" {
