@@ -26,7 +26,7 @@ func init() {
 	control.Register("coser", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "三次元小姐姐\n- coser",
-	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
+	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
@@ -46,10 +46,7 @@ func init() {
 				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(value.String())))
 				return true
 			})
-
-			if id := ctx.SendGroupForwardMessage(
-				ctx.Event.GroupID,
-				m).Get("message_id").Int(); id == 0 {
+			if id := ctx.Send(m).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 			}
 		})

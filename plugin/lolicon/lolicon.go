@@ -3,6 +3,7 @@ package lolicon
 
 import (
 	"encoding/base64"
+	"net/url"
 	"strings"
 	"time"
 
@@ -33,10 +34,11 @@ func init() {
 	en := control.Register("lolicon", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "lolicon\n" +
-			"- 来份萝莉\n" +
+			"- 随机图片\n" +
+			"- 随机图片 萝莉|少女\n" +
 			"- 设置随机图片地址[http...]",
 	}).ApplySingle(ctxext.DefaultSingle)
-	en.OnFullMatch("来份萝莉").Limit(ctxext.LimitByGroup).SetBlock(true).
+	en.OnPrefix("随机图片").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			go func() {
 				for i := 0; i < math.Min(cap(queue)-len(queue), 2); i++ {
@@ -49,7 +51,12 @@ func init() {
 						queue <- "base64://" + base64.StdEncoding.EncodeToString(data)
 						continue
 					}
-					data, err := web.GetData(api)
+					rapi := api
+					args := strings.TrimSpace(ctx.State["args"].(string))
+					if args != "" {
+						rapi += "?tag=" + url.QueryEscape(args)
+					}
+					data, err := web.GetData(rapi)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
@@ -79,12 +86,10 @@ func init() {
 			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 			case img := <-queue:
-				id := ctx.SendChain(message.Image(img))
-				if id.ID() == 0 {
+				if id := ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img))}).ID(); id == 0 {
 					process.SleepAbout1sTo2s()
-					id = ctx.SendChain(message.Image(img).Add("cache", "0"))
-					if id.ID() == 0 {
-						ctx.SendChain(message.Text("ERROR: 图片发送失败，可能被风控了~"))
+					if id := ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img).Add("cache", "0"))}).ID(); id == 0 {
+						ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 					}
 				}
 			}
@@ -92,10 +97,7 @@ func init() {
 	en.OnPrefix("设置随机图片地址", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
-			if !strings.HasPrefix(u, "http") {
-				ctx.SendChain(message.Text("ERROR: url非法!"))
-				return
-			}
+			ctx.SendChain(message.Text("成功设置随机图片地址为", u))
 			custapi = u
 		})
 }
