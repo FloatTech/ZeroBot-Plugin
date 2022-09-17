@@ -86,27 +86,10 @@ func init() {
 			case <-time.After(time.Minute):
 				ctx.SendChain(message.Text("ERROR: 等待填充，请稍后再试......"))
 			case img := <-queue:
-				if ctx.Event.GroupID != 0 {
-					if id := ctx.SendGroupForwardMessage(
-						ctx.Event.GroupID,
-						message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img))}).Get("message_id").Int(); id == 0 {
-						process.SleepAbout1sTo2s()
-						if id := ctx.SendGroupForwardMessage(
-							ctx.Event.GroupID,
-							message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img).Add("cache", "0"))}).Get("message_id").Int(); id == 0 {
-							ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
-						}
-					}
-				} else {
-					if id := ctx.SendPrivateForwardMessage(
-						ctx.Event.UserID,
-						message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img))}).Get("message_id").Int(); id == 0 {
-						process.SleepAbout1sTo2s()
-						if id := ctx.SendPrivateForwardMessage(
-							ctx.Event.UserID,
-							message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img).Add("cache", "0"))}).Get("message_id").Int(); id == 0 {
-							ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
-						}
+				if id := ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img))}).ID(); id == 0 {
+					process.SleepAbout1sTo2s()
+					if id := ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(img).Add("cache", "0"))}).ID(); id == 0 {
+						ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 					}
 				}
 			}

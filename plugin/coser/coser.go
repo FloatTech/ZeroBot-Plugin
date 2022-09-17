@@ -46,19 +46,8 @@ func init() {
 				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(value.String())))
 				return true
 			})
-			if ctx.Event.GroupID != 0 {
-				if id := ctx.SendGroupForwardMessage(
-					ctx.Event.GroupID,
-					m).Get("message_id").Int(); id == 0 {
-					ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
-				}
-			} else {
-				if id := ctx.SendPrivateForwardMessage(
-					ctx.Event.UserID,
-					m).Get("message_id").Int(); id == 0 {
-					ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
-				}
+			if id := ctx.Send(m).ID(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 			}
-
 		})
 }
