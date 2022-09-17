@@ -9,7 +9,7 @@ require (
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.1
-	github.com/FloatTech/zbputils v1.5.1-0.20220917062706-4ceea1e0130e
+	github.com/FloatTech/zbputils v1.5.1-0.20220917064026-d7be79292669
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0

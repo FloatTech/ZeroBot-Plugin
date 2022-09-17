@@ -14,6 +14,8 @@ github.com/FloatTech/zbpctrl v1.5.1 h1:7IzD9twlAMBNByjkPVV1lVH4zl5Fv/Yi+ubz7oz1y
 github.com/FloatTech/zbpctrl v1.5.1/go.mod h1:Je/7SFwqfMeTvjav4qmwWE7w7aT8cYzCYVgrie9tuu4=
 github.com/FloatTech/zbputils v1.5.1-0.20220917062706-4ceea1e0130e h1:MCTrrjmQgtlznGNhJRnNpLVg7wQXiYgsE6FX/klhiXQ=
 github.com/FloatTech/zbputils v1.5.1-0.20220917062706-4ceea1e0130e/go.mod h1:qh39fC4MDiLYeQ77rrrLTDD80bblszabCmLBxdRfj2g=
+github.com/FloatTech/zbputils v1.5.1-0.20220917064026-d7be79292669 h1:i+7NSEFa6zTqkW2xbY9tQAwHTm6ff35knYKTg393fQU=
+github.com/FloatTech/zbputils v1.5.1-0.20220917064026-d7be79292669/go.mod h1:qh39fC4MDiLYeQ77rrrLTDD80bblszabCmLBxdRfj2g=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c h1:cNPOdTNiVwxLpROLjXCgbIPvdkE+BwvxDvgmdYmWx6Q=
 github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c/go.mod h1:KqZzu7slNKROh3TSYEH/IUMG6f4M+1qubZ5e52QypsE=
