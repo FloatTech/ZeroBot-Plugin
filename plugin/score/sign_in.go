@@ -271,6 +271,5 @@ func initPic(picFile string) error {
 	if file.IsExist(picFile) {
 		return nil
 	}
-	err := file.DownloadTo(backgroundURL, picFile, true)
-	return err
+	return file.DownloadTo(backgroundURL, picFile, true)
 }
