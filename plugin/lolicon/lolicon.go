@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	api      = "https://api.lolicon.app/setu/v2?tag=%E8%90%9D%E8%8E%89"
+	api      = "https://api.lolicon.app/setu/v2"
 	capacity = 10
 )
 
