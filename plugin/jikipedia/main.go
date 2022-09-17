@@ -39,7 +39,7 @@ func init() {
 			Help:             "小鸡词典\n -[查梗|小鸡词典][梗]",
 		},
 	)
-	engine.OnPrefix("小鸡词典").Limit(ctxext.LimitByGroup).SetBlock(true).Handle(
+	engine.OnPrefixGroup([]string{"小鸡词典", "查梗"}).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			keyWord := strings.Trim(ctx.State["args"].(string), " ")
 
@@ -52,9 +52,11 @@ func init() {
 				ctx.SendChain(message.Text("好像什么都没查到，换个关键词试一试？"))
 				return
 			}
+			imgURL := definition.Get("images.0.scaled.path").String()
 			ctx.SendChain(message.Text("【标题】:", definition.Get("term.title"),
 				"\n【释义】:", definition.Get("plaintext"),
-				"\n【原文】:https://jikipedia.com/definition/", definition.Get("id")))
+				"\n【原文】:https://jikipedia.com/definition/", definition.Get("id")),
+				message.Image(imgURL))
 		},
 	)
 }
@@ -62,7 +64,7 @@ func init() {
 func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	client := &http.Client{}
 
-	values := value{Phrase: keyWord, Page: 1, Size: 60}
+	values := value{Phrase: keyWord, Page: 1, Size: 10}
 	jsonData, err := json.Marshal(values)
 	if err != nil {
 		return
@@ -100,7 +102,11 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		s := fmt.Sprintf("status code: %d", response.StatusCode)
+		extraInfo := ""
+		if response.StatusCode == 423 {
+			extraInfo = "\n调用过多被网站暂时封禁，请等待数个小时后使用该功能~"
+		}
+		s := fmt.Sprintf("status code: %d%s", response.StatusCode, extraInfo)
 		err = errors.New(s)
 		return
 	}
@@ -108,6 +114,9 @@ func parseKeyword(keyWord string) (definition gjson.Result, err error) {
 	if err != nil {
 		return
 	}
-	definition = gjson.Get(binary.BytesToString(data), "data.0.definitions.0")
+	gjson.Get(binary.BytesToString(data), "data").ForEach(func(key, value gjson.Result) bool {
+		definition = value.Get("definitions.0")
+		return definition.String() == ""
+	})
 	return
 }

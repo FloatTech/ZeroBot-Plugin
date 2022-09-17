@@ -392,6 +392,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31 (最好把cookie设全)
 
+    获取Cookie可以使用[这个工具](https://github.com/XiaoMiku01/login_bili_go)
+    
   - [x] 更新vup
 
 </details>
