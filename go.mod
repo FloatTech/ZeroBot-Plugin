@@ -4,18 +4,18 @@ go 1.19
 
 require (
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.1-0.20220917063131-65960e3dce08
+	github.com/FloatTech/AnimeAPI v1.5.1-0.20220917124909-ae9e70781efe
 	github.com/FloatTech/floatbox v0.0.0-20220917062226-31fb3ec4b135
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.1
-	github.com/FloatTech/zbputils v1.5.1-0.20220917064026-d7be79292669
+	github.com/FloatTech/zbputils v1.5.1-0.20220917124747-de1640283316
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.5.5
+	github.com/fumiama/go-base16384 v1.6.1
 	github.com/fumiama/go-registry v0.1.6
 	github.com/fumiama/gofastTEA v0.0.10
 	github.com/fumiama/gotracemoe v0.0.3
