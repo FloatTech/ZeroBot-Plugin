@@ -8,8 +8,8 @@ require (
 	github.com/FloatTech/floatbox v0.0.0-20220917062226-31fb3ec4b135
 	github.com/FloatTech/sqlite v0.3.3
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.2-0.20220919114339-e5547c2c95f5
-	github.com/FloatTech/zbputils v1.5.1-0.20220919114638-4f77ce3dd949
+	github.com/FloatTech/zbpctrl v1.5.2-0.20220919120802-ab068dd69e66
+	github.com/FloatTech/zbputils v1.5.1-0.20220919121047-35ffc3c72a85
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
