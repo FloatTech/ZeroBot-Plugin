@@ -250,7 +250,7 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
 
   - [x] 取消以"完全匹配关键词"触发的(代表我执行的)指令
 
-  - [x] 记录在"cron"触发的指令
+  - [x] 记录在"cron"触发的(别名xxx的)指令
 
   - [x] 取消在"cron"触发的指令
 
