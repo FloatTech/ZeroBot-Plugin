@@ -193,26 +193,34 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("小黑屋释放成功~"))
 		})
 	// 自闭禁言
-	engine.OnRegex(`^(我要自闭|禅定).*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^(我要自闭|禅定).*?([\d|\.]+)(.*)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			duration := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
-			switch ctx.State["regex_matched"].([]string)[3] {
-			case "分钟", "min", "mins", "m":
-				break
-			case "小时", "hour", "hours", "h":
-				duration *= 60
-			case "天", "day", "days", "d":
-				duration *= 60 * 24
-			default:
-				break
+			duration, err := strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
+			if err != nil {
+				return
 			}
-			if duration >= 43200 {
-				duration = 43199 // qq禁言最大时长为一个月
+			switch ctx.State["regex_matched"].([]string)[3] {
+			case "秒", "second", "seconds", "s":
+				break
+			case "分钟", "min", "mins", "m":
+				duration *= 60
+			case "小时", "hour", "hours", "h":
+				duration *= 60 * 60
+			case "天", "day", "days", "d":
+				duration *= 60 * 60 * 24
+			default:
+				duration *= 60
+			}
+			if int64(duration) == 0 {
+				return
+			}
+			if duration >= 2592000 {
+				duration = 2591999 // qq禁言最大时长为一个月
 			}
 			ctx.SetGroupBan(
 				ctx.Event.GroupID,
 				ctx.Event.UserID,
-				duration*60, // 要自闭的时间（分钟）
+				int64(duration), // 要自闭的时间（分钟）
 			)
 			ctx.SendChain(message.Text("那我就不手下留情了~"))
 		})
