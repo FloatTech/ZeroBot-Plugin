@@ -237,12 +237,8 @@ func init() {
 			)
 		})
 	// 单身技能
-	engine.OnRegex(`^(娶|嫁)\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^(娶|嫁)\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, getdb, checkdog).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			ok := checkdog(ctx)
-			if !ok {
-				return
-			}
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
 			choice := ctx.State["regex_matched"].([]string)[1]
