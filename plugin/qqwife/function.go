@@ -728,6 +728,10 @@ func checkCondition(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("禁止自己给自己做媒!"))
 		return false
 	}
+	if gayOne == gayZero {
+		ctx.SendChain(message.Text("你这个媒人XP很怪咧，不能这样噢"))
+		return false
+	}
 	// 判断是否需要重置
 	ok, err = 民政局.开门时间(gid)
 	if err != nil {
