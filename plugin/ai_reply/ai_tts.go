@@ -107,6 +107,7 @@ func list(list []string, num int) string {
 func newttsmode() *ttsmode {
 	tts := &ttsmode{}
 	m, ok := control.Lookup(ttsServiceName)
+	tts.mode = make(map[int64]int64)
 	if ok {
 		tts.mode[-2905] = m.GetData(-2905)
 	}
