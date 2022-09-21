@@ -47,7 +47,7 @@ type favorability struct {
 }
 
 // 技能CD记录表
-type CDsheet struct {
+type cdsheet struct {
 	Time    int64 // 时间
 	GroupID int64 // 群号
 	UserID  int64 // 用户
@@ -428,16 +428,16 @@ func (sql *婚姻登记) setCDtime(gid int64, cdTime float64) (err error) {
 func (sql *婚姻登记) writeCDtime(gid, uid, mun int64) error {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
-	err := sql.db.Create("cdsheet", &CDsheet{})
+	err := sql.db.Create("cdsheet", &cdsheet{})
 	if err != nil {
 		if err = sql.db.Drop("cdsheet"); err == nil {
-			err = sql.db.Create("cdsheet", &CDsheet{})
+			err = sql.db.Create("cdsheet", &cdsheet{})
 		}
 		if err != nil {
 			return err
 		}
 	}
-	err = sql.db.Insert("cdsheet", &CDsheet{
+	err = sql.db.Insert("cdsheet", &cdsheet{
 		Time:    time.Now().Unix(),
 		GroupID: gid,
 		UserID:  uid,
@@ -451,10 +451,10 @@ func (sql *婚姻登记) compareCDtime(gid, uid, mun int64, cdtime float64) (ok 
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	ok = false
-	err = sql.db.Create("cdsheet", &CDsheet{})
+	err = sql.db.Create("cdsheet", &cdsheet{})
 	if err != nil {
 		if err = sql.db.Drop("cdsheet"); err == nil {
-			err = sql.db.Create("cdsheet", &CDsheet{})
+			err = sql.db.Create("cdsheet", &cdsheet{})
 		}
 		if err != nil {
 			return
@@ -467,7 +467,7 @@ func (sql *婚姻登记) compareCDtime(gid, uid, mun int64, cdtime float64) (ok 
 	if !exist {
 		return true, nil
 	}
-	cdinfo := CDsheet{}
+	cdinfo := cdsheet{}
 	err = sql.db.Find("cdsheet", &cdinfo, limitID)
 	if err != nil {
 		return
