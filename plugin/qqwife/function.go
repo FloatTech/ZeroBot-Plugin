@@ -15,7 +15,7 @@ import (
 )
 
 // nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
 type 婚姻登记 struct {
 	db   *sql.Sqlite
 	dbmu sync.RWMutex
@@ -102,7 +102,7 @@ func (sql *婚姻登记) 开门时间(gid int64) (ok bool, err error) {
 	return
 }
 
-func (sql *婚姻登记) 营业模式(gid int64) (CanMatch, CanNtr int, err error) {
+func (sql *婚姻登记) 营业模式(gid int64) (canMatch, canNtr int, err error) {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	err = sql.db.Create("updateinfo", &updateinfo{})
@@ -118,18 +118,18 @@ func (sql *婚姻登记) 营业模式(gid int64) (CanMatch, CanNtr int, err erro
 	dbinfo := updateinfo{}
 	err = sql.db.Find("updateinfo", &dbinfo, "where gid is "+gidstr)
 	if err != nil {
-		CanMatch = 1
-		CanNtr = 1
+		canMatch = 1
+		canNtr = 1
 		err = sql.db.Insert("updateinfo", &updateinfo{
 			GID:      gid,
-			CanMatch: CanMatch,
-			CanNtr:   CanNtr,
+			CanMatch: canMatch,
+			CanNtr:   canNtr,
 			CDtime:   12,
 		})
 		return
 	}
-	CanMatch = dbinfo.CanMatch
-	CanNtr = dbinfo.CanNtr
+	canMatch = dbinfo.CanMatch
+	canNtr = dbinfo.CanNtr
 	return
 }
 
@@ -312,7 +312,7 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 }
 
 // 获取好感度
-func (sql *婚姻登记) getFavorability(uid, target int64) (Favor int, err error) {
+func (sql *婚姻登记) getFavorability(uid, target int64) (favor int, err error) {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	err = sql.db.Create("favorability", &favorability{})
@@ -330,12 +330,12 @@ func (sql *婚姻登记) getFavorability(uid, target int64) (Favor int, err erro
 		})
 		return
 	}
-	Favor = info.Favor
+	favor = info.Favor
 	return
 }
 
 // 设置好感度 正增负减
-func (sql *婚姻登记) setFavorability(uid, target int64, score int) (Favor int, err error) {
+func (sql *婚姻登记) setFavorability(uid, target int64, score int) (favor int, err error) {
 	sql.dbmu.Lock()
 	defer sql.dbmu.Unlock()
 	err = sql.db.Create("favorability", &favorability{})
