@@ -2,28 +2,18 @@ package aireply
 
 import (
 	"errors"
-	"fmt"
-	"net/url"
 	"regexp"
-	"strconv"
 	"sync"
-	"time"
 
-	"github.com/pkumza/numcn"
-	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/AnimeAPI/aireply"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 )
 
 const (
-	ttsServiceName = "tts"
-	cnapi          = "http://233366.proxy.nscc-gz.cn:8888?speaker=%s&text=%s"
-	// testString     = "这是测试语言......"
+	cnapi = "http://233366.proxy.nscc-gz.cn:8888?speaker=%s&text=%s"
+	// testString     = "这是测试语音......"
 )
 
 // 每个角色的测试文案
@@ -96,10 +86,9 @@ var (
 	}
 )
 
-type ttsInstances struct {
+type ttsmode struct {
 	sync.RWMutex
-	defaultSoundMode string
-	soundMode        []string
+	mode map[int64]int64
 }
 
 func list(list []string, num int) string {
@@ -115,200 +104,67 @@ func list(list []string, num int) string {
 	return s
 }
 
-func init() {
-	tts := &ttsInstances{
-		defaultSoundMode: "派蒙",
-		soundMode:        soundList[:],
+func newttsmode() *ttsmode {
+	tts := &ttsmode{}
+	m, ok := control.Lookup(ttsServiceName)
+	tts.mode = make(map[int64]int64)
+	if ok {
+		tts.mode[-2905] = m.GetData(-2905)
 	}
-	engine := control.Register(ttsServiceName, &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: true,
-		Help: "语音回复(大家一起来炼丹)\n" +
-			"- @Bot 任意文本(任意一句话回复)\n" +
-			"- 设置语音模式[原神人物]\n" +
-			"- 设置默认语音模式[原神人物]\n" +
-			"- 恢复成默认语音模式\n" +
-			"当前适用的原神人物含有以下：\n" + list(soundList[:], 5),
-	})
+	return tts
+}
+
+func (tts *ttsmode) setSoundMode(ctx *zero.Ctx, name string) error {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	var i int
+	var s string
+	for i, s = range soundList {
+		if s == name {
+			break
+		}
+	}
+	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	tts.Lock()
+	defer tts.Unlock()
+	tts.mode[gid] = int64(i)
+	return m.SetData(gid, int64(i))
+}
+
+func (tts *ttsmode) getSoundMode(ctx *zero.Ctx) (name string) {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
 	tts.RLock()
 	defer tts.RUnlock()
-	m, ok := control.Lookup(ttsServiceName)
-	if ok {
-		tts.defaultSoundMode = soundList[m.GetData(-2905)]
-	}
-	engine.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
-		Handle(func(ctx *zero.Ctx) {
-			msg := ctx.ExtractPlainText()
-			// 获取回复模式
-			r := aireply.NewAIReply(getReplyMode(ctx))
-			// 获取回复的文本
-			reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
-			// 获取角色
-			name := tts.getSoundMode(ctx)
-			if _, ok := testRecord[name]; !ok {
-				ctx.SendChain(message.Text("配置的语言人物数据丢失！请重新设置语言人物。"))
-				return
-			}
-			// 获取语言
-			record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(
-				// 将数字转文字
-				re.ReplaceAllStringFunc(reply, func(s string) string {
-					f, err := strconv.ParseFloat(s, 64)
-					if err != nil {
-						log.Errorln("[tts]:", err)
-						return s
-					}
-					return numcn.EncodeFromFloat64(f)
-				}),
-			))).Add("cache", 0)
-			if record.Data == nil {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
-				return
-			}
-			// 发送语音
-			if ID := ctx.SendChain(record); ID.ID() == 0 {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
-			}
-		})
-	engine.OnRegex(`^设置语音模式(.*)$`, zero.AdminPermission, func(ctx *zero.Ctx) bool {
-		param := ctx.State["regex_matched"].([]string)[1]
-		if _, ok := testRecord[param]; !ok {
-			return false
-		}
-		return true
-	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		param := ctx.State["regex_matched"].([]string)[1]
-		// 保存设置
-		err := tts.setSoundMode(ctx, param)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
-			return
-		}
-		// 设置验证
-		name := tts.getSoundMode(ctx)
-		if _, ok := testRecord[name]; !ok {
-			ctx.SendChain(message.Text("配置的语言人物数据丢失！请重新设置语言人物。"))
-			return
-		}
-		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name]))).Add("cache", 0)
-		if ID := ctx.SendChain(record); ID.ID() == 0 {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置失败！无法发送测试语言，请重试。"))
-			return
-		}
-		time.Sleep(time.Second * 2)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，默认模式为", name))
-	})
-	engine.OnRegex(`^设置默认语音模式(.*)$`, zero.SuperUserPermission, func(ctx *zero.Ctx) bool {
-		param := ctx.State["regex_matched"].([]string)[1]
-		if _, ok := testRecord[param]; !ok {
-			return false
-		}
-		return true
-	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		param := ctx.State["regex_matched"].([]string)[1]
-		// 保存设置
-		err := tts.setDefaultSoundMode(param)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
-			return
-		}
-		// 设置验证
-		name := tts.defaultSoundMode
-		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name]))).Add("cache", 0)
-		if ID := ctx.SendChain(record); ID.ID() == 0 {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置失败！无法发送测试语言，请重试。"))
-			return
-		}
-		time.Sleep(time.Second * 2)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，默认模式为", name))
-	})
-	engine.OnFullMatch("恢复成默认语音模式", zero.AdminPermission, func(ctx *zero.Ctx) bool {
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			gid = -ctx.Event.UserID
-		}
-		m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if ok {
-			tts.RLock()
-			defer tts.RUnlock()
-			index := m.GetData(gid)
-			if int(index) < len(tts.soundMode) {
-				return true
-			}
-		}
-		return false
-	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			gid = -ctx.Event.UserID
-		}
-		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		err := m.SetData(gid, 255)
-		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
-			return
-		}
-		// 设置验证
-		name := tts.getSoundMode(ctx)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前默认语音模式为", name))
-	})
+	return soundList[tts.mode[gid]]
 }
 
-func (tts *ttsInstances) setSoundMode(ctx *zero.Ctx, name string) error {
+func (tts *ttsmode) resetSoundMode(ctx *zero.Ctx) {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	var index int64
-	tts.RLock()
-	for i, s := range tts.soundMode {
-		if s == name {
-			index = int64(i)
-			break
-		}
-	}
-	tts.RUnlock()
+	tts.Lock()
+	defer tts.Unlock()
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	return m.SetData(gid, index)
+	tts.mode[gid] = m.GetData(-2905)
 }
 
-func (tts *ttsInstances) getSoundMode(ctx *zero.Ctx) (name string) {
-	gid := ctx.Event.GroupID
-	if gid == 0 {
-		gid = -ctx.Event.UserID
-	}
-	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	if ok {
-		tts.RLock()
-		defer tts.RUnlock()
-		index := m.GetData(gid)
-		if int(index) < len(tts.soundMode) {
-			return tts.soundMode[index]
-		}
-	}
-	return tts.defaultSoundMode
-}
-
-func (tts *ttsInstances) setDefaultSoundMode(name string) error {
-	var index int64
-	tts.RLock()
-	for i, s := range tts.soundMode {
+func setDefaultSoundMode(name string) error {
+	var i int
+	var s string
+	for i, s = range soundList {
 		if s == name {
-			index = int64(i)
 			break
 		}
 	}
-	tts.RUnlock()
 	m, ok := control.Lookup(ttsServiceName)
 	if !ok {
-		return errors.New("[tts]service no fund ")
+		return errors.New("[tts] service not found")
 	}
-	err := m.SetData(-2905, index)
-	if err == nil {
-		soundMode := tts.soundMode[m.GetData(-2905)]
-		if soundMode != tts.soundMode[index] {
-			return errors.New("[tts]检验数据失败,当前写入的数据为" + soundMode)
-		}
-		tts.defaultSoundMode = soundMode
-	}
-	return err
+	return m.SetData(-2905, int64(i))
 }
