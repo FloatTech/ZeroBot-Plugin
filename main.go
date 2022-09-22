@@ -69,7 +69,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"         // 百度一下
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"      // b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"   // 哀伤雪刃吧推书记录
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"   // 打断复读
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"    // 藏头诗
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser" // 英文字符翻转
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"        // 选择困难症帮手
@@ -162,6 +161,9 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moehu"         // 图库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirepeat" // 限制复读
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"   // 打断复读
+
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
