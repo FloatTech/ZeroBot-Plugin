@@ -94,7 +94,7 @@ func init() { // 插件主体
 				}
 			}
 			// 从缓冲池里抽一张
-			if id := ctx.SendChain(*pool.pop(imgtype)); id.ID() == 0 {
+			if id := ctx.Send(ctxext.FakeSenderForwardNode(ctx, *pool.pop(imgtype))); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})

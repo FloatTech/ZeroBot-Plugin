@@ -95,15 +95,8 @@ func init() { // 插件主体
 					"直链: ", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
 				if imgs != nil {
-					if zero.OnlyGroup(ctx) {
-						ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
-							ctxext.FakeSenderForwardNode(ctx, txt),
-							ctxext.FakeSenderForwardNode(ctx, imgs...),
-						})
-					} else {
-						// 发送搜索结果
-						ctx.Send(append(imgs, message.Text("\n"), txt))
-					}
+					ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, txt),
+						ctxext.FakeSenderForwardNode(ctx, imgs...)})
 				} else {
 					// 图片下载失败，仅发送文字结果
 					ctx.SendChain(txt)
@@ -113,7 +106,7 @@ func init() { // 插件主体
 			}
 		})
 	// 以图搜图
-	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.OnlyGroup, zero.MustProvidePicture).SetBlock(true).
+	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			ctx.SendChain(message.Text("少女祈祷中..."))
@@ -154,7 +147,7 @@ func init() { // 插件主体
 								msg = append(msg, message.Image(pic))
 							}
 							msg = append(msg, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b)))
-							ctx.Send(msg)
+							ctx.Send(ctxext.FakeSenderForwardNode(ctx, msg...))
 							if s > 80.0 {
 								continue
 							}
@@ -182,10 +175,7 @@ func init() { // 插件主体
 							))),
 						)
 					}
-					if id := ctx.SendGroupForwardMessage(
-						ctx.Event.GroupID,
-						msg,
-					).Get("message_id").Int(); id == 0 {
+					if id := ctx.Send(msg).ID(); id == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 					}
 				}
