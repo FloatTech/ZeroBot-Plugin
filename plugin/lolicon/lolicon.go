@@ -3,6 +3,7 @@ package lolicon
 
 import (
 	"encoding/base64"
+	"errors"
 	"net/url"
 	"strings"
 	"time"
@@ -17,7 +18,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/pool"
+	imagepool "github.com/FloatTech/zbputils/img/pool"
 )
 
 const (
@@ -26,8 +27,8 @@ const (
 )
 
 var (
-	queue   = make(chan string, capacity)
-	custapi = ""
+	queue     = make(chan string, capacity)
+	customapi = ""
 )
 
 func init() {
@@ -40,10 +41,21 @@ func init() {
 	}).ApplySingle(ctxext.DefaultSingle)
 	en.OnPrefix("随机图片").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			if imgtype := strings.TrimSpace(ctx.State["args"].(string)); imgtype != "" {
+				imageurl, err := getimgurl(api + "?tag=" + url.QueryEscape(imgtype))
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				if id := ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(imageurl))}).ID(); id == 0 {
+					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+				}
+				return
+			}
 			go func() {
 				for i := 0; i < math.Min(cap(queue)-len(queue), 2); i++ {
-					if custapi != "" {
-						data, err := web.GetData(custapi)
+					if customapi != "" {
+						data, err := web.GetData(customapi)
 						if err != nil {
 							ctx.SendChain(message.Text("ERROR: ", err))
 							continue
@@ -51,34 +63,22 @@ func init() {
 						queue <- "base64://" + base64.StdEncoding.EncodeToString(data)
 						continue
 					}
-					rapi := api
-					args := strings.TrimSpace(ctx.State["args"].(string))
-					if args != "" {
-						rapi += "?tag=" + url.QueryEscape(args)
-					}
-					data, err := web.GetData(rapi)
+					imageurl, err := getimgurl(api)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					json := gjson.ParseBytes(data)
-					if e := json.Get("error").Str; e != "" {
-						ctx.SendChain(message.Text("ERROR: ", e))
-						continue
-					}
-					url := json.Get("data.0.urls.original").Str
-					url = strings.ReplaceAll(url, "i.pixiv.cat", "i.pixiv.re")
-					name := url[strings.LastIndex(url, "/")+1 : len(url)-4]
-					m, err := pool.GetImage(name)
+					name := imageurl[strings.LastIndex(imageurl, "/")+1 : len(imageurl)-4]
+					m, err := imagepool.GetImage(name)
 					if err != nil {
-						m.SetFile(url)
-						_, err = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+						m.SetFile(imageurl)
+						_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						process.SleepAbout1sTo2s()
 					}
 					if err == nil {
 						queue <- m.String()
 					} else {
-						queue <- url
+						queue <- imageurl
 					}
 				}
 			}()
@@ -98,6 +98,22 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
 			ctx.SendChain(message.Text("成功设置随机图片地址为", u))
-			custapi = u
+			customapi = u
 		})
+}
+
+func getimgurl(url string) (string, error) {
+	data, err := web.GetData(url)
+	if err != nil {
+		return "", err
+	}
+	json := gjson.ParseBytes(data)
+	if e := json.Get("error").Str; e != "" {
+		return "", errors.New(e)
+	}
+	var imageurl string
+	if imageurl = json.Get("data.0.urls.original").Str; imageurl == "" {
+		return "", errors.New("未找到相关内容, 换个tag试试吧")
+	}
+	return strings.ReplaceAll(imageurl, "i.pixiv.cat", "i.pixiv.re"), nil
 }
