@@ -162,7 +162,7 @@ func init() {
 				message.Text("\n其释义为: ", description)}
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
-		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
+		ctx.Send(msg)
 	})
 
 	engine.OnRegex(`^解塔罗牌\s?(.*)`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
@@ -248,7 +248,7 @@ func init() {
 				return
 			}
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, []message.MessageSegment{message.Image("base64://" + binary.BytesToString(formation))}...)
-			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
+			ctx.Send(msg)
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: \n", strings.Join(formationName, "\n")))
 		}
