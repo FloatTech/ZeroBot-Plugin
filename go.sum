@@ -58,6 +58,8 @@ github.com/fumiama/gotracemoe v0.0.3 h1:iI5EbE9A3UUbfukG6+/soYPjp1S31eCNYf4tw7s6
 github.com/fumiama/gotracemoe v0.0.3/go.mod h1:tyqahdUzHf0bQIAVY/GYmDWvYYe5ik1ZbhnGYh+zl40=
 github.com/fumiama/sqlite3 v1.14.6 h1:+e+iygyiDXQJVi7xeXIviBvR7hAc5y20WA9hRwfKn10=
 github.com/fumiama/sqlite3 v1.14.6/go.mod h1:Xx9a2/OtHuy9pBjow0N+bE/RhNeZ7zZz5xh25vqbA5A=
+github.com/fumiama/unibase2n v0.0.0-20221001124937-1eec9a152907 h1:x+wRdSK0Hx9X+pBxB7jN/hnir55Rbh3KJ9eiGzIb4GY=
+github.com/fumiama/unibase2n v0.0.0-20221001124937-1eec9a152907/go.mod h1:lEaZsT4FRSqcjnQ5q8y+mkenkzR/r1D3BJmfdp0vqDg=
 github.com/gabriel-vasile/mimetype v1.0.4 h1:uBejfH8l3/2f+5vjl1e4xIaSyNEhRBZ5N/ij7ohpNd8=
 github.com/gabriel-vasile/mimetype v1.0.4/go.mod h1:6CDPel/o/3/s4+bp6kIbsWATq8pmgOisOPG40CJa6To=
 github.com/gdamore/encoding v1.0.0/go.mod h1:alR0ol34c49FCSBLjhosxzcPHQbf2trDkoo5dl+VrEg=
