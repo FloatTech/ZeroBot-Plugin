@@ -378,6 +378,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>base64卦加解密</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/base64gua"`
+
+  - [x] 六十四卦加密xxx
+
+  - [x] 六十四卦解密xxx
+
+  - [x] 六十四卦用yyy加密xxx
+
+  - [x] 六十四卦用yyy解密xxx
+
+</details>
+<details>
   <summary>bilibili</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
