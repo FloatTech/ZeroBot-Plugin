@@ -57,7 +57,6 @@ import (
 	//                      vvvvvvv中优先级区vvvvvvv                      //
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"         // ahsai tts
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"      // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"        // 随机老婆
@@ -65,6 +64,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"         // 百度一下
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"      // b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/book_review"   // 哀伤雪刃吧推书记录
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"   // 打断复读
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"    // 藏头诗
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/char_reverser" // 英文字符翻转
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"        // 选择困难症帮手
@@ -89,7 +89,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"  // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"        // 注入指令
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"        // 煎蛋网无聊图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"     // 小鸡词典
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 简易midi音乐制作
@@ -123,6 +122,11 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         // 月幕galgame
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/chehui"  //撤回插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jianbao" //每日简报
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/tupian"  //图片返回
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yiyan"   //每日一言
+
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
 
 	//                               ^^^^                               //
@@ -146,8 +150,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse" // 骂人
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
-
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"   // 打断复读
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
@@ -187,7 +189,7 @@ func init() {
 	// 直接写死 URL 时，请更改下面第二个参数
 	url := flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
 	// 默认昵称
-	adana := flag.String("n", "椛椛", "Set default nickname.")
+	adana := flag.String("n", "雪儿", "Set default nickname.")
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
@@ -195,6 +197,7 @@ func init() {
 	flag.Parse()
 
 	if *h {
+		kanban.PrintBanner()
 		fmt.Println("Usage:")
 		flag.PrintDefaults()
 		os.Exit(0)
@@ -216,8 +219,8 @@ func init() {
 	}
 
 	// 通过代码写死的方式添加主人账号
-	// sus = append(sus, 12345678)
-	// sus = append(sus, 87654321)
+	sus = append(sus, 2758988938)
+	sus = append(sus, 330937859)
 
 	if *runcfg != "" {
 		f, err := os.Open(*runcfg)
@@ -240,7 +243,7 @@ func init() {
 
 	config.W = []*driver.WSClient{driver.NewWebSocketClient(*url, *token)}
 	config.Z = zero.Config{
-		NickName:      append([]string{*adana}, "ATRI", "atri", "亚托莉", "アトリ"),
+		NickName:      append([]string{*adana}, "雪儿", "梦雪", "雪", "梦雪儿"),
 		CommandPrefix: *prefix,
 		SuperUsers:    sus,
 		Driver:        []zero.Driver{config.W[0]},
