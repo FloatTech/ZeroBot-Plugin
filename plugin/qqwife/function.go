@@ -180,19 +180,34 @@ func (sql *婚姻登记) 清理花名册(gid string) error {
 		return err
 	}
 	if gid != "0" {
-		grouplist = []string{gid}
+		grouplist = []string{"group" + gid}
 	}
 	for _, gid := range grouplist {
-		err = sql.db.Drop("group" + gid)
-		if err != nil {
+		if gid == "favorability" {
+			continue
+		}
+		err = sql.db.Drop(gid)
+		if err != nil || gid == "updateinfo" {
 			continue
 		}
 		gidint, _ := strconv.ParseInt(gid, 10, 64)
-		updateinfo := updateinfo{
+		upinfo := updateinfo{
 			GID:        gidint,
 			Updatetime: time.Now().Format("2006/01/02"),
+			CanMatch:   1,
+			CanNtr:     1,
+			CDtime:     12,
 		}
-		err = sql.db.Insert("updateinfo", &updateinfo)
+		err = sql.db.Create("updateinfo", &updateinfo{})
+		if err != nil {
+			if err = sql.db.Drop("updateinfo"); err == nil {
+				err = sql.db.Create("updateinfo", &updateinfo{})
+			}
+			if err != nil {
+				return err
+			}
+		}
+		err = sql.db.Insert("updateinfo", &upinfo)
 	}
 	return err
 }
