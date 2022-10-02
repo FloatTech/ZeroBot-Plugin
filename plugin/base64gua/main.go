@@ -50,7 +50,7 @@ func init() {
 				ctx.SendChain(message.Text("加密失败!"))
 			}
 		})
-	en.OnRegex(`^六十四卦用(.+)解密\s*([一-踀]+[㴁-㴆]?)$`).SetBlock(true).
+	en.OnRegex(`^六十四卦用(.+)解密\s*([䷀-䷿]+[☰☱]?)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
 			t := getea(key)
