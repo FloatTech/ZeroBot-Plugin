@@ -392,6 +392,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>base天城文加解密</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baseamasiro"`
+
+  - [x] 天城文加密xxx
+
+  - [x] 天城文解密xxx
+
+  - [x] 天城文用yyy加密xxx
+
+  - [x] 天城文用yyy解密xxx
+
+</details>
+<details>
   <summary>bilibili</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`

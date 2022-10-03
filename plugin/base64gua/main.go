@@ -2,11 +2,9 @@
 package base64gua
 
 import (
-	"unsafe"
-
+	"github.com/FloatTech/floatbox/crypto"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	tea "github.com/fumiama/gofastTEA"
 	"github.com/fumiama/unibase2n"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -42,7 +40,7 @@ func init() {
 	en.OnRegex(`^六十四卦用(.+)加密\s*(.+)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
-			t := getea(key)
+			t := crypto.GetTEA(key)
 			es, err := unibase2n.UTF16BE2UTF8(unibase2n.Base64Gua.Encode(t.Encrypt(helper.StringToBytes(str))))
 			if err == nil {
 				ctx.SendChain(message.Text(helper.BytesToString(es)))
@@ -53,7 +51,7 @@ func init() {
 	en.OnRegex(`^六十四卦用(.+)解密\s*([䷀-䷿]+[☰☱]?)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			key, str := ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2]
-			t := getea(key)
+			t := crypto.GetTEA(key)
 			es, err := unibase2n.UTF82UTF16BE(helper.StringToBytes(str))
 			if err == nil {
 				ctx.SendChain(message.Text(helper.BytesToString(t.Decrypt(unibase2n.Base64Gua.Decode(es)))))
@@ -61,16 +59,4 @@ func init() {
 				ctx.SendChain(message.Text("解密失败!"))
 			}
 		})
-}
-
-func getea(key string) tea.TEA {
-	kr := []rune(key)
-	if len(kr) > 4 {
-		kr = kr[:4]
-	} else {
-		for len(kr) < 4 {
-			kr = append(kr, rune(4-len(kr)))
-		}
-	}
-	return *(*tea.TEA)(*(*unsafe.Pointer)(unsafe.Pointer(&kr)))
 }
