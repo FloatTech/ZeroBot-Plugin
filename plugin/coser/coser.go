@@ -18,15 +18,15 @@ import (
 
 var (
 	ua       = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
-	coserURL = "http://ovooa.com/API/cosplay/api.php"
+	coserURL = "http://ovooa.com/API/dmt/api.php"
 	datestr  = regexp.MustCompile(`/\d{4}-\d{2}-\d{2}/`)
 )
 
 func init() {
 	control.Register("coser", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "三次元小姐姐\n- coser",
-	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser").SetBlock(true).Limit(ctxext.LimitByGroup).
+		Help:             "动漫角色\n- coser",
+	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("动漫角色").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
 			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
