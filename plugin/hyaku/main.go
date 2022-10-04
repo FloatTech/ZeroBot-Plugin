@@ -4,6 +4,7 @@ package hyaku
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"reflect"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -61,16 +63,25 @@ func init() {
 	})
 	csvfile := engine.DataFolder() + "hyaku.csv"
 	go func() {
+		var f *os.File
 		if file.IsNotExist(csvfile) {
-			err := file.DownloadTo(bed+"小倉百人一首.csv", csvfile, true)
+			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+"小倉百人一首.csv", "GET", "gitcode.net", web.RandUA())
 			if err != nil {
 				_ = os.Remove(csvfile)
 				panic(err)
 			}
-		}
-		f, err := os.Open(csvfile)
-		if err != nil {
-			panic(err)
+			f, err = os.Create(csvfile)
+			if err != nil {
+				panic(err)
+			}
+			_, _ = f.Write(data)
+			_, _ = f.Seek(0, io.SeekStart)
+		} else {
+			var err error
+			f, err = os.Open(csvfile)
+			if err != nil {
+				panic(err)
+			}
 		}
 		records, err := csv.NewReader(f).ReadAll()
 		if err != nil {
