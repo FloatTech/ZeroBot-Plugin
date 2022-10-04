@@ -139,7 +139,7 @@ func init() {
 			}
 			return
 		}
-		msg := make([]message.MessageSegment, n)
+		msg := make(message.Message, n)
 		randomIntMap := make(map[int]int, 30)
 		for i := range msg {
 			j := rand.Intn(length)
@@ -156,7 +156,7 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			tarotMsg := []message.MessageSegment{
+			tarotMsg := message.Message{
 				message.Text(position[p], "的『", name, "』\n"),
 				message.Image(bed + reverse[p] + card.ImgURL),
 				message.Text("\n其释义为: ", description)}
@@ -213,7 +213,7 @@ func init() {
 			build.WriteString("---")
 			build.WriteString(match)
 			build.WriteString("\n")
-			msg := make([]message.MessageSegment, info.CardsNum+1)
+			msg := make(message.Message, info.CardsNum+1)
 			randomIntMap := make(map[int]int, 30)
 			for i := 0; i < info.CardsNum; i++ {
 				j := rand.Intn(length)
@@ -230,7 +230,7 @@ func init() {
 				if p == 1 {
 					description = card.ReverseDescription
 				}
-				tarotMsg := []message.MessageSegment{message.Image(bed + reverse[p] + card.ImgURL)}
+				tarotMsg := message.Message{message.Image(bed + reverse[p] + card.ImgURL)}
 				build.WriteString(info.Represent[0][i])
 				build.WriteString(":")
 				build.WriteString(position[p])
@@ -247,8 +247,13 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+<<<<<<< HEAD
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, []message.MessageSegment{message.Image("base64://" + binary.BytesToString(formation))}...)
 			ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
+=======
+			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, message.Message{message.Image("base64://" + binary.BytesToString(formation))}...)
+			ctx.Send(msg)
+>>>>>>> 6cf14fc7dd8becaa82af0f533e0fe7bd12ffd128
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: \n", strings.Join(formationName, "\n")))
 		}

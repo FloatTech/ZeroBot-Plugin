@@ -2,6 +2,7 @@
 package breakrepeat
 
 import (
+	"math/rand"
 	"strconv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -19,7 +20,9 @@ func init() {
 		DisableOnDefault: false,
 		Help:             "打断复读\n- 打断" + strconv.Itoa(throttle) + "次以上复读\n",
 	})
-	engine.On(`message/group`, zero.OnlyGroup).SetBlock(false).
+	engine.On("message/group", zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		return !zero.HasPicture(ctx)
+	}).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			raw := ctx.Event.RawMessage
@@ -34,6 +37,13 @@ func init() {
 				return
 			}
 			sm.Delete(gid)
+			if len(r) > 2 {
+				ru := []rune(r)
+				rand.Shuffle(len(ru), func(i, j int) {
+					ru[i], ru[j] = ru[j], ru[i]
+				})
+				r = string(ru)
+			}
 			ctx.Send(r)
 		})
 }
