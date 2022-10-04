@@ -150,7 +150,7 @@ func cloud163(keyword string) (msg message.MessageSegment) {
 
 // qqmusic 返回QQ音乐卡片
 func qqmusic(keyword string) (msg message.MessageSegment) {
-	requestURL := "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w=" + url.QueryEscape(keyword)
+	requestURL := "http://ovooa.com/API/qqdg/api.php?n=1&msg=" + url.QueryEscape(keyword)
 	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA())
 	if err != nil {
 		msg = message.Text("ERROR: ", err)

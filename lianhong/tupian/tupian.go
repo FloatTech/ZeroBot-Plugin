@@ -20,6 +20,7 @@ func init() {
 			"- 白丝\n" +
 			"- 随机壁纸\n" +
 			"- 星空\n" +
+			"- 随机表情包\n" +
 			"- 涩涩哒咩/我要涩涩\n",
 	})
 	engine.OnFullMatch("兽耳").SetBlock(true).
@@ -88,6 +89,15 @@ func init() {
 	engine.OnFullMatchGroup([]string{"涩涩哒咩", "我要涩涩"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData("http://api.iw233.cn/api.php?sort=st")
+			if err != nil {
+				ctx.SendChain(message.Text("获取图片失败惹", err))
+				return
+			}
+			ctx.SendChain(message.ImageBytes(data))
+		})
+	engine.OnFullMatch("随机表情包").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			data, err := web.GetData("https://iw233.cn/api.php?sort=img")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
