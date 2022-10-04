@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.1-0.20221003151003-71d7e86c895f
-	github.com/FloatTech/floatbox v0.0.0-20221003150509-1eb268ad10ff
+	github.com/FloatTech/AnimeAPI v1.5.1-0.20221004094358-91497e10dd03
+	github.com/FloatTech/floatbox v0.0.0-20221004092550-1ebf9b4e6198
 	github.com/FloatTech/sqlite v0.4.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.2-0.20220921013146-40d64bc7799c
-	github.com/FloatTech/zbputils v1.5.1-0.20221003150718-106abe37a694
+	github.com/FloatTech/zbputils v1.5.1-0.20221004094248-ad5a9235757e
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0

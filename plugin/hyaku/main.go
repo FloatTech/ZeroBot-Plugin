@@ -62,6 +62,10 @@ func init() {
 		PrivateDataFolder: "hyaku",
 	})
 	csvfile := engine.DataFolder() + "hyaku.csv"
+	err := os.MkdirAll(engine.DataFolder()+"img", 0755)
+	if err != nil {
+		panic(err)
+	}
 	go func() {
 		var f *os.File
 		if file.IsNotExist(csvfile) {
@@ -109,10 +113,20 @@ func init() {
 	}()
 	engine.OnFullMatch("百人一首").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		i := rand.Intn(100)
+		img0, err := engine.GetCustomLazyData(bed, fmt.Sprintf("img/%03d.jpg", i+1))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		img1, err := engine.GetCustomLazyData(bed, fmt.Sprintf("img/%03d.png", i+1))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		ctx.SendChain(
-			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i+1)),
+			message.ImageBytes(img0),
 			message.Text("\n", lines[i]),
-			message.Image(fmt.Sprintf(bed+"img/%03d.png", i+1)),
+			message.ImageBytes(img1),
 		)
 	})
 	engine.OnRegex(`^百人一首之\s?(\d+)$`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -125,10 +139,20 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: 超出范围"))
 			return
 		}
+		img0, err := engine.GetCustomLazyData(bed, fmt.Sprintf("img/%03d.jpg", i))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		img1, err := engine.GetCustomLazyData(bed, fmt.Sprintf("img/%03d.png", i))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		ctx.SendChain(
-			message.Image(fmt.Sprintf(bed+"img/%03d.jpg", i)),
+			message.ImageBytes(img0),
 			message.Text("\n", lines[i-1]),
-			message.Image(fmt.Sprintf(bed+"img/%03d.png", i)),
+			message.ImageBytes(img1),
 		)
 	})
 }
