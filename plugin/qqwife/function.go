@@ -15,7 +15,7 @@ import (
 )
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 type 婚姻登记 struct {
 	db   *sql.Sqlite
 	dbmu sync.RWMutex
@@ -60,12 +60,7 @@ func (sql *婚姻登记) 开门时间(gid int64) (ok bool, err error) {
 	ok = false
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
-		if err = sql.db.Drop("updateinfo"); err == nil {
-			err = sql.db.Create("updateinfo", &updateinfo{})
-		}
-		if err != nil {
-			return
-		}
+		return
 	}
 	gidstr := strconv.FormatInt(gid, 10)
 	dbinfo := updateinfo{}
@@ -243,7 +238,7 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	if err != nil {
 		return err
 	}
-	updatetime := time.Now().Format("2006/01/02")
+	updatetime := time.Now().Format("15:04:05")
 	// 填写夫妻信息
 	uidinfo := userinfo{
 		User:       uid,
@@ -498,7 +493,6 @@ func (sql *婚姻登记) compareCDtime(gid, uid, mun int64, cdtime float64) (ok 
 
 // 注入判断 是否为单身
 func checkdog(ctx *zero.Ctx) bool {
-	mode := int64(1) // 指代技能1
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	// 获取CD
@@ -506,7 +500,7 @@ func checkdog(ctx *zero.Ctx) bool {
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]获取该群技能CD错误(将以CD12H计算)\n", err))
 	}
-	ok, err := 民政局.compareCDtime(gid, uid, mode, cdTime)
+	ok, err := 民政局.compareCDtime(gid, uid, 1, cdTime)
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]查询用户CD状态失败,请重试\n", err))
 		return false
@@ -514,11 +508,6 @@ func checkdog(ctx *zero.Ctx) bool {
 	if !ok {
 		ctx.SendChain(message.Text("你的技能还在CD中..."))
 		return false
-	}
-	// 写入CD
-	err = 民政局.writeCDtime(gid, uid, mode)
-	if err != nil {
-		ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
 	}
 	// 判断是否符合条件
 	stauts, _, err := 民政局.营业模式(gid)
@@ -583,7 +572,6 @@ func checkdog(ctx *zero.Ctx) bool {
 
 // 注入判断 是否满足小三要求
 func checkcp(ctx *zero.Ctx) bool {
-	mode := int64(2) // 指代技能2
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	// 获取CD
@@ -591,7 +579,7 @@ func checkcp(ctx *zero.Ctx) bool {
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]获取该群技能CD错误(将以CD12H计算)\n", err))
 	}
-	ok, err := 民政局.compareCDtime(gid, uid, mode, cdTime)
+	ok, err := 民政局.compareCDtime(gid, uid, 2, cdTime)
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]查询用户CD状态失败,请重试\n", err))
 		return false
@@ -599,11 +587,6 @@ func checkcp(ctx *zero.Ctx) bool {
 	if !ok {
 		ctx.SendChain(message.Text("你的技能还在CD中..."))
 		return false
-	}
-	// 写入CD
-	err = 民政局.writeCDtime(gid, uid, mode)
-	if err != nil {
-		ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
 	}
 	// 判断是否符合条件
 	_, stauts, err := 民政局.营业模式(gid)
@@ -669,7 +652,6 @@ func checkcp(ctx *zero.Ctx) bool {
 
 // 注入判断 是否满足离婚要求
 func checkdivorce(ctx *zero.Ctx) bool {
-	mode := int64(3) // 指代技能3
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	// 获取CD
@@ -677,7 +659,7 @@ func checkdivorce(ctx *zero.Ctx) bool {
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]获取该群技能CD错误(将以CD12H计算)\n", err))
 	}
-	ok, err := 民政局.compareCDtime(gid, uid, mode, cdTime)
+	ok, err := 民政局.compareCDtime(gid, uid, 4, cdTime)
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]查询用户CD状态失败,请重试\n", err))
 		return false
@@ -685,11 +667,6 @@ func checkdivorce(ctx *zero.Ctx) bool {
 	if !ok {
 		ctx.SendChain(message.Text("你的技能还在CD中..."))
 		return false
-	}
-	// 写入CD
-	err = 民政局.writeCDtime(gid, uid, mode)
-	if err != nil {
-		ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
 	}
 	// 判断是否符合条件
 	_, uidstatus, err := 民政局.查户口(gid, uid)
@@ -706,7 +683,6 @@ func checkdivorce(ctx *zero.Ctx) bool {
 
 // 注入判断 是否满足做媒要求
 func checkCondition(ctx *zero.Ctx) bool {
-	mode := int64(4) // 指代技能4
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	// 获取CD
@@ -714,7 +690,7 @@ func checkCondition(ctx *zero.Ctx) bool {
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]获取该群技能CD错误(将以CD12H计算)\n", err))
 	}
-	ok, err := 民政局.compareCDtime(gid, uid, mode, cdTime)
+	ok, err := 民政局.compareCDtime(gid, uid, 3, cdTime)
 	if err != nil {
 		ctx.SendChain(message.Text("[qqwife]查询用户CD状态失败,请重试\n", err))
 		return false
@@ -722,11 +698,6 @@ func checkCondition(ctx *zero.Ctx) bool {
 	if !ok {
 		ctx.SendChain(message.Text("你的技能还在CD中..."))
 		return false
-	}
-	// 写入CD
-	err = 民政局.writeCDtime(gid, uid, mode)
-	if err != nil {
-		ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
 	}
 	// 得先判断用户是否存在才行在，再重置
 	gayOne, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
