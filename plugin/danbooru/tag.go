@@ -13,7 +13,7 @@ import (
 	"github.com/FloatTech/floatbox/web"
 	imgutils "github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text" // jpg png gif
-	_ "golang.org/x/image/webp"
+	_ "golang.org/x/image/webp"              // webp
 )
 
 const api = "https://nsfwtag.azurewebsites.net/api/tag?limit=0.5&url="
