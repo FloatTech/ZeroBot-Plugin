@@ -955,11 +955,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
 
-  - [x] > runcode [language] help
+  - [x] >runcode [language] help
 
-  - [x] > runcode [language] [code block]
+  - [x] >runcode [language] [code block]
 
-  - [x] > runcoderaw [language] [code block]
+  - [x] >runcoderaw [language] [code block]
 
 </details>
 <details>
@@ -970,6 +970,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 以图搜图 | 搜索图片 | 以图识图[图片]
 
   - [x] 搜图[P站图片ID]
+
+  - [x] 设置 saucenao api key [apikey]
 
 </details>
 <details>
