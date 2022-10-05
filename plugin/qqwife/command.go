@@ -486,7 +486,10 @@ func init() {
 				ctx.SendChain(message.Text("[qqwife]好感度库发生问题力\n", err))
 				return
 			}
-			if rand.Intn(1+favor) > favor/10 {
+			if favor < 20 {
+				favor = 10
+			}
+			if rand.Intn(101) > 100-favor {
 				ctx.SendChain(message.Text(sendtext[3][rand.Intn(len(sendtext[3]))]))
 				return
 			}
