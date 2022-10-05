@@ -154,7 +154,7 @@ func init() { // 插件主体
 						}
 					}
 				} else {
-					ctx.SendChain(message.Text("请私聊发送 设置 saucenao api key [apikey] 以启用 saucenao 搜图, key 请前往 https://saucenao.com/user.php?page=search-api 获取"))
+					ctx.SendChain(message.Text("请私聊发送 设置 saucenao api key [apikey] 以启用 saucenao 搜图 (方括号不需要输入), key 请前往 https://saucenao.com/user.php?page=search-api 获取"))
 				}
 				// ascii2d 搜索
 				if result, err := ascii2d.Ascii2d(pic); err != nil {

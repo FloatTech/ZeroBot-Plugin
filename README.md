@@ -971,6 +971,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 搜图[P站图片ID]
 
+  - [x] 设置 saucenao api key [apikey]
+
 </details>
 <details>
   <summary>叔叔的AI二次元图片放大</summary>

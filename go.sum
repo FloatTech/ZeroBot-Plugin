@@ -2,8 +2,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/Coloured-glaze/gg v1.3.4 h1:l31zIF/HaVwkzjrj+A56RGQoSKyKuR1IWtIrqXGFStI=
 github.com/Coloured-glaze/gg v1.3.4/go.mod h1:Ih5NLNNDHOy3RJbB0EPqGTreIzq/H02TGThIagh8HJg=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.5.1-0.20221004094358-91497e10dd03 h1:BDFRtCpTlJxrEpV26VMauAIURqa5L4BD728L6n0xpvM=
-github.com/FloatTech/AnimeAPI v1.5.1-0.20221004094358-91497e10dd03/go.mod h1:wY11pOy/T2MBXIGSbYHaynyGzU4Pxz0X2hGPmnlUCCk=
+github.com/FloatTech/AnimeAPI v1.5.1-0.20221005032016-95a00a04e77a h1:h/w9FS4DpGyL79n1BLSjhUwypA/6UcmbRUPipevJqjU=
+github.com/FloatTech/AnimeAPI v1.5.1-0.20221005032016-95a00a04e77a/go.mod h1:dKSyHtapX1oXFysIwCq9unuKK4wcxDYAZnZvjfE6Ne8=
 github.com/FloatTech/floatbox v0.0.0-20221004092550-1ebf9b4e6198 h1:AkwB7LKMK74yS5rIERhOQbJosDgOefJBSkhEiMbyr+A=
 github.com/FloatTech/floatbox v0.0.0-20221004092550-1ebf9b4e6198/go.mod h1:4UDl6E/I2HqAqRnKdsxxfO28fkqGo3CzFOP2BhyI6ag=
 github.com/FloatTech/sqlite v0.4.0 h1:fvQ1vc7fw99jYXccs5KItMluy7QL1t6NxbkH7aN1F4g=
@@ -209,8 +209,8 @@ golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL
 golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56/go.mod h1:JhuoJpWY28nO4Vef9tZUw9qufEGTyX1+7lmHxV5q5G4=
 golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e h1:+WEEuIdZHnUeJJmEUjyYC2gfUMj69yZXw17EnHg/otA=
 golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e/go.mod h1:Kr81I6Kryrl9sr8s2FK3vxD90NdsKWRuOIl2O4CvYbA=
-golang.org/x/exp/shiny v0.0.0-20220916125017-b168a2c6b86b h1:MJd2zuDfsuomOxzoB2i4Gs8s3V9gqJEHl+hcKRV2+oI=
-golang.org/x/exp/shiny v0.0.0-20220916125017-b168a2c6b86b/go.mod h1:VjAR7z0ngyATZTELrBSkxOOHhhlnVUxDye4mcjx5h/8=
+golang.org/x/exp/shiny v0.0.0-20221004215720-b9f4876ce741 h1:b7y8iQCnzOE0NhgpMj2yHw17Us+lhXxFbdzKlTpqm5I=
+golang.org/x/exp/shiny v0.0.0-20221004215720-b9f4876ce741/go.mod h1:VjAR7z0ngyATZTELrBSkxOOHhhlnVUxDye4mcjx5h/8=
 golang.org/x/image v0.0.0-20190220214146-31aff87c08e9/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
