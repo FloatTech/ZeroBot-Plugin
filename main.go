@@ -124,15 +124,15 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         // 月幕galgame
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/baike"   //夸克百科
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/chehui"  //撤回插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jiami"   //兽语加密
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jianbao" //每日简报
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/tupian"  //图片返回
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yiyan"   //每日一言
-	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yuanshen/zixun"   //原神咨询
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/baike"          //夸克百科
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/chehui"         //撤回插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jiami"          //兽语加密
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jianbao"        //每日简报
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/tupian"         //图片返回
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yiyan"          //每日一言
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yuanshen/zixun" //原神咨询
 
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf" // 鬼东西
 
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
@@ -156,11 +156,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
 
-<<<<<<< HEAD
-=======
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat" // 打断复读
-
->>>>>>> 6cf14fc7dd8becaa82af0f533e0fe7bd12ffd128
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^低优先级区^^^^^^^                      //
