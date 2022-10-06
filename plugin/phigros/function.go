@@ -4,6 +4,8 @@ import (
 	"hash/crc64"
 	"image/color"
 	"math"
+	"math/rand"
+	"os"
 	"strconv"
 
 	"github.com/Coloured-glaze/gg"
@@ -11,12 +13,14 @@ import (
 	"github.com/FloatTech/zbputils/img"
 )
 
-func renderb19(plname, rks, chal, chalnum string, list []result) error {
+func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 	canvas := gg.NewContext(2360, 4780)
 	canvas.SetRGB255(0, 255, 0)
 	canvas.Clear()
 
-	imgs, err := img.LoadFirstFrame(filepath+"back.png", 2048, 1080)
+	drawfile, _ := os.ReadDir(filepath + Illustration)
+
+	imgs, err := img.LoadFirstFrame(filepath+Illustration+drawfile[rand.Intn(len(drawfile))].Name(), 2048, 1080)
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,7 @@ func renderb19(plname, rks, chal, chalnum string, list []result) error {
 	}
 	canvas.SetFontFace(font)
 	canvas.DrawString(pl+plname, 1434, 300)
-	canvas.DrawString(rkss+rks, 1434, 380)
+	canvas.DrawString(rkss+allrks, 1434, 380)
 	canvas.DrawString(cm, 1434, 460)
 	if chal != "" {
 		chall, err := gg.LoadPNG(filepath + Challengemode + chal + ".png")
@@ -69,10 +73,10 @@ func renderb19(plname, rks, chal, chalnum string, list []result) error {
 		canvas.DrawString(chalnum, 1882+(chalnumlen/2), 460)
 	}
 
-	var i int64 = 0
+	var i int64
 	var xj, yj float64 = 1090, 200
 
-	err = mix(canvas, i, list)
+	err = mix(canvas, i, list[i])
 	if err != nil {
 		return err
 	}
@@ -81,7 +85,7 @@ func renderb19(plname, rks, chal, chalnum string, list []result) error {
 	i++
 	for ; i < 20; i++ {
 		if i%2 == 0 {
-			err := mix(canvas, i, list)
+			err := mix(canvas, i, list[i])
 			if err != nil {
 				return err
 			}
@@ -89,7 +93,7 @@ func renderb19(plname, rks, chal, chalnum string, list []result) error {
 			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x+xj, x1+xj, x2+xj, x3+xj, x4+xj, x5+int(xj), x6+xj, x7+xj, x8+xj, x9+xj, x10+int(xj), x11+xj, x12+xj, x13+xj
 			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+yj, y1+yj, y2+yj, y3+yj, y4+yj, y5+int(yj), y6+yj, y7+yj, y8+yj, y9+yj, y10+int(yj), y11+yj, y12+yj, y13+yj
 		} else {
-			err := mix(canvas, i, list)
+			err := mix(canvas, i, list[i])
 			if err != nil {
 				return err
 			}
@@ -101,8 +105,8 @@ func renderb19(plname, rks, chal, chalnum string, list []result) error {
 
 	// x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x-xj, x1-xj, x2-xj, x3-xj, x4-xj, x5-int(xj), x6-xj, x7-xj, x8-xj, x9-xj, x10-int(xj), x11-xj, x12-xj, x13-xj
 	y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y-(yj*20), y1-(yj*20), y2-(yj*20), y3-(yj*20), y4-(yj*20), y5-int(yj*20), y6-(yj*20), y7-(yj*20), y8-(yj*20), y9-(yj*20), y10-int(yj*20), y11-(yj*20), y12-(yj*20), y13-(yj*20)
-
-	return canvas.SavePNG(filepath + "output.png")
+	_ = os.Mkdir(filepath+uid, 0644)
+	return canvas.SavePNG(filepath + uid + "/output.png")
 }
 
 // 绘制平行四边形 angle 角度 x, y 坐标 w 宽度 l 斜边长
@@ -125,7 +129,7 @@ func draw4(canvas *gg.Context, angle, x, y, w, l float64) {
 	return
 }
 
-func mix(canvas *gg.Context, i int64, list []result) (err error) {
+func mix(canvas *gg.Context, i int64, list result) (err error) {
 	// 画排名背景
 	draw4(canvas, a, x, y, w, h)
 	canvas.SetRGBA255(255, 255, 255, 255)
@@ -151,10 +155,11 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	draw4(canvas, a, x3, y3, w3, h3)
 	canvas.SetRGBA255(0, 0, 0, 160)
 	canvas.Fill()
+
 	var rankim *img.Factory
 	// 画rank图标
-	if list[i].Rank != "" {
-		rankim, err = img.LoadFirstFrame(filepath+Rank+list[i].Rank+".png", 110, 110)
+	if list.Rank != "" {
+		rankim, err = img.LoadFirstFrame(filepath+Rank+list.Rank+".png", 110, 110)
 		if err != nil {
 			return
 		}
@@ -174,12 +179,18 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	var fw5 float64
-	if list[i].Score != 0 {
-		fw5, _ = canvas.MeasureString(strconv.FormatInt(list[i].Score, 10))
-		canvas.DrawString(strconv.FormatInt(list[i].Score, 10), x11+((w3-fw5)/2), y11)
+	scorestr := strconv.FormatInt(list.Score, 10)
+	if len(scorestr) < 7 {
+		for i := len(scorestr); i < 7; i++ {
+			scorestr = "0" + scorestr
+		}
+	}
+	if list.Score != 0 {
+		fw5, _ = canvas.MeasureString(scorestr)
+		canvas.DrawString(scorestr, x11+((w7-fw5)/2), y11)
 	} else {
 		fw5, _ = canvas.MeasureString("0000000")
-		canvas.DrawString("0000000", x11+((w3-fw5)/2), y11)
+		canvas.DrawString("0000000", x11+((w7-fw5)/2), y11)
 	}
 
 	// 画acc
@@ -190,9 +201,9 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	var fw float64
-	if list[i].Acc != 0 {
-		fw, _ = canvas.MeasureString(strconv.FormatFloat(list[i].Acc, 'f', 2, 64) + "%")
-		canvas.DrawString(strconv.FormatFloat(list[i].Acc, 'f', 2, 64)+"%", x13+((w3-fw)/2), y13)
+	if list.Acc != 0 {
+		fw, _ = canvas.MeasureString(strconv.FormatFloat(list.Acc, 'f', 2, 64) + "%")
+		canvas.DrawString(strconv.FormatFloat(list.Acc, 'f', 2, 64)+"%", x13+((w3-fw)/2), y13)
 	} else {
 		fw, _ = canvas.MeasureString("00.00%")
 		canvas.DrawString("00.00%", x13+((w3-fw)/2), y13)
@@ -206,9 +217,9 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	var fw1 float64
-	if list[i].Songname != "" {
-		fw1, _ = canvas.MeasureString(list[i].Songname)
-		canvas.DrawString(list[i].Songname, x12+((w3-fw1)/2), y12)
+	if list.Songname != "" {
+		fw1, _ = canvas.MeasureString(list.Songname)
+		canvas.DrawString(list.Songname, x12+((w3-fw1)/2), y12)
 	} else {
 		fw1, _ = canvas.MeasureString(" ")
 		canvas.DrawString(" ", x12+((w3-fw1)/2), y12)
@@ -219,8 +230,8 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	canvas.SetRGBA255(0, 0, 255, 0)
 	canvas.Fill()
 	var imgs *img.Factory
-	if list[i].Songname != "" {
-		imgs, err = img.LoadFirstFrame(filepath+Illustration+list[i].Songname+".png", 2048, 1080)
+	if list.Songname != "" {
+		imgs, err = img.LoadFirstFrame(filepath+Illustration+list.Songname+".png", 2048, 1080)
 		if err != nil {
 			return
 		}
@@ -230,7 +241,18 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 
 	// 画定数背景
 	draw4(canvas, a, x2, y2, w2, h2)
-	canvas.SetRGBA255(255, 0, 0, 255)
+	switch list.Diff {
+	case "AT":
+		canvas.SetRGBA255(56, 56, 56, 255)
+	case "IN":
+		canvas.SetRGBA255(190, 45, 35, 255)
+	case "HD":
+		canvas.SetRGBA255(3, 115, 190, 255)
+	case "EZ":
+		canvas.SetRGBA255(15, 180, 145, 255)
+	default:
+		canvas.SetRGBA255(56, 56, 56, 255)
+	}
 	canvas.Fill()
 
 	// 画定数
@@ -240,9 +262,9 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	if list[i].Diff != "" {
-		fw3, _ := canvas.MeasureString(list[i].Diff + " " + strconv.FormatFloat(list[i].Diffnum, 'f', 1, 64))
-		canvas.DrawString(list[i].Diff+" "+strconv.FormatFloat(list[i].Diffnum, 'f', 1, 64), x8+((w2-fw3)/2), y8)
+	if list.Diff != "" {
+		fw3, _ := canvas.MeasureString(list.Diff + " " + strconv.FormatFloat(list.Diffnum, 'f', 1, 64))
+		canvas.DrawString(list.Diff+" "+strconv.FormatFloat(list.Diffnum, 'f', 1, 64), x8+((w2-fw3)/2), y8)
 	} else {
 		fw3, _ := canvas.MeasureString("SP ?")
 		canvas.DrawString("SP ?", x8+((w2-fw3)/2), y8)
@@ -254,9 +276,9 @@ func mix(canvas *gg.Context, i int64, list []result) (err error) {
 	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	if list[i].Rksm != 0 {
-		fw4, _ := canvas.MeasureString(strconv.FormatFloat(list[i].Rksm, 'f', 2, 64))
-		canvas.DrawString(strconv.FormatFloat(list[i].Rksm, 'f', 2, 64), x9+((w2-fw4)/2), y9)
+	if list.Rksm != 0 {
+		fw4, _ := canvas.MeasureString(strconv.FormatFloat(list.Rksm, 'f', 2, 64))
+		canvas.DrawString(strconv.FormatFloat(list.Rksm, 'f', 2, 64), x9+((w2-fw4)/2), y9)
 	} else {
 		fw4, _ := canvas.MeasureString("0.00")
 		canvas.DrawString("0.00", x9+((w2-fw4)/2), y9)
@@ -289,14 +311,6 @@ func cut4img(imgs *img.Factory, angle float64) *img.Factory {
 
 func rksc(accc, diff float64) float64 {
 	return ((100.0*(accc/100.0) - 55.0) / 45.0) * ((100.0*(accc/100.0) - 55.0) / 45.0) * diff
-}
-
-func allrks(phi float64, sco ...float64) float64 {
-	var rks float64
-	for i := 0; i < len(sco); i++ {
-		rks += sco[i]
-	}
-	return (phi + (rks)) / 20
 }
 
 func arks(sco float64) float64 {

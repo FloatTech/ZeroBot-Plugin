@@ -1,3 +1,4 @@
+// Package phigros ...
 package phigros
 
 import (
@@ -74,11 +75,20 @@ func init() {
 		err = db.Find("challen", &c, "WHERE UID = "+struid)
 		if err != nil {
 			chal, chalnum = "无", "0"
+		} else {
+			chal, chalnum = c.Chall, strconv.FormatInt(c.Challnum, 10)
 		}
-		chal, chalnum = c.Chall, strconv.FormatInt(c.Challnum, 10)
-		var list = make([]result, 0, 40)
+		var list = make([]result, 0, 20)
 		var r result
-		err = db.Find(struid, &r, "WHERE Rank = 'phi'")
+
+		err = db.FindFor(struid, &r, "ORDER BY Rksm DESC", func() error {
+			if len(list) < 0 && r.Rank == "phi" {
+				list = append(list, r)
+				return nil
+			}
+			return nil
+		})
+
 		if err != nil {
 			list = append(list, result{Songname: "",
 				Diff:    "",
@@ -98,7 +108,10 @@ func init() {
 		}
 
 		err = db.FindFor(struid, &r, "ORDER BY Rksm DESC", func() error {
-			list = append(list, r)
+			if len(list) < 20 {
+				list = append(list, r)
+				return nil
+			}
 			return nil
 		})
 		for i := len(list); i < 20; i++ {
@@ -110,16 +123,16 @@ func init() {
 				Rank:    "",
 				Rksm:    0})
 		}
-		var arks float64
+		var allrks float64
 		for i := 0; i < 20; i++ {
-			arks = +list[i].Rksm
+			allrks += list[i].Rksm
 		}
-		err = renderb19(plname, strconv.FormatFloat(arks, 'f', 3, 64), chal, chalnum, list)
+		err = renderb19(plname, strconv.FormatFloat(arks(allrks), 'f', 3, 64), chal, chalnum, struid, list)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + filepath + "output.png"))
+		ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + filepath + struid + "/output.png"))
 	})
 	en.OnRegex(`^/phi set (.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		name := ctx.State["regex_matched"].([]string)[1]
@@ -168,7 +181,7 @@ func init() {
 	en.OnRegex(`^/phi add (.*) ([a-z|A-Z]{2}) ([0-9]{2,3}\.?([0-9]{2})?) ([0-9]{6,7}) ?([0,1])?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		songname := ctx.State["regex_matched"].([]string)[1]
 		var sd songdata
-		err := db.Find("songdata", &sd, "WHERE Name  LIKE '%"+songname+"%'")
+		err := db.Find("songdata", &sd, "WHERE Name LIKE '"+songname+"%' OR ATName LIKE '"+songname+"%'")
 		if err != nil {
 			ctx.SendChain(message.Text("未找到该歌曲\nERROR: ", err))
 			return
@@ -187,6 +200,10 @@ func init() {
 			case "EZ":
 				tdiff = sd.EZ
 			}
+		}
+		if tdiff == 0 {
+			ctx.SendChain(message.Text("未找到该歌曲所对应的等级"))
+			return
 		}
 		acc := ctx.State["regex_matched"].([]string)[3]
 		score := ctx.State["regex_matched"].([]string)[5]

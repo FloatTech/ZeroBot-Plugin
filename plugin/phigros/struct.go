@@ -50,7 +50,7 @@ var (
 	// rank
 	x10, y10 int = 600, 770
 	// score
-	x11, y11 float64 = 576, 798
+	x11, y11 float64 = 720, 798
 	// name
 	x12, y12 float64 = 596, 740
 	// acc
