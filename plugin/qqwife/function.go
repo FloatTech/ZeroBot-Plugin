@@ -86,8 +86,9 @@ func (sql *婚姻登记) 开门时间(gid int64) (ok bool, err error) {
 	// 开门了就拿新的花名册
 	err = sql.db.Drop("group" + gidstr)
 	if err != nil {
-		err = sql.db.Create("group"+gidstr, &userinfo{})
-		return
+		if err = sql.db.Create("group"+gidstr, &userinfo{}); err != nil {
+			return
+		}
 	}
 	dbinfo.Updatetime = time.Now().Format("2006/01/02")
 	err = sql.db.Insert("updateinfo", &dbinfo)
@@ -295,9 +296,7 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err
 		list = append(list, dbinfo)
 		return nil
 	})
-	if len(list) == 0 {
-		number = 0
-	}
+	number = len(list)
 	return
 }
 
