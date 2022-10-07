@@ -300,7 +300,7 @@ func cut4img(imgs *img.Factory, angle float64) *img.Factory {
 	ax := sax
 	for autoadd := 1; autoadd < maxy; autoadd++ {
 		for ; ax > 0; ax-- {
-			dst.Im.Set(int(ax), int(autoadd), color.NRGBA{0, 0, 0, 0})
+			dst.Im.Set(int(ax), autoadd, color.NRGBA{0, 0, 0, 0})
 			dst.Im.Set(maxx+int(-ax), maxy-autoadd, color.NRGBA{0, 0, 0, 0})
 		}
 		ax = (float64(maxy-autoadd) * (math.Cos(angle * math.Pi / 180.0)))

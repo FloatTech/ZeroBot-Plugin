@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	dbnum int
-	db    = &sql.Sqlite{}
-	en    = control.Register("phigros", &ctrl.Options[*zero.Ctx]{
+	db  = &sql.Sqlite{}
+	sdb = &sql.Sqlite{}
+	en  = control.Register("phigros", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "",
 		PublicDataFolder: "Phigros",
@@ -29,9 +29,13 @@ var (
 
 func init() {
 	db.DBPath = en.DataFolder() + "data.db"
+	sdb.DBPath = en.DataFolder() + "songdata.db"
 	go func() {
-
 		err := db.Open(time.Hour * 24)
+		if err != nil {
+			panic(err)
+		}
+		err = sdb.Open(time.Hour * 24)
 		if err != nil {
 			panic(err)
 		}
@@ -43,7 +47,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		err = db.Create("songdata", &songdata{})
+		err = sdb.Create("songdata", &songdata{})
 		if err != nil {
 			panic(err)
 		}
@@ -68,6 +72,8 @@ func init() {
 		if err != nil {
 			ctx.SendChain(message.Text("看来你还没有绑定过呢"))
 			return
+		} else {
+			ctx.SendChain(message.Text("正在查询..."))
 		}
 		plname := d.Gamename
 		var c challen
@@ -78,6 +84,7 @@ func init() {
 		} else {
 			chal, chalnum = c.Chall, strconv.FormatInt(c.Challnum, 10)
 		}
+		var dbnum int
 		dbnum, err = db.Count(struid)
 		if err != nil || dbnum == 0 {
 			ctx.SendChain(message.Text("emm...看起来你好像还没添加过数据?"))
@@ -107,6 +114,10 @@ func init() {
 			}
 			return nil
 		})
+		if err != nil {
+			ctx.SendChain(message.Text("emm...看起来你好像还没添加过数据?"))
+			return
+		}
 		for i := len(list); i < 22; i++ {
 			list = append(list, result{})
 		}
@@ -168,7 +179,7 @@ func init() {
 	en.OnRegex(`^/phi add (.*) ([a-z|A-Z]{2}) ([0-9]{2,3}\.?([0-9]{2})?) ([0-9]{6,7}) ?([0,1])?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		songname := ctx.State["regex_matched"].([]string)[1]
 		var sd songdata
-		err := db.Find("songdata", &sd, "WHERE Name LIKE '"+songname+"%' OR ATName LIKE '"+songname+"%'")
+		err := sdb.Find("songdata", &sd, "WHERE Name LIKE '"+songname+"%' OR ATName LIKE '"+songname+"%'")
 		if err != nil {
 			ctx.SendChain(message.Text("未找到该歌曲\nERROR: ", err))
 			return
