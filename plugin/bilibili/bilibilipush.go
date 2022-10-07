@@ -13,6 +13,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -191,7 +192,7 @@ func getName(buid int64) (name string, err error) {
 
 // subscribe 订阅
 func subscribe(buid, groupid int64) (err error) {
-	bpMap := map[string]interface{}{
+	bpMap := map[string]any{
 		"bilibili_uid":    buid,
 		"group_id":        groupid,
 		"live_disable":    0,
@@ -202,7 +203,7 @@ func subscribe(buid, groupid int64) (err error) {
 
 // unsubscribe 取消订阅
 func unsubscribe(buid, groupid int64) (err error) {
-	bpMap := map[string]interface{}{
+	bpMap := map[string]any{
 		"bilibili_uid":    buid,
 		"group_id":        groupid,
 		"live_disable":    1,
@@ -212,7 +213,7 @@ func unsubscribe(buid, groupid int64) (err error) {
 }
 
 func unsubscribeDynamic(buid, groupid int64) (err error) {
-	bpMap := map[string]interface{}{
+	bpMap := map[string]any{
 		"bilibili_uid":    buid,
 		"group_id":        groupid,
 		"dynamic_disable": 1,
@@ -221,7 +222,7 @@ func unsubscribeDynamic(buid, groupid int64) (err error) {
 }
 
 func unsubscribeLive(buid, groupid int64) (err error) {
-	bpMap := map[string]interface{}{
+	bpMap := map[string]any{
 		"bilibili_uid": buid,
 		"group_id":     groupid,
 		"live_disable": 1,
@@ -230,7 +231,7 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 }
 
 func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(spaceHistoryURL, buid, 0), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", referer, ua)
 	if err != nil {
 		return
 	}
@@ -239,13 +240,13 @@ func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
 }
 
 func getLiveList(uids ...int64) (string, error) {
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	m["uids"] = uids
 	b, err := json.Marshal(m)
 	if err != nil {
 		return "", err
 	}
-	data, err := web.PostData(liveListURL, "application/json", bytes.NewReader(b))
+	data, err := web.PostData(bz.LiveListURL, "application/json", bytes.NewReader(b))
 	if err != nil {
 		return "", err
 	}
@@ -276,7 +277,12 @@ func sendDynamic(ctx *zero.Ctx) error {
 				m, ok := control.Lookup(serviceName)
 				if ok {
 					groupList := bdb.getAllGroupByBuidAndDynamic(buid)
-					msg, err := dynamicCard2msg(cardList[i].Raw, 0)
+					dc, err := bz.LoadDynamicDetail(cardList[i].Raw)
+					if err != nil {
+						err = errors.Errorf("动态%v的解析有问题,%v", cardList[i].Get("desc.dynamic_id_str"), err)
+						return err
+					}
+					msg, err := dynamicCard2msg(&dc)
 					if err != nil {
 						err = errors.Errorf("动态%v的解析有问题,%v", cardList[i].Get("desc.dynamic_id_str"), err)
 						return err
@@ -324,7 +330,7 @@ func sendLive(ctx *zero.Ctx) error {
 				if roomID == 0 {
 					roomID = value.Get("room_id").Int()
 				}
-				lURL := liveURL + strconv.FormatInt(roomID, 10)
+				lURL := bz.LiveURL + strconv.FormatInt(roomID, 10)
 				lName := value.Get("uname").String()
 				lTitle := value.Get("title").String()
 				lCover := value.Get("cover_from_user").String()

@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/Coloured-glaze/gg"
+	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
@@ -40,8 +41,7 @@ var (
 		4: "进入直播间",
 		5: "标题变动",
 	}
-	cfgFile = "data/Bilibili/config.json"
-	cfg     config
+	cfg = bz.NewCookieConfig("data/Bilibili/config.json")
 )
 
 // 查成分的
@@ -73,7 +73,7 @@ func init() {
 	engine.OnRegex(`^>user info\s?(.{1,25})$`, getPara).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
-			card, err := getMemberCard(id)
+			card, err := bz.GetMemberCard(id)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -92,7 +92,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
 			// 获取详情
-			fo, err := getVtbDetail(id)
+			fo, err := bz.GetVtbDetail(id)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -120,7 +120,7 @@ func init() {
 				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 				return
 			}
-			u, err := getMemberCard(id)
+			u, err := bz.GetMemberCard(id)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -131,13 +131,13 @@ func init() {
 				return
 			}
 			vupLen := len(vups)
-			medals, err := getMedalwall(id)
-			sort.Sort(medalSlice(medals))
+			medals, err := bz.GetMedalWall(cfg, id)
+			sort.Sort(bz.MedalSorter(medals))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
 			frontVups := make([]vup, 0)
-			medalMap := make(map[int64]medal)
+			medalMap := make(map[int64]bz.Medal)
 			for _, v := range medals {
 				up := vup{
 					Mid:   v.Mid,
@@ -173,7 +173,7 @@ func init() {
 				back = img.Size(back, backX, backY).Im
 			}
 			if len(vups) > 50 {
-				ctx.SendChain(message.Text(u.Name + "关注的up主太多了，只展示前50个up"))
+				ctx.SendChain(message.Text(u.Name + "关注的up主太多了, 只展示前50个up"))
 				vups = vups[:50]
 			}
 			canvas := gg.NewContext(1500, int(500*(1.1+float64(len(vups))/3)))
@@ -275,19 +275,19 @@ func init() {
 		if pagenum == "" {
 			pagenum = "0"
 		}
-		u, err := getMemberCard(id)
+		u, err := bz.GetMemberCard(id)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var danmaku danmakusuki
+		var danmaku bz.Danmakusuki
 		tr := &http.Transport{
 			DisableKeepAlives: true,
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		}
 
 		client := &http.Client{Transport: tr}
-		data, err := web.RequestDataWith(client, fmt.Sprintf(danmakuAPI, id, pagenum), "GET", "", web.RandUA())
+		data, err := web.RequestDataWith(client, fmt.Sprintf(bz.DanmakuAPI, id, pagenum), "GET", "", web.RandUA())
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -363,7 +363,7 @@ func init() {
 		canvas.DrawString(u.Mid, 900+n, 122.5)
 		canvas.DrawString(fmt.Sprintf("粉丝：%d   关注：%d", u.Fans, u.Attention), startWidth, 222.5)
 		canvas.DrawString(fmt.Sprintf("页码：[%d/%d]", danmaku.Data.PageNum, (danmaku.Data.Total-1)/5), startWidth, 322.5)
-		canvas.DrawString("网页链接: "+fmt.Sprintf(danmakuURL, u.Mid), startWidth, 422.5)
+		canvas.DrawString("网页链接: "+fmt.Sprintf(bz.DanmakuURL, u.Mid), startWidth, 422.5)
 		var channelStart float64
 		channelStart = float64(550)
 		for i := 0; i < len(danmaku.Data.Data); i++ {
@@ -527,7 +527,7 @@ func init() {
 	engine.OnRegex(`^设置b站cookie?\s+(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			cookie := ctx.State["regex_matched"].([]string)[1]
-			err := setBilibiliCookie(cookie)
+			err := cfg.Set(cookie)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -571,7 +571,7 @@ func int2rbg(t int64) (int64, int64, int64) {
 func getPara(ctx *zero.Ctx) bool {
 	keyword := ctx.State["regex_matched"].([]string)[1]
 	if !re.MatchString(keyword) {
-		searchRes, err := searchUser(keyword)
+		searchRes, err := bz.SearchUser(cfg, keyword)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
@@ -582,7 +582,7 @@ func getPara(ctx *zero.Ctx) bool {
 	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession())
 	recv, cancel := next.Repeat()
 	defer cancel()
-	ctx.SendChain(message.Text("输入为纯数字，请选择查询uid还是用户名，输入对应序号：\n0. 查询uid\n1. 查询用户名"))
+	ctx.SendChain(message.Text("输入为纯数字, 请选择查询uid还是用户名, 输入对应序号：\n0. 查询uid\n1. 查询用户名"))
 	for {
 		select {
 		case <-time.After(time.Second * 10):
@@ -604,7 +604,7 @@ func getPara(ctx *zero.Ctx) bool {
 				ctx.State["uid"] = keyword
 				return true
 			} else if num == 1 {
-				searchRes, err := searchUser(keyword)
+				searchRes, err := bz.SearchUser(cfg, keyword)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return false
