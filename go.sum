@@ -8,6 +8,10 @@ github.com/FloatTech/floatbox v0.0.0-20221004092550-1ebf9b4e6198 h1:AkwB7LKMK74y
 github.com/FloatTech/floatbox v0.0.0-20221004092550-1ebf9b4e6198/go.mod h1:4UDl6E/I2HqAqRnKdsxxfO28fkqGo3CzFOP2BhyI6ag=
 github.com/FloatTech/sqlite v0.4.0 h1:fvQ1vc7fw99jYXccs5KItMluy7QL1t6NxbkH7aN1F4g=
 github.com/FloatTech/sqlite v0.4.0/go.mod h1:i33d92OtR8jcp5fBUvQtospf27+MkfUxnGwnZ95E/dA=
+github.com/FloatTech/sqlite v0.4.1-0.20221007154253-faf953fe8324 h1:jEbk2+VPscOju7QI+2OSezqdJrL6Rbrr5HfXwxpaZxw=
+github.com/FloatTech/sqlite v0.4.1-0.20221007154253-faf953fe8324/go.mod h1:i33d92OtR8jcp5fBUvQtospf27+MkfUxnGwnZ95E/dA=
+github.com/FloatTech/sqlite v0.5.0 h1:U7J5Omc534PqmH6csfu+ypCo3DS8L91l5lTsxUu3b/U=
+github.com/FloatTech/sqlite v0.5.0/go.mod h1:i33d92OtR8jcp5fBUvQtospf27+MkfUxnGwnZ95E/dA=
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJGLDNIdRX3BI546D3O7k7vrVueZw=
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.5.2-0.20220921013146-40d64bc7799c h1:zYcKvMbwQeifSQg0LnxhmCdyP3mb7ZqS6rjt68jbukw=

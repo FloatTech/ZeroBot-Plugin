@@ -6,7 +6,7 @@ require (
 	github.com/Coloured-glaze/gg v1.3.4
 	github.com/FloatTech/AnimeAPI v1.5.1-0.20221005032016-95a00a04e77a
 	github.com/FloatTech/floatbox v0.0.0-20221004092550-1ebf9b4e6198
-	github.com/FloatTech/sqlite v0.4.0
+	github.com/FloatTech/sqlite v0.5.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.2-0.20220921013146-40d64bc7799c
 	github.com/FloatTech/zbputils v1.5.1-0.20221004094248-ad5a9235757e
