@@ -31,3 +31,15 @@ type songdata struct {
 	Legacy float64 `db:"legacy"`
 	ATName string  `db:"ATName"`
 }
+
+type max struct {
+	ID       int64   `db:"id"`
+	Songname string  `db:"songname"` // eg. Shadow
+	Diff     string  `db:"diff"`     // AT
+	Diffnum  float64 `db:"diffnum"`  // 15.9
+	Score    int64   `db:"score"`    // 1000000
+	Acc      float64 `db:"acc"`      // 100.00
+	Rank     string  `db:"rank"`     // phi
+	Rksm     float64 `db:"rksm"`     // 15.90
+	Max      float64
+}

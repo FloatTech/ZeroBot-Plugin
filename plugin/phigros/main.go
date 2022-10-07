@@ -11,7 +11,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 
-	//"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -23,7 +23,7 @@ var (
 		DisableOnDefault: false,
 		Help:             "",
 		PublicDataFolder: "Phigros",
-	}) //.ApplySingle(ctxext.DefaultSingle)
+	}).ApplySingle(ctxext.DefaultSingle)
 	filepath = en.DataFolder()
 )
 
@@ -74,54 +74,41 @@ func init() {
 		var chal, chalnum string
 		err = db.Find("challen", &c, "WHERE UID = "+struid)
 		if err != nil {
-			chal, chalnum = "无", "0"
+			chal, chalnum = "", ""
 		} else {
 			chal, chalnum = c.Chall, strconv.FormatInt(c.Challnum, 10)
 		}
-		var list = make([]result, 0, 20)
-		var r result
-
-		err = db.FindFor(struid, &r, "ORDER BY Rksm DESC", func() error {
-			if len(list) < 0 && r.Rank == "phi" {
-				list = append(list, r)
-				return nil
-			}
-			return nil
-		})
-
-		if err != nil {
-			list = append(list, result{Songname: "",
-				Diff:    "",
-				Diffnum: 0,
-				Score:   0,
-				Acc:     0,
-				Rank:    "",
-				Rksm:    0})
-		} else {
-			list = append(list, r)
-		}
-
 		dbnum, err = db.Count(struid)
 		if err != nil || dbnum == 0 {
 			ctx.SendChain(message.Text("emm...看起来你好像还没添加过数据?"))
 			return
 		}
+		var list = make([]result, 0, 22)
+		var r result
+		var m max
+		err = db.Query("SELECT *, max(rksm) FROM ["+struid+"] WHERE rank='phi';", &m)
+		if err != nil {
+			list = append(list, result{})
+		} else {
+			list = append(list, result{Songname: m.Songname,
+				ID:      m.ID,
+				Diff:    m.Diff,
+				Diffnum: m.Diffnum,
+				Score:   m.Score,
+				Acc:     m.Acc,
+				Rank:    m.Rank,
+				Rksm:    m.Rksm})
+		}
 
 		err = db.FindFor(struid, &r, "ORDER BY Rksm DESC", func() error {
-			if len(list) < 20 {
+			if len(list) < 22 {
 				list = append(list, r)
 				return nil
 			}
 			return nil
 		})
-		for i := len(list); i < 20; i++ {
-			list = append(list, result{Songname: "",
-				Diff:    "",
-				Diffnum: 0,
-				Score:   0,
-				Acc:     0,
-				Rank:    "",
-				Rksm:    0})
+		for i := len(list); i < 22; i++ {
+			list = append(list, result{})
 		}
 		var allrks float64
 		for i := 0; i < 20; i++ {

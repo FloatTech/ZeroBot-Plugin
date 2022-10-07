@@ -74,7 +74,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 	}
 
 	var i int64
-	var xj, yj float64 = 1090, 200
+	var xj, yj float64 = 1090, 160
 
 	err = mix(canvas, i, list[i])
 	if err != nil {
@@ -83,7 +83,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 	x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x+xj, x1+xj, x2+xj, x3+xj, x4+xj, x5+int(xj), x6+xj, x7+xj, x8+xj, x9+xj, x10+int(xj), x11+xj, x12+xj, x13+xj
 	y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+yj, y1+yj, y2+yj, y3+yj, y4+yj, y5+int(yj), y6+yj, y7+yj, y8+yj, y9+yj, y10+int(yj), y11+yj, y12+yj, y13+yj
 	i++
-	for ; i < 20; i++ {
+	for ; i < 22; i++ {
 		if i%2 == 0 {
 			err := mix(canvas, i, list[i])
 			if err != nil {
@@ -126,7 +126,6 @@ func draw4(canvas *gg.Context, angle, x, y, w, l float64) {
 	canvas.LineTo(x2, y2)
 	canvas.LineTo(x3, y3)
 	canvas.ClosePath()
-	return
 }
 
 func mix(canvas *gg.Context, i int64, list result) (err error) {
