@@ -72,9 +72,8 @@ func init() {
 		if err != nil {
 			ctx.SendChain(message.Text("看来你还没有绑定过呢"))
 			return
-		} else {
-			ctx.SendChain(message.Text("正在查询..."))
 		}
+		ctx.SendChain(message.Text("正在查询..."))
 		plname := d.Gamename
 		var c challen
 		var chal, chalnum string
