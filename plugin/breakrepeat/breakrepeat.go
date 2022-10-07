@@ -37,8 +37,8 @@ func init() {
 				return
 			}
 			sm.Delete(gid)
-			if len(r) > 2 {
-				ru := []rune(r)
+			if len(r) > 5 {
+				ru := []rune(r[3:])
 				rand.Shuffle(len(ru), func(i, j int) {
 					ru[i], ru[j] = ru[j], ru[i]
 				})

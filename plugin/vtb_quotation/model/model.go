@@ -223,7 +223,7 @@ func (vdb *VtbDB) GetVtbList() (uidList []string, err error) {
 			}
 		} else {
 			db.Model(&FirstCategory{}).Where("first_category_uid = ?", fc.FirstCategoryUID).Update(
-				map[string]interface{}{
+				map[string]any{
 					"first_category_index":       i,
 					"first_category_name":        item.Get("name").String(),
 					"first_category_description": item.Get("description").String(),
@@ -283,7 +283,7 @@ func (vdb *VtbDB) StoreVtb(uid string) (err error) {
 			}
 		} else {
 			db.Model(&SecondCategory{}).Where("first_category_uid = ? and second_category_index = ?", uid, secondIndex).Update(
-				map[string]interface{}{
+				map[string]any{
 					"second_category_name":        secondItem.Get("categoryName").String(),
 					"second_category_author":      secondItem.Get("author").String(),
 					"second_category_description": secondItem.Get("categoryDescription.zh-CN").String(),
@@ -313,7 +313,7 @@ func (vdb *VtbDB) StoreVtb(uid string) (err error) {
 			} else {
 				db.Model(&ThirdCategory{}).Where("first_category_uid = ? and second_category_index = ? and third_category_index = ?",
 					uid, secondIndex, thirdIndex).Update(
-					map[string]interface{}{
+					map[string]any{
 						"third_category_name":        thirdItem.Get("name").String(),
 						"third_category_description": thirdItem.Get("description.zh-CN").String(),
 						"third_category_path":        thirdItem.Get("path").String(),

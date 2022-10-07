@@ -2,10 +2,12 @@ package bilibili
 
 import (
 	"testing"
+
+	bz "github.com/FloatTech/AnimeAPI/bilibili"
 )
 
 func TestArticleInfo(t *testing.T) {
-	card, err := getArticleInfo("17279244")
+	card, err := bz.GetArticleInfo("17279244")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +45,7 @@ func TestDynamicDetail(t *testing.T) {
 }
 
 func TestMemberCard(t *testing.T) {
-	card, err := getMemberCard(2)
+	card, err := bz.GetMemberCard(2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,22 +53,22 @@ func TestMemberCard(t *testing.T) {
 }
 
 func TestVideoInfo(t *testing.T) {
-	card, err := getVideoInfo("10007")
+	card, err := bz.GetVideoInfo("10007")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(videoCard2msg(card))
-	card, err = getVideoInfo("BV1xx411c7mD")
+	card, err = bz.GetVideoInfo("BV1xx411c7mD")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(videoCard2msg(card))
-	card, err = getVideoInfo("bv1xx411c7mD")
+	card, err = bz.GetVideoInfo("bv1xx411c7mD")
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(videoCard2msg(card))
-	card, err = getVideoInfo("BV1mF411j7iU")
+	card, err = bz.GetVideoInfo("BV1mF411j7iU")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +76,7 @@ func TestVideoInfo(t *testing.T) {
 }
 
 func TestLiveRoomInfo(t *testing.T) {
-	card, err := getLiveRoomInfo("83171")
+	card, err := bz.GetLiveRoomInfo("83171")
 	if err != nil {
 		t.Fatal(err)
 	}
