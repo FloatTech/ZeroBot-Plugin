@@ -14,11 +14,11 @@ const (
 	Icon = "icon.png"
 )
 
-const (
-	pl, rkss, cm string = "Player: ", "RankingScore: ", "ChallengeMode: "
-)
+/*const (
+	x,y float64 = 188,682
+)*/
 
-var (
+/*var (
 	// 排名背景
 	x, y float64 = 188, 682
 	w, h float64 = 70, 44
@@ -54,11 +54,11 @@ var (
 	// name
 	x12, y12 float64 = 596, 740
 	// acc
-	x13, y13 float64 = 626, 878
-)
+	x13, y13 float64 = 724, 878
+)*/
 
 // 角度
-var a float64 = 75
+const a float64 = 75
 
 var checkchall = map[string]int64{
 	"rainbow": 5,
