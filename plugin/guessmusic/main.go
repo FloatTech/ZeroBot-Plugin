@@ -32,10 +32,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-const (
-	servicename = "guessmusic"
-	ua          = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.66"
-)
+const servicename = "guessmusic"
 
 var (
 	filelist      []listinfo
@@ -107,7 +104,7 @@ func init() { // 插件主体
 			Playlist: []listRaw{
 				{
 					Name: "FM",
-					ID:   3136952023,
+					ID:   int(3136952023),
 				}},
 		}
 		err = saveConfig(cfgFile)
@@ -718,7 +715,7 @@ func getlist(pathOfMusic string) (list []listinfo, err error) {
 func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, err error) {
 	filelist, err := getlist(musicPath)
 	if err != nil {
-		err = errors.Errorf("获取列表错误，", err)
+		err = errors.Errorf("获取列表错误,%s", err)
 		return
 	}
 	var fileList = make(map[string]int, 100)
