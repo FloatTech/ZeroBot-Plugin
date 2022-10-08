@@ -28,6 +28,8 @@ var (
 			"/phi set <name>\n" +
 			"/phi chall <等级> <数字>\n" +
 			"/phi add <曲名> <难度> <acc> <分数> <0|1>?\n" +
+			"/phi del <曲名>\n"+
+			"/phi find <曲名>\n"+
 			"示例: /phi chall rainbow 48\n" +
 			"/phi add iga AT 100.0 1000000\n" +
 			"Tips: /phi add中最后的<0|1>, 1代表全连",
@@ -257,5 +259,38 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已设置", sd.Name, "为", score, " ", acc))
 	})
-
+	en.OnRegex(`^/phi del (.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		mu.Lock()
+		defer mu.Unlock()
+		uid := ctx.Event.UserID
+		struid := strconv.FormatInt(uid, 10)
+		songname := ctx.State["regex_matched"].([]string)[1]
+		var sd songdata
+		err := sdb.Find("songdata", &sd, "WHERE Name LIKE '"+songname+"%' OR ATName LIKE '"+songname+"%'")
+		if err != nil {
+			ctx.SendChain(message.Text("未找到该歌曲\nERROR: ", err))
+			return
+		}
+		allsn := sd.Name
+		err = db.Del(struid, "WHERE Songname = "+allsn)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("已把", allsn, "的数据删除了"))
+	})
+	en.OnRegex(`^/phi find (.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		songname := ctx.State["regex_matched"].([]string)[1]
+		var sd songdata
+		err := sdb.Find("songdata", &sd, "WHERE Name LIKE '"+songname+"%' OR ATName LIKE '"+songname+"%'")
+		if err != nil {
+			ctx.SendChain(message.Text("未找到该歌曲\nERROR: ", err))
+			return
+		}
+		msg := message.Message{message.Text(sd.Name, "的EZ难度为: ", sd.EZ, "\nHD难度为: ", sd.HD, "\nIN难度为: ", sd.IN)}
+		if sd.AT != 0 {
+			msg = append(msg, message.Text("\nAT难度为", sd.AT))
+		}
+		ctx.SendChain(msg...)
+	})
 }
