@@ -104,7 +104,7 @@ func init() { // 插件主体
 			Playlist: []listRaw{
 				{
 					Name: "FM",
-					ID:   int(3136952023),
+					ID:   3136952023,
 				}},
 		}
 		err = saveConfig(cfgFile)
@@ -216,7 +216,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text(serviceErr, "歌单不存在于本地，尝试创建该歌单失败:\n", err))
 				return
 			}
-			mid, _ := strconv.Atoi(listID)
+			mid, _ := strconv.ParseInt(listID, 10, 64)
 			cfg.Playlist = append(cfg.Playlist, listRaw{
 				Name: listName,
 				ID:   mid,
@@ -238,7 +238,7 @@ func init() { // 插件主体
 			}
 			index := 1024
 			for i, listinfo := range filelist {
-				if delList == listinfo.Name || delList == strconv.Itoa(listinfo.ID) {
+				if delList == listinfo.Name || delList == strconv.FormatInt(listinfo.ID, 10) {
 					if delList == listinfo.Name {
 						err = os.RemoveAll(cfg.MusicPath + delList)
 						if err != nil {
@@ -444,7 +444,7 @@ func init() { // 插件主体
 				canvas.DrawString(listinfo.Name, 85, float64(85+20*i)-h)
 				canvas.DrawString(strconv.Itoa(listinfo.Number), 220, float64(85+20*i)-h)
 				if listinfo.ID != 0 {
-					canvas.DrawString(strconv.Itoa(listinfo.ID), 320, float64(85+20*i)-h)
+					canvas.DrawString(strconv.FormatInt(listinfo.ID, 10), 320, float64(85+20*i)-h)
 				}
 				j = i + 2
 			}
@@ -675,7 +675,7 @@ func saveConfig(cfgFile string) error {
 
 // 获取本地歌单列表
 func getlist(pathOfMusic string) (list []listinfo, err error) {
-	wyyID := make(map[string]int, 100)
+	wyyID := make(map[string]int64, 100)
 	for _, wyyinfo := range cfg.Playlist {
 		if wyyinfo.ID != 0 {
 			wyyID[wyyinfo.Name] = wyyinfo.ID
@@ -718,7 +718,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 		err = errors.Errorf("获取列表错误,%s", err)
 		return
 	}
-	var fileList = make(map[string]int, 100)
+	var fileList = make(map[string]int64, 100)
 	for _, listinfo := range filelist {
 		fileList[listinfo.Name] = listinfo.ID
 	}
@@ -786,7 +786,7 @@ func getLocalMusic(files []fs.DirEntry) (musicName string) {
 }
 
 // 下载从独角兽抽到的歌曲ID(歌单ID, 音乐保存路径, 歌词保存路径)
-func downloadByOvooa(playlistID int, musicPath string) (musicName string, err error) {
+func downloadByOvooa(playlistID int64, musicPath string) (musicName string, err error) {
 	// 抽取歌曲
 	mid, err := drawByOvooa(playlistID)
 	if err != nil {
@@ -825,8 +825,8 @@ func downloadByOvooa(playlistID int, musicPath string) (musicName string, err er
 }
 
 // 通过独角兽API随机抽取歌单歌曲ID(参数：歌单ID)
-func drawByOvooa(playlistID int) (musicID int, err error) {
-	apiURL := "https://ovooa.com/API/163_Music_Rand/api.php?id=" + strconv.Itoa(playlistID)
+func drawByOvooa(playlistID int64) (musicID int, err error) {
+	apiURL := "https://ovooa.com/API/163_Music_Rand/api.php?id=" + strconv.FormatInt(playlistID, 10)
 	data, err := web.GetData(apiURL)
 	if err != nil {
 		return
