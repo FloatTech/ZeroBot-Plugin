@@ -3,6 +3,7 @@ package phigros
 
 import (
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/FloatTech/floatbox/file"
@@ -11,7 +12,6 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 
-	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -19,11 +19,12 @@ import (
 var (
 	db  = &sql.Sqlite{}
 	sdb = &sql.Sqlite{}
+	mu  sync.RWMutex
 	en  = control.Register("phigros", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "",
 		PublicDataFolder: "Phigros",
-	}).ApplySingle(ctxext.DefaultSingle)
+	})
 	filepath = en.DataFolder()
 )
 
@@ -53,6 +54,8 @@ func init() {
 		}
 	}()
 	en.OnFullMatch("/phi init").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		mu.Lock()
+		defer mu.Unlock()
 		uid := ctx.Event.UserID
 		struid := strconv.FormatInt(uid, 10)
 		_ = db.Drop(struid)
@@ -65,6 +68,8 @@ func init() {
 	})
 
 	en.OnFullMatch("/phi").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		mu.Lock()
+		defer mu.Unlock()
 		uid := ctx.Event.UserID
 		struid := strconv.FormatInt(uid, 10)
 		var d data
@@ -124,7 +129,7 @@ func init() {
 		for i := 0; i < 20; i++ {
 			allrks += list[i].Rksm
 		}
-		err = renderb19(plname, strconv.FormatFloat(arks(allrks), 'f', 3, 64), chal, chalnum, struid, list)
+		err = renderb19(plname, strconv.FormatFloat(allrks/20, 'f', 3, 64), chal, chalnum, struid, list)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -132,6 +137,8 @@ func init() {
 		ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + filepath + struid + "/output.png"))
 	})
 	en.OnRegex(`^/phi set (.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		mu.Lock()
+		defer mu.Unlock()
 		name := ctx.State["regex_matched"].([]string)[1]
 		uid := ctx.Event.UserID
 		struid := strconv.FormatInt(uid, 10)
@@ -147,6 +154,8 @@ func init() {
 		ctx.SendChain(message.Text("已成功绑定", struid, "的游戏名字为:", name))
 	})
 	en.OnRegex(`^/phi chall (.*) ([0-9]{1,2})`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		mu.Lock()
+		defer mu.Unlock()
 		uid := ctx.Event.UserID
 		chall := ctx.State["regex_matched"].([]string)[1]
 		challnum := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
@@ -175,7 +184,9 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功!"))
 	})
-	en.OnRegex(`^/phi add (.*) ([a-z|A-Z]{2}) ([0-9]{2,3}\.?([0-9]{2})?) ([0-9]{6,7}) ?([0,1])?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^/phi add (.*) ([a-z|A-Z]{2}) ([0-9]{2,3}\.?([0-9]{1,2})?) ([0-9]{6,7}) ?([0,1])?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		mu.Lock()
+		defer mu.Unlock()
 		songname := ctx.State["regex_matched"].([]string)[1]
 		var sd songdata
 		err := sdb.Find("songdata", &sd, "WHERE Name LIKE '"+songname+"%' OR ATName LIKE '"+songname+"%'")
@@ -214,7 +225,7 @@ func init() {
 		rksm := rksc(accfloat, tdiff)
 		tac, _ := strconv.ParseBool(ac)
 		var rank string
-		if tac {
+		if tac && score != "1000000" {
 			rank = "fc"
 		} else {
 			rank = checkrank(scoreint)
