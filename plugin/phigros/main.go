@@ -22,7 +22,15 @@ var (
 	mu  sync.RWMutex
 	en  = control.Register("phigros", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "",
+		Help: "Phigros查分, 初次使用请先/phi init初始化存档" +
+			"/phi init 初始化存档" +
+			"/phi 查询成绩" +
+			"/phi set <name>" +
+			"/phi chall <等级> <数字>" +
+			"/phi add <曲名> <难度> <acc> <分数> <0|1>?" +
+			"示例: /phi chall rainbow 48" +
+			"/phi add iga AT 100.0 1000000" +
+			"Tips: /phi add中最后的<0|1>, 1代表全连",
 		PublicDataFolder: "Phigros",
 	})
 	filepath = en.DataFolder()
@@ -182,7 +190,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Text("成功!"))
+		ctx.SendChain(message.Text("已设置课题模式等级为", chall, " ", challnum))
 	})
 	en.OnRegex(`^/phi add (.*) ([a-z|A-Z]{2}) ([0-9]{2,3}\.?([0-9]{1,2})?) ([0-9]{6,7}) ?([0,1])?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		mu.Lock()
@@ -247,7 +255,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Text("存储成功!"))
+		ctx.SendChain(message.Text("已设置", songname, "为", score, " ", acc))
 	})
 
 }
