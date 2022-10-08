@@ -27,6 +27,8 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 
 	blured := imgs.Blur(30)
 
+	var a float64 = 75
+
 	canvas.DrawImage(img.Size(blured.Im, 9064, 4780).Im, -3352, 0)
 
 	draw4(canvas, a, 0, 166, 1324, 410)
@@ -102,7 +104,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 	var i int64
 	var xj, yj float64 = 1090, 160
 
-	err = mix(canvas, i, x, y, list[i])
+	err = mix(canvas, i, a, x, y, list[i])
 	if err != nil {
 		return err
 	}
@@ -111,7 +113,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 	y += yj
 	for ; i < 22; i++ {
 		if i%2 == 0 {
-			err := mix(canvas, i, x, y, list[i])
+			err := mix(canvas, i, a, x, y, list[i])
 			if err != nil {
 				return err
 			}
@@ -119,7 +121,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 			x += xj
 			y += yj
 		} else {
-			err := mix(canvas, i, x, y, list[i])
+			err := mix(canvas, i, a, x, y, list[i])
 			if err != nil {
 				return err
 			}
@@ -151,7 +153,7 @@ func draw4(canvas *gg.Context, angle, x, y, w, l float64) {
 	canvas.ClosePath()
 }
 
-func mix(canvas *gg.Context, i int64, x, y float64, list result) (err error) {
+func mix(canvas *gg.Context, i int64, a, x, y float64, list result) (err error) {
 	// 画排名背景
 	draw4(canvas, a, x, y, 70, 44)
 	canvas.SetRGBA255(255, 255, 255, 255)

@@ -58,7 +58,7 @@ var (
 )*/
 
 // 角度
-const a float64 = 75
+// const a float64 = 75
 
 var checkchall = map[string]int64{
 	"rainbow": 5,
