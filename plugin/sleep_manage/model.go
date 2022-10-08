@@ -77,7 +77,7 @@ func (sdb *sleepdb) sleep(gid, uid int64) (position int, awakeTime time.Duration
 		log.Debugln("sleeptime为", st)
 		awakeTime = now.Sub(st.SleepTime)
 		db.Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
-			map[string]interface{}{
+			map[string]any{
 				"sleep_time": now,
 			})
 	}
@@ -104,7 +104,7 @@ func (sdb *sleepdb) getUp(gid, uid int64) (position int, sleepTime time.Duration
 		log.Debugln("sleeptime为", st)
 		sleepTime = now.Sub(st.SleepTime)
 		db.Model(&SleepManage{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
-			map[string]interface{}{
+			map[string]any{
 				"sleep_time": now,
 			})
 	}
