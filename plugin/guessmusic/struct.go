@@ -13,7 +13,7 @@ type config struct {
 // 记录歌单绑定的网易云歌单ID
 type listRaw struct {
 	Name string `json:"name"` // 歌单名称
-	ID   int    `json:"id"`   // 歌单绑定的网易云ID
+	ID   int64  `json:"id"`   // 歌单绑定的网易云ID
 }
 
 // 记录群默认猜歌
@@ -26,7 +26,7 @@ type dlist struct {
 type listinfo struct {
 	Name   string `json:"name"` // 歌单名称
 	Number int    // 歌曲数量
-	ID     int    // 歌单绑定的歌曲ID
+	ID     int64  // 歌单绑定的歌曲ID
 }
 
 // 独角兽API随机抽歌信息
