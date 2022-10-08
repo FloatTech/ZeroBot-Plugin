@@ -255,7 +255,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Text("已设置", songname, "为", score, " ", acc))
+		ctx.SendChain(message.Text("已设置", sd.Name, "为", score, " ", acc))
 	})
 
 }
