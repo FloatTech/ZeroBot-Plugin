@@ -32,7 +32,7 @@ func init() {
 	engine.OnPrefix("抽wife", zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			grpf := strconv.FormatInt(ctx.Event.GroupID, 36)
-			wifes, err := os.ReadDir(base + "/" + grpf)
+			wifes, err := os.ReadDir(base + grpf)
 			if err != nil {
 				ctx.SendChain(message.Text("一个wife也没有哦~"))
 				return
@@ -42,7 +42,7 @@ func init() {
 				ctx.SendChain(message.Text("一个wife也没有哦~"))
 			case 1:
 				wn := wifes[0].Name()
-				ctx.SendChain(message.Text("大家的wife都是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
+				ctx.SendChain(message.Text("大家的wife都是", wn, "\n"), message.Image(baseuri+grpf+"/"+wn), message.Text("\n哦~"))
 			default:
 				// 获取名字
 				name := ctx.NickName()
@@ -51,7 +51,7 @@ func init() {
 				r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(s[:]))))
 				n := r.Intn(len(wifes))
 				wn := wifes[n].Name()
-				ctx.SendChain(message.Text(name, "的wife是", wn, "\n"), message.Image(baseuri+"/"+grpf+"/"+wn), message.Text("\n哦~"))
+				ctx.SendChain(message.Text(name, "的wife是", wn, "\n"), message.Image(baseuri+grpf+"/"+wn), message.Text("\n哦~"))
 			}
 		})
 	// 上传一张图
@@ -69,7 +69,7 @@ func init() {
 			}
 			if name != "" {
 				url := ctx.State["image_url"].([]string)[0]
-				grpfolder := base + "/" + strconv.FormatInt(ctx.Event.GroupID, 36)
+				grpfolder := base + strconv.FormatInt(ctx.Event.GroupID, 36)
 				if file.IsNotExist(grpfolder) {
 					err := os.Mkdir(grpfolder, 0755)
 					if err != nil {
@@ -100,7 +100,7 @@ func init() {
 				}
 			}
 			if name != "" {
-				grpfolder := base + "/" + strconv.FormatInt(ctx.Event.GroupID, 36)
+				grpfolder := base + strconv.FormatInt(ctx.Event.GroupID, 36)
 				err := os.Remove(grpfolder + "/" + name)
 				if err == nil {
 					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功！"))

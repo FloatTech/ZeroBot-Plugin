@@ -43,10 +43,8 @@ func init() { // 插件主体
 			r := aireply.NewAIReply(getReplyMode(ctx))
 			// 获取回复的文本
 			reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
-			// 获取角色
-			name := tts.getSoundMode(ctx)
 			// 获取语音
-			record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(
+			record := message.Record(fmt.Sprintf(cnapi, tts.getSoundMode(ctx), url.QueryEscape(
 				// 将数字转文字
 				re.ReplaceAllStringFunc(reply, func(s string) string {
 					f, err := strconv.ParseFloat(s, 64)
@@ -81,12 +79,12 @@ func init() { // 插件主体
 			return
 		}
 		// 设置验证
-		name := tts.getSoundMode(ctx)
-		if _, ok := testRecord[name]; !ok {
+		i := tts.getSoundMode(ctx)
+		if _, ok := testRecord[soundList[i]]; !ok {
 			ctx.SendChain(message.Text("配置的语音人物数据丢失！请重新设置语音人物。"))
 			return
 		}
-		record := message.Record(fmt.Sprintf(cnapi, url.QueryEscape(name), url.QueryEscape(testRecord[name]))).Add("cache", 0)
+		record := message.Record(fmt.Sprintf(cnapi, i, url.QueryEscape(testRecord[soundList[i]]))).Add("cache", 0)
 		if ID := ctx.SendChain(record); ID.ID() == 0 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置失败！无法发送测试语音，请重试。"))
 			return
