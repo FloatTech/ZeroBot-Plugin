@@ -17,7 +17,6 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -80,7 +79,7 @@ func init() { // 插件主体
 	cachePath := engine.DataFolder() + "cache/"
 	err := os.MkdirAll(cachePath, 0777)
 	if err != nil {
-		logrus.Errorln(serviceErr, "ERROR:", err)
+		panic(serviceErr + "ERROR:" + err.Error())
 	}
 	// 获取用户的配置
 	cfgFile := engine.DataFolder() + "config.json"
@@ -90,11 +89,11 @@ func init() { // 插件主体
 			err = json.NewDecoder(reader).Decode(&cfg)
 		}
 		if err != nil {
-			logrus.Errorln(serviceErr, "ERROR:", err)
+			panic(serviceErr + "ERROR:" + err.Error())
 		}
 		err = reader.Close()
 		if err != nil {
-			logrus.Errorln(serviceErr, "ERROR:", err)
+			panic(serviceErr + "ERROR:" + err.Error())
 		}
 	} else {
 		cfg = config{ // 配置默认 config
@@ -109,12 +108,12 @@ func init() { // 插件主体
 		}
 		err = saveConfig(cfgFile)
 		if err != nil {
-			logrus.Errorln(serviceErr, "ERROR:", err)
+			panic(serviceErr + "ERROR:" + err.Error())
 		}
 	}
 	filelist, err = getlist(cfg.MusicPath)
 	if err != nil {
-		logrus.Errorln(serviceErr, "ERROR:", err)
+		panic(serviceErr + "ERROR:" + err.Error())
 	}
 	// 用户配置
 	engine.OnRegex(`^设置猜歌(歌库路径|默认歌单)\s*(.*)$`).SetBlock(true).
