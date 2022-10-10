@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	cnapi = "http://233366.proxy.nscc-gz.cn:8888?speaker=%s&text=%s"
+	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&id=%d&text=%s"
 	// testString     = "这是测试语音......"
 )
 
@@ -133,14 +133,14 @@ func (tts *ttsmode) setSoundMode(ctx *zero.Ctx, name string) error {
 	return m.SetData(gid, int64(i))
 }
 
-func (tts *ttsmode) getSoundMode(ctx *zero.Ctx) (name string) {
+func (tts *ttsmode) getSoundMode(ctx *zero.Ctx) (i int64) {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
 	tts.RLock()
 	defer tts.RUnlock()
-	return soundList[tts.mode[gid]]
+	return tts.mode[gid]
 }
 
 func (tts *ttsmode) resetSoundMode(ctx *zero.Ctx) {
