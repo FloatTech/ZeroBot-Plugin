@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/sirupsen/logrus"
 )
@@ -18,10 +19,22 @@ type context struct {
 func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 	defer wg.Done()
 	target := datapath + `materials/` + name
-	var err error
 	if file.IsNotExist(target) {
-		err = file.DownloadTo(`https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, target, true)
+		data, err := web.RequestDataWith(web.NewTLS12Client(), `https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, "GET", "gitcode.net", web.RandUA())
 		if err != nil {
+			_ = os.Remove(target)
+			exit(err)
+			return
+		}
+		f, err := os.Create(target)
+		if err != nil {
+			exit(err)
+			return
+		}
+		_, err = f.Write(data)
+		_ = f.Close()
+		if err != nil {
+			_ = os.Remove(target)
 			exit(err)
 			return
 		}
@@ -35,8 +48,19 @@ func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 func dlblock(name string) (string, error) {
 	target := datapath + `materials/` + name
 	if file.IsNotExist(target) {
-		err := file.DownloadTo(`https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, target, true)
+		data, err := web.RequestDataWith(web.NewTLS12Client(), `https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, "GET", "gitcode.net", web.RandUA())
 		if err != nil {
+			_ = os.Remove(target)
+			return "", err
+		}
+		f, err := os.Create(target)
+		if err != nil {
+			return "", err
+		}
+		_, err = f.Write(data)
+		_ = f.Close()
+		if err != nil {
+			_ = os.Remove(target)
 			return "", err
 		}
 		logrus.Debugln("[gif] dl", name, "to", target, "succeeded")

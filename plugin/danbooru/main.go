@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 
-	"github.com/FloatTech/AnimeAPI/danbooru"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -30,7 +29,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, url := range ctx.State["image_url"].([]string) {
-				t, err := danbooru.TagURL("", url)
+				t, err := tagurl("", url)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return

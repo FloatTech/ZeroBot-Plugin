@@ -3,6 +3,7 @@ package breakrepeat
 
 import (
 	"math/rand"
+	"strconv"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -10,53 +11,39 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
-const (
-	maxLimit = 3
-)
+const throttle = 3 // 不可超过 9
 
-type result struct {
-	Limit  int64
-	RawMsg string
-}
-
-var (
-	sm syncx.Map[int64, *result]
-)
+var sm syncx.Map[int64, string]
 
 func init() {
 	engine := control.Register("breakrepeat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "打断复读,打断3次以上复读\n",
+		Help:             "打断复读\n- 打断" + strconv.Itoa(throttle) + "次以上复读\n",
 	})
-	engine.On(`message/group`, zero.OnlyGroup).SetBlock(false).
+	engine.On("message/group", zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		return !zero.HasPicture(ctx)
+	}).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			raw := ctx.Event.RawMessage
-			if r, ok := sm.Load(gid); !ok || r.RawMsg != raw {
-				sm.Store(gid, &result{
-					Limit:  0,
-					RawMsg: raw,
-				})
+			r, ok := sm.Load(gid)
+			if !ok || len(r) <= 3 || r[3:] != raw {
+				sm.Store(gid, "0: "+raw)
 				return
 			}
-			if r, ok := sm.Load(gid); ok {
-				sm.Store(gid, &result{
-					Limit:  r.Limit + 1,
-					RawMsg: raw,
-				})
+			c := int(r[0] - '0')
+			if c < throttle {
+				sm.Store(gid, strconv.Itoa(c+1)+": "+raw)
+				return
 			}
-			if res, ok := sm.Load(gid); ok && res.Limit >= maxLimit {
-				r := []rune(res.RawMsg)
-				if len(r) > 2 {
-					rand.Shuffle(len(r), func(i, j int) {
-						r[i], r[j] = r[j], r[i]
-					})
-					ctx.Send(string(r))
-				}
-				sm.Store(gid, &result{
-					Limit:  0,
-					RawMsg: res.RawMsg,
+			sm.Delete(gid)
+			if len(r) > 5 {
+				ru := []rune(r[3:])
+				rand.Shuffle(len(ru), func(i, j int) {
+					ru[i], ru[j] = ru[j], ru[i]
 				})
+				r = string(ru)
 			}
+			ctx.Send(r)
 		})
 }
