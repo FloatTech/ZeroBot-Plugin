@@ -59,7 +59,7 @@ func init() { // 插件主体
 	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "AI画图\n" +
-			"基于百度文心的免费AI画图插件,\n因为是免费的\n" +
+			"基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +
 			"key申请链接：https://wenxin.baidu.com/moduleApi/key\n" +
 			"注意：每个apikey每日上限50次,总上限500次请求。次数超过了请自行更新apikey\n" +
 			"- 为[自己/本群/QQ号/群+群号]设置AI画图key [API Key] [Secret Key]\n" +
@@ -201,7 +201,6 @@ func init() { // 插件主体
 					break
 				}
 			}
-			i = 0
 			err = groupinfo.update(gid)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
