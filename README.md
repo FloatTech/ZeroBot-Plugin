@@ -1085,6 +1085,26 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>百度文心AI画图</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"`
+
+  - 基于百度文心的免费AI画图插件(因为是免费的,图片质量你懂的)
+
+  - key申请链接：https://wenxin.baidu.com/moduleApi/key
+
+  - [x] 为[自己/本群/QQ号/群+群号]设置AI画图key [API Key] [Secret Key]
+
+  - 例：“为10086设置AI画图key 123 456”；“为群10010设置AI画图key 789 101”
+
+  - [x] [bot名称]画几张[图片描述]的[图片类型][图片尺寸]
+
+  - 指令示例：
+
+  - 椛椛帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图
+
+</details>
+<details>
   <summary>月幕galgame图</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
