@@ -126,6 +126,8 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/baike"          //夸克百科
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/chehui"         //撤回插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/fangzhou"       //图片返回
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/huatu"          //AI画图
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jiami"          //兽语加密
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/jianbao"        //每日简报
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/tupian"         //图片返回
