@@ -54,7 +54,7 @@ func initializePush(dbpath string) *bilibilipushdb {
 }
 
 // insertOrUpdateLiveAndDynamic 插入或更新数据库
-func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]interface{}) (err error) {
+func (bdb *bilibilipushdb) insertOrUpdateLiveAndDynamic(bpMap map[string]any) (err error) {
 	db := (*gorm.DB)(bdb)
 	bp := bilibilipush{}
 	data, err := json.Marshal(&bpMap)

@@ -1,12 +1,9 @@
 package bilibili
 
 import (
-	"encoding/json"
-	"errors"
 	"os"
 
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	_ "github.com/fumiama/sqlite3" // use sql
 	"github.com/jinzhu/gorm"
@@ -91,33 +88,4 @@ func updateVup() error {
 		}
 	}
 	return nil
-}
-
-func setBilibiliCookie(cookie string) (err error) {
-	cfg = config{
-		BilibiliCookie: cookie,
-	}
-	return saveConfig(cfg)
-}
-
-func reflushBilibiliCookie() (err error) {
-	if file.IsNotExist(cfgFile) {
-		err = errors.New("未初始化配置")
-		return
-	}
-	reader, err := os.Open(cfgFile)
-	if err != nil {
-		return
-	}
-	defer reader.Close()
-	return json.NewDecoder(reader).Decode(&cfg)
-}
-
-func saveConfig(cfg config) (err error) {
-	reader, err := os.Create(cfgFile)
-	if err != nil {
-		return err
-	}
-	defer reader.Close()
-	return json.NewEncoder(reader).Encode(&cfg)
 }

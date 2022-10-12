@@ -69,7 +69,7 @@ func (gdb *ymgaldb) insertOrUpdateYmgalByID(id int64, title, pictureType, pictur
 			err = db.Model(&ymgal{}).Create(&y).Error // newUser not user
 		}
 	} else {
-		err = db.Model(&ymgal{}).Where("id = ? ", id).Update(map[string]interface{}{
+		err = db.Model(&ymgal{}).Where("id = ? ", id).Update(map[string]any{
 			"title":               title,
 			"picture_type":        pictureType,
 			"picture_description": pictureDescription,

@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -34,7 +35,7 @@ func init() {
 	en.OnRegex(`((b23|acg).tv|bili2233.cn)/[0-9a-zA-Z]+`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[0]
-			realurl, err := getrealurl("https://" + url)
+			realurl, err := bz.GetRealUrl("https://" + url)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -65,7 +66,7 @@ func handleVideo(ctx *zero.Ctx) {
 	if id == "" {
 		id = ctx.State["regex_matched"].([]string)[2]
 	}
-	card, err := getVideoInfo(id)
+	card, err := bz.GetVideoInfo(id)
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
@@ -88,7 +89,7 @@ func handleDynamic(ctx *zero.Ctx) {
 }
 
 func handleArticle(ctx *zero.Ctx) {
-	card, err := getArticleInfo(ctx.State["regex_matched"].([]string)[1])
+	card, err := bz.GetArticleInfo(ctx.State["regex_matched"].([]string)[1])
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
@@ -97,7 +98,7 @@ func handleArticle(ctx *zero.Ctx) {
 }
 
 func handleLive(ctx *zero.Ctx) {
-	card, err := getLiveRoomInfo(ctx.State["regex_matched"].([]string)[1])
+	card, err := bz.GetLiveRoomInfo(ctx.State["regex_matched"].([]string)[1])
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return

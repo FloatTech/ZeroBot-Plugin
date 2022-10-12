@@ -83,7 +83,7 @@ func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 		}
 	} else {
 		err = db.Model(&scoretable{}).Where("uid = ? ", uid).Update(
-			map[string]interface{}{
+			map[string]any{
 				"score": score,
 			}).Error
 	}
@@ -111,7 +111,7 @@ func (sdb *scoredb) InsertOrUpdateSignInCountByUID(uid int64, count int) (err er
 		}
 	} else {
 		err = db.Model(&signintable{}).Where("uid = ? ", uid).Update(
-			map[string]interface{}{
+			map[string]any{
 				"count": count,
 			}).Error
 	}
