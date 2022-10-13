@@ -96,7 +96,7 @@ func init() { // 插件主体
 				return
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			postURL := fmt.Sprintf(server+aipaintImg2ImgURL, token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20"))))
+			postURL := server + fmt.Sprintf(aipaintImg2ImgURL, token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20"))))
 
 			f, err := os.Open(c.headimgsdir[0])
 			if err != nil {
@@ -151,10 +151,12 @@ func sendAiImg(ctx *zero.Ctx, data []byte) {
 		loadData = predictRe.FindStringSubmatch(binary.BytesToString(data))[0]
 	}
 	var r result
-	err := json.Unmarshal(binary.StringToBytes(loadData), &r)
-	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
-		return
+	if loadData != "" {
+		err := json.Unmarshal(binary.StringToBytes(loadData), &r)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 	}
 	encodeStr := base64.StdEncoding.EncodeToString(data)
 	m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+encodeStr))}
