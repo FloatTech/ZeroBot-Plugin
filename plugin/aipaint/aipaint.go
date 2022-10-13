@@ -69,7 +69,7 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			args := ctx.State["args"].(string)
-			data, err := web.GetData(fmt.Sprintf(server+aipaintTxt2ImgURL, token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20")))))
+			data, err := web.GetData(server + fmt.Sprintf(aipaintTxt2ImgURL, token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20")))))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
