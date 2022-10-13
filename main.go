@@ -74,6 +74,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser"         // 三次元小姐姐
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"       // cp短打
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"      // DeepDanbooru二次元图标签识别
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/deepdanbooru"  // DeepDanbooru二次元图标签识别(deep版)
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"         // 嘉心糖发病
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"  // 漂流瓶
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"      // 合成emoji
