@@ -356,6 +356,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>支付宝到账语音</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"`
+
+  - [x] 支付宝到账 1
+
+</details>
+<details>
   <summary>base16384加解密</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"`
