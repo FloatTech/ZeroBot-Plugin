@@ -773,6 +773,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>日语听力学习材料</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"`
+
+  - [x] 随机日语听力
+  
+  - [x] 随机日语歌曲
+  
+  - [x] 日语听力 xxx
+  
+  - [x] 日语歌曲 xxx
+
+</details>
+<details>
   <summary>绝绝子</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"`
