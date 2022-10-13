@@ -147,7 +147,7 @@ func pushData(data []byte) (hash string, err error) {
 	if err != nil {
 		return
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 	hash = gjson.ParseBytes(data).Get("hash").String()
 	return
 }
