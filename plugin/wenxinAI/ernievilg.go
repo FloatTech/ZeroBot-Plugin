@@ -73,7 +73,7 @@ func init() { // 插件主体
 			"图片尺寸当前只支持：方图/长图/横图\n" +
 			"————————————————————\n" +
 			"指令示例：\n" +
-			"椛椛帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图",
+			"雪儿帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图",
 		PrivateDataFolder: "ernievilg",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -294,7 +294,7 @@ func (sql *keydb) checkGroup(gid int64) (groupinfo apikey, err error) {
 	// 先判断该群是否已经设置过key了
 	if ok := sql.db.CanFind("groupinfo", "where ID is "+strconv.FormatInt(gid, 10)); !ok {
 		if gid > 0 {
-			err = errors.New("该群没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为本群设置AI画图key [API Key] [Secret Key]")
+			err = errors.New("该群没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为本群设置AI画图key [API Key] [Secret Key]\n或者发送指令:\n为自己设置AI画图key [API Key] [Secret Key]")
 		} else {
 			err = errors.New("你没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为自己设置AI画图key [API Key] [Secret Key]")
 		}

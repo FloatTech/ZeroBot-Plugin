@@ -26,8 +26,8 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-// nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
+//nolint: asciicheck
 var (
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
@@ -335,9 +335,9 @@ func init() {
 			}
 			// 判断target是老公还是老婆
 			var choicetext string
-			userAID := uid     //攻的
-			var userBID int64  //被牛的
-			userCID := fiancee //受的
+			userAID := uid     // 攻的
+			var userBID int64  // 被牛的
+			userCID := fiancee // 受的
 			fianceeinfo, gender, err := 民政局.查户口(gid, userCID)
 			switch gender {
 			case "单":

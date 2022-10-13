@@ -1,4 +1,4 @@
-//Package chehui莲红cv的防撤回插件，自动转达给主人群内的撤回消息与闪照
+// Package chehui莲红cv的防撤回插件，自动转达给主人群内的撤回消息与闪照
 package chehui
 
 import (

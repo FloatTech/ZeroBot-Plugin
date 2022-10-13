@@ -735,7 +735,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 	if err != nil {
 		return
 	}
-	//如果本地列表为空
+	// 如果本地列表为空
 	if len(files) == 0 {
 		if playlistID == 0 || !cfg.API {
 			err = errors.New("本地歌单数据为0")
@@ -750,7 +750,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 	if playlistID == 0 || !cfg.API {
 		musicName = getLocalMusic(files)
 	} else {
-		switch rand.Intn(3) { //三分二概率抽取API的
+		switch rand.Intn(3) { // 三分二概率抽取API的
 		case 1:
 			musicName = getLocalMusic(files)
 		default:

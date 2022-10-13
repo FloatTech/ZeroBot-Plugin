@@ -1,4 +1,4 @@
-// Package huatu 百度文心AI画图
+/* Package huatu 百度文心AI画图
 package huatu
 
 import (
@@ -190,3 +190,4 @@ func init() {
 			ctx.SendChain(message.Text(token))
 		})
 }
+*/

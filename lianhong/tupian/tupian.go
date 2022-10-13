@@ -34,7 +34,7 @@ func init() {
 		})
 	engine.OnFullMatch("白丝").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.iw233.cn/api.php?sort=swbs")
+			data, err := web.GetData("http://api.iw233.cn/zhuanfasima.php?sort=swbs")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
@@ -43,7 +43,7 @@ func init() {
 		})
 	engine.OnFullMatch("黑丝").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.iw233.cn/api.php?sort=swhs")
+			data, err := web.GetData("http://api.iw233.cn/zhuanfasima.php?sort=swhs")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
@@ -88,7 +88,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"涩涩哒咩", "我要涩涩"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.iw233.cn/api.php?sort=st")
+			data, err := web.GetData("http://api.iw233.cn/zhuanfasima.php?sort=st")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
