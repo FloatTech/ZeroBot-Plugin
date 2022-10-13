@@ -530,6 +530,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>DeepDanbooru二次元图标签识别(新版)</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/deepdanbooru"`
+
+  - [x] 鉴图[图片]
+
+</details>
+<details>
   <summary>嘉然</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"`

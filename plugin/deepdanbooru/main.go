@@ -1,4 +1,4 @@
-// Package deepdanbooru 二次元图片标签识别(deep版)
+// Package deepdanbooru 二次元图片标签识别(新版)
 package deepdanbooru
 
 import (
@@ -19,7 +19,7 @@ import (
 func init() { // 插件主体
 	engine := control.Register("deepdanbooru", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "二次元图片标签识别(deep版)\n" +
+		Help: "二次元图片标签识别(新版)\n" +
 			"- 鉴图[图片]",
 		PrivateDataFolder: "deepdanbooru",
 	})
