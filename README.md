@@ -348,11 +348,37 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>ai绘图</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"`
+
+  - [x] [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx
+
+  - [x] [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]
+  
+  - [ ] 设置ai绘图配置 [server] [token]
+  
+  例1: 设置ai绘图配置 http://91.216.169.75:5010 abc
+
+  例2: 设置ai绘图配置 http://91.217.139.190:5010 abc
+
+  通过 http://91.217.139.190:5010/token 获取token
+
+</details>
+<details>
   <summary>AIWife</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
 
   - [x] waifu | 随机waifu(从[100000个AI生成的waifu](https://www.thiswaifudoesnotexist.net/)中随机一位)
+
+</details>
+<details>
+  <summary>支付宝到账语音</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"`
+
+  - [x] 支付宝到账 1
 
 </details>
 <details>
@@ -418,7 +444,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 查弹幕 [xxx] 2 (最后一个参数是页码)
 
-  - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31 (最好把cookie设全)
+  - [x] 设置b站cookie b_ut=7;buvid3=0;i-wanna-go-back=-1;innersign=0; (最好把cookie设全)
 
     获取Cookie可以使用[这个工具](https://github.com/XiaoMiku01/login_bili_go)
     
@@ -770,6 +796,20 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"`
 
   - [x] [查梗|小鸡词典][梗]
+
+</details>
+<details>
+  <summary>日语听力学习材料</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"`
+
+  - [x] 随机日语听力
+  
+  - [x] 随机日语歌曲
+  
+  - [x] 日语听力 xxx
+  
+  - [x] 日语歌曲 xxx
 
 </details>
 <details>
