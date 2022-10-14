@@ -46,7 +46,7 @@ func (s *sorttags) Swap(i, j int) {
 	s.tseq[j], s.tseq[i] = s.tseq[i], s.tseq[j]
 }
 
-func tagurl(name, u string) (im image.Image, err error) {
+func tagurl(name, u string) (im image.Image, st *sorttags, err error) {
 	ch := make(chan []byte, 1)
 	go func() {
 		var data []byte
@@ -72,7 +72,7 @@ func tagurl(name, u string) (im image.Image, err error) {
 	}
 	longestlen++
 
-	st := newsorttags(tags)
+	st = newsorttags(tags)
 	sort.Sort(st)
 
 	_, err = file.GetLazyData(text.BoldFontFile, true)
