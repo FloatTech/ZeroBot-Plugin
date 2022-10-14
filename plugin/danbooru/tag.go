@@ -59,7 +59,7 @@ func tagurl(name, u string) (im image.Image, err error) {
 		return
 	}
 	tags := make(map[string]float64)
-	err = json.Unmarshal(bytes.ReplaceAll(data, []byte("'"), []byte("\"")), &tags)
+	err = json.Unmarshal(data, &tags)
 	if err != nil {
 		return
 	}
