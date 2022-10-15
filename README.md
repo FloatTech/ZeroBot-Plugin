@@ -379,7 +379,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 查弹幕 [xxx] 2 (最后一个参数是页码)
 
-  - [x] 设置b站cookie SESSDATA=82da790d,1663822823,06ecf\*31 (最好把cookie设全)
+  - [x] 设置b站cookie b_ut=7;buvid3=0;i-wanna-go-back=-1;innersign=0; (最好把cookie设全)
 
     获取Cookie可以使用[这个工具](https://github.com/XiaoMiku01/login_bili_go)
     
