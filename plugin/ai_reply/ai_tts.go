@@ -13,7 +13,6 @@ import (
 
 const (
 	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&id=%d&text=%s"
-	// testString     = "这是测试语音......"
 )
 
 // 每个角色的测试文案
@@ -86,6 +85,51 @@ var (
 	}
 )
 
+/*************************************************************
+*******************************AIreply************************
+*************************************************************/
+func setReplyMode(ctx *zero.Ctx, name string) error {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	var ok bool
+	var index int64
+	for i, s := range replyModes {
+		if s == name {
+			ok = true
+			index = int64(i)
+			break
+		}
+	}
+	if !ok {
+		return errors.New("no such mode")
+	}
+	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	if !ok {
+		return errors.New("no such plugin")
+	}
+	return m.SetData(gid, index)
+}
+
+func getReplyMode(ctx *zero.Ctx) (name string) {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	if ok {
+		index := m.GetData(gid)
+		if int(index) < len(replyModes) {
+			return replyModes[index]
+		}
+	}
+	return "青云客"
+}
+
+/*************************************************************
+***********************tts************************************
+*************************************************************/
 type ttsmode struct {
 	sync.RWMutex
 	mode map[int64]int64
@@ -106,10 +150,16 @@ func list(list []string, num int) string {
 
 func newttsmode() *ttsmode {
 	tts := &ttsmode{}
+	tts.Lock()
+	defer tts.Unlock()
 	m, ok := control.Lookup(ttsServiceName)
-	tts.mode = make(map[int64]int64)
+	tts.mode = make(map[int64]int64, 2*len(soundList))
+	tts.mode[-2905] = 1
 	if ok {
-		tts.mode[-2905] = m.GetData(-2905)
+		index := m.GetData(-2905)
+		if index > 0 && index < int64(len(soundList)) {
+			tts.mode[-2905] = index
+		}
 	}
 	return tts
 }
@@ -119,52 +169,70 @@ func (tts *ttsmode) setSoundMode(ctx *zero.Ctx, name string) error {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	var i int
-	var s string
-	for i, s = range soundList {
+	var index int64
+	for i, s := range soundList {
 		if s == name {
+			index = int64(i + 1)
 			break
 		}
+	}
+	if index == 0 {
+		return errors.New("不支持设置语音人物" + name)
 	}
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	tts.Lock()
 	defer tts.Unlock()
-	tts.mode[gid] = int64(i)
-	return m.SetData(gid, int64(i))
+	tts.mode[gid] = index
+	return m.SetData(gid, index)
 }
 
-func (tts *ttsmode) getSoundMode(ctx *zero.Ctx) (i int64) {
-	gid := ctx.Event.GroupID
-	if gid == 0 {
-		gid = -ctx.Event.UserID
-	}
-	tts.RLock()
-	defer tts.RUnlock()
-	return tts.mode[gid]
-}
-
-func (tts *ttsmode) resetSoundMode(ctx *zero.Ctx) {
+func (tts *ttsmode) getSoundMode(ctx *zero.Ctx) int64 {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
 	tts.Lock()
 	defer tts.Unlock()
-	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	tts.mode[gid] = m.GetData(-2905)
+	i, ok := tts.mode[gid]
+	if !ok {
+		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		i = m.GetData(gid)
+	}
+	if i <= 0 || i >= int64(len(soundList)) {
+		i = tts.mode[-2905]
+	}
+	return i - 1
 }
 
-func setDefaultSoundMode(name string) error {
-	var i int
-	var s string
-	for i, s = range soundList {
+func (tts *ttsmode) resetSoundMode(ctx *zero.Ctx) error {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	tts.Lock()
+	defer tts.Unlock()
+	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	tts.mode[gid] = 0
+	return m.SetData(gid, 0) // 重置数据
+}
+
+func (tts *ttsmode) setDefaultSoundMode(name string) error {
+	var index int64
+	for i, s := range soundList {
 		if s == name {
+			index = int64(i + 1)
 			break
 		}
 	}
+	if index == 0 {
+		return errors.New("不支持设置语音人物" + name)
+	}
+	tts.Lock()
+	defer tts.Unlock()
 	m, ok := control.Lookup(ttsServiceName)
 	if !ok {
 		return errors.New("[tts] service not found")
 	}
-	return m.SetData(-2905, int64(i))
+	tts.mode[-2905] = index
+	return m.SetData(-2905, index)
 }

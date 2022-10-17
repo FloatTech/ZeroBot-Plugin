@@ -17,6 +17,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -45,12 +46,10 @@ func init() { // 插件主体
 		DisableOnDefault: false,
 		Help: "猜歌插件（该插件依赖ffmpeg）\n" +
 			"由于不可抗因素无法获取网易云歌单内容,\n插件改为本地猜歌了，但保留了下歌功能\n" +
-			"当前的API是独角兽的网易云API，只能从歌单随机抽取歌曲信息\n(也不知道这个API能活到什么时候x)\n" +
-			"修改了猜歌逻辑:\n可为本地目录添加网易云歌单,\n猜歌时会优先从API歌单中随机抽取歌曲并下载\n" +
 			"------bot主人指令------\n" +
 			"- 设置猜歌歌库路径 [绝对路径]\n" +
-			"- 猜歌[开启/关闭][歌单/歌词]自动下载\n" +
-			"- 添加歌单 [网易云歌单链接/ID] [歌单名称]\n" +
+			"-(指令仅歌词有效) 猜歌[开启/关闭][歌单/歌词]自动下载\n" +
+			"-(指令已失效) 添加歌单 [网易云歌单链接/ID] [歌单名称]\n" +
 			"- 下载歌曲 [歌曲名称/网易云歌曲ID] [歌单名称]\n" +
 			"- 删除歌单 [网易云歌单ID/歌单名称]\n" +
 			"注：\n删除网易云歌单ID仅只是解除绑定\n删除歌单名称是将本地数据全部删除，慎用\n" +
@@ -113,7 +112,7 @@ func init() { // 插件主体
 	}
 	filelist, err = getlist(cfg.MusicPath)
 	if err != nil {
-		panic(serviceErr + "ERROR:" + err.Error())
+		logrus.Errorln(serviceErr + "ERROR:" + err.Error())
 	}
 	// 用户配置
 	engine.OnRegex(`^设置猜歌(歌库路径|默认歌单)\s*(.*)$`).SetBlock(true).
