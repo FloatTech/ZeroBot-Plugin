@@ -24,7 +24,6 @@ import (
 type config struct {
 	IsDownload bool `json:"IsDownload"`
 }
-
 type result struct {
 	Pic []string `json:"pic"`
 }
