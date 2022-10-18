@@ -9,6 +9,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -131,9 +132,14 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
+			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			if id := ctx.SendChain(
 				message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n"),
-				message.Image(bed+reverse[p]+card.ImgURL),
+				message.ImageBytes(data),
 				message.Text("\n其释义为: ", description)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
@@ -156,9 +162,14 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
+			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			tarotMsg := message.Message{
 				message.Text(position[p], "的『", name, "』\n"),
-				message.Image(bed + reverse[p] + card.ImgURL),
+				message.ImageBytes(data),
 				message.Text("\n其释义为: ", description)}
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 		}
@@ -169,8 +180,13 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
 		if ok {
+			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+info.ImgURL, "GET", "gitcode.net", web.RandUA())
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			ctx.SendChain(
-				message.Image(bed+info.ImgURL),
+				message.ImageBytes(data),
 				message.Text("\n", match, "的含义是~"),
 				message.Text("\n『正位』:", info.Description),
 				message.Text("\n『逆位』:", info.ReverseDescription))
@@ -230,7 +246,12 @@ func init() {
 				if p == 1 {
 					description = card.ReverseDescription
 				}
-				tarotMsg := message.Message{message.Image(bed + reverse[p] + card.ImgURL)}
+				data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				tarotMsg := message.Message{message.ImageBytes(data)}
 				build.WriteString(info.Represent[0][i])
 				build.WriteString(":")
 				build.WriteString(position[p])
@@ -242,7 +263,7 @@ func init() {
 				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
 			}
 			txt := build.String()
-			formation, err := text.RenderToBase64(txt, text.FontFile, 400, 20)
+			formation, err := text.RenderToBase64(txt, text.FontFile, 600, 30)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
