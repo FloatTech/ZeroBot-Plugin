@@ -132,15 +132,21 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+			imgurl := bed + reverse[p] + card.ImgURL
+			tarotmsg := message.Message{message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n")}
+			id := ctx.SendPrivateMessage(ctx.Event.SelfID, message.Image(imgurl))
+			if id != 0 {
+				tarotmsg = append(tarotmsg, message.Image(imgurl))
+			} else {
+				imgbyte, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				tarotmsg = append(tarotmsg, message.ImageBytes(imgbyte))
 			}
-			if id := ctx.SendChain(
-				message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n"),
-				message.ImageBytes(data),
-				message.Text("\n其释义为: ", description)); id.ID() == 0 {
+			tarotmsg = append(tarotmsg, message.Text("\n其释义为: ", description))
+			if id = ctx.Send(tarotmsg).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			return
@@ -162,34 +168,48 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+			imgurl := bed + reverse[p] + card.ImgURL
+			tarotmsg := message.Message{message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n")}
+			id := ctx.SendPrivateMessage(ctx.Event.SelfID, message.Image(imgurl))
+			if id != 0 {
+				tarotmsg = append(tarotmsg, message.Image(imgurl))
+			} else {
+				imgbyte, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				tarotmsg = append(tarotmsg, message.ImageBytes(imgbyte))
 			}
-			tarotMsg := message.Message{
-				message.Text(position[p], "的『", name, "』\n"),
-				message.ImageBytes(data),
-				message.Text("\n其释义为: ", description)}
-			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
+			tarotmsg = append(tarotmsg, message.Text("\n其释义为: ", description))
+			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotmsg...)
 		}
-		ctx.Send(msg)
+		if id := ctx.Send(msg).ID(); id == 0 {
+			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+		}
 	})
 
 	engine.OnRegex(`^解塔罗牌\s?(.*)`, getTarot).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
 		if ok {
-			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+info.ImgURL, "GET", "gitcode.net", web.RandUA())
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+			imgurl := bed + info.ImgURL
+			id := ctx.SendPrivateMessage(ctx.Event.SelfID, message.Image(imgurl))
+			var msg message.Message
+			if id != 0 {
+				msg = append(msg, message.Image(imgurl))
+			} else {
+				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				msg = append(msg, message.ImageBytes(data))
 			}
-			ctx.SendChain(
-				message.ImageBytes(data),
-				message.Text("\n", match, "的含义是~"),
-				message.Text("\n『正位』:", info.Description),
-				message.Text("\n『逆位』:", info.ReverseDescription))
+			msg = append(msg, message.Text("\n", match, "的含义是~\n『正位』:", info.Description, "\n『逆位』:", info.ReverseDescription))
+			if id := ctx.Send(msg).ID(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		} else {
 			var build strings.Builder
 			build.WriteString("塔罗牌列表\n大阿尔卡纳:\n")
@@ -202,8 +222,8 @@ func init() {
 			txt := build.String()
 			cardList, err := text.RenderToBase64(txt, text.FontFile, 420, 20)
 			if err != nil {
-				ctx.SendChain(message.Text("没有找到", match, "噢~"))
 				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
 			ctx.SendChain(message.Text("没有找到", match, "噢~"), message.Image("base64://"+binary.BytesToString(cardList)))
 		}
@@ -246,12 +266,19 @@ func init() {
 				if p == 1 {
 					description = card.ReverseDescription
 				}
-				data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+				var tarotmsg message.Message
+				imgurl := bed + reverse[p] + card.ImgURL
+				id := ctx.SendPrivateMessage(ctx.Event.SelfID, message.Image(imgurl))
+				if id != 0 {
+					tarotmsg = append(tarotmsg, message.Image(imgurl))
+				} else {
+					data, err := web.RequestDataWith(web.NewTLS12Client(), bed+reverse[p]+card.ImgURL, "GET", "gitcode.net", web.RandUA())
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					tarotmsg = append(tarotmsg, message.ImageBytes(data))
 				}
-				tarotMsg := message.Message{message.ImageBytes(data)}
 				build.WriteString(info.Represent[0][i])
 				build.WriteString(":")
 				build.WriteString(position[p])
@@ -260,16 +287,18 @@ func init() {
 				build.WriteString("』\n其释义为: \n")
 				build.WriteString(description)
 				build.WriteString("\n")
-				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotMsg...)
+				msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotmsg...)
 			}
 			txt := build.String()
-			formation, err := text.RenderToBase64(txt, text.FontFile, 600, 30)
+			formation, err := text.RenderToBase64(txt, text.FontFile, 420, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, message.Message{message.Image("base64://" + binary.BytesToString(formation))}...)
-			ctx.Send(msg)
+			if id := ctx.Send(msg).ID(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: \n", strings.Join(formationName, "\n")))
 		}
