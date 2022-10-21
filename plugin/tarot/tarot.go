@@ -10,6 +10,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -142,7 +143,7 @@ func init() {
 			var imgmsg message.MessageSegment
 			var err error
 			if p == 1 {
-				imgmsg, err = poolimg(ctx, imgurl, reverse[p][len(reverse[p])-1:]+card.Name, cache)
+				imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+card.Name, cache)
 			} else {
 				imgmsg, err = poolimg(ctx, imgurl, card.Name, cache)
 			}
@@ -179,7 +180,7 @@ func init() {
 			var imgmsg message.MessageSegment
 			var err error
 			if p == 1 {
-				imgmsg, err = poolimg(ctx, imgurl, reverse[p][len(reverse[p])-1:]+card.Name, cache)
+				imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+card.Name, cache)
 			} else {
 				imgmsg, err = poolimg(ctx, imgurl, card.Name, cache)
 			}
@@ -273,7 +274,7 @@ func init() {
 				var imgmsg message.MessageSegment
 				var err error
 				if p == 1 {
-					imgmsg, err = poolimg(ctx, imgurl, reverse[p][len(reverse[p])-1:]+card.Name, cache)
+					imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+card.Name, cache)
 				} else {
 					imgmsg, err = poolimg(ctx, imgurl, card.Name, cache)
 				}
@@ -309,27 +310,35 @@ func init() {
 }
 
 func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
-	imgfile := cache + "/" + imgname
-	m, err := pool.GetImage(imgurl)
-	if err == nil {
+	imgfile := cache + "/" + imgname + ".png"
+	aimgfile := file.BOTPATH + "/" + imgfile
+	m, err := pool.GetImage(imgname)
+	if err != nil {
+		if file.IsNotExist(aimgfile) {
+			var f *os.File
+			f, err = os.Create(imgfile)
+			if err != nil {
+				return
+			}
+			var data []byte
+			data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+			if err != nil {
+				return
+			}
+			_ = f.Close()
+			err = os.WriteFile(f.Name(), data, 0755)
+			if err != nil {
+				return
+			}
+		}
+		m.SetFile(aimgfile)
+		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+		msg = message.Image("file:///" + aimgfile)
+	} else {
 		msg = message.Image(m.String())
-		return
+		if ctxext.SendToSelf(ctx)(msg) == 0 {
+			msg = msg.Add("cache", "0")
+		}
 	}
-	f, err := os.Create(imgfile)
-	if err != nil {
-		return
-	}
-	data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
-	if err != nil {
-		return
-	}
-	_ = f.Close()
-	err = os.WriteFile(f.Name(), data, 0755)
-	if err != nil {
-		return
-	}
-	m.SetFile(imgfile)
-	_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-	msg = message.Image("file:///" + imgfile)
-	return
+	return msg, nil
 }
