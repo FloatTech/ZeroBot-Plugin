@@ -41,12 +41,13 @@ type formation struct {
 }
 type cardSet = map[string]card
 
-var cardMap = make(cardSet, 80)
-var infoMap = make(map[string]cardInfo, 80)
-var formationMap = make(map[string]formation, 10)
-
-var majorArcanaName = make([]string, 0, 80)
-var formationName = make([]string, 0, 10)
+var (
+	cardMap         = make(cardSet, 80)
+	infoMap         = make(map[string]cardInfo, 80)
+	formationMap    = make(map[string]formation, 10)
+	majorArcanaName = make([]string, 0, 80)
+	formationName   = make([]string, 0, 10)
+)
 
 func init() {
 	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
@@ -313,32 +314,32 @@ func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageS
 	imgfile := cache + "/" + imgname + ".png"
 	aimgfile := file.BOTPATH + "/" + imgfile
 	m, err := pool.GetImage(imgname)
-	if err != nil {
-		if file.IsNotExist(aimgfile) {
-			var f *os.File
-			f, err = os.Create(imgfile)
-			if err != nil {
-				return
-			}
-			var data []byte
-			data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
-			if err != nil {
-				return
-			}
-			_ = f.Close()
-			err = os.WriteFile(f.Name(), data, 0755)
-			if err != nil {
-				return
-			}
-		}
-		m.SetFile(aimgfile)
-		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-		msg = message.Image("file:///" + aimgfile)
-	} else {
+	if err == nil {
 		msg = message.Image(m.String())
 		if ctxext.SendToSelf(ctx)(msg) == 0 {
 			msg = msg.Add("cache", "0")
 		}
+		return
 	}
-	return msg, nil
+	if file.IsNotExist(aimgfile) {
+		var data []byte
+		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+		if err != nil {
+			return
+		}
+		var f *os.File
+		f, err = os.Create(imgfile)
+		if err != nil {
+			return
+		}
+		defer f.Close()
+		err = os.WriteFile(f.Name(), data, 0755)
+		if err != nil {
+			return
+		}
+	}
+	m.SetFile(aimgfile)
+	_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+	msg = message.Image("file:///" + aimgfile)
+	return
 }
