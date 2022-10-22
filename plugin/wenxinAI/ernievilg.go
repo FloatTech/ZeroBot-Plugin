@@ -1,5 +1,5 @@
-// Package ernie AI画图
-package ernie
+// Package ernievilg AI画图
+package ernievilg
 
 import (
 	"errors"
@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	serviceName = "AIdraw"
+	serviceName = "ernieVilg"
 	serviceErr  = "[" + serviceName + "]ERROR:\n"
 )
 
@@ -46,6 +46,7 @@ type apikey struct {
 }
 
 var (
+	name      = "椛椛"
 	groupinfo = &keydb{
 		db: &sql.Sqlite{},
 	}
@@ -56,6 +57,11 @@ var (
 )
 
 func init() { // 插件主体
+	go func() {
+		process.GlobalInitMutex.Lock()
+		defer process.GlobalInitMutex.Unlock()
+		name = zero.BotConfig.NickName[0]
+	}()
 	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "AI画图\n" +
@@ -73,7 +79,7 @@ func init() { // 插件主体
 			"图片尺寸当前只支持：方图/长图/横图\n" +
 			"————————————————————\n" +
 			"指令示例：\n" +
-			"椛椛帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图",
+			name + "帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图",
 		PrivateDataFolder: "ernievilg",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -189,7 +195,8 @@ func init() { // 插件主体
 					return
 				}
 				if status == "0" {
-					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！"))}
+					lastTime := time.Duration(i * 10 * int(time.Second))
+					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
 					for _, imginfo := range picURL {
 						msg = append(msg,
 							ctxext.FakeSenderForwardNode(ctx,
