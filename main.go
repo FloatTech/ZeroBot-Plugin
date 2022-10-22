@@ -60,7 +60,9 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"         // ahsai tts
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_false"      // 服务器监控
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"       // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"        // 随机老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"   // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"           // base16384加解密
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"         // 百度一下
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/base64gua"     // base64卦加解密
@@ -86,12 +88,14 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"           // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"        // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"    // 猜歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/heisi"         // 黑丝
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"            // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"         // 百人一首
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"  // 关键字搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"        // 注入指令
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"        // 煎蛋网无聊图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"     // 小鸡词典
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"    // 日语听力学习材料
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      // 绝绝子生成器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 简易midi音乐制作
