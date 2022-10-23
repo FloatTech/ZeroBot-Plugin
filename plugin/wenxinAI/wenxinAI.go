@@ -1,5 +1,5 @@
-// Package ernievilg AI画图
-package ernievilg
+// Package ernie 百度文心AI
+package ernie
 
 import (
 	"errors"
@@ -19,13 +19,17 @@ import (
 
 	// 数据库
 	sql "github.com/FloatTech/sqlite"
+	// 百度文心大模型
+	model "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI/erniemodel"
 	// 百度文心AI画图API
 	wenxin "github.com/FloatTech/AnimeAPI/wenxinAI/ernievilg"
 )
 
 const (
-	serviceName = "ernieVilg"
+	serviceName = "wenxinvilg"
 	serviceErr  = "[" + serviceName + "]ERROR:\n"
+	modelName   = "wenxinmodel"
+	modelErr    = "[" + modelName + "]ERROR:\n"
 )
 
 type keydb struct {
@@ -46,11 +50,14 @@ type apikey struct {
 }
 
 var (
-	name      = "椛椛"
-	groupinfo = &keydb{
+	name     = "椛椛"
+	limit    int
+	vilginfo = &keydb{
 		db: &sql.Sqlite{},
 	}
-	limit = 50
+	modelinfo = &keydb{
+		db: &sql.Sqlite{},
+	}
 	dtype = [...]string{
 		"古风", "油画", "水彩画", "卡通画", "二次元", "浮世绘", "蒸汽波艺术", "low poly", "像素风格", "概念艺术", "未来主义", "赛博朋克", "写实风格", "洛丽塔风格", "巴洛克风格", "超现实主义",
 	}
@@ -64,12 +71,13 @@ func init() { // 插件主体
 	}()
 	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "AI画图\n" +
+		Help: "文心AI画图\n" +
 			"基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +
-			"key申请链接：https://wenxin.baidu.com/moduleApi/key\n" +
-			"注意：每个apikey每日上限50次,总上限500次请求。次数超过了请自行更新apikey\n" +
+			"key申请链接:https://wenxin.baidu.com/moduleApi/key\n" +
+			"key和erniemodel插件的key相同。\n" +
+			"注意:每个apikey每日上限50次,总上限500次请求。次数超过了请自行更新apikey\n" +
 			"- 为[自己/本群/QQ号/群+群号]设置AI画图key [API Key] [Secret Key]\n" +
-			"例：\n[为10086设置AI画图key 123 456]\n[为群10010设置AI画图key 789 101]\n" +
+			"例：\n为自己设置AI画图key 123 456\n为10086设置AI画图key 123 456\n为群10010设置AI画图key 789 101\n" +
 			"- [bot名称]画几张[图片描述]的[图片类型][图片尺寸]\n" +
 			"————————————————————\n" +
 			"图片描述指南:\n图片主体，细节词(请用逗号连接)\n官方prompt指南:https://wenxin.baidu.com/wenxin/docs#Ol7ece95m\n" +
@@ -93,8 +101,8 @@ func init() { // 插件主体
 		}),
 	))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		groupinfo.db.DBPath = engine.DataFolder() + "keydb.db"
-		err := groupinfo.db.Open(time.Hour * 24)
+		vilginfo.db.DBPath = engine.DataFolder() + "keydb.db"
+		err := vilginfo.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text(serviceErr, err))
 			return false
@@ -107,8 +115,8 @@ func init() { // 插件主体
 			uid := -ctx.Event.UserID
 			gid := ctx.Event.GroupID
 			// 获取个人和群的key
-			userinfo, err1 := groupinfo.checkGroup(uid)
-			info, err2 := groupinfo.checkGroup(gid)
+			userinfo, err1 := vilginfo.checkGroup(uid, "vilg")
+			info, err2 := vilginfo.checkGroup(gid, "vilg")
 			switch {
 			// 如果是个人请求且报错
 			case gid == 0 && err1 != nil:
@@ -208,7 +216,7 @@ func init() { // 插件主体
 					break
 				}
 			}
-			err = groupinfo.update(gid)
+			err = vilginfo.update(gid, 1)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}
@@ -245,17 +253,268 @@ func init() { // 插件主体
 				}
 				dbID = -uid
 			}
-			err := groupinfo.insert(dbID, aKey, sKey)
+			err := vilginfo.insert(dbID, "vilg", aKey, sKey)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
 			}
 			ctx.SendChain(message.Text("成功!"))
 		})
+	/*********************************************************/
+	en := control.Register(modelName, &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault: false,
+		Help: "文心AI文本处理\n" +
+			"基于百度文心AI的API文本处理\n" +
+			"key申请链接:https://wenxin.baidu.com/moduleApi/key\n" +
+			"key和ernievilg插件的key相同。\n" +
+			"注意:每个apikey每日上限200条,总上限2000条。次数超过了请自行更新apikey\n" +
+			"- 为[自己/本群/QQ号/群+群号]设置文心key [API Key] [Secret Key]\n" +
+			"例：\n为自己设置文心key 123 456\n为10086设置文心key 123 456\n为群10010设置文心key 789 101\n" +
+			"————————————————————\n" +
+			"- 文心作文 (x字的)[作文题目]\n" +
+			"————————————————————\n" +
+			"- 文心提案 (x字的)[文案标题]\n" +
+			"————————————————————\n" +
+			"- 文心摘要 (x字的)[文章内容]\n" +
+			"————————————————————\n" +
+			"- 文心小说 (x字的)[小说上文]" +
+			"————————————————————\n" +
+			"- 文心对联 [上联]\n" +
+			"————————————————————\n" +
+			"- 文心问答 [问题]" +
+			"————————————————————\n" +
+			"- 文心补全 [带“_”的填空题]" +
+			"————————————————————\n" +
+			"- 文心自定义 [prompt]\n" +
+			"prompt: [问题描述] [问题类型]:[题目] [解答类型]:[解题必带内容]\n" +
+			"指令示例:\n" +
+			"文心自定义 请写出下面这道题的解题过程。 题目:养殖场养鸭376只,养鸡的只数比鸭多258只,这个养殖场一共养鸭和鸡多少只？ 解：\n" +
+			"文心自定义 1+1=?\n" +
+			"文心自定义 歌曲名：大风车转啊转 歌词：",
+		PrivateDataFolder: "erniemodel",
+	}).ApplySingle(single.New(
+		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
+		single.WithPostFn[int64](func(ctx *zero.Ctx) {
+			ctx.Break()
+			ctx.Send(
+				message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text(zero.BotConfig.NickName[0], "正在给别人编辑，请不要打扰哦"),
+				),
+			)
+		}),
+	))
+	getmodeldb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		modelinfo.db.DBPath = en.DataFolder() + "modeldb.db"
+		err := modelinfo.db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text(modelErr, err))
+			return false
+		}
+		return true
+	})
+	en.OnRegex(`^为(群)?(自己|本群|\d+)设置文心key\s(.*[^\s$])\s(.+)$`, getmodeldb).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			mode := ctx.State["regex_matched"].([]string)[1]
+			user := ctx.State["regex_matched"].([]string)[2]
+			aKey := ctx.State["regex_matched"].([]string)[3]
+			sKey := ctx.State["regex_matched"].([]string)[4]
+			dbID := -ctx.Event.UserID // 默认给自己
+			switch {
+			case mode != "": // 指定群的话
+				gid, err := strconv.ParseInt(user, 10, 64)
+				if err != nil {
+					ctx.SendChain(message.Text(modelErr, err))
+					return
+				}
+				dbID = gid
+			case user == "本群": // 用于本群
+				gid := ctx.Event.GroupID
+				if gid == 0 {
+					ctx.SendChain(message.Text(modelErr, "请指定群聊，或者使用指令；\n为群xxx设置AI画图key xxx xxx"))
+					return
+				}
+				dbID = gid
+			case user != "自己": // 给别人开key
+				uid, err := strconv.ParseInt(user, 10, 64)
+				if err != nil {
+					ctx.SendChain(message.Text(modelErr, err))
+					return
+				}
+				dbID = -uid
+			}
+			err := modelinfo.insert(dbID, "model", aKey, sKey)
+			if err != nil {
+				ctx.SendChain(message.Text(modelErr, err))
+				return
+			}
+			ctx.SendChain(message.Text("成功!"))
+		})
+
+	var erniemodel = map[string]int{
+		"作文":  1,
+		"提案":  2,
+		"摘要":  3,
+		"对联":  4,
+		"问答":  5,
+		"小说":  6,
+		"补全":  7,
+		"自定义": 8}
+	var erniePrompt = map[string]string{
+		"作文": "zuowen",
+		"提案": "adtext",
+		"摘要": "Summarization",
+		"对联": "couplet",
+		"问答": "Dialogue",
+		"小说": "novel",
+		"补全": "cloze"}
+	en.OnRegex(`^文心(作文|提案|摘要|小说)\s?((\d+)字的)?(.*)$`, getmodeldb).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			uid := -ctx.Event.UserID
+			gid := ctx.Event.GroupID
+			// 获取个人和群的key
+			userinfo, err1 := modelinfo.checkGroup(uid, "model")
+			info, err2 := modelinfo.checkGroup(gid, "model")
+			switch {
+			// 如果是个人请求且报错
+			case gid == 0 && err1 != nil:
+				ctx.SendChain(message.Text(modelErr, err1))
+				return
+			// 如果群报错而个人没有,就切换成个人的
+			case err2 != nil && err1 == nil:
+				gid = uid
+				info = userinfo
+			// 如果都报错就以群为优先级
+			case err1 != nil && err2 != nil:
+				ctx.SendChain(message.Text(modelErr, err2))
+				return
+			}
+			// 判断使用次数
+			check := false
+			switch {
+			// 群和个人都没有次数了
+			case info.DayLimit == 0 && userinfo.DayLimit == 0:
+				ctx.SendChain(message.Text("今日请求次数已到200次了,明天在玩吧"))
+				return
+			// 个人还有次数的话
+			case info.DayLimit == 0 && userinfo.DayLimit != 0:
+				check = true
+			}
+			switch {
+			// 群和个人都没有总次数了
+			case info.MaxLimit == 0 && userinfo.MaxLimit == 0:
+				ctx.SendChain(message.Text("设置的key使用次数超过了限额,请更换key。"))
+				return
+			// 个人还有总次数的话
+			case info.MaxLimit == 0 && userinfo.MaxLimit != 0:
+				check = true
+			}
+			if check { // 如果只有个人有次数就切换回个人key
+				gid = uid
+				info = userinfo
+			}
+			// 调用API
+			modelStr := ctx.State["regex_matched"].([]string)[1]
+			mun := ctx.State["regex_matched"].([]string)[3]
+			minlen := 1
+			maxlen := 128
+			if mun != "" {
+				max, err := strconv.Atoi(mun)
+				if err != nil {
+					ctx.SendChain(message.Text(modelErr, err))
+					return
+				}
+				minlen = max
+				if max > 128 {
+					maxlen = max
+				}
+			}
+			keyword := ctx.State["regex_matched"].([]string)[4]
+			if len([]rune(keyword)) >= 1000 { // 描述不能超过1000
+				ctx.SendChain(message.Text("是你写作文还是我写？减少点！"))
+				return
+			}
+			result, err := model.GetResult(info.Token, erniemodel[modelStr], keyword, minlen, maxlen, erniePrompt[modelStr])
+			if err != nil {
+				ctx.SendChain(message.Text(modelErr, err))
+				return
+			}
+			if id := ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(keyword, "，", result))); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR: 请求超时!"))
+			}
+			err = modelinfo.update(gid, 1)
+			if err != nil {
+				ctx.SendChain(message.Text(modelErr, err))
+			}
+		})
+	en.OnRegex(`^文心(对联|问答|补全|自定义)\s?(.*)$`, getmodeldb).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			uid := -ctx.Event.UserID
+			gid := ctx.Event.GroupID
+			// 获取个人和群的key
+			userinfo, err1 := modelinfo.checkGroup(uid, "model")
+			info, err2 := modelinfo.checkGroup(gid, "model")
+			switch {
+			// 如果是个人请求且报错
+			case gid == 0 && err1 != nil:
+				ctx.SendChain(message.Text(modelErr, err1))
+				return
+			// 如果群报错而个人没有,就切换成个人的
+			case err2 != nil && err1 == nil:
+				gid = uid
+				info = userinfo
+			// 如果都报错就以群为优先级
+			case err1 != nil && err2 != nil:
+				ctx.SendChain(message.Text(modelErr, err2))
+				return
+			}
+			// 判断使用次数
+			check := false
+			switch {
+			// 群和个人都没有次数了
+			case info.DayLimit == 0 && userinfo.DayLimit == 0:
+				ctx.SendChain(message.Text("今日请求次数已到200次了,明天在玩吧"))
+				return
+			// 个人还有次数的话
+			case info.DayLimit == 0 && userinfo.DayLimit != 0:
+				check = true
+			}
+			switch {
+			// 群和个人都没有总次数了
+			case info.MaxLimit == 0 && userinfo.MaxLimit == 0:
+				ctx.SendChain(message.Text("设置的key使用次数超过了限额,请更换key。"))
+				return
+			// 个人还有总次数的话
+			case info.MaxLimit == 0 && userinfo.MaxLimit != 0:
+				check = true
+			}
+			if check { // 如果只有个人有次数就切换回个人key
+				gid = uid
+				info = userinfo
+			}
+			// 创建任务
+			modelStr := ctx.State["regex_matched"].([]string)[1]
+			keyword := ctx.State["regex_matched"].([]string)[2]
+			if len([]rune(keyword)) >= 1000 { // 描述不能超过1000
+				ctx.SendChain(message.Text("你在写作文吗？减少点！"))
+				return
+			}
+			result, err := model.GetResult(info.Token, erniemodel[modelStr], keyword, 1, 128, erniePrompt[modelStr])
+			if err != nil {
+				ctx.SendChain(message.Text(modelErr, err))
+				return
+			}
+			if id := ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(result))); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR: 请求超时!"))
+			}
+			err = modelinfo.update(gid, 1)
+			if err != nil {
+				ctx.SendChain(message.Text(modelErr, err))
+			}
+		})
 }
 
 // 登记group的key
-func (sql *keydb) insert(gid int64, akey, skey string) error {
+func (sql *keydb) insert(gid int64, model, akey, skey string) error {
 	sql.Lock()
 	defer sql.Unlock()
 	// 给db文件创建表格(没有才创建)，表格名称groupinfo，表格结构apikey
@@ -277,7 +536,12 @@ func (sql *keydb) insert(gid int64, akey, skey string) error {
 				ID:        gid,
 				APIKey:    akey,
 				SecretKey: skey,
-				MaxLimit:  500,
+			}
+			switch model {
+			case "vilg":
+				groupinfo.MaxLimit = 500
+			case "model":
+				groupinfo.MaxLimit = 2000
 			}
 		}
 		return sql.db.Insert("groupinfo", &groupinfo)
@@ -285,12 +549,19 @@ func (sql *keydb) insert(gid int64, akey, skey string) error {
 	// 进行更新
 	groupinfo.APIKey = akey
 	groupinfo.SecretKey = skey
-	groupinfo.MaxLimit = 500
+	groupinfo.Token = ""
+	groupinfo.Updatetime = 0
+	switch model {
+	case "vilg":
+		groupinfo.MaxLimit = 500
+	case "model":
+		groupinfo.MaxLimit = 2000
+	}
 	return sql.db.Insert("groupinfo", &groupinfo)
 }
 
 // 获取group信息
-func (sql *keydb) checkGroup(gid int64) (groupinfo apikey, err error) {
+func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err error) {
 	sql.Lock()
 	defer sql.Unlock()
 	// 给db文件创建表格(没有才创建)，表格名称groupinfo，表格结构apikey
@@ -312,6 +583,12 @@ func (sql *keydb) checkGroup(gid int64) (groupinfo apikey, err error) {
 	if err != nil {
 		return
 	}
+	switch model {
+	case "vilg":
+		limit = 50
+	case "model":
+		limit = 200
+	}
 	// 如果隔天使用刷新次数
 	if time.Now().Format("2006/01/02") != groupinfo.Lasttime {
 		groupinfo.DayLimit = limit
@@ -321,7 +598,7 @@ func (sql *keydb) checkGroup(gid int64) (groupinfo apikey, err error) {
 		return
 	}
 	// 如果token有效期过期
-	if time.Since(time.Unix(groupinfo.Updatetime, 0)).Hours() > 24 {
+	if time.Since(time.Unix(groupinfo.Updatetime, 0)).Hours() > 24 || groupinfo.Token == "" {
 		token, err1 := wenxin.GetToken(groupinfo.APIKey, groupinfo.SecretKey)
 		if err1 != nil {
 			err = err1
@@ -357,8 +634,8 @@ func (sql *keydb) checkGroup(gid int64) (groupinfo apikey, err error) {
 	return
 }
 
-// 记录次数(-1)
-func (sql *keydb) update(gid int64) error {
+// 记录次数(-sub)
+func (sql *keydb) update(gid int64, sub int) error {
 	sql.Lock()
 	defer sql.Unlock()
 	// 给db文件创建表格(没有才创建)，表格名称groupinfo，表格结构apikey
@@ -372,8 +649,8 @@ func (sql *keydb) update(gid int64) error {
 	if err != nil {
 		return err
 	}
-	groupinfo.MaxLimit--
-	groupinfo.DayLimit--
+	groupinfo.MaxLimit -= sub
+	groupinfo.DayLimit -= sub
 	err = sql.db.Insert("groupinfo", &groupinfo)
 	if err != nil {
 		return err
