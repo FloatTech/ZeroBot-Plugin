@@ -446,14 +446,14 @@ func loadConfig() {
 
 // 保存配置文件
 func jsonSave(v keyConfig, path string) {
-	file, _ := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	jsf, _ := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
 			fmt.Println(err)
 		}
-	}(file) // 结束时关闭句柄，释放资源
-	err := json.NewEncoder(file).Encode(v)
+	}(jsf) // 结束时关闭句柄，释放资源
+	err := json.NewEncoder(jsf).Encode(v)
 	if err != nil {
 		fmt.Println(err)
 	}
