@@ -152,7 +152,7 @@ func init() {
 					"-最大禁言时间:", group.MaxBANTimeAddRange, "分钟")
 				//fmt.Print(text)
 			}
-			b, err := text.RenderToBase64(tips, text.FontFile, 300, 20)
+			b, err := text.RenderToBase64(msgs, text.FontFile, 300, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
