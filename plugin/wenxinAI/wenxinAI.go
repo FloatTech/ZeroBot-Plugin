@@ -88,7 +88,7 @@ func init() { // 插件主体
 			"————————————————————\n" +
 			"指令示例：\n" +
 			name + "帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图",
-		PrivateDataFolder: serviceName,
+		PrivateDataFolder: "wenxinAI",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -101,7 +101,7 @@ func init() { // 插件主体
 		}),
 	))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		vilginfo.db.DBPath = engine.DataFolder() + "keydb.db"
+		vilginfo.db.DBPath = engine.DataFolder() + "ernieVilg.db"
 		err := vilginfo.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text(serviceErr, err))
@@ -291,7 +291,6 @@ func init() { // 插件主体
 			"文心自定义 请写出下面这道题的解题过程。 题目:养殖场养鸭376只,养鸡的只数比鸭多258只,这个养殖场一共养鸭和鸡多少只？ 解：\n" +
 			"文心自定义 1+1=?\n" +
 			"文心自定义 歌曲名：大风车转啊转 歌词：",
-		PrivateDataFolder: modelName,
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -304,7 +303,7 @@ func init() { // 插件主体
 		}),
 	))
 	getmodeldb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		modelinfo.db.DBPath = en.DataFolder() + "modeldb.db"
+		modelinfo.db.DBPath = engine.DataFolder() + "ernieModel.db"
 		err := modelinfo.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text(modelErr, err))
