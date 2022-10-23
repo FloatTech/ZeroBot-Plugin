@@ -1,5 +1,5 @@
-// Package baidu内容审核
-package baidu_audit
+// Package baiduaudit 百度内容审核
+package baiduaudit
 
 import (
 	"encoding/json"
@@ -90,6 +90,7 @@ func init() {
 			"- 开启/关闭撤回禁言\n" +
 			"##禁言时间设置## 禁言时间计算方式为：禁言次数*每次禁言累加时间,当达到最大禁言时间时，再次触发按最大禁言时间计算\n" +
 			"- 开启/关闭禁言累加\n" +
+			"- 设置撤回禁言时间[分钟，默认:1]\n" +
 			"- 设置最大禁言时间[分钟，默认:60,最大43200]\n" +
 			"- 设置每次累加时间[分钟，默认:1]\n" +
 			"##检测类型设置## 类型编号列表:[1:违禁违规、2:文本色情、3:敏感信息、4:恶意推广、5:低俗辱骂 6:恶意推广-联系方式、7:恶意推广-软文推广]\n" +
@@ -379,27 +380,26 @@ func getGroup(groupID int64) group {
 	//defer jsonSave(config, configPath)
 	if ok {
 		return g
-	} else { //如果没有群配置，则创建一个并返回
-		if config.Groups == nil {
-			config.Groups = make(map[int64]group)
-		}
-		g = group{
-			false,
-			true,
-			true,
-			false,
-			false,
-			false,
-			false,
-			1,
-			60,
-			1,
-			[8]bool{},
-			map[int64]auditHistory{},
-		}
-		config.Groups[groupID] = g
-		return g
 	}
+	if config.Groups == nil {
+		config.Groups = make(map[int64]group)
+	}
+	g = group{
+		false,
+		true,
+		true,
+		false,
+		false,
+		false,
+		false,
+		1,
+		60,
+		1,
+		[8]bool{},
+		map[int64]auditHistory{},
+	}
+	config.Groups[groupID] = g
+	return g
 }
 
 // 从群历史违规记录中获取用户
@@ -408,14 +408,14 @@ func (group group) getUsder(userID int64) auditHistory {
 	//defer jsonSave(config, configPath)
 	if ok {
 		return audit
-	} else { //如果没有用户，则创建一个并返回
-		if group.AuditHistory == nil {
-			group.AuditHistory = make(map[int64]auditHistory)
-		}
-		audit = auditHistory{0, []baiduRes{}}
-		group.AuditHistory[userID] = audit
-		return audit
 	}
+	//如果没有用户，则创建一个并返回
+	if group.AuditHistory == nil {
+		group.AuditHistory = make(map[int64]auditHistory)
+	}
+	audit = auditHistory{0, []baiduRes{}}
+	group.AuditHistory[userID] = audit
+	return audit
 }
 
 // 客户端是否初始化检测
