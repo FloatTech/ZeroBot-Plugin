@@ -165,7 +165,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text(serviceErr, "ERROR:\n", err))
 			}
 		})
-	engine.OnRegex(`^猜歌(开启|关闭)(歌单|歌词)自动下载`).SetBlock(true).
+	engine.OnRegex(`^猜歌(开启|关闭)(歌单|歌词)自动下载`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			swtich := ctx.State["regex_matched"].([]string)[1]
 			option := ctx.State["regex_matched"].([]string)[1]
