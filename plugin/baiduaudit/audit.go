@@ -67,7 +67,7 @@ type EnableMark bool
 
 // String 打印启用状态
 func (em EnableMark) String() string {
-	if bool(em) {
+	if em {
 		return "开启"
 	}
 	return "关闭"
