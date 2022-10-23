@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.2-0.20221015060924-fe2f85a3cf45
+	github.com/FloatTech/AnimeAPI v1.5.2-0.20221023084913-bd1ff35e91ed
 	github.com/FloatTech/floatbox v0.0.0-20221011153549-68005767c531
 	github.com/FloatTech/sqlite v0.5.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
