@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
@@ -54,8 +55,8 @@ func init() { // 插件主体
 			"- [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx\n" +
 			"- [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]\n" +
 			"- 设置ai绘图配置 [server] [token]\n" +
-			"例1: 设置ai绘图配置 http://91.216.169.75:5010 abc\n" +
-			"例2: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
+			"例: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
+			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010" +
 			"通过 http://91.217.139.190:5010/token 获取token",
 		PrivateDataFolder: "aipaint",
 	})
@@ -161,7 +162,13 @@ func sendAiImg(ctx *zero.Ctx, data []byte) {
 	encodeStr := base64.StdEncoding.EncodeToString(data)
 	m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+encodeStr))}
 	m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(r.String())))
-	if id := ctx.Send(m).ID(); id == 0 {
+	if mid := ctx.Send(m); mid.ID() == 0 {
 		ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
+	} else {
+		go func(i message.MessageID) {
+			time.Sleep(90 * time.Second)
+			ctx.DeleteMessage(i)
+		}(mid)
 	}
+
 }
