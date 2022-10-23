@@ -1,5 +1,5 @@
-// Package wenxinAI 百度文心AI
-package wenxinAI
+// Package wenxin 百度文心AI
+package wenxin
 
 import (
 	"errors"
