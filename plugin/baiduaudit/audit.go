@@ -47,18 +47,29 @@ type keyConfig struct {
 }
 
 type group struct {
-	Enable             bool                   //是否启用内容审核
-	TextAudit          bool                   //文本检测
-	ImageAudit         bool                   //图像检测
-	DMRemind           bool                   //撤回提示
-	MoreRemind         bool                   //详细违规提示
-	DMBAN              bool                   //撤回后禁言
-	BANTimeAddEnable   bool                   //禁言累加
+	Enable             EnableMark             //是否启用内容审核
+	TextAudit          EnableMark             //文本检测
+	ImageAudit         EnableMark             //图像检测
+	DMRemind           EnableMark             //撤回提示
+	MoreRemind         EnableMark             //详细违规提示
+	DMBAN              EnableMark             //撤回后禁言
+	BANTimeAddEnable   EnableMark             //禁言累加
 	BANTime            int64                  //标准禁言时间，禁用累加，但开启禁言的的情况下采用该值
 	MaxBANTimeAddRange int64                  //最大禁言时间累加范围，最高禁言时间
 	BANTimeAddTime     int64                  //禁言累加时间，该值是开启禁累加功能后，再次触发时，根据被禁次数X该值计算出的禁言时间
 	WhiteListType      [8]bool                //类型白名单，处于白名单类型的违规，不会被触发 0:含多种类型，具体看官方链接，1:违禁违规、2:文本色情、3:敏感信息、4:恶意推广、5:低俗辱骂 6:恶意推广-联系方式、7:恶意推广-软文推广
 	AuditHistory       map[int64]auditHistory //被封禁用户列表
+}
+
+// EnableMark 启用：●，禁用：○
+type EnableMark bool
+
+// String 打印启用状态
+func (em EnableMark) String() string {
+	if bool(em) {
+		return "开启"
+	}
+	return "关闭"
 }
 
 type auditHistory struct {
@@ -140,18 +151,17 @@ func init() {
 
 			} else {
 				//生成配置文本
-				msgs = fmt.Sprint(
-					"##本群配置##\n",
-					"内容审核:", btsln(group.Enable),
-					"-文本:", btsln(group.TextAudit),
-					"-图像:", btsln(group.ImageAudit),
-					"撤回提示:", btsln(group.DMRemind),
-					"-详细提示:"+btsln(group.MoreRemind),
-					"撤回禁言:", btsln(group.DMBAN),
-					"-禁言累加:", btsln(group.DMBAN),
-					"-撤回禁言时间:", group.BANTime, "分钟\n",
-					"-每次累加时间:", group.BANTimeAddTime, "分钟\n",
-					"-最大禁言时间:", group.MaxBANTimeAddRange, "分钟")
+				msgs = fmt.Sprintf("本群配置:\n"+
+					"内容审核:%s\n"+
+					"-文本:%s\n"+
+					"-图像:%s\n"+
+					"撤回提示:%s\n"+
+					"-详细提示:%s\n"+
+					"撤回禁言:%s\n"+
+					"-禁言累加:%s\n"+
+					"-撤回禁言时间:%v分钟\n"+
+					"-每次累加时间:%v分钟\n"+
+					"-最大禁言时间:%v分钟", group.Enable, group.TextAudit, group.ImageAudit, group.DMRemind, group.MoreRemind, group.DMBAN, group.BANTimeAddEnable, group.BANTime, group.BANTimeAddTime, group.MaxBANTimeAddRange)
 				//fmt.Print(text)
 			}
 			b, err := text.RenderToBase64(msgs, text.FontFile, 300, 20)
@@ -200,7 +210,7 @@ func init() {
 			defer jsonSave(config, configpath)
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k2 := ctx.State["regex_matched"].([]string)[2]
-			isEnable := false
+			isEnable := EnableMark(false)
 			group := getGroup(ctx.Event.GroupID)
 			if k1 == "开启" {
 				isEnable = true
@@ -224,7 +234,7 @@ func init() {
 			config.Groups[ctx.Event.GroupID] = group
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("本群%s已%s", k2, k1)))
 		})
-	engine.OnRegex("^配置BDAKey (.*) (.*)", zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^配置BDAKey\s*(.*)\s*(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k2 := ctx.State["regex_matched"].([]string)[2]
@@ -239,7 +249,7 @@ func init() {
 	engine.OnMessage().SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		group, ok := config.Groups[ctx.Event.GroupID]
 		//如果没该配置，或者审核功能未开启直接跳过
-		if !ok || !group.Enable {
+		if !ok || !bool(group.Enable) {
 			return
 		}
 		for _, elem := range ctx.Event.Message {
@@ -270,7 +280,7 @@ func init() {
 			}
 		}
 	})
-	engine.OnPrefix("^文本检测", clientCheck).SetBlock(false).
+	engine.OnPrefix("文本检测", clientCheck).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			if bdcli == nil {
 				ctx.SendChain(message.Text("Key未配置"))
