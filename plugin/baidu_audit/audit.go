@@ -65,8 +65,7 @@ type auditHistory struct {
 	ResList []baiduRes `json:"reslist"` //禁言原因
 }
 
-var engine *control.Engine
-var client *censor.ContentCensorClient //百度云审核服务Client
+var bdcli *censor.ContentCensorClient //百度云审核服务Client
 var typetext = [8]string{
 	0: "默认违禁词库",
 	1: "违禁违规",
@@ -107,7 +106,7 @@ func init() {
 	configpath = engine.DataFolder() + "config.json"
 	loadConfig()
 	if configinit {
-		client = censor.NewClient(config.Key1, config.Key2)
+		bdcli = censor.NewClient(config.Key1, config.Key2)
 	}
 	engine.OnFullMatch("获取BDAKey", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -227,10 +226,10 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k2 := ctx.State["regex_matched"].([]string)[2]
-			client = censor.NewClient(k1, k2)
+			bdcli = censor.NewClient(k1, k2)
 			config.Key1 = k1
 			config.Key2 = k2
-			if client != nil {
+			if bdcli != nil {
 				jsonSave(config, configpath)
 				ctx.SendChain(message.Text("配置成功"))
 			}
@@ -241,7 +240,7 @@ func init() {
 		if !ok || !group.Enable {
 			return
 		}
-		var urls = []string{}
+		var urls []string
 		//var texts = []string{}
 		for _, elem := range ctx.Event.Message {
 			switch elem.Type {
@@ -252,7 +251,7 @@ func init() {
 				if elem.Data["url"] != "" {
 					urls = append(urls, elem.Data["url"])
 				}
-				res := client.ImgCensorUrl(elem.Data["url"], nil)
+				res := bdcli.ImgCensorUrl(elem.Data["url"], nil)
 				bdres, err := jsonToBaiduRes(res)
 				if err != nil {
 					ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
@@ -265,9 +264,9 @@ func init() {
 					return
 				}
 				//texts = append(urls, elem.auditData["text"])
-				res := client.TextCensor(elem.Data["text"])
-				bdres, error := jsonToBaiduRes(res)
-				if error != nil {
+				res := bdcli.TextCensor(elem.Data["text"])
+				bdres, err := jsonToBaiduRes(res)
+				if err != nil {
 					ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
 					return
 				}
@@ -278,14 +277,14 @@ func init() {
 	})
 	engine.OnPrefix("^文本检测", clientCheck).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			if client == nil {
+			if bdcli == nil {
 				ctx.SendChain(message.Text("Key未配置"))
 				return
 			}
 			args := ctx.ExtractPlainText()
-			res := client.TextCensor(args)
-			bdres, error := jsonToBaiduRes(res)
-			if error != nil {
+			res := bdcli.TextCensor(args)
+			bdres, err := jsonToBaiduRes(res)
+			if err != nil {
 				ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
 				return
 			}
@@ -294,7 +293,7 @@ func init() {
 		})
 	engine.OnPrefix("^图像检测", clientCheck).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			var urls = []string{}
+			var urls []string
 			for _, elem := range ctx.Event.Message {
 				if elem.Type == "image" {
 					if elem.Data["url"] != "" {
@@ -302,10 +301,10 @@ func init() {
 					}
 				}
 			}
-			if len(urls) <= 0 {
+			if len(urls) == 0 {
 				return
 			}
-			res := client.ImgCensorUrl(urls[0], nil)
+			res := bdcli.ImgCensorUrl(urls[0], nil)
 			bdres, err := jsonToBaiduRes(res)
 			if err != nil {
 				ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
@@ -428,7 +427,7 @@ func (group group) getUsder(userID int64) auditHistory {
 
 // 客户端是否初始化检测
 func clientCheck(ctx *zero.Ctx) bool {
-	if client == nil {
+	if bdcli == nil {
 		ctx.SendChain(message.Text("Key未配置"))
 		return false
 	} else {
@@ -443,8 +442,10 @@ func loadConfig() {
 		if err != nil {
 			panic(err)
 		}
-		//err = json.Unmarshal(data, &config)
-		json.NewDecoder(data).Decode(&config)
+		err = json.NewDecoder(data).Decode(&config)
+		if err != nil {
+			panic(err)
+		}
 		configinit = true
 	} else {
 		config = keyConfig{}
@@ -469,23 +470,18 @@ func isExist(path string) bool {
 }
 
 // 保存配置文件
-func jsonSave(v keyConfig, path string) (bool, error) {
-	//data, err := json.Marshal(v)
-	//if err != nil {
-	//return false, err
-	//}
-	//dataStr := string(data)
-	// 将字符串写入指定的文件
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+func jsonSave(v keyConfig, path string) {
+	file, _ := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(file) // 结束时关闭句柄，释放资源
+	err := json.NewEncoder(file).Encode(v)
 	if err != nil {
-		return false, err
+		fmt.Println(err)
 	}
-	defer file.Close() // 结束时关闭句柄，释放资源
-	//writer := bufio.NewWriter(file)
-	json.NewEncoder(file).Encode(v)
-	//writer.WriteString(dataStr)
-	//writer.Flush() // 缓存数据写入磁盘（持久化）
-	return true, nil
 }
 
 // JSON反序列化
@@ -509,12 +505,12 @@ func buildResp(bdres baiduRes, group group) []message.MessageSegment {
 	for i, datum := range bdres.Data {
 		msgs = append(msgs, message.Text("[", i, "]:", datum.Msg, "\n"))
 		//检查命中词条是否大于0
-		if len(datum.Hits) <= 0 {
+		if len(datum.Hits) == 0 {
 			return msgs
 		}
 		//遍历打印命中的违规词条
 		for _, hit := range datum.Hits {
-			if len(datum.Hits) <= 0 {
+			if len(datum.Hits) == 0 {
 				return msgs
 			}
 			msgs = append(msgs, message.Text("("))
