@@ -327,13 +327,6 @@ var (
 	configpath string    //配置路径
 )
 
-func btsln(b bool) string {
-	if b {
-		return "开启\n"
-	}
-	return "关闭\n"
-}
-
 // 禁言检测
 func banCheck(ctx *zero.Ctx, bdres baiduRes) {
 	//如果返回类型为2（不合规），0为合规，3为疑似
