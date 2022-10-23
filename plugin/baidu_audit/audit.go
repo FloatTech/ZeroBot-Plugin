@@ -1,3 +1,4 @@
+// Package baidu内容审核
 package baidu_audit
 
 import (
@@ -17,7 +18,7 @@ import (
 // 服务网址:https://console.bce.baidu.com/ai/?_=1665977657185#/ai/antiporn/overview/index
 // 返回参数说明：https://cloud.baidu.com/doc/ANTIPORN/s/Nk3h6xbb2
 type baiduRes struct {
-	LogId          int         `json:"log_id"`         //请求唯一id
+	LogID          int         `json:"log_id"`         //请求唯一id
 	Conclusion     string      `json:"conclusion"`     //审核结果，可取值：合规、不合规、疑似、审核失败
 	ConclusionType int         `json:"conclusionType"` //审核结果类型，可取值1.合规，2.不合规，3.疑似，4.审核失败
 	Data           []auditData `json:"data"`
@@ -318,9 +319,8 @@ var (
 func btsln(b bool) string {
 	if b {
 		return "开启\n"
-	} else {
-		return "关闭\n"
 	}
+	return "关闭\n"
 }
 
 // 禁言检测
@@ -423,9 +423,8 @@ func clientCheck(ctx *zero.Ctx) bool {
 	if bdcli == nil {
 		ctx.SendChain(message.Text("Key未配置"))
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 // 加载JSON配置文件
