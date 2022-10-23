@@ -152,7 +152,7 @@ func init() {
 					"-最大禁言时间:", group.MaxBANTimeAddRange, "分钟")
 				//fmt.Print(text)
 			}
-			b, err := text.RenderToBase64(msgs, text.FontFile, 300, 20)
+			b, err := text.RenderToBase64(tips, text.FontFile, 300, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -240,16 +240,11 @@ func init() {
 		if !ok || !group.Enable {
 			return
 		}
-		var urls []string
-		//var texts = []string{}
 		for _, elem := range ctx.Event.Message {
 			switch elem.Type {
 			case "image":
 				if !group.ImageAudit {
 					return
-				}
-				if elem.Data["url"] != "" {
-					urls = append(urls, elem.Data["url"])
 				}
 				res := bdcli.ImgCensorUrl(elem.Data["url"], nil)
 				bdres, err := jsonToBaiduRes(res)
@@ -263,7 +258,6 @@ func init() {
 				if !group.TextAudit {
 					return
 				}
-				//texts = append(urls, elem.auditData["text"])
 				res := bdcli.TextCensor(elem.Data["text"])
 				bdres, err := jsonToBaiduRes(res)
 				if err != nil {
@@ -272,7 +266,6 @@ func init() {
 				}
 				banCheck(ctx, bdres)
 			}
-			//fmt.Println(urls, texts)
 		}
 	})
 	engine.OnPrefix("^文本检测", clientCheck).SetBlock(false).
@@ -494,7 +487,7 @@ func jsonToBaiduRes(resjson string) (baiduRes, error) {
 // 生成回复文本
 func buildResp(bdres baiduRes, group group) []message.MessageSegment {
 	//建立消息段
-	var msgs []message.MessageSegment
+	msgs := make([]message.MessageSegment, 0, 8)
 	//生成简略审核结果回复
 	msgs = append(msgs, message.Text(bdres.Conclusion, "\n"))
 	//查看是否开启详细审核内容提示，并确定审核内容值为疑似，或者不合规
