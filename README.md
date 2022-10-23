@@ -1141,9 +1141,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"`
 
-  - 基于百度文心API的一些功能
+  基于百度文心API的一些功能
 
-  - key申请链接：https://wenxin.baidu.com/moduleApi/key
+  key申请链接：https://wenxin.baidu.com/moduleApi/key
   
   - [x] 为[自己/本群/QQ号/群+群号]设置文心key [API Key] [Secret Key]
   
