@@ -1,12 +1,13 @@
 package baidu_audit
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/Baidu-AIP/golang-sdk/aip/censor"
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"os"
@@ -15,33 +16,36 @@ import (
 
 // 服务网址:https://console.bce.baidu.com/ai/?_=1665977657185#/ai/antiporn/overview/index
 // 返回参数说明：https://cloud.baidu.com/doc/ANTIPORN/s/Nk3h6xbb2
-type BaiduRes struct {
-	LogId          int    `json:"log_id"`         //请求唯一id
+type baiduRes struct {
+	LogId          int         `json:"log_id"`         //请求唯一id
+	Conclusion     string      `json:"conclusion"`     //审核结果，可取值：合规、不合规、疑似、审核失败
+	ConclusionType int         `json:"conclusionType"` //审核结果类型，可取值1.合规，2.不合规，3.疑似，4.审核失败
+	Data           []auditData `json:"data"`
+	ErrorCode      int         `json:"error_code"` //错误提示码，失败才返回，成功不返回
+	ErrorMsg       string      `json:"error_msg"`  //错误提示信息，失败才返回，成功不返回
+}
+
+type auditData struct {
+	Type           int    `json:"type"`           //审核主类型，11：百度官方违禁词库、12：文本反作弊、13:自定义文本黑名单、14:自定义文本白名单
+	SubType        int    `json:"subType"`        //审核子类型，0:含多种类型，具体看官方链接，1:违禁违规、2:文本色情、3:敏感信息、4:恶意推广、5:低俗辱骂 6:恶意推广-联系方式、7:恶意推广-软文推广
 	Conclusion     string `json:"conclusion"`     //审核结果，可取值：合规、不合规、疑似、审核失败
 	ConclusionType int    `json:"conclusionType"` //审核结果类型，可取值1.合规，2.不合规，3.疑似，4.审核失败
-	Data           []struct {
-		Type           int    `json:"type"`           //审核主类型，11：百度官方违禁词库、12：文本反作弊、13:自定义文本黑名单、14:自定义文本白名单
-		SubType        int    `json:"subType"`        //审核子类型，0:含多种类型，具体看官方链接，1:违禁违规、2:文本色情、3:敏感信息、4:恶意推广、5:低俗辱骂 6:恶意推广-联系方式、7:恶意推广-软文推广
-		Conclusion     string `json:"conclusion"`     //审核结果，可取值：合规、不合规、疑似、审核失败
-		ConclusionType int    `json:"conclusionType"` //审核结果类型，可取值1.合规，2.不合规，3.疑似，4.审核失败
-		Msg            string `json:"msg"`            //不合规项描述信息
-		Hits           []struct {
-			DatasetName string   `json:"datasetName"`           //违规项目所属数据集名称
-			Words       []string `json:"words"`                 //送检文本命中词库的关键词（备注：建议参考新字段“wordHitPositions”，包含信息更丰富：关键词以及对应的位置及标签信息）
-			Probability float64  `json:"probability,omitempty"` //不合规项置信度
-		} `json:"hits"` //	送检文本违规原因的详细信息
-	} `json:"data"` //不合规/疑似/命中白名单项详细信息。响应成功并且conclusion为疑似或不合规或命中白名单时才返回，响应失败或conclusion为合规且未命中白名单时不返回。
-	ErrorCode int    `json:"error_code"` //错误提示码，失败才返回，成功不返回
-	ErrorMsg  string `json:"error_msg"`  //错误提示信息，失败才返回，成功不返回
-}
+	Msg            string `json:"msg"`            //不合规项描述信息
+	Hits           []hit  `json:"hits"`
+} //不合规/疑似/命中白名单项详细信息。响应成功并且conclusion为疑似或不合规或命中白名单时才返回，响应失败或conclusion为合规且未命中白名单时不返回。
 
-type KeyConfig struct {
+type hit struct {
+	DatasetName string   `json:"datasetName"`           //违规项目所属数据集名称
+	Words       []string `json:"words"`                 //送检文本命中词库的关键词（备注：建议参考新字段“wordHitPositions”，包含信息更丰富：关键词以及对应的位置及标签信息）
+	Probability float64  `json:"probability,omitempty"` //不合规项置信度
+} //	送检文本违规原因的详细信息
+type keyConfig struct {
 	Key1   string          `json:"key1"`   //百度云服务内容审核key存储
 	Key2   string          `json:"key2"`   //百度云服务内容审核key存储
-	Groups map[int64]Group `json:"groups"` //群配置存储
+	Groups map[int64]group `json:"groups"` //群配置存储
 }
 
-type Group struct {
+type group struct {
 	Enable             bool                   //是否启用内容审核
 	TextAudit          bool                   //文本检测
 	ImageAudit         bool                   //图像检测
@@ -53,12 +57,12 @@ type Group struct {
 	MaxBANTimeAddRange int64                  //最大禁言时间累加范围，最高禁言时间
 	BANTimeAddTime     int64                  //禁言累加时间，该值是开启禁累加功能后，再次触发时，根据被禁次数X该值计算出的禁言时间
 	WhiteListType      [8]bool                //类型白名单，处于白名单类型的违规，不会被触发 0:含多种类型，具体看官方链接，1:违禁违规、2:文本色情、3:敏感信息、4:恶意推广、5:低俗辱骂 6:恶意推广-联系方式、7:恶意推广-软文推广
-	AuditHistory       map[int64]AuditHistory //被封禁用户列表
+	AuditHistory       map[int64]auditHistory //被封禁用户列表
 }
 
-type AuditHistory struct {
+type auditHistory struct {
 	Count   int64      `json:"key2"`    //被禁次数
-	ResList []BaiduRes `json:"reslist"` //禁言原因
+	ResList []baiduRes `json:"reslist"` //禁言原因
 }
 
 var engine *control.Engine
@@ -98,14 +102,14 @@ func init() {
 			"##测试功能##\n" +
 			"- 测试文本检测[文本内容]\n" +
 			"- 测试图像检测[图片]\n",
-		PrivateDataFolder: "baidu_audit",
+		PrivateDataFolder: "baiduaudit",
 	})
-	configPath = engine.DataFolder() + "config.json"
-	LoadConfig()
+	configpath = engine.DataFolder() + "config.json"
+	loadConfig()
 	if configinit {
 		client = censor.NewClient(config.Key1, config.Key2)
 	}
-	engine.OnRegex("获取BDAKey", zero.SuperUserPermission).SetBlock(true).
+	engine.OnFullMatch("获取BDAKey", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("接口key创建网址:\n" +
 				"https://console.bce.baidu.com/ai/?_=1665977657185#/ai/antiporn/overview/index\n" +
@@ -113,49 +117,55 @@ func init() {
 				"https://console.bce.baidu.com/ai/?_=1665977657185#/ai/antiporn/overview/resource/getFree"))
 		})
 
-	engine.OnRegex("^查看检测(类型|配置)$", zero.AdminPermission, ClientCheck).SetBlock(true).
+	engine.OnRegex("^查看检测(类型|配置)$", zero.AdminPermission, clientCheck).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			//获取群配置
-			group := GetGroup(ctx.Event.GroupID)
-			var msgs = []message.MessageSegment{}
+			group := getGroup(ctx.Event.GroupID)
+			var msgs string
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			if k1 == "类型" {
-				msgs = append(msgs, message.Text("本群检测类型:\n"))
+				msgs += "本群检测类型:"
 				find := false
 				//遍历群检测类型名单
 				for i, v := range group.WhiteListType {
 					if !v {
 						find = true
-						msgs = append(msgs, message.Text(i, ".", typetext[i]+"\n"))
+						msgs += fmt.Sprint("\n", i, ".", typetext[i])
 					}
 				}
 				if !find {
-					msgs = append(msgs, message.Text("无"))
+					msgs += "无"
 				}
+
 			} else {
 				//生成配置文本
-				text := fmt.Sprint(
+				msgs = fmt.Sprint(
 					"##本群配置##\n",
-					"内容审核:", BTSL(group.Enable),
-					"-文本:", BTSL(group.TextAudit),
-					"-图像:", BTSL(group.ImageAudit),
-					"撤回提示:", BTSL(group.DMRemind),
-					"-详细提示:"+BTSL(group.MoreRemind),
-					"撤回禁言:", BTSL(group.DMBAN),
-					"-禁言累加:", BTSL(group.DMBAN),
+					"内容审核:", btsln(group.Enable),
+					"-文本:", btsln(group.TextAudit),
+					"-图像:", btsln(group.ImageAudit),
+					"撤回提示:", btsln(group.DMRemind),
+					"-详细提示:"+btsln(group.MoreRemind),
+					"撤回禁言:", btsln(group.DMBAN),
+					"-禁言累加:", btsln(group.DMBAN),
+					"-撤回禁言时间:", group.BANTime, "分钟\n",
 					"-每次累加时间:", group.BANTimeAddTime, "分钟\n",
 					"-最大禁言时间:", group.MaxBANTimeAddRange, "分钟")
 				//fmt.Print(text)
-				msgs = append(msgs, message.Text(text))
 			}
-			ctx.SendChain(msgs...)
+			b, err := text.RenderToBase64(msgs, text.FontFile, 300, 20)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
 		})
-	engine.OnRegex("^设置(不?)检测类型([01234567])$", zero.AdminPermission, ClientCheck).SetBlock(true).
+	engine.OnRegex("^设置(不?)检测类型([01234567])$", zero.AdminPermission, clientCheck).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			defer JsonSave(config, configPath)
+			defer jsonSave(config, configpath)
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k2 := ctx.State["regex_matched"].([]string)[2]
-			group := GetGroup(ctx.Event.GroupID)
+			group := getGroup(ctx.Event.GroupID)
 			inputType, _ := strconv.Atoi(k2)
 			if k1 == "不" {
 				group.WhiteListType[inputType] = true //不检测：则进入类型白名单
@@ -165,31 +175,32 @@ func init() {
 			config.Groups[ctx.Event.GroupID] = group
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("本群将%s检测%s类型内容", k1, typetext[inputType])))
 		})
-	engine.OnRegex("^设置(最大|每次)(累加|禁言)时间(\\d{1,5})$", zero.AdminPermission, ClientCheck).SetBlock(true).
+	engine.OnRegex("^设置(最大|每次|撤回)(累加|禁言)时间(\\d{1,5})$", zero.AdminPermission, clientCheck).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			defer JsonSave(config, configPath)
+			defer jsonSave(config, configpath)
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k3 := ctx.State["regex_matched"].([]string)[3]
-			group := GetGroup(ctx.Event.GroupID)
+			group := getGroup(ctx.Event.GroupID)
 			time, _ := strconv.ParseInt(k1, 10, 64)
 
 			switch k1 {
 			case "最大":
 				group.MaxBANTimeAddRange = time
-
 			case "每次":
 				group.BANTimeAddTime = time
+			case "撤回":
+				group.BANTime = time
 			}
 			config.Groups[ctx.Event.GroupID] = group
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("本群%s禁言累加时间已设置为%s", k3, k1)))
 		})
-	engine.OnRegex("^(开启|关闭)(内容审核|撤回提示|撤回禁言|禁言累加|详细提示|文本检测|图像检测)$", zero.AdminPermission, ClientCheck).SetBlock(true).
+	engine.OnRegex("^(开启|关闭)(内容审核|撤回提示|撤回禁言|禁言累加|详细提示|文本检测|图像检测)$", zero.AdminPermission, clientCheck).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			defer JsonSave(config, configPath)
+			defer jsonSave(config, configpath)
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k2 := ctx.State["regex_matched"].([]string)[2]
 			isEnable := false
-			group := GetGroup(ctx.Event.GroupID)
+			group := getGroup(ctx.Event.GroupID)
 			if k1 == "开启" {
 				isEnable = true
 			}
@@ -220,54 +231,52 @@ func init() {
 			config.Key1 = k1
 			config.Key2 = k2
 			if client != nil {
-				JsonSave(config, configPath)
+				jsonSave(config, configpath)
 				ctx.SendChain(message.Text("配置成功"))
 			}
 		})
 	engine.OnMessage().SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		group, ok := config.Groups[ctx.Event.GroupID]
-		if ok {
-			if group.Enable {
-				var urls = []string{}
-				//var texts = []string{}
-				for _, elem := range ctx.Event.Message {
-					switch elem.Type {
-					case "image":
-						if !group.ImageAudit {
-							return
-						}
-						if elem.Data["url"] != "" {
-							urls = append(urls, elem.Data["url"])
-						}
-						res := client.ImgCensorUrl(elem.Data["url"], nil)
-						bdres, err := JsonToBaiduRes(res)
-						if err != nil {
-							ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
-							return
-						}
-						BANCheck(ctx, bdres)
-
-					case "text":
-						if !group.TextAudit {
-							return
-						}
-						//texts = append(urls, elem.Data["text"])
-						res := client.TextCensor(elem.Data["text"])
-						bdres, error := JsonToBaiduRes(res)
-						if error != nil {
-							ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
-							return
-						}
-						BANCheck(ctx, bdres)
-					}
-					//fmt.Println(urls, texts)
+		//如果没该配置，或者审核功能未开启直接跳过
+		if !ok || !group.Enable {
+			return
+		}
+		var urls = []string{}
+		//var texts = []string{}
+		for _, elem := range ctx.Event.Message {
+			switch elem.Type {
+			case "image":
+				if !group.ImageAudit {
+					return
 				}
+				if elem.Data["url"] != "" {
+					urls = append(urls, elem.Data["url"])
+				}
+				res := client.ImgCensorUrl(elem.Data["url"], nil)
+				bdres, err := jsonToBaiduRes(res)
+				if err != nil {
+					ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
+					return
+				}
+				banCheck(ctx, bdres)
 
+			case "text":
+				if !group.TextAudit {
+					return
+				}
+				//texts = append(urls, elem.auditData["text"])
+				res := client.TextCensor(elem.Data["text"])
+				bdres, error := jsonToBaiduRes(res)
+				if error != nil {
+					ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
+					return
+				}
+				banCheck(ctx, bdres)
 			}
-
+			//fmt.Println(urls, texts)
 		}
 	})
-	engine.OnPrefix("^文本检测", ClientCheck).SetBlock(false).
+	engine.OnPrefix("^文本检测", clientCheck).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			if client == nil {
 				ctx.SendChain(message.Text("Key未配置"))
@@ -275,15 +284,15 @@ func init() {
 			}
 			args := ctx.ExtractPlainText()
 			res := client.TextCensor(args)
-			bdres, error := JsonToBaiduRes(res)
+			bdres, error := jsonToBaiduRes(res)
 			if error != nil {
 				ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
 				return
 			}
-			group := GetGroup(ctx.Event.GroupID)
-			ctx.SendChain(BuildResp(bdres, group)...)
+			group := getGroup(ctx.Event.GroupID)
+			ctx.SendChain(buildResp(bdres, group)...)
 		})
-	engine.OnPrefix("^图像检测", ClientCheck).SetBlock(false).
+	engine.OnPrefix("^图像检测", clientCheck).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			var urls = []string{}
 			for _, elem := range ctx.Event.Message {
@@ -293,33 +302,28 @@ func init() {
 					}
 				}
 			}
-			if len(urls) > 0 {
-				res := client.ImgCensorUrl(urls[0], nil)
-				bdres, err := JsonToBaiduRes(res)
-				if err != nil {
-					ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
-					return
-				}
-				group := GetGroup(ctx.Event.GroupID)
-				ctx.SendChain(BuildResp(bdres, group)...)
+			if len(urls) <= 0 {
+				return
 			}
+			res := client.ImgCensorUrl(urls[0], nil)
+			bdres, err := jsonToBaiduRes(res)
+			if err != nil {
+				ctx.SendChain(message.Text("Error:", bdres.ErrorMsg, "(", bdres.ErrorCode, ")"))
+				return
+			}
+			group := getGroup(ctx.Event.GroupID)
+			ctx.SendChain(buildResp(bdres, group)...)
+
 		})
 }
 
 var (
-	configPath string    //插件配置保存路径
-	config     KeyConfig //插件配置
+	config     keyConfig //插件配置
 	configinit bool      //配置初始化
+	configpath string    //配置路径
 )
 
-func BTS(b bool) string {
-	if b {
-		return "开启"
-	} else {
-		return "关闭"
-	}
-}
-func BTSL(b bool) string {
+func btsln(b bool) string {
 	if b {
 		return "开启\n"
 	} else {
@@ -328,13 +332,13 @@ func BTSL(b bool) string {
 }
 
 // 禁言检测
-func BANCheck(ctx *zero.Ctx, bdres BaiduRes) {
+func banCheck(ctx *zero.Ctx, bdres baiduRes) {
 	//如果返回类型为2（不合规），0为合规，3为疑似
 	if bdres.ConclusionType == 2 {
 		//创建消息ID
 		mid := message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))
 		//获取群配置
-		group := GetGroup(ctx.Event.GroupID)
+		group := getGroup(ctx.Event.GroupID)
 		//检测群配置里的不检测类型白名单，忽略掉不检测的违规类型
 		for i, b := range group.WhiteListType {
 			if i == bdres.Data[0].SubType && b {
@@ -342,13 +346,13 @@ func BANCheck(ctx *zero.Ctx, bdres BaiduRes) {
 			}
 		}
 		//生成回复文本
-		res := BuildResp(bdres, group)
+		res := buildResp(bdres, group)
 		//撤回消息
 		ctx.DeleteMessage(mid)
 		//查看是否启用撤回后禁言
 		if group.DMBAN {
 			//从历史违规记录中获取指定用户
-			user := group.GetUsder(ctx.Event.UserID)
+			user := group.getUsder(ctx.Event.UserID)
 			//用户违规次数自增
 			user.Count++
 			//用户违规原因记录
@@ -358,13 +362,13 @@ func BANCheck(ctx *zero.Ctx, bdres BaiduRes) {
 			//覆写该群信息
 			config.Groups[ctx.Event.GroupID] = group
 			//保存到json
-			JsonSave(config, configPath)
+			jsonSave(config, configpath)
 			var bantime int64
 			//查看是否开启禁言累加功能，并计算禁言时间
 			if group.BANTimeAddEnable {
 				bantime = user.Count * group.BANTimeAddTime * 60
 			} else {
-				bantime = group.BANTime
+				bantime = group.BANTime * 60
 			}
 			//执行禁言
 			ctx.SetGroupBan(ctx.Event.GroupID, ctx.Event.UserID, bantime)
@@ -378,39 +382,52 @@ func BANCheck(ctx *zero.Ctx, bdres BaiduRes) {
 }
 
 // 获取群配置
-func GetGroup(groupID int64) Group {
-	group, ok := config.Groups[groupID]
-	//defer JsonSave(config, configPath)
+func getGroup(groupID int64) group {
+	g, ok := config.Groups[groupID]
+	//defer jsonSave(config, configPath)
 	if ok {
-		return group
+		return g
 	} else { //如果没有群配置，则创建一个并返回
 		if config.Groups == nil {
-			config.Groups = make(map[int64]Group)
+			config.Groups = make(map[int64]group)
 		}
-		group = Group{false, true, true, false, false, false, false, 1, 60, 1, [8]bool{}, map[int64]AuditHistory{}}
-		config.Groups[groupID] = group
-		return group
+		g = group{
+			false,
+			true,
+			true,
+			false,
+			false,
+			false,
+			false,
+			1,
+			60,
+			1,
+			[8]bool{},
+			map[int64]auditHistory{},
+		}
+		config.Groups[groupID] = g
+		return g
 	}
 }
 
 // 从群历史违规记录中获取用户
-func (group Group) GetUsder(userID int64) AuditHistory {
+func (group group) getUsder(userID int64) auditHistory {
 	audit, ok := group.AuditHistory[userID]
-	//defer JsonSave(config, configPath)
+	//defer jsonSave(config, configPath)
 	if ok {
 		return audit
 	} else { //如果没有用户，则创建一个并返回
 		if group.AuditHistory == nil {
-			group.AuditHistory = make(map[int64]AuditHistory)
+			group.AuditHistory = make(map[int64]auditHistory)
 		}
-		audit = AuditHistory{0, []BaiduRes{}}
+		audit = auditHistory{0, []baiduRes{}}
 		group.AuditHistory[userID] = audit
 		return audit
 	}
 }
 
 // 客户端是否初始化检测
-func ClientCheck(ctx *zero.Ctx) bool {
+func clientCheck(ctx *zero.Ctx) bool {
 	if client == nil {
 		ctx.SendChain(message.Text("Key未配置"))
 		return false
@@ -420,19 +437,17 @@ func ClientCheck(ctx *zero.Ctx) bool {
 }
 
 // 加载JSON配置文件
-func LoadConfig() {
-	if isExist(configPath) {
-		data, err := os.ReadFile(configPath)
+func loadConfig() {
+	if isExist(configpath) {
+		data, err := os.OpenFile(configpath, os.O_RDONLY, 0755)
 		if err != nil {
 			panic(err)
 		}
-		err = json.Unmarshal(data, &config)
-		if err != nil {
-			panic(err)
-		}
+		//err = json.Unmarshal(data, &config)
+		json.NewDecoder(data).Decode(&config)
 		configinit = true
 	} else {
-		config = KeyConfig{}
+		config = keyConfig{}
 		configinit = false
 	}
 }
@@ -454,60 +469,64 @@ func isExist(path string) bool {
 }
 
 // 保存配置文件
-func JsonSave(v interface{}, path string) (bool, error) {
-	data, err := json.Marshal(v)
-	if err != nil {
-		return false, err
-	}
-	dataStr := string(data)
+func jsonSave(v keyConfig, path string) (bool, error) {
+	//data, err := json.Marshal(v)
+	//if err != nil {
+	//return false, err
+	//}
+	//dataStr := string(data)
 	// 将字符串写入指定的文件
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return false, err
 	}
 	defer file.Close() // 结束时关闭句柄，释放资源
-	writer := bufio.NewWriter(file)
-	writer.WriteString(dataStr)
-	writer.Flush() // 缓存数据写入磁盘（持久化）
+	//writer := bufio.NewWriter(file)
+	json.NewEncoder(file).Encode(v)
+	//writer.WriteString(dataStr)
+	//writer.Flush() // 缓存数据写入磁盘（持久化）
 	return true, nil
 }
 
 // JSON反序列化
-func JsonToBaiduRes(resjson string) (BaiduRes, error) {
-	var bdres BaiduRes
-	err := json.Unmarshal([]byte(resjson), &bdres)
+func jsonToBaiduRes(resjson string) (baiduRes, error) {
+	var bdres baiduRes
+	err := json.Unmarshal(binary.StringToBytes(resjson), &bdres)
 	return bdres, err
 }
 
 // 生成回复文本
-func BuildResp(bdres BaiduRes, group Group) []message.MessageSegment {
+func buildResp(bdres baiduRes, group group) []message.MessageSegment {
 	//建立消息段
 	var msgs []message.MessageSegment
 	//生成简略审核结果回复
 	msgs = append(msgs, message.Text(bdres.Conclusion, "\n"))
 	//查看是否开启详细审核内容提示，并确定审核内容值为疑似，或者不合规
-	if bdres.ConclusionType != 1 && group.MoreRemind {
-		//遍历返回的不合规数据，生成详细违规内容
-		for i, datum := range bdres.Data {
-			msgs = append(msgs, message.Text("[", i, "]:", datum.Msg, "\n"))
-			//检查命中词条是否大于0
-			if len(datum.Hits) > 0 {
-				//遍历打印命中的违规词条
-				for _, hit := range datum.Hits {
-					if len(hit.Words) > 0 {
-						msgs = append(msgs, message.Text("("))
-						for i4, i3 := range hit.Words {
-							//检查是否是最后一个要打印的词条，如果是则不加上逗号
-							if i4 != len(hit.Words)-1 {
-								msgs = append(msgs, message.Text(i3, ","))
-							} else {
-								msgs = append(msgs, message.Text(i3))
-							}
-						}
-						msgs = append(msgs, message.Text(")"))
-					}
+	if !group.MoreRemind {
+		return msgs
+	}
+	//遍历返回的不合规数据，生成详细违规内容
+	for i, datum := range bdres.Data {
+		msgs = append(msgs, message.Text("[", i, "]:", datum.Msg, "\n"))
+		//检查命中词条是否大于0
+		if len(datum.Hits) <= 0 {
+			return msgs
+		}
+		//遍历打印命中的违规词条
+		for _, hit := range datum.Hits {
+			if len(datum.Hits) <= 0 {
+				return msgs
+			}
+			msgs = append(msgs, message.Text("("))
+			for i4, i3 := range hit.Words {
+				//检查是否是最后一个要打印的词条，如果是则不加上逗号
+				if i4 != len(hit.Words)-1 {
+					msgs = append(msgs, message.Text(i3, ","))
+				} else {
+					msgs = append(msgs, message.Text(i3))
 				}
 			}
+			msgs = append(msgs, message.Text(")"))
 		}
 	}
 	return msgs
