@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Baidu-AIP/golang-sdk/aip/censor"
 	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
@@ -171,7 +172,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
 		})
-	engine.OnRegex("^设置(不?)检测类型([01234567])$", zero.AdminPermission, clientCheck).SetBlock(true).
+	engine.OnRegex("^设置(不)?检测类型([01234567])$", zero.AdminPermission, clientCheck).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			defer jsonSave(config, configpath)
 			k1 := ctx.State["regex_matched"].([]string)[1]
@@ -401,7 +402,7 @@ func getGroup(groupID int64) group {
 }
 
 // 从群历史违规记录中获取用户
-func (group group) getUsder(userID int64) auditHistory {
+func (group *group) getUsder(userID int64) auditHistory {
 	audit, ok := group.AuditHistory[userID]
 	//defer jsonSave(config, configPath)
 	if ok {
@@ -427,7 +428,7 @@ func clientCheck(ctx *zero.Ctx) bool {
 
 // 加载JSON配置文件
 func loadConfig() {
-	if isExist(configpath) {
+	if file.IsExist(configpath) {
 		data, err := os.OpenFile(configpath, os.O_RDONLY, 0755)
 		if err != nil {
 			panic(err)
@@ -441,22 +442,6 @@ func loadConfig() {
 		config = keyConfig{}
 		configinit = false
 	}
-}
-
-// 文件是否存在
-func isExist(path string) bool {
-	_, err := os.Stat(path)
-	if err != nil {
-		if os.IsExist(err) {
-			return true
-		}
-		if os.IsNotExist(err) {
-			return false
-		}
-		fmt.Println(err)
-		return false
-	}
-	return true
 }
 
 // 保存配置文件
