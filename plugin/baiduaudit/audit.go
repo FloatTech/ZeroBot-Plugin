@@ -385,18 +385,13 @@ func getGroup(groupID int64) group {
 		config.Groups = make(map[int64]group)
 	}
 	g = group{
-		false,
-		true,
-		true,
-		false,
-		false,
-		false,
-		false,
-		1,
-		60,
-		1,
-		[8]bool{},
-		map[int64]auditHistory{},
+		TextAudit:          true,
+		ImageAudit:         true,
+		BANTime:            1,
+		MaxBANTimeAddRange: 60,
+		BANTimeAddTime:     1,
+		WhiteListType:      [8]bool{},
+		AuditHistory:       map[int64]auditHistory{},
 	}
 	config.Groups[groupID] = g
 	return g
