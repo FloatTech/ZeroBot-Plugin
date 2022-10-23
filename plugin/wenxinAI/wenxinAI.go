@@ -20,7 +20,7 @@ import (
 	// 数据库
 	sql "github.com/FloatTech/sqlite"
 	// 百度文心大模型
-	model "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI/erniemodel"
+	model "github.com/FloatTech/AnimeAPI/wenxinAI/erniemodel"
 	// 百度文心AI画图API
 	wenxin "github.com/FloatTech/AnimeAPI/wenxinAI/ernievilg"
 )
@@ -76,8 +76,8 @@ func init() { // 插件主体
 			"key申请链接:https://wenxin.baidu.com/moduleApi/key\n" +
 			"key和erniemodel插件的key相同。\n" +
 			"注意:每个apikey每日上限50次,总上限500次请求。次数超过了请自行更新apikey\n" +
-			"- 为[自己/本群/QQ号/群+群号]设置AI画图key [API Key] [Secret Key]\n" +
-			"例：\n为自己设置AI画图key 123 456\n为10086设置AI画图key 123 456\n为群10010设置AI画图key 789 101\n" +
+			"- 为[自己/本群/QQ号/群+群号]设置画图key [API Key] [Secret Key]\n" +
+			"例：\n为自己设置画图key 123 456\n为10086设置画图key 123 456\n为群10010设置画图key 789 101\n" +
 			"- [bot名称]画几张[图片描述]的[图片类型][图片尺寸]\n" +
 			"————————————————————\n" +
 			"图片描述指南:\n图片主体，细节词(请用逗号连接)\n官方prompt指南:https://wenxin.baidu.com/wenxin/docs#Ol7ece95m\n" +
@@ -223,7 +223,7 @@ func init() { // 插件主体
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text("累死了，今天我最多只能画", info.DayLimit-1, "张图哦"))
 		})
-	engine.OnRegex(`^为(群)?(自己|本群|\d+)设置AI画图key\s(.*[^\s$])\s(.+)$`, getdb).SetBlock(true).
+	engine.OnRegex(`^为(群)?(自己|本群|\d+)设置画图key\s(.*[^\s$])\s(.+)$`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			mode := ctx.State["regex_matched"].([]string)[1]
 			user := ctx.State["regex_matched"].([]string)[2]
@@ -569,12 +569,20 @@ func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err err
 	if err != nil {
 		return
 	}
+	switch model {
+	case "vilg":
+		limit = 50
+		model = "画图"
+	case "model":
+		limit = 200
+		model = "文心"
+	}
 	// 先判断该群是否已经设置过key了
 	if ok := sql.db.CanFind("groupinfo", "where ID is "+strconv.FormatInt(gid, 10)); !ok {
 		if gid > 0 {
-			err = errors.New("该群没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为本群设置AI画图key [API Key] [Secret Key]")
+			err = errors.New("该群没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为本群设置" + model + "key [API Key] [Secret Key]\n或\n为自己设置" + model + "key [API Key] [Secret Key]")
 		} else {
-			err = errors.New("你没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为自己设置AI画图key [API Key] [Secret Key]")
+			err = errors.New("你没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为自己设置" + model + "key [API Key] [Secret Key]")
 		}
 		return
 	}
@@ -582,12 +590,6 @@ func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err err
 	err = sql.db.Find("groupinfo", &groupinfo, "where ID is "+strconv.FormatInt(gid, 10))
 	if err != nil {
 		return
-	}
-	switch model {
-	case "vilg":
-		limit = 50
-	case "model":
-		limit = 200
 	}
 	// 如果隔天使用刷新次数
 	if time.Now().Format("2006/01/02") != groupinfo.Lasttime {
