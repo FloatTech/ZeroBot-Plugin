@@ -356,11 +356,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]
   
-  - [ ] 设置ai绘图配置 [server] [token]
+  - [x] 设置ai绘图配置 [server] [token]
   
-  例1: 设置ai绘图配置 http://91.216.169.75:5010 abc
+  例: 设置ai绘图配置 http://91.216.169.75:5010 abc
 
-  例2: 设置ai绘图配置 http://91.217.139.190:5010 abc
+  参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010
 
   通过 http://91.217.139.190:5010/token 获取token
 
@@ -962,6 +962,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"`
 
   - [x] 日语语法 [xxx] (使用tag随机)
+  
+  - [x] 搜索日语语法 [xxx]
 
 </details>
 <details>

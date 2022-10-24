@@ -12,15 +12,16 @@ import (
 )
 
 const (
-	chpURL          = "https://api.shadiao.app/chp"
-	duURL           = "https://api.shadiao.app/du"
-	pyqURL          = "https://api.shadiao.app/pyq"
+	shadiaoURL      = "https://api.shadiao.pro"
+	chpURL          = shadiaoURL + "/chp"
+	duURL           = shadiaoURL + "/du"
+	pyqURL          = shadiaoURL + "/pyq"
 	yduanziURL      = "http://www.yduanzi.com/duanzi/getduanzi"
 	chayiURL        = "https://api.lovelive.tools/api/SweetNothings/Web/0"
 	ganhaiURL       = "https://api.lovelive.tools/api/SweetNothings/Web/1"
 	ergofabulousURL = "https://ergofabulous.org/luther/?"
 	ua              = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
-	sdReferer       = "https://api.shadiao.app/"
+	sdReferer       = shadiaoURL
 	yduanziReferer  = "http://www.yduanzi.com/?utm_source=shadiao.app"
 	loveliveReferer = "https://lovelive.tools/"
 )
