@@ -26,7 +26,7 @@
   | [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |
   | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
   | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
-  
+
 </div>
 
 > 如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文件或前往 [Packages](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp) 页面使用`docker`，运行后按提示登录即可。
@@ -402,6 +402,51 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 百度下[xxx]
 
+</details>
+<details>
+  <summary>百度内容审核</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baiduaudit"`
+
+  - [x] 获取BDAkey
+
+  - [x] 配置BDAKey [API Key] [Secret Key]
+
+  - [x] 获取BDAkey
+
+  - [x] [开启|关闭]内容审核
+
+  - [x] [开启|关闭]撤回提示
+
+  - [x] [开启|关闭]详细提示
+
+  - [x] [开启|关闭]撤回禁言
+
+  - [x] [开启|关闭]禁言累加
+
+  - [x] [开启|关闭]文本检测
+
+  - [x] [开启|关闭]图像检测
+
+  - [x] 设置最大禁言时间[分钟，默认:60,最大43200]
+
+  - [x] 设置每次累加时间[分钟，默认:1]
+
+  - [x] 设置撤回禁言时间[分钟，默认:1]
+
+  - [x] 查看检测类型
+
+  - [x] 查看检测配置
+
+  - [x] 测试文本检测[文本内容]
+
+  - [x] 测试图像检测[图片]
+
+  - [x] 设置检测类型[类型编号]
+
+  - [x] 设置不检测类型[类型编号]
+
+    检测类型编号列表:[1:违禁违规|2:文本色情|3:敏感信息|4:恶意推广|5:低俗辱骂|6:恶意推广-联系方式|7:恶意推广-软文推广]
 </details>
 <details>
   <summary>base64卦加解密</summary>
@@ -1245,9 +1290,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] @Bot 任意文本(任意一句话回复)
 
   - [x] 设置回复模式[青云客 | 小爱]
-
 </details>
-
 ## 三种使用方法，推荐第一种
 
 ### 1. 使用稳定版/测试版 (推荐)

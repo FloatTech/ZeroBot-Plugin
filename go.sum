@@ -1,3 +1,5 @@
+github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhvrx4cw=
+github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/Coloured-glaze/gg v1.3.4 h1:l31zIF/HaVwkzjrj+A56RGQoSKyKuR1IWtIrqXGFStI=
 github.com/Coloured-glaze/gg v1.3.4/go.mod h1:Ih5NLNNDHOy3RJbB0EPqGTreIzq/H02TGThIagh8HJg=
