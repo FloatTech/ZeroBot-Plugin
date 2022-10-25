@@ -138,6 +138,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/qinghua"        // 每日情话
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/tupian"         // 图片返回
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yiyan"          // 每日一言
+	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/test"          // 测试
 	_ "github.com/FloatTech/ZeroBot-Plugin/lianhong/yuanshen/zixun" // 原神咨询
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf" // 鬼东西
