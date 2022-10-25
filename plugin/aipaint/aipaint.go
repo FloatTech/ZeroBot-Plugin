@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
@@ -52,11 +53,15 @@ func init() { // 插件主体
 		DisableOnDefault: false,
 		Help: "ai绘图\n" +
 			"- [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx\n" +
+			"- [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] [prompt]" +
 			"- [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]\n" +
 			"- 设置ai绘图配置 [server] [token]\n" +
-			"例1: 设置ai绘图配置 http://91.216.169.75:5010 abc\n" +
-			"例2: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
-			"通过 http://91.217.139.190:5010/token 获取token",
+			"例: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
+			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010" +
+			"通过 http://91.217.139.190:5010/token 获取token\n" +
+			"[prompt]参数如下\n" +
+			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子" +
+			"参数与参数内容用:连接,每个参数之间用回车或者&分割",
 		PrivateDataFolder: "aipaint",
 	})
 	datapath = file.BOTPATH + "/" + engine.DataFolder()
@@ -133,6 +138,56 @@ func init() { // 插件主体
 			}
 			sendAiImg(ctx, data)
 		})
+	engine.OnPrefixGroup([]string{`ai高级绘图`, `高级生成色图`, `高级生成涩图`, `ai高级画图`}).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			server, token, err := cfg.load()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			tags := make(map[string]string)
+			args := strings.Split(ctx.State["args"].(string), "\n")
+			if len(args) < 1 {
+				ctx.SendChain(message.Text("ERROR: 请输入正确的参数"))
+				return
+			}
+			for _, info := range args {
+				value := strings.Split(info, ":")
+				if len(value) > 1 {
+					if value[0] == "R18" && value[1] == "1" {
+						value[1] = "0"
+						ctx.SendChain(message.Text("不准涩涩!已将R18设置为0。"))
+					}
+					tags[value[0]] = strings.Join(value[1:], ":")
+				}
+			}
+			ctx.SendChain(message.Text("少女祈祷中..."))
+			apiurl := "/got_image?token=" + token
+			if _, ok := tags["tags"]; ok {
+				apiurl += "&tags=" + url.QueryEscape(strings.ReplaceAll(strings.TrimSpace(tags["tags"]), " ", "%20"))
+			}
+			if _, ok := tags["ntags"]; ok {
+				apiurl += "&ntags=" + url.QueryEscape(strings.ReplaceAll(strings.TrimSpace(tags["ntags"]), " ", "%20"))
+			}
+			if _, ok := tags["R18"]; ok {
+				apiurl += "&R18=" + url.QueryEscape(strings.TrimSpace(tags["R18"]))
+			}
+			if _, ok := tags["shape"]; ok {
+				apiurl += "&shape=" + url.QueryEscape(strings.TrimSpace(tags["shape"]))
+			}
+			if _, ok := tags["scale"]; ok {
+				apiurl += "&scale=" + url.QueryEscape(strings.TrimSpace(tags["scale"]))
+			}
+			if _, ok := tags["seed"]; ok {
+				apiurl += "&seed=" + url.QueryEscape(strings.TrimSpace(tags["seed"]))
+			}
+			data, err := web.GetData(server + apiurl)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			sendAiImg(ctx, data)
+		})
 	engine.OnRegex(`^设置ai绘图配置\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			regexMatched := ctx.State["regex_matched"].([]string)
@@ -157,11 +212,22 @@ func sendAiImg(ctx *zero.Ctx, data []byte) {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		r.Uc, err = url.QueryUnescape(r.Uc)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 	}
 	encodeStr := base64.StdEncoding.EncodeToString(data)
 	m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+encodeStr))}
 	m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(r.String())))
-	if id := ctx.Send(m).ID(); id == 0 {
+	if mid := ctx.Send(m); mid.ID() == 0 {
 		ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
+	} else {
+		go func(i message.MessageID) {
+			time.Sleep(90 * time.Second)
+			ctx.DeleteMessage(i)
+		}(mid)
 	}
+
 }

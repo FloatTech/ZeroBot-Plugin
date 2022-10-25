@@ -154,7 +154,7 @@ func init() { // 插件主体
 								msg = append(msg, message.Image(pic))
 							}
 							msg = append(msg, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b)))
-							ctx.Send(msg)
+							ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, msg...)})
 							if s > 80.0 {
 								continue
 							}

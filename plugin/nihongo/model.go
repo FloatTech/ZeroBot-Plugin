@@ -25,6 +25,11 @@ func (g *grammar) string() string {
 var db = &sql.Sqlite{}
 
 func getRandomGrammarByTag(tag string) (g grammar) {
-	_ = db.Find("grammar", &g, "where tag LIKE '%"+tag+"%' ORDER BY RANDOM() limit 1")
+	_ = db.Find("grammar", &g, "WHERE tag LIKE '%"+tag+"%' ORDER BY RANDOM() limit 1")
+	return
+}
+
+func getRandomGrammarByKeyword(keyword string) (g grammar) {
+	_ = db.Find("grammar", &g, "WHERE (name LIKE '%"+keyword+"%' or pronunciation LIKE '%"+keyword+"%') ORDER BY RANDOM() limit 1")
 	return
 }
