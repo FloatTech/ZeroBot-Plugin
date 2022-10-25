@@ -18,6 +18,8 @@ func init() {
 			"- ！原神\n" +
 			"- 黑丝\n" +
 			"- 白丝\n" +
+			"- 丝袜\n" +
+			"- 老婆照片\n" +
 			"- 随机壁纸\n" +
 			"- 星空\n" +
 			"- 随机表情包\n" +
@@ -34,7 +36,7 @@ func init() {
 		})
 	engine.OnFullMatch("白丝").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.iw233.cn/zhuanfasima.php?sort=swbs")
+			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=ergbskjhebrgkjlhkerjsbkbregsbg")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
@@ -43,7 +45,16 @@ func init() {
 		})
 	engine.OnFullMatch("黑丝").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.iw233.cn/zhuanfasima.php?sort=swhs")
+			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=rsetbgsekbjlghelkrabvfgheiv")
+			if err != nil {
+				ctx.SendChain(message.Text("获取图片失败惹", err))
+				return
+			}
+			ctx.SendChain(message.ImageBytes(data))
+		})
+	engine.OnFullMatch("丝袜").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=dsrgvkbaergfvyagvbkjavfwe")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
@@ -88,7 +99,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"涩涩哒咩", "我要涩涩"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.iw233.cn/zhuanfasima.php?sort=st")
+			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=qwuydcuqwgbvwgqefvbwgueahvbfkbegh")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
@@ -100,6 +111,15 @@ func init() {
 			data, err := web.GetData("https://iw233.cn/api.php?sort=img")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
+				return
+			}
+			ctx.SendChain(message.ImageBytes(data))
+		})
+	engine.OnFullMatch("老婆照片").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			data, err := web.GetData("http://bh.ayud.top/meyu")
+			if err != nil {
+				ctx.SendChain(message.Text("你老婆丢掉惹", err))
 				return
 			}
 			ctx.SendChain(message.ImageBytes(data))
