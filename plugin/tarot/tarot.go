@@ -152,7 +152,7 @@ func init() {
 				imgname = name
 			}
 			imgpath := cache + "/" + imgname + ".png"
-			err := pool.SendImageFromPool(imgname, imgpath, func() error {
+			err := pool.SendImageFromPool("pool"+imgname, imgpath, func() error {
 				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
 				if err != nil {
 					return err
@@ -326,7 +326,7 @@ func init() {
 func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
 	imgfile := cache + "/" + imgname + ".png"
 	aimgfile := file.BOTPATH + "/" + imgfile
-	m, err := pool.GetImage(imgname)
+	m, err := pool.GetImage("pool" + imgname)
 	if err == nil {
 		msg = message.Image(m.String())
 		if ctxext.SendToSelf(ctx)(msg) == 0 {
