@@ -1,5 +1,5 @@
-// Package bottle 漂流瓶
-package bottle
+// Package driftbottle 漂流瓶
+package driftbottle
 
 import (
 	"fmt"
@@ -33,10 +33,10 @@ var seaLocker sync.RWMutex
 // We need a container to inject what we need :(
 
 func init() {
-	engine := control.Register("bottle", &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("driftbottle", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "简单的漂流瓶\n" + "- @bot pick" + "- @bot throw xxx (xxx为投递内容)",
-		PrivateDataFolder: "bottle",
+		PrivateDataFolder: "driftbottle",
 	})
 	seaSide.DBPath = engine.DataFolder() + "sea.db"
 	err := seaSide.Open(time.Hour * 24)
@@ -68,7 +68,7 @@ func init() {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("需要投递的内容过少( "))
 			return
 		}
-		// check current needs and prepare to throw bottle.
+		// check current needs and prepare to throw drift_bottle.
 		err = globalbottle(
 			ctx.Event.UserID,
 			ctx.Event.GroupID,
