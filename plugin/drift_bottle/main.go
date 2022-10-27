@@ -33,33 +33,32 @@ var seaLocker sync.RWMutex
 // We need a container to inject what we need :(
 
 func init() {
-	engine := control.Register("driftbottle", &ctrl.Options[*zero.Ctx]{
+	en := control.Register("driftbottle", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "简单的漂流瓶\n" + "- @bot pick" + "- @bot throw xxx (xxx为投递内容)",
 		PrivateDataFolder: "driftbottle",
 	})
-	seaSide.DBPath = engine.DataFolder() + "sea.db"
+	seaSide.DBPath = en.DataFolder() + "sea.db"
 	err := seaSide.Open(time.Hour * 24)
 	if err != nil {
 		panic(err)
 	}
 
 	_ = createChannel(seaSide)
-	engine.OnFullMatch("pick", zero.OnlyToMe, zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("pick", zero.OnlyToMe, zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		be, err := fetchBottle(seaSide)
 		if err != nil {
 			ctx.SendChain(message.Text("ERR:", err))
 		}
-		IDStr := strconv.Itoa(int(be.ID))
-		QQStr := strconv.Itoa(int(be.QQ))
-		GrpStr := strconv.Itoa(int(be.Grp))
-		botName := zero.BotConfig.NickName[0]
-		msg := make(message.Message, 0, 10)
-		msg = append(msg, message.CustomNode(botName, ctx.Event.SelfID, botName+"试着帮你捞出来了这个~\nID:"+IDStr+"\n投递人: "+be.Name+"("+QQStr+")"+"\n群号: "+GrpStr+"\n时间: "+be.Time+"\n内容: \n"+be.Msg))
-		ctx.SendGroupForwardMessage(ctx.Event.GroupID, msg)
+		idstr := strconv.Itoa(int(be.ID))
+		qqstr := strconv.Itoa(int(be.QQ))
+		grpstr := strconv.Itoa(int(be.Grp))
+		botname := zero.BotConfig.NickName[0]
+		msg := message.Message{message.CustomNode(botname, ctx.Event.SelfID, botname+"试着帮你捞出来了这个~\nID:"+idstr+"\n投递人: "+be.Name+"("+qqstr+")"+"\n群号: "+grpstr+"\n时间: "+be.Time+"\n内容: \n"+be.Msg)}
+		ctx.Send(msg)
 	})
 
-	engine.OnRegex(`throw.*?(.*)`, zero.OnlyToMe, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`throw.*?(.*)`, zero.OnlyToMe, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		senderFormatTime := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
 		rawSenderMessage := ctx.State["regex_matched"].([]string)[1]
 		rawMessageCallBack := message.UnescapeCQCodeText(rawSenderMessage)
