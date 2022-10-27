@@ -229,5 +229,4 @@ func sendAiImg(ctx *zero.Ctx, data []byte) {
 			ctx.DeleteMessage(i)
 		}(mid)
 	}
-
 }

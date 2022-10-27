@@ -1,3 +1,4 @@
+// package test 代码测试
 package test
 
 import (
@@ -14,7 +15,7 @@ func init() {
 			"- 涩涩哒咩/我要涩涩\n",
 	})
 	engine.OnRegex(`^测试\s?(\S{1,25})\s?(\S{1,25})\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		id := ctx.State["regex_matched"].(string)
+		id := ctx.State["regex_matched"].([]string)[1]
 		zzz := ctx.State["regex_matched"].([]string)[2]
 		ccc := ctx.State["regex_matched"].([]string)[3]
 		ctx.SendChain(message.Text(id))

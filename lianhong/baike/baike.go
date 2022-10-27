@@ -1,4 +1,4 @@
-// Package baike 夸克百科
+// Package baike 百度百科
 package baike
 
 import (
@@ -13,18 +13,18 @@ import (
 )
 
 const (
-	api = "http://ovooa.com/API/kuake/api.php?msg=%v" // api地址
+	api = "http://ovooa.com/API/bdbk/?Msg=%v" // api地址
 
 )
 
 type baka struct {
-	Code string `json:"code"`
+	Code int    `json:"code"`
 	Text string `json:"text"`
 	Data struct {
-		Skill   string `json:"skill"`
-		Desc    string `json:"desc"`
-		Picture string `json:"picture"`
-		URL     string `json:"url"`
+		Msg   string `json:"Msg"`
+		Info  string `json:"info"`
+		Image string `json:"image"`
+		URL   string `json:"url"`
 	} `json:"data"`
 }
 
@@ -49,7 +49,6 @@ func init() { // 主函数
 			if err != nil {
 				ctx.SendChain(message.Text("出现错误捏：", err))
 			}
-			ctx.SendChain(message.Text(r.Data.Desc)) // 输出提取后的结果
-			ctx.SendChain(message.Text("详情查看: ", r.Data.URL))
+			ctx.SendChain(message.Text(r.Data.Info+"\n详情查看:", r.Data.URL)) // 输出提取后的结果
 		})
 }
