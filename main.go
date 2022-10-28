@@ -199,6 +199,8 @@ func init() {
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
+	late := flag.Uint("l", 1000, "Response latency.")
+	rsz := flag.Uint("r", 4096, "Receiving buffer ring size.")
 
 	flag.Parse()
 
@@ -251,6 +253,8 @@ func init() {
 		NickName:      append([]string{*adana}, "ATRI", "atri", "亚托莉", "アトリ"),
 		CommandPrefix: *prefix,
 		SuperUsers:    sus,
+		RingLen:       *rsz,
+		Latency:       time.Duration(*late) * time.Millisecond,
 		Driver:        []zero.Driver{config.W[0]},
 	}
 
