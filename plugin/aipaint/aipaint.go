@@ -56,6 +56,8 @@ func init() { // 插件主体
 			"- [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] [prompt]\n" +
 			"- [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]\n" +
 			"- 设置ai绘图配置 [server] [token]\n" +
+			"- 设置ai绘图撤回时间90s\n" +
+			"- 查看ai绘图配置\n" +
 			"例: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
 			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010\n" +
 			"通过 http://91.217.139.190:5010/token 获取token\n" +
@@ -67,23 +69,23 @@ func init() { // 插件主体
 	datapath = file.BOTPATH + "/" + engine.DataFolder()
 	engine.OnPrefixGroup([]string{`ai绘图`, `生成色图`, `生成涩图`, `ai画图`}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			server, token, err := cfg.load()
+			err := cfg.load()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			args := ctx.State["args"].(string)
-			data, err := web.GetData(server + fmt.Sprintf(aipaintTxt2ImgURL, token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20")))))
+			data, err := web.GetData(cfg.BaseURL + fmt.Sprintf(aipaintTxt2ImgURL, cfg.Token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20")))))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			sendAiImg(ctx, data)
+			sendAiImg(ctx, data, cfg.Interval)
 		})
 	engine.OnRegex(`^(以图绘图|以图生图|以图画图)[\s\S]*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			server, token, err := cfg.load()
+			err := cfg.load()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -101,7 +103,7 @@ func init() { // 插件主体
 				return
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			postURL := server + fmt.Sprintf(aipaintImg2ImgURL, token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20"))))
+			postURL := cfg.BaseURL + fmt.Sprintf(aipaintImg2ImgURL, cfg.Token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20"))))
 
 			f, err := os.Open(c.headimgsdir[0])
 			if err != nil {
@@ -136,11 +138,11 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			sendAiImg(ctx, data)
+			sendAiImg(ctx, data, cfg.Interval)
 		})
 	engine.OnPrefixGroup([]string{`ai高级绘图`, `高级生成色图`, `高级生成涩图`, `ai高级画图`}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			server, token, err := cfg.load()
+			err := cfg.load()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -156,13 +158,13 @@ func init() { // 插件主体
 				if len(value) > 1 {
 					if value[0] == "R18" && value[1] == "1" {
 						value[1] = "0"
-						ctx.SendChain(message.Text("不准涩涩!已将R18设置为0。"))
+						ctx.SendChain(message.Text("不准涩涩! 已将R18设置为0. "))
 					}
 					tags[value[0]] = strings.Join(value[1:], ":")
 				}
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			apiurl := "/got_image?token=" + token
+			apiurl := "/got_image?token=" + cfg.Token
 			if _, ok := tags["tags"]; ok {
 				apiurl += "&tags=" + url.QueryEscape(strings.ReplaceAll(strings.TrimSpace(tags["tags"]), " ", "%20"))
 			}
@@ -181,26 +183,63 @@ func init() { // 插件主体
 			if _, ok := tags["seed"]; ok {
 				apiurl += "&seed=" + url.QueryEscape(strings.TrimSpace(tags["seed"]))
 			}
-			data, err := web.GetData(server + apiurl)
+			data, err := web.GetData(cfg.BaseURL + apiurl)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			sendAiImg(ctx, data)
+			sendAiImg(ctx, data, cfg.Interval)
 		})
 	engine.OnRegex(`^设置ai绘图配置\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			regexMatched := ctx.State["regex_matched"].([]string)
-			err := cfg.save(regexMatched[1], regexMatched[2])
+			err := cfg.load()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("成功设置server为", regexMatched[1], ", token为", regexMatched[2]))
+			err = cfg.update(regexMatched[1], regexMatched[2], cfg.Interval)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			text := fmt.Sprintf("成功设置\nbase_url: %v\ntoken: %v\ninterval: %v\n", cfg.BaseURL, cfg.Token, cfg.Interval)
+			ctx.SendChain(message.Text(text))
+		})
+	engine.OnRegex(`^设置ai绘图撤回时间(\d{1,3})s$`, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			regexMatched := ctx.State["regex_matched"].([]string)
+			interval, err := strconv.Atoi(regexMatched[1])
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			err = cfg.load()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			err = cfg.update(cfg.BaseURL, cfg.Token, interval)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			text := fmt.Sprintf("成功设置\nbase_url: %v\ntoken: %v\ninterval: %v\n", cfg.BaseURL, cfg.Token, cfg.Interval)
+			ctx.SendChain(message.Text(text))
+		})
+	engine.OnFullMatch(`查看ai绘图配置`, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			err := cfg.load()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			text := fmt.Sprintf("base_url: %v\ntoken: %v\ninterval: %v\n", cfg.BaseURL, cfg.Token, cfg.Interval)
+			ctx.SendChain(message.Text(text))
 		})
 }
 
-func sendAiImg(ctx *zero.Ctx, data []byte) {
+func sendAiImg(ctx *zero.Ctx, data []byte, interval int) {
 	var loadData string
 	if predictRe.MatchString(binary.BytesToString(data)) {
 		loadData = predictRe.FindStringSubmatch(binary.BytesToString(data))[0]
@@ -223,11 +262,10 @@ func sendAiImg(ctx *zero.Ctx, data []byte) {
 	m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(r.String())))
 	if mid := ctx.Send(m); mid.ID() == 0 {
 		ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
-	} else {
+	} else if interval > 0 {
 		go func(i message.MessageID) {
-			time.Sleep(90 * time.Second)
+			time.Sleep(time.Duration(interval) * time.Second)
 			ctx.DeleteMessage(i)
 		}(mid)
 	}
-
 }

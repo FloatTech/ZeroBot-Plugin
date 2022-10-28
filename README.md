@@ -364,6 +364,10 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置ai绘图配置 [server] [token]
   
+  - [x] 设置ai绘图撤回时间90s
+  
+  - [x] 查看ai绘图配置
+  
   例: 设置ai绘图配置 http://91.216.169.75:5010 abc
 
   参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010
@@ -797,6 +801,30 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] [卡组代码xxx]
 
   - 注：更多搜卡指令参数：https://hs.fbigame.com/misc/searchhelp
+
+</details>
+<details>
+  <summary>MagicPrompt-Stable-Diffusion吟唱提示</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/huggingface"`
+
+  - [x] 吟唱提示[xxxx]
+
+</details>
+<details>
+  <summary>Real-CUGAN清晰术</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/huggingface"`
+
+  - [x] 清晰术(双重吟唱|三重吟唱|四重吟唱)(强力术式|中等术式|弱术式|不变式|原式)[图片]
+
+</details>
+<details>
+  <summary>vits猫雷</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/huggingface"`
+
+  - [x] 让猫雷说[xxxx]
 
 </details>
 <details>
