@@ -62,7 +62,11 @@ func init() {
 	}).ApplySingle(ctxext.DefaultSingle)
 
 	cache := engine.DataFolder() + "cache"
-	_ = os.MkdirAll(cache, 0755)
+	_ = os.RemoveAll(cache)
+	err := os.MkdirAll(cache, 0755)
+	if err != nil {
+		panic(err)
+	}
 
 	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
@@ -142,19 +146,18 @@ func init() {
 			}
 			imgurl := bed + reverse[p] + card.ImgURL
 			imgname := ""
-			imgpath := cache + "/" + imgname + ".png"
 			if p == 1 {
-				imgname = reverse[p][:len(reverse[p])-1] + card.Name
+				imgname = reverse[p][:len(reverse[p])-1] + name
 			} else {
-				imgname = card.Name
+				imgname = name
 			}
-			err := pool.SendImageFromPool(imgname, imgpath, func() error {
+			imgpath := cache + "/" + imgname + ".png"
+			err := pool.SendImageFromPool("pool"+imgname, imgpath, func() error {
 				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
 				if err != nil {
 					return err
 				}
-				var f *os.File
-				f, err = os.Create(imgpath)
+				f, err := os.Create(imgpath)
 				if err != nil {
 					return err
 				}
@@ -191,9 +194,9 @@ func init() {
 			var imgmsg message.MessageSegment
 			var err error
 			if p == 1 {
-				imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+card.Name, cache)
+				imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
 			} else {
-				imgmsg, err = poolimg(ctx, imgurl, card.Name, cache)
+				imgmsg, err = poolimg(ctx, imgurl, name, cache)
 			}
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -285,9 +288,9 @@ func init() {
 				var imgmsg message.MessageSegment
 				var err error
 				if p == 1 {
-					imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+card.Name, cache)
+					imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
 				} else {
-					imgmsg, err = poolimg(ctx, imgurl, card.Name, cache)
+					imgmsg, err = poolimg(ctx, imgurl, name, cache)
 				}
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
@@ -323,7 +326,7 @@ func init() {
 func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
 	imgfile := cache + "/" + imgname + ".png"
 	aimgfile := file.BOTPATH + "/" + imgfile
-	m, err := pool.GetImage(imgname)
+	m, err := pool.GetImage("pool" + imgname)
 	if err == nil {
 		msg = message.Image(m.String())
 		if ctxext.SendToSelf(ctx)(msg) == 0 {
