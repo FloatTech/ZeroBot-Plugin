@@ -5,19 +5,19 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.2-0.20221027085056-48f46f72ead7
-	github.com/FloatTech/floatbox v0.0.0-20221027084859-e9a3ef49992e
+	github.com/FloatTech/AnimeAPI v1.5.2-0.20221028033300-a9293e7eecb8
+	github.com/FloatTech/floatbox v0.0.0-20221028033104-a243fca6f2a3
 	github.com/FloatTech/sqlite v0.5.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.2-0.20221011153929-4834c6911511
-	github.com/FloatTech/zbputils v1.5.1-0.20221027085328-ccd11e1dc7b8
+	github.com/FloatTech/zbputils v1.5.1-0.20221028033223-1fdfaf978116
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.6.1
-	github.com/fumiama/go-registry v0.2.0
+	github.com/fumiama/go-registry v0.2.1
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/sqlite3 v1.14.6
 	github.com/fumiama/unibase2n v0.0.0-20221003115227-e7db987de949
