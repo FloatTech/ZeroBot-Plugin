@@ -619,15 +619,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"`
 
-  - [x] (在群xxx)丢漂流瓶(到频道xxx) [消息]
+  - [x] @Bot pick (随机捞一个漂流瓶)
 
-  - [x] (从频道xxx)捡漂流瓶
-
-  - [x] @BOT 创建频道 xxx
-
-  - [x] 跳入(频道)海中
-
-  - [x] 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global
+  - [x] @Bot throw xxx (投递内容xxx,支持图片文字,投递内容需要大于10个字符或者带有图片)
 
 </details>
 <details>
