@@ -95,7 +95,8 @@ func init() {
 		})
 	engine.OnFullMatch("所有本地setu分类").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			msg := "所有本地setu分类"
+			msg := "本地setu分类一览"
+			hasnotchange := true
 			ns.mu.RLock()
 			for i, c := range ns.List() {
 				n, err := ns.db.Count(c)
@@ -105,8 +106,12 @@ func init() {
 					msg += fmt.Sprintf("\n%02d. %s(error)", i, c)
 					logrus.Errorln("[nsetu]", err)
 				}
+				hasnotchange = false
 			}
 			ns.mu.RUnlock()
+			if hasnotchange {
+				msg += "\n空"
+			}
 			ctx.SendChain(message.Text(msg))
 		})
 }
