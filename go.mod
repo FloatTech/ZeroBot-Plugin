@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.2-0.20221028093038-98709d071279
-	github.com/FloatTech/floatbox v0.0.0-20221028092745-809ddc943dc0
+	github.com/FloatTech/AnimeAPI v1.5.2-0.20221029031948-269d5991c11c
+	github.com/FloatTech/floatbox v0.0.0-20221029031628-75a2d42c13b7
 	github.com/FloatTech/sqlite v0.5.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.2-0.20221028092825-b625c5a2a853
-	github.com/FloatTech/zbputils v1.5.1-0.20221028092951-30ec5e367a9f
+	github.com/FloatTech/zbpctrl v1.5.2-0.20221029031657-d6dcdeae09f5
+	github.com/FloatTech/zbputils v1.5.1-0.20221029031913-b0a75bfd8343
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
@@ -32,7 +32,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.3
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.6.0
+	github.com/wdvxdr1123/ZeroBot v1.6.1
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
 )
