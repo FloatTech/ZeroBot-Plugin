@@ -36,7 +36,7 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [qq1 qq2 qq3 ...] [&]
+zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [qq1 qq2 qq3 ...] [&]
 ```
 - **-h**: 显示帮助
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
@@ -46,8 +46,9 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-c config.json**: 从`config.json`加载`bot`配置
 - **-s config.json**: 保存现在`bot`配置到`config.json`
-- **-l latency**: 全局处理延时
+- **-l latency**: 全局处理延时 (ms)
 - **-r ringlen**: 接收消息环缓冲区大小
+- **-x max process time**: 最大处理时间 (min)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 
@@ -65,7 +66,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
         "command_prefix": "/",
         "super_users": [],
         "ring_len": 4096,
-        "latency": 1000000000
+        "latency": 1000000000,
+        "max_process_time": 240000000000
     },
     "ws": [
         {
