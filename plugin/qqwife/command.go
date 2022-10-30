@@ -24,6 +24,9 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/zbputils/img/text"
+
+	// 小熊饼干系统
+	score "github.com/FloatTech/ZeroBot-Plugin/plugin/score"
 )
 
 // nolint: asciicheck
@@ -66,6 +69,7 @@ func init() {
 			"- (娶|嫁)@对方QQ\n自由选择对象，自由恋爱(好感度越高成功率越高,保底30%概率)\n" +
 			"- 当[对方Q号|@对方QQ]的小三\n我和你才是真爱，为了你我愿意付出一切(好感度越高成功率越高,保底10%概率)\n" +
 			"- 闹离婚\n你谁啊，给我滚(好感度越高成功率越低)\n" +
+			"- 买礼物给[对方Q号|@对方QQ]\n使用小熊饼干获取好感度\n" +
 			"- 做媒 @攻方QQ @受方QQ\n身为管理，群友的xing福是要搭把手的(攻受双方好感度越高成功率越高,保底30%概率)\n" +
 			"--------------------------------\n好感度规则\n--------------------------------\n" +
 			"‘娶群友’指令好感度随机增加1~5。\n‘A牛B的C’会导致C恨A，好感度-5;\nB为了报复A，好感度+5(什么柜子play)\nA为BC做媒,成功B、C对A好感度+1反之-1\n做媒成功BC好感度+1",
@@ -139,6 +143,74 @@ func init() {
 				message.At(uid),
 				message.Text("\n当前你们好感度为", favor),
 			)
+		})
+	// 礼物系统
+	engine.OnRegex(`^买礼物给\s?(\[CQ:at,qq=(\d+)\]|(\d+))`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			uid := ctx.Event.UserID
+			fiancee := ctx.State["regex_matched"].([]string)
+			gay, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
+			// 获取CD
+			cdTime, err := 民政局.getCDtime(gid)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]获取该群技能CD错误(将以CD12H计算)\n", err))
+			}
+			ok, err := 民政局.compareCDtime(gid, uid, 5, cdTime)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]查询用户CD状态失败,请重试\n", err))
+				return
+			}
+			if !ok {
+				ctx.SendChain(message.Text("舔狗，今天你已经送过礼物了。"))
+				return
+			}
+			// 写入CD
+			err = 民政局.writeCDtime(gid, uid, 5)
+			if err != nil {
+				ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
+			}
+			// 获取好感度
+			favor, err := 民政局.getFavorability(uid, gay)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]好感度库发生问题力\n", err))
+				return
+			}
+			// 对接小熊饼干
+			scoreinfo := score.GetScoreInfo(uid)
+			if scoreinfo < 1 {
+				ctx.SendChain(message.Text("你钱包没钱啦！"))
+				return
+			}
+			scoreToFavor := rand.Intn(int(math.Min(scoreinfo, 100))) + 1
+			// 计算钱对应的好感值
+			newFavor := 1
+			if favor > 50 {
+				newFavor += scoreToFavor % 10 // 礼物厌倦
+			} else {
+				newFavor += rand.Intn(scoreToFavor)
+			}
+			// 随机对方心情
+			mood := rand.Intn(5)
+			if mood == 0 {
+				newFavor = -newFavor
+			}
+			// 记录结果
+			err = score.InsertScoreInfo(uid, -scoreToFavor)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]钱包坏掉力:\n", err))
+				return
+			}
+			lastfavor, err := 民政局.setFavorability(uid, gay, newFavor)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]好感度数据库发生问题力\n", err))
+				return
+			}
+			if mood == 0 {
+				ctx.SendChain(message.Text("你花了", scoreToFavor, "个饼干买了一件女装送给了ta,ta很不喜欢,你们的好感度降低至", lastfavor))
+			} else {
+				ctx.SendChain(message.Text("你花了", scoreToFavor, "个饼干买了一件女装送给了ta,ta很喜欢,你们的好感度升至", lastfavor))
+			}
 		})
 	engine.OnFullMatch("娶群友", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
