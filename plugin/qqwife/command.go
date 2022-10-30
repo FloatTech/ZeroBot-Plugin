@@ -182,7 +182,7 @@ func init() {
 				ctx.SendChain(message.Text("你钱包没钱啦！"))
 				return
 			}
-			scoreToFavor := rand.Intn(int(math.Min(scoreinfo, 100))) + 1
+			scoreToFavor := rand.Intn(math.Min(scoreinfo, 100)) + 1
 			// 计算钱对应的好感值
 			newFavor := 1
 			if favor > 50 {
