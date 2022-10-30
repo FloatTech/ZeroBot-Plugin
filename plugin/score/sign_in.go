@@ -28,12 +28,12 @@ import (
 const (
 	backgroundURL = "https://img.moehu.org/pic.php?id=pc"
 	signinMax     = 1
-	// SCOREMAX 分数上限定为120
-	SCOREMAX = 120
+	// SCOREMAX 分数上限定为1200
+	SCOREMAX = 1200
 )
 
 var (
-	rankArray = [...]int{0, 1, 2, 5, 10, 20, 35, 55, 75, 100, 120}
+	rankArray = [...]int{0, 10, 20, 50, 100, 200, 350, 550, 750, 1000, 1200}
 	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
