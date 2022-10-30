@@ -51,7 +51,7 @@ func init() {
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
-	engine.OnFullMatch("2签到").Limit(ctxext.LimitByUser).SetBlock(true).
+	engine.OnFullMatch("签到").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()
