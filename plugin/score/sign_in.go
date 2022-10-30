@@ -300,12 +300,12 @@ func initPic(picFile string) error {
 	return file.DownloadTo(backgroundURL, picFile, true)
 }
 
-// 获取小熊饼干数量
+// GetScoreInfo 获取小熊饼干数量
 func GetScoreInfo(uid int64) int {
 	return sdb.GetScoreByUID(uid).Score
 }
 
-// 更新小熊饼干数量(score > 0 增加,score < 0 减少)
+// InsertScoreInfo 更新小熊饼干数量(score > 0 增加,score < 0 减少)
 func InsertScoreInfo(uid int64, score int) error {
 	lastscore := sdb.GetScoreByUID(uid).Score + score
 	return sdb.InsertOrUpdateScoreByUID(uid, lastscore)
