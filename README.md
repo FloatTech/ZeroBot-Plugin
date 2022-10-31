@@ -36,16 +36,19 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname] [-p prefix] [-d|w] [qq1 qq2 qq3 ...] [&]
+zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [qq1 qq2 qq3 ...] [&]
 ```
-- **-c config.json**: 从`config.json`加载`bot`配置
 - **-h**: 显示帮助
-- **-s config.json**: 保存现在`bot`配置到`config.json`
+- **-n nickname**: 设置默认昵称，默认为`椛椛`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
-- **-n nickname**: 设置默认昵称，默认为`椛椛`
 - **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
+- **-c config.json**: 从`config.json`加载`bot`配置
+- **-s config.json**: 保存现在`bot`配置到`config.json`
+- **-l latency**: 全局处理延时 (ms)
+- **-r ringlen**: 接收消息环缓冲区大小
+- **-x max process time**: 最大处理时间 (min)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 
@@ -61,7 +64,10 @@ zerobot [-c config.json] [-h] [-s config.json] [-t token] [-u url] [-n nickname]
             "アトリ"
         ],
         "command_prefix": "/",
-        "super_users": []
+        "super_users": [],
+        "ring_len": 4096,
+        "latency": 1000000000,
+        "max_process_time": 240000000000
     },
     "ws": [
         {
@@ -619,15 +625,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"`
 
-  - [x] (在群xxx)丢漂流瓶(到频道xxx) [消息]
+  - [x] @Bot pick (随机捞一个漂流瓶)
 
-  - [x] (从频道xxx)捡漂流瓶
-
-  - [x] @BOT 创建频道 xxx
-
-  - [x] 跳入(频道)海中
-
-  - [x] 注：不显式限制时，私聊发送可在所有群抽到，群聊发送仅可在本群抽到，默认频道为 global
+  - [x] @Bot throw xxx (投递内容xxx,支持图片文字,投递内容需要大于10个字符或者带有图片)
 
 </details>
 <details>
@@ -1293,6 +1293,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 设置回复模式[青云客 | 小爱]
 </details>
+
 ## 三种使用方法，推荐第一种
 
 ### 1. 使用稳定版/测试版 (推荐)
