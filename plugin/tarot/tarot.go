@@ -311,7 +311,9 @@ func init() {
 				return
 			}
 			msg[info.CardsNum] = ctxext.FakeSenderForwardNode(ctx, message.Message{message.Image("base64://" + binary.BytesToString(formation))}...)
-			ctx.Send(msg)
+			if id := ctx.Send(msg).ID(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		} else {
 			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: \n", strings.Join(formationName, "\n")))
 		}

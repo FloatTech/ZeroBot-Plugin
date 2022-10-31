@@ -354,6 +354,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx
 
+  - [x] [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] xxx
+
   - [x] [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]
   
   - [x] 设置ai绘图配置 [server] [token]
