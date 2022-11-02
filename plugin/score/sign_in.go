@@ -38,7 +38,7 @@ var (
 	rankArray = [...]int{0, 10, 20, 50, 100, 200, 350, 550, 750, 1000, 1200}
 	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看分数排名",
+		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
 		PrivateDataFolder: "score",
 	})
 )
@@ -104,7 +104,7 @@ func init() {
 			}
 			// 更新钱包
 			rank := getrank(level)
-			add := rand.Intn(10) + rank*5 // 等级越高获得的钱越高
+			add := 1 + rand.Intn(10) + rank*5 // 等级越高获得的钱越高
 			err = wallet.InsertWalletOf(uid, add)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
