@@ -10,12 +10,6 @@ import (
 	"time"
 
 	"github.com/Coloured-glaze/gg"
-	"github.com/golang/freetype"
-	log "github.com/sirupsen/logrus"
-	"github.com/wcharczuk/go-chart/v2"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
-
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -23,6 +17,14 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/golang/freetype"
+	log "github.com/sirupsen/logrus"
+	"github.com/wcharczuk/go-chart/v2"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+
+	// 货币系统
+	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 const (
@@ -51,7 +53,12 @@ func init() {
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
-	engine.OnFullMatch("签到").Limit(ctxext.LimitByUser).SetBlock(true).
+	zero.OnFullMatch("查看我的钱包").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		uid := ctx.Event.UserID
+		money := wallet.GetWalletOf(uid)
+		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
+	})
+	engine.OnFullMatch("2签到").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()
@@ -84,21 +91,26 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			// 更新经验和小熊饼干
-			level := sdb.GetScoreByUID(uid).Level + 1
-			score := sdb.GetScoreByUID(uid).Score
-			rank := getrank(level)
-			add := rand.Intn(10) + rank*5
-			score += add
+			// 更新经验
+			level := sdb.GetScoreByUID(uid).Score + 1
 			if level > SCOREMAX {
 				level = SCOREMAX
 				ctx.SendChain(message.At(uid), message.Text("你的登记已经达到上限"))
 			}
-			err = sdb.InsertOrUpdateScoreByUID(uid, score, level)
+			err = sdb.InsertOrUpdateScoreByUID(uid, level)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			// 更新钱包
+			rank := getrank(level)
+			add := rand.Intn(10) + rank*5 // 等级越高获得的钱越高
+			err = wallet.InsertWalletOf(uid, add)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			score := wallet.GetWalletOf(uid)
 			// 绘图
 			err = initPic(picFile)
 			if err != nil {
@@ -140,8 +152,8 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			canvas.DrawString(nickName+fmt.Sprintf(" 小熊饼干+%d", add), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
-			canvas.DrawString("当前小熊饼干:"+strconv.FormatInt(int64(score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
+			canvas.DrawString(nickName+fmt.Sprintf(" ATRI币+%d", add), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
+			canvas.DrawString("当前ATRI币:"+strconv.FormatInt(int64(score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
 			canvas.DrawString("LEVEL:"+strconv.FormatInt(int64(rank), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.5)
 			canvas.DrawRectangle(float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.55, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*0.1)
 			canvas.SetRGB255(150, 150, 150)
@@ -190,7 +202,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
 		})
-	engine.OnFullMatch("查看分数排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
+	engine.OnFullMatch("查看等级排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			today := time.Now().Format("20060102")
 			drawedFile := cachePath + today + "scoreRank.png"
@@ -238,7 +250,89 @@ func init() {
 			}
 			err = chart.BarChart{
 				Font:  font,
-				Title: "饼干排名",
+				Title: "等级排名(1天只刷新1次)",
+				Background: chart.Style{
+					Padding: chart.Box{
+						Top: 40,
+					},
+				},
+				YAxis: chart.YAxis{
+					Range: &chart.ContinuousRange{
+						Min: 0,
+						Max: math.Ceil(bars[0].Value/10) * 10,
+					},
+				},
+				Height:   500,
+				BarWidth: 50,
+				Bars:     bars,
+			}.Render(chart.PNG, f)
+			_ = f.Close()
+			if err != nil {
+				_ = os.Remove(drawedFile)
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+		})
+	engine.OnFullMatch("查看钱包排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			gid := strconv.FormatInt(ctx.Event.GroupID, 10)
+			today := time.Now().Format("20060102")
+			drawedFile := cachePath + gid + today + "walletRank.png"
+			if file.IsExist(drawedFile) {
+				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+				return
+			}
+			// 无缓存获取群员列表
+			temp := ctx.GetThisGroupMemberListNoCache().Array()
+			var usergroup []int64
+			for _, info := range temp {
+				usergroup = append(usergroup, info.Get("user_id").Int())
+			}
+			// 获取钱包信息
+			st, err := wallet.GetGroupWalletOf(usergroup, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			if len(st) == 0 {
+				ctx.SendChain(message.Text("ERROR: 当前没人获取过ATRI币"))
+				return
+			} else if len(st) > 10 {
+				st = st[:10]
+			}
+			_, err = file.GetLazyData(text.FontFile, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			b, err := os.ReadFile(text.FontFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			font, err := freetype.ParseFont(b)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			f, err := os.Create(drawedFile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			var bars []chart.Value
+			for _, v := range st {
+				if v.Money != 0 {
+					bars = append(bars, chart.Value{
+						Label: ctx.CardOrNickName(v.UID),
+						Value: float64(v.Money),
+					})
+				}
+			}
+			err = chart.BarChart{
+				Font:  font,
+				Title: "ATRI币排名(1天只刷新1次)",
 				Background: chart.Style{
 					Padding: chart.Box{
 						Top: 40,
@@ -298,15 +392,4 @@ func initPic(picFile string) error {
 		return nil
 	}
 	return file.DownloadTo(backgroundURL, picFile, true)
-}
-
-// GetScoreInfo 获取小熊饼干数量
-func GetScoreInfo(uid int64) int {
-	return sdb.GetScoreByUID(uid).Score
-}
-
-// InsertScoreInfo 更新小熊饼干数量(score > 0 增加,score < 0 减少)
-func InsertScoreInfo(uid int64, score int) error {
-	lastscore := sdb.GetScoreByUID(uid).Score + score
-	return sdb.InsertOrUpdateScoreByUID(uid, lastscore)
 }
