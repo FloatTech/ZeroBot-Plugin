@@ -18,7 +18,6 @@ type scoredb gorm.DB
 type scoretable struct {
 	UID   int64 `gorm:"column:uid;primary_key"`
 	Score int   `gorm:"column:score;default:0"`
-	Level int   `gorm:"column:level;default:0"`
 }
 
 // TableName ...
@@ -71,14 +70,11 @@ func (sdb *scoredb) GetScoreByUID(uid int64) (s scoretable) {
 }
 
 // InsertOrUpdateScoreByUID 插入或更新分数
-func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int, level ...int) (err error) {
+func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 	db := (*gorm.DB)(sdb)
 	s := scoretable{
 		UID:   uid,
 		Score: score,
-	}
-	if len(level) != 0 {
-		s.Level = level[0]
 	}
 	if err = db.Model(&scoretable{}).First(&s, "uid = ? ", uid).Error; err != nil {
 		// error handling...
@@ -86,13 +82,10 @@ func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int, level ...int)
 			err = db.Model(&scoretable{}).Create(&s).Error // newUser not user
 		}
 	} else {
-		updateinfo := map[string]any{
-			"score": score,
-		}
-		if len(level) != 0 {
-			updateinfo["level"] = level[0]
-		}
-		err = db.Model(&scoretable{}).Where("uid = ? ", uid).Update(updateinfo).Error
+		err = db.Model(&scoretable{}).Where("uid = ? ", uid).Update(
+			map[string]any{
+				"score": score,
+			}).Error
 	}
 	return
 }
