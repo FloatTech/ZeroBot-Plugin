@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.2-0.20221029160612-a8d3d8e63d8f
+	github.com/FloatTech/AnimeAPI v1.5.2-0.20221101144606-ec2f4e59d0ef
 	github.com/FloatTech/floatbox v0.0.0-20221029160423-446812ec82d9
 	github.com/FloatTech/sqlite v0.5.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
