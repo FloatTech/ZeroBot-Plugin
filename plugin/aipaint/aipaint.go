@@ -53,14 +53,14 @@ func init() { // 插件主体
 		DisableOnDefault: false,
 		Help: "ai绘图\n" +
 			"- [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx\n" +
-			"- [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] [prompt]" +
+			"- [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] [prompt]\n" +
 			"- [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]\n" +
 			"- 设置ai绘图配置 [server] [token]\n" +
 			"例: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
-			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010" +
+			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010\n" +
 			"通过 http://91.217.139.190:5010/token 获取token\n" +
 			"[prompt]参数如下\n" +
-			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子" +
+			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子\n" +
 			"参数与参数内容用:连接,每个参数之间用回车或者&分割",
 		PrivateDataFolder: "aipaint",
 	})
