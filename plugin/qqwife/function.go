@@ -17,8 +17,8 @@ import (
 //nolint: asciicheck
 //nolint: asciicheck
 type 婚姻登记 struct {
-	db   *sql.Sqlite
-	dbmu sync.RWMutex
+	db *sql.Sqlite
+	sync.RWMutex
 }
 
 // 结婚证信息
@@ -55,8 +55,8 @@ type cdsheet struct {
 }
 
 func (sql *婚姻登记) 开门时间(gid int64) (ok bool, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	ok = false
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
@@ -99,8 +99,8 @@ func (sql *婚姻登记) 开门时间(gid int64) (ok bool, err error) {
 }
 
 func (sql *婚姻登记) 营业模式(gid int64) (canMatch, canNtr int, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
 		if err = sql.db.Drop("updateinfo"); err == nil {
@@ -130,8 +130,8 @@ func (sql *婚姻登记) 营业模式(gid int64) (canMatch, canNtr int, err erro
 }
 
 func (sql *婚姻登记) 修改模式(gid int64, mode string, stauts int) (err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
 		if err = sql.db.Drop("updateinfo"); err == nil {
@@ -169,8 +169,8 @@ func (sql *婚姻登记) 修改模式(gid int64, mode string, stauts int) (err e
 }
 
 func (sql *婚姻登记) 清理花名册(gid string) error {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	grouplist, err := sql.db.ListTables()
 	if err != nil {
 		return err
@@ -194,8 +194,8 @@ func (sql *婚姻登记) 清理花名册(gid string) error {
 }
 
 func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, status string, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
 	uidstr := strconv.FormatInt(uid, 10)
 	status = "单"
@@ -217,8 +217,8 @@ func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, status string
 }
 
 func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname string) error {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
 	err := sql.db.Create(gidstr, &userinfo{})
 	if err != nil {
@@ -239,24 +239,24 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 }
 
 func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
 	wifestr := strconv.FormatInt(wife, 10)
 	return sql.db.Del(gidstr, "where target = "+wifestr)
 }
 
 func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
 	husbandstr := strconv.FormatInt(husband, 10)
 	return sql.db.Del(gidstr, "where user = "+husbandstr)
 }
 
 func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, number int, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
 	err = sql.db.Create(gidstr, &userinfo{})
 	if err != nil {
@@ -307,8 +307,8 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 
 // 获取好感度
 func (sql *婚姻登记) getFavorability(uid, target int64) (favor int, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	err = sql.db.Create("favorability", &favorability{})
 	if err != nil {
 		return
@@ -330,8 +330,8 @@ func (sql *婚姻登记) getFavorability(uid, target int64) (favor int, err erro
 
 // 设置好感度 正增负减
 func (sql *婚姻登记) setFavorability(uid, target int64, score int) (favor int, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	err = sql.db.Create("favorability", &favorability{})
 	if err != nil {
 		return
@@ -345,7 +345,10 @@ func (sql *婚姻登记) setFavorability(uid, target int64, score int) (favor in
 			Userinfo: uidstr + "+" + targstr + "+" + uidstr,
 			Favor:    score,
 		})
-		return score, err
+		if err == nil {
+			err = sql.db.Find("favorability", &info, "where Userinfo glob '*"+uidstr+"+"+targstr+"*'")
+		}
+		return info.Favor, err
 	}
 	info.Favor += score
 	if info.Favor > 100 {
@@ -359,8 +362,8 @@ func (sql *婚姻登记) setFavorability(uid, target int64, score int) (favor in
 
 // 获取技能时长
 func (sql *婚姻登记) getCDtime(gid int64) (skillCD float64, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	skillCD = 12
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
@@ -389,8 +392,8 @@ func (sql *婚姻登记) getCDtime(gid int64) (skillCD float64, err error) {
 
 // 设置技能时长
 func (sql *婚姻登记) setCDtime(gid int64, cdTime float64) (err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	err = sql.db.Create("updateinfo", &updateinfo{})
 	if err != nil {
 		if err = sql.db.Drop("updateinfo"); err == nil {
@@ -420,8 +423,8 @@ func (sql *婚姻登记) setCDtime(gid int64, cdTime float64) (err error) {
 
 // 记录CD
 func (sql *婚姻登记) writeCDtime(gid, uid, mun int64) error {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	err := sql.db.Create("cdsheet", &cdsheet{})
 	if err != nil {
 		if err = sql.db.Drop("cdsheet"); err == nil {
@@ -442,8 +445,8 @@ func (sql *婚姻登记) writeCDtime(gid, uid, mun int64) error {
 
 // 判断CD是否过时
 func (sql *婚姻登记) compareCDtime(gid, uid, mun int64, cdtime float64) (ok bool, err error) {
-	sql.dbmu.Lock()
-	defer sql.dbmu.Unlock()
+	sql.Lock()
+	defer sql.Unlock()
 	ok = false
 	err = sql.db.Create("cdsheet", &cdsheet{})
 	if err != nil {

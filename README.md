@@ -27,6 +27,8 @@
   | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
   | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
 
+  [![Star Trend](https://api.star-history.com/svg?repos=FloatTech/ZeroBot-Plugin&type=Timeline)](https://seladb.github.io/StarTrack-js/#/preload?r=FloatTech,ZeroBot-Plugin)
+
 </div>
 
 > 如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文件或前往 [Packages](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp) 页面使用`docker`，运行后按提示登录即可。
@@ -639,17 +641,19 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置CD为xx小时
 
-  - [x] 允许/禁止自由恋爱
+  - [x] [允许|禁止]自由恋爱
 
-  - [x] 允许/禁止牛头人
+  - [x] [允许|禁止]牛头人
 
   - [x] 娶群友
 
-  - [x] (娶|嫁)[@对方QQ]
+  - [x] [娶|嫁][@对方QQ]
   
   - [x] 当[对方Q号|@对方QQ]的小三
 
   - [x] 做媒 @攻方QQ @受方QQ
+  
+  - [x] 买礼物给[对方Q号|@对方QQ]
 
   - [x] 群老婆列表
 
@@ -1090,6 +1094,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 签到
   - [x] 获得签到背景[@xxx] | 获得签到背景
+  - [x] 查看等级排名
+  - 注:跨群排行
+  - [x] 查看我的钱包
+  - [x] 查看钱包排名
+  - 注:本群排行，若群人数太多不建议使用该功能!!!
 
 </details>
 <details>

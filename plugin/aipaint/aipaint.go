@@ -61,7 +61,7 @@ func init() { // 插件主体
 			"通过 http://91.217.139.190:5010/token 获取token\n" +
 			"[prompt]参数如下\n" +
 			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子\n" +
-			"参数与参数内容用:连接,每个参数之间用回车或者&分割",
+			"参数与参数内容用:连接,每个参数之间用回车分割",
 		PrivateDataFolder: "aipaint",
 	})
 	datapath = file.BOTPATH + "/" + engine.DataFolder()
