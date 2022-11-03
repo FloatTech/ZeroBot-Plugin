@@ -15,7 +15,8 @@ func init() {
 		DisableOnDefault: false,
 		Help: "全部语言指令\n" +
 			"- 每日情话\n" +
-			"- 每日鸡汤\n",
+			"- 每日鸡汤\n" +
+			"- 绕口令\n",
 	})
 	engine.OnFullMatch("每日情话").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -30,6 +31,16 @@ func init() {
 	engine.OnFullMatch("每日鸡汤").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData("http://api.btstu.cn/yan/api.php?charset=utf-8&encode=text")
+			if err != nil {
+				ctx.SendChain(message.Text("获取失败惹", err))
+				return
+			}
+			km := string(data)
+			ctx.SendChain(message.Text(km))
+		})
+	engine.OnFullMatch("绕口令").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			data, err := web.GetData("http://ovooa.com/API/rao/api.php?type=text")
 			if err != nil {
 				ctx.SendChain(message.Text("获取失败惹", err))
 				return
