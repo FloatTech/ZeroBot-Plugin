@@ -633,34 +633,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>一群一天一夫一妻制群老婆</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
-
-  - 引入好感度系统，好感度越高，自由恋爱成功率越高
-  
-  - [x] 设置CD为xx小时
-
-  - [x] [允许|禁止]自由恋爱
-
-  - [x] [允许|禁止]牛头人
-
-  - [x] 娶群友
-
-  - [x] [娶|嫁][@对方QQ]
-  
-  - [x] 当[对方Q号|@对方QQ]的小三
-
-  - [x] 做媒 @攻方QQ @受方QQ
-  
-  - [x] 买礼物给[对方Q号|@对方QQ]
-
-  - [x] 群老婆列表
-
-  - [x] 重置花名册
-
-</details>
-<details>
   <summary>合成emoji</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"`
@@ -1043,6 +1015,35 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 求签 | 占卜
 
   - [x] 解签
+
+</details>
+<details>
+  <summary>一群一天一夫一妻制群老婆</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
+
+  - 引入好感度系统，好感度越高，自由恋爱成功率越高
+  
+  - [x] 设置CD为xx小时
+
+  - [x] [允许|禁止]自由恋爱
+
+  - [x] [允许|禁止]牛头人
+
+  - [x] 娶群友
+
+  - [x] [娶|嫁][@对方QQ]
+  
+  - [x] 当[对方Q号|@对方QQ]的小三
+
+  - [x] 做媒 @攻方QQ @受方QQ
+  
+  - [x] 买礼物给[对方Q号|@对方QQ]
+
+  - [x] 群老婆列表
+
+  - [x] 重置花名册
+
 
 </details>
 <details>
