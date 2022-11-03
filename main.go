@@ -211,10 +211,6 @@ func init() {
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
-	late := flag.Uint("l", 1000, "Response latency (ms).")
-	rsz := flag.Uint("r", 4096, "Receiving buffer ring size.")
-	maxpt := flag.Uint("x", 4, "Max process time (min).")
-
 	flag.Parse()
 
 	if *h {

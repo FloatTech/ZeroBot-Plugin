@@ -29,8 +29,8 @@ import (
 	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
-// nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
+//nolint: asciicheck
 var (
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
