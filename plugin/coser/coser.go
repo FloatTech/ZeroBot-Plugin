@@ -25,7 +25,8 @@ var (
 func init() {
 	control.Register("coser", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "三次元小姐姐\n- coser",
+		Brief:            "三次元coser",
+		Help:             "- coser",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatch("coser").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))

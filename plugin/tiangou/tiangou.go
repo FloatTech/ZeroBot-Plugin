@@ -24,8 +24,8 @@ var db = &sql.Sqlite{}
 func init() {
 	en := control.Register("tiangou", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "舔狗日记\n" +
-			"- 舔狗日记",
+		Brief:            "舔狗日记",
+		Help:             "- 舔狗日记",
 		PublicDataFolder: "Tiangou",
 	})
 

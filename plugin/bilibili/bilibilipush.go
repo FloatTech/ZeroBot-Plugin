@@ -40,13 +40,15 @@ var (
 func init() {
 	en := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "bilibilipush,需要配合job一起使用\n" +
-			"- 添加b站订阅[uid|name]\n" +
+		Brief:            "b站推送",
+		Help: "- 添加b站订阅[uid|name]\n" +
 			"- 取消b站订阅[uid|name]\n" +
 			"- 取消b站动态订阅[uid|name]\n" +
 			"- 取消b站直播订阅[uid|name]\n" +
 			"- b站推送列表\n" +
-			"- 拉取b站推送 (使用job执行定时任务------记录在\"@every 10s\"触发的指令)",
+			"Tips: 需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
+			"记录在\"@every 5m\"触发的指令)\n" +
+			"拉取b站推送",
 		PrivateDataFolder: serviceName,
 	})
 

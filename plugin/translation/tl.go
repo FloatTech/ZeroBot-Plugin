@@ -13,8 +13,8 @@ import (
 func init() {
 	control.Register("translation", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "翻译\n" +
-			">TL 你好",
+		Brief:            "单词翻译",
+		Help:             ">TL [好|good]",
 	}).OnRegex(`^>TL\s(-.{1,10}? )?(.*)$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := []string{ctx.State["regex_matched"].([]string)[2]}

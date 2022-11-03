@@ -52,8 +52,8 @@ type area struct {
 func init() {
 	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "城市疫情查询\n" +
-			"- xxx疫情\n",
+		Brief:            "城市疫情查询",
+		Help:             "- xxx疫情\n",
 	})
 	engine.OnSuffix("疫情").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {

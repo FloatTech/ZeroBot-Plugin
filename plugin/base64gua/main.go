@@ -14,8 +14,8 @@ import (
 func init() {
 	en := control.Register("base64gua", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "base64gua加解密\n" +
-			"- 六十四卦加密xxx\n- 六十四卦解密xxx\n- 六十四卦用yyy加密xxx\n- 六十四卦用yyy解密xxx",
+		Brief:            "六十四卦加解密",
+		Help:             "- 六十四卦加密xxx\n- 六十四卦解密xxx\n- 六十四卦用yyy加密xxx\n- 六十四卦用yyy解密xxx",
 	})
 	en.OnRegex(`^六十四卦加密\s*(.+)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

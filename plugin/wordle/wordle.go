@@ -63,8 +63,8 @@ var words = make(dictionary)
 func init() {
 	en := control.Register("wordle", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "猜单词\n" +
-			"- 个人猜单词\n" +
+		Brief:            "猜单词",
+		Help: "- 个人猜单词\n" +
 			"- 团队猜单词\n" +
 			"- 团队六阶猜单词\n" +
 			"- 团队七阶猜单词",

@@ -47,11 +47,12 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
-		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{uid}] [{gid}] [{groupname}] {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {uid}是被欢迎者QQ号 {gid}是当前群群号 {groupname} 是当前群群名\n" +
+		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{uid}] [{gid}] [{groupname}]\n" +
 		"- 测试欢迎语\n" +
 		"- 设置告别辞 参数同设置欢迎语\n" +
 		"- 测试告别辞\n" +
-		"- [开启 | 关闭]入群验证"
+		"- [开启 | 关闭]入群验证\n" +
+		"Tips: {at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {uid}是被欢迎者QQ号 {gid}是当前群群号 {groupname} 是当前群群名"
 )
 
 var (
@@ -62,6 +63,7 @@ var (
 func init() { // 插件主体
 	engine := control.Register("manager", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
+		Brief:             "群管插件",
 		Help:              hint,
 		PrivateDataFolder: "manager",
 	})

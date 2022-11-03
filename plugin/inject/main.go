@@ -11,8 +11,8 @@ import (
 func init() {
 	en := control.Register("inject", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "注入指令\n" +
-			"- run[CQ码]",
+		Brief:            "注入指令",
+		Help:             "- run[CQ码]",
 	})
 	// 运行 CQ 码
 	en.OnPrefix("run", zero.SuperUserPermission).SetBlock(true).

@@ -32,8 +32,8 @@ var (
 func init() {
 	engine := control.Register("cangtoushi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "藏头诗\n" +
-			"- 藏头诗[xxx]\n- 藏尾诗[xxx]",
+		Brief:            "藏头诗, 藏尾诗",
+		Help:             "- 藏头诗[xxx]\n- 藏尾诗[xxx]",
 	})
 	engine.OnRegex(`藏头诗\s?([一-龥]{3,10})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		kw := ctx.State["regex_matched"].([]string)[1]

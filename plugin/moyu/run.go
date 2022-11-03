@@ -20,8 +20,8 @@ var (
 func init() { // 插件主体
 	control.Register("moyu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Help: "moyu\n" +
-			"- /启用 moyu\n" +
+		Brief:            "摸鱼提醒",
+		Help: "- /启用 moyu\n" +
 			"- /禁用 moyu\n" +
 			"- 记录在\"0 10 * * *\"触发的指令\n" +
 			"   - 摸鱼提醒",
