@@ -732,6 +732,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 原神十连
 
+  </details>
+<details>
+  <summary>明日方舟抽卡</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/fangzhou"`
+
+  - [x] 方舟十连
+
 </details>
 <details>
   <summary>gif</summary>

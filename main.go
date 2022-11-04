@@ -134,7 +134,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/baike"    // 夸克百科
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/che"      // 图片返回
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/chehui"   // 撤回插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/fangzhou" // 图片返回
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/fangzhou" // 方舟抽卡
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/jiami"    // 兽语加密
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/jianbao"  // 每日简报
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/qinghua"  // 每日情话
