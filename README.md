@@ -487,6 +487,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>兽语加密(嗷呜~)</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/jiami"`
+
+  - [x] 兽语加密xxx
+
+  - [x] 兽语解密xxx
+
+</details>
+<details>
   <summary>bilibili</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
@@ -1266,7 +1276,33 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"`
 
   - [x] 热词 [群号] [消息数目]|热词 123456 1000
+</details>
+<details>
+  <summary>文字功能集合</summary>
 
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/wenben"`
+
+  - [x] 天气查询：地名 + 天气
+
+  - [x] 拼音查询：文字 + 拼音
+</details>
+<details>
+  <summary>绕口令/情话/鸡汤</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/qinghua"`
+
+  - [x] 绕口令
+
+  - [x] 每日情话
+
+  - [x] 每日鸡汤
+  </details>
+<details>
+  <summary>夸克百科</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/qinghua"`
+  - [x] 百科+查询内容
+  
 </details>
 <details>
   <summary>鬼东西</summary>
