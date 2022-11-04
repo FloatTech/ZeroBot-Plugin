@@ -1272,6 +1272,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>天气/拼音查询-名言</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"`
+
+  - [x] xx天气
+
+  - [x] xx拼音
+
+  - [x] 每日情话/一言/鸡汤
+
+  - [x] 绕口令
+
+</details>
+<details>
   <summary>聊天热词</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"`
