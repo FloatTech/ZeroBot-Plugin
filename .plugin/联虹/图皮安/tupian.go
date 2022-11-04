@@ -16,45 +16,14 @@ func init() {
 			"- 兽耳\n" +
 			"- 白毛\n" +
 			"- ！原神\n" +
-			"- 黑丝\n" +
-			"- 白丝\n" +
-			"- 丝袜\n" +
 			"- 老婆照片\n" +
 			"- 随机壁纸\n" +
 			"- 星空\n" +
-			"- 随机表情包\n" +
-			"- 涩涩哒咩/我要涩涩\n",
+			"- 随机表情包\n" ",
 	})
 	engine.OnFullMatch("兽耳").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData("https://iw233.cn/api.php?sort=cat&type")
-			if err != nil {
-				ctx.SendChain(message.Text("获取图片失败惹", err))
-				return
-			}
-			ctx.SendChain(message.ImageBytes(data))
-		})
-	engine.OnFullMatch("白丝").SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=ergbskjhebrgkjlhkerjsbkbregsbg")
-			if err != nil {
-				ctx.SendChain(message.Text("获取图片失败惹", err))
-				return
-			}
-			ctx.SendChain(message.ImageBytes(data))
-		})
-	engine.OnFullMatch("黑丝").SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=rsetbgsekbjlghelkrabvfgheiv")
-			if err != nil {
-				ctx.SendChain(message.Text("获取图片失败惹", err))
-				return
-			}
-			ctx.SendChain(message.ImageBytes(data))
-		})
-	engine.OnFullMatch("丝袜").SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=dsrgvkbaergfvyagvbkjavfwe")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
@@ -91,15 +60,6 @@ func init() {
 	engine.OnFullMatch("！原神").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData("https://sakura.iw233.cn/Tag/API/web/api/op.php")
-			if err != nil {
-				ctx.SendChain(message.Text("获取图片失败惹", err))
-				return
-			}
-			ctx.SendChain(message.ImageBytes(data))
-		})
-	engine.OnFullMatchGroup([]string{"涩涩哒咩", "我要涩涩"}).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://aikohfiosehgairl.fgimax2.fgnwctvip.com/uyfvnuvhgbuiesbrghiuudvbfkllsgdhngvbhsdfklbghdfsjksdhnvfgkhdfkslgvhhrjkdshgnverhbgkrthbklg.php?sort=qwuydcuqwgbvwgqefvbwgueahvbfkbegh")
 			if err != nil {
 				ctx.SendChain(message.Text("获取图片失败惹", err))
 				return
