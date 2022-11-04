@@ -39,6 +39,7 @@ func init() { // 主函数
 			es, err := web.GetData(fmt.Sprintf(jiami1, str)) // 将网站返回结果赋值
 			if err != nil {
 				ctx.SendChain(message.Text("出现错误捏：", err))
+				return
 			}
 
 			// es1 := fmt.Sprintf("%s", es)
@@ -46,14 +47,8 @@ func init() { // 主函数
 			err = json.Unmarshal(es, &r) // 填api返回结果，struct地址
 			if err != nil {
 				ctx.SendChain(message.Text("出现错误捏：", err))
+				return
 			}
-
-			/*if es != "" {
-				ctx.SendChain(message.Text(es))
-			} else {
-				ctx.SendChain(message.Text("加密失败!"))
-			}*/
-
 			ctx.SendChain(message.Text(r.Data.Message)) // 输出提取后的结果
 		})
 
@@ -64,6 +59,7 @@ func init() { // 主函数
 			es, err := web.GetData(fmt.Sprintf(jiami2, str)) // 将网站返回结果赋值
 			if err != nil {
 				ctx.SendChain(message.Text("出现错误捏：", err))
+				return
 			}
 			var n nmd                    // r数组
 			err = json.Unmarshal(es, &n) // 填api返回结果，struct地址
