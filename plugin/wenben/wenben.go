@@ -10,6 +10,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
@@ -19,14 +20,14 @@ const (
 )
 
 type RspData struct {
-	Id         int    `json:"id"`
-	Uuid       string `json:"uuid"`
+	Id         int    `json:"ID"`
+	Uuid       string `json:"UUID"`
 	Hitokoto   string `json:"hitokoto"`
 	Type       string `json:"type"`
 	From       string `json:"from"`
 	FromWho    string `json:"from_who"`
 	Creator    string `json:"creator"`
-	CreatorUid int    `json:"creator_uid"`
+	CreatorUid int    `json:"creator_UID"`
 	Reviewer   int    `json:"reviewer"`
 	CommitFrom string `json:"commit_from"`
 	CreatedAt  string `json:"created_at"`
@@ -53,8 +54,7 @@ func init() { // 主函数
 				ctx.SendChain(message.Text("出现错误捏：", err))
 				return
 			}
-			km := string(es)
-			ctx.SendChain(message.Text(str+"天气如下:\n", km))
+			ctx.SendChain(message.Text(str+"天气如下:\n", helper.BytesToString(es)))
 		})
 	en.OnSuffix("拼音").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -64,8 +64,7 @@ func init() { // 主函数
 				ctx.SendChain(message.Text("出现错误捏：", err))
 				return
 			}
-			km := string(es)
-			ctx.SendChain(message.Text(str+"的拼音为：", km))
+			ctx.SendChain(message.Text(str+"的拼音为：", helper.BytesToString(es)))
 		})
 	en.OnFullMatch("每日情话").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -84,8 +83,7 @@ func init() { // 主函数
 				ctx.SendChain(message.Text("获取失败惹", err))
 				return
 			}
-			km := string(data)
-			ctx.SendChain(message.Text(km))
+			ctx.SendChain(message.Text(helper.BytesToString(data)))
 		})
 	en.OnFullMatch("绕口令").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -94,8 +92,7 @@ func init() { // 主函数
 				ctx.SendChain(message.Text("获取失败惹", err))
 				return
 			}
-			km := string(data)
-			ctx.SendChain(message.Text(km))
+			ctx.SendChain(message.Text(helper.BytesToString(data)))
 		})
 }
 func handle(ctx *zero.Ctx) {
@@ -105,7 +102,11 @@ func handle(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("Err:", err))
 		return
 	}
-	json.Unmarshal(data, &rsp)
+	err = json.Unmarshal(data, &rsp)
+	if err != nil {
+		ctx.SendChain(message.Text("出现错误捏：", err))
+		return
+	}
 	msg := ""
 	msg += rsp.Hitokoto + "\n出自：" + rsp.From + "\n"
 	if len(rsp.FromWho) != 0 {
