@@ -130,20 +130,13 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"    // 聊天热词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         // 月幕galgame
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/baike"    // 夸克百科
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/che"      // 图片返回
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/chehui"   // 撤回插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/fangzhou" // 方舟抽卡
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/jiami"    // 兽语加密
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/jianbao"  // 每日简报
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/qinghua"  // 每日情话
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/roulette" // 大赌盘
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/test"     // 测试
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/tupian"   // 图片返回
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/wenben"   // 文本大全
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lianhong/yiyan"    // 每日一言
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf" // 鬼东西
 
 	//                               ^^^^                               //
