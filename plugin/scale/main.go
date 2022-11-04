@@ -34,7 +34,8 @@ import (
 func init() {
 	engine := control.Register("scale", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Help:              "叔叔的AI二次元图片放大\n- 放大图片[图片]",
+		Brief:             "二次元图片放大",
+		Help:              "- 放大图片[图片]",
 		PrivateDataFolder: "scale",
 	}).ApplySingle(ctxext.DefaultSingle)
 	cachedir := engine.DataFolder()

@@ -17,8 +17,8 @@ var ro = runoob.NewRunOOB("b6365362a90ac2ac7098ba52c13e352b")
 func init() {
 	control.Register("runcode", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "在线代码运行: \n" +
-			">runcode [language] [code block]\n" +
+		Brief:            "在线代码运行",
+		Help: ">runcode [language] [code block]\n" +
 			"模板查看: \n" +
 			">runcode [language] help\n" +
 			"支持语种: \n" +

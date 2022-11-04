@@ -22,8 +22,8 @@ const bed = "https://gitcode.net/u011570312/senso-ji-omikuji/-/raw/main/"
 func init() { // 插件主体
 	engine := control.Register("omikuji", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "浅草寺求签\n" +
-			"- 求签 | 占卜\n- 解签",
+		Brief:            "浅草寺求签",
+		Help:             "- 求签 | 占卜\n- 解签",
 		PublicDataFolder: "Omikuji",
 	}).ApplySingle(ctxext.DefaultSingle)
 

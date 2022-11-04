@@ -19,8 +19,8 @@ const (
 func init() { // 插件主体
 	control.Register("aiwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "AIWife\n" +
-			"- waifu | 随机waifu",
+		Brief:            "ai随机生成老婆",
+		Help:             "- waifu | 随机waifu",
 	}).ApplySingle(ctxext.DefaultSingle).OnFullMatchGroup([]string{"waifu", "随机waifu"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			miku := rand.Intn(100000) + 1

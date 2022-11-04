@@ -17,7 +17,8 @@ import (
 func init() {
 	engine := control.Register("nihongo", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "日语学习\n- 日语语法[xxx](使用tag随机)\n" +
+		Brief:            "日语学习",
+		Help: "- 日语语法[xxx](使用tag随机)\n" +
 			"搜索日语语法[xxx]",
 		PublicDataFolder: "Nihongo",
 	})

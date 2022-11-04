@@ -48,13 +48,14 @@ var (
 func init() {
 	engine := control.Register("bilibili", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "bilibili (412就是拦截的意思,建议私聊把cookie设全)\n" +
-			"- >vup info [xxx]\n" +
+		Brief:            "b站查成分查弹幕",
+		Help: "- >vup info [xxx]\n" +
 			"- >user info [xxx]\n" +
 			"- 查成分 [xxx]\n" +
 			"- 查弹幕 [xxx]\n" +
 			"- 设置b站cookie b_ut=7;buvid3=0;i-wanna-go-back=-1;innersign=0;\n" +
-			"- 更新vup",
+			"- 更新vup" +
+			"Tips: (412就是拦截的意思,建议私聊把cookie设全)\n",
 		PublicDataFolder: "Bilibili",
 	})
 	cachePath := engine.DataFolder() + "cache/"

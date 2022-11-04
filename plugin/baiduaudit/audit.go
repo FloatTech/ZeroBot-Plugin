@@ -4,6 +4,9 @@ package baiduaudit
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/Baidu-AIP/golang-sdk/aip/censor"
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
@@ -12,8 +15,6 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"os"
-	"strconv"
 )
 
 // 服务网址:https://console.bce.baidu.com/ai/?_=1665977657185#/ai/antiporn/overview/index
@@ -99,6 +100,7 @@ var (
 func init() {
 	engine := control.Register("baiduaudit", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
+		Brief:            "百度内容审核",
 		Help: "##该功能来自百度内容审核，需购买相关服务，并创建app##\n" +
 			"- 获取BDAKey\n" +
 			"- 配置BDAKey [API key] [Secret Key]\n" +

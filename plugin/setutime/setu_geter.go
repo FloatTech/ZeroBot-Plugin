@@ -53,8 +53,8 @@ var pool = &imgpool{
 func init() { // 插件主体
 	engine := control.Register("setutime", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "涩图\n" +
-			"- 来份[涩图/二次元/风景/车万]\n" +
+		Brief:            "涩图",
+		Help: "- 来份[涩图/二次元/风景/车万]\n" +
 			"- 添加[涩图/二次元/风景/车万][P站图片ID]\n" +
 			"- 删除[涩图/二次元/风景/车万][P站图片ID]\n" +
 			"- >setu status",

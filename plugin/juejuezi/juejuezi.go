@@ -25,8 +25,8 @@ const (
 func init() {
 	control.Register("juejuezi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "绝绝子生成器\n" +
-			"- 喝奶茶绝绝子 | 绝绝子吃饭",
+		Brief:            "绝绝子生成器",
+		Help:             "例: 喝奶茶绝绝子\n绝绝子吃饭",
 	}).OnRegex("[\u4E00-\u9FA5]{0,10}绝绝子[\u4E00-\u9FA5]{0,10}").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		toDealStr := []rune(strings.ReplaceAll(ctx.ExtractPlainText(), "绝绝子", ""))
 		switch len(toDealStr) {

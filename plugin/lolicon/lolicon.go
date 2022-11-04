@@ -34,8 +34,8 @@ var (
 func init() {
 	en := control.Register("lolicon", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "lolicon\n" +
-			"- 随机图片\n" +
+		Brief:            "随机图片",
+		Help: "- 随机图片\n" +
 			"- 随机图片 萝莉|少女\n" +
 			"- 设置随机图片地址[http...]",
 	}).ApplySingle(ctxext.DefaultSingle)

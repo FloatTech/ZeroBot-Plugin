@@ -23,7 +23,7 @@ import (
 
 const bed = "https://gitcode.net/u011570312/OguraHyakuninIsshu/-/raw/master/"
 
-//nolint: asciicheck
+// nolint: asciicheck
 type line struct {
 	番号, 歌人, 上の句, 下の句, 上の句ひらがな, 下の句ひらがな string
 }
@@ -56,8 +56,8 @@ var lines [100]*line
 func init() {
 	engine := control.Register("hyaku", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "百人一首\n" +
-			"- 百人一首(随机发一首)\n" +
+		Brief:            "百人一首",
+		Help: "- 百人一首(随机发一首)\n" +
 			"- 百人一首之n",
 		PrivateDataFolder: "hyaku",
 	})

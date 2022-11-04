@@ -17,7 +17,8 @@ type kimo = map[string]*[]string
 func init() {
 	engine := control.Register("thesaurus", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "thesaurus\n- 词典匹配回复",
+		Brief:            "词典匹配回复",
+		Help:             "- 词典匹配回复",
 		PublicDataFolder: "Chat",
 	})
 	go func() {
