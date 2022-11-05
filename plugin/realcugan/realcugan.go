@@ -1,4 +1,5 @@
-package huggingface
+// Package realcugan Real-CUGAN清晰术
+package realcugan
 
 import (
 	"bytes"
@@ -8,6 +9,7 @@ import (
 	"image"
 	"strings"
 
+	hf "github.com/FloatTech/AnimeAPI/huggingface"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -18,20 +20,20 @@ import (
 )
 
 const (
-	realcuganRepo = "/shichen1231/Real-CUGAN"
+	realcuganRepo = "shichen1231/Real-CUGAN"
 )
 
 func init() { // 插件主体
 	engine := control.Register("realcugan", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Help: "Real-CUGAN清晰术\n" +
-			"- 清晰术(双重吟唱|三重吟唱|四重吟唱)(强力术式|中等术式|弱术式|不变式|原式)[图片]",
+		DisableOnDefault:  false,
+		Brief:             "Real-CUGAN清晰术",
+		Help:              "- 清晰术(双重吟唱|三重吟唱|四重吟唱)(强力术式|中等术式|弱术式|不变式|原式)[图片]",
 		PrivateDataFolder: "realcugan",
 	})
-	engine.OnPrefixGroup([]string{"清晰术"}, zero.MustProvidePicture).SetBlock(true).
+	engine.OnPrefix("清晰术", zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			realcuganURL := embed + realcuganRepo + predictPath
+			realcuganURL := fmt.Sprintf(hf.HTTPSPredictPath, realcuganRepo)
 			for _, url := range ctx.State["image_url"].([]string) {
 				imgdata, err := web.GetData(url)
 				if err != nil {
@@ -78,22 +80,23 @@ func init() { // 插件主体
 				modelname := fmt.Sprintf("up%vx-latest-%v.pth", scale, con)
 				encodeStr := base64.StdEncoding.EncodeToString(imgdata)
 				encodeStr = "data:image/jpeg;base64," + encodeStr
-				pr := pushRequest{
+				pr := hf.PushRequest{
 					Data: []interface{}{encodeStr, modelname, 2},
 				}
-				b, err := json.Marshal(pr)
+				buf := bytes.NewBuffer([]byte{})
+				err = json.NewEncoder(buf).Encode(pr)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				data, err := web.PostData(realcuganURL, "application/json", bytes.NewReader(b))
+				data, err := web.PostData(realcuganURL, "application/json", buf)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				imgStr := gjson.ParseBytes(data).Get("data.0").String()
-				m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(scale, "重唱", con, "分支大清晰术!"))}
-				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+strings.TrimPrefix(imgStr, "data:image/png;base64,"))))
+				m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(scale, "重唱", con, "分支大清晰术!")),
+					ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+strings.TrimPrefix(imgStr, "data:image/png;base64,")))}
 				if id := ctx.Send(m).ID(); id == 0 {
 					ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 				}
