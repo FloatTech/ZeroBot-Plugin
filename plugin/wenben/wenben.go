@@ -14,25 +14,24 @@ import (
 )
 
 const (
-	tianqi = "https://xiaobai.klizi.cn/API/other/weather_1.php?data=&msg=%v" // api地址
-	pinyin = "http://ovooa.com/API/pinyin/api.php?type=text&msg=%v"
-	url    = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i" // 动漫 漫画 游戏 文学 影视 诗词
+	tianqi  = "https://xiaobai.klizi.cn/API/other/weather_1.php?data=&msg=%v" // api地址
+	pinyin  = "http://ovooa.com/API/pinyin/api.php?type=text&msg=%v"
+	yiyan   = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i" // 动漫 漫画 游戏 文学 影视 诗词
+	kouling = "http://ovooa.com/API/rao/api.php?type=text"      //口令
+	tang    = "http://api.btstu.cn/yan/api.php?charset=utf-8&encode=text"
+	qing    = "https://xiaobai.klizi.cn/API/other/wtqh.php"
 )
 
 type RspData struct {
-	Hitokoto   string `json:"hitokoto"`
-	From       string `json:"from"`
-	FromWho    string `json:"from_who"`
-	Creator    string `json:"creator"`
-	Reviewer   int    `json:"reviewer"`
-	CommitFrom string `json:"commit_from"`
-	CreatedAt  string `json:"created_at"`
-	Length     int    `json:"length"`
+	Hitokoto string `json:"hitokoto"`
+	From     string `json:"from"`
+	FromWho  string `json:"from_who"`
 }
 
 func init() { // 主函数
 	en := control.Register("tianqi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
+		Brief:            "天气/拼音查询",
 		Help: "文本命令大全\n" +
 			"- 天气查询：xxx天气" +
 			"- 拼音查询：xxx拼音" +
@@ -63,17 +62,16 @@ func init() { // 主函数
 		})
 	en.OnFullMatch("每日情话").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("https://xiaobai.klizi.cn/API/other/wtqh.php")
+			data, err := web.GetData(qing)
 			if err != nil {
 				ctx.SendChain(message.Text("获取失败惹", err))
 				return
 			}
-			km := fmt.Sprintf("%s", data)
-			ctx.SendChain(message.Text(km))
+			ctx.SendChain(message.Text(helper.BytesToString(data)))
 		})
 	en.OnFullMatch("每日鸡汤").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://api.btstu.cn/yan/api.php?charset=utf-8&encode=text")
+			data, err := web.GetData(tang)
 			if err != nil {
 				ctx.SendChain(message.Text("获取失败惹", err))
 				return
@@ -81,7 +79,7 @@ func init() { // 主函数
 			ctx.SendChain(message.Text(helper.BytesToString(data)))
 		})
 	en.OnFullMatch("绕口令").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		data, err := web.GetData("http://ovooa.com/API/rao/api.php?type=text")
+		data, err := web.GetData(kouling)
 		if err != nil {
 			ctx.SendChain(message.Text("获取失败惹", err))
 			return
@@ -90,7 +88,7 @@ func init() { // 主函数
 	})
 	en.OnFullMatch("每日一言").SetBlock(true).Handle(func(ctx *zero.Ctx) { //每日一言
 		var rsp RspData
-		data, err := web.GetData(url)
+		data, err := web.GetData(yiyan)
 		if err != nil {
 			ctx.SendChain(message.Text("Err:", err))
 			return

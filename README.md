@@ -457,6 +457,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置不检测类型[类型编号]
 
     检测类型编号列表:[1:违禁违规|2:文本色情|3:敏感信息|4:恶意推广|5:低俗辱骂|6:恶意推广-联系方式|7:恶意推广-软文推广]
+    
 </details>
 <details>
   <summary>base64卦加解密</summary>
@@ -484,7 +485,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 天城文用yyy加密xxx
 
   - [x] 天城文用yyy解密xxx
-
 
 </details>
 <details>

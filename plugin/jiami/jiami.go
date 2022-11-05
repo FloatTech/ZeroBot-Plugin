@@ -19,8 +19,6 @@ const (
 )
 
 type nmd struct { // struct解析格式大概是
-	Code int    `json:"code"`
-	Text string `json:"text"`
 	Data struct {
 		Message string
 	} `json:"data"`
@@ -29,6 +27,7 @@ type nmd struct { // struct解析格式大概是
 func init() { // 主函数
 	en := control.Register("jiami", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
+		Brief:            "兽语加解密",
 		Help: "兽语加解密\n" +
 			"- 兽语加密xxx\n- 兽语解密xxx",
 	})
