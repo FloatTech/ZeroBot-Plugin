@@ -484,11 +484,6 @@ func init() {
 				ctx.SendChain(message.Text("舔狗，今天你已经送过礼物了。"))
 				return
 			}
-			// 写入CD
-			err = 民政局.writeCDtime(gid, uid, 5)
-			if err != nil {
-				ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
-			}
 			// 获取好感度
 			favor, err := 民政局.getFavorability(uid, gay)
 			if err != nil {
@@ -525,6 +520,12 @@ func init() {
 				ctx.SendChain(message.Text("[qqwife]好感度数据库发生问题力\n", err))
 				return
 			}
+			// 写入CD
+			err = 民政局.writeCDtime(gid, uid, 5)
+			if err != nil {
+				ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
+			}
+			// 输出结果
 			if mood == 0 {
 				ctx.SendChain(message.Text("你花了", moneyToFavor, "ATRI币买了一件女装送给了ta,ta很不喜欢,你们的好感度降低至", lastfavor))
 			} else {
