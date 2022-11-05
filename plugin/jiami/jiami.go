@@ -22,7 +22,7 @@ type nmd struct { // struct解析格式大概是
 	Code int    `json:"code"`
 	Text string `json:"text"`
 	Data struct {
-		Message string `json:"Message"`
+		Message string
 	} `json:"data"`
 }
 
@@ -32,41 +32,35 @@ func init() { // 主函数
 		Help: "兽语加解密\n" +
 			"- 兽语加密xxx\n- 兽语解密xxx",
 	})
-	en.OnRegex(`^兽语加密\s*(.+)$`).SetBlock(true). // 正值输入
-							Handle(func(ctx *zero.Ctx) {
-			str := ctx.State["regex_matched"].([]string)[1]
-			// es := base14.EncodeString(str)
-			es, err := web.GetData(fmt.Sprintf(jiami1, str)) // 将网站返回结果赋值
-			if err != nil {
-				ctx.SendChain(message.Text("出现错误捏：", err))
-				return
-			}
+	en.OnRegex(`^兽语加密\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		str := ctx.State["regex_matched"].([]string)[1]
+		es, err := web.GetData(fmt.Sprintf(jiami1, str)) // 将网站返回结果赋值
+		if err != nil {
+			ctx.SendChain(message.Text("出现错误捏：", err))
+			return
+		}
+		var r nmd                    // r数组
+		err = json.Unmarshal(es, &r) // 填api返回结果，struct地址
+		if err != nil {
+			ctx.SendChain(message.Text("出现错误捏：", err))
+			return
+		}
+		ctx.SendChain(message.Text(r.Data.Message)) // 输出提取后的结果
+	})
 
-			// es1 := fmt.Sprintf("%s", es)
-			var r nmd                    // r数组
-			err = json.Unmarshal(es, &r) // 填api返回结果，struct地址
-			if err != nil {
-				ctx.SendChain(message.Text("出现错误捏：", err))
-				return
-			}
-			ctx.SendChain(message.Text(r.Data.Message)) // 输出提取后的结果
-		})
-
-	en.OnRegex(`^兽语解密\s*(.+)$`).SetBlock(true). // 正值输入
-							Handle(func(ctx *zero.Ctx) {
-			str := ctx.State["regex_matched"].([]string)[1]
-			// es := base14.EncodeString(str)
-			es, err := web.GetData(fmt.Sprintf(jiami2, str)) // 将网站返回结果赋值
-			if err != nil {
-				ctx.SendChain(message.Text("出现错误捏：", err))
-				return
-			}
-			var n nmd                    // r数组
-			err = json.Unmarshal(es, &n) // 填api返回结果，struct地址
-			if err != nil {
-				ctx.SendChain(message.Text("出现错误捏：", err))
-				return
-			}
-			ctx.SendChain(message.Text(n.Data.Message)) // 输出提取后的结果
-		})
+	en.OnRegex(`^兽语解密\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		str := ctx.State["regex_matched"].([]string)[1]
+		es, err := web.GetData(fmt.Sprintf(jiami2, str)) // 将网站返回结果赋值
+		if err != nil {
+			ctx.SendChain(message.Text("出现错误捏：", err))
+			return
+		}
+		var n nmd                    // r数组
+		err = json.Unmarshal(es, &n) // 填api返回结果，struct地址
+		if err != nil {
+			ctx.SendChain(message.Text("出现错误捏：", err))
+			return
+		}
+		ctx.SendChain(message.Text(n.Data.Message)) // 输出提取后的结果
+	})
 }

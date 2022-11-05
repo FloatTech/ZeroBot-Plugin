@@ -4,13 +4,13 @@ package wenben
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
+	"strings"
 )
 
 const (
@@ -20,18 +20,17 @@ const (
 )
 
 type RspData struct {
-	ID          int    `json:"ID"`
-	UUID        string `json:"UUID"`
-	Hitokoto    string `json:"hitokoto"`
-	Type        string `json:"type"`
-	From        string `json:"from"`
-	FromWho     string `json:"from_who"`
-	Creator     string `json:"creator"`
-	creator_UID int    `json:"creator_UID"`
-	Reviewer    int    `json:"reviewer"`
-	CommitFrom  string `json:"commit_from"`
-	CreatedAt   string `json:"created_at"`
-	Length      int    `json:"length"`
+	ID         int    `json:"ID"`
+	UUID       string `json:"UUID"`
+	Hitokoto   string `json:"hitokoto"`
+	Type       string `json:"type"`
+	From       string `json:"from"`
+	FromWho    string `json:"from_who"`
+	Creator    string `json:"creator"`
+	Reviewer   int    `json:"reviewer"`
+	CommitFrom string `json:"commit_from"`
+	CreatedAt  string `json:"created_at"`
+	Length     int    `json:"length"`
 }
 
 func init() { // 主函数
@@ -45,7 +44,6 @@ func init() { // 主函数
 			"- 每日情话" +
 			"- 绕口令",
 	})
-	en.OnFullMatch("每日一言").SetBlock(true).Handle(handle) //每日一言
 	en.OnSuffix("天气").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			str := ctx.State["args"].(string)
@@ -54,7 +52,7 @@ func init() { // 主函数
 				ctx.SendChain(message.Text("出现错误捏：", err))
 				return
 			}
-			ctx.SendChain(message.Text(str+"天气如下:\n", helper.BytesToString(es)))
+			ctx.SendChain(message.Text(str, "天气如下:\n", helper.BytesToString(es)))
 		})
 	en.OnSuffix("拼音").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -64,7 +62,7 @@ func init() { // 主函数
 				ctx.SendChain(message.Text("出现错误捏：", err))
 				return
 			}
-			ctx.SendChain(message.Text(str+"的拼音为：", helper.BytesToString(es)))
+			ctx.SendChain(message.Text(str, "的拼音为：", helper.BytesToString(es)))
 		})
 	en.OnFullMatch("每日情话").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -85,32 +83,31 @@ func init() { // 主函数
 			}
 			ctx.SendChain(message.Text(helper.BytesToString(data)))
 		})
-	en.OnFullMatch("绕口令").SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			data, err := web.GetData("http://ovooa.com/API/rao/api.php?type=text")
-			if err != nil {
-				ctx.SendChain(message.Text("获取失败惹", err))
-				return
-			}
-			ctx.SendChain(message.Text(helper.BytesToString(data)))
-		})
-}
-func handle(ctx *zero.Ctx) {
-	var rsp RspData
-	data, err := web.GetData(url)
-	if err != nil {
-		ctx.SendChain(message.Text("Err:", err))
-		return
-	}
-	err = json.Unmarshal(data, &rsp)
-	if err != nil {
-		ctx.SendChain(message.Text("出现错误捏：", err))
-		return
-	}
-	msg := ""
-	msg += rsp.Hitokoto + "\n出自：" + rsp.From + "\n"
-	if len(rsp.FromWho) != 0 {
-		msg += "作者：" + rsp.FromWho
-	}
-	ctx.SendChain(message.Text(msg))
+	en.OnFullMatch("绕口令").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		data, err := web.GetData("http://ovooa.com/API/rao/api.php?type=text")
+		if err != nil {
+			ctx.SendChain(message.Text("获取失败惹", err))
+			return
+		}
+		ctx.SendChain(message.Text(helper.BytesToString(data)))
+	})
+	en.OnFullMatch("每日一言").SetBlock(true).Handle(func(ctx *zero.Ctx) { //每日一言
+		var rsp RspData
+		data, err := web.GetData(url)
+		if err != nil {
+			ctx.SendChain(message.Text("Err:", err))
+			return
+		}
+		err = json.Unmarshal(data, &rsp)
+		if err != nil {
+			ctx.SendChain(message.Text("出现错误捏：", err))
+			return
+		}
+		var msg strings.Builder
+		msg.WriteString(rsp.Hitokoto + "\n出自：" + rsp.From + "\n")
+		if len(rsp.FromWho) != 0 {
+			msg.WriteString("作者：" + rsp.FromWho)
+		}
+		ctx.SendChain(message.Text(msg))
+	})
 }
