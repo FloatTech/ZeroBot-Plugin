@@ -20,10 +20,7 @@ const (
 )
 
 type RspData struct {
-	ID         int    `json:"ID"`
-	UUID       string `json:"UUID"`
 	Hitokoto   string `json:"hitokoto"`
-	Type       string `json:"type"`
 	From       string `json:"from"`
 	FromWho    string `json:"from_who"`
 	Creator    string `json:"creator"`
@@ -104,9 +101,13 @@ func init() { // 主函数
 			return
 		}
 		var msg strings.Builder
-		msg.WriteString(rsp.Hitokoto + "\n出自：" + rsp.From + "\n")
+		msg.WriteString(rsp.Hitokoto)
+		msg.WriteString("\n出自：")
+		msg.WriteString(rsp.From)
+		msg.WriteByte('\n')
 		if len(rsp.FromWho) != 0 {
-			msg.WriteString("作者：" + rsp.FromWho)
+			msg.WriteString("作者：")
+			msg.WriteString(rsp.FromWho)
 		}
 		ctx.SendChain(message.Text(msg.String()))
 	})
