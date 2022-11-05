@@ -632,8 +632,17 @@ func init() { // 插件主体
 					info.Get("operator_id").Int(),
 					time.Unix(info.Get("operator_time").Int(), 0).Format("2006/01/02 15:04:05"),
 				))),
-				message.CustomNode(info.Get("sender_nick").String(), info.Get("sender_id").Int(), ctx.GetMessage(message.NewMessageIDFromInteger(info.Get("message_id").Int())).Elements),
 			)
+			msg_data := ctx.GetMessage(message.NewMessageIDFromInteger(info.Get("message_id").Int())).Elements
+			if msg_data != nil {
+				msg = append(msg,
+					message.CustomNode(info.Get("sender_nick").String(), info.Get("sender_id").Int(), msg_data),
+				)
+			} else {
+				msg = append(msg,
+					message.CustomNode(info.Get("sender_nick").String(), info.Get("sender_id").Int(), "[error]信息久远，无法获取,如需查看原始内容请在“精华信息”中查看"),
+				)
+			}
 		}
 		if id := ctx.Send(msg).ID(); id == 0 {
 			ctx.SendChain(message.Text("ERROR: 可能被风控了"))
