@@ -816,6 +816,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 更新[屌|弔|吊]图
 
+  </details>
+<details>
+  <summary>兽语加密(嗷呜~)</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jiami"`
+
+  - [x] 兽语加密xxx
+
+  - [x] 兽语解密xxx
+
 </details>
 <details>
   <summary>小鸡词典</summary>
@@ -1213,6 +1223,20 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"`
 
   - [x] 来份网易云热评
+
+  </details>
+<details>
+  <summary>天气/拼音查询-名言</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"`
+
+  - [x] xx天气
+
+  - [x] xx拼音
+
+  - [x] 每日情话/一言/鸡汤
+
+  - [x] 绕口令
 
 </details>
 <details>
