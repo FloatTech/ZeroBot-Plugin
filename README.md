@@ -368,6 +368,10 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] 设置ai绘图配置 [server] [token]
   
+  - [x] 设置ai绘图撤回时间90s
+  
+  - [x] 查看ai绘图配置
+  
   例: 设置ai绘图配置 http://91.216.169.75:5010 abc
 
   参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010
@@ -862,6 +866,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>MagicPrompt-Stable-Diffusion吟唱提示</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/magicprompt"`
+
+  - [x] 吟唱提示[xxxx]
+
+</details>
+<details>
   <summary>简易midi音乐制作</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"`
@@ -1047,6 +1059,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>Real-CUGAN清晰术</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/realcugan"`
+
+  - [x] 清晰术(双重吟唱|三重吟唱|四重吟唱)(强力术式|中等术式|弱术式|不变式|原式)[图片]
+
+</details>
+<details>
   <summary>投胎</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"`
@@ -1144,6 +1164,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>舔狗日记</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
+
+  - [x] 舔狗日记
+
+</details>
+<details>
   <summary>搜番</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"`
@@ -1152,25 +1180,19 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>猜单词</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"`
-
-  - [x] 个人猜单词
-
-  - [x] 团队猜单词
-
-  - [x] 团队六阶猜单词
-
-  - [x] 团队七阶猜单词
-
-</details>
-<details>
   <summary>翻译</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"`
 
   - [x] >TL 你好
+
+</details>
+<details>
+  <summary>vits猫雷</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vitsnyaru"`
+
+  - [x] 让猫雷说[xxxx]
 
 </details>
 <details>
@@ -1254,19 +1276,25 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>舔狗日记</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"`
-
-  - [x] 舔狗日记
-
-</details>
-<details>
   <summary>聊天热词</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"`
 
   - [x] 热词 [群号] [消息数目]|热词 123456 1000
+
+</details>
+<details>
+  <summary>猜单词</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"`
+
+  - [x] 个人猜单词
+
+  - [x] 团队猜单词
+
+  - [x] 团队六阶猜单词
+
+  - [x] 团队七阶猜单词
 
 </details>
 <details>

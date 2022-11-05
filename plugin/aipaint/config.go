@@ -10,9 +10,10 @@ import (
 
 // 配置结构体
 type serverConfig struct {
-	BaseURL string `json:"base_url"`
-	Token   string `json:"token"`
-	file    string
+	BaseURL  string `json:"base_url"`
+	Token    string `json:"token"`
+	Interval int    `json:"interval"`
+	file     string
 }
 
 func newServerConfig(file string) *serverConfig {
@@ -21,9 +22,14 @@ func newServerConfig(file string) *serverConfig {
 	}
 }
 
-func (cfg *serverConfig) save(baseURL, token string) (err error) {
-	cfg.BaseURL = baseURL
-	cfg.Token = token
+func (cfg *serverConfig) update(baseURL, token string, interval int) (err error) {
+	if baseURL != "" {
+		cfg.BaseURL = baseURL
+	}
+	if token != "" {
+		cfg.Token = token
+	}
+	cfg.Interval = interval
 	reader, err := os.Create(cfg.file)
 	if err != nil {
 		return err
@@ -32,10 +38,8 @@ func (cfg *serverConfig) save(baseURL, token string) (err error) {
 	return json.NewEncoder(reader).Encode(cfg)
 }
 
-func (cfg *serverConfig) load() (aipaintServer, token string, err error) {
-	if cfg.BaseURL != "" && cfg.Token != "" {
-		aipaintServer = cfg.BaseURL
-		token = cfg.Token
+func (cfg *serverConfig) load() (err error) {
+	if cfg.BaseURL != "" && cfg.Token != "" && cfg.Interval != 0 {
 		return
 	}
 	if file.IsNotExist(cfg.file) {
@@ -48,7 +52,5 @@ func (cfg *serverConfig) load() (aipaintServer, token string, err error) {
 	}
 	defer reader.Close()
 	err = json.NewDecoder(reader).Decode(cfg)
-	aipaintServer = cfg.BaseURL
-	token = cfg.Token
 	return
 }
