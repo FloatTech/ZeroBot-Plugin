@@ -108,6 +108,6 @@ func init() { // 主函数
 		if len(rsp.FromWho) != 0 {
 			msg.WriteString("作者：" + rsp.FromWho)
 		}
-		ctx.SendChain(message.Text(msg))
+		ctx.SendChain(message.Text(msg.String()))
 	})
 }
