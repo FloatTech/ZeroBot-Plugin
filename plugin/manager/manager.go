@@ -633,10 +633,10 @@ func init() { // 插件主体
 					time.Unix(info.Get("operator_time").Int(), 0).Format("2006/01/02 15:04:05"),
 				))),
 			)
-			msg_data := ctx.GetMessage(message.NewMessageIDFromInteger(info.Get("message_id").Int())).Elements
-			if msg_data != nil {
+			msgData := ctx.GetMessage(message.NewMessageIDFromInteger(info.Get("message_id").Int())).Elements
+			if msgData != nil {
 				msg = append(msg,
-					message.CustomNode(info.Get("sender_nick").String(), info.Get("sender_id").Int(), msg_data),
+					message.CustomNode(info.Get("sender_nick").String(), info.Get("sender_id").Int(), msgData),
 				)
 			} else {
 				msg = append(msg,
