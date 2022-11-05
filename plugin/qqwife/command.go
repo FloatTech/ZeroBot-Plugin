@@ -24,6 +24,9 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/zbputils/img/text"
+
+	// 货币系统
+	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 // nolint: asciicheck
@@ -58,17 +61,19 @@ var (
 
 func init() {
 	engine := control.Register("qqwife", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		PrivateDataFolder: "qqwife",
-		Help: "一群一天一夫一妻制群老婆\n（每天凌晨刷新CP）\n" +
-			"- 娶群友\n- 群老婆列表\n- [允许|禁止]自由恋爱\n- [允许|禁止]牛头人\n- 设置CD为xx小时    →(默认12小时)\n- 重置花名册\n- 重置所有花名册(用于清除所有群数据及其设置)\n" +
+		DisableOnDefault: false,
+		Brief:            "一群一天一夫一妻制群老婆",
+		Help: "- 娶群友\n- 群老婆列表\n- [允许|禁止]自由恋爱\n- [允许|禁止]牛头人\n- 设置CD为xx小时    →(默认12小时)\n- 重置花名册\n- 重置所有花名册(用于清除所有群数据及其设置)\n" +
 			"--------------------------------\n以下指令存在CD,不跨天刷新,前两个受指令开关\n--------------------------------\n" +
-			"- (娶|嫁)@对方QQ\n自由选择对象，自由恋爱(好感度越高成功率越高,保底30%概率)\n" +
-			"- 当[对方Q号|@对方QQ]的小三\n我和你才是真爱，为了你我愿意付出一切(好感度越高成功率越高,保底10%概率)\n" +
-			"- 闹离婚\n你谁啊，给我滚(好感度越高成功率越低)\n" +
-			"- 做媒 @攻方QQ @受方QQ\n身为管理，群友的xing福是要搭把手的(攻受双方好感度越高成功率越高,保底30%概率)\n" +
+			"- (娶|嫁)@对方QQ\n自由选择对象, 自由恋爱(好感度越高成功率越高,保底30%概率)\n" +
+			"- 当[对方Q号|@对方QQ]的小三\n我和你才是真爱, 为了你我愿意付出一切(好感度越高成功率越高,保底10%概率)\n" +
+			"- 闹离婚\n你谁啊, 给我滚(好感度越高成功率越低)\n" +
+			"- 买礼物给[对方Q号|@对方QQ]\n使用小熊饼干获取好感度\n" +
+			"- 做媒 @攻方QQ @受方QQ\n身为管理, 群友的xing福是要搭把手的(攻受双方好感度越高成功率越高,保底30%概率)\n" +
 			"--------------------------------\n好感度规则\n--------------------------------\n" +
-			"‘娶群友’指令好感度随机增加1~5。\n‘A牛B的C’会导致C恨A，好感度-5;\nB为了报复A，好感度+5(什么柜子play)\nA为BC做媒,成功B、C对A好感度+1反之-1\n做媒成功BC好感度+1",
+			"\"娶群友\"指令好感度随机增加1~5。\n\"A牛B的C\"会导致C恨A, 好感度-5;\nB为了报复A, 好感度+5(什么柜子play)\nA为BC做媒,成功B、C对A好感度+1反之-1\n做媒成功BC好感度+1" +
+			"Tips: 群老婆列表过0点刷新",
+		PrivateDataFolder: "qqwife",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -457,6 +462,75 @@ func init() {
 					"(", gayZero, ")哒",
 				),
 			)
+		})
+	// 礼物系统
+	engine.OnRegex(`^买礼物给\s?(\[CQ:at,qq=(\d+)\]|(\d+))`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			uid := ctx.Event.UserID
+			fiancee := ctx.State["regex_matched"].([]string)
+			gay, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
+			// 获取CD
+			cdTime, err := 民政局.getCDtime(gid)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]获取该群技能CD错误(将以CD12H计算)\n", err))
+			}
+			ok, err := 民政局.compareCDtime(gid, uid, 5, cdTime)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]查询用户CD状态失败,请重试\n", err))
+				return
+			}
+			if !ok {
+				ctx.SendChain(message.Text("舔狗，今天你已经送过礼物了。"))
+				return
+			}
+			// 获取好感度
+			favor, err := 民政局.getFavorability(uid, gay)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]好感度库发生问题力\n", err))
+				return
+			}
+			// 对接小熊饼干
+			walletinfo := wallet.GetWalletOf(uid)
+			if walletinfo < 1 {
+				ctx.SendChain(message.Text("你钱包没钱啦！"))
+				return
+			}
+			moneyToFavor := rand.Intn(math.Min(walletinfo, 100)) + 1
+			// 计算钱对应的好感值
+			newFavor := 1
+			if favor > 50 {
+				newFavor += moneyToFavor % 10 // 礼物厌倦
+			} else {
+				newFavor += rand.Intn(moneyToFavor)
+			}
+			// 随机对方心情
+			mood := rand.Intn(5)
+			if mood == 0 {
+				newFavor = -newFavor
+			}
+			// 记录结果
+			err = wallet.InsertWalletOf(uid, -moneyToFavor)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]钱包坏掉力:\n", err))
+				return
+			}
+			lastfavor, err := 民政局.setFavorability(uid, gay, newFavor)
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]好感度数据库发生问题力\n", err))
+				return
+			}
+			// 写入CD
+			err = 民政局.writeCDtime(gid, uid, 5)
+			if err != nil {
+				ctx.SendChain(message.At(uid), message.Text("[qqwife]你的技能CD记录失败\n", err))
+			}
+			// 输出结果
+			if mood == 0 {
+				ctx.SendChain(message.Text("你花了", moneyToFavor, "ATRI币买了一件女装送给了ta,ta很不喜欢,你们的好感度降低至", lastfavor))
+			} else {
+				ctx.SendChain(message.Text("你花了", moneyToFavor, "ATRI币买了一件女装送给了ta,ta很喜欢,你们的好感度升至", lastfavor))
+			}
 		})
 	engine.OnFullMatchGroup([]string{"闹离婚", "办离婚"}, zero.OnlyGroup, getdb, checkdivorce).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

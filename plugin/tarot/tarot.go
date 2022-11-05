@@ -53,8 +53,8 @@ var (
 func init() {
 	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "塔罗牌\n" +
-			"- 抽[塔罗牌|大阿卡纳|小阿卡纳]\n" +
+		Brief:            "塔罗牌",
+		Help: "- 抽[塔罗牌|大阿卡纳|小阿卡纳]\n" +
 			"- 抽n张[塔罗牌|大阿卡纳|小阿卡纳]\n" +
 			"- 解塔罗牌[牌名]\n" +
 			"- [塔罗|大阿卡纳|小阿卡纳|混合]牌阵[圣三角|时间之流|四要素|五牌阵|吉普赛十字|马蹄|六芒星]",

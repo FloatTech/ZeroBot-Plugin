@@ -17,9 +17,9 @@ const (
 
 func init() { // 插件主体
 	engine := control.Register("alipayvoice", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Help: "支付宝到账语音\n" +
-			"- 支付宝到账 1",
+		DisableOnDefault:  false,
+		Brief:             "支付宝到账语音",
+		Help:              "- 支付宝到账 1",
 		PrivateDataFolder: "alipayvoice",
 	})
 

@@ -36,7 +36,8 @@ func init() {
 		"jikipedia",
 		&ctrl.Options[*zero.Ctx]{
 			DisableOnDefault: false,
-			Help:             "小鸡词典\n -[查梗|小鸡词典][梗]",
+			Brief:            "小鸡词典",
+			Help:             "- [查梗|小鸡词典][梗]",
 		},
 	)
 	engine.OnPrefixGroup([]string{"小鸡词典", "查梗"}).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(

@@ -20,8 +20,8 @@ import (
 func init() { // 插件主体
 	control.Register("github", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "GitHub仓库搜索\n" +
-			"- >github [xxx]\n" +
+		Brief:            "GitHub仓库搜索",
+		Help: "- >github [xxx]\n" +
 			"- >github -p [xxx]",
 	}).OnRegex(`^>github\s(-.{1,10}? )?(.*)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

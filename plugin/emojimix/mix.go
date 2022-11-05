@@ -19,8 +19,8 @@ const bed = "https://www.gstatic.com/android/keyboard/emojikitchen/%d/u%x/u%x_u%
 func init() {
 	control.Register("emojimix", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "合成emoji\n" +
-			"- [emoji][emoji]",
+		Brief:            "合成emoji",
+		Help:             "- [emoji][emoji]",
 	}).OnMessage(match).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			r := ctx.State["emojimix"].([]rune)

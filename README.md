@@ -27,6 +27,8 @@
   | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
   | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
 
+  [![Star Trend](https://api.star-history.com/svg?repos=FloatTech/ZeroBot-Plugin&type=Timeline)](https://seladb.github.io/StarTrack-js/#/preload?r=FloatTech,ZeroBot-Plugin)
+
 </div>
 
 > 如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文件或前往 [Packages](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp) 页面使用`docker`，运行后按提示登录即可。
@@ -36,7 +38,7 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [qq1 qq2 qq3 ...] [&]
+zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [qq1 qq2 qq3 ...] [&]
 ```
 - **-h**: 显示帮助
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
@@ -46,8 +48,9 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-c config.json**: 从`config.json`加载`bot`配置
 - **-s config.json**: 保存现在`bot`配置到`config.json`
-- **-l latency**: 全局处理延时
+- **-l latency**: 全局处理延时 (ms)
 - **-r ringlen**: 接收消息环缓冲区大小
+- **-x max process time**: 最大处理时间 (min)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 
@@ -65,7 +68,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
         "command_prefix": "/",
         "super_users": [],
         "ring_len": 4096,
-        "latency": 1000000000
+        "latency": 1000000000,
+        "max_process_time": 240000000000
     },
     "ws": [
         {
@@ -633,32 +637,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>一群一天一夫一妻制群老婆</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
-
-  - 引入好感度系统，好感度越高，自由恋爱成功率越高
-  
-  - [x] 设置CD为xx小时
-
-  - [x] 允许/禁止自由恋爱
-
-  - [x] 允许/禁止牛头人
-
-  - [x] 娶群友
-
-  - [x] (娶|嫁)[@对方QQ]
-  
-  - [x] 当[对方Q号|@对方QQ]的小三
-
-  - [x] 做媒 @攻方QQ @受方QQ
-
-  - [x] 群老婆列表
-
-  - [x] 重置花名册
-
-</details>
-<details>
   <summary>合成emoji</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"`
@@ -1068,6 +1046,35 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>一群一天一夫一妻制群老婆</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
+
+  - 引入好感度系统，好感度越高，自由恋爱成功率越高
+  
+  - [x] 设置CD为xx小时
+
+  - [x] [允许|禁止]自由恋爱
+
+  - [x] [允许|禁止]牛头人
+
+  - [x] 娶群友
+
+  - [x] [娶|嫁][@对方QQ]
+  
+  - [x] 当[对方Q号|@对方QQ]的小三
+
+  - [x] 做媒 @攻方QQ @受方QQ
+  
+  - [x] 买礼物给[对方Q号|@对方QQ]
+
+  - [x] 群老婆列表
+
+  - [x] 重置花名册
+
+
+</details>
+<details>
   <summary>投胎</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"`
@@ -1116,6 +1123,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 签到
   - [x] 获得签到背景[@xxx] | 获得签到背景
+  - [x] 查看等级排名
+  - 注:跨群排行
+  - [x] 查看我的钱包
+  - [x] 查看钱包排名
+  - 注:本群排行，若群人数太多不建议使用该功能!!!
 
 </details>
 <details>
@@ -1319,6 +1331,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 设置回复模式[青云客 | 小爱]
 </details>
+
 ## 三种使用方法，推荐第一种
 
 ### 1. 使用稳定版/测试版 (推荐)

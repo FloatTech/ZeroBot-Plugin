@@ -24,8 +24,8 @@ import (
 func init() {
 	control.Register("music", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "点歌\n" +
-			"- 点歌[xxx]\n" +
+		Brief:            "点歌",
+		Help: "- 点歌[xxx]\n" +
 			"- 网易点歌[xxx]\n" +
 			"- 酷我点歌[xxx]\n" +
 			"- 酷狗点歌[xxx]",
