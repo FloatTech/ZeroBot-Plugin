@@ -24,8 +24,8 @@ var (
 func init() {
 	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "本地涩图\n" +
-			"- 本地[xxx]\n" +
+		Brief:            "本地涩图",
+		Help: "- 本地[xxx]\n" +
 			"- 刷新本地[xxx]\n" +
 			"- 设置本地setu绝对路径[xxx]\n" +
 			"- 刷新所有本地setu\n" +

@@ -15,8 +15,8 @@ import (
 func init() {
 	control.Register("baidu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "baidu\n" +
-			"- 百度下[xxx]",
+		Brief:            "不会百度吗",
+		Help:             "- 百度下[xxx]",
 	}).OnPrefix("百度下").SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			txt := ctx.State["args"].(string)

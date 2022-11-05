@@ -14,8 +14,8 @@ import (
 
 var engine = control.Register("diana", &ctrl.Options[*zero.Ctx]{
 	DisableOnDefault: false,
-	Help: "嘉然\n" +
-		"- 小作文\n" +
+	Brief:            "嘉然相关", // 也许使用常用功能当Brief更好
+	Help: "- 小作文\n" +
 		"- 发大病\n" +
 		"- 教你一篇小作文[作文]",
 	PublicDataFolder: "Diana",

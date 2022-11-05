@@ -128,7 +128,8 @@ func init() { // 插件主体
 	}
 	en := control.Register("gif", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "GIF制图，命令后艾特群友/QQ号/一张图方可触发命令\n其中XXX可以为任何文字，可以不写\n对机器人操作请先艾特机器人再执行命令\n" +
+		Brief:            "制图",
+		Help: "下为制图命令: " +
 			"- 搓|-冲|-摸|-拍|-丢|-吃|-敲|-啃|-蹭|-爬|-撕|-灰度|-上翻|-下翻\n" +
 			"- 左翻|-右翻|-反色|-浮雕|- 打码|- 负片|- 旋转|- 变形|- 亲\n" +
 			"- 结婚申请|结婚登记|- 阿尼亚喜欢XXX|- 像只|- 我永远喜欢XXX\n" +
@@ -141,7 +142,10 @@ func init() { // 插件主体
 			"- 抬棺|- 远离|- 我老婆|- 小天使XXX|- 你的XXX|- 不要看\n" +
 			"- 玩一下XXX|- 给我变|- 揍|- 吞|- 膜拜|- 诶嘿|- 2蹭|- 你犯法了\n" +
 			"- 砰|- 注意力涣散|- 蒙蔽|- 踩|- 好玩|- 2转|- 踢球|- 2舔|\n" +
-			"- 可莉吃|- 胡桃啃|- 怀|- 一直（支持动图）",
+			"- 可莉吃|- 胡桃啃|- 怀|- 一直(支持动图)\n" +
+			"例: 制图命令XXX[@用户|QQ号|图片]" +
+			"Tips: XXX可以为限制长度的任何文字\n" +
+			"对Bot使用为 @Bot制图命令[XXX]@Bot",
 		PrivateDataFolder: "gif",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()

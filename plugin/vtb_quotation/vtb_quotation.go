@@ -33,7 +33,8 @@ var reg = regexp.MustCompile(".*/(.*)")
 func init() {
 	engine := control.Register("vtbquotation", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "vtbkeyboard.moe\n- vtb语录\n- 随机vtb\n- 更新vtb\n",
+		Brief:            "vtb语录",
+		Help:             "- vtb语录\n- 随机vtb\n- 更新vtb\n来源: vtbkeyboard.moe",
 		PublicDataFolder: "VtbQuotation",
 	})
 	dbfile := engine.DataFolder() + "vtb.db"

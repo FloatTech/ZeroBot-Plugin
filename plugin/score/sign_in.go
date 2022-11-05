@@ -38,7 +38,8 @@ var (
 	rankArray = [...]int{0, 10, 20, 50, 100, 200, 350, 550, 750, 1000, 1200}
 	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Help:              "签到得分\n- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
+		Brief:             "签到",
+		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
 		PrivateDataFolder: "score",
 	})
 )
@@ -58,7 +59,7 @@ func init() {
 		money := wallet.GetWalletOf(uid)
 		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
 	})
-	engine.OnFullMatch("2签到").Limit(ctxext.LimitByUser).SetBlock(true).
+	engine.OnFullMatch("签到").Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			now := time.Now()
@@ -78,7 +79,7 @@ func init() {
 				}
 				return
 			case siUpdateTimeStr != today:
-				// 如果是夸天签到就请数据
+				// 如果是跨天签到就清数据
 				err := sdb.InsertOrUpdateSignInCountByUID(uid, 0)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
@@ -95,7 +96,7 @@ func init() {
 			level := sdb.GetScoreByUID(uid).Score + 1
 			if level > SCOREMAX {
 				level = SCOREMAX
-				ctx.SendChain(message.At(uid), message.Text("你的登记已经达到上限"))
+				ctx.SendChain(message.At(uid), message.Text("你的等级已经达到上限"))
 			}
 			err = sdb.InsertOrUpdateScoreByUID(uid, level)
 			if err != nil {
