@@ -22,7 +22,7 @@ const (
 	qing    = "https://xiaobai.klizi.cn/API/other/wtqh.php"
 )
 
-type RspData struct {
+type rspData struct {
 	Hitokoto string `json:"hitokoto"`
 	From     string `json:"from"`
 	FromWho  string `json:"from_who"`
@@ -87,7 +87,7 @@ func init() { // 主函数
 		ctx.SendChain(message.Text(helper.BytesToString(data)))
 	})
 	en.OnFullMatch("每日一言").SetBlock(true).Handle(func(ctx *zero.Ctx) { //每日一言
-		var rsp RspData
+		var rsp rspData
 		data, err := web.GetData(yiyan)
 		if err != nil {
 			ctx.SendChain(message.Text("Err:", err))
