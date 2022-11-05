@@ -228,6 +228,12 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [x] [开启 | 关闭]gist加群自动审批
 
+  - [x] 对信息回复:[设置 | 取消]精华
+
+  - [x] 取消精华 [信息ID]
+
+  - [x] /精华列表
+
   - [ ] 同意好友请求
 
   - [ ] 撤回[@xxx] [xxx]
