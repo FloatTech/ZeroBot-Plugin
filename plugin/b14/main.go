@@ -14,8 +14,8 @@ import (
 func init() {
 	en := control.Register("base16384", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "base16384加解密\n" +
-			"- 加密xxx\n- 解密xxx\n- 用yyy加密xxx\n- 用yyy解密xxx",
+		Brief:            "base16384加解密",
+		Help:             "- 加密xxx\n- 解密xxx\n- 用yyy加密xxx\n- 用yyy解密xxx",
 	})
 	en.OnRegex(`^加密\s*(.+)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

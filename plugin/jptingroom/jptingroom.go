@@ -17,8 +17,8 @@ import (
 func init() { // 插件主体
 	engine := control.Register("jptingroom", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "日语听力学习材料\n" +
-			"- 随机日语听力\n" +
+		Brief:            "日语听力学习材料",
+		Help: "- 随机日语听力\n" +
 			"- 随机日语歌曲\n" +
 			"- 日语听力 xxx\n" +
 			"- 日语歌曲 xxx\n",

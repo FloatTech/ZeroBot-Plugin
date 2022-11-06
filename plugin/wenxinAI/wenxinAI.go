@@ -71,8 +71,8 @@ func init() { // 插件主体
 	}()
 	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "文心AI画图\n" +
-			"基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +
+		Brief:            "文心AI画图",
+		Help: "基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +
 			"key申请链接:https://wenxin.baidu.com/moduleApi/key\n" +
 			"key和erniemodel插件的key相同。\n" +
 			"注意:每个apikey每日上限50次,总上限500次请求。次数超过了请自行更新apikey\n" +
@@ -263,8 +263,8 @@ func init() { // 插件主体
 	/*********************************************************/
 	en := control.Register(modelName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "文心AI文本处理\n" +
-			"基于百度文心AI的API文本处理\n" +
+		Brief:            "文心AI文本处理",
+		Help: "基于百度文心AI的API文本处理\n" +
 			"key申请链接:https://wenxin.baidu.com/moduleApi/key\n" +
 			"key和ernievilg插件的key相同。\n" +
 			"注意:每个apikey每日上限200条,总上限2000条。次数超过了请自行更新apikey\n" +

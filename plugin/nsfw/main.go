@@ -16,7 +16,8 @@ const hso = "https://gchat.qpic.cn/gchatpic_new//--4234EDEC5F147A4C319A41149D7E0
 func init() {
 	engine := control.Register("nsfw", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "nsfw图片识别\n- nsfw打分[图片]",
+		Brief:            "nsfw图片识别",
+		Help:             "- nsfw打分[图片]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	// 上传一张图进行评价
 	engine.OnKeywordGroup([]string{"nsfw打分"}, zero.OnlyGroup, zero.MustProvidePicture).SetBlock(true).
@@ -34,7 +35,8 @@ func init() {
 		})
 	control.Register("nsfwauto", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Help:             "nsfw图片自动识别\n- 当图片属于非 neutral 类别时自动发送评价",
+		Brief:            "nsfw图片自动识别",
+		Help:             "- 当图片属于非 neutral 类别时自动发送评价",
 	}).OnMessage(zero.HasPicture).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["image_url"].([]string)

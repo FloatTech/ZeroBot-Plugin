@@ -30,13 +30,15 @@ import (
 func init() {
 	engine := control.Register("midicreate", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "midi音乐制作, 该插件需要安装timidity, linux安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh, windows安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行\n" +
-			"- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +
+		Brief:            "midi音乐制作",
+		Help: "- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +
 			"- 个人听音练习\n" +
 			"- 团队听音练习\n" +
 			"- *.mid (midi 转 txt)\n" +
 			"- midi制作*.txt (txt 转 midi)\n" +
-			"- 设置音色40 (0~127)",
+			"- 设置音色40 (0~127)\n" +
+			"重要事项: 该插件依赖timidity\n" +
+			"linux安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.sh\nwindows安装脚本可参考https://gitcode.net/anto_july/midi/-/raw/master/timidity.bat?inline=false, windows需要管理员模式运行",
 		PrivateDataFolder: "midicreate",
 	})
 	cachePath := engine.DataFolder() + "cache/"

@@ -17,7 +17,8 @@ import (
 func init() {
 	control.Register("nbnhhsh", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "拼音首字母释义工具\n- ?? [缩写]",
+		Brief:            "拼音首字母释义工具",
+		Help:             "- ?? [缩写]",
 	}).OnRegex(`^[?？]{1,2} ?([a-z0-9]+)$`).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]

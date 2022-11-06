@@ -14,7 +14,8 @@ func init() {
 	// 初始化engine
 	engine := control.Register("chrev", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help:             "字符翻转\n- 翻转 I love you",
+		Brief:            "英文字符翻转",
+		Help:             "例: 翻转 I love you",
 	})
 	// 处理字符翻转指令
 	engine.OnRegex(`^翻转\s*([A-Za-z\s]*)$`).SetBlock(true).

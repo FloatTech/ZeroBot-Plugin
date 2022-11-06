@@ -29,8 +29,8 @@ var (
 func init() {
 	en := control.Register("bilibiliparse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "b站动态、专栏、视频、直播解析\n" +
-			"- t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245 ",
+		Brief:            "b站链接解析",
+		Help:             "例:- t.bilibili.com/642277677329285174\n- bilibili.com/read/cv17134450\n- bilibili.com/video/BV13B4y1x7pS\n- live.bilibili.com/22603245 ",
 	})
 	en.OnRegex(`((b23|acg).tv|bili2233.cn)/[0-9a-zA-Z]+`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {

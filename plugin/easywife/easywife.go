@@ -17,9 +17,9 @@ import (
 
 func init() {
 	engine := control.Register("easywife", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Help: "本地老婆\n" +
-			" - 抽老婆\n可以去https://github.com/FloatTech/zbpwife下载素材",
+		DisableOnDefault:  false,
+		Brief:             "本地老婆",
+		Help:              " - 抽老婆\nTips: 可以去https://github.com/FloatTech/zbpwife下载素材",
 		PrivateDataFolder: "easywife",
 	})
 	cachePath := engine.DataFolder() + "wife/"

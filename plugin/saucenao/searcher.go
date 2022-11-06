@@ -31,8 +31,8 @@ var (
 func init() { // 插件主体
 	engine := control.Register("saucenao", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "搜图\n" +
-			"- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +
+		Brief:            "以图搜图",
+		Help: "- 以图搜图 | 搜索图片 | 以图识图[图片]\n" +
 			"- 搜图[P站图片ID]",
 		PrivateDataFolder: "saucenao",
 	})

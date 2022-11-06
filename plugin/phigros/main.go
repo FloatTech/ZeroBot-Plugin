@@ -22,8 +22,8 @@ var (
 	mu  sync.RWMutex
 	en  = control.Register("phigros", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "Phigros查分, 初次使用请先/phi init初始化存档\n" +
-			"/phi init 初始化存档\n" +
+		Brief:            "Phigros查分",
+		Help: "/phi init 初始化存档\n" +
 			"/phi 查询成绩\n" +
 			"/phi set <name>\n" +
 			"/phi chall <等级> <数字>\n" +
@@ -32,7 +32,8 @@ var (
 			"/phi find <曲名>\n" +
 			"示例: /phi chall rainbow 48\n" +
 			"/phi add iga AT 100.0 1000000\n" +
-			"Tips: /phi add中最后的<0|1>, 1代表全连",
+			"Tips: 初次使用请先/phi init初始化存档\n" +
+			"/phi add中最后的<0|1>, 1代表全连\n",
 		PublicDataFolder: "Phigros",
 	})
 	filepath = en.DataFolder()

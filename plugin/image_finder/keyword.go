@@ -64,9 +64,9 @@ var hrefre = regexp.MustCompile(`<a href=".*">`)
 func init() {
 	control.Register("imgfinder", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Help: "关键字搜图\n" +
-			"- 来张 [xxx]",
-	}).OnRegex(`^来张\s?(.*)$`, zero.OnlyGroup).SetBlock(true).
+		Brief:            "关键字搜图",
+		Help:             "- 来张 [xxx]",
+	}).OnRegex(`^来张\s?(.*)$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			keyword := ctx.State["regex_matched"].([]string)[1]
 			soutujson, err := soutuapi(keyword)

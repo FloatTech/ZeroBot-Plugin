@@ -15,8 +15,8 @@ import (
 func init() {
 	engine := control.Register("managerplugin", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Help: "自定义的群管插件\n" +
-			" - 开启全员禁言 群号\n" +
+		Brief:            "自定义的群管插件",
+		Help: " - 开启全员禁言 群号\n" +
 			" - 解除全员禁言 群号\n" +
 			" - 踢出并拉黑 QQ号\n" +
 			" - 踢出(并拉黑)等级为[1-100]的人\n" +

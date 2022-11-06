@@ -30,8 +30,8 @@ const (
 func init() { // 插件主体
 	control.Register("cloudmusic", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "cloudmusic\n" +
-			"- 来句网易云热评",
+		Brief:            "网易云热评",
+		Help:             "- 来句网易云热评",
 	}).OnFullMatch("来句网易云热评").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData(api)

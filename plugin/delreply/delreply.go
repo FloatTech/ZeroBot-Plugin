@@ -12,6 +12,7 @@ import (
 func init() {
 	engine := control.Register("delreply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
+		Brief:            "撤回消息",
 		Help:             "回复消息\"撤回\"以撤回消息",
 	})
 	engine.OnRegex(`^\[CQ:reply,id=(-?[0-9]+)\].*`, zero.AdminPermission, zero.KeywordRule("撤回")).SetBlock(true).
