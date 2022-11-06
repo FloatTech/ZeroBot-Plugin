@@ -23,6 +23,7 @@ require (
 	github.com/fumiama/sqlite3 v1.14.6
 	github.com/fumiama/unibase2n v0.0.0-20221003115227-e7db987de949
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/guohuiyuan/qzone v1.0.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jozsefsallai/gophersauce v1.0.1
 	github.com/lucas-clemente/quic-go v0.29.0
@@ -41,6 +42,8 @@ require (
 require (
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
+	github.com/dlclark/regexp2 v1.7.0 // indirect
+	github.com/dop251/goja v0.0.0-20221025165401-cb5011b539fe // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -48,6 +51,7 @@ require (
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -61,6 +65,7 @@ require (
 	github.com/marten-seemann/qtls-go1-18 v0.1.2 // indirect
 	github.com/marten-seemann/qtls-go1-19 v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mcoo/requests v0.0.2 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/onsi/ginkgo v1.16.4 // indirect
