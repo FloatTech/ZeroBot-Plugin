@@ -10,7 +10,7 @@ require (
 	github.com/FloatTech/sqlite v0.5.0
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.2
-	github.com/FloatTech/zbputils v1.5.1-0.20221101032142-05b2a4825567
+	github.com/FloatTech/zbputils v1.5.1-0.20221107030239-f8dd8b9a6e24
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc
 	github.com/antchfx/htmlquery v1.2.5
