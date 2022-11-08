@@ -583,44 +583,31 @@ func init() { // 插件主体
 		}
 	})
 	// 设精
-	engine.OnRegex(`^\[CQ:reply,id=(\d+)](\s+)?(设置|取消)精华$`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^\[CQ:reply,id=(\d+)\].*(设置|取消)精华$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		essenceID, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		option := ctx.State["regex_matched"].([]string)[3]
+		option := ctx.State["regex_matched"].([]string)[2]
+		var rsp zero.APIResponse
 		switch option {
 		case "设置":
-			rsp := ctx.CallAction("set_essence_msg", zero.Params{
-				"message_id": essenceID,
-			})
-			if rsp.RetCode == 0 {
-				ctx.SendChain(message.Text("设置成功"))
-			} else {
-				ctx.SendChain(message.Text("设置失败,信息:", rsp.Msg, "解释:", rsp.Wording))
-			}
+			rsp = ctx.SetGroupEssenceMessage(essenceID)
 		case "取消":
-			rsp := ctx.CallAction("delete_essence_msg", zero.Params{
-				"message_id": essenceID,
-			})
-			if rsp.RetCode == 0 {
-				ctx.SendChain(message.Text("取消成功"))
-			} else {
-				ctx.SendChain(message.Text("取消失败,信息:", rsp.Msg, "解释:", rsp.Wording))
-			}
-		default:
-			return
+			rsp = ctx.DeleteGroupEssenceMessage(essenceID)
+		}
+		if rsp.RetCode == 0 {
+			ctx.SendChain(message.Text(option, "成功"))
+		} else {
+			ctx.SendChain(message.Text(option, "失败, 信息: ", rsp.Msg, "解释: ", rsp.Wording))
 		}
 	})
 	engine.OnCommand("精华列表", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		list := ctx.CallAction("get_essence_msg_list", zero.Params{
-			"group_id": ctx.Event.GroupID,
-		})
+		list := ctx.GetGroupEssenceMessageList(ctx.Event.GroupID).Array()
 		msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("本群精华列表："))}
-		if len(list.Data.Array()) > 30 {
+		n := len(list)
+		if n > 30 {
 			ctx.SendChain(message.Text("精华内容太多,仅显示前30个"))
+			n = 30
 		}
-		for i, info := range list.Data.Array() {
-			if i > 29 {
-				break
-			}
+		for _, info := range list[:n] {
 			msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
 				message.Text(fmt.Sprintf(
 					"信息ID: %d\n发送者昵称: %s\n发送者QQ 号: %d\n消息发送时间: %s\n操作者昵称: %s\n操作者QQ 号: %d\n精华设置时间: %s",
@@ -649,17 +636,16 @@ func init() { // 插件主体
 		}
 	})
 	engine.OnPrefix("取消精华", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		essenceID, err := strconv.ParseInt(ctx.State["args"].(string), 10, 64)
+		essenceID, err := strconv.ParseInt(strings.TrimSpace(ctx.State["args"].(string)), 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: 请输入正确的设精ID"))
+			return
 		}
-		rsp := ctx.CallAction("delete_essence_msg", zero.Params{
-			"message_id": essenceID,
-		})
+		rsp := ctx.DeleteGroupEssenceMessage(essenceID)
 		if rsp.RetCode == 0 {
 			ctx.SendChain(message.Text("取消成功"))
 		} else {
-			ctx.SendChain(message.Text("取消失败,信息:", rsp.Msg, "解释:", rsp.Wording))
+			ctx.SendChain(message.Text("取消失败, 信息: ", rsp.Msg, "解释: ", rsp.Wording))
 		}
 	})
 }
