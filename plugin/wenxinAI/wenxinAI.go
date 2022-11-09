@@ -26,10 +26,8 @@ import (
 )
 
 const (
-	serviceName = "wenxinvilg"
-	serviceErr  = "[" + serviceName + "]ERROR:\n"
-	modelName   = "wenxinmodel"
-	modelErr    = "[" + modelName + "]ERROR:\n"
+	serviceErr = "[wenxinvilg]ERROR:\n"
+	modelErr   = "[wenxinmodel]ERROR:\n"
 )
 
 type keydb struct {
@@ -69,7 +67,7 @@ func init() { // 插件主体
 		defer process.GlobalInitMutex.Unlock()
 		name = zero.BotConfig.NickName[0]
 	}()
-	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("wenxinvilg", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "文心AI画图",
 		Help: "基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +
@@ -261,7 +259,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("成功!"))
 		})
 	/*********************************************************/
-	en := control.Register(modelName, &ctrl.Options[*zero.Ctx]{
+	en := control.Register("wenxinmodel", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "文心AI文本处理",
 		Help: "基于百度文心AI的API文本处理\n" +

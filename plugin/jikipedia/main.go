@@ -32,13 +32,11 @@ type value struct {
 
 func init() {
 	// 初始化engine
-	engine := control.Register(
-		"jikipedia",
-		&ctrl.Options[*zero.Ctx]{
-			DisableOnDefault: false,
-			Brief:            "小鸡词典",
-			Help:             "- [查梗|小鸡词典][梗]",
-		},
+	engine := control.Register("jikipedia", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault: false,
+		Brief:            "小鸡词典",
+		Help:             "- [查梗|小鸡词典][梗]",
+	},
 	)
 	engine.OnPrefixGroup([]string{"小鸡词典", "查梗"}).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {

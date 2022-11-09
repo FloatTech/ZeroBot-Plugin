@@ -22,10 +22,9 @@ import (
 )
 
 const (
-	ua          = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
-	referer     = "https://www.bilibili.com/"
-	infoURL     = "https://api.bilibili.com/x/space/acc/info?mid=%v"
-	serviceName = "bilibilipush"
+	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
+	referer = "https://www.bilibili.com/"
+	infoURL = "https://api.bilibili.com/x/space/acc/info?mid=%v"
 )
 
 // bdb bilibili推送数据库
@@ -38,7 +37,7 @@ var (
 )
 
 func init() {
-	en := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
+	en := control.Register("bilibilipush", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "b站推送",
 		Help: "- 添加b站订阅[uid|name]\n" +
@@ -49,7 +48,7 @@ func init() {
 			"Tips: 需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
 			"记录在\"@every 5m\"触发的指令)\n" +
 			"拉取b站推送",
-		PrivateDataFolder: serviceName,
+		PrivateDataFolder: "bilibilipush",
 	})
 
 	// 加载bilibili推送数据库
@@ -276,7 +275,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 			ct := cardList[i].Get("desc.timestamp").Int()
 			if ct > t && ct > time.Now().Unix()-600 {
 				lastTime[buid] = ct
-				m, ok := control.Lookup(serviceName)
+				m, ok := control.Lookup("bilibilipush")
 				if ok {
 					groupList := bdb.getAllGroupByBuidAndDynamic(buid)
 					dc, err := bz.LoadDynamicDetail(cardList[i].Raw)
@@ -325,7 +324,7 @@ func sendLive(ctx *zero.Ctx) error {
 		oldStatus := liveStatus[key.Int()]
 		if newStatus != oldStatus && newStatus == 1 {
 			liveStatus[key.Int()] = newStatus
-			m, ok := control.Lookup(serviceName)
+			m, ok := control.Lookup("bilibilipush")
 			if ok {
 				groupList := bdb.getAllGroupByBuidAndLive(key.Int())
 				roomID := value.Get("short_id").Int()
