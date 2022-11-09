@@ -32,8 +32,6 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-const servicename = "guessmusic"
-
 var (
 	filelist      []listinfo
 	musictypelist = "mp3;MP3;wav;WAV;amr;AMR;3gp;3GP;3gpp;3GPP;acc;ACC"
@@ -42,7 +40,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("guessmusic", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "猜歌插件",
 		Help: "由于不可抗因素无法获取网易云歌单内容, 插件改为本地猜歌了, 但保留了下歌功能\n" +
@@ -74,7 +72,7 @@ func init() { // 插件主体
 			)
 		}),
 	))
-	serviceErr := "[" + servicename + "]"
+	serviceErr := "[guessmusic]"
 	// 用于存放歌曲三个片段的文件夹
 	cachePath := engine.DataFolder() + "cache/"
 	err := os.MkdirAll(cachePath, 0777)

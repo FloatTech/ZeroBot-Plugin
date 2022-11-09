@@ -17,10 +17,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-const (
-	servicename = "epidemic"
-	txurl       = "https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=statisGradeCityDetail,diseaseh5Shelf"
-)
+const txurl = "https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=statisGradeCityDetail,diseaseh5Shelf"
 
 var (
 	customlimit = rate.NewManager[int64](time.Minute*1, 1)
@@ -58,7 +55,7 @@ type area struct {
 }
 
 func init() {
-	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("epidemic", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "城市疫情查询",
 		Help:             "- xxx疫情\n",
