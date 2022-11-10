@@ -587,7 +587,7 @@ func init() { // 插件主体
 		}
 	})
 	// 设精
-	engine.OnRegex(`^\[CQ:reply,id=(\d+)\][\s\S]*(设置|取消)精华$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\][\s\S]*(设置|取消)精华$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		essenceID, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		option := ctx.State["regex_matched"].([]string)[2]
 		var rsp zero.APIResponse

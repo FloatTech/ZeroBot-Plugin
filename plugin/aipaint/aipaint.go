@@ -2,13 +2,10 @@
 package aipaint
 
 import (
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"image"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,7 +13,6 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -54,7 +50,6 @@ func init() { // 插件主体
 		Brief:            "ai绘图",
 		Help: "- [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx\n" +
 			"- [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] [prompt]\n" +
-			"- [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]\n" +
 			"- 设置ai绘图配置 [server] [token]\n" +
 			"- 设置ai绘图撤回时间90s\n" +
 			"- 查看ai绘图配置\n" +
@@ -62,7 +57,7 @@ func init() { // 插件主体
 			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010\n" +
 			"通过 http://91.217.139.190:5010/token 获取token\n" +
 			"[prompt]参数如下\n" +
-			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子\n" +
+			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子\nstrength:[0-1] 建议0-0.7\nnoise:[0-1] 建议0-0.15" +
 			"参数与参数内容用:连接,每个参数之间用回车分割",
 		PrivateDataFolder: "aipaint",
 	})
@@ -77,63 +72,6 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			args := ctx.State["args"].(string)
 			data, err := web.GetData(cfg.BaseURL + fmt.Sprintf(aipaintTxt2ImgURL, cfg.Token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20")))))
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			sendAiImg(ctx, data, cfg.Interval)
-		})
-	engine.OnRegex(`^(以图绘图|以图生图|以图画图)[\s\S]*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			err := cfg.load()
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			c := newContext(ctx.Event.UserID)
-			list := ctx.State["regex_matched"].([]string)
-			err = c.prepareLogos(list[4]+list[5]+list[6], strconv.FormatInt(ctx.Event.UserID, 10))
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			args := strings.TrimSuffix(strings.TrimPrefix(list[0], list[1]), list[2])
-			if args == "" {
-				ctx.SendChain(message.Text("ERROR: 以图绘图必须添加tag"))
-				return
-			}
-			ctx.SendChain(message.Text("少女祈祷中..."))
-			postURL := cfg.BaseURL + fmt.Sprintf(aipaintImg2ImgURL, cfg.Token, url.QueryEscape(strings.TrimSpace(strings.ReplaceAll(args, " ", "%20"))))
-
-			f, err := os.Open(c.headimgsdir[0])
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			defer f.Close()
-
-			img, _, err := image.Decode(f)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			imageShape := ""
-			switch {
-			case img.Bounds().Dx() > img.Bounds().Dy():
-				imageShape = "Landscape"
-			case img.Bounds().Dx() == img.Bounds().Dy():
-				imageShape = "Square"
-			default:
-				imageShape = "Portrait"
-			}
-
-			// 图片转base64
-			base64Bytes, err := writer.ToBase64(img)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			data, err := web.PostData(postURL+"&shape="+imageShape, "text/plain", bytes.NewReader(base64Bytes))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -182,6 +120,12 @@ func init() { // 插件主体
 			}
 			if _, ok := tags["seed"]; ok {
 				apiurl += "&seed=" + url.QueryEscape(strings.TrimSpace(tags["seed"]))
+			}
+			if _, ok := tags["strength"]; ok {
+				apiurl += "&strength=" + url.QueryEscape(strings.TrimSpace(tags["strength"]))
+			}
+			if _, ok := tags["noise"]; ok {
+				apiurl += "&noise=" + url.QueryEscape(strings.TrimSpace(tags["noise"]))
 			}
 			data, err := web.GetData(cfg.BaseURL + apiurl)
 			if err != nil {
