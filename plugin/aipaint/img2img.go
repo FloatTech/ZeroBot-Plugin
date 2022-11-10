@@ -25,7 +25,7 @@ func init() { // 插件主体
 		Brief:            "以图绘图",
 		Help: "- [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]\n" +
 			"- 官方以图绘图api已失效 需要自建api 其他配置参数同ai绘图",
-		PrivateDataFolder: "aipaint",
+		PrivateDataFolder: "img2img",
 	})
 	datapath = file.BOTPATH + "/" + engine.DataFolder()
 	engine.OnRegex(`^(以图绘图|以图生图|以图画图)[\s\S]*?(\[CQ:(image\,file=([0-9a-zA-Z]{32}).*|at.+?(\d{5,11}))\].*|(\d+))$`).SetBlock(true).
