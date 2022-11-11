@@ -17,15 +17,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const (
-	replyServiceName = "aireply"
-	ttsServiceName   = "tts"
-)
-
 var replyModes = [...]string{"青云客", "小爱"}
 
 func init() { // 插件主体
-	enOftts := control.Register(ttsServiceName, &ctrl.Options[*zero.Ctx]{
+	enOftts := control.Register("tts", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "人工智能语音回复",
 		Help: "- @Bot 任意文本(任意一句话回复)\n" +
@@ -35,7 +30,7 @@ func init() { // 插件主体
 			"当前适用的原神人物含有以下：\n" + list(soundList[:], 5),
 	})
 	tts := newttsmode()
-	enOfreply := control.Register(replyServiceName, &ctrl.Options[*zero.Ctx]{
+	enOfreply := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "人工智能回复",
 		Help:             "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]",
