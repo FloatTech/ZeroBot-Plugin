@@ -241,7 +241,7 @@ func init() {
 			config.Groups[ctx.Event.GroupID] = group
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("本群%s已%s", k2, k1)))
 		})
-	engine.OnRegex(`^配置BDAKey\s*(.*)\s*(.*)$`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^配置BDAKey\s(.*)\s(.*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			k1 := ctx.State["regex_matched"].([]string)[1]
 			k2 := ctx.State["regex_matched"].([]string)[2]
