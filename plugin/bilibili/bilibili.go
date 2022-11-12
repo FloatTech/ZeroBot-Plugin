@@ -33,12 +33,16 @@ import (
 
 var (
 	re             = regexp.MustCompile(`^\d+$`)
-	danmakuTypeMap = map[string]string{
-		"Message": "普通消息",
-		"Gift":    "礼物",
-		"Guard":   "上舰",
-		"SC":      "Superchat",
-		"Enter":   "进入直播间",
+	danmakuTypeMap = map[int64]string{
+		0: "普通消息",
+		1: "礼物",
+		2: "上舰",
+		3: "Superchat",
+		4: "进入直播间",
+		5: "标题变动",
+		6: "分区变动",
+		7: "直播中止",
+		8: "直播继续",
 	}
 	cfg = bz.NewCookieConfig("data/Bilibili/config.json")
 )
@@ -436,12 +440,12 @@ func init() {
 				moveW += l + dz
 
 				switch danItem.Type {
-				case "Message":
+				case 0:
 					t = danItem.Message
 					l, _ = canvas.MeasureString(t)
 					canvas.DrawString(t, moveW, danmuNow)
 					moveW += l + dz
-				case "Gift":
+				case 1:
 					t = danmakuTypeMap[danItem.Type]
 					l, _ = canvas.MeasureString(t)
 					canvas.SetRGB255(255, 0, 0)
@@ -453,10 +457,10 @@ func init() {
 					canvas.DrawString(t, moveW, danmuNow)
 					canvas.SetColor(color.Black)
 					moveW += l + dz
-				case "Guard", "SC":
+				case 2, 3:
 					t = danmakuTypeMap[danItem.Type]
 					l, _ = canvas.MeasureString(t)
-					if danItem.Type == "SC" {
+					if danItem.Type == 3 {
 						canvas.SetRGB255(0, 85, 255)
 					} else {
 						canvas.SetRGB255(128, 0, 128)
@@ -479,7 +483,7 @@ func init() {
 					l, _ = canvas.MeasureString(t)
 					canvas.SetRGB255(255, 0, 0)
 					canvas.DrawString(t, moveW, danmuNow)
-					if danItem.Type == "SC" {
+					if danItem.Type == 3 {
 						canvas.SetRGB255(0, 85, 255)
 					} else {
 						canvas.SetRGB255(128, 0, 128)
@@ -491,7 +495,7 @@ func init() {
 					canvas.DrawString(t, moveW, danmuNow)
 					canvas.SetColor(color.Black)
 					moveW += l + dz
-				case "Enter":
+				case 4, 5, 6, 7, 8:
 					t = danmakuTypeMap[danItem.Type]
 					canvas.SetRGB255(0, 128, 0)
 					l, _ = canvas.MeasureString(t)
@@ -500,7 +504,7 @@ func init() {
 					moveW += l + dz
 				default:
 					canvas.SetRGB255(0, 128, 0)
-					l, _ = canvas.MeasureString(danItem.Type)
+					l, _ = canvas.MeasureString("未知类型" + strconv.Itoa(int(danItem.Type)))
 					canvas.DrawString(t, moveW, danmuNow)
 					canvas.SetColor(color.Black)
 					moveW += l + dz
