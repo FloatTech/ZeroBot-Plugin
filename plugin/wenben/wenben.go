@@ -20,7 +20,6 @@ const (
 	kouling = "http://ovooa.com/API/rao/api.php?type=text"      //口令
 	tang    = "http://api.btstu.cn/yan/api.php?charset=utf-8&encode=text"
 	qing    = "https://xiaobai.klizi.cn/API/other/wtqh.php"
-	quan    = "http://tfkapi.top/API/qqqz.php?qq=%v"
 )
 
 type rspData struct {
