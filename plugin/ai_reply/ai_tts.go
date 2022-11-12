@@ -152,7 +152,7 @@ func newttsmode() *ttsmode {
 	tts := &ttsmode{}
 	tts.Lock()
 	defer tts.Unlock()
-	m, ok := control.Lookup(ttsServiceName)
+	m, ok := control.Lookup("tts")
 	tts.mode = make(map[int64]int64, 2*len(soundList))
 	tts.mode[-2905] = 1
 	if ok {
@@ -229,7 +229,7 @@ func (tts *ttsmode) setDefaultSoundMode(name string) error {
 	}
 	tts.Lock()
 	defer tts.Unlock()
-	m, ok := control.Lookup(ttsServiceName)
+	m, ok := control.Lookup("tts")
 	if !ok {
 		return errors.New("[tts] service not found")
 	}
