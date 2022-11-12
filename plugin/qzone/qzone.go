@@ -7,16 +7,13 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"io"
 	"math/rand"
-	"net/http"
-	"net/http/cookiejar"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Coloured-glaze/gg"
+	"github.com/FloatTech/AnimeAPI/qzone"
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
@@ -25,130 +22,79 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
-	"github.com/guohuiyuan/qzone"
 	"github.com/jinzhu/gorm"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+)
+
+const (
+	waitStatus = iota + 1
+	agreeStatus
+	disagreeStatus
+	loveTag      = "表白"
+	faceURL      = "http://q4.qlogo.cn/g?b=qq&nk=%v&s=640"
+	anonymousURL = "https://gitcode.net/anto_july/avatar/-/raw/master/%v.png"
 )
 
 func init() {
 	engine := control.Register("qzone", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "QQ空间表白墙",
-		Help: "- 登录QQ空间 (如果有问题, 重新登录一下QQ空间)\n" +
+		Help: "- 登录QQ空间 (Cookie过期很快, 要经常登录)\n" +
 			"- 发说说[xxx]\n" +
 			"- (匿名)发表白墙[xxx]\n" +
-			"- [ 同意 | 拒绝 ]表白墙 1,2,3 (最后一个参数是表白墙的序号数组,用英文逗号连接)\n" +
-			"- 查看[ 等待 | 同意 | 拒绝 | 所有 ]表白墙 0 (最后一个参数是页码)",
+			"- [ 同意 | 拒绝 ]表白墙 1,2,3 (最后一个参数是表白墙的序号数组, 用英文逗号连接)\n" +
+			"- 查看[ 等待 | 同意 | 拒绝 | 所有 ]表白墙 0 (最后一个参数是页码, 建议私聊审稿)",
 		PrivateDataFolder: "qzone",
 	})
 	go func() {
 		qdb = initialize(engine.DataFolder() + "qzone.db")
 	}()
-	engine.OnFullMatch("登录QQ空间", zero.SuperUserPermission).SetBlock(true).
+	engine.OnFullMatch("登录QQ空间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
-				uin     string
-				cookies string
+				qrsig           string
+				ptqrtoken       string
+				ptqrloginCookie string
+				redirectCookie  string
+				data            []byte
+				err             error
 			)
-
-			gCurCookieJar, _ := cookiejar.New(nil)
-			client := &http.Client{
-				Jar: gCurCookieJar,
-				CheckRedirect: func(req *http.Request, via []*http.Request) error {
-					return http.ErrUseLastResponse
-				},
-			}
-			ptqrcodeReq, err := http.NewRequest("GET", qrcodeURL, nil)
+			data, qrsig, ptqrtoken, err = qzone.Ptqrshow()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			qrcodeResp, err := client.Do(ptqrcodeReq)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			defer qrcodeResp.Body.Close()
-			var qrsig string
-			for _, v := range qrcodeResp.Cookies() {
-				if v.Name == "qrsig" {
-					qrsig = v.Value
-					break
-				}
-			}
-			if qrsig == "" {
-				ctx.SendChain(message.Text("ERROR: qrsig为空"))
-				return
-			}
-			data, err := io.ReadAll(qrcodeResp.Body)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			ctx.SendChain(message.Text("请扫描二维码, 登录qq空间"))
+			ctx.SendChain(message.Text("请扫描二维码, 登录QQ空间"))
 			ctx.SendChain(message.ImageBytes(data))
-			qrtoken := getPtqrtoken(qrsig)
 			for {
 				time.Sleep(2 * time.Second)
-				checkReq, err := http.NewRequest("GET", fmt.Sprintf(loginCheckURL, qrtoken), nil)
+				data, ptqrloginCookie, err = qzone.Ptqrlogin(qrsig, ptqrtoken)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				checkResp, err := client.Do(checkReq)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				defer checkResp.Body.Close()
-				checkData, err := io.ReadAll(checkResp.Body)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				checkText := binary.BytesToString(checkData)
+				text := binary.BytesToString(data)
+
 				switch {
-				case strings.Contains(checkText, "二维码已失效"):
+				case strings.Contains(text, "二维码已失效"):
 					ctx.SendChain(message.Text("二维码已失效, 登录失败"))
 					return
-				case strings.Contains(checkText, "登录成功"):
-					dealedCheckText := strings.ReplaceAll(checkText, "'", "")
+				case strings.Contains(text, "登录成功"):
+					dealedCheckText := strings.ReplaceAll(text, "'", "")
 					redirectURL := strings.Split(dealedCheckText, ",")[2]
-					u, err := url.Parse(redirectURL)
+					redirectCookie, err = qzone.LoginRedirect(redirectURL)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
-					values, err := url.ParseQuery(u.RawQuery)
+					m := qzone.NewManager(ptqrloginCookie + redirectCookie)
+					qq, err := strconv.ParseInt(m.QQ, 10, 64)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
-					ptsigx := values["ptsigx"][0]
-					uin = values["uin"][0]
-					redirectReq, err := http.NewRequest("GET", fmt.Sprintf(checkSigURL, uin, ptsigx), nil)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-					redirectResp, err := client.Do(redirectReq)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-					defer redirectResp.Body.Close()
-					for _, v := range redirectResp.Cookies() {
-						if v.Value != "" {
-							cookies += v.Name + "=" + v.Value + ";"
-						}
-					}
-					qq, err := strconv.Atoi(uin)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-					err = qdb.insertOrUpdate(int64(qq), cookies)
+					err = qdb.insertOrUpdate(qq, m.Cookie)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
@@ -180,6 +126,10 @@ func init() {
 	engine.OnRegex(`^(.{0,2})发表白墙.*?([\s\S]*)`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			regexMatched := ctx.State["regex_matched"].([]string)
+			if strings.TrimSpace(regexMatched[2]) == "" {
+				ctx.SendChain(message.Text("请不要发送空内容"))
+				return
+			}
 			qq := ctx.Event.UserID
 			e := emotion{
 				QQ:        qq,
@@ -198,7 +148,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("已收稿, 请耐心等待审核"))
 		})
-	engine.OnRegex(`^(同意|拒绝)表白墙\s?((?:\d+,){0,4}\d+)$`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^(同意|拒绝)表白墙\s?((?:\d+,){0,8}\d+)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var err error
 			var ti int64
@@ -224,21 +174,22 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.Text("同意说说", regexMatched[2], ", 发表成功"))
+				ctx.SendChain(message.Text("同意表白墙", regexMatched[2], ", 发表成功"))
 			case "拒绝":
 				err = qdb.updateEmotionStatusByIDList(idList, disagreeStatus)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.Text("拒绝说说", regexMatched[2]))
+				ctx.SendChain(message.Text("拒绝表白墙", regexMatched[2]))
 			}
 		})
 	engine.OnRegex(`^查看(.{0,2})表白墙\s?(\d*)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var (
-				pageNum int
-				err     error
+				pageNum   int
+				err       error
+				base64Str []byte
 			)
 			regexMatched := ctx.State["regex_matched"].([]string)
 			if regexMatched[2] == "" {
@@ -274,14 +225,21 @@ func init() {
 			}
 			m := message.Message{}
 			for _, v := range el {
-				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(v.textBrief(), "\n呢称: ", ctx.CardOrNickName(v.QQ))))
-				base64Str, err := renderForwardMsg(v.QQ, v.Msg)
+				t := v.textBrief() + "\n呢称: " + ctx.CardOrNickName(v.QQ)
+				base64Str, err = text.RenderToBase64(t, text.FontFile, 400, 20)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+binary.BytesToString(base64Str))))
+				base64Str, err = renderForwardMsg(v.QQ, v.Msg)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("base64://"+binary.BytesToString(base64Str))))
 			}
+			time.Sleep(time.Second)
 			if id := ctx.Send(m).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
 			}
@@ -314,8 +272,7 @@ func publishEmotion(botqq int64, text string, base64imgs []string) (err error) {
 		return
 	}
 	m := qzone.NewManager(qc.Cookie)
-	_ = m.RefreshToken()
-	_, err = m.SendShuoShuoWithBase64Pic(text, base64imgs)
+	_, err = m.EmotionPublish(text, base64imgs)
 	return
 }
 
@@ -340,8 +297,8 @@ func parseTextAndImg(raw string) (text string, base64imgs []string, err error) {
 }
 
 func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
-	canvas := gg.NewContext(10000, 10000)
-	canvas.SetRGB255(251, 114, 153)
+	canvas := gg.NewContext(1000, 1000)
+	canvas.SetRGB255(229, 229, 229)
 	canvas.Clear()
 	canvas.SetColor(color.Black)
 	var (
@@ -393,6 +350,9 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 			continue
 		}
 		canvas.DrawImage(back, margin, maxHeight)
+		if msgImg.Bounds().Dx() > 500 {
+			msgImg = img.Size(msgImg, 500, msgImg.Bounds().Dy()*500/msgImg.Bounds().Dx()).Im
+		}
 		canvas.DrawImage(msgImg, 2*margin+backX, maxHeight)
 		if 3*margin+backX+msgImg.Bounds().Dx() > maxWidth {
 			maxWidth = 3*margin + backX + msgImg.Bounds().Dx()
