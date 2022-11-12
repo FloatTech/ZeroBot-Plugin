@@ -17,15 +17,10 @@ import (
 	"github.com/FloatTech/zbputils/control"
 )
 
-const (
-	// 服务名
-	servicename = "atri"
-	// ATRI 表情的 codechina 镜像
-	res = "https://gitcode.net/u011570312/zbpdata/-/raw/main/Atri/"
-)
+const res = "https://gitcode.net/u011570312/zbpdata/-/raw/main/Atri/"
 
 func init() { // 插件主体
-	engine := control.Register(servicename, &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("atri", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "atri人格文本回复",
 		Help: "本插件基于 ATRI ，为 Golang 移植版\n" +
