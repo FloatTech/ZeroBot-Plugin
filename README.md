@@ -68,7 +68,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
         "command_prefix": "/",
         "super_users": [],
         "ring_len": 4096,
-        "latency": 1000000000,
+        "latency": 233000000,
         "max_process_time": 240000000000
     },
     "ws": [
