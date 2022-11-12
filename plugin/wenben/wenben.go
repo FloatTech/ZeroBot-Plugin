@@ -4,7 +4,6 @@ package wenben
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -31,7 +30,7 @@ type rspData struct {
 }
 
 func init() { // 主函数
-	en := control.Register("tianqi", &ctrl.Options[*zero.Ctx]{
+	en := control.Register("wenben", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "天气/拼音查询",
 		Help: "文本命令大全\n" +
@@ -110,17 +109,5 @@ func init() { // 主函数
 			msg.WriteString(rsp.FromWho)
 		}
 		ctx.SendChain(message.Text(msg.String()))
-	})
-	en.OnRegex(`^权重查询\s?(\S{0,25})$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		str := ctx.State["regex_matched"].([]string)[1]
-		if str == "" {
-			str = strconv.FormatInt(ctx.Event.UserID, 10)
-		}
-		es, err := web.GetData(fmt.Sprintf(quan, str)) // 将网站返回结果赋值
-		if err != nil {
-			ctx.SendChain(message.Text("出现错误捏：", err))
-			return
-		}
-		ctx.SendChain(message.Text(str, helper.BytesToString(es))) // 输出提取后的结果
 	})
 }
