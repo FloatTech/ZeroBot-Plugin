@@ -750,8 +750,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] [个人/团队]猜歌
 	
   ------插 件 扩 展------
-  NeteaseCloudMusicApi项目地址:
-  https://binaryify.github.io/NeteaseCloudMusicApi/#/
+	NeteaseCloudMusicApi项目地址:
+	https://binaryify.github.io/NeteaseCloudMusicApi/#/
   - [x] 设置猜歌API帮助
   - [x] 设置猜歌API [API首页网址]
   - [x] 猜歌[开启/关闭][歌单/歌词]自动下载
