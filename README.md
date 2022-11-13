@@ -1070,6 +1070,22 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
 </details>
 <details>
+  <summary>qq空间表白墙</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qzone"`
+
+  - [x] 登录QQ空间 (Cookie过期很快, 要经常登录)
+  
+  - [x] 发说说[xxx]
+  
+  - [x] (匿名)发表白墙[xxx]
+  
+  - [x] [ 同意 | 拒绝 ]表白墙 1,2,3 (最后一个参数是表白墙的序号数组, 用英文逗号连接)
+  
+  - [x] 查看[ 等待 | 同意 | 拒绝 | 所有 ]表白墙 0 (最后一个参数是页码, 建议私聊审稿)
+
+</details>
+<details>
   <summary>Real-CUGAN清晰术</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/realcugan"`
