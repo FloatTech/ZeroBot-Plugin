@@ -24,10 +24,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-const (
-	servicename = "guessmusic"
-	serviceErr  = "[guessmusic]error:"
-)
+const serviceErr = "[guessmusic]error:"
 
 var (
 	// 用户数据
@@ -300,28 +297,27 @@ func init() {
 			if fileSearchName == "" {
 				ctx.SendChain(message.Text(serviceErr, "请确认群文件文件名称是否正确或存在"))
 				return
-			} else {
-				// 解析歌曲信息
-				music := strings.Split(fileSearchName, ".")
-				// 获取音乐后缀
-				musictype := music[len(music)-1]
-				if !strings.Contains(musictypelist, musictype) {
-					ctx.SendChain(message.Text(fileSearchName, "不是插件支持的后缀,请更改后缀"))
-					return
-				}
-				// 获取音乐信息
-				musicInfo := strings.Split(strings.ReplaceAll(fileSearchName, "."+musictype, ""), " - ")
-				infoNum := len(musicInfo)
-				if infoNum == 1 {
-					ctx.SendChain(message.Text(fileSearchName, "不符合命名规则,请更改名称"))
-					return
-				}
-				fileName = "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
-				musicAlia := ""
-				if infoNum > 2 {
-					musicAlia = musicInfo[2]
-					fileName += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
-				}
+			}
+			// 解析歌曲信息
+			music := strings.Split(fileSearchName, ".")
+			// 获取音乐后缀
+			musictype := music[len(music)-1]
+			if !strings.Contains(musictypelist, musictype) {
+				ctx.SendChain(message.Text(fileSearchName, "不是插件支持的后缀,请更改后缀"))
+				return
+			}
+			// 获取音乐信息
+			musicInfo := strings.Split(strings.ReplaceAll(fileSearchName, "."+musictype, ""), " - ")
+			infoNum := len(musicInfo)
+			if infoNum == 1 {
+				ctx.SendChain(message.Text(fileSearchName, "不符合命名规则,请更改名称"))
+				return
+			}
+			fileName = "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
+			musicAlia := ""
+			if infoNum > 2 {
+				musicAlia = musicInfo[2]
+				fileName += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
 			}
 			// 是否存在该歌单
 			if file.IsNotExist(cfg.MusicPath + listName) {
@@ -525,7 +521,7 @@ func getlist(pathOfMusic string) (list []listinfo, err error) {
 }
 
 // 遍历群文件
-func getFileURLbyFileName(ctx *zero.Ctx, fileName string, folderid ...string) (fileSearchName, fileURL string) {
+func getFileURLbyFileName(ctx *zero.Ctx, fileName string) (fileSearchName, fileURL string) {
 	filesOfGroup := ctx.GetThisGroupRootFiles(ctx.Event.GroupID)
 	files := filesOfGroup.Get("files").Array()
 	folders := filesOfGroup.Get("folders").Array()
@@ -542,8 +538,34 @@ func getFileURLbyFileName(ctx *zero.Ctx, fileName string, folderid ...string) (f
 	// 遍历子文件夹
 	if len(folders) != 0 {
 		for _, folderNameOflist := range folders {
-			folder_id := folderNameOflist.Get("folder_id").String()
-			fileSearchName, fileURL = getFileURLbyFileName(ctx, fileName, folder_id)
+			folderID := folderNameOflist.Get("folder_id").String()
+			fileSearchName, fileURL = getFileURLbyfolderID(ctx, fileName, folderID)
+			if fileSearchName != "" {
+				return
+			}
+		}
+	}
+	return
+}
+func getFileURLbyfolderID(ctx *zero.Ctx, fileName, folderid string) (fileSearchName, fileURL string) {
+	filesOfGroup := ctx.GetThisGroupFilesByFolder(folderid)
+	files := filesOfGroup.Get("files").Array()
+	folders := filesOfGroup.Get("folders").Array()
+	// 遍历当前目录的文件名
+	if len(files) != 0 {
+		for _, fileNameOflist := range files {
+			if strings.Contains(fileNameOflist.Get("file_name").String(), fileName) {
+				fileSearchName = fileNameOflist.Get("file_name").String()
+				fileURL = ctx.GetThisGroupFileUrl(fileNameOflist.Get("busid").Int(), fileNameOflist.Get("file_id").String())
+				return
+			}
+		}
+	}
+	// 遍历子文件夹
+	if len(folders) != 0 {
+		for _, folderNameOflist := range folders {
+			folderID := folderNameOflist.Get("folder_id").String()
+			fileSearchName, fileURL = getFileURLbyfolderID(ctx, fileName, folderID)
 			if fileSearchName != "" {
 				return
 			}
