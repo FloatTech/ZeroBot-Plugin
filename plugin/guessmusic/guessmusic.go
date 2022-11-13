@@ -254,7 +254,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 			return
 		}
 		// 如果绑定了歌单ID
-		if cfg.ApiURL == "" {
+		if cfg.APIURL == "" {
 			// 如果没有配置过API地址,尝试连接独角兽
 			musicName, err = downloadByOvooa(playlistID, pathOfMusic)
 			if err != nil {
@@ -277,7 +277,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 		case 1:
 			musicName = getLocalMusic(files)
 		default:
-			if cfg.ApiURL == "" {
+			if cfg.APIURL == "" {
 				// 如果没有配置过API地址,尝试连接独角兽
 				musicName, err = downloadByOvooa(playlistID, pathOfMusic)
 			} else {

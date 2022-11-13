@@ -3,7 +3,7 @@ package guessmusic
 // config内容
 type config struct {
 	MusicPath   string    `json:"musicPath"`
-	ApiURL      string    `json:"apiURL"`
+	APIURL      string    `json:"apiURL"`
 	Playlist    []listRaw `json:"playlist"`
 	Defaultlist []dlist   `json:"defaultlist"`
 	Local       bool      `json:"local"`

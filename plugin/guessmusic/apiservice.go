@@ -33,7 +33,7 @@ func init() {
 			if !strings.HasSuffix(option, "/") {
 				option += "/"
 			}
-			cfg.ApiURL = option
+			cfg.APIURL = option
 			err := saveConfig(cfgFile)
 			if err == nil {
 				ctx.SendChain(message.Text("成功！"))
@@ -70,7 +70,7 @@ func init() {
 		return true
 	}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			keyURL := cfg.ApiURL + "login/qr/key"
+			keyURL := cfg.APIURL + "login/qr/key"
 			data, err := web.GetData(keyURL)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, "获取网易云key失败,", err))
@@ -82,7 +82,7 @@ func init() {
 				ctx.SendChain(message.Text(serviceErr, "解析网易云key失败,", err))
 				return
 			}
-			qrURL := cfg.ApiURL + "login/qr/create?key=" + keyInfo.Data.Unikey + "&qrimg=1"
+			qrURL := cfg.APIURL + "login/qr/create?key=" + keyInfo.Data.Unikey + "&qrimg=1"
 			data, err = web.GetData(qrURL)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, "获取网易云二维码失败,", err))
@@ -99,8 +99,8 @@ func init() {
 				message.Text("二维码有效时间为6分钟,登陆后请耐心等待结果,获取cookie过程有些漫长。"))
 			i := 0
 			for range time.NewTicker(10 * time.Second).C {
-				apiURL := cfg.ApiURL + "login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
-				data, err := web.GetData(apiURL)
+				APIURL := cfg.APIURL + "login/qr/check?key=" + url.QueryEscape(keyInfo.Data.Unikey)
+				data, err := web.GetData(APIURL)
 				if err != nil {
 					ctx.SendChain(message.Text(serviceErr, "无法获取登录状态,", err))
 					return
@@ -144,8 +144,8 @@ func init() {
 				ctx.SendChain(message.Text("请输入正确的歌单ID或者歌单连接"))
 				return
 			}
-			apiURL := cfg.ApiURL + "playlist/detail?id=" + listID
-			data, err := web.GetData(apiURL)
+			APIURL := cfg.APIURL + "playlist/detail?id=" + listID
+			data, err := web.GetData(APIURL)
 			if err != nil {
 				ctx.SendChain(message.Text("无法连接歌单,", err))
 				return
@@ -181,8 +181,8 @@ func init() {
 				return
 			}
 			// 是否存在该歌单
-			apiURL := cfg.ApiURL + "playlist/track/all?id=" + listID
-			data, err := web.GetData(apiURL)
+			APIURL := cfg.APIURL + "playlist/track/all?id=" + listID
+			data, err := web.GetData(APIURL)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
@@ -316,8 +316,8 @@ func init() {
 
 // 随机从歌单下载歌曲(歌单ID, 音乐保存路径)
 func drawByAPI(playlistID int64, musicPath string) (musicName string, err error) {
-	apiURL := cfg.ApiURL + "playlist/track/all?id=" + strconv.FormatInt(playlistID, 10)
-	data, err := web.GetData(apiURL)
+	APIURL := cfg.APIURL + "playlist/track/all?id=" + strconv.FormatInt(playlistID, 10)
+	data, err := web.GetData(APIURL)
 	if err != nil {
 		err = errors.Errorf("无法获取歌单列表\n%s", err)
 		return
@@ -370,8 +370,8 @@ func drawByAPI(playlistID int64, musicPath string) (musicName string, err error)
 
 // 下载歌单歌曲(歌单ID, 音乐保存路径)
 func downloadlist(playlistID int64, musicPath string) error {
-	apiURL := cfg.ApiURL + "playlist/track/all?id=" + strconv.FormatInt(playlistID, 10)
-	data, err := web.GetData(apiURL)
+	APIURL := cfg.APIURL + "playlist/track/all?id=" + strconv.FormatInt(playlistID, 10)
+	data, err := web.GetData(APIURL)
 	if err != nil {
 		return err
 	}
@@ -467,8 +467,8 @@ func downloadByOvooa(playlistID int64, musicPath string) (musicName string, err 
 
 // 通过独角兽API随机抽取歌单歌曲ID(参数：歌单ID)
 func drawByOvooa(playlistID int64) (musicID int, err error) {
-	apiURL := "https://ovooa.com/API/163_Music_Rand/api.php?id=" + strconv.FormatInt(playlistID, 10)
-	data, err := web.GetData(apiURL)
+	APIURL := "https://ovooa.com/API/163_Music_Rand/api.php?id=" + strconv.FormatInt(playlistID, 10)
+	data, err := web.GetData(APIURL)
 	if err != nil {
 		return
 	}

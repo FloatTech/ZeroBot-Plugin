@@ -59,7 +59,7 @@ var (
 			"可以自行搭建或寻找NeteaseCloudMusicApi框架的API,本插件支持该API以下指令\n" +
 			"NeteaseCloudMusicApi项目地址:\nhttps://binaryify.github.io/NeteaseCloudMusicApi/#/\n" +
 			"- 设置猜歌API帮助\n" +
-			"- 设置猜歌API [http://xxxx.xx/]\n" +
+			"- 设置猜歌API [API首页网址]\n" +
 			"- 猜歌[开启/关闭][歌单/歌词]自动下载\n" +
 			"- 登录网易云(这个指令目前不知道能干嘛,总之先保留了)\n" +
 			"- 歌单信息 [网易云歌单链接/ID]\n" +
