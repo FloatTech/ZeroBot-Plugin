@@ -735,21 +735,25 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"`
 
   猜歌插件（该插件依赖ffmpeg）
+	
   ---------主 人 指 令---------
   - [x] 设置猜歌歌库路径 [绝对路径]
   - [x] [创建/删除]歌单 [歌单名称]
   - [x] 下载歌曲[歌曲名称/网易云歌曲ID]到[歌单名称]
+	
   -------管 理 员 指 令--------
   - [x] 设置猜歌默认歌单 [歌单名称]
   - [x] 上传歌曲[群文件的音乐名]到[歌单名称]
+	
   ------公 用 指 令------
   - [x] 歌单列表
   - [x] [个人/团队]猜歌
+	
   ------插 件 扩 展------
   NeteaseCloudMusicApi项目地址:
   https://binaryify.github.io/NeteaseCloudMusicApi/#/
   - [x] 设置猜歌API帮助
-  - [x] 设置猜歌API [http://xxxx.xx/]
+  - [x] 设置猜歌API [API首页网址]
   - [x] 猜歌[开启/关闭][歌单/歌词]自动下载
   - [ ] 登录网易云
   - [x] 歌单信息 [网易云歌单链接/ID]
