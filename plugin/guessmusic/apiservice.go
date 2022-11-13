@@ -144,7 +144,7 @@ func init() {
 				ctx.SendChain(message.Text("请输入正确的歌单ID或者歌单连接"))
 				return
 			}
-			apiURL := cfg.ApiURL + "playlist/detail?id=" + listID + "&cookie=" + cfg.Cookie
+			apiURL := cfg.ApiURL + "playlist/detail?id=" + listID
 			data, err := web.GetData(apiURL)
 			if err != nil {
 				ctx.SendChain(message.Text("无法连接歌单,", err))
@@ -296,9 +296,9 @@ func init() {
 						break
 					}
 				}
-				err = os.MkdirAll(cfg.MusicPath+listName, 0777)
+				err = os.MkdirAll(cfg.MusicPath+listName, 0755)
 				if err != nil {
-					ctx.SendChain(message.Text(serviceErr, "生成文件夹ERROR:\n", err))
+					ctx.SendChain(message.Text(serviceErr, err))
 					return
 				}
 			}
@@ -316,8 +316,7 @@ func init() {
 
 // 随机从歌单下载歌曲(歌单ID, 音乐保存路径)
 func drawByAPI(playlistID int64, musicPath string) (musicName string, err error) {
-	apiURL := cfg.ApiURL + "playlist/track/all?id=" + strconv.FormatInt(playlistID, 10) + "&cookie=" + cfg.Cookie
-
+	apiURL := cfg.ApiURL + "playlist/track/all?id=" + strconv.FormatInt(playlistID, 10)
 	data, err := web.GetData(apiURL)
 	if err != nil {
 		err = errors.Errorf("无法获取歌单列表\n%s", err)
