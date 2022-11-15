@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -62,6 +63,17 @@ func init() { // 插件主体
 		PrivateDataFolder: "aipaint",
 	})
 	datapath = file.BOTPATH + "/" + engine.DataFolder()
+	if file.IsNotExist(cfg.file) {
+		s := serverConfig{}
+		data, err := json.Marshal(s)
+		if err != nil {
+			panic(err)
+		}
+		err = os.WriteFile(cfg.file, data, 0666)
+		if err != nil {
+			panic(err)
+		}
+	}
 	engine.OnPrefixGroup([]string{`ai绘图`, `生成色图`, `生成涩图`, `ai画图`}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			err := cfg.load()
