@@ -29,7 +29,7 @@ type rspData struct {
 }
 
 func init() { // 主函数
-	en := control.Register("tianqi", &ctrl.Options[*zero.Ctx]{
+	en := control.Register("wenben", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "天气/拼音查询",
 		Help: "文本命令大全\n" +
