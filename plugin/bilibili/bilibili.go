@@ -40,6 +40,9 @@ var (
 		3: "Superchat",
 		4: "进入直播间",
 		5: "标题变动",
+		6: "分区变动",
+		7: "直播中止",
+		8: "直播继续",
 	}
 	cfg = bz.NewCookieConfig("data/Bilibili/config.json")
 )
@@ -492,10 +495,16 @@ func init() {
 					canvas.DrawString(t, moveW, danmuNow)
 					canvas.SetColor(color.Black)
 					moveW += l + dz
-				case 4, 5:
+				case 4, 5, 6, 7, 8:
 					t = danmakuTypeMap[danItem.Type]
 					canvas.SetRGB255(0, 128, 0)
 					l, _ = canvas.MeasureString(t)
+					canvas.DrawString(t, moveW, danmuNow)
+					canvas.SetColor(color.Black)
+					moveW += l + dz
+				default:
+					canvas.SetRGB255(0, 128, 0)
+					l, _ = canvas.MeasureString("未知类型" + strconv.Itoa(int(danItem.Type)))
 					canvas.DrawString(t, moveW, danmuNow)
 					canvas.SetColor(color.Black)
 					moveW += l + dz
