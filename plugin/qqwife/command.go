@@ -509,7 +509,7 @@ func init() {
 				newFavor += rand.Intn(moneyToFavor)
 			}
 			// 随机对方心情
-			mood := rand.Intn(5)
+			mood := rand.Intn(2)
 			if mood == 0 {
 				newFavor = -newFavor
 			}
