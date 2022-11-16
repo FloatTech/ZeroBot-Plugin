@@ -284,7 +284,7 @@ func init() {
 						break
 					}
 				}
-				err = os.MkdirAll(cfg.MusicPath+listName, 0755)
+				err := os.MkdirAll(cfg.MusicPath+listName, 0755)
 				if err != nil {
 					ctx.SendChain(message.Text(serviceErr, err))
 					return
