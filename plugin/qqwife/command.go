@@ -504,7 +504,7 @@ func init() {
 			// 计算钱对应的好感值
 			newFavor := 1
 			if favor > 50 {
-				newFavor += moneyToFavor % 10 // 礼物厌倦
+				newFavor = moneyToFavor % 10 // 礼物厌倦
 			} else {
 				newFavor += rand.Intn(moneyToFavor)
 			}
