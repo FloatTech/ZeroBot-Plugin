@@ -471,7 +471,7 @@ func init() {
 			fiancee := ctx.State["regex_matched"].([]string)
 			gay, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
 			if gay == uid {
-				ctx.Send(message.ReplyWithMessage(message.At(uid), message.Text("[qqwife]你想给自己买什么礼物呢?")))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.At(uid), message.Text("[qqwife]你想给自己买什么礼物呢?")))
 				return
 			}
 			// 获取CD
