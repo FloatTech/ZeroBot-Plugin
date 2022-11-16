@@ -24,7 +24,7 @@ func init() { // 主函数
 			"- 权重查询+@xxx" +
 			"- 权重查询+QQ号(可以不写，默认本人)",
 	})
-	en.OnRegex(`^权重查询\s*(\[CQ:at,qq=)?(\d{0,12})`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^权重查询\s*(\[CQ:at,qq=)?(\d+)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		str := ctx.State["regex_matched"].([]string)[2] //获取uid
 		if str == "" {                                  //user
 			str = strconv.FormatInt(ctx.Event.UserID, 10)
