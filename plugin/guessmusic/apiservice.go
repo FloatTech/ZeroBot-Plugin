@@ -259,19 +259,7 @@ func init() {
 			listName := ctx.State["regex_matched"].([]string)[5]
 			ctx.SendChain(message.Text("正在校验歌单信息,请稍等"))
 			// 是否存在该歌单
-			filelist, err := getlist(cfg.MusicPath)
-			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, "获取歌单列表ERROR:", err))
-				return
-			}
-			ok := true
-			for _, listinfo := range filelist {
-				if listName == listinfo.Name {
-					ok = false
-					break
-				}
-			}
-			if ok {
+			if file.IsNotExist(cfg.MusicPath + listName) {
 				ctx.SendChain(message.Text("歌单不存在,是否创建？(是/否)"))
 				next := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`(是|否)`), ctx.CheckSession())
 				recv, cancel := next.Repeat()
@@ -296,12 +284,13 @@ func init() {
 						break
 					}
 				}
-				err = os.MkdirAll(cfg.MusicPath+listName, 0755)
+				err := os.MkdirAll(cfg.MusicPath+listName, 0755)
 				if err != nil {
 					ctx.SendChain(message.Text(serviceErr, err))
 					return
 				}
 			}
+			ctx.SendChain(message.Text("开始下载歌曲,需要一定时间下载,请稍等"))
 			listID, err := strconv.ParseInt(keyword, 10, 64)
 			if err == nil {
 				err = downloadlist(listID, cfg.MusicPath+listName+"/")
