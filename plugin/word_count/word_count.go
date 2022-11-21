@@ -58,7 +58,7 @@ func init() {
 		return true
 	})).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			_, err := file.GetLazyData(text.FontFile, true)
+			_, err := file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

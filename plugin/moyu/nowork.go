@@ -21,7 +21,7 @@ func NewHoliday(name string, dur, year int, month time.Month, day int) *Holiday 
 	return &Holiday{name: name, date: time.Date(year, month, day, 0, 0, 0, 0, time.Local), dur: time.Duration(dur) * time.Hour * 24}
 }
 
-var registry = reg.NewRegReader("reilia.fumiama.top:32664", "fumiama")
+var registry = reg.NewRegReader("reilia.fumiama.top:32664", "", "fumiama")
 
 // GetHoliday 从 reg 服务器获取节日
 func GetHoliday(name string) *Holiday {
