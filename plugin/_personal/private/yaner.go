@@ -113,7 +113,7 @@ func init() { // 插件主体
 				return // 最多戳6次
 			}
 			nickname := zero.BotConfig.NickName[0]
-			switch rand.Intn(3) {
+			switch rand.Intn(7) {
 			case 1:
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(randText("哼！（打手）"))
@@ -125,50 +125,10 @@ func init() { // 插件主体
 					"（打手）",
 					nickname+"的脸不是拿来捏的！",
 					nickname+"要生气了哦",
-					"？",
+					"?",
 				))
 			}
 		})
-	/*/ 石头剪刀布
-	engine.OnFullMatchGroup([]string{"剪刀", "石头", "布"}).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			txt := ctx.Event.Message[0].Data["text"]
-			var rand_str = []string{"剪刀", "石头", "布"}
-			result := rand_str[rand.Intn(len(rand_str))]
-			ctx.SendChain(message.Text(result))
-			process.SleepAbout1sTo2s()
-			nickname := zero.BotConfig.NickName[0]
-			if rand.Intn(3) != 1 {
-				if txt == result {
-					ctx.SendChain(randText(
-						"再来！",
-						"。。。。。。",
-						"你的实力，"+nickname+"认可了！(o゜▽゜)o☆",
-					))
-				} else if (txt == "剪刀" && result == "石头") || (txt == "石头" && result == "布") || (txt == "布" && result == "剪刀") {
-					ctx.SendChain(randText(
-						"阿这(´･ω･`)?",
-						nickname+"的猜拳有这么厉害吗(＃°Д°)",
-						"唉？我居然赢了！（＾∀＾●）ﾉｼ",
-						"哼恩！~我赢了！",
-					))
-				} else {
-					ctx.SendChain(randText(
-						"再来！",
-						"我好菜啊ಠಿ_ಠ",
-						ctx.CardOrNickName(ctx.Event.UserID)+"tql",
-						"呜呜呜！(。>︿<)_θ",
-					))
-				}
-			}
-		})
-	engine.OnKeyword("help").SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
-		process.SleepAbout1sTo2s()
-		if rand.Intn(2) == 0 {
-			ctx.SendChain(message.Image(res + "Help.jpg"))
-		}
-	})
-	*/
 	engine.OnKeywordGroup([]string{"好吗", "行不行", "能不能", "可不可以"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
