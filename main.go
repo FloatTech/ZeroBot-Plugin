@@ -62,6 +62,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygogames" // 游戏王小游戏合计
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygosem"   // 游戏王进阶平台查卡器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygotools" // 游戏王开房工具
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygotrade" // 游戏王开房工具
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"      // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"  // 支付宝到账语音
