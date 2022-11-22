@@ -1312,6 +1312,32 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
 </details>
 <details>
+  <summary>游戏王百鸽查卡器</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygocdb"`
+
+  - [x] /ygocdp[xxx]
+返回一张卡图
+  - [x] /ygocds[xxx]
+返回卡片的效果描述
+  - [x] /ygocdb[xxx]
+返回全部信息
+</details>
+<details>
+  <summary>游戏王集换社卡价</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygotrade"`
+
+  - [x] 查卡价 [卡名]
+  
+  - [x] 查卡价 [卡名] [罕贵度]
+  
+  - [x] 查卡店 [卡名]
+  
+  - [x] 查卡店 [卡名] [罕贵度]
+  
+</details>
+<details>
   <summary>月幕galgame图</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
