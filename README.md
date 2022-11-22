@@ -1333,7 +1333,7 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
   - [x] 查卡价 [卡名]
   
-  - [x] 查卡价 [卡名] [罕贵度]
+  - [x] 查卡价 [卡名] [罕贵度 罕贵度 ...]
   
   - [x] 查卡店 [卡名]
   
