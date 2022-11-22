@@ -471,7 +471,7 @@ func init() {
 			fiancee := ctx.State["regex_matched"].([]string)
 			gay, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
 			if gay == uid {
-				ctx.Send(message.ReplyWithMessage(message.At(uid), message.Text("[qqwife]你想给自己买什么礼物呢?")))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.At(uid), message.Text("[qqwife]你想给自己买什么礼物呢?")))
 				return
 			}
 			// 获取CD
@@ -504,12 +504,12 @@ func init() {
 			// 计算钱对应的好感值
 			newFavor := 1
 			if favor > 50 {
-				newFavor += moneyToFavor % 10 // 礼物厌倦
+				newFavor = moneyToFavor % 10 // 礼物厌倦
 			} else {
 				newFavor += rand.Intn(moneyToFavor)
 			}
 			// 随机对方心情
-			mood := rand.Intn(5)
+			mood := rand.Intn(2)
 			if mood == 0 {
 				newFavor = -newFavor
 			}
@@ -616,7 +616,7 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
-			_, err = file.GetLazyData(text.BoldFontFile, true)
+			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 			}
