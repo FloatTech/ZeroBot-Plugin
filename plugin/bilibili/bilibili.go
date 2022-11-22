@@ -188,7 +188,7 @@ func init() {
 				canvas.DrawImage(back, 0, 0)
 			}
 			canvas.SetColor(color.Black)
-			_, err = file.GetLazyData(text.BoldFontFile, true)
+			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
@@ -322,7 +322,7 @@ func init() {
 		}
 		canvas := gg.NewContext(100, 100)
 		fontSize := 50.0
-		_, err = file.GetLazyData(text.BoldFontFile, true)
+		_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 		}
