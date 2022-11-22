@@ -35,10 +35,11 @@ require (
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/wdvxdr1123/ZeroBot v1.6.3
 	gitlab.com/gomidi/midi/v2 v2.0.25
-	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
+	golang.org/x/image v0.1.0
 )
 
 require (
+	github.com/FloatTech/rendercard v0.0.1 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
@@ -75,11 +76,11 @@ require (
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/exp/shiny v0.0.0-20221004215720-b9f4876ce741 // indirect
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.10 // indirect
+	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	modernc.org/libc v1.19.0 // indirect
