@@ -1317,10 +1317,13 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygocdb"`
 
   - [x] /ygocdp[xxx]
+	
 返回一张卡图
   - [x] /ygocds[xxx]
+	
 返回卡片的效果描述
   - [x] /ygocdb[xxx]
+	
 返回全部信息
 </details>
 <details>
