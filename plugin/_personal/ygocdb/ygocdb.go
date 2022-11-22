@@ -1,4 +1,4 @@
-// Package ygocdb 本插件查卡通过网页"https://www.ygo-sem.cn/"获取的
+// Package ygocdb 本插件基于游戏王百鸽API"https://www.ygo-sem.cn/"
 package ygocdb
 
 import (
@@ -55,69 +55,16 @@ type searchResult struct {
 func init() {
 	en := control.Register("ygocdb", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:"游戏王百鸽卡查API卡查",
-		Help:
-			"- /ydp [xxx]\n" +
+		Brief:            "游戏王百鸽API",
+		Help: "- /ydp [xxx]\n" +
 			"- /yds [xxx]\n" +
 			"- /ydb [xxx]\n" +
-			"[xxx]为搜索内容\np:返回一张图片\ns:返回一张效果描述\nb:高级搜索",
+			"[xxx]为搜索内容\np:返回一张图片\ns:返回一张效果描述\nb:全显示",
 	})
 
-	en.OnRegex(`^[/,.\\!。，！]ydp\s?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		ctxtext := ctx.State["regex_matched"].([]string)[1]
-		if ctxtext == "" {
-			ctx.SendChain(message.Text("你是想查询「空手假象」吗？"))
-			return
-		}
-		data, err := web.GetData(api + url.QueryEscape(ctxtext))
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		var result searchResult
-		err = json.Unmarshal(data, &result)
-		if err != nil {
-			ctx.SendChain(message.Text("json ERROR:", err))
-			return
-		}
-		switch len(result.Result) {
-		case 0:
-			ctx.SendChain(message.Text("没有找到相关的卡片额"))
-			return
-		default:
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Image(picherf+strconv.Itoa(result.Result[0].ID)+".jpg")))
-		}
-	})
-
-	en.OnRegex(`^[/,.\\!。，！]yds\s?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		ctxtext := ctx.State["regex_matched"].([]string)[1]
-		if ctxtext == "" {
-			ctx.SendChain(message.Text("你是想查询「空手假象」吗？"))
-			return
-		}
-		data, err := web.GetData(api + url.QueryEscape(ctxtext))
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		var result searchResult
-		err = json.Unmarshal(data, &result)
-		if err != nil {
-			ctx.SendChain(message.Text("json ERROR:", err))
-			return
-		}
-		switch len(result.Result) {
-		case 0:
-			ctx.SendChain(message.Text("没有找到相关的卡片额"))
-			return
-		default:
-			cardtextout := cardtext(result, 0)
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(cardtextout)))
-		}
-	})
-
-	en.OnRegex(`^[/,.\\!。，！]ydb\s?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		ctxtext := ctx.State["regex_matched"].([]string)[1]
+	en.OnRegex(`^/yd(p|s|b)\s?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		function := ctx.State["regex_matched"].([]string)[1]
+		ctxtext := ctx.State["regex_matched"].([]string)[2]
 		if ctxtext == "" {
 			ctx.SendChain(message.Text("你是想查询「空手假象」吗？"))
 			return
@@ -134,16 +81,21 @@ func init() {
 			return
 		}
 		maxpage := len(result.Result)
-		switch maxpage {
-		case 0:
+		switch {
+		case maxpage == 0:
 			ctx.SendChain(message.Text("没有找到相关的卡片额"))
 			return
-		case 1:
-			cardtextout := cardtext(result, 0)
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Image(picherf+strconv.Itoa(result.Result[0].ID)+".jpg"), message.Text(cardtextout)))
+		case function == "p":
+			ctx.SendChain(message.Image(picherf + strconv.Itoa(result.Result[0].ID) + ".jpg"))
 			return
-		default:
-			break
+		case function == "s":
+			cardtextout := cardtext(result, 0)
+			ctx.SendChain(message.Text(cardtextout))
+			return
+		case function == "d" && maxpage == 1:
+			cardtextout := cardtext(result, 0)
+			ctx.SendChain(message.Image(picherf+strconv.Itoa(result.Result[0].ID)+".jpg"), message.Text(cardtextout))
+			return
 		}
 		var listName []string
 		var listid []int
@@ -160,7 +112,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("找到", strconv.Itoa(maxpage), "张相关卡片,当前显示以下卡名：\n",
 			strings.Join(listName[:currentPage], "\n"),
-			"\n————————————————\n输入对应数字获取卡片信息，",
+			"\n————————————\n输入对应数字获取卡片信息,",
 			"\n或回复“取消”、“下一页”指令"))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(取消)|(下一页)|\d+`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID)).Repeat()
 		after := time.NewTimer(20 * time.Second)
@@ -214,7 +166,7 @@ func init() {
 							cancel()
 							after.Stop()
 							cardtextout := cardtext(result, cardint)
-							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Image(picherf+strconv.Itoa(listid[cardint])+".jpg"), message.Text(cardtextout)))
+							ctx.SendChain(message.Image(picherf+strconv.Itoa(listid[cardint])+".jpg"), message.Text(cardtextout))
 							return
 						} else {
 							after.Reset(20 * time.Second)
