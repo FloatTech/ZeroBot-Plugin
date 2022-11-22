@@ -68,7 +68,7 @@ func init() {
 		DisableOnDefault: false,
 		Brief:            "集换社游戏王的卡价查询",
 		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度 稀有度 ...]\n- 查卡店  [卡名]\n- 查卡店  [卡名] [稀有度]",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnPrefix("查卡价", func(ctx *zero.Ctx) bool {
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -100,6 +100,10 @@ func init() {
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		args := strings.Split(ctx.State["args"].(string), " ")
+		if len(args) > 2 {
+			ctx.SendChain(message.Text(serviceErr, "卡店不支持查找多个罕贵度的查询"))
+			return
+		}
 		listOfTrace, err := getRarityTrade(args[0], args[1:]...)
 		if err != nil {
 			ctx.SendChain(message.Text(serviceErr, err))
