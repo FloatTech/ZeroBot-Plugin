@@ -143,7 +143,7 @@ func init() {
 					if maxpage < 11 {
 						continue
 					}
-					nextpage += 1
+					nextpage ++
 					if nextpage*10 >= maxpage {
 						nextpage = 0
 						currentPage = 10
@@ -168,10 +168,9 @@ func init() {
 							cardtextout := cardtext(result, cardint)
 							ctx.SendChain(message.Image(picherf+strconv.Itoa(listid[cardint])+".jpg"), message.Text(cardtextout))
 							return
-						} else {
-							after.Reset(20 * time.Second)
-							ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
-						}
+						} 
+						after.Reset(20 * time.Second)
+						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
 					}
 				}
 			}
@@ -179,17 +178,16 @@ func init() {
 	})
 }
 
-func cardtext(List searchResult, cardid int) (textout string) {
+func cardtext(list searchResult, cardid int)string {
 	var cardtext []string
-	cardtext = append(cardtext, "中文卡名：\n    "+List.Result[cardid].CnName)
+	cardtext = append(cardtext, "中文卡名：\n    "+list.Result[cardid].CnName)
 	if List.Result[cardid].JpName == "" {
-		cardtext = append(cardtext, "英文卡名：\n    "+List.Result[cardid].EnName)
+		cardtext = append(cardtext, "英文卡名：\n    "+list.Result[cardid].EnName)
 	} else {
-		cardtext = append(cardtext, "日文卡名：\n    "+List.Result[cardid].JpName)
+		cardtext = append(cardtext, "日文卡名：\n    "+list.Result[cardid].JpName)
 	}
-	cardtext = append(cardtext, "卡片密码："+strconv.Itoa(List.Result[cardid].ID))
-	cardtext = append(cardtext, List.Result[cardid].Text.Types)
-	cardtext = append(cardtext, List.Result[cardid].Text.Desc)
-	textout = strings.Join(cardtext, "\n")
-	return textout
+	cardtext = append(cardtext, "卡片密码："+strconv.Itoa(list.Result[cardid].ID))
+	cardtext = append(cardtext, list.Result[cardid].Text.Types)
+	cardtext = append(cardtext, list.Result[cardid].Text.Desc)
+	return strings.Join(cardtext, "\n")
 }
