@@ -16,10 +16,8 @@ import (
 )
 
 const (
-	storeTrade  = "https://api.jihuanshe.com/api/market/card-versions/products?game_key=ygo&game_sub_key=ocg&page=1&condition=1&card_version_id="
 	rarityTrade = "https://api.jihuanshe.com/api/market/search/match-product?game_key=ygo&game_sub_key=ocg&page=1&keyword="
-	method      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-	referer     = "https://api.jihuanshe.com/"
+	storeTrade  = "https://api.jihuanshe.com/api/market/card-versions/products?game_key=ygo&game_sub_key=ocg&page=1&condition=1&card_version_id="
 )
 
 type cardInfo struct {
@@ -82,7 +80,7 @@ func init() {
 	engine := control.Register("ygotrade", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "集换社游戏王的卡价查询",
-		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度]\n- 查卡店  [卡名] [稀有度]",
+		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度]\n- 查卡店  [卡名]\n- 查卡店  [卡名] [稀有度]",
 	})
 	engine.OnPrefix("查卡价", func(ctx *zero.Ctx) bool {
 		return ctx.State["args"].(string) != ""
