@@ -181,7 +181,7 @@ func init() {
 func cardtext(list searchResult, cardid int)string {
 	var cardtext []string
 	cardtext = append(cardtext, "中文卡名：\n    "+list.Result[cardid].CnName)
-	if List.Result[cardid].JpName == "" {
+	if list.Result[cardid].JpName == "" {
 		cardtext = append(cardtext, "英文卡名：\n    "+list.Result[cardid].EnName)
 	} else {
 		cardtext = append(cardtext, "日文卡名：\n    "+list.Result[cardid].JpName)
