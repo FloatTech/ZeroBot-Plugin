@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	api     = "https://ygocdb.com/api/v0/?search="
-	picherf = "https://cdn.233.momobako.com/ygopro/pics/"
+	serviceErr = "[ygocdb]error:"
+	api        = "https://ygocdb.com/api/v0/?search="
+	picherf    = "https://cdn.233.momobako.com/ygopro/pics/"
 )
 
 type searchResult struct {
@@ -26,8 +27,7 @@ type searchResult struct {
 		Cid    int    `json:"cid"`
 		ID     int    `json:"id"`
 		CnName string `json:"cn_name"`
-		CnocgN string `json:"cnocg_n"`
-		JpRuby string `json:"jp_ruby"`
+		// CnocgN string `json:"cnocg_n"`
 		JpName string `json:"jp_name"`
 		EnName string `json:"en_name"`
 		Text   struct {
@@ -35,21 +35,7 @@ type searchResult struct {
 			Pdesc string `json:"pdesc"`
 			Desc  string `json:"desc"`
 		} `json:"text"`
-		Data struct {
-			Ot        int `json:"ot"`
-			Setcode   int `json:"setcode"`
-			Type      int `json:"type"`
-			Atk       int `json:"atk"`
-			Def       int `json:"def"`
-			Level     int `json:"level"`
-			Race      int `json:"race"`
-			Attribute int `json:"attribute"`
-		} `json:"data"`
-		Weight int           `json:"weight"`
-		Faqs   []interface{} `json:"faqs"`
-		Artid  int           `json:"artid"`
 	} `json:"result"`
-	Next int `json:"next"`
 }
 
 func init() {
@@ -71,13 +57,13 @@ func init() {
 		}
 		data, err := web.GetData(api + url.QueryEscape(ctxtext))
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text(serviceErr, err))
 			return
 		}
 		var result searchResult
 		err = json.Unmarshal(data, &result)
 		if err != nil {
-			ctx.SendChain(message.Text("json ERROR:", err))
+			ctx.SendChain(message.Text(serviceErr, err))
 			return
 		}
 		maxpage := len(result.Result)
@@ -143,7 +129,7 @@ func init() {
 					if maxpage < 11 {
 						continue
 					}
-					nextpage ++
+					nextpage++
 					if nextpage*10 >= maxpage {
 						nextpage = 0
 						currentPage = 10
@@ -168,7 +154,7 @@ func init() {
 							cardtextout := cardtext(result, cardint)
 							ctx.SendChain(message.Image(picherf+strconv.Itoa(listid[cardint])+".jpg"), message.Text(cardtextout))
 							return
-						} 
+						}
 						after.Reset(20 * time.Second)
 						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
 					}
@@ -178,7 +164,7 @@ func init() {
 	})
 }
 
-func cardtext(list searchResult, cardid int)string {
+func cardtext(list searchResult, cardid int) string {
 	var cardtext []string
 	cardtext = append(cardtext, "中文卡名：\n    "+list.Result[cardid].CnName)
 	if list.Result[cardid].JpName == "" {
@@ -188,6 +174,14 @@ func cardtext(list searchResult, cardid int)string {
 	}
 	cardtext = append(cardtext, "卡片密码："+strconv.Itoa(list.Result[cardid].ID))
 	cardtext = append(cardtext, list.Result[cardid].Text.Types)
+	if list.Result[cardid].Text.Pdesc != "" {
+		cardtext = append(cardtext, "[灵摆效果]\n"+list.Result[cardid].Text.Pdesc)
+		if strings.Contains(list.Result[cardid].Text.Types, "效果") {
+			cardtext = append(cardtext, "[怪兽效果]")
+		} else {
+			cardtext = append(cardtext, "[怪兽描述]")
+		}
+	}
 	cardtext = append(cardtext, list.Result[cardid].Text.Desc)
 	return strings.Join(cardtext, "\n")
 }
