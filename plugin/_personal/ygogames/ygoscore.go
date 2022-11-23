@@ -60,10 +60,9 @@ const (
 func init() {
 	engine := control.Register("ygoscore", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Brief:           "签到系统",
+		Brief:             "签到系统",
 		PrivateDataFolder: "ygoscore",
-		Help:
-			"-注册决斗者 xxxx\n" +
+		Help: "-注册决斗者 xxxx\n" +
 			"-注销决斗者 @群友\n" +
 			"-签到\n" +
 			"-/ATRI币\n" +
@@ -391,7 +390,7 @@ func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err 
 	// ATRI币详情
 	canvas.DrawString(fmt.Sprintf("当前总ATRI币:%d", score), 550, 500-h)
 	// 更新时间
-	canvas.DrawString("更新日期:"+time.Unix(userinfo.UpdatedAt, 0).Format("2006/01/02"), 1000, 500-h)
+	canvas.DrawString("更新日期:"+time.Unix(userinfo.UpdatedAt, 0).Format("01/02"), 1050, 500-h)
 	// 绘制等级进度条
 	canvas.DrawRectangle(550, 350-h, 900, 80)
 	canvas.SetRGB255(150, 150, 150)

@@ -2,7 +2,9 @@ package qqwife
 
 import (
 	"errors"
+	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -340,6 +342,44 @@ func (sql *婚姻登记) getFavorability(uid, target int64) (favor int, err erro
 		return
 	}
 	favor = info.Favor
+	return
+}
+
+// 获取好感度数据组
+type favorList []favorability
+
+func (s favorList) Len() int {
+	return len(s)
+}
+func (s favorList) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s favorList) Less(i, j int) bool {
+	return s[i].Favor > s[j].Favor
+}
+func (sql *婚姻登记) getGroupFavorability(uid int64) (list favorList, err error) {
+	uidStr := strconv.FormatInt(uid, 10)
+	sql.RLock()
+	defer sql.RUnlock()
+	info := favorability{}
+	err = sql.db.FindFor("favorability", &info, "where Userinfo glob '*"+uidStr+"*'", func() error {
+		var target string
+		userList := strings.Split(info.Userinfo, "+")
+		switch {
+		case len(userList) == 0:
+			return errors.New("好感度系统数据存在错误")
+		case userList[0] == uidStr:
+			target = userList[1]
+		default:
+			target = userList[0]
+		}
+		list = append(list, favorability{
+			Userinfo: target,
+			Favor:    info.Favor,
+		})
+		return nil
+	})
+	sort.Sort(list)
 	return
 }
 
