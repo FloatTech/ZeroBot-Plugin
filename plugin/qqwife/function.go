@@ -379,7 +379,7 @@ func (sql *婚姻登记) getGroupFavorability(uid int64) (list favorList, err er
 		})
 		return nil
 	})
-	sort.Sort(favorList(list))
+	sort.Sort(list)
 	return
 }
 
