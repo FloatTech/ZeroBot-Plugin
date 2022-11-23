@@ -16,6 +16,7 @@ import (
 )
 
 const (
+	serviceErr  = "[ygotrade]error:"
 	rarityTrade = "https://api.jihuanshe.com/api/market/search/match-product?game_key=ygo&game_sub_key=ocg&page=1&keyword="
 	storeTrade  = "https://api.jihuanshe.com/api/market/card-versions/products?game_key=ygo&game_sub_key=ocg&page=1&condition=1&card_version_id="
 )
@@ -59,16 +60,12 @@ type tradeInfo struct {
 	CardVersionImage string      `json:"card_version_image"`
 }
 
-var (
-	serviceErr = "[ygotrade]error:"
-)
-
 func init() {
 	engine := control.Register("ygotrade", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "集换社游戏王的卡价查询",
 		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度 稀有度 ...]\n- 查卡店  [卡名]\n- 查卡店  [卡名] [稀有度]",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnPrefix("查卡价", func(ctx *zero.Ctx) bool {
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -100,6 +97,10 @@ func init() {
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		args := strings.Split(ctx.State["args"].(string), " ")
+		if len(args) > 2 {
+			ctx.SendChain(message.Text(serviceErr, "卡店查询不支持查找多个参数"))
+			return
+		}
 		listOfTrace, err := getRarityTrade(args[0], args[1:]...)
 		if err != nil {
 			ctx.SendChain(message.Text(serviceErr, err))
