@@ -3,6 +3,7 @@ package ygotrade
 
 import (
 	"encoding/json"
+	"errors"
 	"net/url"
 	"strconv"
 	"strings"
@@ -16,48 +17,32 @@ import (
 )
 
 const (
-	serviceErr  = "[ygotrade]error:"
 	rarityTrade = "https://api.jihuanshe.com/api/market/search/match-product?game_key=ygo&game_sub_key=ocg&page=1&keyword="
 	storeTrade  = "https://api.jihuanshe.com/api/market/card-versions/products?game_key=ygo&game_sub_key=ocg&page=1&condition=1&card_version_id="
 )
 
 type apiInfo struct {
-	Total       int         `json:"total"`
-	PerPage     int         `json:"per_page"`
-	CurrentPage int         `json:"current_page"`
-	LastPage    int         `json:"last_page"`
-	NextPageURL string      `json:"next_page_url"`
-	PrevPageURL interface{} `json:"prev_page_url"`
-	From        int         `json:"from"`
-	To          int         `json:"to"`
-	Data        []tradeInfo `json:"data"`
+	Data []tradeInfo `json:"data"`
 }
 
 type tradeInfo struct {
 	// 卡片信息
-	Type       string      `json:"type"`
-	GameKey    string      `json:"game_key"`
-	GameSubKey string      `json:"game_sub_key"`
-	ID         int         `json:"id"`
-	NameCn     string      `json:"name_cn"`
-	NameOrigin string      `json:"name_origin"`
-	CardID     int         `json:"card_id"`
-	Number     string      `json:"number"`
-	Rarity     string      `json:"rarity"`
-	ImageURL   string      `json:"image_url"`
-	MinPrice   string      `json:"min_price"`
-	Grade      interface{} `json:"grade"`
+	ID       int    `json:"id"`
+	NameCn   string `json:"name_cn"`
+	CardID   int    `json:"card_id"`
+	Number   string `json:"number"`
+	Rarity   string `json:"rarity"`
+	ImageURL string `json:"image_url"`
+	MinPrice string `json:"min_price"`
 	// 卡店信息
-	SellerUserID     int         `json:"seller_user_id"`
-	SellerUsername   string      `json:"seller_username"`
-	SellerUserAvatar string      `json:"seller_user_avatar"`
-	SellerProvince   string      `json:"seller_province"`
-	SellerCity       string      `json:"seller_city"`
-	EcommerceVerify  bool        `json:"ecommerce_verify"`
-	VerifyStatus     interface{} `json:"verify_status"`
-	SellerCreditRank string      `json:"seller_credit_rank"`
-	Quantity         string      `json:"quantity"`
-	CardVersionImage string      `json:"card_version_image"`
+	SellerUserID     int    `json:"seller_user_id"`
+	SellerUsername   string `json:"seller_username"`
+	SellerUserAvatar string `json:"seller_user_avatar"`
+	SellerProvince   string `json:"seller_province"`
+	SellerCity       string `json:"seller_city"`
+	SellerCreditRank string `json:"seller_credit_rank"`
+	Quantity         string `json:"quantity"`
+	CardVersionImage string `json:"card_version_image"`
 }
 
 func init() {
@@ -67,16 +52,13 @@ func init() {
 		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度 稀有度 ...]\n- 查卡店  [卡名]\n- 查卡店  [卡名] [稀有度]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnPrefix("查卡价", func(ctx *zero.Ctx) bool {
+		ctx.State["args"] = strings.TrimSpace(ctx.State["args"].(string))
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := strings.Split(ctx.State["args"].(string), " ")
-		listOfTrace, err := getRarityTrade(args[0], args[1:]...)
+		cardName, rarity, _ := strings.Cut(ctx.State["args"].(string), " ")
+		listOfTrace, err := getRarityTrade(cardName, rarity)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
-			return
-		}
-		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		msg := make(message.Message, len(listOfTrace))
@@ -94,21 +76,22 @@ func init() {
 		}
 	})
 	engine.OnPrefix("查卡店", func(ctx *zero.Ctx) bool {
+		ctx.State["args"] = strings.TrimSpace(ctx.State["args"].(string))
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := strings.Split(ctx.State["args"].(string), " ")
-		if len(args) > 2 {
-			ctx.SendChain(message.Text(serviceErr, "卡店查询不支持查找多个参数"))
+		cardName, rarity, _ := strings.Cut(ctx.State["args"].(string), " ")
+		if strings.Count(rarity, " ") > 0 {
+			ctx.SendChain(message.Text("ERROR: ", "卡店查询不支持查找多个罕贵度"))
 			return
 		}
-		listOfTrace, err := getRarityTrade(args[0], args[1:]...)
+		listOfTrace, err := getRarityTrade(cardName, rarity)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		listStroe, err := getStoreTrade(listOfTrace[0].ID)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		msg := make(message.Message, len(listStroe))
@@ -129,13 +112,17 @@ func init() {
 }
 
 // 获取卡名该罕贵度卡片数据
-func getRarityTrade(key string, rarity ...string) (tradeInfo []tradeInfo, err error) {
-	listOfTrace, err := web.GetData(rarityTrade + url.QueryEscape(key) + "&rarity=" + url.QueryEscape(strings.Join(rarity, " ")))
+func getRarityTrade(key, rarity string) (tradeInfo []tradeInfo, err error) {
+	listOfTrace, err := web.GetData(rarityTrade + url.QueryEscape(key) + "&rarity=" + url.QueryEscape(rarity))
 	if err != nil {
 		return
 	}
 	var apiInfo apiInfo
 	err = json.Unmarshal(listOfTrace, &apiInfo)
+	if len(apiInfo.Data) == 0 {
+		err = errors.New("没有找到相关卡片或输入参数错误")
+		return
+	}
 	tradeInfo = apiInfo.Data
 	return
 }
@@ -148,6 +135,10 @@ func getStoreTrade(cardID int) (stroeInfo []tradeInfo, err error) {
 	}
 	var apiInfo apiInfo
 	err = json.Unmarshal(listOfTrace, &apiInfo)
+	if len(apiInfo.Data) == 0 {
+		err = errors.New("没有找到相关卡片或输入参数错误")
+		return
+	}
 	stroeInfo = apiInfo.Data
 	return
 }
