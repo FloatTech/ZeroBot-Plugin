@@ -122,8 +122,9 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [x] /服务列表
 
-  - [x] /服务详情
+  - [x] /设置服务列表显示行数 xx
 
+	默认值为9,该设置仅运行时有效,zbp重启后重置
   - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 
 </details>
