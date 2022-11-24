@@ -8,7 +8,7 @@ import (
 	reg "github.com/fumiama/go-registry"
 )
 
-var sr = reg.NewRegedit("reilia.fumiama.top:32664", "fumiama", "--")
+var sr = reg.NewRegedit("reilia.fumiama.top:32664", "", "fumiama", "--")
 
 func TestGetHoliday(t *testing.T) {
 	registry.Connect()

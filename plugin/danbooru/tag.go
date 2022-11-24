@@ -11,6 +11,7 @@ import (
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/zbputils/control"
 	imgutils "github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text" // jpg png gif
 	_ "golang.org/x/image/webp"              // webp
@@ -75,11 +76,11 @@ func tagurl(name, u string) (im image.Image, st *sorttags, err error) {
 	st = newsorttags(tags)
 	sort.Sort(st)
 
-	_, err = file.GetLazyData(text.BoldFontFile, true)
+	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
-	_, err = file.GetLazyData(text.ConsolasFontFile, true)
+	_, err = file.GetLazyData(text.ConsolasFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
