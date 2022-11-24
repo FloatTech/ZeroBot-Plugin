@@ -131,7 +131,7 @@ func init() {
 			canvas.DrawImage(back, 0, 0)
 			monthWord := now.Format("01/02")
 			hourWord := getHourWord(now)
-			_, err = file.GetLazyData(text.BoldFontFile, true)
+			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -144,7 +144,7 @@ func init() {
 			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
 			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
 			nickName := ctx.CardOrNickName(uid)
-			_, err = file.GetLazyData(text.FontFile, true)
+			_, err = file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -220,7 +220,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: 目前还没有人签到过"))
 				return
 			}
-			_, err = file.GetLazyData(text.FontFile, true)
+			_, err = file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -302,7 +302,7 @@ func init() {
 			} else if len(st) > 10 {
 				st = st[:10]
 			}
-			_, err = file.GetLazyData(text.FontFile, true)
+			_, err = file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

@@ -404,11 +404,11 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
-			_, err = file.GetLazyData(text.BoldFontFile, true)
+			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}
-			_, err = file.GetLazyData(text.FontFile, true)
+			_, err = file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}

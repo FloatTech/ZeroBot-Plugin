@@ -126,9 +126,9 @@ func init() {
 			ctx.SendChain(message.Text("设置成功"))
 		})
 	// 好感度系统
-	engine.OnRegex(`^查好感度\s*(\[CQ:at,qq=)?(\d+)`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^查好感度\s?\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]你对象好像不存在？\n", err))
 				return
@@ -616,7 +616,7 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
-			_, err = file.GetLazyData(text.BoldFontFile, true)
+			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 			}
@@ -666,7 +666,7 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体***********/
-			_, err = file.GetLazyData(text.BoldFontFile, true)
+			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 			}
