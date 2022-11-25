@@ -4,6 +4,7 @@ package nativesetu
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -41,6 +42,10 @@ func init() {
 			setupath = helper.BytesToString(b)
 			logrus.Infoln("[nsetu] set setu dir to", setupath)
 		}
+	}
+	err := ns.db.Open(time.Hour * 24)
+	if err != nil {
+		panic(err)
 	}
 
 	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
