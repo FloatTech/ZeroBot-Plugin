@@ -41,7 +41,7 @@
 zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [qq1 qq2 qq3 ...] [&]
 ```
 - **-h**: 显示帮助
-- **-n nickname**: 设置默认昵称，默认为`椛椛`
+- **-n nickname**: 设置默认昵称，默认为`NOS Bot`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
 - **-p prefix**: 设置命令前缀，默认为`/`
