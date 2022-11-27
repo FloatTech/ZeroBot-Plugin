@@ -1359,15 +1359,15 @@ print("run[CQ:image,file="+j["img"]+"]")
 	
   <details>
     <summary>白鸽API卡查</summary>
-	
+    
     - [x] /ydp [xxx]
     - [x] /yds [xxx]
     - [x] /ydb [xxx]
     - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
   </details>
   <details>
-    <summary>白集换社卡价查询</summary>
-    - 插件二: 集换社卡价查询
+    <summary>集换社卡价查询</summary>
+    
     - [x] 查卡价 [卡名]
     - [x] 查卡价 [卡名] [稀有度 稀有度 ...]
     - [x] 查卡店  [卡名]
