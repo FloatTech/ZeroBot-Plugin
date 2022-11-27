@@ -1066,6 +1066,8 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
   - [x] 群老婆列表
 
+  - [x] 查好感度[对方Q号|@对方QQ]
+
   - [x] 好感度列表
 
   - [x] 重置花名册
