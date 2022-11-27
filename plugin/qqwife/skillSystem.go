@@ -99,7 +99,7 @@ func init() {
 			ctx.SendChain(message.Text("设置成功"))
 		})
 	// 单身技能
-	engine.OnRegex(`^(娶|嫁)\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, getdb, 为单身).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^(娶|嫁)\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, getdb, checkSingleDog).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
@@ -168,7 +168,7 @@ func init() {
 			)
 		})
 	// NTR技能
-	engine.OnRegex(`^当(\[CQ:at,qq=(\d+)\]\s?|(\d+))的小三`, zero.OnlyGroup, getdb, 当小三条件).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^当(\[CQ:at,qq=(\d+)\]\s?|(\d+))的小三`, zero.OnlyGroup, getdb, checkMistress).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
@@ -197,8 +197,8 @@ func init() {
 			}
 			// 判断target是老公还是老婆
 			var choicetext string
-			var ntrID int64 = uid
-			var targetID int64 = fiancee
+			var ntrID  = uid
+			var targetID  = fiancee
 			var greenID int64 //被牛的
 			fianceeInfo, err := 民政局.查户口(gid, fiancee)
 			switch {
@@ -254,7 +254,7 @@ func init() {
 			)
 		})
 	// 做媒技能
-	engine.OnRegex(`^做媒\s?\[CQ:at,qq=(\d+)\]\s?\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, zero.AdminPermission, getdb, 做媒条件).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^做媒\s?\[CQ:at,qq=(\d+)\]\s?\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, zero.AdminPermission, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
@@ -317,7 +317,7 @@ func init() {
 				),
 			)
 		})
-	engine.OnFullMatchGroup([]string{"闹离婚", "办离婚"}, zero.OnlyGroup, getdb, 离婚条件).Limit(ctxext.LimitByUser).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"闹离婚", "办离婚"}, zero.OnlyGroup, getdb, checkDivorce).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
@@ -365,7 +365,7 @@ func init() {
 		})
 }
 
-func (sql *婚姻登记) 判断CD(gid, uid int64, Model string, cdtime float64) (ok bool, err error) {
+func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) (ok bool, err error) {
 	sql.Lock()
 	defer sql.Unlock()
 	// 创建群表哥
@@ -375,7 +375,7 @@ func (sql *婚姻登记) 判断CD(gid, uid int64, Model string, cdtime float64) 
 	}
 	limitID := "where GroupID is " + strconv.FormatInt(gid, 10) +
 		" and UserID is " + strconv.FormatInt(uid, 10) +
-		" and Model is '" + Model + "'"
+		" and Model is '" + model + "'"
 	if !sql.db.CanFind("CD列表", limitID) {
 		// 没有记录即不用比较
 		return true, nil
@@ -401,8 +401,8 @@ func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 	})
 }
 
-// 注入判断 是否为单身
-func 为单身(ctx *zero.Ctx) bool {
+// 注入判断 是否单身条件
+func checkSingleDog(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
@@ -468,7 +468,7 @@ func 为单身(ctx *zero.Ctx) bool {
 }
 
 // 注入判断 是否满足小三要求
-func 当小三条件(ctx *zero.Ctx) bool {
+func checkMistress(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
@@ -531,7 +531,7 @@ func 当小三条件(ctx *zero.Ctx) bool {
 	return true
 }
 
-func 离婚条件(ctx *zero.Ctx) bool {
+func checkDivorce(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	// 判断是否需要重置
@@ -564,7 +564,7 @@ func 离婚条件(ctx *zero.Ctx) bool {
 	return true
 }
 
-func 做媒条件(ctx *zero.Ctx) bool {
+func checkMatchmaker(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
 	gayOne, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)

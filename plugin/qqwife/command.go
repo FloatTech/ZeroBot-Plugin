@@ -55,6 +55,8 @@ type userinfo struct {
 }
 
 var (
+	// nolint: asciicheck
+	//nolint: asciicheck
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
 	}
