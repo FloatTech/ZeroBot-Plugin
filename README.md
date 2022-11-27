@@ -1357,8 +1357,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
   
-  ## <details>
-      <summary>白鸽API卡查</summary>
+  ## <details><summary>白鸽API卡查</summary>
 
       `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb"`
       
@@ -1367,8 +1366,7 @@ print("run[CQ:image,file="+j["img"]+"]")
       - [x] /ydb [xxx]
       - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
     </details>
-  ## <details>
-      <summary>集换社卡价查询</summary>
+  ## <details><summary>集换社卡价查询</summary>
 
       `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade"`
       
