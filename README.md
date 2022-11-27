@@ -1355,7 +1355,9 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 <details>
   <summary>一些游戏王插件</summary>
   	`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
+	
 	- 白鸽API卡查
+	
  	-- [x] /ydp [xxx]
 
   	-- [x] /yds [xxx]
