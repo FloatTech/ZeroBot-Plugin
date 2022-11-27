@@ -2,23 +2,17 @@
 package wallet
 
 import (
-	"fmt"
 	"math"
-	"math/rand"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/golang/freetype"
-	log "github.com/sirupsen/logrus"
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -26,6 +20,17 @@ import (
 )
 
 func init() {
+	engine    := control.Register("wallet", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault:  false,
+		Brief:             "钱包系统",
+		Help:              "- 查看我的钱包\n"+
+		"- 查看钱包排名\n"+
+		"注:为本群排行，若群人数太多不建议使用该功能!!!\n"+
+		"\n---------主人功能---------\n"+
+		"- /钱包 [QQ号|@群友]\n"+
+		"- /记录 @群友 ATRI币值\n" +
+		"- /记录 @加分群友 ATRI币值 @减分群友\n",
+	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
 		_ = os.RemoveAll(cachePath)
@@ -34,17 +39,7 @@ func init() {
 			panic(err)
 		}
 	}()
-	engine    := control.Register("wallet", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		Brief:             "钱包系统",
-		Help:              "- 查看我的钱包\n"+
-		"- 查看钱包排名\n"+
-		"注:为本群排行，若群人数太多不建议使用该功能!!!\n"+
-		"\n---------主人功能---------\n"+
-		"-/记录 @群友 ATRI币值\n" +
-		"-/记录 @加分群友 ATRI币值 @减分群友\n",
-	})
-	engine.OnFullMatch("查看我的钱包").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatchGroup([]string{"查看我的钱包","/钱包"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
 		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
@@ -130,6 +125,10 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+		})
+		engine.OnRegex(`/钱包(\s*\[CQ:at,qq=)?(\d+)`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+			uid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			ctx.SendChain(message.Text(ctx.CardOrNickName(uid),"的钱包当前有", wallet.GetWalletOf(uid), "ATRI币"))
 		})
 		engine.OnRegex(`^\/记录\s*\[CQ:at,qq=(\d+).*[^-?\d+$](-?\d+)(\s+\[CQ:at,qq=(\d+).*)?`, zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 			adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)

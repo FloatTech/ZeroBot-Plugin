@@ -60,10 +60,7 @@ func init() {
 		PrivateDataFolder: "ygoscore",
 		Help: "-注册决斗者 xxxx\n" +
 			"-注销决斗者 @群友\n" +
-			"-签到\n" +
-			"-/钱包\n" +
-			"-/记录 @群友 ATRI币值\n" +
-			"-/记录 @加分群友 ATRI币值 @减分群友\n",
+			"-签到\n",
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -154,34 +151,6 @@ func init() {
 		score := wallet.GetWalletOf(uid)
 		// 生成签到图片
 		data, cl, err := drawimage(&userinfo, score, add)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
-		ctx.SendChain(message.ImageBytes(data))
-		cl()
-	})
-	engine.OnRegex(`/钱包(\s*\[CQ:at,qq=(\d+).*)?`, zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		var userinfo userdata
-		var err error
-		uid := ctx.Event.UserID
-		if ctx.State["regex_matched"].([]string)[2] != "" {
-			adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-			userinfo, err = scoredata.checkuser(adduser)
-		} else {
-			userinfo, err = scoredata.checkuser(uid)
-		}
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
-		if userinfo.UserName == "" {
-			ctx.SendChain(message.Text("决斗者未注册!\n请输入“注册决斗者 xxx”进行登记(xxx为决斗者昵称)。"))
-			return
-		}
-		score := wallet.GetWalletOf(uid)
-		// 生成ATRI币图片
-		data, cl, err := drawimage(&userinfo, score, 0)
 		if err != nil {
 			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
