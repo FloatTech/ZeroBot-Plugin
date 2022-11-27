@@ -1358,6 +1358,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
   
   <bl>
+  
     <details>
       <summary>白鸽API卡查</summary>
 
@@ -1379,7 +1380,9 @@ print("run[CQ:image,file="+j["img"]+"]")
       - [x] 查卡店  [卡名] [稀有度]
       - 注：卡店只支持单个稀有度查询
     </details>
+  
   </bl>
+  
 </details>
 <details>
   <summary>鬼东西</summary>
