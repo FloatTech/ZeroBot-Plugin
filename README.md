@@ -1354,30 +1354,26 @@ print("run[CQ:image,file="+j["img"]+"]")
 </details>
 <details>
   <summary>一些游戏王插件</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
 	
-  	`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
+  <details>
+    <summary>白鸽API卡查</summary>
 	
-	- 插件一: 白鸽API卡查
-	
- 		- [x] /ydp [xxx]
-
-  		- [x] /yds [xxx]
-
-  		- [x] /ydb [xxx]
-
-  		- 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
-		
-	- 插件二: 集换社卡价查询
- 	
-		- [x] 查卡价 [卡名]
-
-  		- [x] 查卡价 [卡名] [稀有度 稀有度 ...]
-
-  		- [x] 查卡店  [卡名]
-
-  		- [x] 查卡店  [卡名] [稀有度]
-
-  		- 注：卡店只支持单个稀有度查询
+    - [x] /ydp [xxx]
+    - [x] /yds [xxx]
+    - [x] /ydb [xxx]
+    - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
+  </details>
+  <details>
+    <summary>白集换社卡价查询</summary>
+    - 插件二: 集换社卡价查询
+    - [x] 查卡价 [卡名]
+    - [x] 查卡价 [卡名] [稀有度 稀有度 ...]
+    - [x] 查卡店  [卡名]
+    - [x] 查卡店  [卡名] [稀有度]
+    - 注：卡店只支持单个稀有度查询
+  </details>
 	
 </details>
 <details>
