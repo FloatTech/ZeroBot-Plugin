@@ -1359,7 +1359,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   ##### 白鸽API卡查
 	    
-  ###### `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb"`
+  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb.go"`
   - [x] /ydp [xxx]
   - [x] /yds [xxx]
   - [x] /ydb [xxx]
@@ -1367,7 +1367,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 	
   ##### 集换社卡价查询
 
-  ###### `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade"`
+  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade.go"`
   - [x] 查卡价 [卡名]
   - [x] 查卡价 [卡名] [稀有度 稀有度 ...]
   - [x] 查卡店  [卡名]
