@@ -51,11 +51,7 @@ var (
 	levelrank  = [...]string{"新手", "青铜", "白银", "黄金", "白金Ⅲ", "白金Ⅱ", "白金Ⅰ", "传奇Ⅲ", "传奇Ⅱ", "传奇Ⅰ", "决斗王"}
 )
 
-const (
-	serviceErr = "[ygoscore]error:"
-	// SCOREMAX 分数上限定为120
-	SCOREMAX = 1200
-)
+const SCOREMAX = 1200
 
 func init() {
 	engine := control.Register("ygoscore", &ctrl.Options[*zero.Ctx]{
@@ -65,7 +61,7 @@ func init() {
 		Help: "-注册决斗者 xxxx\n" +
 			"-注销决斗者 @群友\n" +
 			"-签到\n" +
-			"-/ATRI币\n" +
+			"-/钱包\n" +
 			"-/记录 @群友 ATRI币值\n" +
 			"-/记录 @加分群友 ATRI币值 @减分群友\n",
 	})
@@ -74,7 +70,7 @@ func init() {
 		scoredata.db.DBPath = engine.DataFolder() + "score.db"
 		err := scoredata.db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return false
 		}
 		return true
@@ -93,7 +89,7 @@ func init() {
 		}
 		err := scoredata.register(ctx.Event.UserID, username)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		ctx.SendChain(message.Text("注册成功"))
@@ -102,7 +98,7 @@ func init() {
 		adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
 		err := scoredata.deleteuser(adduser)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		ctx.SendChain(message.Text("注销成功"))
@@ -112,7 +108,7 @@ func init() {
 		uid := ctx.Event.UserID
 		userinfo, err := scoredata.checkuser(uid)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		if userinfo.UserName == "" {
@@ -126,7 +122,7 @@ func init() {
 			// 生成ATRI币图片
 			data, cl, err := drawimage(&userinfo, score, 0)
 			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, err))
+				ctx.SendChain(message.Text("[ygoscore]error:", err))
 				return
 			}
 			ctx.SendChain(message.Text("今天已经签到过了"))
@@ -159,7 +155,7 @@ func init() {
 		// 生成签到图片
 		data, cl, err := drawimage(&userinfo, score, add)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		ctx.SendChain(message.ImageBytes(data))
@@ -176,7 +172,7 @@ func init() {
 			userinfo, err = scoredata.checkuser(uid)
 		}
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		if userinfo.UserName == "" {
@@ -187,7 +183,7 @@ func init() {
 		// 生成ATRI币图片
 		data, cl, err := drawimage(&userinfo, score, 0)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		ctx.SendChain(message.ImageBytes(data))
@@ -200,7 +196,7 @@ func init() {
 		// 第一个人记录
 		err := wallet.InsertWalletOf(adduser, score)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		if score > 0 {
@@ -223,7 +219,7 @@ func init() {
 		}
 		err = wallet.InsertWalletOf(devuser, score)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		if score > 0 {
@@ -248,7 +244,7 @@ func init() {
 		changeData := make(map[string]string, 10)
 		infoList := strings.Split(data, " ")
 		if len(infoList) == 1 {
-			ctx.SendChain(message.Text(serviceErr, "请输入正确的参数"))
+			ctx.SendChain(message.Text("[ygoscore]error:", "请输入正确的参数"))
 			return
 		}
 		for _, manager := range infoList {
@@ -262,7 +258,7 @@ func init() {
 		}
 		userinfo, err := scoredata.checkuser(uid)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		userinfo.Uid = uid
@@ -273,21 +269,21 @@ func init() {
 			case "签到时间":
 				now, err := time.Parse("2006/01/02", value)
 				if err != nil {
-					ctx.SendChain(message.Text(serviceErr, err))
+					ctx.SendChain(message.Text("[ygoscore]error:", err))
 					return
 				}
 				userinfo.UpdatedAt = now.Unix()
 			case "签到次数":
 				times, err := strconv.Atoi(value)
 				if err != nil {
-					ctx.SendChain(message.Text(serviceErr, err))
+					ctx.SendChain(message.Text("[ygoscore]error:", err))
 					return
 				}
 				userinfo.Continuous = times
 			case "等级":
 				level, err := strconv.Atoi(value)
 				if err != nil {
-					ctx.SendChain(message.Text(serviceErr, err))
+					ctx.SendChain(message.Text("[ygoscore]error:", err))
 					return
 				}
 				userinfo.Level = level
@@ -295,7 +291,7 @@ func init() {
 		}
 		err = scoredata.db.Insert("score", &userinfo)
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
 		}
 		ctx.SendChain(message.Text("成功"))

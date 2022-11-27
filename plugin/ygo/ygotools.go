@@ -1,4 +1,5 @@
-package ygoscore
+// Package ygo 一些关于ygo的插件
+package ygo
 
 import (
 	"math/rand"

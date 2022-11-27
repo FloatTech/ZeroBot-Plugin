@@ -1,5 +1,6 @@
+// Package ygo 一些关于ygo的插件
+package ygo
 // 本插件查卡通过网页"https://www.ygo-sem.cn/"获取的
-package ygosem
 
 import (
 	"encoding/base64"

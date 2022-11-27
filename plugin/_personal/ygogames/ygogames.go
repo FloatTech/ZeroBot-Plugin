@@ -114,12 +114,6 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
 		}
-		scoredata.db.DBPath = file.BOTPATH + "/data/ygoscore/score.db"
-		err = scoredata.db.Open(time.Hour * 24)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return false
-		}
 		return true
 	})
 
@@ -128,24 +122,6 @@ func init() {
 		uid := ctx.Event.UserID
 		if duelUser == uid {
 			ctx.SendChain(message.Text("禁止左右手互博"))
-			return
-		}
-		userinfo, err := scoredata.checkuser(uid)
-		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
-			return
-		}
-		if userinfo.UserName == "" {
-			ctx.SendChain(message.Text("决斗者未注册!\n请输入“注册决斗者 xxx”进行登记(xxx为决斗者昵称)。"))
-			return
-		}
-		challenginfo, err := scoredata.checkuser(duelUser)
-		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
-			return
-		}
-		if challenginfo.UserName == "" {
-			ctx.SendChain(message.Text("决斗者未注册!\n请输入“注册决斗者 xxx”进行登记(xxx为决斗者昵称)。"))
 			return
 		}
 		userScore := wallet.GetWalletOf(uid)
@@ -232,14 +208,14 @@ func init() {
 				if !ok {
 					err := wallet.InsertWalletOf(uid, -6)
 					if err != nil {
-						ctx.SendChain(message.Text(serviceErr, err))
+						ctx.SendChain(message.Text("[ygoscore]error:", err))
 					}
 				}
 				_, ok = duel[duelUser]
 				if !ok {
 					err := wallet.InsertWalletOf(duelUser, -6)
 					if err != nil {
-						ctx.SendChain(message.Text(serviceErr, err))
+						ctx.SendChain(message.Text("[ygoscore]error:", err))
 					}
 				}
 				return
@@ -283,6 +259,7 @@ func init() {
 			}
 		}
 		result := 0
+		var err error
 		var winID int64
 		switch compare {
 		case "福悲喜":
@@ -301,7 +278,7 @@ func init() {
 				}
 			}
 			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, err))
+				ctx.SendChain(message.Text("[ygoscore]error:", err))
 				return
 			}
 			if winID != 0 {
@@ -333,7 +310,7 @@ func init() {
 				result = 3
 			}
 			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, err))
+				ctx.SendChain(message.Text("[ygoscore]error:", err))
 				return
 			}
 			switch result {
@@ -354,7 +331,7 @@ func init() {
 					err = wallet.InsertWalletOf(duelUser, 16)
 				}
 				if err != nil {
-					ctx.SendChain(message.Text(serviceErr, err))
+					ctx.SendChain(message.Text("[ygoscore]error:", err))
 					return
 				}
 				ctx.SendChain(message.Text("你们真默契！你们完成了「", compare, "」游戏,你们的ATRI币+16\n可发送“/钱包”查看"))
@@ -364,7 +341,7 @@ func init() {
 					err = wallet.InsertWalletOf(duelUser, -6)
 				}
 				if err != nil {
-					ctx.SendChain(message.Text(serviceErr, err))
+					ctx.SendChain(message.Text("[ygoscore]error:", err))
 					return
 				}
 				ctx.SendChain(message.Text("很遗憾,你们没有抽到相同的属性。游玩费 6 枚ATRI币我拿走了"))
@@ -385,7 +362,7 @@ func init() {
 				}
 			}
 			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, err))
+				ctx.SendChain(message.Text("[ygoscore]error:", err))
 				return
 			}
 			if winID != 0 {
@@ -419,7 +396,7 @@ func init() {
 				err = wallet.InsertWalletOf(lostID, -points)
 			}
 			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, err))
+				ctx.SendChain(message.Text("[ygoscore]error:", err))
 				return
 			}
 			ctx.SendChain(message.At(winID), message.Text("恭喜你赢得了「", compare, "」游戏,ATRI币+", points, "\n可发送“/钱包”查看"))
@@ -464,7 +441,7 @@ func init() {
 			}
 			//数据结算
 			if err != nil {
-				ctx.SendChain(message.Text(serviceErr, err))
+				ctx.SendChain(message.Text("[ygoscore]error:", err))
 				return
 			}
 			switch resultPoints {

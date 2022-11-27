@@ -1,5 +1,6 @@
-// Package ygotrade 本插件基于集换社API
-package ygotrade
+// Package ygo 一些关于ygo的插件
+package ygo
+
 
 import (
 	"encoding/json"
@@ -48,7 +49,7 @@ type tradeInfo struct {
 func init() {
 	engine := control.Register("ygotrade", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:            "集换社游戏王的卡价查询",
+		Brief:            "游戏王卡价查询",// 本插件基于集换社API
 		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度 稀有度 ...]\n- 查卡店  [卡名]\n- 查卡店  [卡名] [稀有度]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnPrefix("查卡价", func(ctx *zero.Ctx) bool {

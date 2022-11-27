@@ -26,8 +26,6 @@ import (
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
 
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/private" // 自建词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
@@ -55,14 +53,11 @@ import (
 	//                               vvvv                               //
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 自制谷歌翻译
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/gamesystem" // 游戏系统
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/gamesystem" // 游戏系统
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko" // nekoneko
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocdb"   // 游戏王百鸽查卡器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygogames" // 游戏王小游戏合计
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygosem"   // 游戏王进阶平台查卡器
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygotools" // 游戏王开房工具
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygotrade" // 游戏王开房工具
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygogames" // 游戏王小游戏合计
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo" // 游戏王相关插件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"      // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"  // 支付宝到账语音
