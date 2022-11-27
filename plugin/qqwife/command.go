@@ -390,26 +390,6 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 
 // nolint: asciicheck
 //nolint: asciicheck
-func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
-	sql.Lock()
-	defer sql.Unlock()
-	gidstr := "group" + strconv.FormatInt(gid, 10)
-	wifestr := strconv.FormatInt(wife, 10)
-	return sql.db.Del(gidstr, "where target = "+wifestr)
-}
-
-// nolint: asciicheck
-//nolint: asciicheck
-func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
-	sql.Lock()
-	defer sql.Unlock()
-	gidstr := "group" + strconv.FormatInt(gid, 10)
-	husbandstr := strconv.FormatInt(husband, 10)
-	return sql.db.Del(gidstr, "where user = "+husbandstr)
-}
-
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -435,8 +415,6 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, err error) {
 	return
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func slicename(name string, canvas *gg.Context) (resultname string) {
 	usermane := []rune(name) // 将每个字符单独放置
 	widthlen := 0

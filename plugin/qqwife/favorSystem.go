@@ -22,8 +22,6 @@ import (
 	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
-// nolint: asciicheck
-// nolint: asciicheck
 // 好感度系统
 type favorability struct {
 	Userinfo string // 记录用户
@@ -31,7 +29,6 @@ type favorability struct {
 }
 
 func init() {
-
 	// 好感度系统
 	engine.OnRegex(`^查好感度\s*(\[CQ:at,qq=)?(\d+)`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
@@ -195,6 +192,8 @@ func init() {
 		})
 }
 
+// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 查好感度(uid, target int64) (int, error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -247,6 +246,8 @@ func (sql *婚姻登记) getGroupFavorability(uid int64) (list favorList, err er
 	return
 }
 
+// nolint: asciicheck
+//nolint: asciicheck
 // 设置好感度 正增负减
 func (sql *婚姻登记) 更新好感度(uid, target int64, score int) (favor int, err error) {
 	sql.Lock()

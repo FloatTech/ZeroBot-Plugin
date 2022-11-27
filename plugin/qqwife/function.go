@@ -9,11 +9,8 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	// 画图
 )
 
-// nolint: asciicheck
-// nolint: asciicheck
 // 技能CD记录表
 type cdsheet struct {
 	Time    int64  // 时间
@@ -22,8 +19,7 @@ type cdsheet struct {
 	Model   string // 技能类型
 }
 
-var (
-	sendtext = [...][]string{
+var sendtext = [...][]string{
 		{ // 表白成功
 			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
 			"(´･ω･`)对方答应了你 并表示愿意当今天的CP\n\n",
@@ -45,10 +41,8 @@ var (
 			"离婚成功力\n天涯何处无芳草，何必单恋一枝花？不如再摘一支（bushi",
 		},
 	}
-)
 
 func init() {
-	// 技能CD设置
 	engine.OnRegex(`^设置CD为(\d+)小时`, zero.OnlyGroup, zero.AdminPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			cdTime, err := strconv.ParseFloat(ctx.State["regex_matched"].([]string)[1], 64)
@@ -365,40 +359,64 @@ func init() {
 		})
 }
 
+// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) (ok bool, err error) {
 	sql.Lock()
 	defer sql.Unlock()
-	// 创建群表哥
-	err = sql.db.Create("CD列表", &cdsheet{})
+	// 创建群表格
+	err = sql.db.Create("cdsheet", &cdsheet{})
 	if err != nil {
 		return
 	}
 	limitID := "where GroupID is " + strconv.FormatInt(gid, 10) +
 		" and UserID is " + strconv.FormatInt(uid, 10) +
 		" and Model is '" + model + "'"
-	if !sql.db.CanFind("CD列表", limitID) {
+	if !sql.db.CanFind("cdsheet", limitID) {
 		// 没有记录即不用比较
 		return true, nil
 	}
 	cdinfo := cdsheet{}
-	_ = sql.db.Find("CD列表", &cdinfo, limitID)
+	_ = sql.db.Find("cdsheet", &cdinfo, limitID)
 	if time.Since(time.Unix(cdinfo.Time, 0)).Hours() > cdtime {
 		// 如果CD已过就删除
-		err = sql.db.Del("CD列表", limitID)
+		err = sql.db.Del("cdsheet", limitID)
 		return true, err
 	}
 	return false, nil
 }
 
+// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 	sql.Lock()
 	defer sql.Unlock()
-	return sql.db.Insert("CD列表", &cdsheet{
+	return sql.db.Insert("cdsheet", &cdsheet{
 		Time:    time.Now().Unix(),
 		GroupID: gid,
 		UserID:  uid,
 		Model:   mode,
 	})
+}
+
+// nolint: asciicheck
+//nolint: asciicheck
+func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
+	sql.Lock()
+	defer sql.Unlock()
+	gidstr := "group" + strconv.FormatInt(gid, 10)
+	wifestr := strconv.FormatInt(wife, 10)
+	return sql.db.Del(gidstr, "where target = "+wifestr)
+}
+
+// nolint: asciicheck
+//nolint: asciicheck
+func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
+	sql.Lock()
+	defer sql.Unlock()
+	gidstr := "group" + strconv.FormatInt(gid, 10)
+	husbandstr := strconv.FormatInt(husband, 10)
+	return sql.db.Del(gidstr, "where user = "+husbandstr)
 }
 
 // 注入判断 是否单身条件

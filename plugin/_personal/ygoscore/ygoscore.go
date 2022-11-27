@@ -189,54 +189,6 @@ func init() {
 		ctx.SendChain(message.ImageBytes(data))
 		cl()
 	})
-	engine.OnRegex(`^\/记录\s*\[CQ:at,qq=(\d+).*[^-?\d+$](-?\d+)(\s+\[CQ:at,qq=(\d+).*)?`, zero.AdminPermission, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		score, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
-		devuser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[4], 10, 64)
-		// 第一个人记录
-		err := wallet.InsertWalletOf(adduser, score)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
-		if score > 0 {
-			adduserinfo, err := scoredata.checkuser(adduser)
-			if err == nil {
-				adduserinfo.Uid = adduser
-				adduserinfo.Level += (score % 10)
-				_ = scoredata.db.Insert("score", &adduserinfo)
-			}
-		}
-		switch {
-		case score > 0:
-			ctx.SendChain(message.At(adduser), message.Text("你获取ATRI币:", score))
-		case score < 0:
-			ctx.SendChain(message.At(adduser), message.Text("你失去ATRI币:", score))
-		}
-		// 第二个人记录
-		if devuser == 0 {
-			return
-		}
-		err = wallet.InsertWalletOf(devuser, score)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
-		if score > 0 {
-			devuserinfo, err := scoredata.checkuser(devuser)
-			if err == nil {
-				devuserinfo.Uid = devuser
-				devuserinfo.Level += (score % 10)
-				_ = scoredata.db.Insert("score", &devuserinfo)
-			}
-		}
-		switch {
-		case score > 0:
-			ctx.SendChain(message.At(devuser), message.Text("你获取ATRI币:", score))
-		case score < 0:
-			ctx.SendChain(message.At(devuser), message.Text("你失去ATRI币:", score))
-		}
-	})
 	engine.OnRegex(`^\/修改(\s*(\[CQ:at,qq=)?(\d+).*)?信息\s*(.*)`, zero.AdminPermission, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		changeuser := ctx.State["regex_matched"].([]string)[3]
 		data := ctx.State["regex_matched"].([]string)[4]

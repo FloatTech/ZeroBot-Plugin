@@ -27,7 +27,7 @@ type searchResult struct {
 		Cid    int    `json:"cid"`
 		ID     int    `json:"id"`
 		CnName string `json:"cn_name"`
-		// CnocgN string `json:"cnocg_n"`
+		// CnocgN string `json:"cnocg_n"` // 简中卡名
 		JpName string `json:"jp_name"`
 		EnName string `json:"en_name"`
 		Text   struct {

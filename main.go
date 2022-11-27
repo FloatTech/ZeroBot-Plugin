@@ -58,7 +58,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygogames" // 游戏王小游戏合计
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo" // 游戏王相关插件
-
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet" // 游戏王相关插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"      // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"  // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"        // 百度一下
