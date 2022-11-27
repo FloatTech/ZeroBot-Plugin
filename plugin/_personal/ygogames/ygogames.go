@@ -106,15 +106,16 @@ func init() {
 		}),
 	))
 
-	zipfile := file.BOTPATH + "/data/ygoscore/ygocdb.com.cards.zip"
-	err := parsezip(zipfile)
-	if err != nil {
-		panic(err)
-	}
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		zipfile := file.BOTPATH + "/data/ygoscore/ygocdb.com.cards.zip"
+		err := parsezip(zipfile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
 		scoredata.db.DBPath = file.BOTPATH + "/data/ygoscore/score.db"
-		err := scoredata.db.Open(time.Hour * 24)
+		err = scoredata.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return false
@@ -488,7 +489,7 @@ func parsezip(zipFile string) error {
 		if err != nil {
 			return err
 		}
-		err = os.WriteFile(zipFile, data, 0666)
+		err = os.WriteFile(zipFile, data, 0755)
 		if err != nil {
 			return err
 		}

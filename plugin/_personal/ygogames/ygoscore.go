@@ -355,7 +355,7 @@ func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err 
 
 	/***********写入用户信息***********/
 	fontSize := 50.0
-	_, err = file.GetLazyData(text.BoldFontFile, false)
+	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
