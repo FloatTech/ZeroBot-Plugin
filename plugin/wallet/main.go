@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -16,20 +17,19 @@ import (
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 func init() {
-	engine    := control.Register("wallet", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		Brief:             "钱包系统",
-		Help:              "- 查看我的钱包\n"+
-		"- 查看钱包排名\n"+
-		"注:为本群排行，若群人数太多不建议使用该功能!!!\n"+
-		"\n---------主人功能---------\n"+
-		"- /钱包 [QQ号|@群友]\n"+
-		"- /记录 @群友 ATRI币值\n" +
-		"- /记录 @加分群友 ATRI币值 @减分群友\n",
+	engine := control.Register("wallet", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault: false,
+		Brief:            "钱包系统",
+		Help: "- 查看我的钱包\n" +
+			"- 查看钱包排名\n" +
+			"注:为本群排行，若群人数太多不建议使用该功能!!!\n" +
+			"\n---------主人功能---------\n" +
+			"- /钱包 [QQ号|@群友]\n" +
+			"- /记录 @群友 ATRI币值\n" +
+			"- /记录 @加分群友 @减分群友 ATRI币值",
 	})
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
@@ -39,7 +39,7 @@ func init() {
 			panic(err)
 		}
 	}()
-	engine.OnFullMatchGroup([]string{"查看我的钱包","/钱包"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatchGroup([]string{"查看我的钱包", "/钱包"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
 		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
@@ -126,40 +126,40 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-		engine.OnRegex(`/钱包(\s*\[CQ:at,qq=)?(\d+)`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-			uid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-			ctx.SendChain(message.Text(ctx.CardOrNickName(uid),"的钱包当前有", wallet.GetWalletOf(uid), "ATRI币"))
-		})
-		engine.OnRegex(`^\/记录\s*\[CQ:at,qq=(\d+).*[^-?\d+$](-?\d+)(\s+\[CQ:at,qq=(\d+).*)?`, zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-			adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			score, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
-			devuser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[4], 10, 64)
-			// 第一个人记录
-			err := wallet.InsertWalletOf(adduser, score)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
-			switch {
-			case score > 0:
-				ctx.SendChain(message.At(adduser), message.Text("你获取ATRI币:", score))
-			case score < 0:
-				ctx.SendChain(message.At(adduser), message.Text("你失去ATRI币:", score))
-			}
-			// 第二个人记录
-			if devuser == 0 {
-				return
-			}
-			err = wallet.InsertWalletOf(devuser, score)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
-			switch {
-			case score > 0:
-				ctx.SendChain(message.At(devuser), message.Text("你获取ATRI币:", score))
-			case score < 0:
-				ctx.SendChain(message.At(devuser), message.Text("你失去ATRI币:", score))
-			}
-		})
+	engine.OnRegex(`/钱包(\s*\[CQ:at,qq=)?(\d+)`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		uid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		ctx.SendChain(message.Text(ctx.CardOrNickName(uid), "的钱包当前有", wallet.GetWalletOf(uid), "ATRI币"))
+	})
+	engine.OnRegex(`^\/记录\s*\[CQ:at,qq=(\d+)(.*\[CQ:at,qq=(\d+))?.*[^(-?\d+)$](-?\d+)`, zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		devuser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[3], 10, 64)
+		score, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[4])
+		// 第一个人记录
+		err := wallet.InsertWalletOf(adduser, score)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		switch {
+		case score > 0:
+			ctx.SendChain(message.At(adduser), message.Text("你获取ATRI币:", score))
+		case score < 0:
+			ctx.SendChain(message.At(adduser), message.Text("你失去ATRI币:", score))
+		}
+		// 第二个人记录
+		if devuser == 0 {
+			return
+		}
+		err = wallet.InsertWalletOf(devuser, -score)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		switch {
+		case -score > 0:
+			ctx.SendChain(message.At(devuser), message.Text("你获取ATRI币:", score))
+		case -score < 0:
+			ctx.SendChain(message.At(devuser), message.Text("你失去ATRI币:", score))
+		}
+	})
 }

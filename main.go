@@ -52,35 +52,34 @@ import (
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 自制谷歌翻译
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/gamesystem" // 游戏系统
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko" // nekoneko
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygogames" // 游戏王小游戏合计
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo" // 游戏王相关插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet" // 游戏王相关插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"      // ai绘图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"  // 支付宝到账语音
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"        // 百度一下
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"     // b站相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"     // DeepDanbooru二次元图标签识别
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"     // 城市疫情查询
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"          // 制图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"       // 搜索GitHub仓库
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"   // 猜歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder" // 关键字搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"    // 小鸡词典
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"       // 日韩 VITS 模型拟声
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"        // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"      // 拼音首字母缩写释义工具
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"       // 一群一天一夫一妻制群老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"      // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"     // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"     // 来份涩图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"     // 搜番
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"     // AI画图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"       // 猜单词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"        // 月幕galgame
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 自制谷歌翻译
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko"   // nekoneko
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo"   // 游戏王combo记录器
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"              // ai绘图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"          // 支付宝到账语音
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"                // 百度一下
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"             // b站相关
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"             // DeepDanbooru二次元图标签识别
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"             // 城市疫情查询
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"                  // 制图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"               // 搜索GitHub仓库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"           // 猜歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"         // 关键字搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"            // 小鸡词典
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"               // 日韩 VITS 模型拟声
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"                // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"              // 拼音首字母缩写释义工具
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"               // 一群一天一夫一妻制群老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"              // 在线运行代码
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"             // 以图搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"             // 来份涩图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"             // 搜番
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"               // 钱包系统
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"             // AI画图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"               // 猜单词
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"                  // 游戏王相关插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"                // 月幕galgame
 
 	/*
 		_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"         // ahsai tts

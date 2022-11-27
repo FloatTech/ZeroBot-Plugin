@@ -58,14 +58,20 @@ func init() {
 		DisableOnDefault:  false,
 		Brief:             "签到系统",
 		PrivateDataFolder: "ygoscore",
-		Help: "-注册决斗者 xxxx\n" +
-			"-注销决斗者 @群友\n" +
-			"-签到\n",
+		Help: "- 注册决斗者 xxxx\n" +
+			"- 注销决斗者 @群友\n" +
+			"- 签到\n" +
+			"- /修改信息 [昵称:xx  ]",
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		scoredata.db.DBPath = engine.DataFolder() + "score.db"
 		err := scoredata.db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("[ygoscore]error:", err))
+			return false
+		}
+		err = scoredata.db.Create("score", &userdata{})
 		if err != nil {
 			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return false
@@ -103,11 +109,7 @@ func init() {
 
 	engine.OnFullMatchGroup([]string{"签到", "打卡"}, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
-		userinfo, err := scoredata.checkuser(uid)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
+		userinfo := scoredata.checkuser(uid)
 		if userinfo.UserName == "" {
 			ctx.SendChain(message.Text("决斗者未注册!\n请输入“注册决斗者 xxx”进行登记(xxx为决斗者昵称)。"))
 			return
@@ -177,11 +179,7 @@ func init() {
 		if changeuser != "" {
 			uid, _ = strconv.ParseInt(changeuser, 10, 64)
 		}
-		userinfo, err := scoredata.checkuser(uid)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
+		userinfo := scoredata.checkuser(uid)
 		userinfo.Uid = uid
 		for dataName, value := range changeData {
 			switch dataName {
@@ -210,7 +208,7 @@ func init() {
 				userinfo.Level = level
 			}
 		}
-		err = scoredata.db.Insert("score", &userinfo)
+		err := scoredata.db.Insert("score", &userinfo)
 		if err != nil {
 			ctx.SendChain(message.Text("[ygoscore]error:", err))
 			return
@@ -223,9 +221,6 @@ func init() {
 func (sdb *score) register(uid int64, username string) (err error) {
 	sdb.Lock()
 	defer sdb.Unlock()
-	if err = sdb.db.Create("score", &userdata{}); err != nil {
-		return
-	}
 	var userinfo userdata
 	_ = sdb.db.Find("score", &userinfo, "where uid = "+strconv.FormatInt(uid, 10))
 	if userinfo.UserName != "" {
@@ -237,12 +232,9 @@ func (sdb *score) register(uid int64, username string) (err error) {
 	}
 	return sdb.db.Insert("score", &userinfo)
 }
-func (sdb *score) checkuser(uid int64) (userinfo userdata, err error) {
+func (sdb *score) checkuser(uid int64) (userinfo userdata) {
 	sdb.Lock()
 	defer sdb.Unlock()
-	if err = sdb.db.Create("score", &userdata{}); err != nil {
-		return
-	}
 	_ = sdb.db.Find("score", &userinfo, "where uid = "+strconv.FormatInt(uid, 10))
 	return
 }
@@ -331,12 +323,7 @@ func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err 
 func (sdb *score) deleteuser(uid int64) (err error) {
 	sdb.Lock()
 	defer sdb.Unlock()
-	uidStr := strconv.FormatInt(uid, 10)
-	err = sdb.db.Find("score", &userdata{}, "where Uid = "+uidStr)
-	if err == nil {
-		err = sdb.db.Del("score", "where Uid = "+uidStr)
-	}
-	return
+	return sdb.db.Del("score", "where Uid = "+strconv.FormatInt(uid, 10))
 }
 
 func getLevel(count int) int {

@@ -1,5 +1,6 @@
 // Package ygo 一些关于ygo的插件
 package ygo
+
 // 本插件查卡通过网页"https://www.ygo-sem.cn/"获取的
 
 import (
@@ -8,33 +9,17 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
-
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
-
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/process"
-	sql "github.com/FloatTech/sqlite"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-type groupinfo struct {
-	Groupid    string
-	Switch     int
-	Updatetime string
-}
-
-var (
-	db      = &sql.Sqlite{}
-	dbmu    sync.RWMutex
-	reqconf = [...]string{"GET", "https://www.ygo-sem.cn/",
-		"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
-)
+var reqconf = [...]string{"GET", "https://www.ygo-sem.cn/",
+	"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"}
 
 // 正则筛选数据
 func regexpmatch(rule, str string) (regexpresult [][]string, ok bool) {
@@ -51,18 +36,11 @@ func regexpmatch(rule, str string) (regexpresult [][]string, ok bool) {
 func init() {
 	en := control.Register("ygosem", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:           "游戏王进阶平台卡查",
+		Brief:            "游戏王进阶平台卡查",
 		Help: "1.指令：/ys [卡名] [-(卡图|描述|调整)]\n" +
 			"2.(开启|关闭)每日分享卡片",
 		PrivateDataFolder: "ygosem",
 	})
-
-	go func() {
-		db.DBPath = en.DataFolder() + "ygosem.db"
-		db.Open(time.Hour * 24)
-		db.Create("lookupgroupid", &groupinfo{})
-	}()
-
 	en.OnRegex(`^[(.|。|\/|\\)]ys((\s)?(.+))?`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		searchdata := strings.SplitN(ctx.State["regex_matched"].([]string)[3], " -", 2)
 		searchName := searchdata[0]
@@ -219,6 +197,10 @@ func init() {
 		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
 		// 请求html页面
 		body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		if err != nil {
+			ctx.SendChain(message.Text("今日分享卡片失败\n[error]:无法连接当前服务器"))
+			return
+		}
 		card_data, pic, ok := getYGOdata(string(body), "")
 		if !ok {
 			ctx.SendChain(message.Text("今日分享卡片失败\n[error]:无法获取卡片信息"))
@@ -227,107 +209,6 @@ func init() {
 		// 分享卡片
 		ctx.SendChain(message.Text("当前游戏王卡池总数："+listmaxn+"\n\n今日分享卡牌：\n\n"), message.Image("base64://"+pic), message.Text(card_data))
 	})
-	// */每天12点随机分享一张卡
-	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		// 如果数据库不存在则下载
-		db.DBPath = en.DataFolder() + "ygosem.db"
-		// _, _ = engine.GetLazyData("SetuTime.db", false)
-		err := db.Open(time.Hour * 24)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return false
-		}
-		if err := db.Create("lookupgroupid", &groupinfo{}); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return false
-		}
-		return true
-	})
-	en.OnRegex(`^(开启|关闭|查询)每日分享卡片$`, zero.OnlyGroup, zero.AdminPermission, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		cmd := ctx.State["regex_matched"].([]string)[1]
-		gid := ctx.Event.GroupID
-		dbmu.Lock()
-		defer dbmu.Unlock()
-		var ginfo groupinfo
-		gidstr := strconv.FormatInt(gid, 10)
-		err := db.Find("lookupgroupid", &ginfo, "where Groupid = "+gidstr)
-		if cmd == "查询" {
-			switch {
-			case err != nil:
-				ctx.SendChain(message.Text("服务未开启"))
-			case ginfo.Switch == 1:
-				ctx.SendChain(message.Text("服务已开启"))
-			case ginfo.Switch == 0:
-				ctx.SendChain(message.Text("服务未开启"))
-			}
-			return
-		}
-		if err != nil {
-			ginfo.Groupid = gidstr
-		}
-		switch cmd {
-		case "开启":
-			ginfo.Switch = 1
-		case "关闭":
-			ginfo.Switch = 0
-		}
-		ginfo.Updatetime = time.Now().Format("2006-01-02 15:04:05")
-		if err := db.Insert("lookupgroupid", &ginfo); err != nil {
-			ctx.SendChain(message.Text("服务状态更改失败！\n[ERROER]", err))
-			return
-		}
-		ctx.SendChain(message.Text("服务状态已更改"))
-	})
-	process.CronTab.AddFunc("00 12 * * *", func() {
-		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
-		// 请求html页面
-		list_body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
-		if err != nil {
-			return
-		}
-		// 获取卡牌数量
-		listmax, ok := regexpmatch("条 共:(?s:(.*?))条</span>", string(list_body))
-		if !ok {
-			return
-		}
-		listmaxn := listmax[0][1]
-		maxnumber, _ := strconv.Atoi(listmaxn)
-		var ginfo groupinfo
-		// 向各群分享
-		zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-			for _, g := range ctx.GetGroupList().Array() {
-				grp := g.Get("group_id").Int()
-				gidstr := g.Get("group_id").String()
-				err := db.Find("lookupgroupid", &ginfo, "where Groupid = "+gidstr)
-				if err != nil {
-					continue
-				}
-				if ginfo.Switch == 1 {
-					searchName := strconv.Itoa(rand.Intn(maxnumber + 1))
-					url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
-					// 请求html页面
-					body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
-					if err != nil {
-						ctx.SendGroupMessage(grp, message.Message{message.Text("今日分享卡片失败")})
-					}
-					card_data, pic, ok := getYGOdata(string(body), "")
-					if !ok {
-						ctx.SendGroupMessage(grp, message.Message{message.Text("今日分享卡片失败")})
-					}
-					// 输出数据
-					ctx.SendGroupMessage(
-						grp,
-						message.Message{
-							message.Text("当前游戏王卡池总数：" + listmaxn + "\n\n今日分享卡牌：\n\n"),
-							message.Image("base64://" + pic),
-							message.Text(card_data),
-						})
-				}
-				process.SleepAbout1sTo2s()
-			}
-			return true
-		})
-	}) // */
 }
 
 // 获取字段列表
@@ -359,7 +240,9 @@ func getYGOdata(body, condition string) (card_data, pic string, ok bool) {
 		card_data, ok = getAdjustment(body)
 	default:
 		card_data, ok = getCarddata(body)
-		pic, ok = getPic(body, false)
+		if ok {
+			pic, ok = getPic(body, false)
+		}
 	}
 	return
 }
@@ -407,6 +290,9 @@ func getCarddata(body string) (cardata string, ok bool) {
 			levelinfo, ok := regexpmatch("LINK(?s:(.*?))</span>", body)
 			if !ok {
 				levelinfo, ok = regexpmatch("\"item_box_value\">Link(?s:(.*?))</span>", body)
+				if !ok {
+					return "", ok
+				}
 			}
 			level = "LINK-" + strings.ReplaceAll(levelinfo[0][1], " ", "")
 			level = strings.ReplaceAll(level, "\r\n", "")
@@ -489,13 +375,13 @@ func getDescribe(body string) (describe string, ok bool) {
 	getdescribe := strings.ReplaceAll(describeinfo[0][1], "\r\n", "")
 	getdescribe = strings.ReplaceAll(getdescribe, " ", "")
 	href1, _ := regexpmatch("<span(.*?)data-content=(.*?)'>(.*?)</span>", getdescribe)
-	if href1 != nil {
+	if len(href1) != 0 {
 		for _, hrefv := range href1 {
 			getdescribe = strings.ReplaceAll(getdescribe, hrefv[0], "「"+hrefv[3]+"」")
 		}
 	}
 	href2, _ := regexpmatch("<ahref='(.*?)'target='_blank'>(.*?)</a>", getdescribe)
-	if href2 != nil {
+	if len(href2) != 0 {
 		for _, hrefv := range href2 {
 			getdescribe = strings.ReplaceAll(getdescribe, hrefv[0], hrefv[2])
 		}
@@ -519,7 +405,7 @@ func getAdjustment(body string) (adjustment string, ok bool) {
 		return
 	}
 	href, _ := regexpmatch("<a href='(.*?)' target='_blank'>(.*?)</a>", getadjustmentinfo)
-	if href != nil {
+	if len(href) != 0 {
 		for _, hrefv := range href {
 			getadjustmentinfo = strings.ReplaceAll(getadjustmentinfo, hrefv[0], hrefv[2])
 		}

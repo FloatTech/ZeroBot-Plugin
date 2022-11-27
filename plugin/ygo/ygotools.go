@@ -3,7 +3,6 @@ package ygo
 
 import (
 	"math/rand"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -39,14 +38,12 @@ var (
 		"WRGP",
 		"阿克西斯",
 	}
-	lastzoom     = make(map[string]int64, 60)
-	lastzoomtime time.Time
 )
 
 func init() {
 	engine := control.Register("ygotools", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:           "游戏王开房工具",
+		Brief:            "游戏王开房工具",
 		Help: "创建房间名：房间、单打、双打、比赛\n例: \\房间 时间=5 T卡=1 抽卡=2 起手=40\n" +
 			"---可选以下参数----\n" +
 			"时间=0~999  (单位:分钟)\n血量=0~99999\nT卡=(0:可使用T独,1：仅可以使用T卡)\n" +
@@ -69,85 +66,23 @@ func init() {
 	})
 	// 村规
 	engine.OnFullMatchGroup([]string{"/村规", ".村规", "村规", "群规", "暗黑决斗"}, func(ctx *zero.Ctx) bool {
-		if ctx.Event.GroupID != 979031435 {
-			return false
-		}
-		return true
+		return ctx.Event.GroupID != 979031435
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text(ygorule))
 	})
 	// 房间
 	engine.OnRegex(`^[(.|。|\/|\\|老|开)](房间|单打|双打|比赛)(\s.*)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		roomType := ctx.State["regex_matched"].([]string)[1]
-		roomname := ""
+		var roomOption []string
 		switch roomType {
 		case "双打":
-			roomname += "T"
+			roomOption = append(roomOption, "T")
 		case "比赛":
-			roomname += "M"
+			roomOption = append(roomOption, "M")
 		}
-		roomseting := ctx.State["regex_matched"].([]string)[2]
-		regexp_rule := regexp.MustCompile(`(时间|T卡|起手|抽卡|大师|卡组|卡表|血量)=(\S+)`)
-		roomregxp := regexp_rule.FindAllStringSubmatch(roomseting, -1)
-		for _, roomrule := range roomregxp {
-			setname := roomrule[1]
-			setinfo := roomrule[2]
-			if roomname != "" {
-				roomname += ","
-			}
-			switch setname {
-			case "时间":
-				if "0" <= setinfo && setinfo <= "999" {
-					roomname += ("TM" + setinfo)
-				}
-			case "T卡":
-				if setinfo == "0" {
-					roomname += "OT"
-				} else if setinfo == "1" {
-					roomname += "TO"
-				}
-			case "起手":
-				if "1" <= setinfo && setinfo <= "40" {
-					roomname += ("ST" + setinfo)
-				}
-			case "抽卡":
-				if "0" <= setinfo && setinfo <= "35" {
-					roomname += ("DR" + setinfo)
-				}
-			case "大师":
-				if setinfo == "新大师" {
-					roomname += "MR4"
-				} else if setinfo == "2020" {
-					roomname += "MR5"
-				} else if "0" < setinfo && setinfo < "4" {
-					roomname += ("MR" + setinfo)
-				}
-			case "卡组":
-				if setinfo == "不检查" {
-					roomname += "NC"
-				} else if setinfo == "不洗切" {
-					roomname += "NS"
-				} else {
-					roomname += "NC,NS"
-				}
-			case "卡表":
-				if setinfo == "0" {
-					roomname += "NF"
-				} else if "0" < setinfo && setinfo < "9" {
-					roomname += ("LF" + setinfo)
-				}
-			case "血量":
-				if "0" < setinfo && setinfo <= "99999" {
-					roomname += ("LP" + setinfo)
-				}
-			}
-		}
-		if !strings.Contains(roomname, "TM") && ctx.Event.GroupID == 979031435 {
-			if roomname != "" {
-				roomname += ","
-			}
-			roomname += "TM0"
-		}
+		roomOptions := jionString(ctx.State["regex_matched"].([]string)[2])
+		roomOption = append(roomOption, roomOptions...)
+		roomname := strings.Join(roomOption, ",")
 		if roomname != "" {
 			roomname += "#"
 		}
@@ -158,47 +93,74 @@ func init() {
 			ctx.SendChain(message.Text("房间名只支持20个字符，请减少房间规则"))
 			return
 		}
-		now := time.Now()
-		if now.Sub(lastzoomtime).Minutes() > 30 {
-			lastzoomtime = now
-			lastzoom = map[string]int64{}
-		}
-		if ctx.Event.GroupID != 979031435 {
-			randname := checkroom(ctx.Event.GroupID, namelen)
-			roomname += randname
+		if rand.Intn(3) == 0 {
+			roomname += randString(namelen)
 		} else {
-			randname := checkroom(ctx.Event.GroupID, 0)
-			roomname += randname
+			roomname += zooms[rand.Intn(len(zoomr))]
 		}
 		ctx.SendChain(message.Text(zoomr[rand.Intn(len(zoomr))]))
 		ctx.SendChain(message.Text(roomname))
 	})
 }
 
-// 判断房间名
-func checkroom(gid int64, rommlen int) (randname string) {
-	now := time.Now()
-	if lastzoom != nil {
-		for randname, groupid := range lastzoom {
-			if groupid == gid && now.Sub(lastzoomtime).Seconds() < 20 {
-				return randname
-			} else if groupid == gid {
-				break
+// 添加指令
+func jionString(option string) []string {
+	var jionString []string
+	options := strings.Split(option, " ")
+	for _, roomrule := range options {
+		optionInfo := strings.Split(roomrule, "=")
+		switch optionInfo[0] {
+		case "时间":
+			if "0" <= optionInfo[1] && optionInfo[1] <= "999" {
+				jionString = append(jionString, "TM"+optionInfo[1])
+			}
+		case "T卡":
+			if optionInfo[1] == "0" {
+				jionString = append(jionString, "OT")
+			} else if optionInfo[1] == "1" {
+				jionString = append(jionString, "TO")
+			}
+		case "起手":
+			if "1" <= optionInfo[1] && optionInfo[1] <= "40" {
+				jionString = append(jionString, "ST"+optionInfo[1])
+			}
+		case "抽卡":
+			if "0" <= optionInfo[1] && optionInfo[1] <= "35" {
+				jionString = append(jionString, "DR"+optionInfo[1])
+			}
+		case "大师":
+			if optionInfo[1] == "新大师" {
+				jionString = append(jionString, "MR4")
+			} else if optionInfo[1] == "2020" {
+				jionString = append(jionString, "MR5")
+			} else if "0" < optionInfo[1] && optionInfo[1] < "4" {
+				jionString = append(jionString, "MR"+optionInfo[1])
+			}
+		case "卡组":
+			if optionInfo[1] == "不检查" {
+				jionString = append(jionString, "NC")
+			} else if optionInfo[1] == "不洗切" {
+				jionString = append(jionString, "NS")
+			} else {
+				jionString = append(jionString, "NC,NS")
+			}
+		case "卡表":
+			if optionInfo[1] == "0" {
+				jionString = append(jionString, "NF")
+			} else if "0" < optionInfo[1] && optionInfo[1] < "9" {
+				jionString = append(jionString, "LF"+optionInfo[1])
+			}
+		case "血量":
+			if "0" < optionInfo[1] && optionInfo[1] <= "99999" {
+				jionString = append(jionString, "LP"+optionInfo[1])
 			}
 		}
 	}
-	switch rommlen {
-	case 0:
-		randname = zooms[rand.Intn(len(zooms))]
-	default:
-		randname = RandString(rommlen)
-	}
-	lastzoom[randname] = gid
-	return
+	return jionString
 }
 
 // 生成token值
-func RandString(length int) string {
+func randString(length int) string {
 	rand.Seed(time.Now().UnixNano())
 	rs := make([]string, length)
 	for start := 0; start < length; start++ {
@@ -216,8 +178,4 @@ func RandString(length int) string {
 		}
 	}
 	return strings.Join(rs, "")
-}
-
-func randText(text ...string) message.MessageSegment {
-	return message.Text(text[rand.Intn(len(text))])
 }
