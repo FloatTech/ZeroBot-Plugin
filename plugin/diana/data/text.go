@@ -9,6 +9,7 @@ import (
 	binutils "github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	sql "github.com/FloatTech/sqlite"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,7 +22,7 @@ type text struct {
 
 // LoadText 加载小作文
 func LoadText(dbfile string) error {
-	_, err := file.GetLazyData(dbfile, false)
+	_, err := file.GetLazyData(dbfile, control.Md5File, false)
 	db.DBPath = dbfile
 	if err != nil {
 		return err

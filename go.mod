@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.5.2-0.20221112090201-4a200d6330d5
-	github.com/FloatTech/floatbox v0.0.0-20221110070748-e0d0b3af3e57
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20221121151451-9c3b88bc325d
+	github.com/FloatTech/floatbox v0.0.0-20221121151328-cac4af114b44
 	github.com/FloatTech/sqlite v0.5.1
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20221110070900-b2888434e9fc
-	github.com/FloatTech/zbputils v1.5.1-0.20221115024335-1bd5b91a870e
+	github.com/FloatTech/zbputils v1.6.1-0.20221121151417-290a1a584dd0
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c
 	github.com/RomiChan/websocket v1.4.3-0.20220123145318-307a86b127bc
 	github.com/antchfx/htmlquery v1.2.5
@@ -18,7 +18,7 @@ require (
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.6.1
-	github.com/fumiama/go-registry v0.2.2
+	github.com/fumiama/go-registry v0.2.5-0.20221121111817-44b0846bdce6
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/sqlite3 v1.14.6
 	github.com/fumiama/unibase2n v0.0.0-20221003115227-e7db987de949
@@ -39,7 +39,7 @@ require (
 )
 
 require (
-	github.com/FloatTech/rendercard v0.0.1 // indirect
+	github.com/FloatTech/rendercard v0.0.2-0.20221116145901-79858ddd4cad // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
