@@ -51,13 +51,13 @@ func init() {
 		if searchName == "" { // 如果是随机抽卡
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
-			list_body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+			listBody, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]", err))
 				return
 			}
 			// 获取卡牌数量
-			listmax := regexpmatch("条 共:(?s:(.*?))条</span>", string(list_body))
+			listmax := regexpmatch("条 共:(?s:(.*?))条</span>", string(listBody))
 			if len(listmax) == 0 {
 				ctx.SendChain(message.Text("数据存在错误: 无法获取当前卡池数量"))
 				return
@@ -142,9 +142,9 @@ func init() {
 			cardsnames = append(cardsnames, strconv.Itoa(i)+"."+name)
 			i++
 		}
-		list_data := "找到" + listmaxn + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsnames, "\n") +
+		listData := "找到" + listmaxn + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsnames, "\n") +
 			"\n————————————————\n输入对应数字获取卡片信息，\n或回复“取消”、“下一页”指令"
-		ctx.SendChain(message.Text(list_data))
+		ctx.SendChain(message.Text(listData))
 		maxpage, _ := strconv.Atoi(listmaxn)
 		var searchpage = 0 // 初始当前页面
 		// 等待用户下一步选择
@@ -171,7 +171,7 @@ func init() {
 					)
 					return
 				case "下一页":
-					searchpage += 1
+					searchpage++
 					if searchpage > maxpage {
 						searchpage = 0
 						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("已是最后一页，返回到第一页"))
@@ -191,9 +191,9 @@ func init() {
 						cardsnames = append(cardsnames, strconv.Itoa(i)+"."+name)
 						i++
 					}
-					list_data := "找到" + listmaxn + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsnames, "\n") +
+					listData = "找到" + listmaxn + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsnames, "\n") +
 						"\n————————————————\n输入对应数字获取卡片信息，\n或回复“取消”、“下一页”指令"
-					ctx.SendChain(message.Text(list_data))
+					ctx.SendChain(message.Text(listData))
 				default:
 					cardint, err := strconv.Atoi(nextcmd)
 					switch {
@@ -261,9 +261,8 @@ func init() {
 								defer cl()
 							}
 							return
-						} else {
-							ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
 						}
+						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
 					}
 				}
 			}
@@ -272,13 +271,13 @@ func init() {
 	en.OnFullMatch("分享卡片", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
-		list_body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		listBody, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
 		// 获取卡牌数量
-		listmax := regexpmatch(`找到\s*(.*)\s*个卡片`, helper.BytesToString(list_body))
+		listmax := regexpmatch(`找到\s*(.*)\s*个卡片`, helper.BytesToString(listBody))
 		if len(listmax) == 0 {
 			ctx.SendChain(message.Text("今日分享卡片失败\n[error]:无法获取当前卡池数量"))
 			return
@@ -378,9 +377,9 @@ func getPic(body string, choosepic bool) (imageBytes []byte, err error) {
 	if !choosepic {
 		choose = "picsCN/"
 	}
-	pic_href := "https://www.ygo-sem.cn/yugioh/" + choose + cardpic[0][1] + ".jpg"
+	picHref := "https://www.ygo-sem.cn/yugioh/" + choose + cardpic[0][1] + ".jpg"
 	// 读取获取的[]byte数据
-	return web.RequestDataWith(web.NewDefaultClient(), pic_href, reqconf[0], reqconf[1], reqconf[2])
+	return web.RequestDataWith(web.NewDefaultClient(), picHref, reqconf[0], reqconf[1], reqconf[2])
 }
 
 // 获取描述

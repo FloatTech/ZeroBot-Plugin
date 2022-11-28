@@ -162,18 +162,19 @@ func jionString(option string) []string {
 // 生成token值
 func randString(length int) string {
 	rand.Seed(time.Now().UnixNano())
-	rs := make([]string, length)
+	rs := make([]string, 0, length)
 	for start := 0; start < length; start++ {
 		t := rand.Intn(10)
-		if start < 4 {
+		switch {
+		case start < 4:
 			rs = append(rs, string(rune(rand.Int63n(20901)+19968)))
-		} else if t < 3 {
+		case t < 3:
 			rs = append(rs, strconv.Itoa(rand.Intn(10)))
-		} else if t < 6 {
+		case t < 6:
 			rs = append(rs, string(rune(rand.Intn(26)+65)))
-		} else if t < 9 {
+		case t < 9:
 			rs = append(rs, string(rune(rand.Intn(26)+97)))
-		} else {
+		default:
 			rs = append(rs, string(rune(rand.Int63n(20901)+19968)))
 		}
 	}
