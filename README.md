@@ -752,7 +752,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 	
   ------插 件 扩 展------
 	
-NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicApi/#/
+  - 本插件内置了[NeteaseCloudMusicApi](https://binaryify.github.io/NeteaseCloudMusicApi/#/)框架的一些功能
   - [x] 设置猜歌API帮助
   - [x] 设置猜歌API [API首页网址]
   - [x] 猜歌[开启/关闭][歌单/歌词]自动下载
@@ -1066,6 +1066,8 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
   - [x] 群老婆列表
 
+  - [x] 查好感度[对方Q号|@对方QQ]
+
   - [x] 好感度列表
 
   - [x] 重置花名册
@@ -1351,6 +1353,29 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
   - [x] 团队七阶猜单词
 
+</details>
+<details>
+  <summary>一些游戏王插件</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
+  
+  ##### 白鸽API卡查
+	    
+  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb.go"`
+  - [x] /ydp [xxx]
+  - [x] /yds [xxx]
+  - [x] /ydb [xxx]
+  - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
+	
+  ##### 集换社卡价查询
+
+  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade.go"`
+  - [x] 查卡价 [卡名]
+  - [x] 查卡价 [卡名] [稀有度 稀有度 ...]
+  - [x] 查卡店  [卡名]
+  - [x] 查卡店  [卡名] [稀有度]
+  - 注：卡店只支持单个稀有度查询
+	
 </details>
 <details>
   <summary>鬼东西</summary>
