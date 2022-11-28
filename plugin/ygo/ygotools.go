@@ -129,19 +129,21 @@ func jionString(option string) []string {
 				jionString = append(jionString, "DR"+optionInfo[1])
 			}
 		case "大师":
-			if optionInfo[1] == "新大师" {
+			switch {
+			case optionInfo[1] == "新大师":
 				jionString = append(jionString, "MR4")
-			} else if optionInfo[1] == "2020" {
+			case optionInfo[1] == "2020":
 				jionString = append(jionString, "MR5")
-			} else if "0" < optionInfo[1] && optionInfo[1] < "4" {
+			case "0" < optionInfo[1] && optionInfo[1] < "4":
 				jionString = append(jionString, "MR"+optionInfo[1])
 			}
 		case "卡组":
-			if optionInfo[1] == "不检查" {
+			switch optionInfo[1] {
+			case "不检查":
 				jionString = append(jionString, "NC")
-			} else if optionInfo[1] == "不洗切" {
+			case "不洗切":
 				jionString = append(jionString, "NS")
-			} else {
+			default:
 				jionString = append(jionString, "NC,NS")
 			}
 		case "卡表":
