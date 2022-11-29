@@ -360,7 +360,7 @@ func getCarddata(body string) (cardata map[string]string) {
 		cardata["攻击力"] = cardAtk[0][1]
 	}
 	/*效果*/
-	cardDepict := regexpmatch(`<div class="item_box_text" id="cardDepict">\s*(?s:(.*?))</div>`, body)
+	cardDepict := regexpmatch(`<div class="item_box_text" id="cardDepict">\s*(?s:(.*?))\s*</div>`, body)
 	cardata["效果"] = cardDepict[0][1]
 	//cardata["效果"] = strings.ReplaceAll(cardDepict[0][1], " ", "")
 	return
@@ -384,7 +384,7 @@ func getPic(body string, choosepic bool) (imageBytes []byte, err error) {
 
 // 获取描述
 func getDescribe(body string) string {
-	cardName := regexpmatch(`<b>中文名</b> </span>&nbsp;<span class="item_box_value">\s*(.*)</span>\s*</div>`, body)
+	cardName := regexpmatch(`<b>中文名</b> </span>&nbsp;<span class="item_box_value">\s*(?s:(.*?))\s*</span>\s*</div>`, body)
 	if len(cardName) == 0 {
 		return "查无此卡"
 	}
@@ -413,7 +413,7 @@ func getDescribe(body string) string {
 
 // 获取调整
 func getAdjustment(body string) string {
-	adjustment := regexpmatch(`<div class="accordion-inner" id="adjust">.*<td>\s*(>*)\s*</td>\s*</tr></tbody>\s*</table>\s*</div>`, body)
+	adjustment := regexpmatch(`<div class="accordion-inner" id="adjust">.*<td>\s*(?s:(.*?))\s*</td>\s*</tr></tbody>\s*</table>\s*</div>`, body)
 	if len(adjustment) == 0 {
 		return "无相关调整，可以尝试搜索相关效果的旧卡"
 	}
