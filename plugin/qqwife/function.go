@@ -360,7 +360,7 @@ func init() {
 }
 
 // nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) (ok bool, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -387,7 +387,7 @@ func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) 
 }
 
 // nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -400,7 +400,7 @@ func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 }
 
 // nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -410,7 +410,7 @@ func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
 }
 
 // nolint: asciicheck
-// nolint: asciicheck
+//nolint: asciicheck
 func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
 	sql.Lock()
 	defer sql.Unlock()
