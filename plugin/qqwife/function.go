@@ -475,10 +475,10 @@ func checkSingleDog(ctx *zero.Ctx) bool {
 	case fianceeInfo != (userinfo{}) && (fianceeInfo.Target == 0 || fianceeInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
-	case fianceeInfo.User == uid: // 如果如为攻
+	case fianceeInfo.User == fiancee: // 如果如为攻
 		ctx.SendChain(message.Text("他有别的女人了，你该放下了"))
 		return false
-	case fianceeInfo.Target == uid: // 如果为受
+	case fianceeInfo.Target == fiancee: // 如果为受
 		ctx.SendChain(message.Text("ta被别人娶了,你来晚力"))
 		return false
 	}
@@ -529,15 +529,15 @@ func checkMistress(ctx *zero.Ctx) bool {
 	case fianceeInfo.Target == 0 || fianceeInfo.User == 0: // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
+	case fianceeInfo.Target == uid || fianceeInfo.User == uid:
+		ctx.SendChain(message.Text("笨蛋！你们已经在一起了！"))
+		return false
 	}
 	// 获取用户信息
 	userInfo, _ := 民政局.查户口(gid, uid)
 	switch {
 	case userInfo != (userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
-		return false
-	case userInfo.Target == fiancee || userInfo.User == fiancee:
-		ctx.SendChain(message.Text("笨蛋！你们已经在一起了！"))
 		return false
 	case userInfo.User == uid: // 如果如为攻
 		ctx.SendChain(message.Text("打灭，不给纳小妾！"))
@@ -642,11 +642,8 @@ func checkMatchmaker(ctx *zero.Ctx) bool {
 	case gayOneInfo != (userinfo{}) && (gayZeroInfo.Target == 0 || gayZeroInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的攻方是单身贵族噢"))
 		return false
-	case gayZeroInfo.Target == gayZero || gayZeroInfo.User == gayZero:
-		ctx.SendChain(message.Text("笨蛋!ta们已经在一起了!"))
-		return false
 	case gayZeroInfo != (userinfo{}): // 如果不是单身
-		ctx.SendChain(message.Text("攻方不是单身,不允许给这种人做媒!"))
+		ctx.SendChain(message.Text("受方不是单身,不允许给这种人做媒!"))
 		return false
 	}
 	return false
