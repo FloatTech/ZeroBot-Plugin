@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	quan = "http://tfkapi.top/API/qqqz.php?qq=%v" // api
+	quan = "http://tc.tfkapi.top/API/qqqz.php?qq=%v" // api
 )
 
 func init() { // 主函数
