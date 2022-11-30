@@ -8,8 +8,8 @@ github.com/FloatTech/AnimeAPI v1.6.1-0.20221121151451-9c3b88bc325d h1:CCT9Ab9cs4
 github.com/FloatTech/AnimeAPI v1.6.1-0.20221121151451-9c3b88bc325d/go.mod h1:8u8x5GEZsRh4wXdpAxO1Tdp0CA/3kUZ1SMSS44/nqFw=
 github.com/FloatTech/floatbox v0.0.0-20221121151328-cac4af114b44 h1:/Er1NIsb3giFG0rQqA2TO1JkN8TTBDRcmaektAvEfK8=
 github.com/FloatTech/floatbox v0.0.0-20221121151328-cac4af114b44/go.mod h1:DUd62cKBBLBK+8HEABQ6hM2bfZ3TMLOAMKaf1R2w7Pw=
-github.com/FloatTech/rendercard v0.0.2-0.20221116145901-79858ddd4cad h1:Bidfkufddy52ywvjCpXwSnZqgcQgv7xF1rBDZYhbSOc=
-github.com/FloatTech/rendercard v0.0.2-0.20221116145901-79858ddd4cad/go.mod h1:e2M5OWspdblwq182zbVgRefiOc+gXtB1XzTW/2z86/I=
+github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e h1:7bF01RHsYS99Zp+OWfob1W/Cymho6fcggoRSpiuiYB8=
+github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e/go.mod h1:e2M5OWspdblwq182zbVgRefiOc+gXtB1XzTW/2z86/I=
 github.com/FloatTech/sqlite v0.5.1 h1:IjTdnqMVIVIoIEFXhvh/KKBfYxFvG0tk7Rghz65/DAU=
 github.com/FloatTech/sqlite v0.5.1/go.mod h1:i33d92OtR8jcp5fBUvQtospf27+MkfUxnGwnZ95E/dA=
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJGLDNIdRX3BI546D3O7k7vrVueZw=

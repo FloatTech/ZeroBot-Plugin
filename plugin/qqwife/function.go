@@ -13,10 +13,10 @@ import (
 
 // 技能CD记录表
 type cdsheet struct {
-	Time    int64  `db:"Time"`    // 时间
-	GroupID int64  `db:"GroupID"` // 群号
-	UserID  int64  `db:"UserID"`  // 用户
-	Model   string `db:"Model"`   // 技能类型
+	Time    int64  // 时间
+	GroupID int64  // 群号
+	UserID  int64  // 用户
+	ModeID  string // 技能类型
 }
 
 var sendtext = [...][]string{
@@ -371,7 +371,7 @@ func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) 
 	}
 	limitID := "where GroupID is " + strconv.FormatInt(gid, 10) +
 		" and UserID is " + strconv.FormatInt(uid, 10) +
-		" and Model is '" + model + "'"
+		" and ModeID is '" + model + "'"
 	if !sql.db.CanFind("cdsheet", limitID) {
 		// 没有记录即不用比较
 		return true, nil
@@ -395,7 +395,7 @@ func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 		Time:    time.Now().Unix(),
 		GroupID: gid,
 		UserID:  uid,
-		Model:   mode,
+		ModeID:  mode,
 	})
 }
 
@@ -646,5 +646,5 @@ func checkMatchmaker(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("受方不是单身,不允许给这种人做媒!"))
 		return false
 	}
-	return false
+	return true
 }
