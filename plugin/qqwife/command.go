@@ -37,7 +37,7 @@ type 婚姻登记 struct {
 
 // 群设置
 type updateinfo struct {
-	GID        int64   
+	GID        int64
 	Updatetime string  // 登记时间
 	CanMatch   int     // 嫁婚开关
 	CanNtr     int     // Ntr开关
