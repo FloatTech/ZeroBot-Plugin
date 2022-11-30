@@ -12,15 +12,22 @@ import (
 )
 
 func init() {
-	// 游戏信息
-	gamelist = append(gamelist, gameinfo{
-		Name:    "骰子壶",
-		Command: "- 来玩骰子壶@对方QQ",
+	// 注册游戏信息
+	if err := register("骰子壶", gameinfo{
+		Command: "- 骰子壶@对方QQ",
 		Help:    "保证ATRI币大于20的双方玩家各自投掷1个骰子。\n平局的场合再掷一次直到数目不一样。",
 		Rewards: "投掷出来的数目低的玩家将另一方投掷出的数目x2的ATRI币交给对方。\n" +
 			"如果输给投掷出来的数目为6的场合,移交的ATRI币变成20。",
-	})
-	engine.OnRegex(`^来玩骰子壶\s*?\[CQ:at,qq=(\d+).*`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	}); err != nil {
+		panic(err)
+	}
+	engine.OnRegex(`^骰子壶\s*?\[CQ:at,qq=(\d+).*`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		if whichGamePlayIn("骰子壶", ctx.Event.GroupID) {
+			return true
+		}
+		ctx.SendChain(message.Text("游戏已下架,无法游玩"))
+		return false
+	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		duelUser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		uid := ctx.Event.UserID
 		if duelUser == uid {

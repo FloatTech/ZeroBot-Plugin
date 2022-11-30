@@ -18,14 +18,21 @@ var point = map[string]int{
 }
 
 func init() {
-	// 游戏信息
-	gamelist = append(gamelist, gameinfo{
-		Name:    "石头剪刀布",
+	// 注册游戏信息
+	if err := register("石头剪刀布", gameinfo{
 		Command: "- @bot[石头｜剪刀｜布]",
 		Help:    "和机器人进行猜拳,如果机器人开心了会得到ATRI币",
 		Rewards: "奖励范围在0~10之间",
-	})
-	engine.OnFullMatchGroup([]string{"石头", "剪刀", "布"}, zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
+	}); err != nil {
+		panic(err)
+	}
+	engine.OnFullMatchGroup([]string{"石头", "剪刀", "布"}, zero.OnlyToMe, func(ctx *zero.Ctx) bool {
+		if whichGamePlayIn("石头剪刀布", ctx.Event.GroupID) {
+			return true
+		}
+		ctx.SendChain(message.Text("游戏已下架,无法游玩"))
+		return false
+	}).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			botchoose := 1 + rand.Intn(3)
 			switch botchoose {

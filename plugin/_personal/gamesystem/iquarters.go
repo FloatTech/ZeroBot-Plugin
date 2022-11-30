@@ -14,10 +14,9 @@ import (
 )
 
 func init() {
-	// 游戏信息
-	gamelist = append(gamelist, gameinfo{
-		Name: "猜硬币",
-		Command: "- 大家来猜银币\n" +
+	// 注册游戏信息
+	if err := register("猜硬币", gameinfo{
+		Command: "- 创建猜银币\n" +
 			"- [加入|开始]游戏\n" +
 			"- 我猜x个正面\n" +
 			"- 开始投币",
@@ -25,8 +24,19 @@ func init() {
 		Rewards: "正面与宣言的数量相同的场合获得 正面数*10 ATRI币\n" +
 			"正面与宣言的数量相差2以内的场合获得 正面数*5 ATRI币\n" +
 			"其他的的场合失去 10 ATRI币",
-	})
-	engine.OnFullMatch("大家来猜银币", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	}); err != nil {
+		panic(err)
+	}
+	engine.OnFullMatch("创建猜银币", zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		err := whichGameRoomIn("猜硬币", ctx.Event.GroupID)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return false
+		}
+		return true
+	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		// 结束后关闭房间
+		defer whichGameRoomOut("猜硬币", ctx.Event.GroupID)
 		uid := ctx.Event.UserID
 		userScore := wallet.GetWalletOf(uid)
 		if userScore < 10 {

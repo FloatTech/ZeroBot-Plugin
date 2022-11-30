@@ -57,6 +57,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/gamesystem" // 游戏系统
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko"   // nekoneko
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo"   // 游戏王combo记录器
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygoscore"   // 游戏王combo记录器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"              // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"          // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"             // b站相关
