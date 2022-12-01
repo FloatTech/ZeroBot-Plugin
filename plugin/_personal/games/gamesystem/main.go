@@ -100,9 +100,9 @@ func init() {
 							infoText = append(infoText, []string{"游戏状态:", "     下架中"}...)
 						}
 						infoText = append(infoText, []string{
-							"游戏指令:", "    " + info.Command,
+							"游戏指令:", strings.ReplaceAll("    "+info.Command, "\n", "\n    "),
 							"游戏说明:", strings.ReplaceAll("    "+info.Help, "\n", "\n    "),
-							"游戏奖励:", "    " + info.Rewards}...)
+							"游戏奖励:", strings.ReplaceAll("    "+info.Rewards, "\n", "\n    ")}...)
 						return infoText
 					}(),
 					TextSetting: true,
