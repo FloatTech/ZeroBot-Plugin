@@ -38,20 +38,20 @@ type 婚姻登记 struct {
 
 // 群设置
 type updateinfo struct {
-	GID        int64   `db:"GID"`
-	Updatetime string  `db:"Updatetime"` // 登记时间
-	CanMatch   int     `db:"CanMatch"`   // 嫁婚开关
-	CanNtr     int     `db:"CanNtr"`     // Ntr开关
-	CDtime     float64 `db:"CDtime"`     // CD时间
+	GID        int64
+	Updatetime string  // 登记时间
+	CanMatch   int     // 嫁婚开关
+	CanNtr     int     // Ntr开关
+	CDtime     float64 // CD时间
 }
 
 // 结婚证信息
 type userinfo struct {
-	User       int64  `db:"User"`       // 用户身份证
-	Target     int64  `db:"Target"`     // 对象身份证号
-	Username   string `db:"Username"`   // 户主名称
-	Targetname string `db:"Targetname"` // 对象名称
-	Updatetime string `db:"Updatetime"` // 登记时间
+	User       int64  // 用户身份证
+	Target     int64  // 对象身份证号
+	Username   string // 户主名称
+	Targetname string // 对象名称
+	Updatetime string // 登记时间
 
 }
 
@@ -458,7 +458,7 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	default:
 		err := sql.db.Drop(gid[0])
 		if err == nil {
-			err = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
+			_ = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
 		}
 		return err
 	}
