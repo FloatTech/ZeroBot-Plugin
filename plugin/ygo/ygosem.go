@@ -437,7 +437,7 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 	}
 	textWidth := 1200
 	if !strings.Contains(cardInfo["种类"], "怪兽") {
-		textWidth = 1250 - picx
+		textWidth = 1150 - picx
 	}
 	dtext, err := text.Render(cardInfo["效果"], text.BoldFontFile, textWidth, 50)
 	if err != nil {
@@ -472,7 +472,7 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 		textPicy = 50 + h*7 + 30*7
 	}
 	// 放置卡图
-	canvas.DrawString("效果:", 10, textPicy)
+	canvas.DrawString("效果:", 10, textPicy-10)
 	canvas.DrawImage(textPic, 10, int(textPicy))
 	// 生成图片
 	data, cl = writer.ToBytes(canvas.Image())
