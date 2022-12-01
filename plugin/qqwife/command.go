@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -29,7 +30,7 @@ import (
 )
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 type 婚姻登记 struct {
 	db *sql.Sqlite
 	sync.RWMutex
@@ -37,20 +38,20 @@ type 婚姻登记 struct {
 
 // 群设置
 type updateinfo struct {
-	GID        int64
-	Updatetime string  // 登记时间
-	CanMatch   int     // 嫁婚开关
-	CanNtr     int     // Ntr开关
-	CDtime     float64 // CD时间
+	GID        int64   `db:"GID"`
+	Updatetime string  `db:"Updatetime"` // 登记时间
+	CanMatch   int     `db:"CanMatch"`   // 嫁婚开关
+	CanNtr     int     `db:"CanNtr"`     // Ntr开关
+	CDtime     float64 `db:"CDtime"`     // CD时间
 }
 
 // 结婚证信息
 type userinfo struct {
-	User       int64  // 用户身份证
-	Target     int64  // 对象身份证号
-	Username   string // 户主名称
-	Targetname string // 对象名称
-	Updatetime string // 登记时间
+	User       int64  `db:"User"`       // 用户身份证
+	Target     int64  `db:"Target"`     // 对象身份证号
+	Username   string `db:"Username"`   // 户主名称
+	Targetname string `db:"Targetname"` // 对象名称
+	Updatetime string `db:"Updatetime"` // 登记时间
 
 }
 
@@ -301,7 +302,7 @@ func init() {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -324,7 +325,7 @@ func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) 
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 更新设置(dbinfo updateinfo) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -332,7 +333,7 @@ func (sql *婚姻登记) 更新设置(dbinfo updateinfo) error {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 开门时间(gid int64) error {
 	grouInfo, err := sql.查看设置(gid)
 	if err != nil {
@@ -354,7 +355,7 @@ func (sql *婚姻登记) 开门时间(gid int64) error {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -373,7 +374,7 @@ func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 // 民政局登记数据
 func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname string) error {
 	sql.Lock()
@@ -390,7 +391,7 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -437,7 +438,7 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -457,7 +458,7 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	default:
 		err := sql.db.Drop(gid[0])
 		if err == nil {
-			err = sql.db.Del("cdsheet", "where GroupID is "+gid[0])
+			err = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
 		}
 		return err
 	}
