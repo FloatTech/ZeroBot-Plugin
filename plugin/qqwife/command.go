@@ -458,7 +458,7 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	default:
 		err := sql.db.Drop(gid[0])
 		if err == nil {
-			err = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
+			_ = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
 		}
 		return err
 	}
