@@ -9,6 +9,9 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	// 载入游戏系统
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games/gamesystem" // 游戏系统
 )
 
 var point = map[string]int{
@@ -19,15 +22,16 @@ var point = map[string]int{
 
 func init() {
 	// 注册游戏信息
-	if err := register("石头剪刀布", gameinfo{
+	engine, gameManager, err := gamesystem.Register("石头剪刀布", &gamesystem.GameInfo{
 		Command: "- @bot[石头｜剪刀｜布]",
 		Help:    "和机器人进行猜拳,如果机器人开心了会得到ATRI币",
 		Rewards: "奖励范围在0~10之间",
-	}); err != nil {
+	})
+	if err != nil {
 		panic(err)
 	}
 	engine.OnFullMatchGroup([]string{"石头", "剪刀", "布"}, zero.OnlyToMe, func(ctx *zero.Ctx) bool {
-		if whichGamePlayIn("石头剪刀布", ctx.Event.GroupID) {
+		if gameManager.PlayIn(ctx.Event.GroupID) {
 			return true
 		}
 		ctx.SendChain(message.Text("游戏已下架,无法游玩"))

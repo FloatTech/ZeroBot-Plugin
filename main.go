@@ -54,7 +54,7 @@ import (
 	//                               vvvv                               //
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 百度翻译
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/gamesystem" // 游戏系统
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games"      // 游戏系统
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko"   // nekoneko
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo"   // 游戏王combo记录器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygoscore"   // 游戏王combo记录器

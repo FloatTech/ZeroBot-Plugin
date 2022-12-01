@@ -93,7 +93,7 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR]", err))
 					return
 				}
-				describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 600, 50)
+				describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 1280, 50)
 				if err != nil {
 					ctx.SendChain(message.Text("[ERROR]", err))
 					return
@@ -106,7 +106,7 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR]", err))
 					return
 				}
-				describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 600, 50)
+				describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 1280, 50)
 				if err != nil {
 					ctx.SendChain(message.Text("[ERROR]", err))
 					return
@@ -226,7 +226,7 @@ func init() {
 									ctx.SendChain(message.Text("[ERROR]", err))
 									return
 								}
-								describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 600, 50)
+								describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 1280, 50)
 								if err != nil {
 									ctx.SendChain(message.Text("[ERROR]", err))
 									return
@@ -239,7 +239,7 @@ func init() {
 									ctx.SendChain(message.Text("[ERROR]", err))
 									return
 								}
-								describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 600, 50)
+								describePic, err := text.RenderToBase64(cardText, text.BoldFontFile, 1280, 50)
 								if err != nil {
 									ctx.SendChain(message.Text("[ERROR]", err))
 									return
@@ -388,36 +388,38 @@ func getDescribe(body string) string {
 	if len(cardName) == 0 {
 		return "查无此卡"
 	}
-	describeinfo := regexpmatch(`<span class="cont-list" style="background-color: rgba(0, 0, 0, 0.7); padding: 4px; line-height: 24px; z-index: 2; color: rgb(255, 255, 255);">\s*(.*)\s*</span>`, body)
+	describeinfo := regexpmatch(`<span class="cont-list">\s*(?s:(.*?))\s*<span style="display:block;`, body)
 	if len(describeinfo) == 0 {
 		return "无相关描述,请期待更新"
 	}
-	getdescribe := ""
-	href1 := regexpmatch("<span(.*?)data-content=(.*?)'>(.*?)</span>", describeinfo[0][1])
-	if href1 != nil {
-		getdescribe = describeinfo[0][1]
+	getdescribe := strings.ReplaceAll(describeinfo[0][1], "\r\n", "")
+	getdescribe = strings.ReplaceAll(getdescribe, " ", "")
+	href1 := regexpmatch(`<span(.*?)data-content=(.*?)'>(.*?)</span>`, getdescribe)
+	if len(href1) != 0 {
 		for _, hrefv := range href1 {
 			getdescribe = strings.ReplaceAll(getdescribe, hrefv[0], "「"+hrefv[3]+"」")
 		}
 	}
-	href2 := regexpmatch("<ahref='(.*?)'target='_blank'>(.*?)</a>", getdescribe)
+	href2 := regexpmatch(`<ahref='(.*?)'target='_blank'>(.*?)</a>`, getdescribe)
 	if len(href2) != 0 {
 		for _, hrefv := range href2 {
 			getdescribe = strings.ReplaceAll(getdescribe, hrefv[0], hrefv[2])
 		}
 	}
 	getdescribe = strings.ReplaceAll(getdescribe, "</span>", "")
-	getdescribe = strings.ReplaceAll(getdescribe, "<br/>", "\n")
+	getdescribe = strings.ReplaceAll(getdescribe, "<br/>", "\r\n")
+	getdescribe = strings.ReplaceAll(getdescribe, "<br />", "\n")
 	return "卡名：" + cardName[0][1] + "\n\n描述:\n" + getdescribe
 }
 
 // 获取调整
 func getAdjustment(body string) string {
-	adjustment := regexpmatch(`<div class="accordion-inner" id="adjust">.*<td>\s*(?s:(.*?))\s*</td>\s*</tr></tbody>\s*</table>\s*</div>`, body)
+	adjustment := regexpmatch(`<div class="accordion-inner" id="adjust">\s*<table class="table">\s*<tbody>\s*<tr>\s*<td>\s*(?s:(.*?))\s*</td>`, body)
 	if len(adjustment) == 0 {
 		return "无相关调整，可以尝试搜索相关效果的旧卡"
 	}
-	return strings.ReplaceAll(adjustment[0][1], "<br/>", "\n")
+	adjust := strings.ReplaceAll(adjustment[0][1], "<br/>", "\n")
+	return strings.ReplaceAll(adjust, "<br />", "\n")
 }
 
 // 绘制图片

@@ -7,22 +7,24 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games/gamesystem"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
 	// 注册游戏信息
-	if err := register("骰子壶", gameinfo{
+	engine, gameManager, err := gamesystem.Register("骰子壶", &gamesystem.GameInfo{
 		Command: "- 骰子壶@对方QQ",
 		Help:    "保证ATRI币大于20的双方玩家各自投掷1个骰子。\n平局的场合再掷一次直到数目不一样。",
 		Rewards: "投掷出来的数目低的玩家将另一方投掷出的数目x2的ATRI币交给对方。\n" +
 			"如果输给投掷出来的数目为6的场合,移交的ATRI币变成20。",
-	}); err != nil {
+	})
+	if err != nil {
 		panic(err)
 	}
 	engine.OnRegex(`^骰子壶\s*?\[CQ:at,qq=(\d+).*`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
-		if whichGamePlayIn("骰子壶", ctx.Event.GroupID) {
+		if gameManager.PlayIn(ctx.Event.GroupID) {
 			return true
 		}
 		ctx.SendChain(message.Text("游戏已下架,无法游玩"))
@@ -81,14 +83,14 @@ func init() {
 				if !ok {
 					err := wallet.InsertWalletOf(uid, -6)
 					if err != nil {
-						ctx.SendChain(message.Text(serviceErr, err))
+						ctx.SendChain(message.Text("ERROR]:", err))
 					}
 				}
 				_, ok = duel[duelUser]
 				if !ok {
 					err := wallet.InsertWalletOf(duelUser, -6)
 					if err != nil {
-						ctx.SendChain(message.Text(serviceErr, err))
+						ctx.SendChain(message.Text("ERROR]:", err))
 					}
 				}
 				return
@@ -134,7 +136,7 @@ func init() {
 			err = wallet.InsertWalletOf(duelUser, -points)
 		}
 		if err != nil {
-			ctx.SendChain(message.Text(serviceErr, err))
+			ctx.SendChain(message.Text("ERROR]:", err))
 			return
 		}
 		ctx.SendChain(message.At(uid), message.Text("恭喜你赢得了「骰子壶」游戏,获得"), message.At(duelUser), message.Text("的 ", points, " ATRI币"))

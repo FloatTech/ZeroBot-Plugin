@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games/gamesystem"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/floatbox/process"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -15,20 +16,20 @@ import (
 
 func init() {
 	// 注册游戏信息
-	if err := register("猜硬币", gameinfo{
-		Command: "- 创建猜银币\n" +
+	engine, gameManager, err := gamesystem.Register("猜硬币", &gamesystem.GameInfo{
+		Command: "- 创建猜硬币\n" +
 			"- [加入|开始]游戏\n" +
-			"- 我猜x个正面\n" +
 			"- 开始投币",
 		Help: "每个人宣言银币正面数量后,掷出参游人数的银币",
 		Rewards: "正面与宣言的数量相同的场合获得 正面数*10 ATRI币\n" +
 			"正面与宣言的数量相差2以内的场合获得 正面数*5 ATRI币\n" +
 			"其他的的场合失去 10 ATRI币",
-	}); err != nil {
+	})
+	if err != nil {
 		panic(err)
 	}
-	engine.OnFullMatch("创建猜银币", zero.OnlyGroup, func(ctx *zero.Ctx) bool {
-		err := whichGameRoomIn("猜硬币", ctx.Event.GroupID)
+	engine.OnFullMatch("创建猜硬币", zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		err := gameManager.CreateRoom(ctx.Event.GroupID)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
@@ -36,7 +37,7 @@ func init() {
 		return true
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		// 结束后关闭房间
-		defer whichGameRoomOut("猜硬币", ctx.Event.GroupID)
+		defer gameManager.CloseRoom(ctx.Event.GroupID)
 		uid := ctx.Event.UserID
 		userScore := wallet.GetWalletOf(uid)
 		if userScore < 10 {
@@ -44,7 +45,7 @@ func init() {
 			return
 		}
 		// 等待对方响应
-		ctx.SendChain(message.Text("你开启了猜银币游戏。\n其他人可发送“加入游戏”加入游戏或你发送“开始游戏”开始游戏"))
+		ctx.SendChain(message.Text("你开启了猜硬币游戏。\n其他人可发送“加入游戏”加入游戏或你发送“开始游戏”开始游戏"))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.FullMatchRule("加入游戏", "开始游戏"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()
 		answer := ""
@@ -98,7 +99,7 @@ func init() {
 					if guess == -1 {
 						err := wallet.InsertWalletOf(uid, -6)
 						if err != nil {
-							ctx.SendChain(message.At(uid), message.Text(serviceErr, err))
+							ctx.SendChain(message.At(uid), message.Text("ERROR]:", err))
 						}
 					}
 				}
@@ -135,26 +136,44 @@ func init() {
 		process.SleepAbout1sTo2s()
 		ctx.SendChain(message.Text("一共投掷了", len(duel), "枚银币,其中正面的有", positive, "枚正面。\n具体结果如下", result))
 		//数据结算
+		winmsg := message.Message{}
+		othermsg := message.Message{}
+		losemsg := message.Message{}
 		for uid, guess := range duel {
 			switch {
 			case guess == positive:
 				err := wallet.InsertWalletOf(uid, positive*10)
 				if err != nil {
-					ctx.SendChain(message.At(uid), message.Text(serviceErr, err))
+					ctx.SendChain(message.At(uid), message.Text("ERROR]:", err))
 				}
+				winmsg = append(winmsg, message.At(uid))
 			case int(math.Abs(guess-positive)) <= 2:
 				err := wallet.InsertWalletOf(uid, positive*5)
 				if err != nil {
-					ctx.SendChain(message.At(uid), message.Text(serviceErr, err))
+					ctx.SendChain(message.At(uid), message.Text("ERROR]:", err))
 				}
+				othermsg = append(othermsg, message.At(uid))
 			default:
 				err := wallet.InsertWalletOf(uid, -10)
 				if err != nil {
-					ctx.SendChain(message.At(uid), message.Text(serviceErr, err))
+					ctx.SendChain(message.At(uid), message.Text("ERROR]:", err))
 				}
+				losemsg = append(losemsg, message.At(uid))
 			}
 		}
-		ctx.SendChain(message.Text("宣言的数量与正面数相同的玩家将获得 ", positive*10, "ATRI币\n"+
-			"宣言的数量与正面数相差2以内的将获得 ", positive*5, "ATRI币\n其他玩家失去 10 ATRI币\n谢谢游玩。"))
+		msg := message.Message{}
+		if len(winmsg) != 0 {
+			msg = append(msg, winmsg...)
+			msg = append(msg, message.Text("\n恭喜获得 ", positive*10, " ATRI币\n\n"))
+		}
+		if len(othermsg) != 0 {
+			msg = append(msg, othermsg...)
+			msg = append(msg, message.Text("\n恭喜获得 ", positive*5, " ATRI币\n\n"))
+		}
+		if len(losemsg) != 0 {
+			msg = append(msg, losemsg...)
+			msg = append(msg, message.Text("\n很遗憾失去了 ", 10, " ATRI币\n\n"))
+		}
+		ctx.Send(msg)
 	})
 }
