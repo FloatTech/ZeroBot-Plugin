@@ -251,7 +251,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
 
-  - [x] @Bot 关键词
+  - [x] 切换[kimo|傲娇|可爱]词库
 
 </details>
 <details>
