@@ -6,8 +6,10 @@ import (
 	"io"
 	"io/fs"
 	"math/rand"
+	"strings"
 
 	"github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/jieba"
@@ -192,6 +194,11 @@ func randreply(m map[string][]string) zero.Handler {
 		key := ctx.State["matched"].(string)
 		val := m[key]
 		text := val[rand.Intn(len(val))]
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
+		text = strings.ReplaceAll(text, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
+		id := ctx.Event.MessageID
+		for _, t := range strings.Split(text, "{segment}") {
+			process.SleepAbout1sTo2s()
+			id = ctx.SendChain(message.Reply(id), message.Text(t))
+		}
 	}
 }
