@@ -51,6 +51,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功!"))
 	})
 	engine.OnRegex(`^设置词库触发概率\s*0.(\d)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
@@ -74,6 +75,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功!"))
 	})
 	go func() {
 		data, err := engine.GetLazyData("dict.txt", false)
