@@ -8,6 +8,7 @@ import (
 	"errors"
 	"image"
 	"math/rand"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -65,7 +66,7 @@ func init() {
 			maxnumber, _ := strconv.Atoi(listmax[0][1])
 			searchName = strconv.Itoa(rand.Intn(maxnumber + 1))
 		}
-		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
+		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + url.QueryEscape(searchName)
 		// 请求html页面
 		body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
 		if err != nil {
@@ -277,13 +278,13 @@ func init() {
 			return
 		}
 		// 获取卡牌数量
-		listmax := regexpmatch(`找到\s*(.*)\s*个卡片`, helper.BytesToString(listBody))
+		listmax := regexpmatch(`条 共:\s*(?s:(.*?))\s*条</span>`, string(listBody))
 		if len(listmax) == 0 {
-			ctx.SendChain(message.Text("今日分享卡片失败\n[error]:无法获取当前卡池数量"))
+			ctx.SendChain(message.Text("数据存在错误: 无法获取当前卡池数量"))
 			return
 		}
-		listmaxn := listmax[0][1]
-		maxnumber, _ := strconv.Atoi(listmaxn)
+		listnumber := listmax[0][1]
+		maxnumber, _ := strconv.Atoi(listnumber)
 		searchName := strconv.Itoa(rand.Intn(maxnumber + 1))
 		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
 		// 请求html页面
@@ -294,13 +295,20 @@ func init() {
 		}
 		cardInfo := helper.BytesToString(body)
 		cardData := getCarddata(cardInfo)
+		cardData["分享"] = listnumber
 		pictrue, err := getPic(cardInfo, false)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
 		// 分享卡片
-		ctx.SendChain(message.Text("当前游戏王卡池总数："+listmaxn+"\n\n今日分享卡牌:\n\n"), message.ImageBytes(pictrue), message.Text(cardData))
+		img, cl, err := drawimage(cardData, pictrue)
+		defer cl()
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(img))
 	})
 }
 
@@ -444,8 +452,14 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 		return
 	}
 	textPic := dtext.Image()
+	picHigh := picy + 30
+	if strings.Contains(cardInfo["种类"], "怪兽") {
+		picHigh += textPic.Bounds().Dy() + 30
+	} else {
+		picHigh = math.Max(picHigh, len(cardInfo)*80+textPic.Bounds().Dy())
+	}
 	/***********设置图片的大小和底色***********/
-	canvas := gg.NewContext(1300, math.Max(500+textPic.Bounds().Dy()+30, picy+30))
+	canvas := gg.NewContext(1300, picHigh)
 	canvas.SetRGB(1, 1, 1)
 	canvas.Clear()
 	// 放置卡图
@@ -456,24 +470,30 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 	}
 	canvas.SetRGB(0, 0, 0)
 	_, h := canvas.MeasureString("游戏王")
-	textPicy := 50 + h*3 + 30*3
-	canvas.DrawString("卡名:    "+cardInfo["卡名"], 10, 50)
-	canvas.DrawString("卡密:    "+cardInfo["卡密"], 10, 50+h+30)
-	canvas.DrawString("种类:    "+cardInfo["种类"], 10, 50+h*2+30*2)
+	listnumber, ok := cardInfo["分享"]
+	textHigh := 50.0
+	if ok {
+		canvas.DrawString("当前卡池总数："+listnumber, 10, 50)
+		textHigh += h + 30
+	}
+	textPicy := textHigh + h*3 + 30*3
+	canvas.DrawString("卡名:    "+cardInfo["卡名"], 10, textHigh)
+	canvas.DrawString("卡密:    "+cardInfo["卡密"], 10, textHigh+h+30)
+	canvas.DrawString("种类:    "+cardInfo["种类"], 10, textHigh+h*2+30*2)
 	if strings.Contains(cardInfo["种类"], "怪兽") {
-		canvas.DrawString(cardInfo["种族"]+"族    "+cardInfo["属性"], 10, 50+h*3+30*3)
+		canvas.DrawString(cardInfo["种族"]+"族    "+cardInfo["属性"], 10, textHigh+h*3+30*3)
 		if strings.Contains(cardInfo["种类"], "连接") {
-			canvas.DrawString(cardInfo["等级"], 10, 20+h*5+30*4)
-			canvas.DrawString("ATK:"+cardInfo["攻击力"], 10, 50+h*5+30*5)
+			canvas.DrawString(cardInfo["等级"], 10, textHigh+h*4+30*4)
+			canvas.DrawString("ATK:"+cardInfo["攻击力"], 10, textHigh+h*5+30*5)
 		} else {
-			canvas.DrawString("星数/阶级:"+cardInfo["等级"], 10, 50+h*4+30*4)
-			canvas.DrawString("ATK:"+cardInfo["攻击力"]+"/def:"+cardInfo["守备力"], 10, 50+h*5+30*5)
+			canvas.DrawString("星数/阶级:"+cardInfo["等级"], 10, textHigh+h*4+30*4)
+			canvas.DrawString("ATK:"+cardInfo["攻击力"]+"/def:"+cardInfo["守备力"], 10, textHigh+h*5+30*5)
 		}
-		textPicy = 50 + h*7 + 30*7
+		textPicy = float64(picy)
 	}
 	// 放置卡图
-	canvas.DrawString("效果:", 10, textPicy-10)
-	canvas.DrawImage(textPic, 10, int(textPicy))
+	canvas.DrawString("效果:", 10, textPicy)
+	canvas.DrawImage(textPic, 10, int(textPicy)+10)
 	// 生成图片
 	data, cl = writer.ToBytes(canvas.Image())
 	return
