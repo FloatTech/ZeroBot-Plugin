@@ -16,31 +16,31 @@ type cdsheet struct {
 	Time    int64  // 时间
 	GroupID int64  // 群号
 	UserID  int64  // 用户
-	Model   string // 技能类型
+	ModeID  string // 技能类型
 }
 
 var sendtext = [...][]string{
-		{ // 表白成功
-			"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
-			"(´･ω･`)对方答应了你 并表示愿意当今天的CP\n\n",
-		},
-		{ // 表白失败
-			"今天的运气有一点背哦~明天再试试叭",
-			"_(:з」∠)_下次还有机会 咱抱抱你w",
-			"今天失败了惹. 摸摸头~咱明天还有机会",
-		},
-		{ // ntr成功
-			"因为你的个人魅力~~今天他就是你的了w\n\n",
-		},
-		{ // 离婚失败
-			"打是情,骂是爱,不打不亲不相爱。答应我不要分手。",
-			"床头打架床尾和，夫妻没有隔夜仇。安啦安啦，不要闹变扭。",
-		},
-		{ // 离婚成功
-			"离婚成功力\n话说你不考虑当个1？",
-			"离婚成功力\n天涯何处无芳草，何必单恋一枝花？不如再摘一支（bushi",
-		},
-	}
+	{ // 表白成功
+		"是个勇敢的孩子(*/ω＼*) 今天的运气都降临在你的身边~\n\n",
+		"(´･ω･`)对方答应了你 并表示愿意当今天的CP\n\n",
+	},
+	{ // 表白失败
+		"今天的运气有一点背哦~明天再试试叭",
+		"_(:з」∠)_下次还有机会 咱抱抱你w",
+		"今天失败了惹. 摸摸头~咱明天还有机会",
+	},
+	{ // ntr成功
+		"因为你的个人魅力~~今天他就是你的了w\n\n",
+	},
+	{ // 离婚失败
+		"打是情,骂是爱,不打不亲不相爱。答应我不要分手。",
+		"床头打架床尾和，夫妻没有隔夜仇。安啦安啦，不要闹变扭。",
+	},
+	{ // 离婚成功
+		"离婚成功力\n话说你不考虑当个1？",
+		"离婚成功力\n天涯何处无芳草，何必单恋一枝花？不如再摘一支（bushi",
+	},
+}
 
 func init() {
 	engine.OnRegex(`^设置CD为(\d+)小时`, zero.OnlyGroup, zero.AdminPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
@@ -191,8 +191,8 @@ func init() {
 			}
 			// 判断target是老公还是老婆
 			var choicetext string
-			var ntrID  = uid
-			var targetID  = fiancee
+			var ntrID = uid
+			var targetID = fiancee
 			var greenID int64 //被牛的
 			fianceeInfo, err := 民政局.查户口(gid, fiancee)
 			switch {
@@ -360,18 +360,18 @@ func init() {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) (ok bool, err error) {
 	sql.Lock()
 	defer sql.Unlock()
 	// 创建群表格
 	err = sql.db.Create("cdsheet", &cdsheet{})
 	if err != nil {
-		return
+		return false, err
 	}
 	limitID := "where GroupID is " + strconv.FormatInt(gid, 10) +
 		" and UserID is " + strconv.FormatInt(uid, 10) +
-		" and Model is '" + model + "'"
+		" and ModeID is '" + model + "'"
 	if !sql.db.CanFind("cdsheet", limitID) {
 		// 没有记录即不用比较
 		return true, nil
@@ -387,7 +387,7 @@ func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) 
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -395,12 +395,12 @@ func (sql *婚姻登记) 记录CD(gid, uid int64, mode string) error {
 		Time:    time.Now().Unix(),
 		GroupID: gid,
 		UserID:  uid,
-		Model:   mode,
+		ModeID:  mode,
 	})
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -410,7 +410,7 @@ func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
 }
 
 // nolint: asciicheck
-//nolint: asciicheck
+// nolint: asciicheck
 func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -444,6 +444,16 @@ func checkSingleDog(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("你群包分配,别在娶妻上面下功夫，好好水群"))
 		return false
 	}
+	// 判断CD
+	ok, err := 民政局.判断CD(gid, uid, "嫁娶", groupInfo.CDtime)
+	switch {
+	case err != nil:
+		ctx.SendChain(message.Text("[ERROR]:", err))
+		return false
+	case !ok:
+		ctx.SendChain(message.Text("你的技能还在CD中..."))
+		return false
+	}
 	// 获取用户信息
 	userInfo, _ := 民政局.查户口(gid, uid)
 	switch {
@@ -465,21 +475,11 @@ func checkSingleDog(ctx *zero.Ctx) bool {
 	case fianceeInfo != (userinfo{}) && (fianceeInfo.Target == 0 || fianceeInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
-	case fianceeInfo.User == uid: // 如果如为攻
+	case fianceeInfo.User == fiancee: // 如果如为攻
 		ctx.SendChain(message.Text("他有别的女人了，你该放下了"))
 		return false
-	case fianceeInfo.Target == uid: // 如果为受
+	case fianceeInfo.Target == fiancee: // 如果为受
 		ctx.SendChain(message.Text("ta被别人娶了,你来晚力"))
-		return false
-	}
-	// 判断CD
-	ok, err := 民政局.判断CD(gid, uid, "嫁娶", groupInfo.CDtime)
-	switch {
-	case err != nil:
-		ctx.SendChain(message.Text("[ERROR]:", err))
-		return false
-	case !ok:
-		ctx.SendChain(message.Text("你的技能还在CD中..."))
 		return false
 	}
 	return true
@@ -510,6 +510,16 @@ func checkMistress(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("你群发布了牛头人禁止令，放弃吧"))
 		return false
 	}
+	// 判断CD
+	ok, err := 民政局.判断CD(gid, uid, "嫁娶", groupInfo.CDtime)
+	switch {
+	case err != nil:
+		ctx.SendChain(message.Text("[ERROR]:", err))
+		return false
+	case !ok:
+		ctx.SendChain(message.Text("你的技能还在CD中..."))
+		return false
+	}
 	// 获取用户信息
 	fianceeInfo, _ := 民政局.查户口(gid, fiancee)
 	switch {
@@ -519,6 +529,9 @@ func checkMistress(ctx *zero.Ctx) bool {
 	case fianceeInfo.Target == 0 || fianceeInfo.User == 0: // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
+	case fianceeInfo.Target == uid || fianceeInfo.User == uid:
+		ctx.SendChain(message.Text("笨蛋！你们已经在一起了！"))
+		return false
 	}
 	// 获取用户信息
 	userInfo, _ := 民政局.查户口(gid, uid)
@@ -526,24 +539,11 @@ func checkMistress(ctx *zero.Ctx) bool {
 	case userInfo != (userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
 		return false
-	case userInfo.Target == fiancee || userInfo.User == fiancee:
-		ctx.SendChain(message.Text("笨蛋！你们已经在一起了！"))
-		return false
 	case userInfo.User == uid: // 如果如为攻
 		ctx.SendChain(message.Text("打灭，不给纳小妾！"))
 		return false
 	case userInfo.Target == uid: // 如果为受
 		ctx.SendChain(message.Text("该是0就是0,当0有什么不好"))
-		return false
-	}
-	// 判断CD
-	ok, err := 民政局.判断CD(gid, uid, "NTR", groupInfo.CDtime)
-	switch {
-	case err != nil:
-		ctx.SendChain(message.Text("[ERROR]:", err))
-		return false
-	case !ok:
-		ctx.SendChain(message.Text("你的技能还在CD中..."))
 		return false
 	}
 	return true
@@ -609,6 +609,21 @@ func checkMatchmaker(ctx *zero.Ctx) bool {
 		ctx.SendChain(message.Text("[ERROR]:", err))
 		return false
 	}
+	// 获取CD
+	groupInfo, err := 民政局.查看设置(gid)
+	if err != nil {
+		ctx.SendChain(message.Text("[ERROR]:", err))
+		return false
+	}
+	ok, err := 民政局.判断CD(gid, uid, "做媒", groupInfo.CDtime)
+	switch {
+	case err != nil:
+		ctx.SendChain(message.Text("[ERROR]:", err))
+		return false
+	case !ok:
+		ctx.SendChain(message.Text("你的技能还在CD中..."))
+		return false
+	}
 	gayOneInfo, _ := 民政局.查户口(gid, gayOne)
 	switch {
 	case gayOneInfo != (userinfo{}) && (gayOneInfo.Target == 0 || gayOneInfo.User == 0): // 如果是单身贵族
@@ -627,27 +642,9 @@ func checkMatchmaker(ctx *zero.Ctx) bool {
 	case gayOneInfo != (userinfo{}) && (gayZeroInfo.Target == 0 || gayZeroInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的攻方是单身贵族噢"))
 		return false
-	case gayZeroInfo.Target == gayZero || gayZeroInfo.User == gayZero:
-		ctx.SendChain(message.Text("笨蛋!ta们已经在一起了!"))
-		return false
 	case gayZeroInfo != (userinfo{}): // 如果不是单身
-		ctx.SendChain(message.Text("攻方不是单身,不允许给这种人做媒!"))
+		ctx.SendChain(message.Text("受方不是单身,不允许给这种人做媒!"))
 		return false
 	}
-	// 获取CD
-	groupInfo, err := 民政局.查看设置(gid)
-	if err != nil {
-		ctx.SendChain(message.Text("[ERROR]:", err))
-		return false
-	}
-	ok, err := 民政局.判断CD(gid, uid, "做媒", groupInfo.CDtime)
-	switch {
-	case err != nil:
-		ctx.SendChain(message.Text("[ERROR]:", err))
-		return false
-	case !ok:
-		ctx.SendChain(message.Text("你的技能还在CD中..."))
-		return false
-	}
-	return false
+	return true
 }

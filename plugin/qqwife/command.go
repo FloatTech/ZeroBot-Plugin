@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -346,6 +347,7 @@ func (sql *婚姻登记) 开门时间(gid int64) error {
 		// 如果跨天了就删除
 		_ = sql.db.Drop("group" + strconv.FormatInt(gid, 10))
 		// 更新数据时间
+		grouInfo.GID = gid
 		grouInfo.Updatetime = time.Now().Format("2006/01/02")
 		return sql.db.Insert("updateinfo", &grouInfo)
 	}
@@ -456,7 +458,7 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	default:
 		err := sql.db.Drop(gid[0])
 		if err == nil {
-			err = sql.db.Del("cdsheet", "where GroupID is "+gid[0])
+			_ = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
 		}
 		return err
 	}
