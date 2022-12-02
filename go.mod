@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20221202095042-1ddf79b3d454
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20221202105645-10e15611adc7
 	github.com/FloatTech/floatbox v0.0.0-20221202084309-ad154513ab2f
-	github.com/FloatTech/sqlite v1.5.4
+	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221202094638-d701a364e4a2
-	github.com/FloatTech/zbputils v1.6.1-0.20221202094910-19910896e8b9
+	github.com/FloatTech/zbpctrl v1.5.3-0.20221202105428-5c0a0e162361
+	github.com/FloatTech/zbputils v1.6.1-0.20221202105607-9f335675fbc4
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -80,7 +80,7 @@ require (
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
@@ -90,6 +90,6 @@ require (
 	modernc.org/sqlite v1.20.0 // indirect
 )
 
-replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.20.0-simp
+replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.20.0-with-win386
 
 replace github.com/remyoudompheng/bigfft => github.com/fumiama/bigfft v0.0.0-20211011143303-6e0bfa3c836b
