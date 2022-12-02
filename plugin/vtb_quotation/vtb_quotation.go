@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/fumiama/sqlite3" // use sql
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
