@@ -6,8 +6,10 @@ import (
 	"io"
 	"io/fs"
 	"math/rand"
+	"strings"
 
 	"github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/jieba"
@@ -21,7 +23,7 @@ func init() {
 	engine := control.Register("thesaurus", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "词典匹配回复",
-		Help:             "- 切换[kimo|傲娇|可爱]词库",
+		Help:             "- 切换[kimo|傲娇|可爱]词库\n- 设置词库触发概率0.x (0<x<9)",
 		PublicDataFolder: "Chat",
 	})
 	engine.OnRegex(`^切换(kimo|傲娇|可爱)词库$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -34,19 +36,46 @@ func init() {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		var err error
+		d := c.GetData(gid)
+		t := int64(0)
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "kimo":
-			err = c.SetData(gid, tKIMO)
+			t = tKIMO
 		case "傲娇":
-			err = c.SetData(gid, tDERE)
+			t = tDERE
 		case "可爱":
-			err = c.SetData(gid, tKAWA)
+			t = tKAWA
 		}
+		err := c.SetData(gid, (d&^3)|t)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	engine.OnRegex(`^设置词库触发概率\s*0.(\d)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: 找不到 manager"))
+			return
+		}
+		n := ctx.State["regex_matched"].([]string)[1][0] - '0'
+		if n <= 0 || n >= 9 {
+			ctx.SendChain(message.Text("ERROR: 概率越界"))
+			return
+		}
+		n-- // 0~7
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		d := c.GetData(gid)
+		err := c.SetData(gid, (d&3)|(int64(n)<<59))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
 	})
 	go func() {
 		data, err := engine.GetLazyData("dict.txt", false)
@@ -142,6 +171,9 @@ const (
 
 func canmatch(typ int64) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
+		if zero.HasPicture(ctx) {
+			return false
+		}
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if !ok {
 			return false
@@ -150,7 +182,8 @@ func canmatch(typ int64) zero.Rule {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		return c.GetData(gid) == typ
+		d := c.GetData(gid)
+		return d&3 == typ && rand.Int63n(10) <= d>>59
 	}
 }
 
@@ -163,6 +196,11 @@ func randreply(m map[string][]string) zero.Handler {
 		key := ctx.State["matched"].(string)
 		val := m[key]
 		text := val[rand.Intn(len(val))]
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
+		text = strings.ReplaceAll(text, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
+		id := ctx.Event.MessageID
+		for _, t := range strings.Split(text, "{segment}") {
+			process.SleepAbout1sTo2s()
+			id = ctx.SendChain(message.Reply(id), message.Text(t))
+		}
 	}
 }
