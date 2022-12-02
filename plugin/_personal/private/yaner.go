@@ -1,25 +1,35 @@
 package yaner
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"math"
 	"math/rand"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 	"time"
 
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
-
+	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
+	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
+	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"archive/zip"
 
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
 )
+
+const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
 
 var (
 	poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
@@ -28,6 +38,141 @@ var (
 )
 
 func init() { // 插件主体
+	// 更新zbp
+	zero.OnFullMatch("检查更新", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			var msg []string
+			var img []byte
+			err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			msg = append(msg, "已经对旧版zbp压缩备份\n\n开始检查更新")
+			var stdout bytes.Buffer
+			var stderr bytes.Buffer
+			/*/ remote add
+			cmd := exec.Command("git", "remote add upstream git@github.com:FloatTech/ZeroBot-Plugin.git")
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
+			if err != nil {
+				msg = append(msg, "StdErr:", stderr.String())
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+				return
+			}
+			msg = append(msg, "StdOut:", stdout.String())
+			// remote -v
+			cmd = exec.Command("git", "remote -v")
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
+			if err != nil {
+				msg = append(msg, "StdErr:", stderr.String())
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+				return
+			}
+			msg = append(msg, "StdOut:", stdout.String())
+			// fetch*/
+			cmd := exec.Command("git", "fetch", "upstream", "master")
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
+			if err != nil {
+				msg = append(msg, "StdErr:", stderr.String(), cmd.Dir)
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+				return
+			}
+			msg = append(msg, "StdOut:", stdout.String())
+			// merge
+			cmd = exec.Command("git", "merge", "upstream/master")
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
+			if err != nil {
+				msg = append(msg, "StdErr:", stderr.String())
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+				return
+			}
+			msg = append(msg, "StdOut:", stdout.String())
+			// push
+			cmd = exec.Command("git", "push", "-u", "origin", "master")
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
+			if err != nil {
+				msg = append(msg, "StdErr:", stderr.String())
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+				return
+			}
+			msg = append(msg, "StdOut:", stdout.String())
+			// pull
+			cmd = exec.Command("git", "pull", "--tags", "-r", "origin", "master")
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
+			if err != nil {
+				msg = append(msg, "StdErr:", stderr.String())
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+				return
+			}
+			msg = append(msg, "StdOut:", stdout.String())
+			// 输出图片
+			img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+		})
 	// 电脑状态
 	zero.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -144,6 +289,60 @@ func init() { // 插件主体
 				ctx.SendChain(randImage("Ask-YES.jpg", "Ask-NO.jpg", "Ask-YES.jpg"))
 			}
 		})
+}
+
+// 打包成zip文件
+func fileZipTo(src_dir string, zip_file_name string) error {
+	// 创建：zip文件
+	zipfile, err := os.Create(zip_file_name)
+	if err != nil {
+		return err
+	}
+	defer zipfile.Close()
+
+	// 打开：zip文件
+	archive := zip.NewWriter(zipfile)
+	defer archive.Close()
+
+	// 遍历路径信息
+	filepath.Walk(src_dir, func(path string, info os.FileInfo, _ error) error {
+
+		// 如果是源路径，提前进行下一个遍历
+		if path == src_dir {
+			return nil
+		}
+
+		// 获取：文件头信息
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+		header.Name = strings.TrimPrefix(path, src_dir+`/`)
+
+		// 判断：文件是不是文件夹
+		if info.IsDir() {
+			header.Name += `/`
+		} else {
+			// 设置：zip的文件压缩算法
+			header.Method = zip.Deflate
+		}
+
+		// 创建：压缩包头部信息
+		writer, err := archive.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			file, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+			io.Copy(writer, file)
+		}
+		return nil
+	})
+	return nil
 }
 
 func randText(text ...string) message.MessageSegment {

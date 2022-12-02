@@ -12,7 +12,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-type kimo = map[string]*[]string
+type kimo = map[string][]string
+
+type simai struct {
+	D map[string][]string `yaml:"傲娇"`
+	K map[string][]string `yaml:"可爱"`
+}
 
 func init() {
 	engine := control.Register("thesaurus", &ctrl.Options[*zero.Ctx]{
@@ -39,7 +44,7 @@ func init() {
 		engine.OnFullMatchGroup(chatList, zero.OnlyToMe).SetBlock(true).Handle(
 			func(ctx *zero.Ctx) {
 				key := ctx.MessageString()
-				val := *kimomap[key]
+				val := kimomap[key]
 				text := val[rand.Intn(len(val))]
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text)) // 来自于 https://github.com/Kyomotoi/AnimeThesaurus 的回复 经过二次修改
 			})

@@ -1474,3 +1474,9 @@ GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" 
 
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
+
+同时感谢以下开发者对 ZeroBot-Plugin 作出的贡献：
+
+<a href="https://github.com/FloatTech/ZeroBot-Plugin/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FloatTech/ZeroBot-Plugin&max=1000" />
+</a>
