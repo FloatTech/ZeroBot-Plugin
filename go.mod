@@ -7,6 +7,7 @@ require (
 	github.com/Coloured-glaze/gg v1.3.4
 	github.com/FloatTech/AnimeAPI v1.6.1-0.20221202105645-10e15611adc7
 	github.com/FloatTech/floatbox v0.0.0-20221202084309-ad154513ab2f
+	github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20221202105428-5c0a0e162361
@@ -40,7 +41,6 @@ require (
 )
 
 require (
-	github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
