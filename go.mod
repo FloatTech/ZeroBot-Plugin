@@ -5,13 +5,12 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20221121151451-9c3b88bc325d
-	github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20221202105645-10e15611adc7
 	github.com/FloatTech/floatbox v0.0.0-20221202084309-ad154513ab2f
-	github.com/FloatTech/sqlite v1.5.2
+	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221202072935-cef111dfc99b
-	github.com/FloatTech/zbputils v1.6.1-0.20221202084512-c16e3b531075
+	github.com/FloatTech/zbpctrl v1.5.3-0.20221202105428-5c0a0e162361
+	github.com/FloatTech/zbputils v1.6.1-0.20221202105607-9f335675fbc4
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -22,7 +21,6 @@ require (
 	github.com/fumiama/go-registry v0.2.5-0.20221121111817-44b0846bdce6
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221130083937-35ac98dc5feb
-	github.com/fumiama/sqlite3 v1.20.0
 	github.com/fumiama/unibase2n v0.0.0-20221003115227-e7db987de949
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
@@ -82,13 +80,16 @@ require (
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/sys v0.0.0-20220915200043-7b5979e65e41 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
+	modernc.org/sqlite v1.20.0 // indirect
 )
+
+replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.20.0-with-win386
 
 replace github.com/remyoudompheng/bigfft => github.com/fumiama/bigfft v0.0.0-20211011143303-6e0bfa3c836b

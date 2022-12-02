@@ -4,7 +4,6 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
 )
 
