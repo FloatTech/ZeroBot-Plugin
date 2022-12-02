@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.0
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20221202095042-1ddf79b3d454
 	github.com/FloatTech/floatbox v0.0.0-20221202084309-ad154513ab2f
-	github.com/FloatTech/sqlite v1.5.2
+	github.com/FloatTech/sqlite v1.5.4
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221202072935-cef111dfc99b
-	github.com/FloatTech/zbputils v1.6.1-0.20221202084512-c16e3b531075
+	github.com/FloatTech/zbpctrl v1.5.3-0.20221202094638-d701a364e4a2
+	github.com/FloatTech/zbputils v1.6.1-0.20221202094910-19910896e8b9
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -21,7 +21,6 @@ require (
 	github.com/fumiama/go-registry v0.2.5-0.20221121111817-44b0846bdce6
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221130083937-35ac98dc5feb
-	github.com/fumiama/sqlite3 v1.20.0
 	github.com/fumiama/unibase2n v0.0.0-20221003115227-e7db987de949
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
@@ -88,6 +87,9 @@ require (
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.4.0 // indirect
+	modernc.org/sqlite v1.20.0 // indirect
 )
+
+replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.20.0-simp
 
 replace github.com/remyoudompheng/bigfft => github.com/fumiama/bigfft v0.0.0-20211011143303-6e0bfa3c836b

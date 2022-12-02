@@ -34,13 +34,18 @@ func init() {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
+		var err error
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "kimo":
-			c.SetData(gid, TYPKIMO)
+			err = c.SetData(gid, tKIMO)
 		case "傲娇":
-			c.SetData(gid, TYPDERE)
+			err = c.SetData(gid, tDERE)
 		case "可爱":
-			c.SetData(gid, TYPKAWA)
+			err = c.SetData(gid, tKAWA)
+		}
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
 		}
 	})
 	go func() {
@@ -86,13 +91,13 @@ func init() {
 		}
 		logrus.Infoln("[thesaurus]加载", len(chatListD), "条傲娇词库", len(chatListK), "条可爱词库")
 
-		engine.OnMessage(canmatch(TYPKIMO),
+		engine.OnMessage(canmatch(tKIMO),
 			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
 		).SetBlock(false).Handle(randreply(kimomap))
-		engine.OnMessage(canmatch(TYPDERE),
+		engine.OnMessage(canmatch(tDERE),
 			ctxext.JiebaFullMatch(seg, getmsg, chatListD...),
 		).SetBlock(false).Handle(randreply(sm.D))
-		engine.OnMessage(canmatch(TYPKAWA),
+		engine.OnMessage(canmatch(tKAWA),
 			ctxext.JiebaFullMatch(seg, getmsg, chatListK...),
 		).SetBlock(false).Handle(randreply(sm.K))
 	}()
@@ -130,9 +135,9 @@ func (f *mockfile) Close() error {
 }
 
 const (
-	TYPKIMO = iota
-	TYPDERE
-	TYPKAWA
+	tKIMO = iota
+	tDERE
+	tKAWA
 )
 
 func canmatch(typ int64) zero.Rule {

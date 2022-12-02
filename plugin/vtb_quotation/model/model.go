@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/web"
-	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
