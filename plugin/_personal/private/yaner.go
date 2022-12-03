@@ -37,8 +37,8 @@ var (
 		{"add", "--all"},
 		{"commit", "-m", "\"Update\""},
 		{"push", "-u", "origin", "master"},
-		{"remote", "add", "upstream", "git@github.com:FloatTech/ZeroBot-Plugin.git"},
-		{"remote", "-v"},
+		// {"remote", "add", "upstream", "git@github.com:FloatTech/ZeroBot-Plugin.git"},
+		// {"remote", "-v"},
 		{"fetch", "upstream", "master"},
 		{"merge", "upstream/master"},
 		{"push", "-u", "origin", "master"},
@@ -111,7 +111,7 @@ func init() {
 			cmd.Stderr = &stderr
 			err = cmd.Run()
 			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String(), cmd.Dir)
+				msg = append(msg, "StdErr:", stderr.String())
 				// 输出图片
 				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
 				if err != nil {
