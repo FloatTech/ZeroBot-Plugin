@@ -36,10 +36,9 @@ var (
 
 func init() {
 	en := control.Register("ygosem", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "游戏王进阶平台卡查",
-		Help: "1.指令：/ys [卡名] [-(卡图|描述|调整)]\n" +
-			"2.(开启|关闭)每日分享卡片",
+		DisableOnDefault:  false,
+		Brief:             "游戏王进阶平台卡查",
+		Help:              "- /ys [卡名] [-(卡图|描述|调整)]\n- 分享卡片",
 		PrivateDataFolder: "ygosem",
 	})
 	en.OnRegex(`^/ys\s*(.*)?`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
