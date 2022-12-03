@@ -171,7 +171,7 @@ const (
 
 func match(l []string, seg *jieba.Segmenter, getmsg func(*zero.Ctx) string) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
-		if zero.KeywordRule(l...)(ctx) {
+		if zero.FullMatchRule(l...)(ctx) {
 			return true
 		}
 		return ctxext.JiebaFullMatch(seg, getmsg, l...)(ctx)
