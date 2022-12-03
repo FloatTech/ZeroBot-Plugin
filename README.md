@@ -1372,9 +1372,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade.go"`
   - [x] 查卡价 [卡名]
-  - [x] 查卡价 [卡名] [稀有度 稀有度 ...]
+  - [x] 查卡价 [卡名] -r [稀有度 稀有度 ...]
   - [x] 查卡店  [卡名]
-  - [x] 查卡店  [卡名] [稀有度]
+  - [x] 查卡店  [卡名] -r [稀有度]
   - 注：卡店只支持单个稀有度查询
 	
 </details>
