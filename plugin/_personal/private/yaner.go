@@ -32,7 +32,15 @@ import (
 const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
 
 var (
-	poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
+	poke     = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
+	commands = [...][]string{
+		{"remote", "add", "upstream", "git@github.com:FloatTech/ZeroBot-Plugin.git"},
+		{"remote", "-v"},
+		{"fetch", "upstream", "master"},
+		{"merge", "upstream/master"},
+		{"push", "-u", "origin", "master"},
+		{"pull", "--tags", "-r", "origin", "master"},
+	}
 )
 
 func init() {
@@ -54,50 +62,51 @@ func init() {
 		}
 	}()
 	// 更新zbp
-	zero.OnFullMatch("检查更新", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			var msg []string
-			var img []byte
-			ctx.SendChain(message.Text("是否备份?"))
-			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
-			for {
-				select {
-				case <-time.After(time.Second * 40): // 40s等待
-					ctx.SendChain(message.Text("等待超时,自动备份"))
-					err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+	zero.OnFullMatch("检查更新", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		var msg []string
+		var img []byte
+		var err error
+		ctx.SendChain(message.Text("是否备份?"))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
+		for {
+			select {
+			case <-time.After(time.Second * 40): // 40s等待
+				ctx.SendChain(message.Text("等待超时,自动备份"))
+				err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				msg = append(msg, "已经对旧版zbp压缩备份")
+			case e := <-recv:
+				nextcmd := e.Event.Message.String() // 获取下一个指令
+				switch nextcmd {
+				case "是":
+					err = fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
 					if err != nil {
 						ctx.SendChain(message.Text("[ERROR]:", err))
 						return
 					}
 					msg = append(msg, "已经对旧版zbp压缩备份")
-				case e := <-recv:
-					nextcmd := e.Event.Message.String() // 获取下一个指令
-					switch nextcmd {
-					case "是":
-						err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
-						if err != nil {
-							ctx.SendChain(message.Text("[ERROR]:", err))
-							return
-						}
-						msg = append(msg, "已经对旧版zbp压缩备份")
-					default:
-						msg = append(msg, "已取消备份")
-					}
-				}
-				if len(msg) != 0 {
-					break
+				default:
+					msg = append(msg, "已取消备份")
 				}
 			}
-			cancel()
-			msg = append(msg, "\n\n开始检查更新")
-			var stdout bytes.Buffer
-			var stderr bytes.Buffer
-			cmd := exec.Command("git", "fetch", "upstream", "master")
+			if len(msg) != 0 {
+				break
+			}
+		}
+		cancel()
+		msg = append(msg, "\n\n开始检查更新")
+		var stdout bytes.Buffer
+		var stderr bytes.Buffer
+		for _, command := range commands {
+			cmd := exec.Command("git", command...)
 			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
 			cmd.Dir = zbpPath + "ZeroBot-Plugin"
 			cmd.Stdout = &stdout
 			cmd.Stderr = &stderr
-			err := cmd.Run()
+			err = cmd.Run()
 			if err != nil {
 				msg = append(msg, "StdErr:", stderr.String(), cmd.Dir)
 				// 输出图片
@@ -110,71 +119,15 @@ func init() {
 				return
 			}
 			msg = append(msg, "StdOut:", stdout.String())
-			// merge
-			cmd = exec.Command("git", "merge", "upstream/master")
-			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
-			cmd.Stdout = &stdout
-			cmd.Stderr = &stderr
-			err = cmd.Run()
-			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String())
-				// 输出图片
-				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-				return
-			}
-			msg = append(msg, "StdOut:", stdout.String())
-			// push
-			cmd = exec.Command("git", "push", "-u", "origin", "master")
-			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
-			cmd.Stdout = &stdout
-			cmd.Stderr = &stderr
-			err = cmd.Run()
-			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String())
-				// 输出图片
-				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-				return
-			}
-			msg = append(msg, "StdOut:", stdout.String())
-			// pull
-			cmd = exec.Command("git", "pull", "--tags", "-r", "origin", "master")
-			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
-			cmd.Stdout = &stdout
-			cmd.Stderr = &stderr
-			err = cmd.Run()
-			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String())
-				// 输出图片
-				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-				return
-			}
-			msg = append(msg, "StdOut:", stdout.String())
-			// 输出图片
-			img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
-			ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-		})
+		}
+		// 输出图片
+		img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+	})
 	// 电脑状态
 	zero.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
