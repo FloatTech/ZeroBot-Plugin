@@ -2,9 +2,8 @@
 package thesaurus
 
 import (
+	"bytes"
 	"encoding/json"
-	"io"
-	"io/fs"
 	"math/rand"
 	"strings"
 
@@ -82,7 +81,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		seg, err := jieba.LoadDictionary(&mockfile{data: data})
+		seg, err := jieba.LoadDictionary(bytes.NewReader(data))
 		if err != nil {
 			panic(err)
 		}
@@ -120,15 +119,15 @@ func init() {
 		}
 		logrus.Infoln("[thesaurus]加载", len(chatListD), "条傲娇词库", len(chatListK), "条可爱词库")
 
-		engine.OnMessage(canmatch(tKIMO),
-			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
-		).SetBlock(false).Handle(randreply(kimomap))
-		engine.OnMessage(canmatch(tDERE),
-			ctxext.JiebaFullMatch(seg, getmsg, chatListD...),
-		).SetBlock(false).Handle(randreply(sm.D))
-		engine.OnMessage(canmatch(tKAWA),
-			ctxext.JiebaFullMatch(seg, getmsg, chatListK...),
-		).SetBlock(false).Handle(randreply(sm.K))
+		engine.OnMessage(canmatch(tKIMO), match(chatList, seg)).
+			SetBlock(false).
+			Handle(randreply(kimomap))
+		engine.OnMessage(canmatch(tDERE), match(chatListD, seg)).
+			SetBlock(false).
+			Handle(randreply(sm.D))
+		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg)).
+			SetBlock(false).
+			Handle(randreply(sm.K))
 	}()
 }
 
@@ -139,35 +138,22 @@ type simai struct {
 	K map[string][]string `yaml:"可爱"`
 }
 
-type mockfile struct {
-	p    uintptr
-	data []byte
-}
-
-func (*mockfile) Stat() (fs.FileInfo, error) {
-	return nil, nil
-}
-func (f *mockfile) Read(buf []byte) (int, error) {
-	if int(f.p) >= len(f.data) {
-		return 0, io.EOF
-	}
-	n := copy(buf, f.data[f.p:])
-	f.p += uintptr(n)
-	return n, nil
-}
-func (f *mockfile) Close() error {
-	if f.data == nil {
-		return fs.ErrClosed
-	}
-	f.data = nil
-	return nil
-}
-
 const (
 	tKIMO = iota
 	tDERE
 	tKAWA
 )
+
+func match(l []string, seg *jieba.Segmenter) zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		if zero.FullMatchRule(l...)(ctx) {
+			return true
+		}
+		return ctxext.JiebaFullMatch(seg, func(ctx *zero.Ctx) string {
+			return ctx.ExtractPlainText()
+		}, l...)(ctx)
+	}
+}
 
 func canmatch(typ int64) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
@@ -187,16 +173,14 @@ func canmatch(typ int64) zero.Rule {
 	}
 }
 
-func getmsg(ctx *zero.Ctx) string {
-	return ctx.MessageString()
-}
-
 func randreply(m map[string][]string) zero.Handler {
 	return func(ctx *zero.Ctx) {
 		key := ctx.State["matched"].(string)
 		val := m[key]
+		nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 		text := val[rand.Intn(len(val))]
 		text = strings.ReplaceAll(text, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
+		text = strings.ReplaceAll(text, "{me}", nick)
 		id := ctx.Event.MessageID
 		for _, t := range strings.Split(text, "{segment}") {
 			process.SleepAbout1sTo2s()
