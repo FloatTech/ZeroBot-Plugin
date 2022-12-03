@@ -58,12 +58,38 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			var msg []string
 			var img []byte
-			err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
+			ctx.SendChain(message.Text("是否备份?"))
+			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
+			for {
+				select {
+				case <-time.After(time.Second * 40): // 40s等待
+					ctx.SendChain(message.Text("等待超时,自动备份"))
+					err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR]:", err))
+						return
+					}
+					msg = append(msg, "已经对旧版zbp压缩备份")
+				case e := <-recv:
+					nextcmd := e.Event.Message.String() // 获取下一个指令
+					switch nextcmd {
+					case "是":
+						err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+						if err != nil {
+							ctx.SendChain(message.Text("[ERROR]:", err))
+							return
+						}
+						msg = append(msg, "已经对旧版zbp压缩备份")
+					default:
+						msg = append(msg, "已取消备份")
+					}
+				}
+				if len(msg) != 0 {
+					break
+				}
 			}
-			msg = append(msg, "已经对旧版zbp压缩备份\n\n开始检查更新")
+			cancel()
+			msg = append(msg, "\n\n开始检查更新")
 			var stdout bytes.Buffer
 			var stderr bytes.Buffer
 			cmd := exec.Command("git", "fetch", "upstream", "master")
@@ -71,7 +97,7 @@ func init() {
 			cmd.Dir = zbpPath + "ZeroBot-Plugin"
 			cmd.Stdout = &stdout
 			cmd.Stderr = &stderr
-			err = cmd.Run()
+			err := cmd.Run()
 			if err != nil {
 				msg = append(msg, "StdErr:", stderr.String(), cmd.Dir)
 				// 输出图片

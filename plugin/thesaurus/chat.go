@@ -120,15 +120,15 @@ func init() {
 		}
 		logrus.Infoln("[thesaurus]加载", len(chatListD), "条傲娇词库", len(chatListK), "条可爱词库")
 
-		engine.OnMessage(canmatch(tKIMO),
-			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
-		).SetBlock(false).Handle(randreply(kimomap))
-		engine.OnMessage(canmatch(tDERE),
-			ctxext.JiebaFullMatch(seg, getmsg, chatListD...),
-		).SetBlock(false).Handle(randreply(sm.D))
-		engine.OnMessage(canmatch(tKAWA),
-			ctxext.JiebaFullMatch(seg, getmsg, chatListK...),
-		).SetBlock(false).Handle(randreply(sm.K))
+		engine.OnMessage(canmatch(tKIMO), match(chatList, seg, getmsg)).
+			SetBlock(false).
+			Handle(randreply(kimomap))
+		engine.OnMessage(canmatch(tDERE), match(chatListD, seg, getmsg)).
+			SetBlock(false).
+			Handle(randreply(sm.D))
+		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg, getmsg)).
+			SetBlock(false).
+			Handle(randreply(sm.K))
 	}()
 }
 
@@ -169,6 +169,15 @@ const (
 	tKAWA
 )
 
+func match(l []string, seg *jieba.Segmenter, getmsg func(*zero.Ctx) string) zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		if zero.KeywordRule(l...)(ctx) {
+			return true
+		}
+		return ctxext.JiebaFullMatch(seg, getmsg, l...)(ctx)
+	}
+}
+
 func canmatch(typ int64) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
 		if zero.HasPicture(ctx) {
@@ -195,8 +204,10 @@ func randreply(m map[string][]string) zero.Handler {
 	return func(ctx *zero.Ctx) {
 		key := ctx.State["matched"].(string)
 		val := m[key]
+		nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 		text := val[rand.Intn(len(val))]
 		text = strings.ReplaceAll(text, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
+		text = strings.ReplaceAll(text, "{me}", nick)
 		id := ctx.Event.MessageID
 		for _, t := range strings.Split(text, "{segment}") {
 			process.SleepAbout1sTo2s()
