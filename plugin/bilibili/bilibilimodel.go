@@ -5,7 +5,6 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
-	_ "github.com/fumiama/sqlite3" // use sql
 	"github.com/jinzhu/gorm"
 	"github.com/tidwall/gjson"
 )

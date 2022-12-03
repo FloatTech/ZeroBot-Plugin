@@ -251,7 +251,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
 
-  - [x] @Bot 关键词
+  - [x] 切换[kimo|傲娇|可爱]词库
+  - [x] 设置词库触发概率0.x (0<x<9)
 
 </details>
 <details>
@@ -1066,6 +1067,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 群老婆列表
 
+  - [x] 查好感度[对方Q号|@对方QQ]
+
   - [x] 好感度列表
 
   - [x] 重置花名册
@@ -1472,3 +1475,9 @@ GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" 
 
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
+
+同时感谢以下开发者对 ZeroBot-Plugin 作出的贡献：
+
+<a href="https://github.com/FloatTech/ZeroBot-Plugin/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FloatTech/ZeroBot-Plugin&max=1000" />
+</a>
