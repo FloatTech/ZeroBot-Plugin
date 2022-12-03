@@ -120,15 +120,9 @@ func init() {
 		}
 		logrus.Infoln("[thesaurus]加载", len(chatListD), "条傲娇词库", len(chatListK), "条可爱词库")
 
-		engine.OnMessage(zero.OnlyToMe,
-			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
-		).SetBlock(true).Handle(randreply(sm.D))
-		engine.OnMessage(zero.OnlyToMe,
-			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
-		).SetBlock(true).Handle(randreply(sm.K))
-		engine.OnMessage(zero.OnlyToMe,
-			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
-		).SetBlock(true).Handle(randreply(kimomap))
+		engine.OnFullMatchGroup(chatListK, zero.OnlyToMe).SetBlock(true).Handle(randreply(sm.K))
+		engine.OnFullMatchGroup(chatListD, zero.OnlyToMe).SetBlock(true).Handle(randreply(sm.D))
+		engine.OnFullMatchGroup(chatList, zero.OnlyToMe).SetBlock(true).Handle(randreply(kimomap))
 		engine.OnMessage(canmatch(tKIMO),
 			ctxext.JiebaFullMatch(seg, getmsg, chatList...),
 		).SetBlock(false).Handle(randreply(kimomap))
