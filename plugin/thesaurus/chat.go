@@ -2,9 +2,8 @@
 package thesaurus
 
 import (
+	"bytes"
 	"encoding/json"
-	"io"
-	"io/fs"
 	"math/rand"
 	"strings"
 
@@ -82,7 +81,7 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		seg, err := jieba.LoadDictionary(&mockfile{data: data})
+		seg, err := jieba.LoadDictionary(bytes.NewReader(data))
 		if err != nil {
 			panic(err)
 		}
@@ -120,13 +119,13 @@ func init() {
 		}
 		logrus.Infoln("[thesaurus]加载", len(chatListD), "条傲娇词库", len(chatListK), "条可爱词库")
 
-		engine.OnMessage(canmatch(tKIMO), match(chatList, seg, getmsg)).
+		engine.OnMessage(canmatch(tKIMO), match(chatList, seg)).
 			SetBlock(false).
 			Handle(randreply(kimomap))
-		engine.OnMessage(canmatch(tDERE), match(chatListD, seg, getmsg)).
+		engine.OnMessage(canmatch(tDERE), match(chatListD, seg)).
 			SetBlock(false).
 			Handle(randreply(sm.D))
-		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg, getmsg)).
+		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg)).
 			SetBlock(false).
 			Handle(randreply(sm.K))
 	}()
@@ -139,42 +138,20 @@ type simai struct {
 	K map[string][]string `yaml:"可爱"`
 }
 
-type mockfile struct {
-	p    uintptr
-	data []byte
-}
-
-func (*mockfile) Stat() (fs.FileInfo, error) {
-	return nil, nil
-}
-func (f *mockfile) Read(buf []byte) (int, error) {
-	if int(f.p) >= len(f.data) {
-		return 0, io.EOF
-	}
-	n := copy(buf, f.data[f.p:])
-	f.p += uintptr(n)
-	return n, nil
-}
-func (f *mockfile) Close() error {
-	if f.data == nil {
-		return fs.ErrClosed
-	}
-	f.data = nil
-	return nil
-}
-
 const (
 	tKIMO = iota
 	tDERE
 	tKAWA
 )
 
-func match(l []string, seg *jieba.Segmenter, getmsg func(*zero.Ctx) string) zero.Rule {
+func match(l []string, seg *jieba.Segmenter) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
-		if zero.KeywordRule(l...)(ctx) {
+		if zero.FullMatchRule(l...)(ctx) {
 			return true
 		}
-		return ctxext.JiebaFullMatch(seg, getmsg, l...)(ctx)
+		return ctxext.JiebaFullMatch(seg, func(ctx *zero.Ctx) string {
+			return ctx.ExtractPlainText()
+		}, l...)(ctx)
 	}
 }
 
@@ -194,10 +171,6 @@ func canmatch(typ int64) zero.Rule {
 		d := c.GetData(gid)
 		return d&3 == typ && rand.Int63n(10) <= d>>59
 	}
-}
-
-func getmsg(ctx *zero.Ctx) string {
-	return ctx.MessageString()
 }
 
 func randreply(m map[string][]string) zero.Handler {
