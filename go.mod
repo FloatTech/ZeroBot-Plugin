@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20221202105645-10e15611adc7
-	github.com/FloatTech/floatbox v0.0.0-20221202084309-ad154513ab2f
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20221203040820-0dda47e61cd8
+	github.com/FloatTech/floatbox v0.0.0-20221203040505-d7352e564906
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221202105428-5c0a0e162361
-	github.com/FloatTech/zbputils v1.6.1-0.20221202105607-9f335675fbc4
+	github.com/FloatTech/zbpctrl v1.5.3-0.20221203040611-11f118e1d5ec
+	github.com/FloatTech/zbputils v1.6.1-0.20221203040741-3bc28d5e3cd1
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -20,7 +20,7 @@ require (
 	github.com/fumiama/go-base16384 v1.6.1
 	github.com/fumiama/go-registry v0.2.5-0.20221121111817-44b0846bdce6
 	github.com/fumiama/gotracemoe v0.0.3
-	github.com/fumiama/jieba v0.0.0-20221130083937-35ac98dc5feb
+	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/unibase2n v0.0.0-20221003115227-e7db987de949
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
@@ -33,7 +33,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.6.4
+	github.com/wdvxdr1123/ZeroBot v1.6.5
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
