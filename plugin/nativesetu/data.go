@@ -33,10 +33,8 @@ type nsetu struct {
 
 func (n *nsetu) List() (l []string) {
 	if file.IsExist(n.db.DBPath) {
-		err := n.db.Open(time.Hour * 24)
-		if err == nil {
-			l, err = n.db.ListTables()
-		}
+		var err error
+		l, err = n.db.ListTables()
 		if err != nil {
 			logrus.Errorln("[nsetu]", err)
 		}
@@ -49,6 +47,10 @@ func (n *nsetu) scanall(path string) error {
 	root := os.DirFS(path)
 	_ = n.db.Close()
 	_ = os.Remove(n.db.DBPath)
+	err := n.db.Open(time.Hour * 24)
+	if err != nil {
+		return err
+	}
 	return fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err

@@ -122,8 +122,9 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [x] /服务列表
 
-  - [x] /服务详情
+  - [x] /设置服务列表显示行数 xx
 
+	默认值为9,该设置仅运行时有效,zbp重启后重置
   - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 
 </details>
@@ -250,7 +251,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
 
-  - [x] @Bot 关键词
+  - [x] 切换[kimo|傲娇|可爱]词库
+  - [x] 设置词库触发概率0.x (0<x<9)
 
 </details>
 <details>
@@ -751,7 +753,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 	
   ------插 件 扩 展------
 	
-NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicApi/#/
+  - 本插件内置了[NeteaseCloudMusicApi](https://binaryify.github.io/NeteaseCloudMusicApi/#/)框架的一些功能
   - [x] 设置猜歌API帮助
   - [x] 设置猜歌API [API首页网址]
   - [x] 猜歌[开启/关闭][歌单/歌词]自动下载
@@ -1065,6 +1067,10 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
   - [x] 群老婆列表
 
+  - [x] 查好感度[对方Q号|@对方QQ]
+
+  - [x] 好感度列表
+
   - [x] 重置花名册
 
 </details>
@@ -1350,6 +1356,29 @@ NeteaseCloudMusicApi项目地址:https://binaryify.github.io/NeteaseCloudMusicAp
 
 </details>
 <details>
+  <summary>一些游戏王插件</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
+  
+  ##### 白鸽API卡查
+	    
+  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb.go"`
+  - [x] /ydp [xxx]
+  - [x] /yds [xxx]
+  - [x] /ydb [xxx]
+  - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
+	
+  ##### 集换社卡价查询
+
+  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade.go"`
+  - [x] 查卡价 [卡名]
+  - [x] 查卡价 [卡名] -r [稀有度 稀有度 ...]
+  - [x] 查卡店  [卡名]
+  - [x] 查卡店  [卡名] -r [稀有度]
+  - 注：卡店只支持单个稀有度查询
+	
+</details>
+<details>
   <summary>鬼东西</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
@@ -1446,3 +1475,9 @@ GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" 
 
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
+
+同时感谢以下开发者对 ZeroBot-Plugin 作出的贡献：
+
+<a href="https://github.com/FloatTech/ZeroBot-Plugin/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FloatTech/ZeroBot-Plugin&max=1000" />
+</a>

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&id=%d&text=%s"
+	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&id=%d&text=%s&code=%s"
 )
 
 // 每个角色的测试文案
@@ -132,7 +132,8 @@ func getReplyMode(ctx *zero.Ctx) (name string) {
 *************************************************************/
 type ttsmode struct {
 	sync.RWMutex
-	mode map[int64]int64
+	apikey string
+	mode   map[int64]int64
 }
 
 func list(list []string, num int) string {
@@ -162,6 +163,24 @@ func newttsmode() *ttsmode {
 		}
 	}
 	return tts
+}
+
+func (tts *ttsmode) getAPIKey() string {
+	return tts.apikey
+}
+
+func (tts *ttsmode) setAPIKey(ctx *zero.Ctx, key string) error {
+	gid := ctx.Event.GroupID
+	if gid == 0 {
+		gid = -ctx.Event.UserID
+	}
+	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	err := m.Manager.SetExtra(gid, &key)
+	if err != nil {
+		return errors.New("内部错误")
+	}
+	tts.apikey = key
+	return nil
 }
 
 func (tts *ttsmode) setSoundMode(ctx *zero.Ctx, name string) error {
