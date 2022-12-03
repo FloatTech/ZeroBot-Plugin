@@ -54,7 +54,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: plugin tts not found"))
 				return
 			}
-			var key string
+			var key struct {
+				APIKey string
+			}
 			gid := ctx.Event.GroupID
 			if gid == 0 {
 				gid = -ctx.Event.UserID
@@ -64,6 +66,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), id, key)))
+			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), id, url.QueryEscape(key.APIKey))))
 		})
 }
