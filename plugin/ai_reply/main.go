@@ -27,7 +27,7 @@ func init() { // 插件主体
 			"- 设置语音模式[原神人物]\n" +
 			"- 设置默认语音模式[原神人物]\n" +
 			"- 恢复成默认语音模式\n" +
-			"- 设置原神语音 api key xxxxxx\n" +
+			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"当前适用的原神人物含有以下：\n" + list(soundList[:], 5),
 	})
 	tts := newttsmode()
