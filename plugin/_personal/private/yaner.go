@@ -33,11 +33,26 @@ const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
 
 var (
 	poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
-	// Axis表情的 codechina 镜像
-	res = "https://gitcode.net/weixin_49234624/zbpdata/-/raw/main/faceimg-liuyu/"
 )
 
-func init() { // 插件主体
+func init() {
+	go func() {
+		process.SleepAbout1sTo2s()
+		ctx := zero.GetBot(1015464740)
+		m, ok := control.Lookup("yaner")
+		if ok {
+			gid := m.GetData(-2504407110)
+			if gid != 0 {
+				ctx.SendGroupMessage(gid, message.Text("我回来了😊"))
+			} else {
+				ctx.SendPrivateMessage(2504407110, message.Text("我回来了😊"))
+			}
+		}
+		err := m.SetData(-2504407110, 0)
+		if err != nil {
+			ctx.SendPrivateMessage(2504407110, message.Text(err))
+		}
+	}()
 	// 更新zbp
 	zero.OnFullMatch("检查更新", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -51,45 +66,6 @@ func init() { // 插件主体
 			msg = append(msg, "已经对旧版zbp压缩备份\n\n开始检查更新")
 			var stdout bytes.Buffer
 			var stderr bytes.Buffer
-			/*/ remote add
-			cmd := exec.Command("git", "remote add upstream git@github.com:FloatTech/ZeroBot-Plugin.git")
-			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
-			cmd.Stdout = &stdout
-			cmd.Stderr = &stderr
-			err = cmd.Run()
-			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String())
-				// 输出图片
-				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-				return
-			}
-			msg = append(msg, "StdOut:", stdout.String())
-			// remote -v
-			cmd = exec.Command("git", "remote -v")
-			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
-			cmd.Stdout = &stdout
-			cmd.Stderr = &stderr
-			err = cmd.Run()
-			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String())
-				// 输出图片
-				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-				return
-			}
-			msg = append(msg, "StdOut:", stdout.String())
-			// fetch*/
 			cmd := exec.Command("git", "fetch", "upstream", "master")
 			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
 			cmd.Dir = zbpPath + "ZeroBot-Plugin"
@@ -184,8 +160,17 @@ func init() { // 插件主体
 			)
 		})
 	// 重启
-	zero.OnFullMatchGroup([]string{"重启", "restart", "kill", "洗手手"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
+	zero.OnFullMatchGroup([]string{"重启", "洗手手"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			m, ok := control.Lookup("yaner")
+			if ok {
+				err := m.SetData(-2504407110, ctx.Event.GroupID)
+				if err == nil {
+					ctx.SendChain(message.Text("好的"))
+				} else {
+					ctx.SendPrivateMessage(2504407110, message.Text(err))
+				}
+			}
 			os.Exit(0)
 		})
 	// 运行 CQ 码
@@ -237,19 +222,14 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
-			switch rand.Intn(3) {
-			case 1:
-				ctx.SendChain(randImage("WZ.jpg", "ZZZZ.gif"))
-			default:
-				ctx.SendChain(message.Text(
-					[]string{
-						nickname + "在窥屏哦",
-						"我在听",
-						"请问找" + nickname + "有什么事吗",
-						"？怎么了",
-					}[rand.Intn(4)],
-				))
-			}
+			ctx.SendChain(message.Text(
+				[]string{
+					nickname + "在窥屏哦",
+					"我在听",
+					"请问找" + nickname + "有什么事吗",
+					"？怎么了",
+				}[rand.Intn(4)],
+			))
 		})
 	// 戳一戳
 	engine.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).Limit(ctxext.LimitByGroup).
@@ -277,16 +257,13 @@ func init() { // 插件主体
 	engine.OnKeywordGroup([]string{"好吗", "行不行", "能不能", "可不可以"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			switch rand.Intn(4) {
-			case 0:
+			if rand.Intn(4) == 0 {
 				nickname := zero.BotConfig.NickName[0]
 				if rand.Intn(2) == 0 {
 					ctx.SendChain(message.Text(nickname + "..." + nickname + "觉得不行"))
 				} else {
 					ctx.SendChain(message.Text(nickname + "..." + nickname + "觉得可以！"))
 				}
-			case 1:
-				ctx.SendChain(randImage("Ask-YES.jpg", "Ask-NO.jpg", "Ask-YES.jpg"))
 			}
 		})
 }
@@ -347,10 +324,6 @@ func fileZipTo(src_dir string, zip_file_name string) error {
 
 func randText(text ...string) message.MessageSegment {
 	return message.Text(text[rand.Intn(len(text))])
-}
-
-func randImage(file ...string) message.MessageSegment {
-	return message.Image(res + file[rand.Intn(len(file))])
 }
 
 func cpuPercent() float64 {
