@@ -17,12 +17,13 @@ const (
 )
 
 func dressList(sex string) (dressList []string, err error) {
-	dressList = make([]string, 0)
 	data, err := web.GetData(fmt.Sprintf(dressListURL, sex))
 	if err != nil {
 		return
 	}
-	gjson.ParseBytes(data).Get("@this").ForEach(func(_, v gjson.Result) bool {
+	gj := gjson.ParseBytes(data)
+	dressList = make([]string, 0, int(gj.Get("@this.#").Int()))
+	gj.Get("@this").ForEach(func(_, v gjson.Result) bool {
 		dressList = append(dressList, v.String())
 		return true
 	})
