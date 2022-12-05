@@ -82,6 +82,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"       // cp短打
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"      // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"         // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dress"         // 女装
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"  // 漂流瓶
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"      // 合成emoji
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/epidemic"      // 城市疫情查询
@@ -140,7 +141,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"      // 百度文心AI画图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"    // 聊天热词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        // 猜单词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo" 	     // 游戏王相关插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"           // 游戏王相关插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         // 月幕galgame
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
