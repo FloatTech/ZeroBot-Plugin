@@ -2,7 +2,6 @@ package ygoscore
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"image"
 	"math"
@@ -11,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/wallet"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
@@ -19,7 +17,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 数据库
+	"github.com/FloatTech/AnimeAPI/wallet"
 	sql "github.com/FloatTech/sqlite"
+
 	// 图片输出
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
@@ -58,61 +58,33 @@ func init() {
 		DisableOnDefault:  false,
 		Brief:             "签到系统",
 		PrivateDataFolder: "ygoscore",
-		Help: "- 注册决斗者 xxxx\n" +
-			"- 注销决斗者 @群友\n" +
-			"- 签到\n" +
-			"- /修改信息 [昵称:xx  ]",
+		Help:              "- 签到\n",
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		scoredata.db.DBPath = engine.DataFolder() + "score.db"
 		err := scoredata.db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
 		}
 		err = scoredata.db.Create("score", &userdata{})
 		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
 		}
 		return true
 	})
 
-	engine.OnRegex(`^注册决斗者\s*([^\s]+(\s+[^\s]+)*)`, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		username := ctx.State["regex_matched"].([]string)[1]
-		if strings.Contains(username, "[CQ:face,id=") {
-			ctx.SendChain(message.Text("用户名不支持表情包"))
-			return
-		}
-		lenmane := []rune(username)
-		if len(lenmane) > 10 {
-			ctx.SendChain(message.Text("决斗者昵称不得长于10个字符"))
-			return
-		}
-		err := scoredata.register(ctx.Event.UserID, username)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
-		ctx.SendChain(message.Text("注册成功"))
-	})
-	engine.OnRegex(`^注销决斗者(\s*\[CQ:at,qq=)?(\d+).*?`, zero.AdminPermission, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-		err := scoredata.deleteuser(adduser)
-		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
-			return
-		}
-		ctx.SendChain(message.Text("注销成功"))
-	})
-
 	engine.OnFullMatchGroup([]string{"签到", "打卡"}, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
-		userinfo := scoredata.checkuser(uid)
+		userinfo := scoredata.getData(uid)
+		userinfo.Uid = uid
 		if userinfo.UserName == "" {
-			ctx.SendChain(message.Text("决斗者未注册!\n请输入“注册决斗者 xxx”进行登记(xxx为决斗者昵称)。"))
-			return
+			userinfo.UserName = wallet.GetNameOf(uid)
+			if userinfo.UserName == "" {
+				userinfo.UserName = ctx.CardOrNickName(uid)
+			}
 		}
 		lasttime := time.Unix(userinfo.UpdatedAt, 0)
 		// 判断是否已经签到过了
@@ -121,7 +93,7 @@ func init() {
 			// 生成ATRI币图片
 			data, cl, err := drawimage(&userinfo, score, 0)
 			if err != nil {
-				ctx.SendChain(message.Text("[ygoscore]error:", err))
+				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
 			}
 			ctx.SendChain(message.Text("今天已经签到过了"))
@@ -142,19 +114,19 @@ func init() {
 		if userinfo.Level < SCOREMAX {
 			userinfo.Level += 1
 		}
-		if err := scoredata.db.Insert("score", &userinfo); err != nil {
-			ctx.SendChain(message.Text("签到失败,请再次尝试或者联系bot管理员"))
+		if err := scoredata.setData(userinfo); err != nil {
+			ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
 			return
 		}
 		if err := wallet.InsertWalletOf(uid, add); err != nil {
-			ctx.SendChain(message.Text("签到失败,请再次尝试或者联系bot管理员"))
+			ctx.SendChain(message.Text("[ERROR]:货币记录失败。", err))
 			return
 		}
 		score := wallet.GetWalletOf(uid)
 		// 生成签到图片
 		data, cl, err := drawimage(&userinfo, score, add)
 		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
 		ctx.SendChain(message.ImageBytes(data))
@@ -167,7 +139,7 @@ func init() {
 		changeData := make(map[string]string, 10)
 		infoList := strings.Split(data, " ")
 		if len(infoList) == 1 {
-			ctx.SendChain(message.Text("[ygoscore]error:", "请输入正确的参数"))
+			ctx.SendChain(message.Text("[ERROR]:", "请输入正确的参数"))
 			return
 		}
 		for _, manager := range infoList {
@@ -179,30 +151,28 @@ func init() {
 		if changeuser != "" {
 			uid, _ = strconv.ParseInt(changeuser, 10, 64)
 		}
-		userinfo := scoredata.checkuser(uid)
+		userinfo := scoredata.getData(uid)
 		userinfo.Uid = uid
 		for dataName, value := range changeData {
 			switch dataName {
-			case "昵称":
-				userinfo.UserName = value
 			case "签到时间":
 				now, err := time.Parse("2006/01/02", value)
 				if err != nil {
-					ctx.SendChain(message.Text("[ygoscore]error:", err))
+					ctx.SendChain(message.Text("[ERROR]:", err))
 					return
 				}
 				userinfo.UpdatedAt = now.Unix()
 			case "签到次数":
 				times, err := strconv.Atoi(value)
 				if err != nil {
-					ctx.SendChain(message.Text("[ygoscore]error:", err))
+					ctx.SendChain(message.Text("[ERROR]:", err))
 					return
 				}
 				userinfo.Continuous = times
 			case "等级":
 				level, err := strconv.Atoi(value)
 				if err != nil {
-					ctx.SendChain(message.Text("[ygoscore]error:", err))
+					ctx.SendChain(message.Text("[ERROR]:", err))
 					return
 				}
 				userinfo.Level = level
@@ -210,33 +180,27 @@ func init() {
 		}
 		err := scoredata.db.Insert("score", &userinfo)
 		if err != nil {
-			ctx.SendChain(message.Text("[ygoscore]error:", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
 		ctx.SendChain(message.Text("成功"))
 	})
 }
 
-// 注册用户
-func (sdb *score) register(uid int64, username string) (err error) {
-	sdb.Lock()
-	defer sdb.Unlock()
-	var userinfo userdata
-	_ = sdb.db.Find("score", &userinfo, "where uid = "+strconv.FormatInt(uid, 10))
-	if userinfo.UserName != "" {
-		return errors.New("该账号已注册过了!当前昵称为:" + userinfo.UserName)
-	}
-	userinfo = userdata{
-		Uid:      uid,
-		UserName: username,
-	}
-	return sdb.db.Insert("score", &userinfo)
-}
-func (sdb *score) checkuser(uid int64) (userinfo userdata) {
+// 获取签到数据
+func (sdb *score) getData(uid int64) (userinfo userdata) {
 	sdb.Lock()
 	defer sdb.Unlock()
 	_ = sdb.db.Find("score", &userinfo, "where uid = "+strconv.FormatInt(uid, 10))
 	return
+}
+
+// 保存签到数据
+func (sdb *score) setData(userinfo userdata) error {
+	sdb.Lock()
+	defer sdb.Unlock()
+	return sdb.db.Insert("score", &userinfo)
+
 }
 
 // 绘制图片
@@ -318,12 +282,6 @@ func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err 
 	// 生成图片
 	data, cl = writer.ToBytes(canvas.Image())
 	return
-}
-
-func (sdb *score) deleteuser(uid int64) (err error) {
-	sdb.Lock()
-	defer sdb.Unlock()
-	return sdb.db.Del("score", "where Uid = "+strconv.FormatInt(uid, 10))
 }
 
 func getLevel(count int) int {

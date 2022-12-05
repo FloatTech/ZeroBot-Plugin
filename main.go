@@ -30,8 +30,6 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
-
 	_ "github.com/FloatTech/zbputils/job" // 定时指令触发器
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet" // 钱包系统
@@ -163,6 +161,8 @@ import (
 	//                      vvvvvvv低优先级区vvvvvvv                      //
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
 

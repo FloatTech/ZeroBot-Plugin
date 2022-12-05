@@ -16,6 +16,9 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"gopkg.in/yaml.v3"
+
+	// 数据库
+	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 func init() {
@@ -120,13 +123,13 @@ func init() {
 		logrus.Infoln("[thesaurus]加载", len(chatListD), "条傲娇词库", len(chatListK), "条可爱词库")
 
 		engine.OnMessage(canmatch(tKIMO), match(chatList, seg)).
-			SetBlock(false).
+			SetBlock(true).
 			Handle(randreply(kimomap))
 		engine.OnMessage(canmatch(tDERE), match(chatListD, seg)).
-			SetBlock(false).
+			SetBlock(true).
 			Handle(randreply(sm.D))
 		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg)).
-			SetBlock(false).
+			SetBlock(true).
 			Handle(randreply(sm.K))
 	}()
 }
@@ -179,7 +182,11 @@ func randreply(m map[string][]string) zero.Handler {
 		val := m[key]
 		nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 		text := val[rand.Intn(len(val))]
-		text = strings.ReplaceAll(text, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
+		userName := wallet.GetNameOf(ctx.Event.UserID)
+		if userName == "" {
+			userName = ctx.CardOrNickName(ctx.Event.UserID)
+		}
+		text = strings.ReplaceAll(text, "{name}", userName)
 		text = strings.ReplaceAll(text, "{me}", nick)
 		id := ctx.Event.MessageID
 		for i, t := range strings.Split(text, "{segment}") {
