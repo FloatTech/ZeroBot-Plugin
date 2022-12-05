@@ -21,12 +21,11 @@ func dressList(sex string) (dressList []string, err error) {
 	if err != nil {
 		return
 	}
-	gj := gjson.ParseBytes(data)
-	dressList = make([]string, 0, int(gj.Get("@this.#").Int()))
-	gj.Get("@this").ForEach(func(_, v gjson.Result) bool {
-		dressList = append(dressList, v.String())
-		return true
-	})
+	arr := gjson.ParseBytes(data).Get("@this").Array()
+	dressList = make([]string, len(arr))
+	for i, v := range arr {
+		dressList[i] = v.String()
+	}
 	return
 }
 
