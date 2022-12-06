@@ -112,8 +112,8 @@ func init() {
 		Brief:             "百度翻译(支持回复翻译)",
 		PrivateDataFolder: "baidufanyi",
 		Help: "-[/][从某语言]翻译[到某语言] [翻译的内容]\n" +
-			"[]内容表示可选项\n但若不是回复翻译，翻译的内容不可少。\n" +
-			"若是回复翻译，'/'符号不可少。\n例：\n" +
+			"[]内容表示可选项\n但若不是回复翻译,翻译的内容不可少。\n" +
+			"若是回复翻译,'/'符号不可少。\n例:\n" +
 			"/翻译 hello the world\n" +
 			"从英语翻译 hello the world\n" +
 			"/翻译成中文 hello the world\n" +
@@ -139,7 +139,7 @@ func init() {
 			panic("[baidufanyi]" + err.Error())
 		}
 	}
-	engine.OnRegex(`^\/?(从(\S+))?翻译(((到|成)(\S+))?\s*)?(?s:(.*?))`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^\/(从(\S+))?翻译(((到|成)(\S+))?)?\s*(?s:(.*?))`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		slang := ctx.State["regex_matched"].([]string)[2]
 		tlang := ctx.State["regex_matched"].([]string)[6]
 		txt := ctx.State["regex_matched"].([]string)[7]
@@ -211,7 +211,7 @@ func init() {
 					break
 				}
 			}
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", getlang, "：\n", translated)))
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", getlang, ":\n", translated)))
 		}
 	})
 	engine.OnRegex(`^\[CQ:reply,id=.*](\s+)?\/(从(\S+))?翻译((到|成)(\S+))?`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -282,7 +282,7 @@ func init() {
 					break
 				}
 			}
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", getlang, "：\n", translated)))
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", getlang, ":\n", translated)))
 		}
 	})
 	engine.OnRegex(`^设置百度翻译key\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
