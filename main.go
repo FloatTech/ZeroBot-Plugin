@@ -112,7 +112,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh" // 拼音首字母缩写释义工具
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"       // 日语语法学习
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel"         // 铅笔小说网搜索
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw" // nsfw图片识别
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw" // nsfw图片识别
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji"       // 浅草寺求签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife" // 一群一天一夫一妻制群老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/quan"   // QQ权重查询
