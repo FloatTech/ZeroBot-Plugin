@@ -1,4 +1,4 @@
-// Package wallet 钱包系统
+// Package wallet 公用数据管理
 package wallet
 
 import (
@@ -24,13 +24,12 @@ func init() {
 	engine := control.Register("DataSystem", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "公用数据管理",
-		Help: "- 注册决斗者 [xxx]\n" +
-			"- 修改昵称 [xxx]\n" +
+		Help: "- @bot 叫我[xxx]\n" +
 			"- 查看我的钱包\n" +
 			"- 查看钱包排名\n" +
 			"注:为本群排行，若群人数太多不建议使用该功能!!!\n" +
 			"\n---------主人功能---------\n" +
-			"- 注销决斗者 [xxx/qq号/@QQ]\n" +
+			"- 注销昵称 [xxx/qq号/@QQ]\n" +
 			"- /钱包 [QQ号|@群友]\n" +
 			"- /记录 @群友 ATRI币值\n" +
 			"- /记录 @加分群友 @减分群友 ATRI币值",
@@ -43,25 +42,14 @@ func init() {
 			panic(err)
 		}
 	}()
-	engine.OnRegex(`^(注册决斗者|修改昵称)\s*([^\s]+(\s+[^\s]+)*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if ctx.State["regex_matched"].([]string)[1] == "注册决斗者" &&
-			wallet.GetNameOf(ctx.Event.UserID) != "" {
-			ctx.SendChain(message.Text("你已注册过了!"))
-			return
-		}
-		if ctx.State["regex_matched"].([]string)[1] == "修改昵称" &&
-			wallet.GetNameOf(ctx.Event.UserID) == "" {
-			ctx.SendChain(message.Text("你还没注册哦!"))
-			return
-		}
+	engine.OnRegex(`^叫我\s*([^\s]+(\s+[^\s]+)*)`, zero.OnlyToMe).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		username := ctx.State["regex_matched"].([]string)[2]
 		if strings.Contains(username, "[CQ:face,id=") {
-			ctx.SendChain(message.Text("用户名不支持表情包"))
+			ctx.SendChain(message.Text("昵称不支持表情包哦"))
 			return
 		}
-		lenmane := []rune(username)
-		if len(lenmane) > 10 {
-			ctx.SendChain(message.Text("决斗者昵称不得长于10个字符"))
+		if len([]rune(username)) > 10 {
+			ctx.SendChain(message.Text("昵称不得长于10个字符"))
 			return
 		}
 		err := wallet.SetNameOf(ctx.Event.UserID, username)
@@ -69,9 +57,9 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Text("成功"))
+		ctx.SendChain(message.Text("好的,", username))
 	})
-	engine.OnRegex(`^注销决斗者(\s*\[CQ:at,qq=)?(.*[^\]$])`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^注销昵称(\s*\[CQ:at,qq=)?(.*[^\]$])`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		username := ctx.State["regex_matched"].([]string)[1]
 		uid, err := strconv.ParseInt(username, 10, 64)
 		if err != nil {

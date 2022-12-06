@@ -480,13 +480,13 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 	canvas.DrawString("卡密:    "+cardInfo["卡密"], 10, textHigh+h+30)
 	canvas.DrawString("种类:    "+cardInfo["种类"], 10, textHigh+h*2+30*2)
 	if strings.Contains(cardInfo["种类"], "怪兽") {
-		canvas.DrawString(cardInfo["种族"]+"族    "+cardInfo["属性"], 10, textHigh+h*3+30*3)
+		canvas.DrawString(cardInfo["种族"]+"族    "+cardInfo["属性"], 10, textHigh+h*3+30*3+10)
 		if strings.Contains(cardInfo["种类"], "连接") {
-			canvas.DrawString(cardInfo["等级"], 10, textHigh+h*4+30*4)
-			canvas.DrawString("ATK:"+cardInfo["攻击力"], 10, textHigh+h*5+30*5)
+			canvas.DrawString(cardInfo["等级"], 10, textHigh+h*4+30*4+10)
+			canvas.DrawString("ATK:"+cardInfo["攻击力"], 10, textHigh+h*5+30*5+10)
 		} else {
-			canvas.DrawString("星数/阶级:"+cardInfo["等级"], 10, textHigh+h*4+30*4)
-			canvas.DrawString("ATK:"+cardInfo["攻击力"]+"/def:"+cardInfo["守备力"], 10, textHigh+h*5+30*5)
+			canvas.DrawString("星数/阶级:"+cardInfo["等级"], 10, textHigh+h*4+30*4+10)
+			canvas.DrawString("ATK:"+cardInfo["攻击力"]+"/def:"+cardInfo["守备力"], 10, textHigh+h*5+30*5+10)
 		}
 		textPicy = float64(picy)
 	}
