@@ -43,7 +43,7 @@ func init() {
 		}
 	}()
 	engine.OnRegex(`^叫我\s*([^\s]+(\s+[^\s]+)*)`, zero.OnlyToMe).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		username := ctx.State["regex_matched"].([]string)[2]
+		username := ctx.State["regex_matched"].([]string)[1]
 		if strings.Contains(username, "[CQ:face,id=") {
 			ctx.SendChain(message.Text("昵称不支持表情包哦"))
 			return

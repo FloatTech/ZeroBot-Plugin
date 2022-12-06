@@ -1,4 +1,5 @@
-package ygoscore
+// Package score 签到系统
+package score
 
 import (
 	"bytes"
@@ -54,7 +55,7 @@ var (
 const SCOREMAX = 1200
 
 func init() {
-	engine := control.Register("ygoscore", &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "签到系统",
 		PrivateDataFolder: "ygoscore",
