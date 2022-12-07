@@ -178,15 +178,10 @@ func (tts *ttsmode) getAPIKey(ctx *zero.Ctx) string {
 	return url.QueryEscape(tts.APIKey)
 }
 
-func (tts *ttsmode) setAPIKey(ctx *zero.Ctx, key string) error {
-	gid := ctx.Event.GroupID
-	if gid == 0 {
-		gid = -ctx.Event.UserID
-	}
-	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	err := m.Manager.SetExtra(gid, &key)
+func (tts *ttsmode) setAPIKey(m *ctrl.Control[*zero.Ctx], grp int64, key string) error {
+	err := m.Manager.SetExtra(grp, &key)
 	if err != nil {
-		return errors.New("内部错误")
+		return err
 	}
 	tts.APIKey = key
 	return nil
