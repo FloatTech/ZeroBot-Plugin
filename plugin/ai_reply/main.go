@@ -10,11 +10,12 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/aireply"
 	"github.com/FloatTech/AnimeAPI/chatgpt"
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/pkumza/numcn"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -36,7 +37,7 @@ func init() { // 插件主体
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "人工智能回复",
-		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT api token xxx",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx",
 		PrivateDataFolder: "aireply",
 	})
 	/*************************************************************
@@ -81,7 +82,7 @@ func init() { // 插件主体
 				re.ReplaceAllStringFunc(reply, func(s string) string {
 					f, err := strconv.ParseFloat(s, 64)
 					if err != nil {
-						log.Errorln("[tts]:", err)
+						logrus.Errorln("[tts]", err)
 						return s
 					}
 					return numcn.EncodeFromFloat64(f)
@@ -155,9 +156,31 @@ func init() { // 插件主体
 		}
 		ctx.SendChain(message.Text("设置成功"))
 	})
-	ent.OnRegex(`^设置\s*ChatGPT\s*api\s*token\s*(.+)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	chatgptfile := ent.DataFolder() + "chatgpt.txt"
+	cfg := &chatgpt.Config{
+		UA:              chatgpt.UA,
+		RefreshInterval: time.Hour,
+		Timeout:         time.Minute,
+	}
+	data, err := os.ReadFile(chatgptfile)
+	if err == nil {
+		cfg.SessionToken = binary.BytesToString(data)
+		chats = aireply.NewChatGPT(cfg)
+	}
+	go func() {
+		for range time.NewTicker(time.Hour).C {
+			if chats == nil {
+				continue
+			}
+			err := os.WriteFile(chatgptfile, binary.StringToBytes(cfg.SessionToken), 0644)
+			if err != nil {
+				logrus.Warnln("[aireply] 保存 chatgpt session token 到", chatgptfile, "失败:", err)
+			}
+		}
+	}()
+	ent.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		token := ctx.State["regex_matched"].([]string)[1]
-		f, err := os.Create(ent.DataFolder() + "chatgpt.txt")
+		f, err := os.Create(chatgptfile)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
