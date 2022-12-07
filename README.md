@@ -635,6 +635,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>女装</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dress"`
+
+  - [x] 女装
+
+  - [x] 男装
+  
+  - [x] 随机女装
+  
+  - [x] 随机男装
+
+</details>
+<details>
   <summary>漂流瓶</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"`

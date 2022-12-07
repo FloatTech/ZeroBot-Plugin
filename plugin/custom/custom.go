@@ -30,7 +30,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Image("https://gchat.qpic.cn/gchatpic_new/1770747317/1049468946-3068097579-76A49478EFA68B4750B10B96917F7B58/0?term=3"))
 		})
-	engine.OnCommand("发送公告", zero.SuperUserPermission).SetBlock(true).
+	engine.OnCommand("发送公告", isfirstsuperusers()).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			next := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, ctx.CheckSession())
 			recv, stop := next.Repeat()
@@ -94,4 +94,10 @@ func init() {
 			msg = append(msg, message.CustomNode(username, uid, rawmsg))
 			ctx.SendPrivateForwardMessage(su, msg)
 		})
+}
+
+func isfirstsuperusers() zero.Rule {
+	return func(ctx *zero.Ctx) bool {
+		return ctx.Event.UserID == zero.BotConfig.SuperUsers[0]
+	}
 }
