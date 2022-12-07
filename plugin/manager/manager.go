@@ -250,7 +250,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 申请头衔
-	engine.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^申请头衔\s?(.*)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
