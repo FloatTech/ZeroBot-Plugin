@@ -65,6 +65,52 @@ func init() { // 插件主体
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
+	chatgptfile := enr.DataFolder() + "chatgpt.txt"
+	cfg := &chatgpt.Config{
+		UA:              chatgpt.UA,
+		RefreshInterval: time.Hour,
+		Timeout:         time.Minute,
+	}
+	data, err := os.ReadFile(chatgptfile)
+	if err == nil {
+		cfg.SessionToken = binary.BytesToString(data)
+		chats = aireply.NewChatGPT(cfg)
+	}
+	go func() {
+		for range time.NewTicker(time.Hour).C {
+			if chats == nil {
+				continue
+			}
+			err := os.WriteFile(chatgptfile, binary.StringToBytes(cfg.SessionToken), 0644)
+			if err != nil {
+				logrus.Warnln("[aireply] 保存 chatgpt session token 到", chatgptfile, "失败:", err)
+			}
+		}
+	}()
+	enr.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		token := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(chatgptfile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(token)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		chats = aireply.NewChatGPT(&chatgpt.Config{
+			UA:              chatgpt.UA,
+			SessionToken:    token,
+			RefreshInterval: time.Hour,
+			Timeout:         time.Minute,
+		})
+		ctx.SendChain(message.Text("设置成功"))
+	})
+	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		chats.Reset(ctx.Event.UserID)
+	})
 	/*************************************************************
 	***********************tts************************************
 	*************************************************************/
@@ -155,51 +201,5 @@ func init() { // 插件主体
 			return
 		}
 		ctx.SendChain(message.Text("设置成功"))
-	})
-	chatgptfile := ent.DataFolder() + "chatgpt.txt"
-	cfg := &chatgpt.Config{
-		UA:              chatgpt.UA,
-		RefreshInterval: time.Hour,
-		Timeout:         time.Minute,
-	}
-	data, err := os.ReadFile(chatgptfile)
-	if err == nil {
-		cfg.SessionToken = binary.BytesToString(data)
-		chats = aireply.NewChatGPT(cfg)
-	}
-	go func() {
-		for range time.NewTicker(time.Hour).C {
-			if chats == nil {
-				continue
-			}
-			err := os.WriteFile(chatgptfile, binary.StringToBytes(cfg.SessionToken), 0644)
-			if err != nil {
-				logrus.Warnln("[aireply] 保存 chatgpt session token 到", chatgptfile, "失败:", err)
-			}
-		}
-	}()
-	ent.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		token := ctx.State["regex_matched"].([]string)[1]
-		f, err := os.Create(chatgptfile)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		defer f.Close()
-		_, err = f.WriteString(token)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		chats = aireply.NewChatGPT(&chatgpt.Config{
-			UA:              chatgpt.UA,
-			SessionToken:    token,
-			RefreshInterval: time.Hour,
-			Timeout:         time.Minute,
-		})
-		ctx.SendChain(message.Text("设置成功"))
-	})
-	ent.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		chats.Reset(ctx.Event.UserID)
 	})
 }
