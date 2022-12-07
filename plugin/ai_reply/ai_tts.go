@@ -8,6 +8,7 @@ import (
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 
+	"github.com/FloatTech/AnimeAPI/aireply"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
@@ -113,19 +114,27 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	return m.SetData(gid, index)
 }
 
-func getReplyMode(ctx *zero.Ctx) (name string) {
+var chats *aireply.ChatGPT
+
+func getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
 	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if ok {
-		index := m.GetData(gid)
-		if int(index) < len(replyModes) {
-			return replyModes[index]
+		switch m.GetData(gid) {
+		case 0:
+			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+		case 1:
+			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
+		case 2:
+			if chats != nil {
+				return chats
+			}
 		}
 	}
-	return "青云客"
+	return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
 }
 
 /*************************************************************

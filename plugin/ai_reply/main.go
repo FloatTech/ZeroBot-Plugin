@@ -4,10 +4,12 @@ package aireply
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
+	"github.com/FloatTech/AnimeAPI/chatgpt"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -17,7 +19,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var replyModes = [...]string{"青云客", "小爱"}
+var replyModes = [...]string{"青云客", "小爱", "ChatGPT"}
 
 func init() { // 插件主体
 	ent := control.Register("tts", &ctrl.Options[*zero.Ctx]{
@@ -32,17 +34,18 @@ func init() { // 插件主体
 	})
 	tts := newttsmode()
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "人工智能回复",
-		Help:             "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]",
+		DisableOnDefault:  false,
+		Brief:             "人工智能回复",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT api token xxx",
+		PrivateDataFolder: "aireply",
 	})
 	/*************************************************************
 	*******************************AIreply************************
 	*************************************************************/
 	enr.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			aireply := aireply.NewAIReply(getReplyMode(ctx))
-			reply := message.ParseMessageFromString(aireply.Talk(ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
+			aireply := getReplyMode(ctx)
+			reply := message.ParseMessageFromString(aireply.Talk(ctx.Event.UserID, ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
 			// 回复
 			time.Sleep(time.Second * 1)
 			if zero.OnlyPublic(ctx) {
@@ -68,9 +71,9 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			// 获取回复模式
-			r := aireply.NewAIReply(getReplyMode(ctx))
+			r := getReplyMode(ctx)
 			// 获取回复的文本
-			reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
+			reply := r.TalkPlain(ctx.Event.UserID, msg, zero.BotConfig.NickName[0])
 			// 获取语音
 			index := tts.getSoundMode(ctx)
 			record := message.Record(fmt.Sprintf(cnapi, index, url.QueryEscape(
@@ -150,6 +153,27 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("设置成功"))
+	})
+	ent.OnRegex(`^设置\s*ChatGPT\s*api\s*token\s*(.+)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		token := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(ent.DataFolder() + "chatgpt.txt")
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(token)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		chats = aireply.NewChatGPT(&chatgpt.Config{
+			UA:              chatgpt.UA,
+			SessionToken:    token,
+			RefreshInterval: time.Hour,
+			Timeout:         time.Minute,
+		})
 		ctx.SendChain(message.Text("设置成功"))
 	})
 }
