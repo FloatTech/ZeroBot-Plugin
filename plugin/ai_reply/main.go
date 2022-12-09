@@ -201,5 +201,6 @@ func init() { // 插件主体
 	})
 	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		chats.Reset(ctx.Event.UserID)
+		ctx.SendChain(message.Text("成功"))
 	})
 }
