@@ -263,6 +263,20 @@ func init() { // 插件主体
 			)
 			ctx.SendChain(message.Text("嗯！不错的头衔呢~"))
 		})
+	// 撤回
+	// 群聊中直接回复消息结尾带上撤回
+	// 权限够的话，可以把请求撤回的消息也一并撤回
+	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*撤回$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			logrus.Infoln("[manager] 要撤回的的消息ID:", ctx.State["regex_matched"].([]string)[1])
+			logrus.Infoln("[manager] 撤回的请求的消息ID:", ctx.Event.MessageID)
+			go func(i message.MessageID) {
+				ctx.DeleteMessage(i)
+			}(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
+			go func(i message.MessageID) {
+				ctx.DeleteMessage(i)
+			}(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
+		})
 	// 群聊转发
 	engine.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
