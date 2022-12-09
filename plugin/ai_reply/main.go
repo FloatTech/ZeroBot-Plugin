@@ -156,7 +156,7 @@ func init() { // 插件主体
 		}
 		ctx.SendChain(message.Text("设置成功"))
 	})
-	chatgptfile := ent.DataFolder() + "chatgpt.txt"
+	chatgptfile := enr.DataFolder() + "chatgpt.txt"
 	cfg := &chatgpt.Config{
 		UA:              chatgpt.UA,
 		RefreshInterval: time.Hour,
@@ -178,7 +178,7 @@ func init() { // 插件主体
 			}
 		}
 	}()
-	ent.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	enr.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		token := ctx.State["regex_matched"].([]string)[1]
 		f, err := os.Create(chatgptfile)
 		if err != nil {
@@ -199,7 +199,8 @@ func init() { // 插件主体
 		})
 		ctx.SendChain(message.Text("设置成功"))
 	})
-	ent.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		chats.Reset(ctx.Event.UserID)
+		ctx.SendChain(message.Text("成功"))
 	})
 }
