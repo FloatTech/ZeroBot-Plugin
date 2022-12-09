@@ -269,7 +269,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*撤回$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			logrus.Infoln("[manager] 要撤回的的消息ID:", ctx.State["regex_matched"].([]string)[1])
-			logrus.Infoln("[manager] 撤回的请求的消息ID:", ctx.Event.MessageID)
+			logrus.Infoln("[manager] 请求撤回的消息ID:", ctx.Event.MessageID)
 			go func(i message.MessageID) {
 				ctx.DeleteMessage(i)
 			}(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))

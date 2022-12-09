@@ -237,7 +237,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [ ] 同意好友请求
 
-  - [ ] 撤回[@xxx] [xxx]
+  - [x] 对信息回复: 撤回
 
   - [ ] 警告[@xxx]
 
