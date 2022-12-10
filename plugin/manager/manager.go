@@ -268,14 +268,10 @@ func init() { // 插件主体
 	// 权限够的话，可以把请求撤回的消息也一并撤回
 	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*撤回$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			logrus.Infoln("[manager] 要撤回的的消息ID:", ctx.State["regex_matched"].([]string)[1])
-			logrus.Infoln("[manager] 请求撤回的消息ID:", ctx.Event.MessageID)
-			go func(i message.MessageID) {
-				ctx.DeleteMessage(i)
-			}(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
-			go func(i message.MessageID) {
-				ctx.DeleteMessage(i)
-			}(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
+			// 删除需要撤回的消息ID
+			ctx.DeleteMessage(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
+			// 删除请求撤回的消息ID
+			//ctx.DeleteMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
 		})
 	// 群聊转发
 	engine.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).
