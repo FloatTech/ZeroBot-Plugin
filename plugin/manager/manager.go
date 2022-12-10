@@ -271,7 +271,7 @@ func init() { // 插件主体
 			// 删除需要撤回的消息ID
 			ctx.DeleteMessage(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
 			// 删除请求撤回的消息ID
-			//ctx.DeleteMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
+			// ctx.DeleteMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
 		})
 	// 群聊转发
 	engine.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).

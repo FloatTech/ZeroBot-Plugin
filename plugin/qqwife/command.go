@@ -282,7 +282,7 @@ func init() {
 				err = 民政局.清理花名册("group" + strconv.FormatInt(ctx.Event.GroupID, 10))
 			default:
 				cmd := ctx.State["regex_matched"].([]string)[1]
-				gid, _ := strconv.ParseInt(cmd, 10, 64) //判断是否为群号
+				gid, _ := strconv.ParseInt(cmd, 10, 64) // 判断是否为群号
 				if gid == 0 {
 					ctx.SendChain(message.Text("请输入正确的群号"))
 					return
@@ -431,7 +431,6 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 			for _, listName := range grouplist {
 				if listName == "favorability" {
 					continue
-
 				}
 				err = sql.db.Drop(listName)
 			}
