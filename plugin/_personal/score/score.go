@@ -18,7 +18,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 数据库
-	"github.com/FloatTech/AnimeAPI/wallet"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"
 	sql "github.com/FloatTech/sqlite"
 
 	// 图片输出

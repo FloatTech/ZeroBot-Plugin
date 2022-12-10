@@ -26,7 +26,6 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/zbputils/img/text"
-	// 货币系统
 )
 
 type 婚姻登记 struct {
