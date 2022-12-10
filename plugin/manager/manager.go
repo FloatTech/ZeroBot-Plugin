@@ -222,7 +222,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("那我就不手下留情了~"))
 		})
 	// 修改名片
-	engine.OnRegex(`^修改名片.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^修改名片.*(\d+).*\s+(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[2]) > 60 {
 				ctx.SendChain(message.Text("名字太长啦！"))
@@ -236,7 +236,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 修改头衔
-	engine.OnRegex(`^修改头衔.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^修改头衔.*(\d+).*\s+(.*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
@@ -250,7 +250,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 申请头衔
-	engine.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^申请头衔\s+(.*)$`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
