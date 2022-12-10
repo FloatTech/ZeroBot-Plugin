@@ -4,20 +4,21 @@ package wenben
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"strings"
 )
 
 const (
 	tianqi  = "https://xiaobai.klizi.cn/API/other/weather_1.php?data=&msg=%v" // api地址
 	pinyin  = "http://ovooa.com/API/pinyin/api.php?type=text&msg=%v"
 	yiyan   = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i" // 动漫 漫画 游戏 文学 影视 诗词
-	kouling = "http://ovooa.com/API/rao/api.php?type=text"      //口令
+	kouling = "http://ovooa.com/API/rao/api.php?type=text"      // 口令
 	tang    = "http://api.btstu.cn/yan/api.php?charset=utf-8&encode=text"
 	qing    = "https://xiaobai.klizi.cn/API/other/wtqh.php"
 )
@@ -86,7 +87,7 @@ func init() { // 主函数
 		}
 		ctx.SendChain(message.Text(helper.BytesToString(data)))
 	})
-	en.OnFullMatch("每日一言").SetBlock(true).Handle(func(ctx *zero.Ctx) { //每日一言
+	en.OnFullMatch("每日一言").SetBlock(true).Handle(func(ctx *zero.Ctx) { // 每日一言
 		var rsp rspData
 		data, err := web.GetData(yiyan)
 		if err != nil {

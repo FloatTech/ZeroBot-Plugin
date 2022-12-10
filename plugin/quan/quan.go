@@ -3,13 +3,14 @@ package quan
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"strconv"
 )
 
 const (
@@ -25,8 +26,8 @@ func init() { // 主函数
 			"- 权重查询+QQ号(可以不写，默认本人)",
 	})
 	en.OnRegex(`^权重查询\s*(\[CQ:at,qq=)?(\d+)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		str := ctx.State["regex_matched"].([]string)[2] //获取uid
-		if str == "" {                                  //user
+		str := ctx.State["regex_matched"].([]string)[2] // 获取uid
+		if str == "" {                                  // user
 			str = strconv.FormatInt(ctx.Event.UserID, 10)
 		}
 		es, err := web.GetData(fmt.Sprintf(quan, str)) // 将网站返回结果赋值
@@ -36,5 +37,4 @@ func init() { // 主函数
 		}
 		ctx.SendChain(message.Text(str, helper.BytesToString(es))) // 输出结果
 	})
-
 }
