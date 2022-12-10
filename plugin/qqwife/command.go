@@ -1,4 +1,7 @@
 // Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品，文案采用了Hana的zbp娶群友文案
+
+//nolint: asciicheck
+
 package qqwife
 
 import (
@@ -29,8 +32,6 @@ import (
 	// 货币系统
 )
 
-// nolint: asciicheck
-//nolint: asciicheck
 type 婚姻登记 struct {
 	db *sql.Sqlite
 	sync.RWMutex
@@ -56,8 +57,6 @@ type userinfo struct {
 }
 
 var (
-	// nolint: asciicheck
-	//nolint: asciicheck
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
 	}
@@ -301,8 +300,6 @@ func init() {
 		})
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -324,16 +321,12 @@ func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) 
 	return
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 更新设置(dbinfo updateinfo) error {
 	sql.Lock()
 	defer sql.Unlock()
 	return sql.db.Insert("updateinfo", &dbinfo)
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 开门时间(gid int64) error {
 	grouInfo, err := sql.查看设置(gid)
 	if err != nil {
@@ -354,8 +347,6 @@ func (sql *婚姻登记) 开门时间(gid int64) error {
 	return nil
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -373,8 +364,6 @@ func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 	return
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 // 民政局登记数据
 func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname string) error {
 	sql.Lock()
@@ -390,8 +379,6 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	return sql.db.Insert(gidstr, &uidinfo)
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -437,8 +424,6 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 	return
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	sql.Lock()
 	defer sql.Unlock()

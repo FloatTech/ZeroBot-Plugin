@@ -1,4 +1,7 @@
 // Package hyaku 百人一首
+
+//nolint: asciicheck
+
 package hyaku
 
 import (
@@ -23,7 +26,6 @@ import (
 
 const bed = "https://gitcode.net/u011570312/OguraHyakuninIsshu/-/raw/master/"
 
-// nolint: asciicheck
 type line struct {
 	番号, 歌人, 上の句, 下の句, 上の句ひらがな, 下の句ひらがな string
 }

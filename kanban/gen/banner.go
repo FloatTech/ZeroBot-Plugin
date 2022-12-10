@@ -1,3 +1,4 @@
+// Package main generates banner.go
 package main
 
 import (
