@@ -1,7 +1,4 @@
 // Package hyaku 百人一首
-
-//nolint: asciicheck
-
 package hyaku
 
 import (

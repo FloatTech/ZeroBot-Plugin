@@ -1,5 +1,3 @@
-//nolint: asciicheck
-
 package qqwife
 
 import (

@@ -1,7 +1,4 @@
 // Package qqwife 娶群友  基于“翻牌”和江林大佬的“群老婆”插件魔改作品，文案采用了Hana的zbp娶群友文案
-
-//nolint: asciicheck
-
 package qqwife
 
 import (
