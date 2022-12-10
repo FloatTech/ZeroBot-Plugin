@@ -1,7 +1,6 @@
 // Package ygo 一些关于ygo的插件
 package ygo
 
-
 import (
 	"encoding/json"
 	"errors"
@@ -49,14 +48,14 @@ type tradeInfo struct {
 func init() {
 	engine := control.Register("ygotrade", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:            "游戏王卡价查询",// 本插件基于集换社API
-		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] [稀有度 稀有度 ...]\n- 查卡店  [卡名]\n- 查卡店  [卡名] [稀有度]",
+		Brief:            "游戏王卡价查询", // 本插件基于集换社API
+		Help:             "- 查卡价 [卡名]\n- 查卡价 [卡名] -r [稀有度 稀有度 ...]\n- 查卡店  [卡名]\n- 查卡店  [卡名] -r [稀有度]",
 	}).ApplySingle(ctxext.DefaultSingle)
 	engine.OnPrefix("查卡价", func(ctx *zero.Ctx) bool {
 		ctx.State["args"] = strings.TrimSpace(ctx.State["args"].(string))
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		cardName, rarity, _ := strings.Cut(ctx.State["args"].(string), " ")
+		cardName, rarity, _ := strings.Cut(ctx.State["args"].(string), " -r ")
 		listOfTrace, err := getRarityTrade(cardName, rarity)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -80,7 +79,7 @@ func init() {
 		ctx.State["args"] = strings.TrimSpace(ctx.State["args"].(string))
 		return ctx.State["args"].(string) != ""
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		cardName, rarity, _ := strings.Cut(ctx.State["args"].(string), " ")
+		cardName, rarity, _ := strings.Cut(ctx.State["args"].(string), " -r ")
 		if strings.Count(rarity, " ") > 0 {
 			ctx.SendChain(message.Text("ERROR: ", "卡店查询不支持查找多个罕贵度"))
 			return

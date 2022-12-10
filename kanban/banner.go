@@ -10,7 +10,7 @@ import (
 var (
 	// Banner ...
 	Banner = "* OneBot + ZeroBot + Golang\n" +
-		"* Version 1.6.0-beta1 - 2022-11-15 11:13:42 +0800 CST\n" +
+		"* Version 1.6.0-beta3 - 2022-12-03 13:42:40 +0800 CST\n" +
 		"* Copyright © 2020 - 2022 FloatTech. All Rights Reserved.\n" +
 		"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
 	reg = registry.NewRegReader("reilia.fumiama.top:32664", control.Md5File, "fumiama")

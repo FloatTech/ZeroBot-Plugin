@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-	_ "github.com/fumiama/sqlite3" // import sql
 	"github.com/jinzhu/gorm"
 )
 
