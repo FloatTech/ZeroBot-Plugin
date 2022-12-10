@@ -41,7 +41,7 @@ type searchResult struct {
 func init() {
 	en := control.Register("ygocdb", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:            "游戏王百鸽API",// 本插件基于游戏王百鸽API"https://www.ygo-sem.cn/"
+		Brief:            "游戏王百鸽API", // 本插件基于游戏王百鸽API"https://www.ygo-sem.cn/"
 		Help: "- /ydp [xxx]\n" +
 			"- /yds [xxx]\n" +
 			"- /ydb [xxx]\n" +
