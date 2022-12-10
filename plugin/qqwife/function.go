@@ -193,7 +193,7 @@ func init() {
 			var choicetext string
 			var ntrID = uid
 			var targetID = fiancee
-			var greenID int64 //被牛的
+			var greenID int64 // 被牛的
 			fianceeInfo, err := 民政局.查户口(gid, fiancee)
 			switch {
 			case err != nil:
