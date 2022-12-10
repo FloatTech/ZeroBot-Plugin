@@ -157,7 +157,6 @@ func init() {
 				if !find {
 					msgs += "无"
 				}
-
 			} else {
 				// 生成配置文本
 				msgs = fmt.Sprintf("本群配置:\n"+
@@ -187,9 +186,9 @@ func init() {
 			group := getGroup(ctx.Event.GroupID)
 			inputType, _ := strconv.Atoi(k2)
 			if k1 == "不" {
-				group.WhiteListType[inputType] = true //不检测：则进入类型白名单
+				group.WhiteListType[inputType] = true // 不检测：则进入类型白名单
 			} else {
-				group.WhiteListType[inputType] = false //检测：则退出白名单
+				group.WhiteListType[inputType] = false // 检测：则退出白名单
 			}
 			config.Groups[ctx.Event.GroupID] = group
 			ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("本群将%s检测%s类型内容", k1, typetext[inputType])))
@@ -324,7 +323,6 @@ func init() {
 			}
 			group := getGroup(ctx.Event.GroupID)
 			ctx.SendChain(buildResp(bdres, group)...)
-
 		})
 }
 
@@ -367,10 +365,10 @@ func banCheck(ctx *zero.Ctx, bdres baiduRes) {
 			} else {
 				bantime = group.BANTime * 60
 			}
-			//执行禁言
+			// 执行禁言
 			ctx.SetGroupBan(ctx.Event.GroupID, ctx.Event.UserID, bantime)
 		}
-		//查看是否开启撤回提示
+		// 查看是否开启撤回提示
 		if group.DMRemind {
 			res = append(res, message.At(ctx.Event.Sender.ID))
 			ctx.SendChain(res...)

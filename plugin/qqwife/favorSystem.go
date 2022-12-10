@@ -12,6 +12,7 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
 	// 画图
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
@@ -192,8 +193,6 @@ func init() {
 		})
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 func (sql *婚姻登记) 查好感度(uid, target int64) (int, error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -246,8 +245,6 @@ func (sql *婚姻登记) getGroupFavorability(uid int64) (list favorList, err er
 	return
 }
 
-// nolint: asciicheck
-//nolint: asciicheck
 // 设置好感度 正增负减
 func (sql *婚姻登记) 更新好感度(uid, target int64, score int) (favor int, err error) {
 	sql.Lock()
