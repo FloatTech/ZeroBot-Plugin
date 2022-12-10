@@ -19,6 +19,7 @@ jobs:
           version: latest
 
       - name: Commit back
+        if: ${{ !github.head_ref }}
         continue-on-error: true
         run: |
           git config --local user.name 'github-actions[bot]'
@@ -27,4 +28,5 @@ jobs:
           git commit -m "🎨 改进代码样式"
 
       - name: Create Pull Request
+        if: ${{ !github.head_ref }}
         uses: peter-evans/create-pull-request@v4
