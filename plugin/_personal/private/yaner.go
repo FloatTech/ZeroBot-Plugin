@@ -34,9 +34,9 @@ const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
 var (
 	poke     = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
 	commands = [...][]string{
-		{"add", "--all"},
-		{"commit", "-m", "\"Update\""},
-		{"push", "-u", "origin", "master"},
+		//{"add", "--all"},
+		//{"commit", "-m", "\"Update\""},
+		//{"push", "-u", "origin", "master"},
 		// {"remote", "add", "upstream", "git@github.com:FloatTech/ZeroBot-Plugin.git"},
 		// {"remote", "-v"},
 		{"fetch", "upstream", "master"},
