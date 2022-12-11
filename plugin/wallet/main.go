@@ -5,7 +5,6 @@ import (
 	"math"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
@@ -42,38 +41,6 @@ func init() {
 			panic(err)
 		}
 	}()
-	engine.OnRegex(`^叫我\s*([^\s]+(\s+[^\s]+)*)`, zero.OnlyToMe).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		username := ctx.State["regex_matched"].([]string)[1]
-		if strings.Contains(username, "[CQ:face,id=") {
-			ctx.SendChain(message.Text("昵称不支持表情包哦"))
-			return
-		}
-		if len([]rune(username)) > 10 {
-			ctx.SendChain(message.Text("昵称不得长于10个字符"))
-			return
-		}
-		err := wallet.SetNameOf(ctx.Event.UserID, username)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
-			return
-		}
-		ctx.SendChain(message.Text("好的,", username))
-	})
-	engine.OnRegex(`^注销昵称(\s*\[CQ:at,qq=)?(.*[^\]$])`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		username := ctx.State["regex_matched"].([]string)[1]
-		uid, err := strconv.ParseInt(username, 10, 64)
-		if err != nil {
-			err = wallet.CancelNameOf(username)
-		} else {
-			username = wallet.GetNameOf(uid)
-			err = wallet.CancelNameOf(username)
-		}
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
-			return
-		}
-		ctx.SendChain(message.Text("注销成功"))
-	})
 	engine.OnFullMatchGroup([]string{"查看我的钱包", "/钱包"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
