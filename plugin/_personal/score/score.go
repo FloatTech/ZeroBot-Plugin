@@ -58,7 +58,7 @@ const SCOREMAX = 1200
 func init() {
 	engine := control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Brief:             "签到系统",
+		Brief:             "签到",
 		PrivateDataFolder: "ygoscore",
 		Help:              "- 签到\n",
 	})
