@@ -1,17 +1,17 @@
-// Package gamesystem 基于zbp的猜歌插件
+// Package gamesystem ...
 package gamesystem
 
 import (
 	"math/rand"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 载入游戏系统
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games/gamesystem" // 游戏系统
+	"github.com/FloatTech/AnimeAPI/wallet"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games/gamesystem"
 )
 
 var point = map[string]int{
