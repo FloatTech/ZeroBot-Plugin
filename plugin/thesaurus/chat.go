@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"strings"
 
+	names "github.com/FloatTech/ZeroBot-Plugin/plugin/dataSystem"
 	"github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -16,9 +17,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"gopkg.in/yaml.v3"
-
-	// 数据库
-	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 func init() {
@@ -182,7 +180,7 @@ func randreply(m map[string][]string) zero.Handler {
 		val := m[key]
 		nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 		text := val[rand.Intn(len(val))]
-		userName := wallet.GetNameOf(ctx.Event.UserID)
+		userName := names.GetNameOf(ctx.Event.UserID)
 		if userName == "" {
 			userName = ctx.CardOrNickName(ctx.Event.UserID)
 		}

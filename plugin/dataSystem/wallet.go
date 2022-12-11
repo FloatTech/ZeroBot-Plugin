@@ -1,16 +1,13 @@
-// Package wallet 公用数据管理
-package wallet
+package dataSystem
 
 import (
 	"math"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
-	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -21,59 +18,13 @@ import (
 )
 
 func init() {
-	engine := control.Register("DataSystem", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "公用数据管理",
-		Help: "- @bot 叫我[xxx]\n" +
-			"- 查看我的钱包\n" +
-			"- 查看钱包排名\n" +
-			"注:为本群排行，若群人数太多不建议使用该功能!!!\n" +
-			"\n---------主人功能---------\n" +
-			"- 注销昵称 [xxx/qq号/@QQ]\n" +
-			"- /钱包 [QQ号|@群友]\n" +
-			"- /记录 @群友 ATRI币值\n" +
-			"- /记录 @加分群友 @减分群友 ATRI币值",
-	})
-	cachePath := "data/wallet/cache/"
-	go func() {
-		_ = os.RemoveAll(cachePath)
-		err := os.MkdirAll(cachePath, 0755)
-		if err != nil {
-			panic(err)
-		}
-	}()
-	engine.OnRegex(`^叫我\s*([^\s]+(\s+[^\s]+)*)`, zero.OnlyToMe).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		username := ctx.State["regex_matched"].([]string)[1]
-		if strings.Contains(username, "[CQ:face,id=") {
-			ctx.SendChain(message.Text("昵称不支持表情包哦"))
-			return
-		}
-		if len([]rune(username)) > 10 {
-			ctx.SendChain(message.Text("昵称不得长于10个字符"))
-			return
-		}
-		err := wallet.SetNameOf(ctx.Event.UserID, username)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
-			return
-		}
-		ctx.SendChain(message.Text("好的,", username))
-	})
-	engine.OnRegex(`^注销昵称(\s*\[CQ:at,qq=)?(.*[^\]$])`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		username := ctx.State["regex_matched"].([]string)[1]
-		uid, err := strconv.ParseInt(username, 10, 64)
-		if err != nil {
-			err = wallet.CancelNameOf(username)
-		} else {
-			username = wallet.GetNameOf(uid)
-			err = wallet.CancelNameOf(username)
-		}
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
-			return
-		}
-		ctx.SendChain(message.Text("注销成功"))
-	})
+	helpInfo = append(helpInfo, "----------货 币 系 统---------"+
+		"- 查看我的钱包\n"+
+		"- 查看钱包排名\n"+
+		"注:为本群排行，若群人数太多不建议使用该功能!!!\n"+
+		"- /钱包 [QQ号|@群友]\n"+
+		"- /记录 @群友 ATRI币值\n"+
+		"- /记录 @加分群友 @减分群友 ATRI币值")
 	engine.OnFullMatchGroup([]string{"查看我的钱包", "/钱包"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)

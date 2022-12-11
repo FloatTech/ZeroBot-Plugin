@@ -19,6 +19,7 @@ import (
 
 	// 数据库
 	"github.com/FloatTech/AnimeAPI/wallet"
+	names "github.com/FloatTech/ZeroBot-Plugin/plugin/dataSystem"
 	sql "github.com/FloatTech/sqlite"
 
 	// 图片输出
@@ -82,7 +83,7 @@ func init() {
 		userinfo := scoredata.getData(uid)
 		userinfo.Uid = uid
 		if userinfo.UserName == "" {
-			userinfo.UserName = wallet.GetNameOf(uid)
+			userinfo.UserName = names.GetNameOf(uid)
 			if userinfo.UserName == "" {
 				userinfo.UserName = ctx.CardOrNickName(uid)
 			}
