@@ -16,7 +16,7 @@ import (
 const (
 	jpapi = "https://moegoe.azurewebsites.net/api/speak?text=%s&id=%d"
 	krapi = "https://moegoe.azurewebsites.net/api/speakkr?text=%s&id=%d"
-	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&text=%s&id=%d"
+	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&text=%s&id=%d&code=%s"
 )
 
 var speakers = map[string]uint{
@@ -49,6 +49,23 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			text := ctx.State["regex_matched"].([]string)[2]
 			id := speakers[ctx.State["regex_matched"].([]string)[1]]
-			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), id)))
+			c, ok := control.Lookup("tts")
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: plugin tts not found"))
+				return
+			}
+			var key struct {
+				APIKey string
+			}
+			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
+			err := c.Manager.GetExtra(gid, &key)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), id, url.QueryEscape(key.APIKey))))
 		})
 }

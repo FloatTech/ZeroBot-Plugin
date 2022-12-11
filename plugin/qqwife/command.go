@@ -26,11 +26,8 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/zbputils/img/text"
-	// 货币系统
 )
 
-// nolint: asciicheck
-// nolint: asciicheck
 type 婚姻登记 struct {
 	db *sql.Sqlite
 	sync.RWMutex
@@ -56,8 +53,6 @@ type userinfo struct {
 }
 
 var (
-	// nolint: asciicheck
-	//nolint: asciicheck
 	民政局 = &婚姻登记{
 		db: &sql.Sqlite{},
 	}
@@ -286,7 +281,7 @@ func init() {
 				err = 民政局.清理花名册("group" + strconv.FormatInt(ctx.Event.GroupID, 10))
 			default:
 				cmd := ctx.State["regex_matched"].([]string)[1]
-				gid, _ := strconv.ParseInt(cmd, 10, 64) //判断是否为群号
+				gid, _ := strconv.ParseInt(cmd, 10, 64) // 判断是否为群号
 				if gid == 0 {
 					ctx.SendChain(message.Text("请输入正确的群号"))
 					return
@@ -301,8 +296,6 @@ func init() {
 		})
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -324,16 +317,12 @@ func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) 
 	return
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 func (sql *婚姻登记) 更新设置(dbinfo updateinfo) error {
 	sql.Lock()
 	defer sql.Unlock()
 	return sql.db.Insert("updateinfo", &dbinfo)
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 func (sql *婚姻登记) 开门时间(gid int64) error {
 	grouInfo, err := sql.查看设置(gid)
 	if err != nil {
@@ -354,8 +343,6 @@ func (sql *婚姻登记) 开门时间(gid int64) error {
 	return nil
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -373,8 +360,6 @@ func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 	return
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 // 民政局登记数据
 func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname string) error {
 	sql.Lock()
@@ -390,8 +375,6 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	return sql.db.Insert(gidstr, &uidinfo)
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -437,8 +420,6 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 	return
 }
 
-// nolint: asciicheck
-// nolint: asciicheck
 func (sql *婚姻登记) 清理花名册(gid ...string) error {
 	sql.Lock()
 	defer sql.Unlock()
@@ -449,7 +430,6 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 			for _, listName := range grouplist {
 				if listName == "favorability" {
 					continue
-
 				}
 				err = sql.db.Drop(listName)
 			}

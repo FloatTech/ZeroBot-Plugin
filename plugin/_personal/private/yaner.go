@@ -34,9 +34,9 @@ const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
 var (
 	poke     = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
 	commands = [...][]string{
-		{"add", "--all"},
-		{"commit", "-m", "\"Update\""},
-		{"push", "-u", "origin", "master"},
+		//{"add", "--all"},
+		//{"commit", "-m", "\"Update\""},
+		//{"push", "-u", "origin", "master"},
 		// {"remote", "add", "upstream", "git@github.com:FloatTech/ZeroBot-Plugin.git"},
 		// {"remote", "-v"},
 		{"fetch", "upstream", "master"},
@@ -111,7 +111,7 @@ func init() {
 			cmd.Stderr = &stderr
 			err = cmd.Run()
 			if err != nil {
-				msg = append(msg, "StdErr:", stderr.String())
+				msg = append(msg, "StdErr:", err.Error(), "\n", stderr.String())
 				// 输出图片
 				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
 				if err != nil {
