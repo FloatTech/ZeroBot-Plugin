@@ -1,4 +1,5 @@
-package ygoscore
+// Package gamesystem ...
+package gamesystem
 
 import (
 	"archive/zip"
@@ -70,7 +71,7 @@ var (
 			"否则投掷出里的玩家失去对方宣言的数值ATRI币;\n投掷出表的玩家获得自己宣言的数值ATRI币。",
 		"通贩卖员": "双方玩家从ygo全卡池中随机抽取一张。\n" +
 			"把那些卡种类确认。\n" +
-			"同为怪兽时,各自的签到天数+2。\n" +
+			"同为怪兽时,各自的ATRI币+2。\n" +
 			"同为魔法时,各自的ATRI币+10。\n" +
 			"同为陷阱时,各自的ATRI币-2。\n",
 	}
@@ -89,9 +90,8 @@ func init() {
 	}
 	engine := control.Register("ygogames", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Brief:           "游戏王小游戏插件",
-		Help:
-			"-玩小游戏 @群友\n" +
+		Brief:            "游戏王小游戏插件",
+		Help: "-玩小游戏 @群友\n" +
 			"======小游戏内容======\n" +
 			"每个小游戏游玩均需交 6 枚ATRI币\n" +
 			helper,
@@ -105,7 +105,6 @@ func init() {
 			)
 		}),
 	))
-
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		zipfile := file.BOTPATH + "/data/ygoscore/ygocdb.com.cards.zip"
@@ -290,10 +289,9 @@ func init() {
 			uType := cards[duel[uid]].Text.Types
 			dType := cards[duel[duelUser]].Text.Types
 			if strings.Contains(uType, "怪兽") && strings.Contains(dType, "怪兽") {
-				userinfo.Continuous += 2
-				challenginfo.Continuous += 2
-				if err = scoredata.db.Insert("score", &userinfo); err == nil {
-					err = scoredata.db.Insert("score", &challenginfo)
+				err = wallet.InsertWalletOf(uid, 2)
+				if err == nil {
+					err = wallet.InsertWalletOf(duelUser, 2)
 				}
 				result = 1
 			} else if strings.Contains(uType, "魔法") && strings.Contains(dType, "魔法") {
@@ -409,8 +407,8 @@ func init() {
 			time.Sleep(3 * time.Second)
 			cDice := rand.Intn(2)
 			ctx.SendChain(message.Text("结果出来了！\n",
-				userinfo.UserName, "投出的硬币是", result[uDice], "\n",
-				challenginfo.UserName, "投出的硬币是", result[cDice]))
+				ctx.CardOrNickName(uid), "投出的硬币是", result[uDice], "\n",
+				ctx.CardOrNickName(duelUser), "投出的硬币是", result[cDice]))
 			resultPoints := 0
 			switch {
 			case uDice == 0 && cDice == 0:

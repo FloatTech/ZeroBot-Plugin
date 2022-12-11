@@ -1,195 +1,24 @@
-package yaner
+package base
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"math"
 	"math/rand"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"archive/zip"
-
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/disk"
-	"github.com/shirou/gopsutil/v3/mem"
 )
 
-const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
-
-var (
-	poke     = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
-	commands = [...][]string{
-		//{"add", "--all"},
-		//{"commit", "-m", "\"Update\""},
-		//{"push", "-u", "origin", "master"},
-		// {"remote", "add", "upstream", "git@github.com:FloatTech/ZeroBot-Plugin.git"},
-		// {"remote", "-v"},
-		{"fetch", "upstream", "master"},
-		{"merge", "upstream/master"},
-		{"push", "-u", "origin", "master"},
-		{"pull", "--tags", "-r", "origin", "master"},
-	}
-)
+var poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
 
 func init() {
-	go func() {
-		process.SleepAbout1sTo2s()
-		ctx := zero.GetBot(1015464740)
-		m, ok := control.Lookup("yaner")
-		if ok {
-			gid := m.GetData(-2504407110)
-			if gid != 0 {
-				ctx.SendGroupMessage(gid, message.Text("我回来了😊"))
-			} else {
-				ctx.SendPrivateMessage(2504407110, message.Text("我回来了😊"))
-			}
-		}
-		err := m.SetData(-2504407110, 0)
-		if err != nil {
-			ctx.SendPrivateMessage(2504407110, message.Text(err))
-		}
-	}()
-	// 更新zbp
-	zero.OnFullMatch("检查更新", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		var msg []string
-		var img []byte
-		var err error
-		ctx.SendChain(message.Text("是否备份?"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
-		for {
-			select {
-			case <-time.After(time.Second * 40): // 40s等待
-				ctx.SendChain(message.Text("等待超时,自动备份"))
-				err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				msg = append(msg, "已经对旧版zbp压缩备份")
-			case e := <-recv:
-				nextcmd := e.Event.Message.String() // 获取下一个指令
-				switch nextcmd {
-				case "是":
-					err = fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
-					if err != nil {
-						ctx.SendChain(message.Text("[ERROR]:", err))
-						return
-					}
-					msg = append(msg, "已经对旧版zbp压缩备份")
-				default:
-					msg = append(msg, "已取消备份")
-				}
-			}
-			if len(msg) != 0 {
-				break
-			}
-		}
-		cancel()
-		msg = append(msg, "\n\n开始检查更新")
-		var stdout bytes.Buffer
-		var stderr bytes.Buffer
-		for _, command := range commands {
-			cmd := exec.Command("git", command...)
-			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
-			cmd.Stdout = &stdout
-			cmd.Stderr = &stderr
-			err = cmd.Run()
-			if err != nil {
-				msg = append(msg, "StdErr:", err.Error(), "\n", stderr.String())
-				// 输出图片
-				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
-				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-				return
-			}
-			msg = append(msg, "StdOut:", stdout.String())
-		}
-		// 输出图片
-		img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
-			return
-		}
-		ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-	})
-	// 电脑状态
-	zero.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
-				"* CPU占用: ", cpuPercent(), "%\n",
-				"* RAM占用: ", memPercent(), "%\n",
-				"* 硬盘使用: ", diskPercent(),
-			),
-			)
-		})
-	// 重启
-	zero.OnFullMatchGroup([]string{"重启", "洗手手"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			m, ok := control.Lookup("yaner")
-			if ok {
-				err := m.SetData(-2504407110, ctx.Event.GroupID)
-				if err == nil {
-					ctx.SendChain(message.Text("好的"))
-				} else {
-					ctx.SendPrivateMessage(2504407110, message.Text(err))
-				}
-			}
-			os.Exit(0)
-		})
-	// 运行 CQ 码
-	zero.OnPrefix("run", zero.SuperUserPermission).SetBlock(false).
-		Handle(func(ctx *zero.Ctx) {
-			// 可注入，权限为主人
-			ctx.Send(message.UnescapeCQCodeText(ctx.State["args"].(string)))
-		})
-	// 撤回最后的发言
-	zero.OnRegex(`^\[CQ:reply,id=(.*)].*`, zero.KeywordRule("多嘴")).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			// 获取消息id
-			mid := ctx.State["regex_matched"].([]string)[1]
-			// 撤回消息
-			if ctx.Event.Message[1].Data["qq"] != "" {
-				var nickname = zero.BotConfig.NickName[0]
-				ctx.SendChain(message.Text("9494，要像", nickname, "一样乖乖的才行哟~"))
-			} else {
-				ctx.SendChain(message.Text("呜呜呜呜"))
-			}
-			ctx.DeleteMessage(message.NewMessageIDFromString(mid))
-			ctx.DeleteMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
-		})
 	engine := control.Register("yaner", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "基础指令",
-		Help:             "柳如娮的基础指令",
-		OnEnable: func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(
-				"检测到唤醒环境:\n",
-				"* CPU占用: ", cpuPercent(), "%\n",
-				"* RAM占用: ", memPercent(), "%\n",
-				"* 硬盘使用: ", diskPercent(), "\n确认ok。\n",
-			))
-			process.SleepAbout1sTo2s()
-			ctx.SendChain(message.Text("嘿嘿，娮儿闪亮登场！锵↘锵↗~"))
-		},
 		OnDisable: func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text("宝↗生↘永↗梦↘！！！！"))
@@ -250,96 +79,6 @@ func init() {
 		})
 }
 
-// 打包成zip文件
-func fileZipTo(src_dir string, zip_file_name string) error {
-	// 创建：zip文件
-	zipfile, err := os.Create(zip_file_name)
-	if err != nil {
-		return err
-	}
-	defer zipfile.Close()
-
-	// 打开：zip文件
-	archive := zip.NewWriter(zipfile)
-	defer archive.Close()
-
-	// 遍历路径信息
-	filepath.Walk(src_dir, func(path string, info os.FileInfo, _ error) error {
-
-		// 如果是源路径，提前进行下一个遍历
-		if path == src_dir {
-			return nil
-		}
-
-		// 获取：文件头信息
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-		header.Name = strings.TrimPrefix(path, src_dir+`/`)
-
-		// 判断：文件是不是文件夹
-		if info.IsDir() {
-			header.Name += `/`
-		} else {
-			// 设置：zip的文件压缩算法
-			header.Method = zip.Deflate
-		}
-
-		// 创建：压缩包头部信息
-		writer, err := archive.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-			io.Copy(writer, file)
-		}
-		return nil
-	})
-	return nil
-}
-
 func randText(text ...string) message.MessageSegment {
 	return message.Text(text[rand.Intn(len(text))])
-}
-
-func cpuPercent() float64 {
-	percent, err := cpu.Percent(time.Second, false)
-	if err != nil {
-		return -1
-	}
-	return math.Round(percent[0])
-}
-
-func memPercent() float64 {
-	memInfo, err := mem.VirtualMemory()
-	if err != nil {
-		return -1
-	}
-	return math.Round(memInfo.UsedPercent)
-}
-
-func diskPercent() string {
-	parts, err := disk.Partitions(true)
-	if err != nil {
-		return err.Error()
-	}
-	msg := ""
-	for _, p := range parts {
-		diskInfo, err := disk.Usage(p.Mountpoint)
-		if err != nil {
-			msg += "\n  - " + err.Error()
-			continue
-		}
-		pc := uint(math.Round(diskInfo.UsedPercent))
-		if pc > 0 {
-			msg += fmt.Sprintf("\n  - %s(%dM) %d%%", p.Mountpoint, diskInfo.Total/1024/1024, pc)
-		}
-	}
-	return msg
 }

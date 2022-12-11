@@ -3,7 +3,6 @@ package baidufanyi
 import (
 	"crypto/md5"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -26,7 +25,6 @@ import (
 type config struct {
 	APPID     string `json:"APP ID"`
 	Secretkey string `json:"密钥"`
-	Maxchar   int    `json:"免费调用量(字符/月)"`
 }
 
 var (
@@ -111,13 +109,13 @@ func init() {
 		DisableOnDefault:  false,
 		Brief:             "百度翻译(支持回复翻译)",
 		PrivateDataFolder: "baidufanyi",
-		Help: "-[/][从某语言]翻译[到某语言] [翻译的内容]\n" +
+		Help: "-/[从某语言]翻译[到某语言] [翻译的内容]\n" +
 			"[]内容表示可选项\n但若不是回复翻译,翻译的内容不可少。\n" +
-			"若是回复翻译,'/'符号不可少。\n例:\n" +
+			"例:\n" +
 			"/翻译 hello the world\n" +
-			"从英语翻译 hello the world\n" +
+			"/从英语翻译 hello the world\n" +
 			"/翻译成中文 hello the world\n" +
-			"从英语翻译成中文 hello the world",
+			"/从英语翻译成中文 hello the world",
 	}).ApplySingle(ctxext.DefaultSingle)
 	// 获取用户的配置
 	cfgFile := engine.DataFolder() + "config.json"
@@ -192,27 +190,17 @@ func init() {
 		slang, tlang, translated, err := translate(txt, formlang, tolang)
 		if err != nil {
 			ctx.SendChain(message.Text(err))
-		} else {
-			cfg.Maxchar -= len([]rune(txt))
-			err := saveConfig(cfgFile)
-			if err != nil {
-				ctx.SendChain(message.Text("[baidufanyi]", err))
-			}
-			formlang := ""
-			getlang := ""
-			for key, value := range lang {
-				if slang == value {
-					formlang = key
-				}
-				if tlang == value {
-					getlang = key
-				}
-				if formlang != "" && getlang != "" {
-					break
-				}
-			}
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", getlang, ":\n", translated)))
+			return
 		}
+		for key, value := range lang {
+			if slang == value {
+				formlang = key
+			}
+			if tlang == value {
+				tolang = key
+			}
+		}
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", tolang, ":\n", translated)))
 	})
 	engine.OnRegex(`^\[CQ:reply,id=.*](\s+)?\/(从(\S+))?翻译((到|成)(\S+))?`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		slang := ctx.State["regex_matched"].([]string)[3]
@@ -263,33 +251,22 @@ func init() {
 		slang, tlang, translated, err := translate(txt, formlang, tolang)
 		if err != nil {
 			ctx.SendChain(message.Text(err))
-		} else {
-			cfg.Maxchar -= len([]rune(txt))
-			err := saveConfig(cfgFile)
-			if err != nil {
-				ctx.SendChain(message.Text("[baidufanyi]", err))
-			}
-			formlang := ""
-			getlang := ""
-			for key, value := range lang {
-				if slang == value {
-					formlang = key
-				}
-				if tlang == value {
-					getlang = key
-				}
-				if formlang != "" && getlang != "" {
-					break
-				}
-			}
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", getlang, ":\n", translated)))
+			return
 		}
+		for key, value := range lang {
+			if slang == value {
+				formlang = key
+			}
+			if tlang == value {
+				tolang = key
+			}
+		}
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("尝试从", formlang, "翻译成", tolang, ":\n", translated)))
 	})
 	engine.OnRegex(`^设置百度翻译key\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			cfg.APPID = ctx.State["regex_matched"].([]string)[1]
 			cfg.Secretkey = ctx.State["regex_matched"].([]string)[2]
-			cfg.Maxchar = 50000
 			if err := saveConfig(cfgFile); err != nil {
 				ctx.SendChain(message.Text(err))
 			} else {
@@ -321,11 +298,6 @@ type translation struct {
 }
 
 func translate(txt, sl, tl string) (from, to, translated string, err error) {
-	lastChar := cfg.Maxchar - len([]rune(txt))
-	if lastChar <= 0 {
-		err = errors.New("API翻译字符超过了本月免费调用字符数!你还可以翻译" + strconv.Itoa(cfg.Maxchar) + "个字符")
-		return
-	}
 	now := strconv.FormatInt(time.Now().Unix(), 10)
 	signinfo := cfg.APPID + txt + now + cfg.Secretkey
 	m := fmt.Sprintf("%x", md5.Sum(helper.StringToBytes(signinfo)))
