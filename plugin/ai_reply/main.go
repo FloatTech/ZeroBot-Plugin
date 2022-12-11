@@ -35,7 +35,7 @@ func init() { // 插件主体
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "人工智能回复",
-		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx\n- 重置ChatGPT连接",
 		PrivateDataFolder: "aireply",
 	})
 
@@ -109,7 +109,11 @@ func init() { // 插件主体
 	})
 
 	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		chats.Reset(ctx.Event.UserID)
+		err := chats.Reset(ctx.Event.UserID)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		ctx.SendChain(message.Text("成功"))
 	})
 
