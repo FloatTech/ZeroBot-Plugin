@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games/gamesystem"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )

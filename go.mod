@@ -5,13 +5,13 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20221203040820-0dda47e61cd8
-	github.com/FloatTech/floatbox v0.0.0-20221203040505-d7352e564906
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20221210053102-a9b76da3c119
+	github.com/FloatTech/floatbox v0.0.0-20221210051813-4bd44af40c60
 	github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221203040611-11f118e1d5ec
-	github.com/FloatTech/zbputils v1.6.1-0.20221203040741-3bc28d5e3cd1
+	github.com/FloatTech/zbpctrl v1.5.3-0.20221210051848-740ab7bd6ec3
+	github.com/FloatTech/zbputils v1.6.1-0.20221210052030-50f19ddfae6f
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -34,7 +34,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.6.5
+	github.com/wdvxdr1123/ZeroBot v1.6.6
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -50,7 +50,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
-	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -78,7 +78,7 @@ require (
 	golang.org/x/exp/shiny v0.0.0-20221126150942-6ab00d035af9 // indirect
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect

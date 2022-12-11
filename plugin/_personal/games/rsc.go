@@ -4,7 +4,7 @@ package gamesystem
 import (
 	"math/rand"
 
-	"github.com/FloatTech/AnimeAPI/wallet"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
