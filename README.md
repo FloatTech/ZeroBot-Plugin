@@ -76,7 +76,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
             "Url": "ws://127.0.0.1:6700",
             "AccessToken": ""
         }
-    ]
+    ],
+    "wss": null
 }
 ```
 
