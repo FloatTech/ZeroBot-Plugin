@@ -1,4 +1,4 @@
-package dataSystem
+package datasystem
 
 import (
 	"math"

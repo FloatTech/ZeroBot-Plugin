@@ -1,4 +1,4 @@
-package dataSystem
+package datasystem
 
 import (
 	"os"
@@ -14,7 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-// Storage 货币系统
+// NameSystem ...
 type NameSystem struct {
 	sync.RWMutex
 	db *sql.Sqlite
@@ -90,8 +90,8 @@ func init() {
 	})
 }
 
-// GetName 获取昵称数据
-func GetNameOf(uid int64) (Name string) {
+// GetNameOf 获取昵称数据
+func GetNameOf(uid int64) string {
 	return sdb.getNameOf(uid)
 }
 
@@ -106,7 +106,7 @@ func CancelNameOf(name string) error {
 }
 
 // 获取数据
-func (sql *NameSystem) getNameOf(uid int64) (name string) {
+func (sql *NameSystem) getNameOf(uid int64) string {
 	sql.RLock()
 	defer sql.RUnlock()
 	uidstr := strconv.FormatInt(uid, 10)

@@ -1,5 +1,5 @@
-// Package dataSystem 公用数据管理
-package dataSystem
+// Package datasystem 公用数据管理
+package datasystem
 
 import (
 	"os"
