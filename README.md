@@ -76,7 +76,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
             "Url": "ws://127.0.0.1:6700",
             "AccessToken": ""
         }
-    ]
+    ],
+    "wss": null
 }
 ```
 
@@ -1427,8 +1428,12 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置回复模式[青云客 | 小爱 | ChatGPT]
 
   - [x] 设置 ChatGPT SessionToken xxx
+
+  - [x] 重置ChatGPT连接
   
-  - 注册和获取token可以参见这两篇文章：[注册](https://www.cnblogs.com/ranxi169/p/16954797.html) [获取token](https://juejin.cn/post/7174088036035067917)
+  - 注:
+    - 注册和获取 token 可以参见这两篇文章：[注册](https://www.cnblogs.com/ranxi169/p/16954797.html) [获取token](https://juejin.cn/post/7174088036035067917)
+    - 设置 SessionToken 时，请确保自己为超级管理员，然后私聊`/响应` `/禁用atri` `/禁用tts` `/启用aireply`，再发送`设置 ChatGPT SessionToken xxx`
 
 </details>
 

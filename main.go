@@ -205,6 +205,7 @@ import (
 type zbpcfg struct {
 	Z zero.Config        `json:"zero"`
 	W []*driver.WSClient `json:"ws"`
+	S []*driver.WSServer `json:"wss"`
 }
 
 var config zbpcfg
@@ -266,9 +267,12 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		config.Z.Driver = make([]zero.Driver, len(config.W))
+		config.Z.Driver = make([]zero.Driver, len(config.W)+len(config.S))
 		for i, w := range config.W {
 			config.Z.Driver[i] = w
+		}
+		for i, s := range config.S {
+			config.Z.Driver[i+len(config.W)] = s
 		}
 		logrus.Infoln("[main] 从", *runcfg, "读取配置文件")
 		return
