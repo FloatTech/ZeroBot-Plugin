@@ -286,12 +286,12 @@ func init() {
 			}
 			// 无缓存获取群员列表
 			temp := ctx.GetThisGroupMemberListNoCache().Array()
-			var usergroup []int64
-			for _, info := range temp {
-				usergroup = append(usergroup, info.Get("user_id").Int())
+			usergroup := make([]int64, len(temp))
+			for i, info := range temp {
+				usergroup[i] = info.Get("user_id").Int()
 			}
 			// 获取钱包信息
-			st, err := wallet.GetGroupWalletOf(usergroup, true)
+			st, err := wallet.GetGroupWalletOf(true, usergroup...)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
