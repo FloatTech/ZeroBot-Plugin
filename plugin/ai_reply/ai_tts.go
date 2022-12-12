@@ -58,7 +58,7 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	if !ok {
 		return errors.New("no such plugin")
 	}
-	return m.SetData((m.GetData(gid)&^0xff)|(gid&0xff), index)
+	return m.SetData(gid, (m.GetData(index)&^0xff)|(index&0xff))
 }
 
 var chats *aireply.ChatGPT
