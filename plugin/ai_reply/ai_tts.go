@@ -211,7 +211,7 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 	}
 	mode := ttsModes[m]
 	ins, ok := ttsins[mode]
-	if !ok {
+	if !ok || ins == nil {
 		switch mode {
 		case "百度":
 			ins = baidutts.NewBaiduTTS(int(i&0x0f00) >> 8)
