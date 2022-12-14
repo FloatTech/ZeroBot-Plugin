@@ -28,14 +28,14 @@ func init() { // 插件主体
 			"- 设置语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 设置默认语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 恢复成默认语音模式\n" +
-			"- 为群 xxx 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
+			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"当前适用的原神人物含有以下：\n" + list(genshin.SoundList[:], 5),
 	})
 
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  true,
 		Brief:             "人工智能回复",
-		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx\n- 重置ChatGPT连接",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx\n- 设置 ChatGPT UA xxx\n- 设置 ChatGPT CF xxx\n- 重置ChatGPT连接",
 		PrivateDataFolder: "aireply",
 	})
 
@@ -64,19 +64,28 @@ func init() { // 插件主体
 	})
 
 	chatgptfile := enr.DataFolder() + "chatgpt.txt"
+	uafile := enr.DataFolder() + "ua.txt"
+	cffile := enr.DataFolder() + "cf.txt"
 	cfg := &chatgpt.Config{
-		UA:              chatgpt.UA,
 		RefreshInterval: time.Hour,
 		Timeout:         time.Minute,
 	}
 	data, err := os.ReadFile(chatgptfile)
 	if err == nil {
 		cfg.SessionToken = binary.BytesToString(data)
-		chats = aireply.NewChatGPT(cfg)
+		data, err = os.ReadFile(uafile)
+		if err == nil {
+			cfg.UA = binary.BytesToString(data)
+			data, err = os.ReadFile(cffile)
+			if err == nil {
+				cfg.CFClearance = binary.BytesToString(data)
+			}
+		}
 	}
+	chats = aireply.NewChatGPT(cfg)
 	go func() {
 		for range time.NewTicker(time.Hour).C {
-			if chats == nil {
+			if chats == nil || cfg.SessionToken == "" {
 				continue
 			}
 			err := os.WriteFile(chatgptfile, binary.StringToBytes(cfg.SessionToken), 0644)
@@ -99,16 +108,49 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		chats = aireply.NewChatGPT(&chatgpt.Config{
-			UA:              chatgpt.UA,
-			SessionToken:    token,
-			RefreshInterval: time.Hour,
-			Timeout:         time.Minute,
-		})
+		cfg.SessionToken = token
+		ctx.SendChain(message.Text("设置成功"))
+	})
+
+	enr.OnRegex(`^设置\s*ChatGPT\s*UA\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		ua := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(uafile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(ua)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		cfg.UA = ua
+		ctx.SendChain(message.Text("设置成功"))
+	})
+
+	enr.OnRegex(`^设置\s*ChatGPT\s*CF\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		cf := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(cffile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(cf)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		cfg.CFClearance = cf
 		ctx.SendChain(message.Text("设置成功"))
 	})
 
 	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if chats == nil {
+			ctx.SendChain(message.Text("ERROR: chats 为空"))
+			return
+		}
 		err := chats.Reset(ctx.Event.UserID)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -154,23 +196,27 @@ func init() { // 插件主体
 			}
 		}
 		// 保存设置
+		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, n, ")")
 		err = t.setSoundMode(ctx, param, n, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
 		if banner, ok := genshin.TestRecord[param]; ok {
+			logrus.Debugln("[tts] banner:", banner, "get sound mode...")
 			// 设置验证
 			speaker, err := t.getSoundMode(ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			logrus.Debugln("[tts] got sound mode, speaking...")
 			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return banner })
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			logrus.Debugln("[tts] sending...")
 			if id := ctx.SendChain(message.Record(rec).Add("cache", 0)); id.ID() == 0 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("无法发送测试语音，请重试。"))
 				return
@@ -216,9 +262,8 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
 	})
 
-	ent.OnRegex(`^为群\s*(-?\d+)\s*设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		grp, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), grp, ctx.State["regex_matched"].([]string)[2])
+	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

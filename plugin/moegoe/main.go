@@ -8,6 +8,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/tts/genshin"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -16,7 +17,6 @@ import (
 const (
 	jpapi = "https://moegoe.azurewebsites.net/api/speak?text=%s&id=%d"
 	krapi = "https://moegoe.azurewebsites.net/api/speakkr?text=%s&id=%d"
-	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&text=%s&id=%d&code=%s"
 )
 
 var speakers = map[string]uint{
@@ -57,15 +57,11 @@ func init() {
 			var key struct {
 				APIKey string
 			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			err := c.Manager.GetExtra(gid, &key)
+			err := c.Manager.GetExtra(-1, &key)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), id, url.QueryEscape(key.APIKey))))
+			ctx.SendChain(message.Record(fmt.Sprintf(genshin.CNAPI, id, url.QueryEscape(text), url.QueryEscape(key.APIKey))))
 		})
 }
