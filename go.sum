@@ -4,8 +4,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/Coloured-glaze/gg v1.3.4 h1:l31zIF/HaVwkzjrj+A56RGQoSKyKuR1IWtIrqXGFStI=
 github.com/Coloured-glaze/gg v1.3.4/go.mod h1:Ih5NLNNDHOy3RJbB0EPqGTreIzq/H02TGThIagh8HJg=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20221212075306-4d0d5d6a85f7 h1:79u3Jqv9KGSnwYFAWHx9Jw83YcDjZTAZejzbcsdIrjQ=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20221212075306-4d0d5d6a85f7/go.mod h1:Ri2Qa0552braxZVsk+axbBHL6UIWkGqQRETiIT9QTXI=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20221214084932-8c0223841d43 h1:a0Hl8o6sYaepeuFZ3rboCM3Wh+sikKhsFm6pFmtyom8=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20221214084932-8c0223841d43/go.mod h1:Ri2Qa0552braxZVsk+axbBHL6UIWkGqQRETiIT9QTXI=
 github.com/FloatTech/floatbox v0.0.0-20221210051813-4bd44af40c60 h1:S4KfcdK6LdOa0+TTyacHYOZ8aWkR6YbvlnI6GWe66Jc=
 github.com/FloatTech/floatbox v0.0.0-20221210051813-4bd44af40c60/go.mod h1:/k2zxRJtAJ17w9fSpc7xf2QjPDTUBmqhBsOGyHVyX0U=
 github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e h1:7bF01RHsYS99Zp+OWfob1W/Cymho6fcggoRSpiuiYB8=
