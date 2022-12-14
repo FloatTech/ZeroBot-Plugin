@@ -135,19 +135,16 @@ func newttsmode() *ttsmode {
 func (t *ttsmode) getAPIKey(ctx *zero.Ctx) string {
 	if t.APIKey == "" {
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			gid = -ctx.Event.UserID
-		}
-		_ = m.Manager.GetExtra(gid, &t)
+		_ = m.Manager.GetExtra(-1, &t)
+		logrus.Debugln("[tts] get api key:", t.APIKey)
 	}
-	logrus.Debugln("[tts] get api key:", t.APIKey)
 	return url.QueryEscape(t.APIKey)
 }
 
-func (t *ttsmode) setAPIKey(m *ctrl.Control[*zero.Ctx], grp int64, key string) error {
+func (t *ttsmode) setAPIKey(m *ctrl.Control[*zero.Ctx], key string) error {
 	t.APIKey = key
-	return m.Manager.SetExtra(grp, t)
+	_ = m.Manager.Response(-1)
+	return m.Manager.SetExtra(-1, t)
 }
 
 func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt int) error {

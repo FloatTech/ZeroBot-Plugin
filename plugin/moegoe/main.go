@@ -57,11 +57,7 @@ func init() {
 			var key struct {
 				APIKey string
 			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			err := c.Manager.GetExtra(gid, &key)
+			err := c.Manager.GetExtra(-1, &key)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

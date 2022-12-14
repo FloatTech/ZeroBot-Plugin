@@ -28,7 +28,7 @@ func init() { // 插件主体
 			"- 设置语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 设置默认语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 恢复成默认语音模式\n" +
-			"- 为群 xxx 设置原神语音 api key xxxxxx (key请加开发群获得, 群号不代表设置之后只能在该群使用, 而是设置后, 必须在该群触发过语音后, 其他位置才会正常)\n" +
+			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"当前适用的原神人物含有以下：\n" + list(genshin.SoundList[:], 5),
 	})
 
@@ -262,9 +262,8 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
 	})
 
-	ent.OnRegex(`^为群\s*(-?\d+)\s*设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		grp, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), grp, ctx.State["regex_matched"].([]string)[2])
+	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
