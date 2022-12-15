@@ -137,7 +137,7 @@ func init() {
 			panic("[baidufanyi]" + err.Error())
 		}
 	}
-	engine.OnRegex(`^\/(从(\S+))?翻译(((到|成)(\S+))?)?\s*(?s:(.*?))`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^\/(从(\S+))?翻译(((到|成)(\S+))?)?\s*(.*)`).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		slang := ctx.State["regex_matched"].([]string)[2]
 		tlang := ctx.State["regex_matched"].([]string)[6]
 		txt := ctx.State["regex_matched"].([]string)[7]
