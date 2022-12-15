@@ -63,23 +63,20 @@ func kuwo(keyword string) message.MessageSegment {
 	}.Encode()
 	info := gjson.ParseBytes(netGet(search.String(), headers)).Get("data.list.0")
 	// 获得音乐直链
-	music, _ := url.Parse("http://www.kuwo.cn/url")
+	music, _ := url.Parse("http://www.kuwo.cn/api/v1/www/music/playUrl")
 	music.RawQuery = url.Values{
-		"format":      []string{"mp3"},
-		"rid":         []string{fmt.Sprintf("%d", info.Get("rid").Int())},
-		"response":    []string{"url"},
+		"mid":         []string{fmt.Sprintf("%d", info.Get("rid").Int())},
 		"type":        []string{"convert_url3"},
-		"br":          []string{"128kmp3"},
-		"from":        []string{"web"},
+		"br": 	       []string{"320kmp3"},
 		"httpsStatus": []string{"1"},
 	}.Encode()
 	audio := gjson.ParseBytes(netGet(music.String(), headers))
 	// 返回音乐卡片
 	return message.CustomMusic(
 		fmt.Sprintf("https://www.kuwo.cn/play_detail/%d", info.Get("rid").Int()),
-		audio.Get("url").Str,
+		audio.Get("data.url").Str,
 		info.Get("name").Str,
-	).Add("content", info.Get("artist").Str).Add("image", info.Get("pic").Str)
+	).Add("content", info.Get("artist").Str).Add("image", info.Get("pic").Str).Add("subtype", "kuwo")
 }
 
 // kugou 返回酷狗音乐卡片
@@ -133,7 +130,7 @@ func kugou(keyword string) message.MessageSegment {
 		"https://www.kugou.com/song/#hash="+audio.Get("hash").Str+"&album_id="+audio.Get("album_id").Str,
 		strings.ReplaceAll(audio.Get("play_backup_url").Str, "\\/", "/"),
 		audio.Get("audio_name").Str,
-	).Add("content", audio.Get("author_name").Str).Add("image", audio.Get("img").Str)
+	).Add("content", audio.Get("author_name").Str).Add("image", audio.Get("img").Str).Add("subtype", "kugou")
 }
 
 // cloud163 返回网易云音乐卡片
