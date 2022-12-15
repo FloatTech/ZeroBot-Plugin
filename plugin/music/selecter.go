@@ -67,7 +67,7 @@ func kuwo(keyword string) message.MessageSegment {
 	music.RawQuery = url.Values{
 		"mid":         []string{fmt.Sprintf("%d", info.Get("rid").Int())},
 		"type":        []string{"convert_url3"},
-		"br": 	       []string{"320kmp3"},
+		"br":          []string{"320kmp3"},
 		"httpsStatus": []string{"1"},
 	}.Encode()
 	audio := gjson.ParseBytes(netGet(music.String(), headers))
