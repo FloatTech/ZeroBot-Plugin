@@ -60,10 +60,10 @@ func migu(keyword string) message.MessageSegment {
 	// 搜索音乐信息 第一首歌
 	search, _ := url.Parse("http://m.music.migu.cn/migu/remoting/scr_search_tag")
 	search.RawQuery = url.Values{
-		"keyword":     []string{keyword},
-		"type":        []string{"2"},
-		"pgc":         []string{"1"},
-		"rows":        []string{"10"},
+		"keyword": []string{keyword},
+		"type":    []string{"2"},
+		"pgc":     []string{"1"},
+		"rows":    []string{"10"},
 	}.Encode()
 	info := gjson.ParseBytes(netGet(search.String(), headers)).Get("musics.0")
 	// 返回音乐卡片
