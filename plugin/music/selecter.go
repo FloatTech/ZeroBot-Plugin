@@ -1,4 +1,4 @@
-// Package music QQ音乐、网易云、酷狗、酷我 点歌
+// Package music QQ音乐、网易云、酷狗、酷我、咪咕 点歌
 package music
 
 import (
