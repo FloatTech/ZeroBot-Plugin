@@ -29,7 +29,7 @@ type NameData struct {
 var (
 	sdb = &NameSystem{
 		db: &sql.Sqlite{
-			DBPath: "data/wallet/wallet.db",
+			DBPath: "data/wallet/roleplay.db",
 		},
 	}
 )
@@ -66,7 +66,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Text("好的,", username))
+		ctx.SendChain(message.Text("好的,", GetNameOf(ctx.Event.UserID)))
 	})
 	engine.OnRegex(`^注销昵称(\s*\[CQ:at,qq=)?(.*[^\]$])`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		username := ctx.State["regex_matched"].([]string)[1]
