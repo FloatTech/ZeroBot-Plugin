@@ -174,7 +174,7 @@ func init() { // 插件主体
 			}
 			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return reply })
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 				return
 			}
 			// 发送语音
@@ -213,7 +213,7 @@ func init() { // 插件主体
 			logrus.Debugln("[tts] got sound mode, speaking...")
 			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return banner })
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("无法发送测试语音，请重试。"))
 				return
 			}
 			logrus.Debugln("[tts] sending...")
