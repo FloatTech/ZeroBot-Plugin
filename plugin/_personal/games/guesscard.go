@@ -265,7 +265,8 @@ func setPicture(dst *img.Factory) (pictrue []byte) {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
 			a := dst.Im.At(x1, y1)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
-			if c.R > 64 || c.G > 64 || c.B > 64 {
+
+			if c.R > 54 || c.G > 25 || c.B > 45 {
 				c.R = 255
 				c.G = 255
 				c.B = 255
@@ -285,7 +286,7 @@ func setBlur(dst *img.Factory) (pictrue []byte) {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
 			a := dst.Im.At(x1, y1)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
-			if c.R > 127 || c.G > 127 || c.B > 127 {
+			if c.R > 54 || c.G > 25 || c.B > 45 {
 				switch rand.Intn(6) {
 				case 0: // 红
 					c.R, c.G, c.B = uint8(rand.Intn(50)+180), uint8(rand.Intn(30)), uint8(rand.Intn(80)+40)
