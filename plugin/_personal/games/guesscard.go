@@ -42,7 +42,7 @@ func init() {
 	engine := control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王猜卡游戏",
-		Help:             "-猜卡游戏",
+		Help:             "-猜卡游戏\n-(黑边|反色|马赛克)猜卡游戏",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -53,8 +53,17 @@ func init() {
 			)
 		}),
 	))
-	engine.OnFullMatch("猜卡游戏").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex("(黑边|反色|马赛克)?猜卡游戏", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("正在准备题目,请稍等"))
+		mode := -1
+		switch ctx.State["regex_matched"].([]string)[1] {
+		case "黑边":
+			mode = 0
+		case "反色":
+			mode = 1
+		case "马赛克":
+			mode = 2
+		}
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
 		body, err := web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua)
@@ -96,7 +105,7 @@ func init() {
 			return
 		}
 		// 对卡图做处理
-		pictrue, err := randPicture(body)
+		pictrue, err := randPicture(body, mode)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
@@ -229,24 +238,27 @@ func getCarddata(body string) (cardData gameCardInfo) {
 }
 
 // 随机选择
-func randPicture(body []byte) (pictrue []byte, err error) {
+func randPicture(body []byte, mode int) (pictrue []byte, err error) {
 	pic, _, err := image.Decode(bytes.NewReader(body))
 	if err != nil {
 		return
 	}
 	dst := img.Size(pic, 256*5, 256*5)
-	switch rand.Intn(3) {
+	if mode == -1 {
+		mode = rand.Intn(3)
+	}
+	switch mode {
 	case 0:
-		return setPicture(dst)
+		return setPicture(dst), nil
 	case 1:
-		return setBlur(dst)
+		return setBlur(dst), nil
 	default:
-		return setMark(dst)
+		return setMark(pic), nil
 	}
 }
 
 // 获取黑边
-func setPicture(dst *img.Factory) (pictrue []byte, err error) {
+func setPicture(dst *img.Factory) (pictrue []byte) {
 	dst = dst.Invert().Grayscale()
 	b := dst.Im.Bounds()
 	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
@@ -266,8 +278,8 @@ func setPicture(dst *img.Factory) (pictrue []byte, err error) {
 	return
 }
 
-// 模糊
-func setBlur(dst *img.Factory) (pictrue []byte, err error) {
+// 反色
+func setBlur(dst *img.Factory) (pictrue []byte) {
 	b := dst.Im.Bounds()
 	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
@@ -298,36 +310,25 @@ func setBlur(dst *img.Factory) (pictrue []byte, err error) {
 }
 
 // 马赛克
-func setMark(dst *img.Factory) (pictrue []byte, err error) {
-	pic := dst
+func setMark(pic image.Image) (pictrue []byte) {
+	dst := img.Size(pic, 256*5, 256*5)
 	b := dst.Im.Bounds()
-	markSize := 3
+	markSize := 32
 
-	for yOfMarknum := 0; yOfMarknum <= b.Max.Y/markSize; yOfMarknum++ {
-		for xOfMarknum := 0; xOfMarknum <= b.Max.X/markSize; xOfMarknum++ {
-			var rOfMark, gOfMark, bOfMark, aOfMark uint32 = 0, 0, 0, 0
-			for y := yOfMarknum * markSize; y < (yOfMarknum+1)*markSize; y++ {
-				for x := xOfMarknum * markSize; x < (xOfMarknum+1)*markSize; x++ {
-					r1, g1, b1, a1 := dst.Im.At(x, y).RGBA()
-					rOfMark, gOfMark, bOfMark, aOfMark = rOfMark+r1, gOfMark+g1, bOfMark+b1, aOfMark+a1
-				}
-			}
-			c := color.NRGBA{
-				R: uint8(rOfMark / uint32(markSize*markSize)),
-				G: uint8(gOfMark / uint32(markSize*markSize)),
-				B: uint8(bOfMark / uint32(markSize*markSize)),
-				A: uint8(aOfMark/uint32(markSize*markSize)) / 2,
-			}
-			if c != (color.NRGBA{}) {
-				for y := yOfMarknum * markSize; y < (yOfMarknum+1)*markSize; y++ {
-					for x := xOfMarknum * markSize; x < (xOfMarknum+1)*markSize; x++ {
-						dst.Im.Set(x, y, c)
-					}
+	for yOfMarknum := 0; yOfMarknum <= math.Ceil(b.Max.Y, markSize); yOfMarknum++ {
+		for xOfMarknum := 0; xOfMarknum <= math.Ceil(b.Max.X, markSize); xOfMarknum++ {
+			a := dst.Im.At(xOfMarknum*markSize+markSize/2, yOfMarknum*markSize+markSize/2)
+			cc := color.NRGBAModel.Convert(a).(color.NRGBA)
+			for y := 0; y < markSize; y++ {
+				for x := 0; x < markSize; x++ {
+					xOfPic := xOfMarknum*markSize + x
+					yOfPic := yOfMarknum*markSize + y
+					dst.Im.Set(xOfPic, yOfPic, cc)
 				}
 			}
 		}
 	}
-	pictrue, cl := writer.ToBytes(pic.InsertUp(dst.Im, 0, 0, 0, 0).Im)
+	pictrue, cl := writer.ToBytes(dst.Im)
 	defer cl()
 	return
 }
@@ -335,9 +336,11 @@ func setMark(dst *img.Factory) (pictrue []byte, err error) {
 // 拼接提示词
 func getTips(cardData gameCardInfo, quitCount int) string {
 	name := []rune(cardData.Name)
-	cardDepict := regexp.MustCompile(`「(.*)」`).FindAllStringSubmatch(cardData.Depict, -1)
+	cardDepict := regexp.MustCompile(`「(?s:(.*?))」`).FindAllStringSubmatch(cardData.Depict, -1)
 	if len(cardDepict) != 0 {
-		cardData.Depict = strings.ReplaceAll(cardData.Depict, cardDepict[0][1], "xxx")
+		for i := 0; i < len(cardDepict); i++ {
+			cardData.Depict = strings.ReplaceAll(cardData.Depict, cardDepict[i][1], "xxx")
+		}
 	}
 	switch quitCount {
 	case 0:
@@ -355,7 +358,6 @@ func getTips(cardData gameCardInfo, quitCount int) string {
 			text := []string{
 				"这只怪兽的属性是" + cardData.Attr,
 				"这只怪兽的种族是" + cardData.Race,
-				"这只怪兽是" + cardData.Type,
 				"这只怪兽的等级/阶级/连接值是" + cardData.Level,
 				"这只怪兽的效果/描述含有:\n" + textrand[rand.Intn(len(textrand))],
 			}
