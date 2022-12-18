@@ -266,7 +266,7 @@ func setPicture(dst *img.Factory) (pictrue []byte) {
 			a := dst.Im.At(x1, y1)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
 
-			if c.R > 54 || c.G > 25 || c.B > 45 {
+			if c.R > 128 || c.G > 128 || c.B > 128 {
 				c.R = 255
 				c.G = 255
 				c.B = 255
@@ -286,7 +286,7 @@ func setBlur(dst *img.Factory) (pictrue []byte) {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
 			a := dst.Im.At(x1, y1)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
-			if c.R > 54 || c.G > 25 || c.B > 45 {
+			if c.R > 128 || c.G > 128 || c.B > 128 {
 				switch rand.Intn(6) {
 				case 0: // 红
 					c.R, c.G, c.B = uint8(rand.Intn(50)+180), uint8(rand.Intn(30)), uint8(rand.Intn(80)+40)
@@ -314,7 +314,7 @@ func setBlur(dst *img.Factory) (pictrue []byte) {
 func setMark(pic image.Image) (pictrue []byte) {
 	dst := img.Size(pic, 256*5, 256*5)
 	b := dst.Im.Bounds()
-	markSize := 32
+	markSize := 64
 
 	for yOfMarknum := 0; yOfMarknum <= math.Ceil(b.Max.Y, markSize); yOfMarknum++ {
 		for xOfMarknum := 0; xOfMarknum <= math.Ceil(b.Max.X, markSize); xOfMarknum++ {
@@ -329,7 +329,7 @@ func setMark(pic image.Image) (pictrue []byte) {
 			}
 		}
 	}
-	pictrue, cl := writer.ToBytes(dst.Im)
+	pictrue, cl := writer.ToBytes(dst.Blur(3).Im)
 	defer cl()
 	return
 }
