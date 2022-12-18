@@ -96,29 +96,13 @@ func init() {
 			return
 		}
 		// 对卡图做处理
-		pic, _, err := image.Decode(bytes.NewReader(body))
+		pictrue, err := randPicture(body)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
-		dst := img.Size(pic, 256*5, 256*5).Grayscale()
-		b := dst.Im.Bounds()
-		for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
-			for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
-				a := dst.Im.At(x1, y1)
-				c := color.NRGBAModel.Convert(a).(color.NRGBA)
-				if c.R > 50 && c.G > 50 && c.B > 50 {
-					c.R = 255
-					c.G = 255
-					c.B = 255
-				}
-				dst.Im.Set(x1, y1, c)
-			}
-		}
-		pictrue, cl := writer.ToBytes(dst.Im)
-		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
-		cl()
 		// 进行猜歌环节
+		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		var quitCount = 0   // 音频数量
 		var answerCount = 0 // 问答次数
 		name := []rune(cardData.Name)
@@ -244,32 +228,139 @@ func getCarddata(body string) (cardData gameCardInfo) {
 	return
 }
 
+// 随机选择
+func randPicture(body []byte) (pictrue []byte, err error) {
+	pic, _, err := image.Decode(bytes.NewReader(body))
+	if err != nil {
+		return
+	}
+	dst := img.Size(pic, 256*5, 256*5)
+	switch rand.Intn(3) {
+	case 0:
+		return setPicture(dst)
+	case 1:
+		return setBlur(dst)
+	default:
+		return setMark(dst)
+	}
+}
+
+// 获取黑边
+func setPicture(dst *img.Factory) (pictrue []byte, err error) {
+	dst = dst.Invert().Grayscale()
+	b := dst.Im.Bounds()
+	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
+		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
+			a := dst.Im.At(x1, y1)
+			c := color.NRGBAModel.Convert(a).(color.NRGBA)
+			if c.R > 64 || c.G > 64 || c.B > 64 {
+				c.R = 255
+				c.G = 255
+				c.B = 255
+			}
+			dst.Im.Set(x1, y1, c)
+		}
+	}
+	pictrue, cl := writer.ToBytes(dst.Im)
+	defer cl()
+	return
+}
+
+// 模糊
+func setBlur(dst *img.Factory) (pictrue []byte, err error) {
+	b := dst.Im.Bounds()
+	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
+		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
+			a := dst.Im.At(x1, y1)
+			c := color.NRGBAModel.Convert(a).(color.NRGBA)
+			if c.R > 127 || c.G > 127 || c.B > 127 {
+				switch rand.Intn(6) {
+				case 0: // 红
+					c.R, c.G, c.B = uint8(rand.Intn(50)+180), uint8(rand.Intn(30)), uint8(rand.Intn(80)+40)
+				case 1: // 橙
+					c.R, c.G, c.B = uint8(rand.Intn(40)+210), uint8(rand.Intn(50)+70), uint8(rand.Intn(50)+20)
+				case 2: // 黄
+					c.R, c.G, c.B = uint8(rand.Intn(40)+210), uint8(rand.Intn(50)+170), uint8(rand.Intn(110)+40)
+				case 3: // 绿
+					c.R, c.G, c.B = uint8(rand.Intn(60)+80), uint8(rand.Intn(80)+140), uint8(rand.Intn(60)+80)
+				case 4: // 蓝
+					c.R, c.G, c.B = uint8(rand.Intn(60)+80), uint8(rand.Intn(50)+170), uint8(rand.Intn(50)+170)
+				case 5: // 紫
+					c.R, c.G, c.B = uint8(rand.Intn(60)+80), uint8(rand.Intn(60)+60), uint8(rand.Intn(50)+170)
+				}
+			}
+			dst.Im.Set(x1, y1, c)
+		}
+	}
+	pictrue, cl := writer.ToBytes(dst.Invert().Blur(10).Im)
+	defer cl()
+	return
+}
+
+// 马赛克
+func setMark(dst *img.Factory) (pictrue []byte, err error) {
+	pic := dst
+	b := dst.Im.Bounds()
+	markSize := 3
+
+	for yOfMarknum := 0; yOfMarknum <= b.Max.Y/markSize; yOfMarknum++ {
+		for xOfMarknum := 0; xOfMarknum <= b.Max.X/markSize; xOfMarknum++ {
+			var rOfMark, gOfMark, bOfMark, aOfMark uint32 = 0, 0, 0, 0
+			for y := yOfMarknum * markSize; y < (yOfMarknum+1)*markSize; y++ {
+				for x := xOfMarknum * markSize; x < (xOfMarknum+1)*markSize; x++ {
+					r1, g1, b1, a1 := dst.Im.At(x, y).RGBA()
+					rOfMark, gOfMark, bOfMark, aOfMark = rOfMark+r1, gOfMark+g1, bOfMark+b1, aOfMark+a1
+				}
+			}
+			c := color.NRGBA{
+				R: uint8(rOfMark / uint32(markSize*markSize)),
+				G: uint8(gOfMark / uint32(markSize*markSize)),
+				B: uint8(bOfMark / uint32(markSize*markSize)),
+				A: uint8(aOfMark/uint32(markSize*markSize)) / 2,
+			}
+			if c != (color.NRGBA{}) {
+				for y := yOfMarknum * markSize; y < (yOfMarknum+1)*markSize; y++ {
+					for x := xOfMarknum * markSize; x < (xOfMarknum+1)*markSize; x++ {
+						dst.Im.Set(x, y, c)
+					}
+				}
+			}
+		}
+	}
+	pictrue, cl := writer.ToBytes(pic.InsertUp(dst.Im, 0, 0, 0, 0).Im)
+	defer cl()
+	return
+}
+
 // 拼接提示词
 func getTips(cardData gameCardInfo, quitCount int) string {
 	name := []rune(cardData.Name)
-	depict := []rune(cardData.Depict)
-	index := rand.Intn(len(depict) / 2)
+	cardDepict := regexp.MustCompile(`「(.*)」`).FindAllStringSubmatch(cardData.Depict, -1)
+	if len(cardDepict) != 0 {
+		cardData.Depict = strings.ReplaceAll(cardData.Depict, cardDepict[0][1], "xxx")
+	}
 	switch quitCount {
 	case 0:
 		return "这是一张" + cardData.Type + ",卡名是" + strconv.Itoa(len(name)) + "字的"
 	case 3:
 		return "卡名含有: " + string(name[rand.Intn(len(name))])
 	default:
+		var textrand []string
+		depict := strings.Split(cardData.Depict, "。")
+		for _, value := range depict {
+			value = strings.ReplaceAll(value, "\n", "")
+			textrand = append(textrand, strings.Split(value, "，")...)
+		}
 		if strings.Contains(cardData.Type, "怪兽") {
-			textrand := []string{
+			text := []string{
 				"这只怪兽的属性是" + cardData.Attr,
 				"这只怪兽的种族是" + cardData.Race,
 				"这只怪兽是" + cardData.Type,
 				"这只怪兽的等级/阶级/连接值是" + cardData.Level,
-				"这只怪兽的效果/描述含有:\n" + string(depict[5+index:15+index]),
+				"这只怪兽的效果/描述含有:\n" + textrand[rand.Intn(len(textrand))],
 			}
-			return textrand[rand.Intn(len(textrand))]
+			return text[rand.Intn(len(text))]
 		} else {
-			depict := strings.Split(cardData.Depict, "。")
-			var textrand []string
-			for _, value := range depict {
-				textrand = append(textrand, strings.Split(value, "，")...)
-			}
 			return textrand[rand.Intn(len(textrand))]
 		}
 	}
