@@ -123,7 +123,7 @@ func init() {
 		var answerCount = 0 // 问答次数
 		name := []rune(cardData.Name)
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup,
-			zero.RegexRule("^我猜.{"+strconv.Itoa(math.Ceil(len(name), 4))+",}|提示|取消"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
+			zero.RegexRule("^(我猜.*|提示|取消)"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()
 		tick := time.NewTimer(105 * time.Second)
 		after := time.NewTimer(120 * time.Second)
@@ -172,6 +172,14 @@ func init() {
 					quitCount++
 				default:
 					_, answer, _ := strings.Cut(answer, "我猜")
+					if len([]rune(answer)) < math.Ceil(len(name), 4) {
+						ctx.Send(
+							message.ReplyWithMessage(c.Event.MessageID,
+								message.Text("请输入", math.Ceil(len(name), 4), "字以上"),
+							),
+						)
+						continue
+					}
 					if strings.Contains(cardData.Name, answer) {
 						tick.Stop()
 						after.Stop()
@@ -257,10 +265,10 @@ func getTips(cardData gameCardInfo, quitCount int) string {
 			}
 			return textrand[rand.Intn(len(textrand))]
 		} else {
-			textrand := []string{
-				"效果含有:\n" + string(depict[math.Min(5, len(depict)/2)+index:math.Min(8, len(depict)/2)+index]),
-				"效果含有:\n" + string(depict[math.Min(8, len(depict)/2)+index:math.Min(11, len(depict)/2)+index]),
-				"效果含有:\n" + string(depict[math.Min(11, len(depict)/2)+index:math.Min(14, len(depict)/2)+index]),
+			depict := strings.Split(cardData.Depict, "。")
+			var textrand []string
+			for _, value := range depict {
+				textrand = append(textrand, strings.Split(value, "，")...)
 			}
 			return textrand[rand.Intn(len(textrand))]
 		}
