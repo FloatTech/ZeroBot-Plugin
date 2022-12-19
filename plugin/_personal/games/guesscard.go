@@ -105,11 +105,13 @@ func init() {
 			return
 		}
 		// 对卡图做处理
-		pictrue, err := randPicture(body, mode)
+		pic, _, err := image.Decode(bytes.NewReader(body))
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
+		pictrue, cl := randPicture(pic, mode)
+		cl()
 		// 进行猜歌环节
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		var quitCount = 0   // 音频数量
@@ -238,49 +240,49 @@ func getCarddata(body string) (cardData gameCardInfo) {
 }
 
 // 随机选择
-func randPicture(body []byte, mode int) (pictrue []byte, err error) {
-	pic, _, err := image.Decode(bytes.NewReader(body))
-	if err != nil {
-		return
-	}
+func randPicture(pic image.Image, mode int) ([]byte, func()) {
 	dst := img.Size(pic, 256*5, 256*5)
 	if mode == -1 {
 		mode = rand.Intn(3)
 	}
 	switch mode {
 	case 0:
-		return setPicture(dst), nil
+		return setPicture(dst)
 	case 1:
-		return setBlur(dst), nil
+		return setBlur(dst)
 	default:
-		return setMark(pic), nil
+		return setMark(pic)
 	}
 }
 
 // 获取黑边
-func setPicture(dst *img.Factory) (pictrue []byte) {
+func setPicture(dst *img.Factory) ([]byte, func()) {
 	dst = dst.Invert().Grayscale()
 	b := dst.Im.Bounds()
 	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
-			a := dst.Im.At(x1, y1)
-			c := color.NRGBAModel.Convert(a).(color.NRGBA)
+			a1 := dst.Im.At(x1, y1)
+			c1 := color.NRGBAModel.Convert(a1).(color.NRGBA)
+			a2 := dst.Im.At(math.Min(x1+1, b.Max.X), math.Min(y1+1, b.Max.Y))
+			c2 := color.NRGBAModel.Convert(a2).(color.NRGBA)
 
-			if c.R > 128 || c.G > 128 || c.B > 128 {
-				c.R = 255
-				c.G = 255
-				c.B = 255
+			if c1 == c2 {
+				c1.R = 255
+				c1.G = 255
+				c1.B = 255
+			} else {
+				c1.R = 0
+				c1.G = 0
+				c1.B = 0
 			}
-			dst.Im.Set(x1, y1, c)
+			dst.Im.Set(x1, y1, c1)
 		}
 	}
-	pictrue, cl := writer.ToBytes(dst.Im)
-	defer cl()
-	return
+	return writer.ToBytes(dst.Im)
 }
 
 // 反色
-func setBlur(dst *img.Factory) (pictrue []byte) {
+func setBlur(dst *img.Factory) ([]byte, func()) {
 	b := dst.Im.Bounds()
 	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
@@ -305,13 +307,11 @@ func setBlur(dst *img.Factory) (pictrue []byte) {
 			dst.Im.Set(x1, y1, c)
 		}
 	}
-	pictrue, cl := writer.ToBytes(dst.Invert().Blur(10).Im)
-	defer cl()
-	return
+	return writer.ToBytes(dst.Invert().Blur(10).Im)
 }
 
 // 马赛克
-func setMark(pic image.Image) (pictrue []byte) {
+func setMark(pic image.Image) ([]byte, func()) {
 	dst := img.Size(pic, 256*5, 256*5)
 	b := dst.Im.Bounds()
 	markSize := 64
@@ -329,9 +329,7 @@ func setMark(pic image.Image) (pictrue []byte) {
 			}
 		}
 	}
-	pictrue, cl := writer.ToBytes(dst.Blur(3).Im)
-	defer cl()
-	return
+	return writer.ToBytes(dst.Blur(3).Im)
 }
 
 // 拼接提示词
