@@ -491,7 +491,6 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 		textPicy = float64(picy)
 	}
 	// 放置卡图
-	canvas.DrawString("效果:", 10, textPicy)
 	canvas.DrawImage(textPic, 10, int(textPicy)+10)
 	// 生成图片
 	data, cl = writer.ToBytes(canvas.Image())

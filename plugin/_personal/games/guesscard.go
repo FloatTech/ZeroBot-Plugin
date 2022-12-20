@@ -42,7 +42,7 @@ func init() {
 	engine := control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王猜卡游戏",
-		Help:             "-猜卡游戏\n-(黑边|反色|马赛克)猜卡游戏",
+		Help:             "-猜卡游戏\n-(黑边|反色|马赛克｜旋转)猜卡游戏",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -53,7 +53,7 @@ func init() {
 			)
 		}),
 	))
-	engine.OnRegex("(黑边|反色|马赛克)?猜卡游戏", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex("^(黑边|反色|马赛克|旋转)?猜卡游戏$", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("正在准备题目,请稍等"))
 		mode := -1
 		switch ctx.State["regex_matched"].([]string)[1] {
@@ -63,6 +63,8 @@ func init() {
 			mode = 1
 		case "马赛克":
 			mode = 2
+		case "重叠":
+			mode = 3
 		}
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
@@ -111,7 +113,7 @@ func init() {
 			return
 		}
 		pictrue, cl := randPicture(pic, mode)
-		cl()
+		defer cl()
 		// 进行猜歌环节
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		var quitCount = 0   // 音频数量
@@ -188,7 +190,7 @@ func init() {
 					case answerCount < 6:
 						ctx.Send(
 							message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("答案不对哦,加油啊~"),
+								message.Text("答案不对哦,还有", 6-answerCount, "次机会,加油啊~"),
 							),
 						)
 					default:
@@ -227,6 +229,9 @@ func getCarddata(body string) (cardData gameCardInfo) {
 		switch {
 		case strings.Contains(cardType[0][1], "连接"):
 			cardLevel := regexp.MustCompile(`<span class="item_box_value">(LINK.*)</span>`).FindAllStringSubmatch(body, -1)
+			if len(cardLevel) == 0 {
+				return gameCardInfo{}
+			}
 			cardData.Level = cardLevel[0][1]
 		default:
 			cardLevel := regexp.MustCompile(`<b>星数/阶级</b> </span><span class=\"item_box_value\">\s*(.*)\s*</span>`).FindAllStringSubmatch(body, -1)
@@ -243,13 +248,15 @@ func getCarddata(body string) (cardData gameCardInfo) {
 func randPicture(pic image.Image, mode int) ([]byte, func()) {
 	dst := img.Size(pic, 256*5, 256*5)
 	if mode == -1 {
-		mode = rand.Intn(3)
+		mode = rand.Intn(4)
 	}
 	switch mode {
 	case 0:
 		return setPicture(dst)
 	case 1:
 		return setBlur(dst)
+	case 3:
+		return doublePicture(dst)
 	default:
 		return setMark(pic)
 	}
@@ -259,23 +266,49 @@ func randPicture(pic image.Image, mode int) ([]byte, func()) {
 func setPicture(dst *img.Factory) ([]byte, func()) {
 	dst = dst.Invert().Grayscale()
 	b := dst.Im.Bounds()
-	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
-		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
-			a1 := dst.Im.At(x1, y1)
-			c1 := color.NRGBAModel.Convert(a1).(color.NRGBA)
-			a2 := dst.Im.At(math.Min(x1+1, b.Max.X), math.Min(y1+1, b.Max.Y))
-			c2 := color.NRGBAModel.Convert(a2).(color.NRGBA)
-
-			if c1 == c2 {
-				c1.R = 255
-				c1.G = 255
-				c1.B = 255
-			} else {
-				c1.R = 0
-				c1.G = 0
-				c1.B = 0
+	for y := b.Min.Y; y <= b.Max.Y; y++ {
+		for x := b.Min.X; x <= b.Max.X; x++ {
+			a := dst.Im.At(x, y)
+			c := color.NRGBAModel.Convert(a).(color.NRGBA)
+			if c.R > 127 || c.G > 127 || c.B > 127 {
+				c.R = 255
+				c.G = 255
+				c.B = 255
 			}
-			dst.Im.Set(x1, y1, c1)
+			dst.Im.Set(x, y, c)
+		}
+	}
+	return writer.ToBytes(dst.Im)
+}
+
+// 旋转
+func doublePicture(dst *img.Factory) ([]byte, func()) {
+	b := dst.Im.Bounds()
+	pic := dst.FlipH().FlipV()
+	for y := b.Min.Y; y <= b.Max.Y; y++ {
+		for x := b.Min.X; x <= b.Max.X; x++ {
+			a := pic.Im.At(x, y)
+			c := color.NRGBAModel.Convert(a).(color.NRGBA)
+			a1 := pic.Im.At(x, y)
+			c1 := color.NRGBAModel.Convert(a1).(color.NRGBA)
+			switch {
+			case y > x && x < b.Max.X/2 && y < b.Max.Y/2:
+				dst.Im.Set(x, y, c)
+			case y < x && x > b.Max.X/2 && y > b.Max.Y/2:
+				dst.Im.Set(x, y, c)
+			case y > b.Max.Y-x && x < b.Max.X/2 && y > b.Max.Y/2:
+				dst.Im.Set(x, y, c)
+			case y < b.Max.Y-x && x > b.Max.X/2 && y < b.Max.Y/2:
+				dst.Im.Set(x, y, c)
+			default:
+				if c1.R > 128 || c1.G > 128 || c1.B > 128 {
+					dst.Im.Set(x, y, color.NRGBA{
+						R: 255,
+						G: 255,
+						B: 255,
+					})
+				}
+			}
 		}
 	}
 	return writer.ToBytes(dst.Im)
@@ -303,8 +336,8 @@ func setBlur(dst *img.Factory) ([]byte, func()) {
 				case 5: // 紫
 					c.R, c.G, c.B = uint8(rand.Intn(60)+80), uint8(rand.Intn(60)+60), uint8(rand.Intn(50)+170)
 				}
+				dst.Im.Set(x1, y1, c)
 			}
-			dst.Im.Set(x1, y1, c)
 		}
 	}
 	return writer.ToBytes(dst.Invert().Blur(10).Im)
