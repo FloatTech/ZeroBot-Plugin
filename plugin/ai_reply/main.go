@@ -28,7 +28,7 @@ func init() { // 插件主体
 			"- 设置语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 设置默认语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 恢复成默认语音模式\n" +
-			"- 为群 xxx 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
+			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"当前适用的原神人物含有以下：\n" + list(genshin.SoundList[:], 5),
 	})
 
@@ -174,7 +174,7 @@ func init() { // 插件主体
 			}
 			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return reply })
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 				return
 			}
 			// 发送语音
@@ -196,23 +196,27 @@ func init() { // 插件主体
 			}
 		}
 		// 保存设置
+		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, n, ")")
 		err = t.setSoundMode(ctx, param, n, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
 		if banner, ok := genshin.TestRecord[param]; ok {
+			logrus.Debugln("[tts] banner:", banner, "get sound mode...")
 			// 设置验证
 			speaker, err := t.getSoundMode(ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			logrus.Debugln("[tts] got sound mode, speaking...")
 			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return banner })
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("无法发送测试语音，请重试。"))
 				return
 			}
+			logrus.Debugln("[tts] sending...")
 			if id := ctx.SendChain(message.Record(rec).Add("cache", 0)); id.ID() == 0 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("无法发送测试语音，请重试。"))
 				return
@@ -258,9 +262,8 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
 	})
 
-	ent.OnRegex(`^为群\s*(-?\d+)\s*设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		grp, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), grp, ctx.State["regex_matched"].([]string)[2])
+	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

@@ -3,8 +3,9 @@ package aireply
 import (
 	"errors"
 	"net/url"
-	"sync"
 
+	"github.com/RomiChan/syncx"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
@@ -99,9 +100,8 @@ var ttsModes = func() []string {
 }()
 
 type ttsmode struct {
-	sync.Mutex `json:"-"`
-	APIKey     string          // APIKey is for genshin vits
-	mode       map[int64]int64 `json:"-"` // mode grp index
+	APIKey string                  // APIKey is for genshin vits
+	mode   syncx.Map[int64, int64] `json:"-"` // mode grp index
 }
 
 func list(list []string, num int) string {
@@ -119,16 +119,14 @@ func list(list []string, num int) string {
 
 func newttsmode() *ttsmode {
 	t := &ttsmode{}
-	t.Lock()
-	defer t.Unlock()
 	m, ok := control.Lookup("tts")
-	t.mode = make(map[int64]int64, 2*len(genshin.SoundList))
-	t.mode[defaultttsindexkey] = 0
+	t.mode = syncx.Map[int64, int64]{}
+	t.mode.Store(defaultttsindexkey, 0)
 	if ok {
 		index := m.GetData(defaultttsindexkey)
 		msk := index & 0xff
 		if msk >= 0 && (msk < int64(len(genshin.SoundList)) || msk == baiduttsindex || msk == mockingbirdttsindex) {
-			t.mode[defaultttsindexkey] = index
+			t.mode.Store(defaultttsindexkey, index)
 		}
 	}
 	return t
@@ -136,27 +134,17 @@ func newttsmode() *ttsmode {
 
 func (t *ttsmode) getAPIKey(ctx *zero.Ctx) string {
 	if t.APIKey == "" {
-		t.Lock()
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			gid = -ctx.Event.UserID
-		}
-		_ = m.Manager.GetExtra(gid, &t)
-		t.Unlock()
+		_ = m.Manager.GetExtra(-1, &t)
+		logrus.Debugln("[tts] get api key:", t.APIKey)
 	}
 	return url.QueryEscape(t.APIKey)
 }
 
-func (t *ttsmode) setAPIKey(m *ctrl.Control[*zero.Ctx], grp int64, key string) error {
-	t.Lock()
-	defer t.Unlock()
-	err := m.Manager.SetExtra(grp, &key)
-	if err != nil {
-		return err
-	}
+func (t *ttsmode) setAPIKey(m *ctrl.Control[*zero.Ctx], key string) error {
 	t.APIKey = key
-	return nil
+	_ = m.Manager.Response(-1)
+	return m.Manager.SetExtra(-1, t)
 }
 
 func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt int) error {
@@ -186,9 +174,7 @@ func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt
 		}
 	}
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	t.Lock()
-	defer t.Unlock()
-	t.mode[gid] = index
+	t.mode.Store(gid, index)
 	return m.SetData(gid, (m.GetData(gid)&^0xffff00)|((index<<8)&0xff00)|((int64(baiduper)<<16)&0x0f0000)|((int64(mockingsynt)<<20)&0xf00000))
 }
 
@@ -197,21 +183,19 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	t.Lock()
-	defer t.Unlock()
-	i, ok := t.mode[gid]
+	i, ok := t.mode.Load(gid)
 	if !ok {
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		i = m.GetData(gid) >> 8
 	}
 	m := i & 0xff
 	if m < 0 || (m >= int64(len(genshin.SoundList)) && m != baiduttsindex && m != mockingbirdttsindex) {
-		i = t.mode[defaultttsindexkey]
+		i, _ = t.mode.Load(defaultttsindexkey)
 		m = i & 0xff
 	}
 	mode := ttsModes[m]
 	ins, ok := ttsins[mode]
-	if !ok {
+	if !ok || ins == nil {
 		switch mode {
 		case "百度":
 			ins = baidutts.NewBaiduTTS(int(i&0x0f00) >> 8)
@@ -222,8 +206,13 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 				return nil, err
 			}
 		default: // 原神
-			ins = genshin.NewGenshin(int(m), t.getAPIKey(ctx))
-			ttsins[mode] = ins
+			k := t.getAPIKey(ctx)
+			if k != "" {
+				ins = genshin.NewGenshin(int(m), t.getAPIKey(ctx))
+				ttsins[mode] = ins
+			} else {
+				return nil, errors.New("no valid speaker")
+			}
 		}
 	}
 	return ins, nil
@@ -234,8 +223,6 @@ func (t *ttsmode) resetSoundMode(ctx *zero.Ctx) error {
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	t.Lock()
-	defer t.Unlock()
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	index := m.GetData(defaultttsindexkey)
 	return m.SetData(gid, (m.GetData(gid)&0xff)|((index&^0xff)<<8)) // 重置数据
@@ -263,12 +250,10 @@ func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) er
 			return errors.New("语音人物" + name + "未注册index")
 		}
 	}
-	t.Lock()
-	defer t.Unlock()
 	m, ok := control.Lookup("tts")
 	if !ok {
 		return errors.New("[tts] service not found")
 	}
-	t.mode[defaultttsindexkey] = index
+	t.mode.Store(defaultttsindexkey, index)
 	return m.SetData(defaultttsindexkey, (index&0xff)|((int64(baiduper)<<8)&0x0f00)|((int64(mockingsynt)<<12)&0xf000))
 }
