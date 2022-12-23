@@ -1,3 +1,4 @@
+// Package warframeapi 百度内容审核
 package warframeapi
 
 import (
@@ -7,7 +8,6 @@ import (
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/zbputils/img/text"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
@@ -24,15 +24,15 @@ import (
 )
 
 var (
-	wfapi         WFAPI
-	client        http.Client
-	itmeapi       WFAPIItem
-	wmitems       map[string]Items
-	itmeNames     []string
-	fileItemNames map[string]string
-	itemNamesPath string
-	sublist       map[int64]*SubList
-	sublistPath   string
+	wfapi         WFAPI              //WarFrameAPI的数据实例
+	client        http.Client        //发起http请求的client实例
+	itmeapi       WFAPIItem          //WarFrame市场的数据实例
+	wmitems       map[string]Items   //WarFrame市场的中文名称对应的物品的字典
+	itmeNames     []string           //物品外号
+	fileItemNames map[string]string  //物品外号字典
+	itemNamesPath string             //物品外号存储路径
+	sublist       map[int64]*subList //订阅列表
+	sublistPath   string             //订阅列表存储路径
 )
 
 func init() {
@@ -51,11 +51,11 @@ func init() {
 			"- 每日特惠",
 		PrivateDataFolder: "warframeAPI",
 	})
-
+	//生成物品列表存储路径
 	itemNamesPath = eng.DataFolder() + "ItemNames.json"
-
+	//检查文件是否存在
 	if isExist(itemNamesPath) {
-		data, err := ioutil.ReadFile(itemNamesPath)
+		data, err := os.ReadFile(itemNamesPath)
 		if err != nil {
 			panic(err)
 		}
@@ -68,7 +68,7 @@ func init() {
 	}
 	sublistPath = eng.DataFolder() + "Sublist.json"
 	if isExist(sublistPath) {
-		data, err := ioutil.ReadFile(sublistPath)
+		data, err := os.ReadFile(sublistPath)
 		if err != nil {
 			panic(err)
 		}
@@ -77,7 +77,7 @@ func init() {
 			panic(err)
 		}
 	} else {
-		sublist = map[int64]*SubList{}
+		sublist = map[int64]*subList{}
 	}
 	updateWM()
 	loadToFuzzy()
@@ -160,7 +160,7 @@ func init() {
 			case "奥布山谷":
 				fallthrough
 			case "金星":
-				//sublist = append(sublist, SubList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
+				//sublist = append(sublist, subList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
 				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1, status)
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
@@ -214,7 +214,7 @@ func init() {
 			case "奥布山谷":
 				fallthrough
 			case "金星":
-				//sublist = append(sublist, SubList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
+				//sublist = append(sublist, subList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
 				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1)
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
@@ -479,23 +479,23 @@ func sendStringArray(texts []string, ctx *zero.Ctx) {
 	ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
 }
 
-func addUseSub(QQ int64, QQGroup int64, stype int, status bool) {
-	if sb, ok := sublist[QQGroup]; ok {
-		if st, ok := sb.SubUser[QQ]; ok {
+func addUseSub(qq int64, qqGroup int64, stype int, status bool) {
+	if sb, ok := sublist[qqGroup]; ok {
+		if st, ok := sb.SubUser[qq]; ok {
 			st.SubType[stype] = &status
 		} else {
-			sublist[QQGroup].SubUser[QQ] = SubType{map[int]*bool{stype: &status}, false}
+			sublist[qqGroup].SubUser[qq] = subType{map[int]*bool{stype: &status}, false}
 		}
 	} else {
-		sublist[QQGroup] = &SubList{map[int64]SubType{QQ: {map[int]*bool{stype: &status}, false}}, false, false}
+		sublist[qqGroup] = &subList{map[int64]subType{qq: {map[int]*bool{stype: &status}, false}}, false, false}
 	}
 	jsonSave(sublist, sublistPath)
 }
 
-func removeUseSub(QQ int64, QQGroup int64, stype int) {
-	if sb, ok := sublist[QQGroup]; ok {
-		if _, ok := sb.SubUser[QQ]; ok {
-			delete(sublist[QQGroup].SubUser[QQ].SubType, stype)
+func removeUseSub(qq int64, qqGroup int64, stype int) {
+	if sb, ok := sublist[qqGroup]; ok {
+		if _, ok := sb.SubUser[qq]; ok {
+			delete(sublist[qqGroup].SubUser[qq].SubType, stype)
 			jsonSave(sublist, sublistPath)
 		}
 	}
@@ -623,21 +623,23 @@ func isExist(path string) bool {
 	}
 	return true
 }
-func jsonSave(v interface{}, path string) (bool, error) {
+func jsonSave(v interface{}, path string) {
 	data, err := json.Marshal(v)
 	if err != nil {
-		return false, err
+		return
 	}
 	dataStr := string(data)
 
 	// 将字符串写入指定的文件
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
-		return false, err
+		return
 	}
 	defer file.Close() // 结束时关闭句柄，释放资源
 	writer := bufio.NewWriter(file)
-	writer.WriteString(dataStr)
+	_, err = writer.WriteString(dataStr)
+	if err != nil {
+		return
+	}
 	writer.Flush() // 缓存数据写入磁盘（持久化）
-	return true, nil
 }
