@@ -1275,6 +1275,31 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   </details>
 <details>
+  <summary>WarframeAPI</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"`
+
+  - [x] wf数据更新
+  
+  - [x] [金星|地球|火卫二]平原状态
+  
+  - [x] 订阅[金星|地球|火卫二]平原[白天|夜晚]
+  
+  - [x] 取消订阅[金星|地球|火卫二]平原[白天|夜晚]
+  
+  - [x] .wm [物品名称]
+  
+  - [x] 取外号 [原名称] [外号]
+  
+  - [x] [金星/地球/火卫二]平原状态
+  
+  - [x] 仲裁
+  
+  - [x] 警报
+  
+  - [x] 每日特惠
+  </details>
+<details>
   <summary>天气/拼音查询-名言</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"`
