@@ -15,6 +15,7 @@ require (
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
+	github.com/davidscholberg/go-durationfmt v0.0.0-20170122144659-64843a2083d3
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/go-base16384 v1.6.1
@@ -25,6 +26,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jozsefsallai/gophersauce v1.0.1
+	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/lucas-clemente/quic-go v0.31.1
 	github.com/mroth/weightedrand v1.0.0
 	github.com/pkg/errors v0.9.1
