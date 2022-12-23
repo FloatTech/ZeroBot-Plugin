@@ -4,36 +4,36 @@ import "time"
 
 type wfAPI struct {
 	Timestamp            time.Time            `json:"timestamp"`
-	News                 []News               `json:"news"`
-	Events               []Events             `json:"events"`
-	Alerts               []Alerts             `json:"alerts"`
-	Sortie               Sortie               `json:"sortie"`
-	SyndicateMissions    []SyndicateMissions  `json:"syndicateMissions"`
-	Fissures             []Fissures           `json:"fissures"`
+	News                 []news               `json:"news"`
+	Events               []events             `json:"events"`
+	Alerts               []alerts             `json:"alerts"`
+	Sortie               sortie               `json:"sortie"`
+	SyndicateMissions    []syndicateMissions  `json:"syndicateMissions"`
+	Fissures             []fissures           `json:"fissures"`
 	GlobalUpgrades       []interface{}        `json:"globalUpgrades"`
-	FlashSales           []FlashSales         `json:"flashSales"`
-	Invasions            []Invasions          `json:"invasions"`
+	FlashSales           []flashSales         `json:"flashSales"`
+	Invasions            []invasions          `json:"invasions"`
 	DarkSectors          []interface{}        `json:"darkSectors"`
-	VoidTrader           VoidTrader           `json:"voidTrader"`
-	DailyDeals           []DailyDeals         `json:"dailyDeals"`
-	Simaris              Simaris              `json:"simaris"`
-	ConclaveChallenges   []ConclaveChallenges `json:"conclaveChallenges"`
+	VoidTrader           voidTrader           `json:"voidTrader"`
+	DailyDeals           []dailyDeals         `json:"dailyDeals"`
+	Simaris              simaris              `json:"simaris"`
+	ConclaveChallenges   []conclaveChallenges `json:"conclaveChallenges"`
 	PersistentEnemies    []interface{}        `json:"persistentEnemies"`
-	EarthCycle           EarthCycle           `json:"earthCycle"`
-	CetusCycle           CetusCycle           `json:"cetusCycle"`
-	CambionCycle         CambionCycle         `json:"cambionCycle"`
-	ZarimanCycle         ZarimanCycle         `json:"zarimanCycle"`
+	EarthCycle           earthCycle           `json:"earthCycle"`
+	CetusCycle           cetusCycle           `json:"cetusCycle"`
+	CambionCycle         cambionCycle         `json:"cambionCycle"`
+	ZarimanCycle         zarimanCycle         `json:"zarimanCycle"`
 	WeeklyChallenges     []interface{}        `json:"weeklyChallenges"`
-	ConstructionProgress ConstructionProgress `json:"constructionProgress"`
-	VallisCycle          VallisCycle          `json:"vallisCycle"`
-	Nightwave            Nightwave            `json:"nightwave"`
+	ConstructionProgress constructionProgress `json:"constructionProgress"`
+	VallisCycle          vallisCycle          `json:"vallisCycle"`
+	Nightwave            nightwave            `json:"nightwave"`
 	Kuva                 []interface{}        `json:"kuva"`
-	Arbitration          Arbitration          `json:"arbitration"`
-	SentientOutposts     SentientOutposts     `json:"sentientOutposts"`
-	SteelPath            SteelPath            `json:"steelPath"`
-	VaultTrader          VaultTrader          `json:"vaultTrader"`
+	Arbitration          arbitration          `json:"arbitration"`
+	SentientOutposts     sentientOutposts     `json:"sentientOutposts"`
+	SteelPath            steelPath            `json:"steelPath"`
+	VaultTrader          vaultTrader          `json:"vaultTrader"`
 }
-type Translations struct {
+type translations struct {
 	En string `json:"en"`
 	Fr string `json:"fr"`
 	It string `json:"it"`
@@ -49,7 +49,7 @@ type Translations struct {
 	Ko string `json:"ko"`
 	Tc string `json:"tc"`
 }
-type News struct {
+type news struct {
 	ID           string       `json:"id"`
 	Message      string       `json:"message"`
 	Link         string       `json:"link"`
@@ -60,16 +60,16 @@ type News struct {
 	Update       bool         `json:"update"`
 	PrimeAccess  bool         `json:"primeAccess"`
 	Stream       bool         `json:"stream"`
-	Translations Translations `json:"translations"`
+	Translations translations `json:"translations"`
 	AsString     string       `json:"asString"`
 }
-type Metadata struct {
+type metadata struct {
 }
-type NextAlt struct {
+type nextAlt struct {
 	Expiry     time.Time `json:"expiry"`
 	Activation time.Time `json:"activation"`
 }
-type Events struct {
+type events struct {
 	ID                string        `json:"id"`
 	Activation        time.Time     `json:"activation"`
 	StartString       string        `json:"startString"`
@@ -92,32 +92,32 @@ type Events struct {
 	RegionDrops       []interface{} `json:"regionDrops"`
 	ArchwingDrops     []interface{} `json:"archwingDrops"`
 	AsString          string        `json:"asString"`
-	Metadata          Metadata      `json:"metadata"`
+	Metadata          metadata      `json:"metadata"`
 	CompletionBonuses []interface{} `json:"completionBonuses"`
 	AltExpiry         time.Time     `json:"altExpiry"`
 	AltActivation     time.Time     `json:"altActivation"`
-	NextAlt           NextAlt       `json:"nextAlt"`
+	NextAlt           nextAlt       `json:"nextAlt"`
 }
-type Variants struct {
+type variants struct {
 	MissionType         string `json:"missionType"`
 	Modifier            string `json:"modifier"`
 	ModifierDescription string `json:"modifierDescription"`
 	Node                string `json:"node"`
 }
-type Sortie struct {
+type sortie struct {
 	ID          string     `json:"id"`
 	Activation  time.Time  `json:"activation"`
 	StartString string     `json:"startString"`
 	Expiry      time.Time  `json:"expiry"`
 	Active      bool       `json:"active"`
 	RewardPool  string     `json:"rewardPool"`
-	Variants    []Variants `json:"variants"`
+	Variants    []variants `json:"variants"`
 	Boss        string     `json:"boss"`
 	Faction     string     `json:"faction"`
 	Expired     bool       `json:"expired"`
 	Eta         string     `json:"eta"`
 }
-type Jobs struct {
+type jobs struct {
 	ID             string    `json:"id"`
 	RewardPool     []string  `json:"rewardPool"`
 	Type           string    `json:"type"`
@@ -127,7 +127,7 @@ type Jobs struct {
 	Expiry         time.Time `json:"expiry"`
 	TimeBound      string    `json:"timeBound,omitempty"`
 }
-type SyndicateMissions struct {
+type syndicateMissions struct {
 	ID           string        `json:"id"`
 	Activation   time.Time     `json:"activation"`
 	StartString  string        `json:"startString"`
@@ -136,10 +136,10 @@ type SyndicateMissions struct {
 	Syndicate    string        `json:"syndicate"`
 	SyndicateKey string        `json:"syndicateKey"`
 	Nodes        []interface{} `json:"nodes"`
-	Jobs         []Jobs        `json:"jobs"`
+	Jobs         []jobs        `json:"jobs"`
 	Eta          string        `json:"eta"`
 }
-type Fissures struct {
+type fissures struct {
 	ID          string    `json:"id"`
 	Activation  time.Time `json:"activation"`
 	StartString string    `json:"startString"`
@@ -157,7 +157,7 @@ type Fissures struct {
 	Eta         string    `json:"eta"`
 	IsStorm     bool      `json:"isStorm"`
 }
-type FlashSales struct {
+type flashSales struct {
 	Item            string    `json:"item"`
 	Expiry          time.Time `json:"expiry"`
 	Activation      time.Time `json:"activation"`
@@ -171,61 +171,61 @@ type FlashSales struct {
 	Expired         bool      `json:"expired"`
 	Eta             string    `json:"eta"`
 }
-type CountedItems struct {
+type countedItems struct {
 	Count int    `json:"count"`
 	Type  string `json:"type"`
 	Key   string `json:"key"`
 }
-type AttackerReward struct {
+type attackerReward struct {
 	Items        []interface{}  `json:"items"`
-	CountedItems []CountedItems `json:"countedItems"`
+	CountedItems []countedItems `json:"countedItems"`
 	Credits      int            `json:"credits"`
 	AsString     string         `json:"asString"`
 	ItemString   string         `json:"itemString"`
 	Thumbnail    string         `json:"thumbnail"`
 	Color        int            `json:"color"`
 }
-type Reward struct {
+type reward struct {
 	Items        []interface{}  `json:"items"`
-	CountedItems []CountedItems `json:"countedItems"`
+	CountedItems []countedItems `json:"countedItems"`
 	Credits      int            `json:"credits"`
 	AsString     string         `json:"asString"`
 	ItemString   string         `json:"itemString"`
 	Thumbnail    string         `json:"thumbnail"`
 	Color        int            `json:"color"`
 }
-type Attacker struct {
-	Reward     Reward `json:"reward"`
+type attacker struct {
+	Reward     reward `json:"reward"`
 	Faction    string `json:"faction"`
 	FactionKey string `json:"factionKey"`
 }
-type DefenderReward struct {
+type defenderReward struct {
 	Items        []interface{}  `json:"items"`
-	CountedItems []CountedItems `json:"countedItems"`
+	CountedItems []countedItems `json:"countedItems"`
 	Credits      int            `json:"credits"`
 	AsString     string         `json:"asString"`
 	ItemString   string         `json:"itemString"`
 	Thumbnail    string         `json:"thumbnail"`
 	Color        int            `json:"color"`
 }
-type Defender struct {
-	Reward     Reward `json:"reward"`
+type defender struct {
+	Reward     reward `json:"reward"`
 	Faction    string `json:"faction"`
 	FactionKey string `json:"factionKey"`
 }
-type Invasions struct {
+type invasions struct {
 	ID               string         `json:"id"`
 	Activation       time.Time      `json:"activation"`
 	StartString      string         `json:"startString"`
 	Node             string         `json:"node"`
 	NodeKey          string         `json:"nodeKey"`
 	Desc             string         `json:"desc"`
-	AttackerReward   AttackerReward `json:"attackerReward"`
+	AttackerReward   attackerReward `json:"attackerReward"`
 	AttackingFaction string         `json:"attackingFaction"`
-	Attacker         Attacker       `json:"attacker"`
-	DefenderReward   DefenderReward `json:"defenderReward"`
+	Attacker         attacker       `json:"attacker"`
+	DefenderReward   defenderReward `json:"defenderReward"`
 	DefendingFaction string         `json:"defendingFaction"`
-	Defender         Defender       `json:"defender"`
+	Defender         defender       `json:"defender"`
 	VsInfestation    bool           `json:"vsInfestation"`
 	Count            int            `json:"count"`
 	RequiredRuns     int            `json:"requiredRuns"`
@@ -234,7 +234,7 @@ type Invasions struct {
 	Eta              string         `json:"eta"`
 	RewardTypes      []string       `json:"rewardTypes"`
 }
-type VoidTrader struct {
+type voidTrader struct {
 	ID           string        `json:"id"`
 	Activation   time.Time     `json:"activation"`
 	StartString  string        `json:"startString"`
@@ -248,7 +248,7 @@ type VoidTrader struct {
 	InitialStart time.Time     `json:"initialStart"`
 	Schedule     []interface{} `json:"schedule"`
 }
-type DailyDeals struct {
+type dailyDeals struct {
 	Item          string    `json:"item"`
 	Expiry        time.Time `json:"expiry"`
 	Activation    time.Time `json:"activation"`
@@ -260,12 +260,12 @@ type DailyDeals struct {
 	Eta           string    `json:"eta"`
 	Discount      int       `json:"discount"`
 }
-type Simaris struct {
+type simaris struct {
 	Target         string `json:"target"`
 	IsTargetActive bool   `json:"isTargetActive"`
 	AsString       string `json:"asString"`
 }
-type ConclaveChallenges struct {
+type conclaveChallenges struct {
 	ID            string    `json:"id"`
 	Expiry        time.Time `json:"expiry"`
 	Activation    time.Time `json:"activation"`
@@ -282,7 +282,7 @@ type ConclaveChallenges struct {
 	Standing      int       `json:"standing"`
 	AsString      string    `json:"asString"`
 }
-type EarthCycle struct {
+type earthCycle struct {
 	ID         string    `json:"id"`
 	Expiry     time.Time `json:"expiry"`
 	Activation time.Time `json:"activation"`
@@ -290,7 +290,7 @@ type EarthCycle struct {
 	State      string    `json:"state"`
 	TimeLeft   string    `json:"timeLeft"`
 }
-type CetusCycle struct {
+type cetusCycle struct {
 	ID          string    `json:"id"`
 	Expiry      time.Time `json:"expiry"`
 	Activation  time.Time `json:"activation"`
@@ -300,14 +300,14 @@ type CetusCycle struct {
 	IsCetus     bool      `json:"isCetus"`
 	ShortString string    `json:"shortString"`
 }
-type CambionCycle struct {
+type cambionCycle struct {
 	ID         string    `json:"id"`
 	Activation time.Time `json:"activation"`
 	Expiry     time.Time `json:"expiry"`
 	TimeLeft   string    `json:"timeLeft"`
 	Active     string    `json:"active"`
 }
-type ZarimanCycle struct {
+type zarimanCycle struct {
 	ID              string    `json:"id"`
 	BountiesEndDate time.Time `json:"bountiesEndDate"`
 	Expiry          time.Time `json:"expiry"`
@@ -317,13 +317,13 @@ type ZarimanCycle struct {
 	TimeLeft        string    `json:"timeLeft"`
 	ShortString     string    `json:"shortString"`
 }
-type ConstructionProgress struct {
+type constructionProgress struct {
 	ID                string `json:"id"`
 	FomorianProgress  string `json:"fomorianProgress"`
 	RazorbackProgress string `json:"razorbackProgress"`
 	UnknownProgress   string `json:"unknownProgress"`
 }
-type VallisCycle struct {
+type vallisCycle struct {
 	ID          string    `json:"id"`
 	Expiry      time.Time `json:"expiry"`
 	IsWarm      bool      `json:"isWarm"`
@@ -332,9 +332,9 @@ type VallisCycle struct {
 	TimeLeft    string    `json:"timeLeft"`
 	ShortString string    `json:"shortString"`
 }
-type Params struct {
+type params struct {
 }
-type ActiveChallenges struct {
+type activeChallenges struct {
 	ID          string    `json:"id"`
 	Activation  time.Time `json:"activation"`
 	StartString string    `json:"startString"`
@@ -346,7 +346,7 @@ type ActiveChallenges struct {
 	Title       string    `json:"title"`
 	Reputation  int       `json:"reputation"`
 }
-type Nightwave struct {
+type nightwave struct {
 	ID                 string             `json:"id"`
 	Activation         time.Time          `json:"activation"`
 	StartString        string             `json:"startString"`
@@ -355,12 +355,12 @@ type Nightwave struct {
 	Season             int                `json:"season"`
 	Tag                string             `json:"tag"`
 	Phase              int                `json:"phase"`
-	Params             Params             `json:"params"`
+	Params             params             `json:"params"`
 	PossibleChallenges []interface{}      `json:"possibleChallenges"`
-	ActiveChallenges   []ActiveChallenges `json:"activeChallenges"`
+	ActiveChallenges   []activeChallenges `json:"activeChallenges"`
 	RewardTypes        []string           `json:"rewardTypes"`
 }
-type Arbitration struct {
+type arbitration struct {
 	Activation time.Time `json:"activation"`
 	Expiry     time.Time `json:"expiry"`
 	Enemy      string    `json:"enemy"`
@@ -373,54 +373,54 @@ type Arbitration struct {
 	ID         string    `json:"id"`
 	Expired    bool      `json:"expired"`
 }
-type Mission struct {
+type mission struct {
 	Node    string `json:"node"`
 	Faction string `json:"faction"`
 	Type    string `json:"type"`
 }
-type SentientOutposts struct {
-	Mission    Mission   `json:"mission"`
+type sentientOutposts struct {
+	Mission    mission   `json:"mission"`
 	Activation time.Time `json:"activation"`
 	Expiry     time.Time `json:"expiry"`
 	Active     bool      `json:"active"`
 	ID         string    `json:"id"`
 }
-type CurrentReward struct {
+type currentReward struct {
 	Name string `json:"name"`
 	Cost int    `json:"cost"`
 }
-type Rotation struct {
+type rotation struct {
 	Name string `json:"name"`
 	Cost int    `json:"cost"`
 }
-type Evergreens struct {
+type evergreens struct {
 	Name string `json:"name"`
 	Cost int    `json:"cost"`
 }
-type Incursions struct {
+type incursions struct {
 	ID         string    `json:"id"`
 	Activation time.Time `json:"activation"`
 	Expiry     time.Time `json:"expiry"`
 }
-type SteelPath struct {
-	CurrentReward CurrentReward `json:"currentReward"`
+type steelPath struct {
+	CurrentReward currentReward `json:"currentReward"`
 	Activation    time.Time     `json:"activation"`
 	Expiry        time.Time     `json:"expiry"`
 	Remaining     string        `json:"remaining"`
-	Rotation      []Rotation    `json:"rotation"`
-	Evergreens    []Evergreens  `json:"evergreens"`
-	Incursions    Incursions    `json:"incursions"`
+	Rotation      []rotation    `json:"rotation"`
+	Evergreens    []evergreens  `json:"evergreens"`
+	Incursions    incursions    `json:"incursions"`
 }
-type Inventory struct {
+type inventory struct {
 	Item    string      `json:"item"`
 	Ducats  int         `json:"ducats"`
 	Credits interface{} `json:"credits"`
 }
-type Schedule struct {
+type schedule struct {
 	Expiry time.Time `json:"expiry"`
 	Item   string    `json:"item"`
 }
-type VaultTrader struct {
+type vaultTrader struct {
 	ID           string      `json:"id"`
 	Activation   time.Time   `json:"activation"`
 	StartString  string      `json:"startString"`
@@ -428,14 +428,14 @@ type VaultTrader struct {
 	Active       bool        `json:"active"`
 	Character    string      `json:"character"`
 	Location     string      `json:"location"`
-	Inventory    []Inventory `json:"inventory"`
+	Inventory    []inventory `json:"inventory"`
 	PsID         string      `json:"psId"`
 	EndString    string      `json:"endString"`
 	InitialStart time.Time   `json:"initialStart"`
 	Completed    bool        `json:"completed"`
-	Schedule     []Schedule  `json:"schedule"`
+	Schedule     []schedule  `json:"schedule"`
 }
-type Alerts struct {
+type alerts struct {
 	ID          string    `json:"id"`
 	Activation  time.Time `json:"activation"`
 	StartString string    `json:"startString"`
@@ -477,26 +477,26 @@ type Alerts struct {
 	RewardTypes []string `json:"rewardTypes"`
 	Tag         string   `json:"tag"`
 }
-type WFAPIItem struct {
-	Payload Payload `json:"payload"`
+type wfAPIItem struct {
+	Payload payload `json:"payload"`
 }
-type Items struct {
+type items struct {
 	URLName  string `json:"url_name"`
 	Thumb    string `json:"thumb"`
 	ItemName string `json:"item_name"`
 	ID       string `json:"id"`
 	Vaulted  bool   `json:"vaulted,omitempty"`
 }
-type Payload struct {
-	Items  []Items `json:"items"`
-	Orders Orders  `json:"orders"`
+type payload struct {
+	Items  []items `json:"items"`
+	Orders orders  `json:"orders"`
 }
 
-type WFAPIItemsOrders struct {
-	Payload Payload `json:"payload"`
-	Include Include `json:"include"`
+type wfAPIItemsOrders struct {
+	Payload payload `json:"payload"`
+	Include include `json:"include"`
 }
-type User struct {
+type user struct {
 	IngameName string      `json:"ingame_name"`
 	LastSeen   time.Time   `json:"last_seen"`
 	Reputation int         `json:"reputation"`
@@ -505,7 +505,7 @@ type User struct {
 	Avatar     interface{} `json:"avatar"`
 	Status     string      `json:"status"`
 }
-type Orders []struct {
+type orders []struct {
 	OrderType    string    `json:"order_type"`
 	LastUpdate   time.Time `json:"last_update"`
 	Region       string    `json:"region"`
@@ -514,88 +514,88 @@ type Orders []struct {
 	CreationDate time.Time `json:"creation_date"`
 	Platinum     int       `json:"platinum"`
 	Platform     string    `json:"platform"`
-	User         User      `json:"user"`
+	User         user      `json:"user"`
 	ID           string    `json:"id"`
 	ModRank      int       `json:"mod_rank"`
 }
 
-func (a Orders) Len() int { // 重写 Len() 方法
+func (a orders) Len() int { // 重写 Len() 方法
 	return len(a)
 }
-func (a Orders) Swap(i, j int) { // 重写 Swap() 方法
+func (a orders) Swap(i, j int) { // 重写 Swap() 方法
 	a[i], a[j] = a[j], a[i]
 }
-func (a Orders) Less(i, j int) bool { // 重写 Less() 方法， 从大到小排序
+func (a orders) Less(i, j int) bool { // 重写 Less() 方法， 从大到小排序
 	return a[i].Platinum < a[j].Platinum
 }
 
-type En struct {
+type en struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Ru struct {
+type ru struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Ko struct {
+type ko struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Fr struct {
+type fr struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Sv struct {
+type sv struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type De struct {
+type de struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type ZhHant struct {
+type zhHant struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type ZhHans struct {
+type zhHans struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Pt struct {
+type pt struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Es struct {
+type es struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type Pl struct {
+type pl struct {
 	ItemName    string        `json:"item_name"`
 	Description string        `json:"description"`
 	WikiLink    string        `json:"wiki_link"`
 	Drop        []interface{} `json:"drop"`
 }
-type ItemsInSet struct {
+type itemsInSet struct {
 	Icon           string   `json:"icon"`
 	URLName        string   `json:"url_name"`
 	SubIcon        string   `json:"sub_icon"`
@@ -609,22 +609,22 @@ type ItemsInSet struct {
 	MasteryLevel   int      `json:"mastery_level"`
 	Ducats         int      `json:"ducats"`
 	IconFormat     string   `json:"icon_format"`
-	En             En       `json:"en"`
-	Ru             Ru       `json:"ru"`
-	Ko             Ko       `json:"ko"`
-	Fr             Fr       `json:"fr"`
-	Sv             Sv       `json:"sv"`
-	De             De       `json:"de"`
-	ZhHant         ZhHant   `json:"zh-hant"`
-	ZhHans         ZhHans   `json:"zh-hans"`
-	Pt             Pt       `json:"pt"`
-	Es             Es       `json:"es"`
-	Pl             Pl       `json:"pl"`
+	En             en       `json:"en"`
+	Ru             ru       `json:"ru"`
+	Ko             ko       `json:"ko"`
+	Fr             fr       `json:"fr"`
+	Sv             sv       `json:"sv"`
+	De             de       `json:"de"`
+	ZhHant         zhHant   `json:"zh-hant"`
+	ZhHans         zhHans   `json:"zh-hans"`
+	Pt             pt       `json:"pt"`
+	Es             es       `json:"es"`
+	Pl             pl       `json:"pl"`
 }
-type Item struct {
+type item struct {
 	ID         string       `json:"id"`
-	ItemsInSet []ItemsInSet `json:"items_in_set"`
+	ItemsInSet []itemsInSet `json:"items_in_set"`
 }
-type Include struct {
-	Item Item `json:"item"`
+type include struct {
+	Item item `json:"item"`
 }

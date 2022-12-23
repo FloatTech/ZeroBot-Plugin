@@ -26,8 +26,8 @@ import (
 var (
 	wfapi         wfAPI              //WarFrameAPI的数据实例
 	client        http.Client        //发起http请求的client实例
-	itmeapi       WFAPIItem          //WarFrame市场的数据实例
-	wmitems       map[string]Items   //WarFrame市场的中文名称对应的物品的字典
+	itmeapi       wfAPIItem          //WarFrame市场的数据实例
+	wmitems       map[string]items   //WarFrame市场的中文名称对应的物品的字典
 	itmeNames     []string           //物品外号
 	fileItemNames map[string]string  //物品外号字典
 	itemNamesPath string             //物品外号存储路径
@@ -278,10 +278,10 @@ func init() {
 	// 		updateWFAPI(ctx)
 	// 		for _, dd := range wfapi.dailyDeals {
 	// 			imagebuild.DrawTextSend([]string{
-	// 				"节点:" + wfapi.Arbitration.Node,
-	// 				"类型:" + wfapi.Arbitration.Type,
-	// 				"阵营:" + wfapi.Arbitration.Enemy,
-	// 				"剩余时间:" + fmt.Sprint(int(wfapi.Arbitration.Expiry.Sub(time.Now().UTC()).Minutes())) + "m",
+	// 				"节点:" + wfapi.arbitration.Node,
+	// 				"类型:" + wfapi.arbitration.Type,
+	// 				"阵营:" + wfapi.arbitration.Enemy,
+	// 				"剩余时间:" + fmt.Sprint(int(wfapi.arbitration.Expiry.Sub(time.Now().UTC()).Minutes())) + "m",
 	// 			}, ctx)
 	// 		}
 	// 	})
@@ -545,17 +545,17 @@ func updateWM() {
 	}
 }
 
-func getWMItemOrders(name string, h bool) (Orders, ItemsInSet, string, error) {
+func getWMItemOrders(name string, h bool) (orders, itemsInSet, string, error) {
 	var data []byte
 	var err error
-	var wfapiio WFAPIItemsOrders
+	var wfapiio wfAPIItemsOrders
 	data, err = getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", name), []string{"Accept", "Platform"}, []string{"application/json", "pc"})
 	if err != nil {
-		return nil, ItemsInSet{}, "", err
+		return nil, itemsInSet{}, "", err
 	}
 	err = json.Unmarshal(data, &wfapiio)
 
-	var sellOrders Orders
+	var sellOrders orders
 	for _, v := range wfapiio.Payload.Orders {
 		if v.OrderType == "sell" && v.User.Status != "offline" {
 			if h && v.ModRank == wfapiio.Include.Item.ItemsInSet[0].ModMaxRank {
@@ -577,7 +577,7 @@ func getWMItemOrders(name string, h bool) (Orders, ItemsInSet, string, error) {
 }
 
 func loadToFuzzy() {
-	wmitems = make(map[string]Items)
+	wmitems = make(map[string]items)
 	itmeNames = []string{}
 	for _, v := range itmeapi.Payload.Items {
 		wmitems[v.ItemName] = v
