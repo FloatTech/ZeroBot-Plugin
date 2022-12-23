@@ -10,15 +10,14 @@ import (
 )
 
 var (
-	GameTimes []gameTime
+	gameTimes []gameTime
 )
 
 func (t gameTime) getStatus() string {
 	if t.Status {
 		return t.StatusTrueDes
-	} else {
-		return t.StatusFalseDes
 	}
+	return t.StatusFalseDes
 }
 func (t gameTime) getTime() string {
 	d := time.Until(t.NextTime)
@@ -29,7 +28,7 @@ func (t gameTime) getTime() string {
 // 游戏时间模拟初始化
 func gameTimeInit() {
 	//updateWM()
-	LoadTime()
+	loadTime()
 	go gameRuntime()
 }
 
@@ -41,13 +40,13 @@ func gameRuntime() {
 
 }
 
-func LoadTime() {
+func loadTime() {
 	//updateWM()
 	var isfass bool
 	if wfapi.CambionCycle.Active == "fass" {
 		isfass = false
 	}
-	GameTimes = []gameTime{
+	gameTimes = []gameTime{
 		{"地球平原", wfapi.CetusCycle.Expiry.Local(), wfapi.CetusCycle.IsDay, "白天", "夜晚", 100 * 60, 50 * 60},
 		{"金星平原", wfapi.VallisCycle.Expiry.Local(), wfapi.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
 		{"火卫二平原", wfapi.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
@@ -56,24 +55,24 @@ func LoadTime() {
 }
 
 func timeDet() {
-	for i, v := range GameTimes {
+	for i, v := range gameTimes {
 		nt := time.Until(v.NextTime).Seconds()
 		switch {
 		case nt < 0:
 			if v.Status {
-				GameTimes[i].NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
+				gameTimes[i].NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
 			} else {
-				GameTimes[i].NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
+				gameTimes[i].NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
 			}
-			GameTimes[i].Status = !GameTimes[i].Status
-			callUser(i, GameTimes[i].Status, 0)
+			gameTimes[i].Status = !gameTimes[i].Status
+			callUser(i, gameTimes[i].Status, 0)
 		case nt < float64(5)*60:
-			callUser(i, !GameTimes[i].Status, 5)
+			callUser(i, !gameTimes[i].Status, 5)
 		case nt < float64(15)*60:
 			if i == 2 && !v.Status {
 				return
 			}
-			callUser(i, !GameTimes[i].Status, 15)
+			callUser(i, !gameTimes[i].Status, 15)
 		}
 	}
 }
@@ -117,15 +116,15 @@ func callUser(i int, s bool, time int) {
 		}
 		if time <= 0 {
 			if s {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s白天(%s)到了", GameTimes[i].Name, GameTimes[i].StatusTrueDes)))
+				msg = append(msg, message.Text(fmt.Sprintf("\n%s白天(%s)到了", gameTimes[i].Name, gameTimes[i].StatusTrueDes)))
 			} else {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s夜晚(%s)到了", GameTimes[i].Name, GameTimes[i].StatusFalseDes)))
+				msg = append(msg, message.Text(fmt.Sprintf("\n%s夜晚(%s)到了", gameTimes[i].Name, gameTimes[i].StatusFalseDes)))
 			}
 		} else {
 			if s {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离白天(%s)还剩下%d分钟", GameTimes[i].Name, GameTimes[i].StatusTrueDes, time)))
+				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离白天(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusTrueDes, time)))
 			} else {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离夜晚(%s)还剩下%d分钟", GameTimes[i].Name, GameTimes[i].StatusFalseDes, time)))
+				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离夜晚(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusFalseDes, time)))
 			}
 		}
 

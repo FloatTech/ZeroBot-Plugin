@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	wfapi         WFAPI              //WarFrameAPI的数据实例
+	wfapi         wfAPI              //WarFrameAPI的数据实例
 	client        http.Client        //发起http请求的client实例
 	itmeapi       WFAPIItem          //WarFrame市场的数据实例
 	wmitems       map[string]Items   //WarFrame市场的中文名称对应的物品的字典
@@ -94,8 +94,8 @@ func init() {
 			case "金星":
 				ctx.SendChain(
 					message.Text(
-						"平原状态:", GameTimes[1].getStatus(), "\n",
-						"下次更新:", GameTimes[1].getTime(),
+						"平原状态:", gameTimes[1].getStatus(), "\n",
+						"下次更新:", gameTimes[1].getTime(),
 					),
 				)
 			case "夜灵":
@@ -103,8 +103,8 @@ func init() {
 			case "地球":
 				ctx.SendChain(
 					message.Text(
-						"平原状态:", GameTimes[0].getStatus(), "\n",
-						"下次更新:", GameTimes[0].getTime(),
+						"平原状态:", gameTimes[0].getStatus(), "\n",
+						"下次更新:", gameTimes[0].getTime(),
 					),
 				)
 			case "火卫":
@@ -114,8 +114,8 @@ func init() {
 			case "魔胎之境":
 				ctx.SendChain(
 					message.Text(
-						"平原状态:", GameTimes[2].getStatus(), "\n",
-						"下次更新:", GameTimes[2].getTime(),
+						"平原状态:", gameTimes[2].getStatus(), "\n",
+						"下次更新:", gameTimes[2].getTime(),
 					),
 				)
 			default:
@@ -165,7 +165,7 @@ func init() {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
 					message.Text("已成功订阅"),
-					message.Text(GameTimes[1].Name),
+					message.Text(gameTimes[1].Name),
 					message.Text(status),
 				)
 			case "夜灵":
@@ -175,7 +175,7 @@ func init() {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
 					message.Text("已成功订阅"),
-					message.Text(GameTimes[0].Name),
+					message.Text(gameTimes[0].Name),
 					message.Text(status),
 				)
 			case "火卫":
@@ -187,7 +187,7 @@ func init() {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
 					message.Text("已成功订阅"),
-					message.Text(GameTimes[2].Name),
+					message.Text(gameTimes[2].Name),
 					message.Text(status),
 				)
 			default:
@@ -219,7 +219,7 @@ func init() {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
 					message.Text("已取消订阅"),
-					message.Text(GameTimes[1].Name),
+					message.Text(gameTimes[1].Name),
 					message.Text(status),
 				)
 			case "夜灵":
@@ -229,7 +229,7 @@ func init() {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
 					message.Text("已取消订阅"),
-					message.Text(GameTimes[0].Name),
+					message.Text(gameTimes[0].Name),
 					message.Text(status),
 				)
 			case "火卫":
@@ -241,7 +241,7 @@ func init() {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
 					message.Text("已取消订阅"),
-					message.Text(GameTimes[2].Name),
+					message.Text(gameTimes[2].Name),
 					message.Text(status),
 				)
 			default:
@@ -276,7 +276,7 @@ func init() {
 	// eng.OnRegex(`^入侵$`).SetBlock(true).
 	// 	Handle(func(ctx *zero.Ctx) {
 	// 		updateWFAPI(ctx)
-	// 		for _, dd := range wfapi.DailyDeals {
+	// 		for _, dd := range wfapi.dailyDeals {
 	// 			imagebuild.DrawTextSend([]string{
 	// 				"节点:" + wfapi.Arbitration.Node,
 	// 				"类型:" + wfapi.Arbitration.Type,
@@ -288,7 +288,7 @@ func init() {
 	eng.OnRegex(`^wf数据更新$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			updateWFAPI(ctx)
-			LoadTime()
+			loadTime()
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
 	eng.OnRegex(`^.取外号 (.*) (.*)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -529,7 +529,7 @@ func udateWFAPI2() {
 		return
 	}
 	gameTimeInit()
-	LoadTime()
+	loadTime()
 }
 func updateWM() {
 	var data []byte
