@@ -228,10 +228,7 @@ func getCarddata(body string) (cardData gameCardInfo) {
 		/*星数*/
 		switch {
 		case strings.Contains(cardType[0][1], "连接"):
-			cardLevel := regexp.MustCompile(`<span class="item_box_value">(LINK.*)</span>`).FindAllStringSubmatch(body, -1)
-			if len(cardLevel) == 0 {
-				return gameCardInfo{}
-			}
+			cardLevel := regexp.MustCompile(`<span class="item_box_value">(LINK.*|link.*)</span>`).FindAllStringSubmatch(body, -1)
 			cardData.Level = cardLevel[0][1]
 		default:
 			cardLevel := regexp.MustCompile(`<b>星数/阶级</b> </span><span class=\"item_box_value\">\s*(.*)\s*</span>`).FindAllStringSubmatch(body, -1)
@@ -240,7 +237,15 @@ func getCarddata(body string) (cardData gameCardInfo) {
 	}
 	/*效果*/
 	cardDepict := regexp.MustCompile(`<div class="item_box_text" id="cardDepict">\s*(?s:(.*?))\s*</div>`).FindAllStringSubmatch(body, -1)
-	cardData.Depict = cardDepict[0][1]
+	cardDepicts := strings.ReplaceAll(cardDepict[0][1], "\n\r", "")
+	cardDepicts = strings.ReplaceAll(cardDepicts, "\n", "")
+	cardDepict = regexp.MustCompile(`「(?s:(.*?))」`).FindAllStringSubmatch(cardDepicts, -1)
+	if len(cardDepict) != 0 {
+		for i := 0; i < len(cardDepict); i++ {
+			cardDepicts = strings.ReplaceAll(cardDepicts, cardDepict[i][0], "「xxx」")
+		}
+	}
+	cardData.Depict = cardDepicts
 	return
 }
 
@@ -301,13 +306,11 @@ func doublePicture(dst *img.Factory) ([]byte, func()) {
 			case y < b.Max.Y-x && x > b.Max.X/2 && y < b.Max.Y/2:
 				dst.Im.Set(x, y, c)
 			default:
-				if c1.R > 128 || c1.G > 128 || c1.B > 128 {
-					dst.Im.Set(x, y, color.NRGBA{
-						R: 255,
-						G: 255,
-						B: 255,
-					})
-				}
+				dst.Im.Set(x, y, color.NRGBA{
+					R: 255 - c1.R,
+					G: 255 - c1.G,
+					B: 255 - c1.B,
+				})
 			}
 		}
 	}
@@ -368,12 +371,6 @@ func setMark(pic image.Image) ([]byte, func()) {
 // 拼接提示词
 func getTips(cardData gameCardInfo, quitCount int) string {
 	name := []rune(cardData.Name)
-	cardDepict := regexp.MustCompile(`「(?s:(.*?))」`).FindAllStringSubmatch(cardData.Depict, -1)
-	if len(cardDepict) != 0 {
-		for i := 0; i < len(cardDepict); i++ {
-			cardData.Depict = strings.ReplaceAll(cardData.Depict, cardDepict[i][1], "xxx")
-		}
-	}
 	switch quitCount {
 	case 0:
 		return "这是一张" + cardData.Type + ",卡名是" + strconv.Itoa(len(name)) + "字的"
