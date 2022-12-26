@@ -5,7 +5,7 @@
 
   <h1>ZeroBot-Plugin</h1>
 
-  “椛椛是[真寻](https://github.com/HibiKier/zhenxun_bot)的朋友！”
+  “椛椛是[真寻](https://github.com/HibiKier/zhenxun_bot)的好朋友！”
   
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
