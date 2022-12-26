@@ -28,11 +28,11 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat"  基础词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage" // 统计睡眠时间
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri"  ATRI词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
 
@@ -126,7 +126,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"      // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"       // 沙雕app
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"       // 测定
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"         // 抽塔罗牌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"          抽塔罗牌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"       // 舔狗日记
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"      // 搜番
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"   // 翻译
@@ -161,9 +161,9 @@ import (
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse" // 骂人
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse"  骂人
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply"  人工智能回复
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat" // 打断复读
 
@@ -206,7 +206,7 @@ func init() {
 	// 直接写死 URL 时，请更改下面第二个参数
 	url := flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
 	// 默认昵称
-	adana := flag.String("n", "椛椛", "Set default nickname.")
+	adana := flag.String("夭夭", "岁夭", "小岁夭")
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
@@ -238,7 +238,7 @@ func init() {
 	}
 
 	// 通过代码写死的方式添加主人账号
-	// sus = append(sus, 12345678)
+	 sus = append(sus, 2082855376)
 	// sus = append(sus, 87654321)
 
 	if *runcfg != "" {
