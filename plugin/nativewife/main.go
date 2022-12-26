@@ -17,6 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
@@ -78,8 +79,9 @@ func init() {
 						return
 					}
 				}
-				err := file.DownloadTo(url, grpfolder+"/"+name, true)
+				err := file.DownloadTo(url, grpfolder+"/"+name)
 				if err == nil {
+					process.SleepAbout1sTo2s()
 					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功！"))
 				} else {
 					ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("错误：", err.Error()))

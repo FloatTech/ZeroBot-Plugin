@@ -1,9 +1,12 @@
 <div align="center">
   <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
-  <img src=".github/黒金.jpg" alt="看板娘" width = "400">
+  <img src=".github/hua_nobg_512.gif" alt="椛" width = "400">
   </a><br>
 
   <h1>ZeroBot-Plugin</h1>
+
+  “椛椛是[真寻](https://github.com/HibiKier/zhenxun_bot)的好朋友！”
+  
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
 
