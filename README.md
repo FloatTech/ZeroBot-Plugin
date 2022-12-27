@@ -1,9 +1,12 @@
 <div align="center">
   <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
-  <img src=".github/黒金.jpg" alt="看板娘" width = "400">
+  <img src=".github/hua_nobg_512.gif" alt="椛" width = "400">
   </a><br>
 
   <h1>ZeroBot-Plugin</h1>
+
+  “椛椛是[真寻](https://github.com/HibiKier/zhenxun_bot)的好朋友！”
+  
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
 
@@ -15,7 +18,7 @@
 
   [![go](https://goreportcard.com/badge/github.com/FloatTech/ZeroBot-Plugin?style=flat-square&logo=go)](https://goreportcard.com/badge/github.com/FloatTech/ZeroBot-Plugin)
   [![onebot](https://img.shields.io/badge/onebot-v11-black?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAxQTFRF////29vbr6+vAAAAk1hCcwAAAAR0Uk5T////AEAqqfQAAAKcSURBVHja7NrbctswDATQXfD//zlpO7FlmwAWIOnOtNaTM5JwDMa8E+PNFz7g3waJ24fviyDPgfhz8fHP39cBcBL9KoJbQUxjA2iYqHL3FAnvzhL4GtVNUcoSZe6eSHizBcK5LL7dBr2AUZlev1ARRHCljzRALIEog6H3U6bCIyqIZdAT0eBuJYaGiJaHSjmkYIZd+qSGWAQnIaz2OArVnX6vrItQvbhZJtVGB5qX9wKqCMkb9W7aexfCO/rwQRBzsDIsYx4AOz0nhAtWu7bqkEQBO0Pr+Ftjt5fFCUEbm0Sbgdu8WSgJ5NgH2iu46R/o1UcBXJsFusWF/QUaz3RwJMEgngfaGGdSxJkE/Yg4lOBryBiMwvAhZrVMUUvwqU7F05b5WLaUIN4M4hRocQQRnEedgsn7TZB3UCpRrIJwQfqvGwsg18EnI2uSVNC8t+0QmMXogvbPg/xk+Mnw/6kW/rraUlvqgmFreAA09xW5t0AFlHrQZ3CsgvZm0FbHNKyBmheBKIF2cCA8A600aHPmFtRB1XvMsJAiza7LpPog0UJwccKdzw8rdf8MyN2ePYF896LC5hTzdZqxb6VNXInaupARLDNBWgI8spq4T0Qb5H4vWfPmHo8OyB1ito+AysNNz0oglj1U955sjUN9d41LnrX2D/u7eRwxyOaOpfyevCWbTgDEoilsOnu7zsKhjRCsnD/QzhdkYLBLXjiK4f3UWmcx2M7PO21CKVTH84638NTplt6JIQH0ZwCNuiWAfvuLhdrcOYPVO9eW3A67l7hZtgaY9GZo9AFc6cryjoeFBIWeU+npnk/nLE0OxCHL1eQsc1IciehjpJv5mqCsjeopaH6r15/MrxNnVhu7tmcslay2gO2Z1QfcfX0JMACG41/u0RrI9QAAAABJRU5ErkJggg==)](https://t.me/zerobotplugin)
-  [![zerobot](https://img.shields.io/badge/zerobot-v1.5.1-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
+  [![zerobot](https://img.shields.io/badge/zerobot-v1.6.6-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
   [![license](https://img.shields.io/github/license/FloatTech/ZeroBot-Plugin.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
   [![tencent-qq](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
   [![telegram](https://img.shields.io/badge/Telegram-click%20me-informational?style=flat-square&logo=telegram)](https://t.me/zerobotplugin)
@@ -23,9 +26,9 @@
   本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
   | 项目地址 | 平台 | 核心作者 |
   | --- | --- | --- |
-  | [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |
-  | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
-  | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
+  | [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |
+  | [onebot-kotlin](https://github.com/yyuueexxiinngg/onebot-kotlin) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
+  | [oicq/http-api](https://github.com/takayama-lily/oicq/tree/master/http-api) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
 
   [![Star Trend](https://api.star-history.com/svg?repos=FloatTech/ZeroBot-Plugin&type=Timeline)](https://seladb.github.io/StarTrack-js/#/preload?r=FloatTech,ZeroBot-Plugin)
 
@@ -76,7 +79,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
             "Url": "ws://127.0.0.1:6700",
             "AccessToken": ""
         }
-    ]
+    ],
+    "wss": null
 }
 ```
 
@@ -237,7 +241,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [ ] 同意好友请求
 
-  - [ ] 撤回[@xxx] [xxx]
+  - [x] 对信息回复: 撤回
 
   - [ ] 警告[@xxx]
 
@@ -1424,7 +1428,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] @Bot 任意文本(任意一句话回复)
 
-  - [x] 设置回复模式[青云客 | 小爱]
+  - [x] 设置回复模式[青云客 | 小爱 | ChatGPT]
+
+  - [x] 设置 ChatGPT SessionToken xxx
+
+  - [x] 重置ChatGPT连接
+  
+  - 注:
+    - 注册和获取 token 可以参见这两篇文章：[注册](https://www.cnblogs.com/ranxi169/p/16954797.html) [获取token](https://juejin.cn/post/7174088036035067917)
+    - 设置 SessionToken 时，请确保自己为超级管理员，然后私聊`/响应` `/禁用atri` `/禁用tts` `/启用aireply`，再发送`设置 ChatGPT SessionToken xxx`
+
 </details>
 
 ## 三种使用方法，推荐第一种

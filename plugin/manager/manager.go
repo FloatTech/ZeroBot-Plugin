@@ -222,7 +222,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("那我就不手下留情了~"))
 		})
 	// 修改名片
-	engine.OnRegex(`^修改名片.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^修改名片.*(\d+).*\s+(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[2]) > 60 {
 				ctx.SendChain(message.Text("名字太长啦！"))
@@ -236,7 +236,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 修改头衔
-	engine.OnRegex(`^修改头衔.*?(\d+).*?\s(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^修改头衔.*(\d+).*\s+(.*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
@@ -250,7 +250,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 申请头衔
-	engine.OnRegex(`^申请头衔(.*)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^申请头衔\s+(.*)$`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
@@ -262,6 +262,16 @@ func init() { // 插件主体
 				ctx.State["regex_matched"].([]string)[1], // 修改成的群头衔
 			)
 			ctx.SendChain(message.Text("嗯！不错的头衔呢~"))
+		})
+	// 撤回
+	// 群聊中直接回复消息结尾带上撤回
+	// 权限够的话，可以把请求撤回的消息也一并撤回
+	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*撤回$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			// 删除需要撤回的消息ID
+			ctx.DeleteMessage(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
+			// 删除请求撤回的消息ID
+			// ctx.DeleteMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64)))
 		})
 	// 群聊转发
 	engine.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).
