@@ -12,6 +12,7 @@ import (
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -305,5 +306,6 @@ func initPic(picFile string) error {
 	if file.IsExist(picFile) {
 		return nil
 	}
-	return file.DownloadTo(backgroundURL, picFile, true)
+	defer process.SleepAbout1sTo2s()
+	return file.DownloadTo(backgroundURL, picFile)
 }

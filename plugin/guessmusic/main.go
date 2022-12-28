@@ -21,6 +21,7 @@ import (
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -380,8 +381,9 @@ func init() {
 					break
 				}
 			}
-			err = file.DownloadTo(fileURL, cfg.MusicPath+listName+"/"+fileSearchName, true)
+			err = file.DownloadTo(fileURL, cfg.MusicPath+listName+"/"+fileSearchName)
 			if err == nil {
+				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Text("成功！"))
 			} else {
 				ctx.SendChain(message.Text(serviceErr, err))
