@@ -356,7 +356,7 @@ func init() { // 主函数
 			//圣遗物单个评分
 			//three.DrawString(pingfeng+"分"+pingji, 120, 85)
 			//圣遗物属性
-			zhuci := StoS(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquaryMainStat.MainPropId) //主词条
+			zhuci := StoS(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquaryMainStat.MainPropID) //主词条
 			zhucitiao := strconv.Itoa(int(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquaryMainStat.Value))
 			//间隔45,初始145
 			var xx, yy float64 //xx,yy词条相对位置,x,y文本框在全图位置
@@ -365,7 +365,7 @@ func init() { // 主函数
 			yy = 145
 			//主词条
 			three.DrawString("主:"+zhuci, xx, yy)                                                                                      //主词条名字
-			three.DrawString("+"+zhucitiao+Stofen(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquaryMainStat.MainPropId), 200, yy) //主词条属性
+			three.DrawString("+"+zhucitiao+Stofen(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquaryMainStat.MainPropID), 200, yy) //主词条属性
 			for k := 0; k < 4; k++ {
 				switch k {
 				case 0:
@@ -377,8 +377,8 @@ func init() { // 主函数
 				case 3:
 					yy = 325
 				}
-				three.DrawString(StoS(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquarySubStats[k].SubPropId), xx, yy)
-				three.DrawString("+"+strconv.FormatFloat(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquarySubStats[k].Value, 'f', 1, 64)+Stofen(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquarySubStats[k].SubPropId), 200, yy)
+				three.DrawString(StoS(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquarySubStats[k].SubPropID), xx, yy)
+				three.DrawString("+"+strconv.FormatFloat(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquarySubStats[k].Value, 'f', 1, 64)+Stofen(alldata.AvatarInfoList[t].EquipList[i].Flat.ReliquarySubStats[k].SubPropID), 200, yy)
 			}
 			switch i {
 			case 0:

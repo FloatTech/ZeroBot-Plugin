@@ -371,8 +371,8 @@ type Flat struct {
 
 // Stat ...  属性对
 type Stat struct {
-	MainPropId string  `json:"mainPropId,omitempty"`
-	SubPropId  string  `json:"appendPropId,omitempty"`
+	MainPropID string  `json:"mainPropId,omitempty"`
+	SubPropID  string  `json:"appendPropId,omitempty"`
 	Value      float64 `json:"statValue"`
 }
 
