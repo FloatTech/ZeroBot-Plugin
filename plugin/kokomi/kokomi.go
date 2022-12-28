@@ -34,7 +34,7 @@ func init() { // 主函数
 	en := control.Register("kokomi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "原神相关功能",
-		Help: "命令大全,需要依次执行\n" +
+		Help: "原神面板执行方法,第一次需要依次执行\n" +
 			"- 绑定......(uid)\n" +
 			"- 更新面板\n" +
 			"- 全部面板\n" +

@@ -877,6 +877,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 喝奶茶绝绝子 | 绝绝子吃饭
 
+  </details>
+<details>
+  <summary>kokomi原神面板</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/kokomi"`
+
+  - [x] 绑定...(uid)
+
+  - [x] 更新面板
+
+  - [x] 全部角色面板
+
+  - [x] XX面板
+
 </details>
 <details>
   <summary>lolicon</summary>

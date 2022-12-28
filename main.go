@@ -100,6 +100,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"     // 小鸡词典
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"    // 日语听力学习材料
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      // 绝绝子生成器
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/kokomi"        // kokomi原神面板
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/magicprompt"   // magicprompt吟唱提示
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 简易midi音乐制作
@@ -121,7 +122,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"        // 投胎
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"       // 在线运行代码
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"      // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"      // 原神面板查询
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"         // 叔叔的AI二次元图片放大
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"         // 分数
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"      // 来份涩图
