@@ -311,7 +311,7 @@ func init() { // 主函数
 		for m := range alldata.AvatarInfoList[t].EquipList[5].Weapon.AffixMap {
 			wqjl = m
 		}
-		two.DrawString("Lv."+strconv.Itoa(alldata.AvatarInfoList[t].EquipList[5].Weapon.Level)+"  精炼:"+strconv.Itoa(int(alldata.AvatarInfoList[t].EquipList[5].Weapon.AffixMap[wqjl]+1)), 150, 90)
+		two.DrawString("Lv."+strconv.Itoa(alldata.AvatarInfoList[t].EquipList[5].Weapon.Level)+"  精炼:"+strconv.Itoa(alldata.AvatarInfoList[t].EquipList[5].Weapon.AffixMap[wqjl]+1), 150, 90)
 		/*副词条,放不下
 		fucitiao, _ := IdforNamemap[alldata.AvatarInfoList[t].EquipList[5].Flat.WeaponStat[1].SubPropId] //名称
 		var baifen = "%"
