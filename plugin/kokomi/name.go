@@ -1,6 +1,6 @@
 package kokomi// 解析武器,圣遗物
 import ()
-// IdforName id匹配各种名字
+// IdforNamemap id匹配各种名字
 var IdforNamemap = map[string]string{
 	"20848859":"黑岩斩刀",
 	"33330467":"元素熟练",

@@ -350,7 +350,7 @@ type Data struct {
 	UID string `json:"uid"`
 }
 
-// Flat.详细数据
+// Flat... 详细数据
 type Flat struct {
 	// l10n
 	NameTextHash    string `json:"nameTextMapHash"`
@@ -369,7 +369,7 @@ type Flat struct {
 	Icon      string `json:"icon"`      // You can get the icon from https://enka.network/ui/{Icon}.png
 }
 
-// Stat. 属性对
+// Stat...  属性对
 type Stat struct {
 	MainPropId string  `json:"mainPropId,omitempty"`
 	SubPropId  string  `json:"appendPropId,omitempty"`
