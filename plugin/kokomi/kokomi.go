@@ -90,8 +90,7 @@ func init() { // 主函数
 			var msg strings.Builder
 			msg.WriteString("您的展示角色为:\n")
 			for i := 0; i < len(alldata.PlayerInfo.ShowAvatarInfoList); i++ {
-				var mmm string
-				mmm, _ = Uidmap[int64(alldata.PlayerInfo.ShowAvatarInfoList[i].AvatarID)]
+				mmm := Uidmap[int64(alldata.PlayerInfo.ShowAvatarInfoList[i].AvatarID)]
 				msg.WriteString(mmm)
 				if i < len(alldata.PlayerInfo.ShowAvatarInfoList) {
 					msg.WriteByte('\n')
