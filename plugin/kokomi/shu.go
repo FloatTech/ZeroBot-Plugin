@@ -390,7 +390,7 @@ func Getuid(qquid int64) (uid int) { // 获取对应游戏uid
 	return sss
 }
 
-// 角色外号添加
+// FindName 角色外号添加
 func FindName(a string) string {
 	switch a {
 	case "公子":
@@ -417,7 +417,7 @@ func FindName(a string) string {
 	return a
 }
 
-// 圣遗物词条简单描述
+// StoS 圣遗物词条简单描述
 func StoS(val string) string {
 	var vv string
 	switch val {
@@ -462,6 +462,8 @@ func StoS(val string) string {
 	}
 	return vv
 }
+
+// Stofen 判断词条分号
 func Stofen(val string) string {
 	var vv = "%"
 	switch val {
@@ -492,6 +494,7 @@ func Stofen(val string) string {
 	return vv
 }
 
+// Tianfujiuzhen 修复部分贴图大小错误
 func Tianfujiuzhen(val string) int {
 	var bb = 257 //280
 	switch val {

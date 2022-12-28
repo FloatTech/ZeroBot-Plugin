@@ -1,12 +1,16 @@
 package kokomi
 
 import (
-	"github.com/Coloured-glaze/gg"
 	"image"
 	"image/color"
+
+	"github.com/Coloured-glaze/gg"
+	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/floatbox/math"
+	"github.com/FloatTech/zbputils/img"
 )
 
-// 更改透明度
+// AdjustOpacity 更改透明度
 func AdjustOpacity(m image.Image, percentage float64) image.Image {
 	bounds := m.Bounds()
 	dx := bounds.Dx()
@@ -24,6 +28,8 @@ func AdjustOpacity(m image.Image, percentage float64) image.Image {
 	}
 	return newRgba
 }
+
+// Yinying 绘制阴影
 func Yinying(x int, y int, r float64) image.Image {
 	//新建图层,实现阴影400*510
 	zero := gg.NewContext(x, y)
@@ -34,4 +40,28 @@ func Yinying(x int, y int, r float64) image.Image {
 	//shadow := imaging.Blur(one.Image(), 16)
 	bg := AdjustOpacity(zero.Image(), 0.6)
 	return bg
+}
+
+// SetMark 绘制马赛克
+func SetMark(pic image.Image) (pictrue []byte) {
+	dst := img.Size(pic, 256*5, 256*5)
+	b := dst.Im.Bounds()
+	markSize := 32
+
+	for y0fMarknum := 0; y0fMarknum <= math.Ceil(b.Max.Y, markSize); y0fMarknum++ {
+		for x0fMarknum := 0; x0fMarknum <= math.Ceil(b.Max.X, markSize); x0fMarknum++ {
+			a := dst.Im.At(x0fMarknum*markSize+markSize/2, y0fMarknum*markSize+markSize/2)
+			cc := color.NRGBAModel.Convert(a).(color.NRGBA)
+			for y := 0; y < markSize; y++ {
+				for x := 0; x < markSize; x++ {
+					x0fPic := x0fMarknum*markSize + x
+					y0fPic := y0fMarknum*markSize + y
+					dst.Im.Set(x0fPic, y0fPic, cc)
+				}
+			}
+		}
+	}
+	pictrue, cl := writer.ToBytes(dst.Im)
+	defer cl()
+	return
 }
