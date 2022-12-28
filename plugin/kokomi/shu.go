@@ -332,11 +332,9 @@ type Data struct {
 			} `json:"reliquary,omitempty"`
 			Flat   Flat `json:"flat"` //标记
 			Weapon struct {
-				Level        int `json:"level"`
-				PromoteLevel int `json:"promoteLevel"`
-				AffixMap     struct {
-					Num113405 int `json:"113405"`
-				} `json:"affixMap"`
+				Level        int         `json:"level"`
+				PromoteLevel int         `json:"promoteLevel"`
+				AffixMap     map[int]int `json:"affixMap"`
 			} `json:"weapon,omitempty"`
 		} `json:"equipList"`
 		FetterInfo struct {
