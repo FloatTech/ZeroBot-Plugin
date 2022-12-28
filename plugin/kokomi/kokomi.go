@@ -342,7 +342,7 @@ func init() { // 主函数
 			}
 			//字号30,间距50
 			three.SetRGB(1, 1, 1) //白色
-			sywname, _ := IdforNamemap[alldata.AvatarInfoList[t].EquipList[i].Flat.SetNameTextHash]
+			sywname := IdforNamemap[alldata.AvatarInfoList[t].EquipList[i].Flat.SetNameTextHash]
 			tusyw, err := gg.LoadImage("data/kokomi/syw/" + sywname + "/" + strconv.Itoa(i+1) + ".webp")
 			if err != nil {
 				ctx.SendChain(message.Text("获取圣遗物图标失败", err))
