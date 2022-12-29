@@ -6,7 +6,7 @@ require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
 	github.com/FloatTech/AnimeAPI v1.6.1-0.20221226052349-99c1398c6713
-	github.com/FloatTech/floatbox v0.0.0-20221223151526-b0b2b1101f78
+	github.com/FloatTech/floatbox v0.0.0-20221228150204-a2bededce74d
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20221210051848-740ab7bd6ec3
