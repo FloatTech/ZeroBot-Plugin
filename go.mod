@@ -10,7 +10,7 @@ require (
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20221210051848-740ab7bd6ec3
-	github.com/FloatTech/zbputils v1.6.1-0.20221226052231-8e1c946d55c2
+	github.com/FloatTech/zbputils v1.6.1-0.20221230110225-f0786b77b297
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -39,7 +39,7 @@ require (
 )
 
 require (
-	github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e // indirect
+	github.com/FloatTech/rendercard v0.0.2 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
