@@ -369,7 +369,7 @@ func getCarddata(body string) (cardata map[string]string) {
 	/*效果*/
 	cardDepict := regexpmatch(`<div class="item_box_text" id="cardDepict">\s*(?s:(.*?))\s*</div>`, body)
 	cardata["效果"] = cardDepict[0][1]
-	//cardata["效果"] = strings.ReplaceAll(cardDepict[0][1], " ", "")
+	// cardata["效果"] = strings.ReplaceAll(cardDepict[0][1], " ", "")
 	return
 }
 

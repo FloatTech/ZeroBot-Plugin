@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"strings"
 
-	names "github.com/FloatTech/ZeroBot-Plugin/plugin/dataSystem"
 	"github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -17,6 +16,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"gopkg.in/yaml.v3"
+
+	names "github.com/FloatTech/ZeroBot-Plugin/plugin/dataSystem"
 )
 
 func init() {
