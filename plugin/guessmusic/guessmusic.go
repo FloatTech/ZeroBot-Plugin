@@ -2,7 +2,6 @@ package guessmusic
 
 import (
 	"bytes"
-	"fmt"
 	"io/fs"
 	"math/rand"
 	"os"
@@ -154,7 +153,6 @@ func init() {
 							if tickCount > 2 {
 								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
 							} else {
-								fmt.Println(tickCount)
 								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
 								ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
 							}
@@ -175,7 +173,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 	// 读取歌单文件
 	pathOfMusic = musicPath + listName + "/"
 	if file.IsNotExist(pathOfMusic) {
-		err = errors.New("指定的歌单不存在")
+		err = errors.New("指定的歌单不存在,可发送“歌单列表”查看歌单列表")
 		return
 	}
 	files, err := os.ReadDir(pathOfMusic)
@@ -305,13 +303,13 @@ func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tic
 		return message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
 	default:
 		answerTimes++
+		tickTimes++
 		switch {
 		case tickTimes > 2 && answerTimes < 6:
 			return message.Text("答案不对哦,还有", 6-answerTimes, "次答题,加油啊~"), answerTimes, tickTimes, false
 		case tickTimes > 2:
 			return message.Text("次数到了,没能猜出来。答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
 		default:
-			tickTimes++
 			return message.Text("答案不对,再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
 		}
 	}
