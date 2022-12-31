@@ -160,9 +160,9 @@ func init() {
 						wg.Done()
 					}()
 					wg.Wait()
-				}
-				if win {
-					break
+					if win {
+						return
+					}
 				}
 			}
 		})
