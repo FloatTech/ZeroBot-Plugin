@@ -150,7 +150,7 @@ func init() {
 							wait.Reset(40 * time.Second)
 							tick.Reset(105 * time.Second)
 							after.Reset(120 * time.Second)
-							if tickCount > 2 {
+							if tickCount > 2 || messageStr.Data["text"] == "你无权限取消" {
 								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
 							} else {
 								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
