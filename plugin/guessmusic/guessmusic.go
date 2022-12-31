@@ -230,7 +230,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 		}
 	}
 	if musicName == "" {
-		err = errors.New("[guessmusic]EEROR:抽取歌曲轮空了,请重试.")
+		err = errors.New("抽取歌曲轮空了,请重试")
 	}
 	return
 }
