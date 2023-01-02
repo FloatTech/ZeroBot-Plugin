@@ -2,46 +2,47 @@
 package aireply
 
 import (
-	"fmt"
-	"net/url"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/aireply"
+	"github.com/FloatTech/AnimeAPI/chatgpt"
+	"github.com/FloatTech/AnimeAPI/tts/genshin"
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/pkumza/numcn"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var replyModes = [...]string{"青云客", "小爱"}
+var t = newttsmode()
 
 func init() { // 插件主体
-	enOftts := control.Register("tts", &ctrl.Options[*zero.Ctx]{
+	ent := control.Register("tts", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "人工智能语音回复",
 		Help: "- @Bot 任意文本(任意一句话回复)\n" +
-			"- 设置语音模式[原神人物]\n" +
-			"- 设置默认语音模式[原神人物]\n" +
+			"- 设置语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
+			"- 设置默认语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
 			"- 恢复成默认语音模式\n" +
-			"当前适用的原神人物含有以下：\n" + list(soundList[:], 5),
+			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
+			"当前适用的原神人物含有以下：\n" + list(genshin.SoundList[:], 5),
 	})
-	tts := newttsmode()
-	enOfreply := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "人工智能回复",
-		Help:             "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]",
+
+	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault:  false,
+		Brief:             "人工智能回复",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx\n- 设置 ChatGPT UA xxx\n- 设置 ChatGPT CF xxx\n- 重置ChatGPT连接",
+		PrivateDataFolder: "aireply",
 	})
-	/*************************************************************
-	*******************************AIreply************************
-	*************************************************************/
-	enOfreply.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
+
+	enr.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			aireply := aireply.NewAIReply(getReplyMode(ctx))
-			reply := message.ParseMessageFromString(aireply.Talk(ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
+			aireply := getReplyMode(ctx)
+			reply := message.ParseMessageFromString(aireply.Talk(ctx.Event.UserID, ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
 			// 回复
 			time.Sleep(time.Second * 1)
 			if zero.OnlyPublic(ctx) {
@@ -51,7 +52,8 @@ func init() { // 插件主体
 			}
 			ctx.Send(reply)
 		})
-	enOfreply.OnPrefix("设置回复模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+
+	enr.OnPrefix("设置回复模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["args"].(string)
 		err := setReplyMode(ctx, param)
 		if err != nil {
@@ -60,86 +62,212 @@ func init() { // 插件主体
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
-	/*************************************************************
-	***********************tts************************************
-	*************************************************************/
-	enOftts.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
+
+	chatgptfile := enr.DataFolder() + "chatgpt.txt"
+	uafile := enr.DataFolder() + "ua.txt"
+	cffile := enr.DataFolder() + "cf.txt"
+	cfg := &chatgpt.Config{
+		RefreshInterval: time.Hour,
+		Timeout:         time.Minute,
+	}
+	data, err := os.ReadFile(chatgptfile)
+	if err == nil {
+		cfg.SessionToken = binary.BytesToString(data)
+		data, err = os.ReadFile(uafile)
+		if err == nil {
+			cfg.UA = binary.BytesToString(data)
+			data, err = os.ReadFile(cffile)
+			if err == nil {
+				cfg.CFClearance = binary.BytesToString(data)
+			}
+		}
+	}
+	chats = aireply.NewChatGPT(cfg)
+	go func() {
+		for range time.NewTicker(time.Hour).C {
+			if chats == nil || cfg.SessionToken == "" {
+				continue
+			}
+			err := os.WriteFile(chatgptfile, binary.StringToBytes(cfg.SessionToken), 0644)
+			if err != nil {
+				logrus.Warnln("[aireply] 保存 chatgpt session token 到", chatgptfile, "失败:", err)
+			}
+		}
+	}()
+
+	enr.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		token := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(chatgptfile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(token)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		cfg.SessionToken = token
+		ctx.SendChain(message.Text("设置成功"))
+	})
+
+	enr.OnRegex(`^设置\s*ChatGPT\s*UA\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		ua := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(uafile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(ua)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		cfg.UA = ua
+		ctx.SendChain(message.Text("设置成功"))
+	})
+
+	enr.OnRegex(`^设置\s*ChatGPT\s*CF\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		cf := ctx.State["regex_matched"].([]string)[1]
+		f, err := os.Create(cffile)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		defer f.Close()
+		_, err = f.WriteString(cf)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		cfg.CFClearance = cf
+		ctx.SendChain(message.Text("设置成功"))
+	})
+
+	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if chats == nil {
+			ctx.SendChain(message.Text("ERROR: chats 为空"))
+			return
+		}
+		err := chats.Reset(ctx.Event.UserID)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	})
+
+	ent.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			// 获取回复模式
-			r := aireply.NewAIReply(getReplyMode(ctx))
+			r := getReplyMode(ctx)
 			// 获取回复的文本
-			reply := r.TalkPlain(msg, zero.BotConfig.NickName[0])
+			reply := r.TalkPlain(ctx.Event.UserID, msg, zero.BotConfig.NickName[0])
 			// 获取语音
-			index := tts.getSoundMode(ctx)
-			record := message.Record(fmt.Sprintf(cnapi, index, url.QueryEscape(
-				// 将数字转文字
-				re.ReplaceAllStringFunc(reply, func(s string) string {
-					f, err := strconv.ParseFloat(s, 64)
-					if err != nil {
-						log.Errorln("[tts]:", err)
-						return s
-					}
-					return numcn.EncodeFromFloat64(f)
-				}),
-			))).Add("cache", 0)
+			speaker, err := t.getSoundMode(ctx)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return reply })
+			if err != nil {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
+				return
+			}
 			// 发送语音
-			if ID := ctx.SendChain(record); ID.ID() == 0 {
+			if id := ctx.SendChain(message.Record(rec)); id.ID() == 0 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			}
 		})
-	enOftts.OnRegex(`^设置语音模式(.*)$`, zero.AdminPermission, func(ctx *zero.Ctx) bool {
+
+	ent.OnRegex(`^设置语音模式\s*([\S\D]*)\s*(\d*)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
-		if _, ok := testRecord[param]; !ok {
-			return false
+		num := ctx.State["regex_matched"].([]string)[2]
+		n := 0
+		var err error
+		if num != "" {
+			n, err = strconv.Atoi(num)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 		}
-		return true
-	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		param := ctx.State["regex_matched"].([]string)[1]
 		// 保存设置
-		err := tts.setSoundMode(ctx, param)
+		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, n, ")")
+		err = t.setSoundMode(ctx, param, n, n)
+		if err != nil {
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
+			return
+		}
+		if banner, ok := genshin.TestRecord[param]; ok {
+			logrus.Debugln("[tts] banner:", banner, "get sound mode...")
+			// 设置验证
+			speaker, err := t.getSoundMode(ctx)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			logrus.Debugln("[tts] got sound mode, speaking...")
+			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return banner })
+			if err != nil {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("无法发送测试语音，请重试。"))
+				return
+			}
+			logrus.Debugln("[tts] sending...")
+			if id := ctx.SendChain(message.Record(rec).Add("cache", 0)); id.ID() == 0 {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("无法发送测试语音，请重试。"))
+				return
+			}
+			time.Sleep(time.Second * 2)
+		}
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功"))
+	})
+
+	ent.OnRegex(`^设置默认语音模式\s*([\S\D]*)\s*(\d*)$`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		param := ctx.State["regex_matched"].([]string)[1]
+		num := ctx.State["regex_matched"].([]string)[2]
+		n := 0
+		var err error
+		if num != "" {
+			n, err = strconv.Atoi(num)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+		}
+		// 保存设置
+		err = t.setDefaultSoundMode(param, n, n)
+		if err != nil {
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
+			return
+		}
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功"))
+	})
+
+	ent.OnFullMatch("恢复成默认语音模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := t.resetSoundMode(ctx)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
 		// 设置验证
-		i := tts.getSoundMode(ctx)
-		if _, ok := testRecord[soundList[i]]; !ok {
-			ctx.SendChain(message.Text("配置的语音人物数据丢失！请重新设置语音人物。"))
-			return
-		}
-		record := message.Record(fmt.Sprintf(cnapi, i, url.QueryEscape(testRecord[soundList[i]]))).Add("cache", 0)
-		if ID := ctx.SendChain(record); ID.ID() == 0 {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置失败！无法发送测试语音，请重试。"))
-			return
-		}
-		time.Sleep(time.Second * 2)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功"))
-	})
-	enOftts.OnRegex(`^设置默认语音模式(.*)$`, zero.SuperUserPermission, func(ctx *zero.Ctx) bool {
-		param := ctx.State["regex_matched"].([]string)[1]
-		if _, ok := testRecord[param]; !ok {
-			return false
-		}
-		return true
-	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		param := ctx.State["regex_matched"].([]string)[1]
-		// 保存设置
-		err := tts.setDefaultSoundMode(param)
+		speaker, err := t.getSoundMode(ctx)
 		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功"))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
 	})
-	enOftts.OnFullMatch("恢复成默认语音模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := tts.resetSoundMode(ctx)
+
+	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
-			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		// 设置验证
-		index := tts.getSoundMode(ctx)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", soundList[index]))
+		ctx.SendChain(message.Text("设置成功"))
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/process"
 )
 
 type context struct {
@@ -27,13 +28,14 @@ func (cc *context) prepareLogos(s ...string) error {
 	for i, v := range s {
 		_, err := strconv.Atoi(v)
 		if err != nil {
-			err = file.DownloadTo("https://gchat.qpic.cn/gchatpic_new//--"+strings.ToUpper(v)+"/0", cc.usrdir+strconv.Itoa(i)+".gif", true)
+			err = file.DownloadTo("https://gchat.qpic.cn/gchatpic_new//--"+strings.ToUpper(v)+"/0", cc.usrdir+strconv.Itoa(i)+".gif")
 		} else {
-			err = file.DownloadTo("http://q4.qlogo.cn/g?b=qq&nk="+v+"&s=640", cc.usrdir+strconv.Itoa(i)+".gif", true)
+			err = file.DownloadTo("http://q4.qlogo.cn/g?b=qq&nk="+v+"&s=640", cc.usrdir+strconv.Itoa(i)+".gif")
 		}
 		if err != nil {
 			return err
 		}
+		process.SleepAbout1sTo2s()
 	}
 	return nil
 }

@@ -1,9 +1,12 @@
 <div align="center">
   <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
-  <img src=".github/黒金.jpg" alt="看板娘" width = "400">
+  <img src=".github/hua_nobg_512.gif" alt="椛" width = "400">
   </a><br>
 
   <h1>ZeroBot-Plugin</h1>
+
+  “椛椛是[真寻](https://github.com/HibiKier/zhenxun_bot)的好朋友！”
+  
   ZeroBot-Plugin 是 ZeroBot 的 实用插件合集<br><br>
 
 
@@ -15,7 +18,7 @@
 
   [![go](https://goreportcard.com/badge/github.com/FloatTech/ZeroBot-Plugin?style=flat-square&logo=go)](https://goreportcard.com/badge/github.com/FloatTech/ZeroBot-Plugin)
   [![onebot](https://img.shields.io/badge/onebot-v11-black?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAMAAADxPgR5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAxQTFRF////29vbr6+vAAAAk1hCcwAAAAR0Uk5T////AEAqqfQAAAKcSURBVHja7NrbctswDATQXfD//zlpO7FlmwAWIOnOtNaTM5JwDMa8E+PNFz7g3waJ24fviyDPgfhz8fHP39cBcBL9KoJbQUxjA2iYqHL3FAnvzhL4GtVNUcoSZe6eSHizBcK5LL7dBr2AUZlev1ARRHCljzRALIEog6H3U6bCIyqIZdAT0eBuJYaGiJaHSjmkYIZd+qSGWAQnIaz2OArVnX6vrItQvbhZJtVGB5qX9wKqCMkb9W7aexfCO/rwQRBzsDIsYx4AOz0nhAtWu7bqkEQBO0Pr+Ftjt5fFCUEbm0Sbgdu8WSgJ5NgH2iu46R/o1UcBXJsFusWF/QUaz3RwJMEgngfaGGdSxJkE/Yg4lOBryBiMwvAhZrVMUUvwqU7F05b5WLaUIN4M4hRocQQRnEedgsn7TZB3UCpRrIJwQfqvGwsg18EnI2uSVNC8t+0QmMXogvbPg/xk+Mnw/6kW/rraUlvqgmFreAA09xW5t0AFlHrQZ3CsgvZm0FbHNKyBmheBKIF2cCA8A600aHPmFtRB1XvMsJAiza7LpPog0UJwccKdzw8rdf8MyN2ePYF896LC5hTzdZqxb6VNXInaupARLDNBWgI8spq4T0Qb5H4vWfPmHo8OyB1ito+AysNNz0oglj1U955sjUN9d41LnrX2D/u7eRwxyOaOpfyevCWbTgDEoilsOnu7zsKhjRCsnD/QzhdkYLBLXjiK4f3UWmcx2M7PO21CKVTH84638NTplt6JIQH0ZwCNuiWAfvuLhdrcOYPVO9eW3A67l7hZtgaY9GZo9AFc6cryjoeFBIWeU+npnk/nLE0OxCHL1eQsc1IciehjpJv5mqCsjeopaH6r15/MrxNnVhu7tmcslay2gO2Z1QfcfX0JMACG41/u0RrI9QAAAABJRU5ErkJggg==)](https://t.me/zerobotplugin)
-  [![zerobot](https://img.shields.io/badge/zerobot-v1.5.1-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
+  [![zerobot](https://img.shields.io/badge/zerobot-v1.6.6-black?style=flat-square&logo=go)](https://github.com/wdvxdr1123/ZeroBot)
   [![license](https://img.shields.io/github/license/FloatTech/ZeroBot-Plugin.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
   [![tencent-qq](https://img.shields.io/badge/group-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
   [![telegram](https://img.shields.io/badge/Telegram-click%20me-informational?style=flat-square&logo=telegram)](https://t.me/zerobotplugin)
@@ -23,9 +26,9 @@
   本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
   | 项目地址 | 平台 | 核心作者 |
   | --- | --- | --- |
-  | [Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |
-  | [yyuueexxiinngg/cqhttp-mirai](https://github.com/yyuueexxiinngg/cqhttp-mirai) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
-  | [takayama-lily/onebot](https://github.com/takayama-lily/onebot) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
+  | [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | [MiraiGo](https://github.com/Mrs4s/MiraiGo) | Mrs4s |
+  | [onebot-kotlin](https://github.com/yyuueexxiinngg/onebot-kotlin) | [Mirai](https://github.com/mamoe/mirai) | yyuueexxiinngg |
+  | [oicq/http-api](https://github.com/takayama-lily/oicq/tree/master/http-api) | [OICQ](https://github.com/takayama-lily/oicq) | takayama |
 
   [![Star Trend](https://api.star-history.com/svg?repos=FloatTech/ZeroBot-Plugin&type=Timeline)](https://seladb.github.io/StarTrack-js/#/preload?r=FloatTech,ZeroBot-Plugin)
 
@@ -76,7 +79,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
             "Url": "ws://127.0.0.1:6700",
             "AccessToken": ""
         }
-    ]
+    ],
+    "wss": null
 }
 ```
 
@@ -237,7 +241,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [ ] 同意好友请求
 
-  - [ ] 撤回[@xxx] [xxx]
+  - [x] 对信息回复: 撤回
 
   - [ ] 警告[@xxx]
 
@@ -251,7 +255,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
 
-  - [x] @Bot 关键词
+  - [x] 切换[kimo|傲娇|可爱]词库
+  - [x] 设置词库触发概率0.x (0<x<9)
 
 </details>
 <details>
@@ -634,6 +639,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>女装</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dress"`
+
+  - [x] 女装
+
+  - [x] 男装
+  
+  - [x] 随机女装
+  
+  - [x] 随机男装
+
+</details>
+<details>
   <summary>漂流瓶</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"`
@@ -915,6 +934,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 让[宁宁|爱瑠|芳乃|茉子|丛雨|小春|七海]说(日语)
 
   - [x] 让[수아|미미르|아린|연화|유화|선배]说(韩语)
+
+  - [x] 让[派蒙|空|荧|阿贝多|枫原万叶|温迪|八重神子|纳西妲|钟离|诺艾尔|凝光|托马|北斗|莫娜|荒泷一斗|提纳里|芭芭拉|艾尔海森|雷电将军|赛诺|琴|班尼特|五郎|神里绫华|迪希雅|夜兰|辛焱|安柏|宵宫|云堇|妮露|烟绯|鹿野院平藏|凯亚|达达利亚|迪卢克|可莉|早柚|香菱|重云|刻晴|久岐忍|珊瑚宫心海|迪奥娜|戴因斯雷布|魈|神里绫人|丽莎|优菈|凯瑟琳|雷泽|菲谢尔|九条裟罗|甘雨|行秋|胡桃|迪娜泽黛|柯莱|申鹤|砂糖|萍姥姥|奥兹|罗莎莉亚|式大将|哲平|坎蒂丝|托克|留云借风真君|昆钧|塞琉斯|多莉|大肉丸|莱依拉|散兵|拉赫曼|杜拉夫|阿守|玛乔丽|纳比尔|海芭夏|九条镰治|阿娜耶|阿晃|阿扎尔|七七|博士|白术|埃洛伊|大慈树王|女士|丽塔|失落迷迭|缭乱星棘|伊甸|伏特加女孩|狂热蓝调|莉莉娅|萝莎莉娅|八重樱|八重霞|卡莲|第六夜想曲|卡萝尔|姬子|极地战刃|布洛妮娅|次生银翼|理之律者|迷城骇兔|希儿|魇夜星渊|黑希儿|帕朵菲莉丝|天元骑英|幽兰黛尔|德丽莎|月下初拥|朔夜观星|暮光骑士|明日香|李素裳|格蕾修|梅比乌斯|渡鸦|人之律者|爱莉希雅|爱衣|天穹游侠|琪亚娜|空之律者|薪炎之律者|云墨丹心|符华|识之律者|维尔薇|芽衣|雷之律者|阿波尼亚]说(中文)
 
 </details>
 <details>
@@ -1371,9 +1392,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade.go"`
   - [x] 查卡价 [卡名]
-  - [x] 查卡价 [卡名] [稀有度 稀有度 ...]
+  - [x] 查卡价 [卡名] -r [稀有度 稀有度 ...]
   - [x] 查卡店  [卡名]
-  - [x] 查卡店  [卡名] [稀有度]
+  - [x] 查卡店  [卡名] -r [稀有度]
   - 注：卡店只支持单个稀有度查询
 	
 </details>
@@ -1409,7 +1430,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] @Bot 任意文本(任意一句话回复)
 
-  - [x] 设置回复模式[青云客 | 小爱]
+  - [x] 设置回复模式[青云客 | 小爱 | ChatGPT]
+
+  - [x] 设置 ChatGPT SessionToken xxx
+
+  - [x] 重置ChatGPT连接
+  
+  - 注:
+    - 注册和获取 token 可以参见这两篇文章：[注册](https://www.cnblogs.com/ranxi169/p/16954797.html) [获取token](https://juejin.cn/post/7174088036035067917)
+    - 设置 SessionToken 时，请确保自己为超级管理员，然后私聊`/响应` `/禁用atri` `/禁用tts` `/启用aireply`，再发送`设置 ChatGPT SessionToken xxx`
+
 </details>
 
 ## 三种使用方法，推荐第一种
@@ -1474,3 +1504,9 @@ GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" 
 
 - [ZeroBot](https://github.com/wdvxdr1123/ZeroBot)
 - [ATRI](https://github.com/Kyomotoi/ATRI)
+
+同时感谢以下开发者对 ZeroBot-Plugin 作出的贡献：
+
+<a href="https://github.com/FloatTech/ZeroBot-Plugin/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FloatTech/ZeroBot-Plugin&max=1000" />
+</a>

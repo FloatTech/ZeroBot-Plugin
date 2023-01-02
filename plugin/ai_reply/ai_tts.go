@@ -2,92 +2,42 @@ package aireply
 
 import (
 	"errors"
-	"regexp"
-	"sync"
+	"net/url"
 
+	"github.com/RomiChan/syncx"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 
+	"github.com/FloatTech/AnimeAPI/aireply"
+	"github.com/FloatTech/AnimeAPI/tts"
+	"github.com/FloatTech/AnimeAPI/tts/baidutts"
+	"github.com/FloatTech/AnimeAPI/tts/genshin"
+	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
 
+// 数据结构: [4 bits] [4 bits] [8 bits] [8 bits]
+// 			[拟声鸟模式] [百度模式] [tts模式] [回复模式]
+
+// defaultttsindexkey
+// 数据结构: [4 bits] [4 bits] [8 bits]
+// 			[拟声鸟模式] [百度模式] [tts模式]
+
+// [tts模式]: 0~63 genshin 64 baidu 65 mockingbird
+
 const (
-	cnapi = "https://genshin.azurewebsites.net/api/speak?format=mp3&id=%d&text=%s"
+	lastgsttsindex = 63 + iota
+	baiduttsindex
+	mockingbirdttsindex
 )
 
-// 每个角色的测试文案
-var testRecord = map[string]string{
-	"派蒙":    "哎，又是看不懂的东西。我完全不知道这些奇怪的问题和实验，能得到什么结果…",
-	"凯亚":    "真是个急性子啊你。",
-	"安柏":    "最初的鸟儿是不会飞翔的，飞翔是它们勇敢跃入峡谷的奖励。",
-	"丽莎":    "嗨，小可爱，你是新来的助理吗？",
-	"琴":     "蒲公英骑士，琴，申请入队。",
-	"香菱":    "我是来自璃月的厨师香菱，最擅长的是做各种捞…捞，料理…哎呀，练了那么多次，还是会紧张，嘿。",
-	"枫原万叶":  "飘摇风雨中，带刀归来赤脚行。",
-	"迪卢克":   "在黎明来临之前，总要有人照亮黑暗。",
-	"温迪":    "若你困于无风之地，我将为你奏响高天之歌。",
-	"可莉":    "西风骑士团，火花骑士，可莉，前来报到！…呃—后面该说什么词来着？可莉背不下来啦...",
-	"早柚":    "终末番,早柚，参上。 呼——",
-	"托马":    "初次见面，异乡的旅人，你的名字我可是早就听说了。只要你不嫌弃，我托马，从今天起就是你的朋友了。",
-	"芭芭拉":   "芭芭拉，闪耀登场~治疗就交给我吧，不会让你失望的！",
-	"优菈":    "沉沦是很容易的一件事，但我仍想冻住这股潮流。",
-	"云堇":    "曲高未必人不识，自有知音和清词。",
-	"钟离":    "人间归离复归离，借一浮生逃浮生。",
-	"魈":     "三眼五显仙人，魈，听召，前来守护",
-	"凝光":    "就算古玩价值连城，给人的快乐，也只有刚拥有的一瞬",
-	"雷电将军":  "浮世千百年来风景依旧，人之在世却如白露与泡影。",
-	"北斗":    "不知道如何向前的话，总之先迈出第一步，后面的道路就会自然而然地展开了。",
-	"甘雨":    "这项工作，该划掉了。",
-	"七七":    "椰羊的奶，好喝!比一般的羊奶，好喝!",
-	"刻晴":    "劳逸结合是不错，但也别放松过头。",
-	"神里绫华":  "若知是梦何须醒，不比真如一相会。",
-	"雷泽":    "你是朋友。我和你一起狩猎。",
-	"神里绫人":  "此前听绫华屡次提起阁下，不料公务繁忙，直至今日才有机会相见。",
-	"罗莎莉亚":  "哪怕如今你已经走上截然不同的道路，也不要否认从前的自己，从前的每一个你都是你脚下的基石，不要害怕过去，不要畏惧与它抗衡。",
-	"阿贝多":   "用自己的双脚丈量土地，将未知变为知识。",
-	"八重神子":  "我的神明，就托付给你了。",
-	"宵宫":    "即使只是片刻的火花，也能在仰望黑夜的人心中留下久久不灭的美丽光芒。",
-	"荒泷一斗":  "更好地活下去,绝不该靠牺牲同类换取，应该是,一起更好地活着,才对。",
-	"九条裟罗":  "想要留住雪花。但在手心里，它只会融化的更快。",
-	"夜兰":    "线人来信了，嗯，看来又出现了新的变数。",
-	"珊瑚宫心海": "成为了现任人神巫女之后，我也慢慢习惯了这样的生活，更重要的是我也因此和你相遇了，不是吗？",
-	"五郎":    "海祇岛反抗军大将，五郎，前来助阵！",
-	"达达利亚":  "许下的诺言就好好遵守，做错了事情就承担责任，这才是家人应有的样子吧。",
-	"莫娜":    "正是因为无法更改，无可违逆，只能接受，命运才会被称之为命运。",
-	"班尼特":   "只要有大家在，伤口就不会痛!",
-	"申鹤":    "不知道你是喜欢人间的灯火，还是山林的月光？",
-	"行秋":    "有时明月无人夜，独向昭潭制恶龙。",
-	"烟绯":    "律法即是约束，也是工具。",
-	"久岐忍":   "有麻烦事要处理的话，直接告诉我就好，我来摆平。",
-	"辛焱":    "马上就要演出了，你也一起来嗨吗？",
-	"砂糖":    "我是砂糖，炼金术的…研究员。",
-	"胡桃":    "阴阳有序，命运无常，死亡难以预测，却也有它的规矩。",
-	"重云":    "我名重云，家族久居璃月，世代以驱邪除魔为业。",
-	"菲谢尔":   "我即断罪之皇女，真名为菲谢尔。应命运的召唤降临在此间——哎？你也是，异世界的旅人吗…？",
-	"诺艾尔":   "我是诺艾尔，西风骑士团的女仆，从今天起会陪你一起去冒险。",
-	"迪奥娜":   "猫尾酒馆的招牌调酒师，迪奥娜，我的出场费可是很贵的。",
-	"鹿野院平藏": "我叫鹿野院平藏，是天领奉行里破案最多最快的侦探……",
-}
-
-var (
-	re        = regexp.MustCompile(`(\-|\+)?\d+(\.\d+)?`)
-	soundList = [...]string{
-		"派蒙", "凯亚", "安柏", "丽莎", "琴",
-		"香菱", "枫原万叶", "迪卢克", "温迪", "可莉",
-		"早柚", "托马", "芭芭拉", "优菈", "云堇",
-		"钟离", "魈", "凝光", "雷电将军", "北斗",
-		"甘雨", "七七", "刻晴", "神里绫华", "雷泽",
-		"神里绫人", "罗莎莉亚", "阿贝多", "八重神子", "宵宫",
-		"荒泷一斗", "九条裟罗", "夜兰", "珊瑚宫心海", "五郎",
-		"达达利亚", "莫娜", "班尼特", "申鹤", "行秋",
-		"烟绯", "久岐忍", "辛焱", "砂糖", "胡桃",
-		"重云", "菲谢尔", "诺艾尔", "迪奥娜", "鹿野院平藏",
-	}
+const (
+	defaultttsindexkey = -2905
 )
 
-/*************************************************************
-*******************************AIreply************************
-*************************************************************/
+var replyModes = [...]string{"青云客", "小爱", "ChatGPT"}
+
 func setReplyMode(ctx *zero.Ctx, name string) error {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
@@ -109,30 +59,49 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	if !ok {
 		return errors.New("no such plugin")
 	}
-	return m.SetData(gid, index)
+	return m.SetData(gid, (m.GetData(index)&^0xff)|(index&0xff))
 }
 
-func getReplyMode(ctx *zero.Ctx) (name string) {
+var chats *aireply.ChatGPT
+
+func getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
 	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if ok {
-		index := m.GetData(gid)
-		if int(index) < len(replyModes) {
-			return replyModes[index]
+		switch m.GetData(gid) & 0xff {
+		case 0:
+			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+		case 1:
+			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
+		case 2:
+			if chats != nil {
+				return chats
+			}
 		}
 	}
-	return "青云客"
+	return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
 }
 
-/*************************************************************
-***********************tts************************************
-*************************************************************/
+var ttsins = func() map[string]tts.TTS {
+	m := make(map[string]tts.TTS, 128)
+	for _, mode := range append(genshin.SoundList[:], "百度", "拟声鸟") {
+		m[mode] = nil
+	}
+	return m
+}()
+
+var ttsModes = func() []string {
+	s := append(genshin.SoundList[:], make([]string, 64-len(genshin.SoundList))...) // 0-63
+	s = append(s, "百度", "拟声鸟")                                                      // 64 65
+	return s
+}()
+
 type ttsmode struct {
-	sync.RWMutex
-	mode map[int64]int64
+	APIKey string                  // APIKey is for genshin vits
+	mode   syncx.Map[int64, int64] `json:"-"` // mode grp index
 }
 
 func list(list []string, num int) string {
@@ -149,90 +118,142 @@ func list(list []string, num int) string {
 }
 
 func newttsmode() *ttsmode {
-	tts := &ttsmode{}
-	tts.Lock()
-	defer tts.Unlock()
+	t := &ttsmode{}
 	m, ok := control.Lookup("tts")
-	tts.mode = make(map[int64]int64, 2*len(soundList))
-	tts.mode[-2905] = 1
+	t.mode = syncx.Map[int64, int64]{}
+	t.mode.Store(defaultttsindexkey, 0)
 	if ok {
-		index := m.GetData(-2905)
-		if index > 0 && index < int64(len(soundList)) {
-			tts.mode[-2905] = index
+		index := m.GetData(defaultttsindexkey)
+		msk := index & 0xff
+		if msk >= 0 && (msk < int64(len(genshin.SoundList)) || msk == baiduttsindex || msk == mockingbirdttsindex) {
+			t.mode.Store(defaultttsindexkey, index)
 		}
 	}
-	return tts
+	return t
 }
 
-func (tts *ttsmode) setSoundMode(ctx *zero.Ctx, name string) error {
+func (t *ttsmode) getAPIKey(ctx *zero.Ctx) string {
+	if t.APIKey == "" {
+		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		_ = m.Manager.GetExtra(-1, &t)
+		logrus.Debugln("[tts] get api key:", t.APIKey)
+	}
+	return url.QueryEscape(t.APIKey)
+}
+
+func (t *ttsmode) setAPIKey(m *ctrl.Control[*zero.Ctx], key string) error {
+	t.APIKey = key
+	_ = m.Manager.Response(-1)
+	return m.Manager.SetExtra(-1, t)
+}
+
+func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt int) error {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	var index int64
-	for i, s := range soundList {
+	_, ok := ttsins[name]
+	if !ok {
+		return errors.New("不支持设置语音人物" + name)
+	}
+	var index = int64(-1)
+	for i, s := range genshin.SoundList {
 		if s == name {
-			index = int64(i + 1)
+			index = int64(i)
 			break
 		}
 	}
-	if index == 0 {
-		return errors.New("不支持设置语音人物" + name)
+	if index == -1 {
+		switch name {
+		case "百度":
+			index = baiduttsindex
+		case "拟声鸟":
+			index = mockingbirdttsindex
+		default:
+			return errors.New("语音人物" + name + "未注册index")
+		}
 	}
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	tts.Lock()
-	defer tts.Unlock()
-	tts.mode[gid] = index
-	return m.SetData(gid, index)
+	t.mode.Store(gid, index)
+	return m.SetData(gid, (m.GetData(gid)&^0xffff00)|((index<<8)&0xff00)|((int64(baiduper)<<16)&0x0f0000)|((int64(mockingsynt)<<20)&0xf00000))
 }
 
-func (tts *ttsmode) getSoundMode(ctx *zero.Ctx) int64 {
+func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	tts.Lock()
-	defer tts.Unlock()
-	i, ok := tts.mode[gid]
+	i, ok := t.mode.Load(gid)
 	if !ok {
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		i = m.GetData(gid)
+		i = m.GetData(gid) >> 8
 	}
-	if i <= 0 || i >= int64(len(soundList)) {
-		i = tts.mode[-2905]
+	m := i & 0xff
+	if m < 0 || (m >= int64(len(genshin.SoundList)) && m != baiduttsindex && m != mockingbirdttsindex) {
+		i, _ = t.mode.Load(defaultttsindexkey)
+		m = i & 0xff
 	}
-	return i - 1
+	mode := ttsModes[m]
+	ins, ok := ttsins[mode]
+	if !ok || ins == nil {
+		switch mode {
+		case "百度":
+			ins = baidutts.NewBaiduTTS(int(i&0x0f00) >> 8)
+		case "拟声鸟":
+			var err error
+			ins, err = mockingbird.NewMockingBirdTTS(int(i&0xf000) >> 12)
+			if err != nil {
+				return nil, err
+			}
+		default: // 原神
+			k := t.getAPIKey(ctx)
+			if k != "" {
+				ins = genshin.NewGenshin(int(m), t.getAPIKey(ctx))
+				ttsins[mode] = ins
+			} else {
+				return nil, errors.New("no valid speaker")
+			}
+		}
+	}
+	return ins, nil
 }
 
-func (tts *ttsmode) resetSoundMode(ctx *zero.Ctx) error {
+func (t *ttsmode) resetSoundMode(ctx *zero.Ctx) error {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
 	}
-	tts.Lock()
-	defer tts.Unlock()
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	tts.mode[gid] = 0
-	return m.SetData(gid, 0) // 重置数据
+	index := m.GetData(defaultttsindexkey)
+	return m.SetData(gid, (m.GetData(gid)&0xff)|((index&^0xff)<<8)) // 重置数据
 }
 
-func (tts *ttsmode) setDefaultSoundMode(name string) error {
-	var index int64
-	for i, s := range soundList {
+func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) error {
+	_, ok := ttsins[name]
+	if !ok {
+		return errors.New("不支持设置语音人物" + name)
+	}
+	index := int64(-1)
+	for i, s := range genshin.SoundList {
 		if s == name {
-			index = int64(i + 1)
+			index = int64(i)
 			break
 		}
 	}
-	if index == 0 {
-		return errors.New("不支持设置语音人物" + name)
+	if index == -1 {
+		switch name {
+		case "百度":
+			index = baiduttsindex
+		case "拟声鸟":
+			index = mockingbirdttsindex
+		default:
+			return errors.New("语音人物" + name + "未注册index")
+		}
 	}
-	tts.Lock()
-	defer tts.Unlock()
 	m, ok := control.Lookup("tts")
 	if !ok {
 		return errors.New("[tts] service not found")
 	}
-	tts.mode[-2905] = index
-	return m.SetData(-2905, index)
+	t.mode.Store(defaultttsindexkey, index)
+	return m.SetData(defaultttsindexkey, (index&0xff)|((int64(baiduper)<<8)&0x0f00)|((int64(mockingsynt)<<12)&0xf000))
 }
