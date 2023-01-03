@@ -2,87 +2,98 @@ package warframeapi
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/davidscholberg/go-durationfmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
-	gameTimes []gameTime
+	gameTimes [3]*gameTime
+	rwm       sync.RWMutex
 )
 
-func (t gameTime) getStatus() string {
+func (t *gameTime) getStatus() string {
+	rwm.RLock()
 	if t.Status {
 		return t.StatusTrueDes
 	}
+	rwm.RUnlock()
 	return t.StatusFalseDes
 }
-func (t gameTime) getTime() string {
+func (t *gameTime) getTime() string {
+	rwm.RLock()
 	d := time.Until(t.NextTime)
+	rwm.RUnlock()
 	durStr, _ := durationfmt.Format(d, "%m分%s秒后")
 	return durStr
 }
 
 // 游戏时间模拟初始化
-func gameTimeInit() {
-	//updateWM()
-	loadTime()
-	go gameRuntime()
-}
+//func gameTimeInit() {
+//	//updateWM()
+//	loadTime(wfapi)
+//	go gameRuntime()
+//}
 
 func gameRuntime() {
-	for {
-		time.Sleep(10 * time.Second)
+
+	for range time.NewTicker(10 * time.Second).C {
 		timeDet()
 	}
-
+	//for {
+	//	time.Sleep(10 * time.Second)
+	//	timeDet()
+	//}
 }
 
-func loadTime() {
+func loadTime(api wfAPI) {
 	//updateWM()
 	var isfass bool
-	if wfapi.CambionCycle.Active == "fass" {
-		isfass = false
+	if api.CambionCycle.Active == "fass" {
+		isfass = true
 	}
-	gameTimes = []gameTime{
-		{"地球平原", wfapi.CetusCycle.Expiry.Local(), wfapi.CetusCycle.IsDay, "白天", "夜晚", 100 * 60, 50 * 60},
-		{"金星平原", wfapi.VallisCycle.Expiry.Local(), wfapi.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
-		{"火卫二平原", wfapi.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
+	gameTimes = [3]*gameTime{
+		{"地球平原", api.CetusCycle.Expiry.Local(), api.CetusCycle.IsDay, "白天", "夜晚", 100 * 60, 50 * 60},
+		{"金星平原", api.VallisCycle.Expiry.Local(), api.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
+		{"火卫二平原", api.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
 	}
 
 }
 
 func timeDet() {
+	rwm.Lock()
 	for i, v := range gameTimes {
 		nt := time.Until(v.NextTime).Seconds()
 		switch {
 		case nt < 0:
 			if v.Status {
-				gameTimes[i].NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
+				v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
 			} else {
-				gameTimes[i].NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
+				v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
 			}
-			gameTimes[i].Status = !gameTimes[i].Status
-			callUser(i, gameTimes[i].Status, 0)
+			v.Status = !v.Status
+
+			callUser(i, v.Status, 0)
 		case nt < float64(5)*60:
-			callUser(i, !gameTimes[i].Status, 5)
+			callUser(i, !v.Status, 5)
 		case nt < float64(15)*60:
 			if i == 2 && !v.Status {
 				return
 			}
-			callUser(i, !gameTimes[i].Status, 15)
+			callUser(i, !v.Status, 15)
 		}
 	}
+	rwm.Unlock()
 }
 
-func callUser(i int, s bool, time int) {
+func callUser(i int, s bool, time int) []message.MessageSegment {
+	msg := []message.MessageSegment{}
 	for group, sl := range sublist {
-		msg := []message.MessageSegment{}
 
 		switch {
-		case !sl.Min15Tips && !sl.Min5Tips && time == 15:
+		case !sl.Min15Tips && !sl.Min5Tips && time == 15: //是否
 			sublist[group].Min15Tips = true
 		case sl.Min15Tips && !sl.Min5Tips && time == 5:
 			sublist[group].Min5Tips = true
@@ -90,9 +101,8 @@ func callUser(i int, s bool, time int) {
 			sublist[group].Min15Tips = false
 			sublist[group].Min5Tips = false
 		default:
-			return
+			return nil
 		}
-
 		//if !sl.Min15Tips && !sl.Min5Tips && time == 15 {
 		//	sublist[group].Min15Tips = true
 		//} else if sl.Min15Tips && !sl.Min5Tips && time == 5 {
@@ -103,7 +113,6 @@ func callUser(i int, s bool, time int) {
 		//} else {
 		//	return
 		//}
-
 		for qq, st := range sl.SubUser {
 			if st.SubType[i] != nil {
 				if *st.SubType[i] == s {
@@ -127,10 +136,8 @@ func callUser(i int, s bool, time int) {
 				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离夜晚(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusFalseDes, time)))
 			}
 		}
-
-		zero.GetBot(2429160662).SendGroupMessage(group, msg)
 	}
-
+	return msg
 }
 
 // 游戏时间模拟

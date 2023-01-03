@@ -134,13 +134,13 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation" // vtb语录
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"        // 钱包
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"     // 网易云音乐热评
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"     // 文本指令大全
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"   // 百度文心AI画图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count" // 聊天热词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"     // 猜单词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"        // 游戏王相关插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"      // 月幕galgame
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"   // warframeAPI插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"        // 文本指令大全
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"      // 百度文心AI画图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"    // 聊天热词
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"        // 猜单词
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"           // 游戏王相关插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"         // 月幕galgame
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"            // 鬼东西
 
@@ -263,7 +263,6 @@ func init() {
 		logrus.Infoln("[main] 从", *runcfg, "读取配置文件")
 		return
 	}
-
 	config.W = []*driver.WSClient{driver.NewWebSocketClient(*url, *token)}
 	config.Z = zero.Config{
 		NickName:       append([]string{*adana}, "ATRI", "atri", "亚托莉", "アトリ"),

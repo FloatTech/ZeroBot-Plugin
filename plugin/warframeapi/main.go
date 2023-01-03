@@ -2,10 +2,10 @@
 package warframeapi
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"io"
 	"net/http"
@@ -33,6 +33,7 @@ var (
 	itemNamesPath string             //物品外号存储路径
 	sublist       map[int64]*subList //订阅列表
 	sublistPath   string             //订阅列表存储路径
+	ctx           *zero.Ctx          //BOT实例
 )
 
 func init() {
@@ -43,6 +44,7 @@ func init() {
 			"- [金星|地球|火卫二]平原状态\n" +
 			"- 订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
 			"- 取消订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
+			"- wf订阅检测\n" +
 			"- .wm [物品名称]\n" +
 			"- 取外号 [原名称] [外号]\n" +
 			"- [金星|地球|火卫二]平原状态\n" +
@@ -51,10 +53,15 @@ func init() {
 			"- 每日特惠",
 		PrivateDataFolder: "warframeAPI",
 	})
+
+	zero.RangeBot(func(id int64, c *zero.Ctx) bool {
+		ctx = c
+		return false
+	})
 	//生成物品列表存储路径
 	itemNamesPath = eng.DataFolder() + "ItemNames.json"
 	//检查文件是否存在
-	if isExist(itemNamesPath) {
+	if file.IsExist(itemNamesPath) {
 		data, err := os.ReadFile(itemNamesPath)
 		if err != nil {
 			panic(err)
@@ -66,8 +73,9 @@ func init() {
 	} else {
 		fileItemNames = map[string]string{}
 	}
+	//订阅名单文件路径
 	sublistPath = eng.DataFolder() + "Sublist.json"
-	if isExist(sublistPath) {
+	if file.IsExist(itemNamesPath) {
 		data, err := os.ReadFile(sublistPath)
 		if err != nil {
 			panic(err)
@@ -81,37 +89,29 @@ func init() {
 	}
 	updateWM()
 	loadToFuzzy()
-	udateWFAPI2()
-
+	updateWFAPI()
+	//gameTimeInit()
 	eng.OnRegex(`^(.*)平原状态$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["regex_matched"].([]string)
-			updateWFAPI(ctx)
+			updateWFAPI()
 
 			switch args[1] {
-			case "奥布山谷":
-				fallthrough
-			case "金星":
+			case "金星", "奥布山谷":
 				ctx.SendChain(
 					message.Text(
 						"平原状态:", gameTimes[1].getStatus(), "\n",
 						"下次更新:", gameTimes[1].getTime(),
 					),
 				)
-			case "夜灵":
-				fallthrough
-			case "地球":
+			case "地球", "夜灵":
 				ctx.SendChain(
 					message.Text(
 						"平原状态:", gameTimes[0].getStatus(), "\n",
 						"下次更新:", gameTimes[0].getTime(),
 					),
 				)
-			case "火卫":
-				fallthrough
-			case "火卫二":
-				fallthrough
-			case "魔胎之境":
+			case "魔胎之境", "火卫二", "火卫":
 				ctx.SendChain(
 					message.Text(
 						"平原状态:", gameTimes[2].getStatus(), "\n",
@@ -119,12 +119,12 @@ func init() {
 					),
 				)
 			default:
-				ctx.SendChain(message.Text("Error:平原不存在"))
+				ctx.SendChain(message.Text("ERROR: 平原不存在"))
 				return
 			}
 		})
 
-	eng.OnRegex(`^警报$`).SetBlock(true).
+	eng.OnFullMatch(`警报`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(wfapi.Alerts) > 0 {
 				for _, v := range wfapi.Alerts {
@@ -141,117 +141,94 @@ func init() {
 			}
 
 		})
-	eng.OnRegex(`^订阅(.*)平原(.*)$`).SetBlock(true).
+	eng.OnRegex(`^(订阅|取消订阅)(.*)平原(.*)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["regex_matched"].([]string)
-			updateWFAPI(ctx)
+			var isEnable bool
+			if args[1] == "订阅" {
+				isEnable = true
+			}
+			updateWFAPI()
 			status := false
-			switch args[2] {
-			case "白天":
-				fallthrough
-			case "fass":
-				fallthrough
-			case "Fass":
-				fallthrough
-			case "温暖":
+			switch args[3] {
+			case "fass", "白天", "温暖":
 				status = true
 			}
-			switch args[1] {
-			case "奥布山谷":
-				fallthrough
-			case "金星":
+			switch args[2] {
+			case "金星", "奥布山谷":
 				//sublist = append(sublist, subList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
-				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1, status)
+				if isEnable {
+					addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1, status)
+				} else {
+					removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1)
+				}
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
-					message.Text("已成功订阅"),
+					message.Text("已成功", args[1]),
 					message.Text(gameTimes[1].Name),
 					message.Text(status),
 				)
-			case "夜灵":
-				fallthrough
-			case "地球":
-				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0, status)
+			case "地球", "夜灵":
+				if isEnable {
+					addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0, status)
+				} else {
+					removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0)
+				}
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
-					message.Text("已成功订阅"),
+					message.Text("已成功", args[1]),
 					message.Text(gameTimes[0].Name),
 					message.Text(status),
 				)
-			case "火卫":
-				fallthrough
-			case "火卫二":
-				fallthrough
-			case "魔胎之境":
-				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2, status)
+			case "魔胎之境", "火卫", "火卫二":
+				if isEnable {
+					addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2, status)
+				} else {
+					removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2)
+				}
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
-					message.Text("已成功订阅"),
+					message.Text("已成功", args[1]),
 					message.Text(gameTimes[2].Name),
 					message.Text(status),
 				)
 			default:
-				ctx.SendChain(message.Text("Error:平原不存在"))
+				ctx.SendChain(message.Text("ERROR: 平原不存在"))
 				return
 			}
 		})
-	eng.OnRegex(`^取消订阅(.*)平原(.*)$`).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			args := ctx.State["regex_matched"].([]string)
-			updateWFAPI(ctx)
-			status := false
-			switch args[2] {
-			case "白天":
-				fallthrough
-			case "fass":
-				fallthrough
-			case "Fass":
-				fallthrough
-			case "温暖":
-				status = true
+	eng.OnFullMatch(`wf订阅检测`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		rwm.Lock()
+		var msg []message.MessageSegment
+		for i, v := range gameTimes {
+			nt := time.Until(v.NextTime).Seconds()
+			switch {
+			case nt < 0:
+				if v.Status {
+					v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
+				} else {
+					v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
+				}
+				v.Status = !v.Status
+
+				msg = callUser(i, v.Status, 0)
+			case nt < float64(5)*60:
+				msg = callUser(i, !v.Status, 5)
+			case nt < float64(15)*60:
+				if i == 2 && !v.Status {
+					return
+				}
+				msg = callUser(i, !v.Status, 15)
 			}
-			switch args[1] {
-			case "奥布山谷":
-				fallthrough
-			case "金星":
-				//sublist = append(sublist, subList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
-				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1)
-				ctx.SendChain(
-					message.At(ctx.Event.UserID),
-					message.Text("已取消订阅"),
-					message.Text(gameTimes[1].Name),
-					message.Text(status),
-				)
-			case "夜灵":
-				fallthrough
-			case "地球":
-				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0)
-				ctx.SendChain(
-					message.At(ctx.Event.UserID),
-					message.Text("已取消订阅"),
-					message.Text(gameTimes[0].Name),
-					message.Text(status),
-				)
-			case "火卫":
-				fallthrough
-			case "火卫二":
-				fallthrough
-			case "魔胎之境":
-				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2)
-				ctx.SendChain(
-					message.At(ctx.Event.UserID),
-					message.Text("已取消订阅"),
-					message.Text(gameTimes[2].Name),
-					message.Text(status),
-				)
-			default:
-				ctx.SendChain(message.Text("Error:平原不存在"))
-				return
-			}
-		})
-	eng.OnRegex(`^仲裁$`).SetBlock(true).
+		}
+		rwm.Unlock()
+		if msg != nil && len(msg) > 0 {
+			ctx.SendChain(msg...)
+		}
+	})
+	eng.OnFullMatch(`仲裁`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			updateWFAPI(ctx)
+			updateWFAPI()
 			sendStringArray([]string{
 				"节点:" + wfapi.Arbitration.Node,
 				"类型:" + wfapi.Arbitration.Type,
@@ -261,7 +238,7 @@ func init() {
 		})
 	eng.OnRegex(`^每日特惠$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			updateWFAPI(ctx)
+			updateWFAPI()
 			for _, dd := range wfapi.DailyDeals {
 				ctx.SendChain(
 					message.Text(
@@ -287,8 +264,8 @@ func init() {
 	// 	})
 	eng.OnRegex(`^wf数据更新$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			updateWFAPI(ctx)
-			loadTime()
+			updateWFAPI()
+			loadTime(wfapi)
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
 	eng.OnRegex(`^.取外号 (.*) (.*)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -470,6 +447,8 @@ func init() {
 		})
 
 }
+
+// 数组文字转图片并发送
 func sendStringArray(texts []string, ctx *zero.Ctx) {
 	b, err := text.RenderToBase64(strings.Join(texts, "\n"), text.FontFile, 800, 20)
 	if err != nil {
@@ -479,6 +458,7 @@ func sendStringArray(texts []string, ctx *zero.Ctx) {
 	ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
 }
 
+// 添加用户订阅
 func addUseSub(qq int64, qqGroup int64, stype int, status bool) {
 	if sb, ok := sublist[qqGroup]; ok {
 		if st, ok := sb.SubUser[qq]; ok {
@@ -492,6 +472,7 @@ func addUseSub(qq int64, qqGroup int64, stype int, status bool) {
 	jsonSave(sublist, sublistPath)
 }
 
+// 移除用户订阅
 func removeUseSub(qq int64, qqGroup int64, stype int) {
 	if sb, ok := sublist[qqGroup]; ok {
 		if _, ok := sb.SubUser[qq]; ok {
@@ -501,40 +482,26 @@ func removeUseSub(qq int64, qqGroup int64, stype int) {
 	}
 }
 
-func updateWFAPI(ctx *zero.Ctx) {
+// 从WFapi获取数据
+func updateWFAPI() error {
 	var data []byte
 	var err error
 	data, err = web.GetData("https://api.warframestat.us/pc")
 	if err != nil {
-		ctx.SendChain(message.Text("Error:", err.Error()))
-		return
+		return err
 	}
 	err = json.Unmarshal(data, &wfapi)
 	if err != nil {
-		ctx.SendChain(message.Text("Error:", err.Error()))
-		return
+		return err
 	}
-
+	return nil
 }
 
-func udateWFAPI2() {
-	var data []byte
-	var err error
-	data, err = web.GetData("https://api.warframestat.us/pc")
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal(data, &wfapi)
-	if err != nil {
-		return
-	}
-	gameTimeInit()
-	loadTime()
-}
+// 从WF市场获取物品数据信息
 func updateWM() {
 	var data []byte
 	var err error
-	data, err = getData("https://api.warframe.market/v1/items", []string{"Accept", "Language"}, []string{"application/json", "zh-hans"})
+	data, err = getData("https://api.warframe.market/v1/items", map[string]string{"Accept": "application/json", "Language": "zh-hans"})
 	if err != nil {
 		panic(err)
 
@@ -549,7 +516,7 @@ func getWMItemOrders(name string, h bool) (orders, itemsInSet, string, error) {
 	var data []byte
 	var err error
 	var wfapiio wfAPIItemsOrders
-	data, err = getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", name), []string{"Accept", "Platform"}, []string{"application/json", "pc"})
+	data, err = getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", name), map[string]string{"Accept": "application/json", "Platform": "pc"})
 	if err != nil {
 		return nil, itemsInSet{}, "", err
 	}
@@ -589,12 +556,12 @@ func loadToFuzzy() {
 	}
 }
 
-func getData(url string, head []string, headvalue []string) (data []byte, err error) {
+func getData(url string, head map[string]string) (data []byte, err error) {
 	//提交请求
 	reqest, err := http.NewRequest("GET", url, nil)
 	//增加header选项
 	for i, v := range head {
-		reqest.Header.Add(v, headvalue[i])
+		reqest.Header.Add(i, v)
 	}
 	if err != nil {
 		return nil, err
@@ -608,38 +575,8 @@ func getData(url string, head []string, headvalue []string) (data []byte, err er
 	response.Body.Close()
 	return data, err
 }
-
-func isExist(path string) bool {
-	_, err := os.Stat(path)
-	if err != nil {
-		if os.IsExist(err) {
-			return true
-		}
-		if os.IsNotExist(err) {
-			return false
-		}
-		fmt.Println(err)
-		return false
-	}
-	return true
-}
 func jsonSave(v interface{}, path string) {
-	data, err := json.Marshal(v)
-	if err != nil {
-		return
-	}
-	dataStr := string(data)
-
-	// 将字符串写入指定的文件
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		return
-	}
-	defer file.Close() // 结束时关闭句柄，释放资源
-	writer := bufio.NewWriter(file)
-	_, err = writer.WriteString(dataStr)
-	if err != nil {
-		return
-	}
-	writer.Flush() // 缓存数据写入磁盘（持久化）
+	f, _ := os.Create(path)
+	defer f.Close()
+	json.NewEncoder(f).Encode(v)
 }
