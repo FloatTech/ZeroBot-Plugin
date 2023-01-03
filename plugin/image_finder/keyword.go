@@ -81,6 +81,10 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			if len(illust.ImageUrls) == 0 {
+				ctx.SendChain(message.Text("ERROR: nil image url"))
+				return
+			}
 			u := illust.ImageUrls[0]
 			n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
 			f := illust.Path(0)

@@ -2,6 +2,7 @@
 package setutime
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -154,6 +155,9 @@ func (p *imgpool) size(imgtype string) int {
 }
 
 func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
+	if len(illust.ImageUrls) == 0 {
+		return
+	}
 	u := illust.ImageUrls[0]
 	n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
 	m, err := imagepool.GetImage(n)
@@ -221,6 +225,9 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 	illust, err := pixiv.Works(id)
 	if err != nil {
 		return err
+	}
+	if len(illust.ImageUrls) == 0 {
+		return errors.New("nil image url")
 	}
 	err = imagepool.SendImageFromPool(strconv.FormatInt(illust.Pid, 10)+"_p0", illust.Path(0), func() error {
 		return illust.DownloadToCache(0)
