@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/FloatTech/floatbox/file"
@@ -84,11 +85,11 @@ func init() {
 				return
 			}
 			answerString := "歌名:" + musicInfo[0] + "\n歌手:" + musicInfo[1]
-			musicAlia := ""
 			if infoNum > 2 {
-				musicAlia = musicInfo[2]
-				answerString += "\n其他信息:\n" + strings.ReplaceAll(musicAlia, "&", "\n")
+				musicInfo[2] = strings.ReplaceAll(musicInfo[2], "&", "\n")
+				answerString += "\n其他信息:\n" + musicInfo[2]
 			}
+			musicInfo = append(musicInfo, answerString)
 			// 切割音频,生成3个10秒的音频
 			outputPath := cachePath + strconv.FormatInt(gid, 10) + "/"
 			err = cutMusic(musicName, pathOfMusic, outputPath)
@@ -104,13 +105,18 @@ func init() {
 			} else {
 				next = zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule(`^-\S{1,}`), zero.CheckGroup(ctx.Event.GroupID))
 			}
-			var musicCount = 0  // 音频数量
-			var answerCount = 0 // 问答次数
 			recv, cancel := next.Repeat()
 			defer cancel()
 			wait := time.NewTimer(40 * time.Second)
 			tick := time.NewTimer(105 * time.Second)
 			after := time.NewTimer(120 * time.Second)
+			wg := sync.WaitGroup{}
+			var (
+				messageStr  message.MessageSegment // 文本信息
+				tickCount   = 0                    // 音频数量
+				answerCount = 0                    // 问答次数
+				win         bool                   // 是否赢得游戏
+			)
 			for {
 				select {
 				case <-tick.C:
@@ -121,107 +127,41 @@ func init() {
 					return
 				case <-wait.C:
 					wait.Reset(40 * time.Second)
-					musicCount++
-					if musicCount > 2 {
+					tickCount++
+					if tickCount > 2 {
 						wait.Stop()
 						continue
 					}
 					ctx.SendChain(
 						message.Text("好像有些难度呢,再听这段音频,要仔细听哦"),
 					)
-					ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(musicCount) + ".wav"))
+					ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
 				case c := <-recv:
-					wait.Reset(40 * time.Second)
-					tick.Reset(105 * time.Second)
-					after.Reset(120 * time.Second)
-					answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
-					switch {
-					case answer == "取消":
-						if c.Event.UserID == ctx.Event.UserID {
+					wg.Add(1)
+					go func() {
+						messageStr, answerCount, tickCount, win = gameMatch(c, ctx.Event.UserID, musicInfo, answerCount, tickCount)
+						if win { // 游戏结束的话
 							wait.Stop()
 							tick.Stop()
 							after.Stop()
-							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-								message.Text("游戏已取消,猜歌答案是\n", answerString, "\n\n\n下面欣赏猜歌的歌曲")))
+							ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
 							ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-							return
-						}
-						ctx.Send(
-							message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("你无权限取消"),
-							),
-						)
-					case answer == "提示":
-						musicCount++
-						if musicCount > 2 {
-							wait.Stop()
-							ctx.Send(
-								message.ReplyWithMessage(c.Event.MessageID,
-									message.Text("已经没有提示了哦"),
-								),
-							)
-							continue
-						}
-						wait.Reset(40 * time.Second)
-						ctx.Send(
-							message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("再听这段音频,要仔细听哦"),
-							),
-						)
-						ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(musicCount) + ".wav"))
-					case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
-						wait.Stop()
-						tick.Stop()
-						after.Stop()
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-							message.Text("太棒了,你猜对歌曲名了！答案是\n", answerString, "\n\n下面欣赏猜歌的歌曲")))
-						ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-						return
-					case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
-						wait.Stop()
-						tick.Stop()
-						after.Stop()
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-							message.Text("太棒了,你猜对歌手名了！答案是\n", answerString, "\n\n下面欣赏猜歌的歌曲")))
-						ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-						return
-					case strings.Contains(musicAlia, answer) || strings.EqualFold(musicAlia, answer):
-						wait.Stop()
-						tick.Stop()
-						after.Stop()
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-							message.Text("太棒了,你猜对出处了！答案是\n", answerString, "\n\n下面欣赏猜歌的歌曲")))
-						ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-						return
-					default:
-						musicCount++
-						switch {
-						case musicCount > 2 && answerCount < 6:
-							wait.Stop()
-							answerCount++
-							ctx.Send(
-								message.ReplyWithMessage(c.Event.MessageID,
-									message.Text("答案不对哦,加油啊~"),
-								),
-							)
-						case musicCount > 2:
-							wait.Stop()
-							tick.Stop()
-							after.Stop()
-							ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-								message.Text("次数到了,没能猜出来。答案是\n", answerString, "\n\n下面欣赏猜歌的歌曲")))
-							ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-							return
-						default:
+						} else {
 							wait.Reset(40 * time.Second)
-							answerCount++
-							ctx.Send(
-								message.ReplyWithMessage(c.Event.MessageID,
-									message.Text("答案不对,再听这段音频,要仔细听哦"),
-								),
-							)
-							ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(musicCount) + ".wav"))
+							tick.Reset(105 * time.Second)
+							after.Reset(120 * time.Second)
+							if tickCount > 2 || messageStr.Data["text"] == "你无权限取消" {
+								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+							} else {
+								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+								ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
+							}
 						}
+						wg.Done()
+					}()
+					wg.Wait()
+					if win {
+						return
 					}
 				}
 			}
@@ -233,7 +173,7 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 	// 读取歌单文件
 	pathOfMusic = musicPath + listName + "/"
 	if file.IsNotExist(pathOfMusic) {
-		err = errors.New("指定的歌单不存在")
+		err = errors.New("指定的歌单不存在,可发送“歌单列表”查看歌单列表")
 		return
 	}
 	files, err := os.ReadDir(pathOfMusic)
@@ -271,11 +211,11 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 	}
 	// 进行随机抽取
 	if playlistID == 0 || !cfg.API {
-		musicName = getLocalMusic(files)
+		musicName = getLocalMusic(files, 10)
 	} else {
 		switch rand.Intn(3) { // 三分二概率抽取API的
 		case 1:
-			musicName = getLocalMusic(files)
+			musicName = getLocalMusic(files, 10)
 		default:
 			if cfg.APIURL == "" {
 				// 如果没有配置过API地址,尝试连接独角兽
@@ -285,22 +225,27 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 				musicName, err = drawByAPI(playlistID, pathOfMusic)
 			}
 			if err != nil {
-				musicName = getLocalMusic(files)
-				err = nil
-				return
+				musicName = getLocalMusic(files, 10)
 			}
 		}
+	}
+	if musicName == "" {
+		err = errors.New("抽取歌曲轮空了,请重试")
 	}
 	return
 }
 
-// 从本地列表中随机抽取一首
-func getLocalMusic(files []fs.DirEntry) (musicName string) {
+// 从本地列表中随机抽取一首( indexMax : 最大递归次数 )
+func getLocalMusic(files []fs.DirEntry, indexMax int) (musicName string) {
 	if len(files) > 1 {
 		music := files[rand.Intn(len(files))]
 		// 如果是文件夹就递归
 		if music.IsDir() {
-			musicName = getLocalMusic(files)
+			indexMax--
+			if indexMax <= 0 {
+				return
+			}
+			musicName = getLocalMusic(files, indexMax)
 		} else {
 			musicName = music.Name()
 		}
@@ -333,4 +278,39 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 		return
 	}
 	return
+}
+
+// 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
+func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tickTimes int) (message.MessageSegment, int, int, bool) {
+	answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
+	switch {
+	case answer == "取消":
+		if c.Event.UserID == beginner {
+			return message.Text("游戏已取消,猜歌答案是\n", musicInfo[len(musicInfo)-1], "\n\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+		}
+		return message.Text("你无权限取消"), answerTimes, tickTimes, false
+	case answer == "提示":
+		tickTimes++
+		if tickTimes > 2 {
+			return message.Text("已经没有提示了哦"), answerTimes, tickTimes, false
+		}
+		return message.Text("再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
+	case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
+		return message.Text("太棒了,你猜对歌曲名了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+	case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
+		return message.Text("太棒了,你猜对歌手名了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+	case len(musicInfo) == 4 && (strings.Contains(musicInfo[2], answer) || strings.EqualFold(musicInfo[2], answer)):
+		return message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+	default:
+		answerTimes++
+		tickTimes++
+		switch {
+		case tickTimes > 2 && answerTimes < 6:
+			return message.Text("答案不对哦,还有", 6-answerTimes, "次答题,加油啊~"), answerTimes, tickTimes, false
+		case tickTimes > 2:
+			return message.Text("次数到了,没能猜出来。答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+		default:
+			return message.Text("答案不对,再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
+		}
+	}
 }
