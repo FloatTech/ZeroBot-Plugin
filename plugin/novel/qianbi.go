@@ -49,9 +49,12 @@ func init() {
 	v := viper.New()
 
 	engine := control.Register("novel", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		Brief:             "铅笔小说网搜索",
-		Help:              "- 小说[xxx]",
+		DisableOnDefault: false,
+		Brief:            "铅笔小说网搜索",
+		Help: "- 小说[xxx]\n" +
+			"- 设置小说配置 zerobot 123456\n" +
+			"- 下载小说30298\n" +
+			"建议去https://www.23qb.com/ 注册一个账号, 小说下载有积分限制",
 		PrivateDataFolder: "novel",
 	})
 	configPath = engine.DataFolder() + "novel.yaml"

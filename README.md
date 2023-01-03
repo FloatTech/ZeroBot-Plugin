@@ -1041,6 +1041,12 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 小说[xxx]
 
+  - 设置小说配置 zerobot 123456
+
+  - 下载小说30298
+
+  - 注: 建议去https://www.23qb.com/ 注册一个账号, 小说下载有积分限制
+
 </details>
 <details>
   <summary>nsfw图片识别</summary>
