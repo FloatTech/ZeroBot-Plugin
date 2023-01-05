@@ -66,9 +66,9 @@ func init() {
 	updateWM()
 	loadToFuzzy()
 	//尝试初始化游戏时间模拟
-	wfapi, _ := getWFAPI()
-	loadTime(wfapi)
-	gameRuntime()
+	//wfapi, _ := getWFAPI()
+	//loadTime(wfapi)
+	//gameRuntime()
 	eng.OnRegex(`^(.*)平原状态$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["regex_matched"].([]string)
@@ -223,7 +223,7 @@ func init() {
 				"剩余时间:" + fmt.Sprint(int(wfapi.Arbitration.Expiry.Sub(time.Now().UTC()).Minutes())) + "m",
 			}, ctx)
 		})
-	eng.OnRegex(`^每日特惠$`).SetBlock(true).
+	eng.OnFullMatch(`每日特惠`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
 
@@ -254,7 +254,7 @@ func init() {
 	// 			}, ctx)
 	// 		}
 	// 	})
-	eng.OnRegex(`^wf数据更新$`).SetBlock(true).
+	eng.OnFullMatch(`wf数据更新`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
 
