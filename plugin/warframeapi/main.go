@@ -63,7 +63,6 @@ func init() {
 
 	//初始化游戏时间模拟
 	go gameRuntime()
-	println("LoadTime:Success")
 	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			switch ctx.State["args"].(string) {
@@ -427,15 +426,12 @@ func getWFAPI() (wfAPI, error) {
 	var err error
 	data, err = web.GetData("https://api.warframestat.us/pc")
 	if err != nil {
-		println("err:", err.Error())
 		return wfapi, err
 	}
 	err = json.Unmarshal(data, &wfapi)
 	if err != nil {
-		println("err:", err.Error())
 		return wfapi, err
 	}
-	println("获取成功")
 	return wfapi, nil
 }
 

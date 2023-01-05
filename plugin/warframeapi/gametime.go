@@ -58,7 +58,6 @@ func loadTime(api wfAPI) {
 		{sync.RWMutex{}, "金星平原", api.VallisCycle.Expiry.Local(), api.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
 		{sync.RWMutex{}, "火卫二平原", api.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
 	}
-	println("LoadTime:Success")
 }
 
 func timeDet() {
