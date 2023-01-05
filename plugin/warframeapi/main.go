@@ -22,8 +22,6 @@ import (
 )
 
 var (
-	client    http.Client      //发起http请求的client实例
-	itmeapi   wfAPIItem        //WarFrame市场的数据实例
 	wmitems   map[string]items //WarFrame市场的中文名称对应的物品的字典
 	itmeNames []string         //物品名称列表
 	//TODO:订阅功能-等待重做
@@ -62,7 +60,7 @@ func init() {
 	//	sublist = map[int64]*subList{}
 	//}
 	updateWM()
-	loadToFuzzy()
+
 	//初始化游戏时间模拟
 	go gameRuntime()
 	println("LoadTime:Success")
@@ -443,17 +441,18 @@ func getWFAPI() (wfAPI, error) {
 
 // 从WF市场获取物品数据信息
 func updateWM() {
+	var itmeapi wfAPIItem //WarFrame市场的数据实例
 	var data []byte
 	var err error
 	data, err = getData("https://api.warframe.market/v1/items", map[string]string{"Accept": "application/json", "Language": "zh-hans"})
 	if err != nil {
 		panic(err)
-
 	}
 	err = json.Unmarshal(data, &itmeapi)
 	if err != nil {
 		panic(err)
 	}
+	loadToFuzzy(itmeapi)
 }
 
 func getWMItemOrders(name string, h bool) (orders, itemsInSet, string, error) {
@@ -487,10 +486,10 @@ func getWMItemOrders(name string, h bool) (orders, itemsInSet, string, error) {
 	return sellOrders, wfapiio.Include.Item.ItemsInSet[0], wfapiio.Include.Item.ItemsInSet[0].En.ItemName, err
 }
 
-func loadToFuzzy() {
+func loadToFuzzy(wminfo wfAPIItem) {
 	wmitems = make(map[string]items)
 	itmeNames = []string{}
-	for _, v := range itmeapi.Payload.Items {
+	for _, v := range wminfo.Payload.Items {
 		wmitems[v.ItemName] = v
 		itmeNames = append(itmeNames, v.ItemName)
 	}
@@ -507,6 +506,8 @@ func getData(url string, head map[string]string) (data []byte, err error) {
 		return nil, err
 	}
 	//处理返回结果
+	//发起http请求的client实例
+	client := http.Client{}
 	response, err := client.Do(reqest)
 	if err != nil {
 		return nil, err
@@ -514,7 +515,6 @@ func getData(url string, head map[string]string) (data []byte, err error) {
 	data, err = io.ReadAll(response.Body)
 	response.Body.Close()
 	return data, err
-
 	//func jsonSave(v interface{}, path string) {
 	//	f, _ := os.Create(path)
 	//	defer f.Close()

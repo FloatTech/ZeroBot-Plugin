@@ -34,6 +34,7 @@ func (t *gameTime) getTime() string {
 //	go gameRuntime()
 //}
 
+// gameRuntime 游戏时间模拟
 func gameRuntime() {
 	wfapi, err := getWFAPI()
 	if err != nil {
