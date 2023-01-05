@@ -9,21 +9,20 @@ import (
 
 var (
 	gameTimes [3]*gameTime
-	rwm       sync.RWMutex
 )
 
 func (t *gameTime) getStatus() string {
-	rwm.RLock()
-	defer rwm.RUnlock()
+	t.rwm.RLock()
+	defer t.rwm.RUnlock()
 	if t.Status {
 		return t.StatusTrueDes
 	}
 	return t.StatusFalseDes
 }
 func (t *gameTime) getTime() string {
-	rwm.RLock()
+	t.rwm.RLock()
 	d := time.Until(t.NextTime)
-	rwm.RUnlock()
+	t.rwm.RUnlock()
 	durStr, _ := durationfmt.Format(d, "%m分%s秒后")
 	return durStr
 }
@@ -39,6 +38,7 @@ func gameRuntime() {
 	wfapi, err := getWFAPI()
 	if err != nil {
 		println("ERROR:GetWFAPI失败,", err.Error())
+		return
 	}
 	loadTime(wfapi)
 	for range time.NewTicker(10 * time.Second).C {
@@ -53,39 +53,46 @@ func loadTime(api wfAPI) {
 		isfass = true
 	}
 	gameTimes = [3]*gameTime{
-		{"地球平原", api.CetusCycle.Expiry.Local(), api.CetusCycle.IsDay, "白天", "夜晚", 100 * 60, 50 * 60},
-		{"金星平原", api.VallisCycle.Expiry.Local(), api.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
-		{"火卫二平原", api.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
+		{sync.RWMutex{}, "地球平原", api.CetusCycle.Expiry.Local(), api.CetusCycle.IsDay, "白天", "夜晚", 100 * 60, 50 * 60},
+		{sync.RWMutex{}, "金星平原", api.VallisCycle.Expiry.Local(), api.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
+		{sync.RWMutex{}, "火卫二平原", api.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
 	}
 	println("LoadTime:Success")
 }
 
 func timeDet() {
-	rwm.Lock()
-
 	for _, v := range gameTimes {
 		nt := time.Until(v.NextTime).Seconds()
-		//暂时只保留时间更新功能
-		switch {
-		case nt < 0:
+
+		if nt < 0 {
+			v.rwm.Lock()
 			if v.Status {
 				v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
 			} else {
 				v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
 			}
-			v.Status = !v.Status
-			//
-			//	callUser(i, v.Status, 0)
-			//case nt < float64(5)*60:
-			//	callUser(i, !v.Status, 5)
-			//case nt < float64(15)*60:
-			//	if i == 2 && !v.Status {
-			//		return
-			//	}
-			//	callUser(i, !v.Status, 15)
+			v.rwm.Unlock()
 		}
+		//暂时只保留时间更新功能
+		//switch {
+		//case nt < 0:
+		//	if v.Status {
+		//		v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
+		//	} else {
+		//		v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
+		//	}
+		//	v.Status = !v.Status
+		//
+		//	callUser(i, v.Status, 0)
+		//case nt < float64(5)*60:
+		//	callUser(i, !v.Status, 5)
+		//case nt < float64(15)*60:
+		//	if i == 2 && !v.Status {
+		//		return
+		//	}
+		//	callUser(i, !v.Status, 15)
+		//}
 	}
-	defer rwm.Unlock()
 }
 
 //TODO:订阅功能-待重做
@@ -143,6 +150,7 @@ func timeDet() {
 
 // 游戏时间模拟
 type gameTime struct {
+	rwm            sync.RWMutex
 	Name           string    `json:"name"`      //时间名称
 	NextTime       time.Time `json:"time"`      //下次更新时间
 	Status         bool      `json:"status"`    //状态
@@ -152,13 +160,13 @@ type gameTime struct {
 	NightTime      int       `json:"night"`     //夜间时长
 }
 
-type subList struct {
-	SubUser   map[int64]subType `json:"qq_sub"`
-	Min5Tips  bool              `json:"min5_tips"`
-	Min15Tips bool              `json:"min15_tips"`
-}
+//type subList struct {
+//	SubUser   map[int64]subType `json:"qq_sub"`
+//	Min5Tips  bool              `json:"min5_tips"`
+//	Min15Tips bool              `json:"min15_tips"`
+//}
 
-type subType struct {
-	SubType map[int]*bool `json:"sub_type"`
-	SubRaid bool          `json:"sub_raid"`
-}
+//type subType struct {
+//	SubType map[int]*bool `json:"sub_type"`
+//	SubRaid bool          `json:"sub_raid"`
+//}

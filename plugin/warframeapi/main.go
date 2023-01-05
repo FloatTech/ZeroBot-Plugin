@@ -8,7 +8,6 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 	"io"
 	"net/http"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,13 +35,12 @@ func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help: "warframeapi\n" +
-			"- wf数据更新\n" +
-			"- [金星|地球|火卫二]平原状态\n" +
+			"- wf时间同步\n" +
+			"- [金星|地球|火卫二]平原时间\n" +
 			//"- 订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
 			//"- 取消订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
 			//"- wf订阅检测\n" +
 			"- .wm [物品名称]\n" +
-			"- [金星|地球|火卫二]平原状态\n" +
 			"- 仲裁\n" +
 			"- 警报\n" +
 			"- 每日特惠",
@@ -68,29 +66,27 @@ func init() {
 	//初始化游戏时间模拟
 	go gameRuntime()
 	println("LoadTime:Success")
-	eng.OnRegex(`^(.*)平原状态$`).SetBlock(true).
+	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			args := ctx.State["regex_matched"].([]string)
-			println(args)
-			switch args[1] {
+			switch ctx.State["args"].(string) {
 			case "金星", "奥布山谷":
 				ctx.SendChain(
 					message.Text(
-						"平原状态:", gameTimes[1].getStatus(), "\n",
+						"平原时间:", gameTimes[1].getStatus(), "\n",
 						"下次更新:", gameTimes[1].getTime(),
 					),
 				)
 			case "地球", "夜灵":
 				ctx.SendChain(
 					message.Text(
-						"平原状态:", gameTimes[0].getStatus(), "\n",
+						"平原时间:", gameTimes[0].getStatus(), "\n",
 						"下次更新:", gameTimes[0].getTime(),
 					),
 				)
 			case "魔胎之境", "火卫二", "火卫":
 				ctx.SendChain(
 					message.Text(
-						"平原状态:", gameTimes[2].getStatus(), "\n",
+						"平原时间:", gameTimes[2].getStatus(), "\n",
 						"下次更新:", gameTimes[2].getTime(),
 					),
 				)
@@ -100,7 +96,7 @@ func init() {
 			}
 		})
 
-	eng.OnFullMatch(`警报`).SetBlock(true).
+	eng.OnFullMatch("警报").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
 			if err != nil {
@@ -208,7 +204,7 @@ func init() {
 	//		ctx.SendChain(msg...)
 	//	}
 	//})
-	eng.OnFullMatch(`仲裁`).SetBlock(true).
+	eng.OnFullMatch("仲裁").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
 
@@ -223,7 +219,7 @@ func init() {
 				"剩余时间:" + fmt.Sprint(int(wfapi.Arbitration.Expiry.Sub(time.Now().UTC()).Minutes())) + "m",
 			}, ctx)
 		})
-	eng.OnFullMatch(`每日特惠`).SetBlock(true).
+	eng.OnFullMatch("每日特惠").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
 
@@ -254,10 +250,9 @@ func init() {
 	// 			}, ctx)
 	// 		}
 	// 	})
-	eng.OnFullMatch(`wf数据更新`).SetBlock(true).
+	eng.OnFullMatch("wf时间同步").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
-
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
@@ -265,10 +260,9 @@ func init() {
 			loadTime(wfapi)
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
-	eng.OnRegex(`^.wm (.*)$`).SetBlock(true).
+	eng.OnPrefix(".wm ").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			args := ctx.State["regex_matched"].([]string)
-			sol := fuzzy.FindNormalizedFold(args[1], itmeNames)
+			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itmeNames)
 			var msg []string
 			var name string
 			switch len(sol) {
@@ -395,7 +389,7 @@ func init() {
 
 // 数组文字转图片并发送
 func sendStringArray(texts []string, ctx *zero.Ctx) {
-	b, err := text.RenderToBase64(strings.Join(texts, "\n"), text.FontFile, 800, 20)
+	b, err := text.RenderToBase64(strings.Join(texts, "\n"), text.FontFile, 400, 20)
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
@@ -520,9 +514,11 @@ func getData(url string, head map[string]string) (data []byte, err error) {
 	data, err = io.ReadAll(response.Body)
 	response.Body.Close()
 	return data, err
-}
-func jsonSave(v interface{}, path string) {
-	f, _ := os.Create(path)
-	defer f.Close()
-	json.NewEncoder(f).Encode(v)
+
+	//func jsonSave(v interface{}, path string) {
+	//	f, _ := os.Create(path)
+	//	defer f.Close()
+	//	json.NewEncoder(f).Encode(v)
+	//}
+
 }
