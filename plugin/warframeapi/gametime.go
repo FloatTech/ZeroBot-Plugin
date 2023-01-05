@@ -1,12 +1,10 @@
 package warframeapi
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/davidscholberg/go-durationfmt"
-	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
@@ -16,10 +14,10 @@ var (
 
 func (t *gameTime) getStatus() string {
 	rwm.RLock()
+	defer rwm.RUnlock()
 	if t.Status {
 		return t.StatusTrueDes
 	}
-	rwm.RUnlock()
 	return t.StatusFalseDes
 }
 func (t *gameTime) getTime() string {
@@ -38,14 +36,9 @@ func (t *gameTime) getTime() string {
 //}
 
 func gameRuntime() {
-
 	for range time.NewTicker(10 * time.Second).C {
 		timeDet()
 	}
-	//for {
-	//	time.Sleep(10 * time.Second)
-	//	timeDet()
-	//}
 }
 
 func loadTime(api wfAPI) {
@@ -64,8 +57,10 @@ func loadTime(api wfAPI) {
 
 func timeDet() {
 	rwm.Lock()
-	for i, v := range gameTimes {
+
+	for _, v := range gameTimes {
 		nt := time.Until(v.NextTime).Seconds()
+		//暂时只保留时间更新功能
 		switch {
 		case nt < 0:
 			if v.Status {
@@ -74,71 +69,72 @@ func timeDet() {
 				v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
 			}
 			v.Status = !v.Status
-
-			callUser(i, v.Status, 0)
-		case nt < float64(5)*60:
-			callUser(i, !v.Status, 5)
-		case nt < float64(15)*60:
-			if i == 2 && !v.Status {
-				return
-			}
-			callUser(i, !v.Status, 15)
+			//
+			//	callUser(i, v.Status, 0)
+			//case nt < float64(5)*60:
+			//	callUser(i, !v.Status, 5)
+			//case nt < float64(15)*60:
+			//	if i == 2 && !v.Status {
+			//		return
+			//	}
+			//	callUser(i, !v.Status, 15)
 		}
 	}
-	rwm.Unlock()
+	defer rwm.Unlock()
 }
 
-func callUser(i int, s bool, time int) []message.MessageSegment {
-	msg := []message.MessageSegment{}
-	for group, sl := range sublist {
-
-		switch {
-		case !sl.Min15Tips && !sl.Min5Tips && time == 15: //是否
-			sublist[group].Min15Tips = true
-		case sl.Min15Tips && !sl.Min5Tips && time == 5:
-			sublist[group].Min5Tips = true
-		case sl.Min15Tips && sl.Min5Tips && time == 0:
-			sublist[group].Min15Tips = false
-			sublist[group].Min5Tips = false
-		default:
-			return nil
-		}
-		//if !sl.Min15Tips && !sl.Min5Tips && time == 15 {
-		//	sublist[group].Min15Tips = true
-		//} else if sl.Min15Tips && !sl.Min5Tips && time == 5 {
-		//	sublist[group].Min5Tips = true
-		//} else if sl.Min15Tips && sl.Min5Tips && time == 0 {
-		//	sublist[group].Min15Tips = false
-		//	sublist[group].Min5Tips = false
-		//} else {
-		//	return
-		//}
-		for qq, st := range sl.SubUser {
-			if st.SubType[i] != nil {
-				if *st.SubType[i] == s {
-					msg = append(msg, message.At(qq))
-				}
-			}
-		}
-		if len(msg) == 0 {
-			continue
-		}
-		if time <= 0 {
-			if s {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s白天(%s)到了", gameTimes[i].Name, gameTimes[i].StatusTrueDes)))
-			} else {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s夜晚(%s)到了", gameTimes[i].Name, gameTimes[i].StatusFalseDes)))
-			}
-		} else {
-			if s {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离白天(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusTrueDes, time)))
-			} else {
-				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离夜晚(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusFalseDes, time)))
-			}
-		}
-	}
-	return msg
-}
+//TODO:订阅功能-待重做
+//func callUser(i int, s bool, time int) []message.MessageSegment {
+//	msg := []message.MessageSegment{}
+//	for group, sl := range sublist {
+//
+//		switch {
+//		case !sl.Min15Tips && !sl.Min5Tips && time == 15: //是否
+//			sublist[group].Min15Tips = true
+//		case sl.Min15Tips && !sl.Min5Tips && time == 5:
+//			sublist[group].Min5Tips = true
+//		case sl.Min15Tips && sl.Min5Tips && time == 0:
+//			sublist[group].Min15Tips = false
+//			sublist[group].Min5Tips = false
+//		default:
+//			return nil
+//		}
+//		//if !sl.Min15Tips && !sl.Min5Tips && time == 15 {
+//		//	sublist[group].Min15Tips = true
+//		//} else if sl.Min15Tips && !sl.Min5Tips && time == 5 {
+//		//	sublist[group].Min5Tips = true
+//		//} else if sl.Min15Tips && sl.Min5Tips && time == 0 {
+//		//	sublist[group].Min15Tips = false
+//		//	sublist[group].Min5Tips = false
+//		//} else {
+//		//	return
+//		//}
+//		for qq, st := range sl.SubUser {
+//			if st.SubType[i] != nil {
+//				if *st.SubType[i] == s {
+//					msg = append(msg, message.At(qq))
+//				}
+//			}
+//		}
+//		if len(msg) == 0 {
+//			continue
+//		}
+//		if time <= 0 {
+//			if s {
+//				msg = append(msg, message.Text(fmt.Sprintf("\n%s白天(%s)到了", gameTimes[i].Name, gameTimes[i].StatusTrueDes)))
+//			} else {
+//				msg = append(msg, message.Text(fmt.Sprintf("\n%s夜晚(%s)到了", gameTimes[i].Name, gameTimes[i].StatusFalseDes)))
+//			}
+//		} else {
+//			if s {
+//				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离白天(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusTrueDes, time)))
+//			} else {
+//				msg = append(msg, message.Text(fmt.Sprintf("\n%s距离夜晚(%s)还剩下%d分钟", gameTimes[i].Name, gameTimes[i].StatusFalseDes, time)))
+//			}
+//		}
+//	}
+//	return msg
+//}
 
 // 游戏时间模拟
 type gameTime struct {

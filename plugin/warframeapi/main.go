@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/img/text"
 	"io"
 	"net/http"
@@ -24,16 +23,13 @@ import (
 )
 
 var (
-	wfapi         wfAPI              //WarFrameAPI的数据实例
-	client        http.Client        //发起http请求的client实例
-	itmeapi       wfAPIItem          //WarFrame市场的数据实例
-	wmitems       map[string]items   //WarFrame市场的中文名称对应的物品的字典
-	itmeNames     []string           //物品外号
-	fileItemNames map[string]string  //物品外号字典
-	itemNamesPath string             //物品外号存储路径
-	sublist       map[int64]*subList //订阅列表
-	sublistPath   string             //订阅列表存储路径
-	ctx           *zero.Ctx          //BOT实例
+	client    http.Client      //发起http请求的client实例
+	itmeapi   wfAPIItem        //WarFrame市场的数据实例
+	wmitems   map[string]items //WarFrame市场的中文名称对应的物品的字典
+	itmeNames []string         //物品名称列表
+	//TODO:订阅功能-等待重做
+	//sublist     map[int64]*subList //订阅列表
+	//sublistPath string             //订阅列表存储路径
 )
 
 func init() {
@@ -42,60 +38,40 @@ func init() {
 		Help: "warframeapi\n" +
 			"- wf数据更新\n" +
 			"- [金星|地球|火卫二]平原状态\n" +
-			"- 订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
-			"- 取消订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
-			"- wf订阅检测\n" +
+			//"- 订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
+			//"- 取消订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
+			//"- wf订阅检测\n" +
 			"- .wm [物品名称]\n" +
-			"- 取外号 [原名称] [外号]\n" +
 			"- [金星|地球|火卫二]平原状态\n" +
 			"- 仲裁\n" +
 			"- 警报\n" +
 			"- 每日特惠",
-		PrivateDataFolder: "warframeAPI",
+		PrivateDataFolder: "warframeapi",
 	})
-
-	zero.RangeBot(func(id int64, c *zero.Ctx) bool {
-		ctx = c
-		return false
-	})
-	//生成物品列表存储路径
-	itemNamesPath = eng.DataFolder() + "ItemNames.json"
-	//检查文件是否存在
-	if file.IsExist(itemNamesPath) {
-		data, err := os.ReadFile(itemNamesPath)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(data, &fileItemNames)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		fileItemNames = map[string]string{}
-	}
+	//TODO:订阅功能-等待重做
 	//订阅名单文件路径
-	sublistPath = eng.DataFolder() + "Sublist.json"
-	if file.IsExist(itemNamesPath) {
-		data, err := os.ReadFile(sublistPath)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(data, &sublist)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		sublist = map[int64]*subList{}
-	}
+	//sublistPath = eng.DataFolder() + "Sublist.json"
+	//if file.IsExist(sublistPath) {
+	//	data, err := os.ReadFile(sublistPath)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	err = json.Unmarshal(data, &sublist)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//} else {
+	//	sublist = map[int64]*subList{}
+	//}
 	updateWM()
 	loadToFuzzy()
-	updateWFAPI()
-	//gameTimeInit()
+	//尝试初始化游戏时间模拟
+	wfapi, _ := getWFAPI()
+	loadTime(wfapi)
+	gameRuntime()
 	eng.OnRegex(`^(.*)平原状态$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["regex_matched"].([]string)
-			updateWFAPI()
-
 			switch args[1] {
 			case "金星", "奥布山谷":
 				ctx.SendChain(
@@ -126,6 +102,11 @@ func init() {
 
 	eng.OnFullMatch(`警报`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			wfapi, err := getWFAPI()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err.Error()))
+				return
+			}
 			if len(wfapi.Alerts) > 0 {
 				for _, v := range wfapi.Alerts {
 					if v.Active {
@@ -141,94 +122,100 @@ func init() {
 			}
 
 		})
-	eng.OnRegex(`^(订阅|取消订阅)(.*)平原(.*)$`).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			args := ctx.State["regex_matched"].([]string)
-			var isEnable bool
-			if args[1] == "订阅" {
-				isEnable = true
-			}
-			updateWFAPI()
-			status := false
-			switch args[3] {
-			case "fass", "白天", "温暖":
-				status = true
-			}
-			switch args[2] {
-			case "金星", "奥布山谷":
-				//sublist = append(sublist, subList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
-				if isEnable {
-					addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1, status)
-				} else {
-					removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1)
-				}
-				ctx.SendChain(
-					message.At(ctx.Event.UserID),
-					message.Text("已成功", args[1]),
-					message.Text(gameTimes[1].Name),
-					message.Text(status),
-				)
-			case "地球", "夜灵":
-				if isEnable {
-					addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0, status)
-				} else {
-					removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0)
-				}
-				ctx.SendChain(
-					message.At(ctx.Event.UserID),
-					message.Text("已成功", args[1]),
-					message.Text(gameTimes[0].Name),
-					message.Text(status),
-				)
-			case "魔胎之境", "火卫", "火卫二":
-				if isEnable {
-					addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2, status)
-				} else {
-					removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2)
-				}
-				ctx.SendChain(
-					message.At(ctx.Event.UserID),
-					message.Text("已成功", args[1]),
-					message.Text(gameTimes[2].Name),
-					message.Text(status),
-				)
-			default:
-				ctx.SendChain(message.Text("ERROR: 平原不存在"))
-				return
-			}
-		})
-	eng.OnFullMatch(`wf订阅检测`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		rwm.Lock()
-		var msg []message.MessageSegment
-		for i, v := range gameTimes {
-			nt := time.Until(v.NextTime).Seconds()
-			switch {
-			case nt < 0:
-				if v.Status {
-					v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
-				} else {
-					v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
-				}
-				v.Status = !v.Status
-
-				msg = callUser(i, v.Status, 0)
-			case nt < float64(5)*60:
-				msg = callUser(i, !v.Status, 5)
-			case nt < float64(15)*60:
-				if i == 2 && !v.Status {
-					return
-				}
-				msg = callUser(i, !v.Status, 15)
-			}
-		}
-		rwm.Unlock()
-		if msg != nil && len(msg) > 0 {
-			ctx.SendChain(msg...)
-		}
-	})
+	//TODO:订阅功能-等待重做
+	//eng.OnRegex(`^(订阅|取消订阅)(.*)平原(.*)$`).SetBlock(true).
+	//	Handle(func(ctx *zero.Ctx) {
+	//		args := ctx.State["regex_matched"].([]string)
+	//		var isEnable bool
+	//		if args[1] == "订阅" {
+	//			isEnable = true
+	//		}
+	//		updateWFAPI()
+	//		status := false
+	//		switch args[3] {
+	//		case "fass", "白天", "温暖":
+	//			status = true
+	//		}
+	//		switch args[2] {
+	//		case "金星", "奥布山谷":
+	//			//sublist = append(sublist, subList{ctx.Event.GroupID, ctx.Event.UserID, 1, status, false})
+	//			if isEnable {
+	//				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1, status)
+	//			} else {
+	//				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 1)
+	//			}
+	//			ctx.SendChain(
+	//				message.At(ctx.Event.UserID),
+	//				message.Text("已成功", args[1]),
+	//				message.Text(gameTimes[1].Name),
+	//				message.Text(status),
+	//			)
+	//		case "地球", "夜灵":
+	//			if isEnable {
+	//				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0, status)
+	//			} else {
+	//				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 0)
+	//			}
+	//			ctx.SendChain(
+	//				message.At(ctx.Event.UserID),
+	//				message.Text("已成功", args[1]),
+	//				message.Text(gameTimes[0].Name),
+	//				message.Text(status),
+	//			)
+	//		case "魔胎之境", "火卫", "火卫二":
+	//			if isEnable {
+	//				addUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2, status)
+	//			} else {
+	//				removeUseSub(ctx.Event.UserID, ctx.Event.GroupID, 2)
+	//			}
+	//			ctx.SendChain(
+	//				message.At(ctx.Event.UserID),
+	//				message.Text("已成功", args[1]),
+	//				message.Text(gameTimes[2].Name),
+	//				message.Text(status),
+	//			)
+	//		default:
+	//			ctx.SendChain(message.Text("ERROR: 平原不存在"))
+	//			return
+	//		}
+	//	})
+	//eng.OnFullMatch(`wf订阅检测`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	//	rwm.Lock()
+	//	var msg []message.MessageSegment
+	//	for i, v := range gameTimes {
+	//		nt := time.Until(v.NextTime).Seconds()
+	//		switch {
+	//		case nt < 0:
+	//			if v.Status {
+	//				v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
+	//			} else {
+	//				v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
+	//			}
+	//			v.Status = !v.Status
+	//
+	//			msg = callUser(i, v.Status, 0)
+	//		case nt < float64(5)*60:
+	//			msg = callUser(i, !v.Status, 5)
+	//		case nt < float64(15)*60:
+	//			if i == 2 && !v.Status {
+	//				return
+	//			}
+	//			msg = callUser(i, !v.Status, 15)
+	//		}
+	//	}
+	//	rwm.Unlock()
+	//	if msg != nil && len(msg) > 0 {
+	//		ctx.SendChain(msg...)
+	//	}
+	//})
 	eng.OnFullMatch(`仲裁`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			updateWFAPI()
+			wfapi, err := getWFAPI()
+
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err.Error()))
+				return
+			}
 			sendStringArray([]string{
 				"节点:" + wfapi.Arbitration.Node,
 				"类型:" + wfapi.Arbitration.Type,
@@ -238,7 +225,12 @@ func init() {
 		})
 	eng.OnRegex(`^每日特惠$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			updateWFAPI()
+			wfapi, err := getWFAPI()
+
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err.Error()))
+				return
+			}
 			for _, dd := range wfapi.DailyDeals {
 				ctx.SendChain(
 					message.Text(
@@ -264,62 +256,15 @@ func init() {
 	// 	})
 	eng.OnRegex(`^wf数据更新$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			updateWFAPI()
+			wfapi, err := getWFAPI()
+
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err.Error()))
+				return
+			}
 			loadTime(wfapi)
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
-	eng.OnRegex(`^.取外号 (.*) (.*)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := ctx.State["regex_matched"].([]string)
-		sol := fuzzy.FindNormalizedFold(args[1], itmeNames)
-		var msg []string
-		switch len(sol) {
-		case 0:
-			ctx.SendChain(message.Text("无法查询到该物品"))
-			return
-		case 1:
-			wmitems[args[2]] = wmitems[sol[0]]
-			itmeNames = append(itmeNames, args[2])
-			fileItemNames[args[2]] = sol[0]
-			ctx.Send(message.Text("已给[", sol[0], "]新增外号:[", args[2], "]"))
-			jsonSave(fileItemNames, itemNamesPath)
-		default:
-			for i, v := range sol {
-				msg = append(msg, fmt.Sprintf("[%d] %s", i, v))
-			}
-			msg = append(msg, "包含多个结果，请输入编号来确定具体的物品外号(15s内)")
-			sendStringArray(msg, ctx)
-			//msg = []string{}
-		GETNUM:
-			next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
-			select {
-			case <-time.After(time.Second * 15):
-				ctx.SendChain(message.Text("会话已结束!"))
-				return
-			case e := <-next:
-				msg := e.Event.Message.ExtractPlainText()
-				if msg == "c" {
-					ctx.SendChain(message.Text("会话已结束!"))
-					return
-				}
-				num, err := strconv.Atoi(msg)
-				if err != nil {
-					ctx.SendChain(message.Text("请输入数字!(输入c结束会话)"))
-					goto GETNUM
-				}
-				//name = sol[cc]
-				//ctx.Send(message.Image("https://warframe.market/static/assets/" + wmitems[sol[cc]].Thumb))
-				//msg = append(msg, wmitems[sol[cc]].ItemName)
-
-				wmitems[args[2]] = wmitems[sol[num]]
-				itmeNames = append(itmeNames, args[2])
-				fileItemNames[args[2]] = sol[num]
-				ctx.Send(message.Text("已给[", sol[num], "]新增外号:[", args[2], "]"))
-				jsonSave(fileItemNames, itemNamesPath)
-			}
-
-		}
-
-	})
 	eng.OnRegex(`^.wm (.*)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["regex_matched"].([]string)
@@ -458,43 +403,45 @@ func sendStringArray(texts []string, ctx *zero.Ctx) {
 	ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
 }
 
+//TODO:订阅功能-等待重做
 // 添加用户订阅
-func addUseSub(qq int64, qqGroup int64, stype int, status bool) {
-	if sb, ok := sublist[qqGroup]; ok {
-		if st, ok := sb.SubUser[qq]; ok {
-			st.SubType[stype] = &status
-		} else {
-			sublist[qqGroup].SubUser[qq] = subType{map[int]*bool{stype: &status}, false}
-		}
-	} else {
-		sublist[qqGroup] = &subList{map[int64]subType{qq: {map[int]*bool{stype: &status}, false}}, false, false}
-	}
-	jsonSave(sublist, sublistPath)
-}
-
-// 移除用户订阅
-func removeUseSub(qq int64, qqGroup int64, stype int) {
-	if sb, ok := sublist[qqGroup]; ok {
-		if _, ok := sb.SubUser[qq]; ok {
-			delete(sublist[qqGroup].SubUser[qq].SubType, stype)
-			jsonSave(sublist, sublistPath)
-		}
-	}
-}
+//func addUseSub(qq int64, qqGroup int64, stype int, status bool) {
+//	if sb, ok := sublist[qqGroup]; ok {
+//		if st, ok := sb.SubUser[qq]; ok {
+//			st.SubType[stype] = &status
+//		} else {
+//			sublist[qqGroup].SubUser[qq] = subType{map[int]*bool{stype: &status}, false}
+//		}
+//	} else {
+//		sublist[qqGroup] = &subList{map[int64]subType{qq: {map[int]*bool{stype: &status}, false}}, false, false}
+//	}
+//	jsonSave(sublist, sublistPath)
+//}
+//
+//// 移除用户订阅
+//func removeUseSub(qq int64, qqGroup int64, stype int) {
+//	if sb, ok := sublist[qqGroup]; ok {
+//		if _, ok := sb.SubUser[qq]; ok {
+//			delete(sublist[qqGroup].SubUser[qq].SubType, stype)
+//			jsonSave(sublist, sublistPath)
+//		}
+//	}
+//}
 
 // 从WFapi获取数据
-func updateWFAPI() error {
+func getWFAPI() (wfAPI, error) {
+	var wfapi wfAPI //WarFrameAPI的数据实例
 	var data []byte
 	var err error
 	data, err = web.GetData("https://api.warframestat.us/pc")
 	if err != nil {
-		return err
+		return wfapi, err
 	}
 	err = json.Unmarshal(data, &wfapi)
 	if err != nil {
-		return err
+		return wfapi, err
 	}
-	return nil
+	return wfapi, nil
 }
 
 // 从WF市场获取物品数据信息
@@ -549,10 +496,6 @@ func loadToFuzzy() {
 	for _, v := range itmeapi.Payload.Items {
 		wmitems[v.ItemName] = v
 		itmeNames = append(itmeNames, v.ItemName)
-	}
-	for k, v := range fileItemNames {
-		wmitems[k] = wmitems[v]
-		itmeNames = append(itmeNames, k)
 	}
 }
 
