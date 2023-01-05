@@ -36,6 +36,11 @@ func (t *gameTime) getTime() string {
 //}
 
 func gameRuntime() {
+	wfapi, err := getWFAPI()
+	if err != nil {
+		println("ERROR:GetWFAPI失败,", err.Error())
+	}
+	loadTime(wfapi)
 	for range time.NewTicker(10 * time.Second).C {
 		timeDet()
 	}
@@ -52,7 +57,7 @@ func loadTime(api wfAPI) {
 		{"金星平原", api.VallisCycle.Expiry.Local(), api.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
 		{"火卫二平原", api.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
 	}
-
+	println("LoadTime:Success")
 }
 
 func timeDet() {
