@@ -65,28 +65,14 @@ func init() {
 	go gameRuntime()
 	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			//根据具体输入的平原，来显示时间
 			switch ctx.State["args"].(string) {
-			case "金星", "奥布山谷":
-				ctx.SendChain(
-					message.Text(
-						"平原时间:", gameTimes[1].getStatus(), "\n",
-						"下次更新:", gameTimes[1].getTime(),
-					),
-				)
 			case "地球", "夜灵":
-				ctx.SendChain(
-					message.Text(
-						"平原时间:", gameTimes[0].getStatus(), "\n",
-						"下次更新:", gameTimes[0].getTime(),
-					),
-				)
+				ctx.SendChain(getTimeString(0))
+			case "金星", "奥布山谷":
+				ctx.SendChain(getTimeString(1))
 			case "魔胎之境", "火卫二", "火卫":
-				ctx.SendChain(
-					message.Text(
-						"平原时间:", gameTimes[2].getStatus(), "\n",
-						"下次更新:", gameTimes[2].getTime(),
-					),
-				)
+				ctx.SendChain(getTimeString(2))
 			default:
 				ctx.SendChain(message.Text("ERROR: 平原不存在"))
 				return
@@ -100,16 +86,20 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
 			}
+			//如果返回的wfapi中，警报数量>0
 			if len(wfapi.Alerts) > 0 {
+				//遍历警报数据，打印警报信息
 				for _, v := range wfapi.Alerts {
+					//如果警报处于激活状态
 					if v.Active {
-						sendStringArray([]string{
+						ctx.SendChain(stringArrayToImage([]string{
 							"节点:" + v.Mission.Node,
 							"类型:" + v.Mission.Type,
 							"敌人Lv:" + fmt.Sprint(v.Mission.MinEnemyLevel) + "~" + fmt.Sprint(v.Mission.MaxEnemyLevel),
 							"奖励:" + v.Mission.Reward.AsString,
 							"剩余时间:" + v.Eta,
-						}, ctx)
+						}))
+
 					}
 				}
 			}
@@ -203,18 +193,18 @@ func init() {
 	//})
 	eng.OnFullMatch("仲裁").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			//通过wfapi获取仲裁信息
 			wfapi, err := getWFAPI()
-
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
 			}
-			sendStringArray([]string{
+			ctx.SendChain(stringArrayToImage([]string{
 				"节点:" + wfapi.Arbitration.Node,
 				"类型:" + wfapi.Arbitration.Type,
 				"阵营:" + wfapi.Arbitration.Enemy,
 				"剩余时间:" + fmt.Sprint(int(wfapi.Arbitration.Expiry.Sub(time.Now().UTC()).Minutes())) + "m",
-			}, ctx)
+			}))
 		})
 	eng.OnFullMatch("每日特惠").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -257,43 +247,55 @@ func init() {
 			loadTime(wfapi)
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
+	// 根据名称从Warframe市场查询物品售价
 	eng.OnPrefix(".wm ").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			//根据输入的名称，从游戏物品名称列表中进行模糊搜索
 			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itmeNames)
 			var msg []string
+			//物品名称
 			var name string
+
+			//根据搜搜结果，打印找到的物品
 			switch len(sol) {
-			case 0:
+			case 0: //没有搜索到任何东西
 				ctx.SendChain(message.Text("无法查询到该物品"))
 				return
-			case 1:
+			case 1: //如果只搜索到了一个
 				name = sol[0]
-			default:
+			default: //如果搜搜到了多个
+				//遍历搜索结果，并打印为图片展出
 				for i, v := range sol {
 					msg = append(msg, fmt.Sprintf("[%d] %s", i, v))
 				}
 				msg = append(msg, "包含多个结果，请输入编号查看(15s内),输入c直接结束会话")
-				sendStringArray(msg, ctx)
+				ctx.SendChain(stringArrayToImage(msg))
 				msg = []string{}
-			GETNUM2:
-				next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
-				select {
-				case <-time.After(time.Second * 15):
-					ctx.SendChain(message.Text("会话已结束!"))
+
+				itemIndex := getItemNameFutureEvent(ctx, 2)
+				if itemIndex == -1 {
 					return
-				case e := <-next:
-					msg := e.Event.Message.ExtractPlainText()
-					if msg == "c" {
-						ctx.SendChain(message.Text("会话已结束!"))
-						return
-					}
-					num, err := strconv.Atoi(msg)
-					if err != nil {
-						ctx.SendChain(message.Text("请输入数字!(输入c结束会话)"))
-						goto GETNUM2
-					}
-					name = sol[num]
 				}
+				name = sol[itemIndex]
+				//GETNUM2: //获取用户具体想查看哪个物品
+				//next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
+				//select {
+				//case <-time.After(time.Second * 15):
+				//	ctx.SendChain(message.Text("会话已结束!"))
+				//	return
+				//case e := <-next:
+				//	msg := e.Event.Message.ExtractPlainText()
+				//	if msg == "c" {
+				//		ctx.SendChain(message.Text("会话已结束!"))
+				//		return
+				//	}
+				//	num, err := strconv.Atoi(msg)
+				//	if err != nil {
+				//		ctx.SendChain(message.Text("请输入数字!(输入c结束会话)"))
+				//		goto GETNUM2
+				//	}
+				//	name = sol[num]
+				//}
 			}
 			Mf := false
 		GETWM:
@@ -313,7 +315,6 @@ func init() {
 					message.Text("wiki:", itmeinfo.ZhHans.WikiLink),
 				})
 			}
-
 			msg = append(msg, wmitems[name].ItemName)
 			ismod := false
 			if err != nil {
@@ -345,7 +346,8 @@ func init() {
 			} else {
 				msg = append(msg, "请输入编号选择(30s内)\n输入c直接结束会话")
 			}
-			sendStringArray(msg, ctx)
+			ctx.SendChain(stringArrayToImage(msg))
+
 		GETNUM3:
 			next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
 			select {
@@ -384,14 +386,46 @@ func init() {
 
 }
 
-// 数组文字转图片并发送
-func sendStringArray(texts []string, ctx *zero.Ctx) {
+// 获取搜索结果中的物品具体名称index的FutureEvent,传入ctx和一个递归次数上限,返回一个int，如果为返回内容为-1，说明会话超时，或主动结束，或超出递归
+func getItemNameFutureEvent(ctx *zero.Ctx, count int) int {
+	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
+	select {
+	case <-time.After(time.Second * 15):
+		//超时15秒处理
+		ctx.SendChain(message.Text("会话已超时!"))
+		return -1
+	case e := <-next:
+		msg := e.Event.Message.ExtractPlainText()
+		//输入c主动结束的处理
+		if msg == "c" {
+			ctx.SendChain(message.Text("会话已结束!"))
+			return -1
+		}
+		//尝试对输入进行数字转换
+		num, err := strconv.Atoi(msg)
+		//如果出错，说明输入的并非数字，则重新触发该内容
+		if err != nil {
+			//查看是否超时
+			if count == 0 {
+				ctx.SendChain(message.Text("连续输入错误，会话已结束!"))
+				return -1
+			} else {
+				ctx.SendChain(message.Text("请输入数字!(输入c结束会话)[", count, "]"))
+				count--
+				return getItemNameFutureEvent(ctx, count)
+			}
+		}
+		return num
+	}
+}
+
+// 数组字符串转图片
+func stringArrayToImage(texts []string) message.MessageSegment {
 	b, err := text.RenderToBase64(strings.Join(texts, "\n"), text.FontFile, 400, 20)
 	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
-		return
+		return message.Text("ERROR: ", err)
 	}
-	ctx.SendChain(message.Image("base64://" + binary.BytesToString(b)))
+	return message.Image("base64://" + binary.BytesToString(b))
 }
 
 //TODO:订阅功能-等待重做

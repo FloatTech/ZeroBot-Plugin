@@ -1,6 +1,7 @@
 package warframeapi
 
 import (
+	"github.com/wdvxdr1123/ZeroBot/message"
 	"sync"
 	"time"
 
@@ -11,6 +12,15 @@ var (
 	gameTimes [3]*gameTime
 )
 
+// getTimeString 根据传入的世界编号，获取对应的游戏时间文本
+func getTimeString(wordType int) message.MessageSegment {
+	return message.Text(
+		"平原时间:", gameTimes[wordType].getStatus(), "\n",
+		"下次更新:", gameTimes[wordType].getTime(),
+	)
+}
+
+// getStatus 获取当前游戏时间状态（白天/夜晚）
 func (t *gameTime) getStatus() string {
 	t.rwm.RLock()
 	defer t.rwm.RUnlock()
@@ -19,6 +29,8 @@ func (t *gameTime) getStatus() string {
 	}
 	return t.StatusFalseDes
 }
+
+// getTime 获取下一次时间状态更新的剩余游戏时间（x分x秒）
 func (t *gameTime) getTime() string {
 	t.rwm.RLock()
 	d := time.Until(t.NextTime)
@@ -47,6 +59,7 @@ func gameRuntime() {
 	}
 }
 
+// loadTime 根据API返回内容修正游戏时间
 func loadTime(api wfAPI) {
 	//updateWM()
 	var isfass bool
@@ -60,15 +73,20 @@ func loadTime(api wfAPI) {
 	}
 }
 
+// timeDet游戏时间更新
 func timeDet() {
 	for _, v := range gameTimes {
+		//当前时间对比下一次游戏状态更新时间，看看还剩多少秒
 		nt := time.Until(v.NextTime).Seconds()
-
+		//已经过了游戏时间状态更新时间
 		if nt < 0 {
 			v.rwm.Lock()
+			//更新游戏状态，如果是白天就切换到晚上，反之亦然
 			if v.Status {
+				//计算下次的晚上更新时间
 				v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
 			} else {
+				//计算下次的白天更新时间
 				v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
 			}
 			v.rwm.Unlock()
