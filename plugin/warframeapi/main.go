@@ -484,10 +484,10 @@ func updateWM() {
 }
 
 // 获取Warframe市场的售价表，并进行排序,cn_name为物品中文名称，onlyMaxRank表示只取最高等级的物品，返回物品售价表，物品信息，物品英文
-func getWMItemOrders(cn_name string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
+func getWMItemOrders(cnName string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
 
 	var wfapiio wfAPIItemsOrders
-	data, err := getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cn_name), map[string]string{"Accept": "application/json", "Platform": "pc"})
+	data, err := getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), map[string]string{"Accept": "application/json", "Platform": "pc"})
 	if err != nil {
 		return nil, itemsInSet{}, "", err
 	}
@@ -510,7 +510,7 @@ func getWMItemOrders(cn_name string, onlyMaxRank bool) (orders, itemsInSet, stri
 	sort.Sort(sellOrders)
 	//获取物品信息
 	for i, v := range wfapiio.Include.Item.ItemsInSet {
-		if v.URLName == cn_name {
+		if v.URLName == cnName {
 			return sellOrders, wfapiio.Include.Item.ItemsInSet[i], wfapiio.Include.Item.ItemsInSet[i].En.ItemName, err
 		}
 	}
