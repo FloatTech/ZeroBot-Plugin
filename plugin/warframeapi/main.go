@@ -409,11 +409,11 @@ func getItemNameFutureEvent(ctx *zero.Ctx, count int) int {
 			if count == 0 {
 				ctx.SendChain(message.Text("连续输入错误，会话已结束!"))
 				return -1
-			} else {
-				ctx.SendChain(message.Text("请输入数字!(输入c结束会话)[", count, "]"))
-				count--
-				return getItemNameFutureEvent(ctx, count)
 			}
+			ctx.SendChain(message.Text("请输入数字!(输入c结束会话)[", count, "]"))
+			count--
+			return getItemNameFutureEvent(ctx, count)
+
 		}
 		return num
 	}
@@ -472,9 +472,7 @@ func getWFAPI() (wfAPI, error) {
 // 从WF市场获取物品数据信息
 func updateWM() {
 	var itmeapi wfAPIItem //WarFrame市场的数据实例
-	var data []byte
-	var err error
-	data, err = getData("https://api.warframe.market/v1/items", map[string]string{"Accept": "application/json", "Language": "zh-hans"})
+	data, err := getData("https://api.warframe.market/v1/items", map[string]string{"Accept": "application/json", "Language": "zh-hans"})
 	if err != nil {
 		panic(err)
 	}
@@ -485,31 +483,34 @@ func updateWM() {
 	loadToFuzzy(itmeapi)
 }
 
-func getWMItemOrders(name string, h bool) (orders, itemsInSet, string, error) {
-	var data []byte
-	var err error
+// 获取Warframe市场的售价表，并进行排序,cn_name为物品中文名称，onlyMaxRank表示只取最高等级的物品，返回物品售价表，物品信息，物品英文
+func getWMItemOrders(cn_name string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
+
 	var wfapiio wfAPIItemsOrders
-	data, err = getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", name), map[string]string{"Accept": "application/json", "Platform": "pc"})
+	data, err := getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cn_name), map[string]string{"Accept": "application/json", "Platform": "pc"})
 	if err != nil {
 		return nil, itemsInSet{}, "", err
 	}
 	err = json.Unmarshal(data, &wfapiio)
-
 	var sellOrders orders
+	//遍历市场物品列表
 	for _, v := range wfapiio.Payload.Orders {
+		//取其中类型为售卖，且去掉不在线的玩家
 		if v.OrderType == "sell" && v.User.Status != "offline" {
-			if h && v.ModRank == wfapiio.Include.Item.ItemsInSet[0].ModMaxRank {
+			//如果需要满级报价
+			if onlyMaxRank && v.ModRank == wfapiio.Include.Item.ItemsInSet[0].ModMaxRank {
 				sellOrders = append(sellOrders, v)
-			} else if !h {
+			} else if !onlyMaxRank {
 				sellOrders = append(sellOrders, v)
 			}
 
 		}
 	}
+	//对报价表进行排序，由低到高
 	sort.Sort(sellOrders)
-
+	//获取物品信息
 	for i, v := range wfapiio.Include.Item.ItemsInSet {
-		if v.URLName == name {
+		if v.URLName == cn_name {
 			return sellOrders, wfapiio.Include.Item.ItemsInSet[i], wfapiio.Include.Item.ItemsInSet[i].En.ItemName, err
 		}
 	}
