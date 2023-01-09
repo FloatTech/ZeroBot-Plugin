@@ -251,15 +251,6 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
 </details>
 <details>
-  <summary>词典匹配回复</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
-
-  - [x] 切换[kimo|傲娇|可爱]词库
-  - [x] 设置词库触发概率0.x (0<x<9)
-
-</details>
-<details>
   <summary>定时指令触发器</summary>
 
   `import _ "github.com/FloatTech/zbputils/job"`
@@ -405,6 +396,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"`
 
   - [x] 支付宝到账 1
+
+</details>
+<details>
+  <summary>触发者撤回时也自动撤回</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/autowithdraw"`
+
+  - [x] 撤回一条消息
 
 </details>
 <details>
@@ -1391,6 +1390,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 	
 </details>
 <details>
+  <summary>词典匹配回复</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
+
+  - [x] 切换[kimo|傲娇|可爱]词库
+  - [x] 设置词库触发概率0.x (0<x<9)
+
+  - 注：由于占用资源较大，默认注释。
+
+</details>
+<details>
   <summary>鬼东西</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
@@ -1422,15 +1432,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] @Bot 任意文本(任意一句话回复)
 
-  - [x] 设置回复模式[青云客 | 小爱 | ChatGPT]
-
-  - [x] 设置 ChatGPT SessionToken xxx
-
-  - [x] 重置ChatGPT连接
-  
-  - 注:
-    - 注册和获取 token 可以参见这两篇文章：[注册](https://www.cnblogs.com/ranxi169/p/16954797.html) [获取token](https://juejin.cn/post/7174088036035067917)
-    - 设置 SessionToken 时，请确保自己为超级管理员，然后私聊`/响应` `/禁用atri` `/禁用tts` `/启用aireply`，再发送`设置 ChatGPT SessionToken xxx`
+  - [x] 设置回复模式[青云客 | 小爱]
 
 </details>
 
