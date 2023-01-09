@@ -331,7 +331,7 @@ func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, er
 			name := hex.EncodeToString(md5.Sum(nil))[:8] + ".jpg"
 			f := file.BOTPATH + "/" + filepath + rename + "/" + name
 			if file.IsNotExist(f) {
-				err = file.DownloadTo(v, f)
+				err = file.NoChkCrtDownloadTo(v, f)
 				if err != nil {
 					return
 				}
