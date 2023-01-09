@@ -399,6 +399,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>触发者撤回时也自动撤回</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/autowithdraw"`
+
+  - [x] 撤回一条消息
+
+</details>
+<details>
   <summary>base16384加解密</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/b14"`
