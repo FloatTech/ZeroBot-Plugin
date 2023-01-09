@@ -5,20 +5,20 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20230107074849-392b0b10b149
-	github.com/FloatTech/floatbox v0.0.0-20230107061309-dcd5c0012dd3
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20230109125955-02d902ce0951
+	github.com/FloatTech/floatbox v0.0.0-20230109123116-c544925718fe
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221210051848-740ab7bd6ec3
-	github.com/FloatTech/zbputils v1.6.1-0.20230107061700-dadcf8500e7a
+	github.com/FloatTech/zbpctrl v1.5.3-0.20230109124217-41203036b80a
+	github.com/FloatTech/zbputils v1.6.1-0.20230109125328-bf06bab484de
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.6.1
-	github.com/fumiama/go-registry v0.2.5-0.20221121111817-44b0846bdce6
+	github.com/fumiama/go-base16384 v1.6.4
+	github.com/fumiama/go-registry v0.2.5
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/unibase2n v0.0.0-20221020155353-02876e777430
@@ -32,7 +32,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.6.6
+	github.com/wdvxdr1123/ZeroBot v1.6.7
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.3.0
 	gopkg.in/yaml.v3 v3.0.1
