@@ -40,8 +40,7 @@ const (
 )
 
 var (
-	configPath string
-	cachePath  string
+	cachePath string
 	// apikey 由账号和密码拼接而成, 例: zerobot,123456
 	apikey string
 )
