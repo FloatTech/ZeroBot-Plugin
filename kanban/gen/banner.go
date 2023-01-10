@@ -12,9 +12,12 @@ import (
 
 const banner = `package kanban
 
+// Version ...
+var Version = "%s"
+
 // Banner ...
 var Banner = "* OneBot + ZeroBot + Golang\n" +
-	"* Version %s - %s\n" +
+	"* Version " + Version + " - %s\n" +
 	"* Copyright © 2020 - %d FloatTech. All Rights Reserved.\n" +
 	"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
 `

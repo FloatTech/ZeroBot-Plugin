@@ -11,9 +11,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/antchfx/htmlquery"
-	"github.com/spf13/viper"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -43,11 +42,11 @@ const (
 var (
 	configPath string
 	cachePath  string
+	// apikey 由账号和密码拼接而成, 例: zerobot,123456
+	apikey string
 )
 
 func init() {
-	v := viper.New()
-
 	engine := control.Register("novel", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "铅笔小说网搜索",
@@ -57,28 +56,20 @@ func init() {
 			"建议去https://www.23qb.com/ 注册一个账号, 小说下载有积分限制",
 		PrivateDataFolder: "novel",
 	})
-	configPath = engine.DataFolder() + "novel.yaml"
 	cachePath = engine.DataFolder() + "cache/"
 	_ = os.MkdirAll(cachePath, 0755)
-	v.SetConfigFile(configPath)
-	if err := v.ReadInConfig(); err != nil {
-		v.Set("username", username)
-		v.Set("password", password)
-		if err := v.WriteConfig(); err != nil {
-			panic(err)
-		}
-	}
 	engine.OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
-			v := viper.New()
-			v.SetConfigFile(configPath)
-			err := v.ReadInConfig()
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+			key := getAPIKey(ctx)
+			u, p, _ := strings.Cut(key, ",")
+			if u == "" {
+				u = username
 			}
-			cookie, err := login(v.GetString("username"), v.GetString("password"))
+			if p == "" {
+				p = password
+			}
+			cookie, err := login(u, p)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -160,31 +151,27 @@ func init() {
 	engine.OnRegex(`^设置小说配置\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			regexMatched := ctx.State["regex_matched"].([]string)
-			v = viper.New()
-			v.SetConfigFile(configPath)
-			v.Set("username", regexMatched[1])
-			v.Set("password", regexMatched[2])
-			err := v.WriteConfig()
+			err := setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), regexMatched[1]+","+regexMatched[2])
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			text := fmt.Sprintf("成功设置小说配置\nusername: %v\npassword: %v", regexMatched[1], regexMatched[2])
-			ctx.SendChain(message.Text(text))
+			ctx.SendChain(message.Text("成功设置小说配置\nusername: ", regexMatched[1], "\npassword: ", regexMatched[2]))
 		})
 	engine.OnRegex("^下载小说([0-9]{1,25})$").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			regexMatched := ctx.State["regex_matched"].([]string)
 			id := regexMatched[1]
 			ctx.SendChain(message.Text("少女祈祷中......"))
-			v := viper.New()
-			v.SetConfigFile(configPath)
-			err := v.ReadInConfig()
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+			key := getAPIKey(ctx)
+			u, p, _ := strings.Cut(key, ",")
+			if u == "" {
+				u = username
 			}
-			cookie, err := login(v.GetString("username"), v.GetString("password"))
+			if p == "" {
+				p = password
+			}
+			cookie, err := login(u, p)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -194,12 +181,12 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			doc, err := goquery.NewDocumentFromReader(strings.NewReader(detailHTML))
+			doc, err := htmlquery.Parse(strings.NewReader(detailHTML))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			title := doc.Find("#bookinfo > div.bookright > div.d_title > h1").Text()
+			title := htmlquery.InnerText(htmlquery.FindOne(doc, "//*[@id='bookinfo']/div[@class='bookright']/div[@class='d_title']/h1"))
 			fileName := filepath.Join(cachePath, title+".txt")
 			if file.IsExist(fileName) {
 				ctx.UploadThisGroupFile(filepath.Join(file.BOTPATH, fileName), filepath.Base(fileName), "")
@@ -325,4 +312,19 @@ func download(id string, cookie string) (downloadHTML string, err error) {
 	}
 	downloadHTML = ub.BytesToString(downloadData)
 	return
+}
+
+func getAPIKey(ctx *zero.Ctx) string {
+	if apikey == "" {
+		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		_ = m.Manager.GetExtra(-1, &apikey)
+		logrus.Debugln("[novel] get api key:", apikey)
+	}
+	return apikey
+}
+
+func setAPIKey(m *ctrl.Control[*zero.Ctx], key string) error {
+	apikey = key
+	_ = m.Manager.Response(-1)
+	return m.Manager.SetExtra(-1, apikey)
 }
