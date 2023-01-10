@@ -59,7 +59,9 @@ func init() { // 插件主体
 				pic = mcnPic[rand.Intn(len(mcnPic))]
 			}
 			return pic.String(), nil
-		}, web.GetData, time.Minute)
+		}, func(s string) ([]byte, error) {
+			return web.RequestDataWith(web.NewTLS12Client(), s, "GET", "http://hs.heisiwu.com/", web.RandUA())
+		}, time.Minute)
 	if err != nil {
 		panic(err)
 	}
