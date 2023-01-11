@@ -39,7 +39,7 @@ func init() {
 					return "", err
 				}
 			}
-			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua)
+			data, err := web.RequestDataWith(web.NewDefaultClient(), coserURL, "GET", "", ua, nil)
 			if err != nil {
 				return "", err
 			}

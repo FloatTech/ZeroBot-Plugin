@@ -177,7 +177,7 @@ func cloud163(keyword string) (msg message.MessageSegment) {
 // qqmusic 返回QQ音乐卡片
 func qqmusic(keyword string) (msg message.MessageSegment) {
 	requestURL := "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg?platform=yqq.json&key=" + url.QueryEscape(keyword)
-	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA())
+	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA(), nil)
 	if err != nil {
 		msg = message.Text("ERROR: ", err)
 		return

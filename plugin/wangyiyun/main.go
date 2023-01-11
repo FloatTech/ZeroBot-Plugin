@@ -24,7 +24,7 @@ func init() {
 		Help:             "- 来份网易云热评",
 	}).OnFullMatch("来份网易云热评").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			data, err := web.RequestDataWith(web.NewDefaultClient(), wangyiyunURL, "GET", wangyiyunReferer, ua)
+			data, err := web.RequestDataWith(web.NewDefaultClient(), wangyiyunURL, "GET", wangyiyunReferer, ua, nil)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
