@@ -316,7 +316,7 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 	if qq != 0 {
 		face, err = web.GetData(fmt.Sprintf(faceURL, qq))
 	} else {
-		face, err = web.RequestDataWith(web.NewTLS12Client(), fmt.Sprintf(anonymousURL, rand.Intn(4)+1), "GET", "gitcode.net", web.RandUA())
+		face, err = web.RequestDataWith(web.NewTLS12Client(), fmt.Sprintf(anonymousURL, rand.Intn(4)+1), "GET", "gitcode.net", web.RandUA(), nil)
 	}
 	if err != nil {
 		return

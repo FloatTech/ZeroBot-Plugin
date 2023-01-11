@@ -6,6 +6,7 @@ Package atri 本文件基于 https://github.com/Kyomotoi/ATRI
 package atri
 
 import (
+	"encoding/base64"
 	"math/rand"
 	"time"
 
@@ -17,7 +18,35 @@ import (
 	"github.com/FloatTech/zbputils/control"
 )
 
-const res = "https://gitcode.net/u011570312/zbpdata/-/raw/main/Atri/"
+type datagetter func(string, bool) ([]byte, error)
+
+func (dgtr datagetter) randImage(file ...string) message.MessageSegment {
+	data, err := dgtr(file[rand.Intn(len(file))], true)
+	if err != nil {
+		return message.Text("ERROR: ", err)
+	}
+	return message.ImageBytes(data)
+}
+
+func (dgtr datagetter) randRecord(file ...string) message.MessageSegment {
+	data, err := dgtr(file[rand.Intn(len(file))], true)
+	if err != nil {
+		return message.Text("ERROR: ", err)
+	}
+	return message.Record("base64://" + base64.StdEncoding.EncodeToString(data))
+}
+
+func randText(text ...string) message.MessageSegment {
+	return message.Text(text[rand.Intn(len(text))])
+}
+
+// isAtriSleeping 凌晨0点到6点，ATRI 在睡觉，不回应任何请求
+func isAtriSleeping(ctx *zero.Ctx) bool {
+	if now := time.Now().Hour(); now >= 1 && now < 6 {
+		return false
+	}
+	return true
+}
 
 func init() { // 插件主体
 	engine := control.Register("atri", &ctrl.Options[*zero.Ctx]{
@@ -38,25 +67,27 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("Zzz……Zzz……"))
 		},
 	})
-	engine.OnFullMatch("萝卜子", isAtriSleeping).SetBlock(true).
+	engine.UsePreHandler(isAtriSleeping)
+	var dgtr datagetter = engine.GetLazyData
+	engine.OnFullMatch("萝卜子").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			switch rand.Intn(2) {
 			case 0:
 				ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
 			case 1:
-				ctx.SendChain(randRecord("RocketPunch.amr"))
+				ctx.SendChain(dgtr.randRecord("RocketPunch.amr"))
 			}
 		})
-	engine.OnFullMatchGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			ctx.SendChain(randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
+			ctx.SendChain(dgtr.randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
 		})
-	engine.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
+	engine.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
-			ctx.SendChain(randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
+			ctx.SendChain(dgtr.randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
 		})
 	engine.OnFullMatchGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う", "早好", "早", "早早早"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -154,7 +185,7 @@ func init() { // 插件主体
 				))
 			}
 		})
-	engine.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
+	engine.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText(
@@ -175,7 +206,7 @@ func init() { // 插件主体
 				"呣......我的高性能，毫无遗憾地施展出来了......",
 			))
 		})
-	engine.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, isAtriSleeping, zero.OnlyToMe).SetBlock(true).
+	engine.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText(
@@ -190,67 +221,47 @@ func init() { // 插件主体
 			))
 		})
 
-	engine.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}, isAtriSleeping).SetBlock(true).
+	engine.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			if rand.Intn(2) == 0 {
-				ctx.SendChain(randImage("YES.png", "NO.jpg"))
+				ctx.SendChain(dgtr.randImage("YES.png", "NO.jpg"))
 			}
 		})
-	engine.OnKeywordGroup([]string{"啊这"}, isAtriSleeping).SetBlock(true).
+	engine.OnKeywordGroup([]string{"啊这"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			if rand.Intn(2) == 0 {
-				ctx.SendChain(randImage("AZ.jpg", "AZ1.jpg"))
+				ctx.SendChain(dgtr.randImage("AZ.jpg", "AZ1.jpg"))
 			}
 		})
-	engine.OnKeywordGroup([]string{"我好了"}, isAtriSleeping).SetBlock(true).
+	engine.OnKeywordGroup([]string{"我好了"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), randText("不许好！", "憋回去！"))
 		})
-	engine.OnFullMatchGroup([]string{"？", "?", "¿"}, isAtriSleeping).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"？", "?", "¿"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			switch rand.Intn(5) {
 			case 0:
 				ctx.SendChain(randText("?", "？", "嗯？", "(。´・ω・)ん?", "ん？"))
 			case 1, 2:
-				ctx.SendChain(randImage("WH.jpg", "WH1.jpg", "WH2.jpg", "WH3.jpg"))
+				ctx.SendChain(dgtr.randImage("WH.jpg", "WH1.jpg", "WH2.jpg", "WH3.jpg"))
 			}
 		})
-	engine.OnKeyword("离谱", isAtriSleeping).SetBlock(true).
+	engine.OnKeyword("离谱").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			switch rand.Intn(5) {
 			case 0:
 				ctx.SendChain(randText("?", "？", "嗯？", "(。´・ω・)ん?", "ん？"))
 			case 1, 2:
-				ctx.SendChain(randImage("WH.jpg"))
+				ctx.SendChain(dgtr.randImage("WH.jpg"))
 			}
 		})
-	engine.OnKeyword("答应我", isAtriSleeping, zero.OnlyToMe).SetBlock(true).
+	engine.OnKeyword("答应我", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText("我无法回应你的请求"))
 		})
-}
-
-func randText(text ...string) message.MessageSegment {
-	return message.Text(text[rand.Intn(len(text))])
-}
-
-func randImage(file ...string) message.MessageSegment {
-	return message.Image(res + file[rand.Intn(len(file))])
-}
-
-func randRecord(file ...string) message.MessageSegment {
-	return message.Record(res + file[rand.Intn(len(file))])
-}
-
-// isAtriSleeping 凌晨0点到6点，ATRI 在睡觉，不回应任何请求
-func isAtriSleeping(ctx *zero.Ctx) bool {
-	if now := time.Now().Hour(); now >= 1 && now < 6 {
-		return false
-	}
-	return true
 }

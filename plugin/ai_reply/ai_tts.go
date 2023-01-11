@@ -36,7 +36,7 @@ const (
 	defaultttsindexkey = -2905
 )
 
-var replyModes = [...]string{"青云客", "小爱", "ChatGPT"}
+var replyModes = [...]string{"青云客", "小爱"}
 
 func setReplyMode(ctx *zero.Ctx, name string) error {
 	gid := ctx.Event.GroupID
@@ -62,8 +62,6 @@ func setReplyMode(ctx *zero.Ctx, name string) error {
 	return m.SetData(gid, (m.GetData(index)&^0xff)|(index&0xff))
 }
 
-var chats *aireply.ChatGPT
-
 func getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
@@ -71,16 +69,10 @@ func getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	}
 	m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 	if ok {
-		switch m.GetData(gid) & 0xff {
-		case 0:
-			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
-		case 1:
+		if m.GetData(gid)&0xff == 1 {
 			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
-		case 2:
-			if chats != nil {
-				return chats
-			}
 		}
+		return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
 	}
 	return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
 }

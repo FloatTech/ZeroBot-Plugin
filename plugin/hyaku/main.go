@@ -2,9 +2,9 @@
 package hyaku
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
-	"io"
 	"math/rand"
 	"os"
 	"reflect"
@@ -12,8 +12,6 @@ import (
 	"unsafe"
 
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -60,56 +58,36 @@ func init() {
 			"- 百人一首之n",
 		PrivateDataFolder: "hyaku",
 	})
-	csvfile := engine.DataFolder() + "hyaku.csv"
 	err := os.MkdirAll(engine.DataFolder()+"img", 0755)
 	if err != nil {
 		panic(err)
 	}
-	go func() {
-		var f *os.File
-		if file.IsNotExist(csvfile) {
-			data, err := web.RequestDataWith(web.NewTLS12Client(), bed+"小倉百人一首.csv", "GET", "gitcode.net", web.RandUA())
-			if err != nil {
-				_ = os.Remove(csvfile)
-				panic(err)
-			}
-			f, err = os.Create(csvfile)
-			if err != nil {
-				panic(err)
-			}
-			_, _ = f.Write(data)
-			_, _ = f.Seek(0, io.SeekStart)
-		} else {
-			var err error
-			f, err = os.Open(csvfile)
-			if err != nil {
-				panic(err)
-			}
+	data, err := engine.GetCustomLazyData(bed, "小倉百人一首.csv")
+	if err != nil {
+		panic(err)
+	}
+	records, err := csv.NewReader(bytes.NewReader(data)).ReadAll()
+	if err != nil {
+		panic(err)
+	}
+	records = records[1:] // skip title
+	if len(records) != 100 {
+		panic("invalid csvfile")
+	}
+	for j, r := range records {
+		if len(r) != 6 {
+			panic("invalid csvfile")
 		}
-		records, err := csv.NewReader(f).ReadAll()
+		i, err := strconv.Atoi(r[0])
 		if err != nil {
 			panic(err)
 		}
-		_ = f.Close()
-		records = records[1:] // skip title
-		if len(records) != 100 {
+		i--
+		if j != i {
 			panic("invalid csvfile")
 		}
-		for j, r := range records {
-			if len(r) != 6 {
-				panic("invalid csvfile")
-			}
-			i, err := strconv.Atoi(r[0])
-			if err != nil {
-				panic(err)
-			}
-			i--
-			if j != i {
-				panic("invalid csvfile")
-			}
-			lines[i] = (*line)(*(*unsafe.Pointer)(unsafe.Pointer(&r)))
-		}
-	}()
+		lines[i] = (*line)(*(*unsafe.Pointer)(unsafe.Pointer(&r)))
+	}
 	engine.OnFullMatch("百人一首").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		i := rand.Intn(100)
 		img0, err := engine.GetCustomLazyData(bed, fmt.Sprintf("img/%03d.jpg", i+1))

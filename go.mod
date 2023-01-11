@@ -5,20 +5,20 @@ go 1.19
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/Coloured-glaze/gg v1.3.4
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20221226052349-99c1398c6713
-	github.com/FloatTech/floatbox v0.0.0-20221223151526-b0b2b1101f78
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20230111055153-4d8aebd3eab9
+	github.com/FloatTech/floatbox v0.0.0-20230111053652-a03d6334fadf
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20221210051848-740ab7bd6ec3
-	github.com/FloatTech/zbputils v1.6.1-0.20221226052231-8e1c946d55c2
+	github.com/FloatTech/zbpctrl v1.5.3-0.20230109124217-41203036b80a
+	github.com/FloatTech/zbputils v1.6.1
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/corona10/goimagehash v1.1.0
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.6.1
-	github.com/fumiama/go-registry v0.2.5-0.20221121111817-44b0846bdce6
+	github.com/fumiama/go-base16384 v1.6.4
+	github.com/fumiama/go-registry v0.2.5
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/unibase2n v0.0.0-20221020155353-02876e777430
@@ -32,14 +32,14 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.6.6
+	github.com/wdvxdr1123/ZeroBot v1.6.7
 	gitlab.com/gomidi/midi/v2 v2.0.25
-	golang.org/x/image v0.1.0
+	golang.org/x/image v0.3.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/FloatTech/rendercard v0.0.2-0.20221128165614-a41216d2422e // indirect
+	github.com/FloatTech/rendercard v0.0.3 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
@@ -80,7 +80,7 @@ require (
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
