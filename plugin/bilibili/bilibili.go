@@ -291,7 +291,7 @@ func init() {
 		}
 
 		client := &http.Client{Transport: tr}
-		data, err := web.RequestDataWith(client, fmt.Sprintf(bz.DanmakuAPI, id, pagenum), "GET", "", web.RandUA())
+		data, err := web.RequestDataWith(client, fmt.Sprintf(bz.DanmakuAPI, id, pagenum), "GET", "", web.RandUA(), nil)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
