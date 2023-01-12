@@ -127,7 +127,6 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			if now > 11 && now < 15 { // 中午
-
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
