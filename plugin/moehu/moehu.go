@@ -7,23 +7,35 @@ import (
 	"encoding/json"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
+	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-type config struct {
-	IsDownload bool `json:"IsDownload"`
+type storage int64
+
+func (s *storage) setDownload(on bool) {
+	if on {
+		*s |= 0b001
+	} else {
+		*s &= 0b110
+	}
 }
+
+func (s *storage) isDownload() bool {
+	return *s&0b001 > 0
+}
+
 type result struct {
 	Pic []string `json:"pic"`
 }
@@ -31,16 +43,10 @@ type result struct {
 const (
 	// moehu api
 	moehuAPI = "https://img.moehu.org/pic.php?return=json&id="
-	// 色图api
-	setuAPI = "http://iw233.fgimax2.fgnwctvip.com/API/Ghs.php?type=json"
-	referer = "https://mirlkoi.ifast3.vipnps.vip"
-	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36 Edg/102.0.1245.39"
+	ua       = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36 Edg/102.0.1245.39"
 )
 
 var (
-	cfg = config{
-		IsDownload: true,
-	}
 	groupSingle = single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 {
 			return ctx.Event.GroupID
@@ -197,57 +203,83 @@ var (
 )
 
 func init() {
-	err := os.MkdirAll(filepath, 0755)
-	if err != nil {
-		panic(err)
-	}
-	cfgFile := en.DataFolder() + "config.json"
-	if file.IsExist(cfgFile) {
-		reader, err := os.Open(cfgFile)
-		if err == nil {
-			err = json.NewDecoder(reader).Decode(&cfg)
-			if err != nil {
-				panic(err)
-			}
-		} else {
-			panic(err)
-		}
-		err = reader.Close()
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		err = saveConfig(cfgFile)
-		if err != nil {
-			panic(err)
-		}
-	}
 	en.OnRegex(`^随机(([0-9]+)[份|张])?(.*)`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				return
+			}
 			msg := ctx.State["regex_matched"].([]string)[3]
 			api, ok := allAPI[msg]
 			if !ok {
 				return
 			}
 			i := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
-			m, err := getimage(ctx, api, msg, i)
+			switch {
+			case i == 0:
+				i = 1
+			case !zero.AdminPermission(ctx) && i > 15:
+				i = 15
+				ctx.SendChain(message.Text("普通成员最多只能随机15张图片哦~"))
+			case !zero.SuperUserPermission(ctx) && i > 30:
+				i = 30
+				ctx.SendChain(message.Text("管理员最多只能随机30张图片哦~"))
+			case zero.SuperUserPermission(ctx) && i > 100:
+				i = 100
+				ctx.SendChain(message.Text("太贪心啦！最多只能随机100张图片哦~"))
+			default:
+				ctx.SendChain(message.Text("少女祈祷中..."))
+			}
+			data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", "", ua, nil)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			var r result
+			err = json.Unmarshal(data, &r)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			m := make(message.Message, len(r.Pic))
+			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
+			gdata := (storage)(c.GetData(gid))
+			var wg sync.WaitGroup
+			if gdata.isDownload() {
+				_ = os.Mkdir(file.BOTPATH+"/"+filepath+msg, 0664)
+				md5 := md5.New()
+				wg.Add(len(r.Pic))
+				for i, v := range r.Pic {
+					go func(i int, v string) {
+						defer wg.Done()
+						_, err = md5.Write(binary.StringToBytes(v))
+						if err != nil {
+							return
+						}
+						name := hex.EncodeToString(md5.Sum(nil))[:8] + ".jpg"
+						filename := file.BOTPATH + "/" + filepath + msg + "/" + name
+						if file.IsNotExist(filename) {
+							err = file.DownloadTo(v, filename)
+							if err != nil {
+								return
+							}
+							m[i] = ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+filename))
+							process.SleepAbout1sTo2s()
+							return
+						}
+						m[i] = ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+filename))
+					}(i, v)
+				}
+			} else {
+				for i, v := range r.Pic {
+					m[i] = ctxext.FakeSenderForwardNode(ctx, message.Image(v))
+				}
+			}
+			wg.Wait()
 			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, m).Get("message_id").Int(); id == 0 {
-				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-			}
-		})
-	en.OnRegex(`^随机色图`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
-		Handle(func(ctx *zero.Ctx) {
-			data, err := web.RequestDataWith(web.NewDefaultClient(), setuAPI, "GET", referer, ua)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			picURL := gjson.Get(binary.BytesToString(data), "pic").String()
-			if id := ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image(picURL))}).Get("message_id").Int(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
@@ -275,84 +307,24 @@ func init() {
 		})
 	en.OnRegex(`^(.*)使用缓存$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				return
+			}
 			option := ctx.State["regex_matched"].([]string)[1]
+			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
+			gdata := (storage)(c.GetData(gid))
 			switch option {
 			case "开启", "打开", "启用":
-				cfg.IsDownload = true
+				gdata.setDownload(true)
 			case "关闭", "关掉", "禁用":
-				cfg.IsDownload = false
+				gdata.setDownload(false)
 			default:
 				return
 			}
-			err = saveConfig(cfgFile)
-			if err == nil {
-				ctx.SendChain(message.Text("已设置图片模式为缓存" + option))
-			} else {
-				ctx.SendChain(message.Text("ERROR:", err))
-			}
+			ctx.SendChain(message.Text("已设置图片模式为缓存" + option))
 		})
-}
-
-func getimage(ctx *zero.Ctx, api, rename string, i int64) (m message.Message, err error) {
-	if i == 0 {
-		i = 1
-	}
-	switch {
-	case !zero.AdminPermission(ctx) && i > 15:
-		i = 15
-		ctx.SendChain(message.Text("普通成员最多只能随机15张图片哦~"))
-	case !zero.SuperUserPermission(ctx) && i > 30:
-		i = 30
-		ctx.SendChain(message.Text("管理员最多只能随机30张图片哦~"))
-	case zero.SuperUserPermission(ctx) && i > 100:
-		i = 100
-		ctx.SendChain(message.Text("太贪心啦！最多只能随机100张图片哦~"))
-	default:
-		ctx.SendChain(message.Text("少女祈祷中..."))
-	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), api+"&num="+strconv.FormatInt(i, 10), "GET", "", ua)
-	if err != nil {
-		return
-	}
-	var r result
-	err = json.Unmarshal(data, &r)
-	if err != nil {
-		return
-	}
-	m = make(message.Message, 0, len(r.Pic))
-	if cfg.IsDownload {
-		_ = os.Mkdir(file.BOTPATH+"/"+filepath+rename, 0664)
-		md5 := md5.New()
-		for _, v := range r.Pic {
-			_, err = md5.Write(binary.StringToBytes(v))
-			if err != nil {
-				return
-			}
-			name := hex.EncodeToString(md5.Sum(nil))[:8] + ".jpg"
-			f := file.BOTPATH + "/" + filepath + rename + "/" + name
-			if file.IsNotExist(f) {
-				err = file.NoChkCrtDownloadTo(v, f)
-				if err != nil {
-					return
-				}
-				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
-			} else {
-				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+f)))
-			}
-		}
-		return
-	}
-	for _, v := range r.Pic {
-		m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Image(v)))
-	}
-	return
-}
-
-func saveConfig(cfgFile string) (err error) {
-	reader, err := os.Create(cfgFile)
-	if err == nil {
-		err = json.NewEncoder(reader).Encode(&cfg)
-		return
-	}
-	return
 }

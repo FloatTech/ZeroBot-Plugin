@@ -17,11 +17,7 @@ var Version = "%s"
 
 // Banner ...
 var Banner = "* OneBot + ZeroBot + Golang\n" +
-<<<<<<< HEAD
-	"* Version "+ Version +" - %s\n" +
-=======
 	"* Version " + Version + " - %s\n" +
->>>>>>> bc5190a117bdf86c63a61b16ef35c55f7fd8cf54
 	"* Copyright © 2020 - %d FloatTech. All Rights Reserved.\n" +
 	"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
 `
