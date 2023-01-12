@@ -13,7 +13,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
@@ -60,11 +59,9 @@ func init() { // 插件主体
 			"- 离谱\n- 答应我",
 		PublicDataFolder: "Atri",
 		OnEnable: func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text("嗯呜呜……夏生先生……？"))
 		},
 		OnDisable: func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text("Zzz……Zzz……"))
 		},
 	})
@@ -72,7 +69,6 @@ func init() { // 插件主体
 	var dgtr datagetter = engine.GetLazyData
 	engine.OnFullMatch("萝卜子").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			switch rand.Intn(2) {
 			case 0:
 				ctx.SendChain(randText("萝卜子是对机器人的蔑称！", "是亚托莉......萝卜子可是对机器人的蔑称"))
@@ -82,18 +78,15 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatchGroup([]string{"喜欢", "爱你", "爱", "suki", "daisuki", "すき", "好き", "贴贴", "老婆", "亲一个", "mua"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(dgtr.randImage("SUKI.jpg", "SUKI1.jpg", "SUKI2.png"))
 		})
 	engine.OnKeywordGroup([]string{"草你妈", "操你妈", "脑瘫", "废柴", "fw", "five", "废物", "战斗", "爬", "爪巴", "sb", "SB", "傻B"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(dgtr.randImage("FN.jpg", "WQ.jpg", "WQ1.jpg"))
 		})
 	engine.OnFullMatchGroup([]string{"早安", "早哇", "早上好", "ohayo", "哦哈哟", "お早う", "早好", "早", "早早早"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
-			process.SleepAbout1sTo2s()
 			switch {
 			case now < 6: // 凌晨
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
@@ -134,7 +127,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			if now > 11 && now < 15 { // 中午
-				process.SleepAbout1sTo2s()
+
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
 					"午安w",
 					"午觉要好好睡哦，ATRI会陪伴在你身旁的w",
@@ -146,7 +139,6 @@ func init() { // 插件主体
 	engine.OnFullMatchGroup([]string{"晚安", "oyasuminasai", "おやすみなさい", "晚好", "晚上好"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
-			process.SleepAbout1sTo2s()
 			switch {
 			case now < 6: // 凌晨
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), randText(
@@ -188,7 +180,6 @@ func init() { // 插件主体
 		})
 	engine.OnKeywordGroup([]string{"高性能", "太棒了", "すごい", "sugoi", "斯国一", "よかった"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText(
 				"当然，我是高性能的嘛~！",
 				"小事一桩，我是高性能的嘛",
@@ -209,7 +200,6 @@ func init() { // 插件主体
 		})
 	engine.OnKeywordGroup([]string{"没事", "没关系", "大丈夫", "还好", "不要紧", "没出大问题", "没伤到哪"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText(
 				"当然，我是高性能的嘛~！",
 				"没事没事，因为我是高性能的嘛！嗯哼！",
@@ -224,26 +214,22 @@ func init() { // 插件主体
 
 	engine.OnKeywordGroup([]string{"好吗", "是吗", "行不行", "能不能", "可不可以"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			if rand.Intn(2) == 0 {
 				ctx.SendChain(dgtr.randImage("YES.png", "NO.jpg"))
 			}
 		})
 	engine.OnKeywordGroup([]string{"啊这"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			if rand.Intn(2) == 0 {
 				ctx.SendChain(dgtr.randImage("AZ.jpg", "AZ1.jpg"))
 			}
 		})
 	engine.OnKeywordGroup([]string{"我好了"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), randText("不许好！", "憋回去！"))
 		})
 	engine.OnFullMatchGroup([]string{"？", "?", "¿"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			switch rand.Intn(5) {
 			case 0:
 				ctx.SendChain(randText("?", "？", "嗯？", "(。´・ω・)ん?", "ん？"))
@@ -262,7 +248,6 @@ func init() { // 插件主体
 		})
 	engine.OnKeyword("答应我", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
 			ctx.SendChain(randText("我无法回应你的请求"))
 		})
 }
