@@ -868,7 +868,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 喝奶茶绝绝子 | 绝绝子吃饭
 
- 
 </details>
 <details>
   <summary>lolicon</summary>
