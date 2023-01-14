@@ -98,7 +98,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"     // 小鸡词典
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"    // 日语听力学习材料
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"      // 绝绝子生成器
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/kokomi"        // kokomi原神面板
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"       // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/magicprompt"   // magicprompt吟唱提示
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"    // 简易midi音乐制作
