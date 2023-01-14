@@ -40,6 +40,7 @@ func init() { // 主函数
 		_, err = strconv.Atoi(f)
 		if err != nil {
 			ctx.SendChain(message.Text("网站维护中")) // 输出结果
+			return
 		}
 		var msg strings.Builder
 		msg.WriteString("查询账号:")
