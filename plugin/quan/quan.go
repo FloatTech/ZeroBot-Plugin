@@ -36,6 +36,10 @@ func init() { // 主函数
 			ctx.SendChain(message.Text("出现错误捏：", err))
 			return
 		}
+		if len(helper.BytesToString(es)) <= 24 {
+			ctx.SendChain(message.Text("网站维护中")) // 输出结果
+			return
+		}
 		f := helper.BytesToString(es)[24:]
 		_, err = strconv.Atoi(f)
 		if err != nil {
