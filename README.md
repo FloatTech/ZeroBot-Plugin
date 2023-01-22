@@ -830,13 +830,13 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   </details>
 <details>
-  <summary>兽语加密(嗷呜~)</summary>
+  <summary>兽语|喵喵加解密</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jiami"`
 
-  - [x] 兽语加密xxx
+  - [x] 兽语|喵喵加密xxx
 
-  - [x] 兽语解密xxx
+  - [x] 兽语|喵喵解密xxx
 
 </details>
 <details>
