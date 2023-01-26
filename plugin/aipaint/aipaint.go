@@ -159,7 +159,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("成功设置\nbase_url: %v\ntoken: %v\ninterval: %v", cfg.BaseURL, cfg.Token, cfg.Interval))
+			ctx.SendChain(message.Text("成功设置\nbase_url: ", cfg.BaseURL, "\ntoken: ", cfg.Token, "\ninterval: ", cfg.Interval))
 		})
 	engine.OnRegex(`^设置ai绘图撤回时间(\d{1,3})s$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -179,7 +179,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("成功设置撤回时间为%vs", cfg.Interval))
+			ctx.SendChain(message.Text("成功设置撤回时间为", cfg.Interval, "s"))
 		})
 	engine.OnFullMatch(`查看ai绘图配置`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -188,7 +188,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("base_url: %v\ntoken: %v\ninterval: %v", cfg.BaseURL, cfg.Token, cfg.Interval))
+			ctx.SendChain(message.Text("base_url: ", cfg.BaseURL, "\ntoken: ", cfg.Token, "\ninterval: ", cfg.Interval))
 		})
 }
 
