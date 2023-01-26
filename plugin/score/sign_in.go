@@ -13,6 +13,7 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/process"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -25,11 +26,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 货币系统
+	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 const (
-	backgroundURL = "https://img.moehu.org/pic.php?id=pc"
+	backgroundURL = "https://iw233.cn/api.php?sort=pc"
+	referer       = "https://weibo.com/"
 	signinMax     = 1
 	// SCOREMAX 分数上限定为1200
 	SCOREMAX = 1200
@@ -307,5 +310,18 @@ func initPic(picFile string) error {
 		return nil
 	}
 	defer process.SleepAbout1sTo2s()
-	return file.DownloadTo(backgroundURL, picFile)
+	url, err := bilibili.GetRealURL(backgroundURL)
+	if err != nil {
+		return err
+	}
+	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
+	if err != nil {
+		return err
+	}
+	f, err := os.Create(picFile)
+	if err == nil {
+		_, err = f.Write(data)
+		f.Close()
+	}
+	return err
 }
