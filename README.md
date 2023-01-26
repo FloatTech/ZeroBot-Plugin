@@ -104,6 +104,10 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 
   - [x] /禁用 xxx (在发送的群/用户禁用xxx)
 
+  - [x] /此处启用所有插件
+
+  - [x] /此处禁用所有插件
+
   - [x] /全局启用 xxx
 
   - [x] /全局禁用 xxx
@@ -1266,6 +1270,16 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 随机vtb
 
   - [x] 更新vtb
+
+</details>
+<details>
+  <summary>钱包</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"`
+
+  - [x] 查看我的钱包
+
+  - [x] 查看钱包排名
 
 </details>
 <details>
