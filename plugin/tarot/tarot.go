@@ -153,7 +153,7 @@ func init() {
 			}
 			imgpath := cache + "/" + imgname + ".png"
 			err := pool.SendImageFromPool("pool"+imgname, imgpath, func() error {
-				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
 				if err != nil {
 					return err
 				}
@@ -336,7 +336,7 @@ func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageS
 	}
 	if file.IsNotExist(aimgfile) {
 		var data []byte
-		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
 		if err != nil {
 			return
 		}
