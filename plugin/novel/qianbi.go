@@ -3,7 +3,6 @@ package novel
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,6 +17,7 @@ import (
 
 	ub "github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -240,24 +240,16 @@ func search(searchKey string, cookie string) (searchHTML string, err error) {
 		return
 	}
 	searchKeyGbk := ub.BytesToString(searchKeyData)
-	client := &http.Client{}
-	searchReq, err := http.NewRequest("POST", searchURL, strings.NewReader(fmt.Sprintf("searchkey=%s&searchtype=all", url.QueryEscape(searchKeyGbk))))
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), searchURL, "POST", func(r *http.Request) error {
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("User-Agent", ua)
+		return nil
+	}, strings.NewReader(fmt.Sprintf("searchkey=%s&searchtype=all", url.QueryEscape(searchKeyGbk))))
 	if err != nil {
 		return
 	}
-	searchReq.Header.Set("Cookie", cookie)
-	searchReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	searchReq.Header.Set("User-Agent", ua)
-	searchResp, err := client.Do(searchReq)
-	if err != nil {
-		return
-	}
-	searchData, err := io.ReadAll(searchResp.Body)
-	if err != nil {
-		return
-	}
-	defer searchResp.Body.Close()
-	searchData, err = ub.GBK2UTF8(searchData)
+	searchData, err := ub.GBK2UTF8(data)
 	if err != nil {
 		return
 	}
@@ -266,24 +258,16 @@ func search(searchKey string, cookie string) (searchHTML string, err error) {
 }
 
 func detail(id string, cookie string) (detailHTML string, err error) {
-	client := &http.Client{}
-	detailReq, err := http.NewRequest("GET", fmt.Sprintf(detailURL, id), nil)
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(detailURL, id), "GET", func(r *http.Request) error {
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("User-Agent", ua)
+		return nil
+	}, nil)
 	if err != nil {
 		return
 	}
-	detailReq.Header.Set("Cookie", cookie)
-	detailReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	detailReq.Header.Set("User-Agent", ua)
-	detailResp, err := client.Do(detailReq)
-	if err != nil {
-		return
-	}
-	defer detailResp.Body.Close()
-	detailData, err := io.ReadAll(detailResp.Body)
-	if err != nil {
-		return
-	}
-	detailData, err = ub.GBK2UTF8(detailData)
+	detailData, err := ub.GBK2UTF8(data)
 	if err != nil {
 		return
 	}
@@ -292,24 +276,16 @@ func detail(id string, cookie string) (detailHTML string, err error) {
 }
 
 func download(id string, cookie string) (downloadHTML string, err error) {
-	client := &http.Client{}
-	downloadReq, err := http.NewRequest("GET", fmt.Sprintf(downloadURL, id), nil)
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(downloadURL, id), "GET", func(r *http.Request) error {
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("User-Agent", ua)
+		return nil
+	}, nil)
 	if err != nil {
 		return
 	}
-	downloadReq.Header.Set("Cookie", cookie)
-	downloadReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	downloadReq.Header.Set("User-Agent", ua)
-	downloadResp, err := client.Do(downloadReq)
-	if err != nil {
-		return
-	}
-	defer downloadResp.Body.Close()
-	downloadData, err := io.ReadAll(downloadResp.Body)
-	if err != nil {
-		return
-	}
-	downloadHTML = ub.BytesToString(downloadData)
+	downloadHTML = ub.BytesToString(data)
 	return
 }
 
