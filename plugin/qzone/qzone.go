@@ -311,12 +311,11 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 		imgdata   []byte
 		msgImg    image.Image
 		faceImg   image.Image
-		t         text.Text
 	)
 	if qq != 0 {
 		face, err = web.GetData(fmt.Sprintf(faceURL, qq))
 	} else {
-		face, err = web.RequestDataWith(web.NewTLS12Client(), fmt.Sprintf(anonymousURL, rand.Intn(4)+1), "GET", "gitcode.net", web.RandUA())
+		face, err = web.RequestDataWith(web.NewTLS12Client(), fmt.Sprintf(anonymousURL, rand.Intn(4)+1), "GET", "gitcode.net", web.RandUA(), nil)
 	}
 	if err != nil {
 		return
@@ -332,11 +331,10 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 	for _, v := range m {
 		switch {
 		case v.Type == "text" && strings.TrimSpace(v.Data["text"]) != "":
-			t, err = text.Render(strings.TrimSuffix(v.Data["text"], "\r\n"), text.FontFile, 400, 40)
+			msgImg, err = text.Render(strings.TrimSuffix(v.Data["text"], "\r\n"), text.FontFile, 400, 40)
 			if err != nil {
 				return
 			}
-			msgImg = t.Image()
 		case v.Type == "image" && v.Data["url"] != "":
 			imgdata, err = web.GetData(v.Data["url"])
 			if err != nil {

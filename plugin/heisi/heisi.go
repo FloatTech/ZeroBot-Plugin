@@ -60,7 +60,7 @@ func init() { // 插件主体
 			}
 			return pic.String(), nil
 		}, func(s string) ([]byte, error) {
-			return web.RequestDataWith(web.NewTLS12Client(), s, "GET", "http://hs.heisiwu.com/", web.RandUA())
+			return web.RequestDataWith(web.NewTLS12Client(), s, "GET", "http://hs.heisiwu.com/", web.RandUA(), nil)
 		}, time.Minute)
 	if err != nil {
 		panic(err)
