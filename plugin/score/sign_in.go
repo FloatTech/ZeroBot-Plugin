@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/Coloured-glaze/gg"
+	"github.com/FloatTech/AnimeAPI/bilibili"
+	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/process"
@@ -24,10 +26,6 @@ import (
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	// 货币系统
-	"github.com/FloatTech/AnimeAPI/bilibili"
-	"github.com/FloatTech/AnimeAPI/wallet"
 )
 
 const (
@@ -318,10 +316,5 @@ func initPic(picFile string) error {
 	if err != nil {
 		return err
 	}
-	f, err := os.Create(picFile)
-	if err == nil {
-		_, err = f.Write(data)
-		f.Close()
-	}
-	return err
+	return os.WriteFile(picFile, data, 0644)
 }
