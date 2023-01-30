@@ -52,7 +52,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 - **-c config.json**: 从`config.json`加载`bot`配置
 - **-s config.json**: 保存现在`bot`配置到`config.json`
 - **-l latency**: 全局处理延时 (ms)
-- **-r ringlen**: 接收消息环缓冲区大小
+- **-r ringlen**: 接收消息环缓冲区大小，`0`为不设缓冲，并发处理
 - **-x max process time**: 最大处理时间 (min)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
