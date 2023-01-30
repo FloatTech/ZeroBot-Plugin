@@ -122,10 +122,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: 张数必须为正"))
 				return
 			}
-			if n > 1 && !zero.OnlyGroup(ctx) {
-				ctx.SendChain(message.Text("ERROR: 抽取多张仅支持群聊"))
-				return
-			}
 			if n > 20 {
 				ctx.SendChain(message.Text("ERROR: 抽取张数过多"))
 				return
