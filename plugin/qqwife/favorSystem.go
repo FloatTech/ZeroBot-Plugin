@@ -84,16 +84,18 @@ func init() {
 				ctx.SendChain(message.Text("你钱包没钱啦！"))
 				return
 			}
-			moneyToFavor := rand.Intn(math.Min(walletinfo, 100))
+			moneyToFavor := rand.Intn(math.Min(walletinfo, 100)) + 1
 			// 计算钱对应的好感值
 			newFavor := 1
+			moodMax := 2
 			if favor > 50 {
 				newFavor = moneyToFavor % 10 // 礼物厌倦
 			} else {
+				moodMax = 5
 				newFavor += rand.Intn(moneyToFavor)
 			}
 			// 随机对方心情
-			mood := rand.Intn(2)
+			mood := rand.Intn(moodMax)
 			if mood == 0 {
 				newFavor = -newFavor
 			}
@@ -256,8 +258,10 @@ func (sql *婚姻登记) 更新好感度(uid, target int64, score int) (favor in
 	info := favorability{}
 	uidstr := strconv.FormatInt(uid, 10)
 	targstr := strconv.FormatInt(target, 10)
-	_ = sql.db.Find("favorability", &info, "where Userinfo glob '*"+uidstr+"+"+targstr+"*'")
-	info.Userinfo = uidstr + "+" + targstr + "+" + uidstr
+	err = sql.db.Find("favorability", &info, "where Userinfo glob '*"+uidstr+"+"+targstr+"*'")
+	if err != nil {
+		info.Userinfo = uidstr + "+" + targstr + "+" + uidstr
+	}
 	info.Favor += score
 	if info.Favor > 100 {
 		info.Favor = 100
