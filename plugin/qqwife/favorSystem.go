@@ -84,16 +84,18 @@ func init() {
 				ctx.SendChain(message.Text("你钱包没钱啦！"))
 				return
 			}
-			moneyToFavor := rand.Intn(math.Min(walletinfo, 100))
+			moneyToFavor := rand.Intn(math.Min(walletinfo, 100)) + 1
 			// 计算钱对应的好感值
 			newFavor := 1
+			moodMax := 2
 			if favor > 50 {
 				newFavor = moneyToFavor % 10 // 礼物厌倦
 			} else {
+				moodMax = 5
 				newFavor += rand.Intn(moneyToFavor)
 			}
 			// 随机对方心情
-			mood := rand.Intn(2)
+			mood := rand.Intn(moodMax)
 			if mood == 0 {
 				newFavor = -newFavor
 			}
@@ -191,6 +193,68 @@ func init() {
 			ctx.SendChain(message.ImageBytes(data))
 			cl()
 		})
+
+	engine.OnFullMatch("好感度数据整理", zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			民政局.Lock()
+			defer 民政局.Unlock()
+			count, err := 民政局.db.Count("favorability")
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]: ", err))
+				return
+			}
+			if count == 0 {
+				ctx.SendChain(message.Text("[ERROR]: 不存在好感动数据."))
+				return
+			}
+			favor := favorability{}
+			delInfo := make([]string, 0, count*2)
+			favorInfo := make(map[string]int, count*2)
+			_ = 民政局.db.FindFor("favorability", &favor, "group by Userinfo", func() error {
+				delInfo = append(delInfo, favor.Userinfo)
+				// 解析旧数据
+				userList := strings.Split(favor.Userinfo, "+")
+				if userList[0] > userList[1] {
+					favor.Userinfo = userList[0] + "+" + userList[1]
+				} else {
+					favor.Userinfo = userList[1] + "+" + userList[0]
+				}
+				// 判断是否是重复的
+				score, ok := favorInfo[favor.Userinfo]
+				if ok {
+					if score < favor.Favor {
+						favorInfo[favor.Userinfo] = favor.Favor
+					}
+				} else {
+					favorInfo[favor.Userinfo] = favor.Favor
+				}
+				return nil
+			})
+			for _, updateinfo := range delInfo {
+				// 删除旧数据
+				err = 民政局.db.Del("favorability", "where Userinfo = '"+updateinfo+"'")
+				if err != nil {
+					userList := strings.Split(favor.Userinfo, "+")
+					uid1, _ := strconv.ParseInt(userList[0], 10, 64)
+					uid2, _ := strconv.ParseInt(userList[1], 10, 64)
+					ctx.SendChain(message.Text("[ERROR]: 删除", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感动时发生了错误。\n错误信息:", err))
+				}
+			}
+			for userInfo, favor := range favorInfo {
+				favorInfo := favorability{
+					Userinfo: userInfo,
+					Favor:    favor,
+				}
+				err = 民政局.db.Insert("favorability", &favorInfo)
+				if err != nil {
+					userList := strings.Split(userInfo, "+")
+					uid1, _ := strconv.ParseInt(userList[0], 10, 64)
+					uid2, _ := strconv.ParseInt(userList[1], 10, 64)
+					ctx.SendChain(message.Text("[ERROR]: 更新", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感动时发生了错误。\n错误信息:", err))
+				}
+			}
+			ctx.SendChain(message.Text("清理好了哦"))
+		})
 }
 
 func (sql *婚姻登记) 查好感度(uid, target int64) (int, error) {
@@ -201,9 +265,19 @@ func (sql *婚姻登记) 查好感度(uid, target int64) (int, error) {
 		return 0, err
 	}
 	info := favorability{}
-	uidstr := strconv.FormatInt(uid, 10)
-	targstr := strconv.FormatInt(target, 10)
-	_ = sql.db.Find("favorability", &info, "where Userinfo glob '*"+uidstr+"+"+targstr+"*'")
+	if uid > target {
+		userinfo := strconv.FormatInt(uid, 10) + "+" + strconv.FormatInt(target, 10)
+		err = sql.db.Find("favorability", &info, "where Userinfo is '"+userinfo+"'")
+		if err != nil {
+			_ = sql.db.Find("favorability", &info, "where Userinfo glob '*"+userinfo+"*'")
+		}
+	} else {
+		userinfo := strconv.FormatInt(target, 10) + "+" + strconv.FormatInt(uid, 10)
+		err = sql.db.Find("favorability", &info, "where Userinfo is '"+userinfo+"'")
+		if err != nil {
+			_ = sql.db.Find("favorability", &info, "where Userinfo glob '*"+userinfo+"*'")
+		}
+	}
 	return info.Favor, nil
 }
 
@@ -256,8 +330,19 @@ func (sql *婚姻登记) 更新好感度(uid, target int64, score int) (favor in
 	info := favorability{}
 	uidstr := strconv.FormatInt(uid, 10)
 	targstr := strconv.FormatInt(target, 10)
-	_ = sql.db.Find("favorability", &info, "where Userinfo glob '*"+uidstr+"+"+targstr+"*'")
-	info.Userinfo = uidstr + "+" + targstr + "+" + uidstr
+	if uid > target {
+		info.Userinfo = uidstr + "+" + targstr
+		err = sql.db.Find("favorability", &info, "where Userinfo is '"+info.Userinfo+"'")
+	} else {
+		info.Userinfo = targstr + "+" + uidstr
+		err = sql.db.Find("favorability", &info, "where Userinfo is '"+info.Userinfo+"'")
+	}
+	if err != nil {
+		err = sql.db.Find("favorability", &info, "where Userinfo glob '*"+targstr+"+"+uidstr+"*'")
+		if err == nil { // 如果旧数据存在就删除旧数据
+			err = 民政局.db.Del("favorability", "where Userinfo = '"+info.Userinfo+"'")
+		}
+	}
 	info.Favor += score
 	if info.Favor > 100 {
 		info.Favor = 100

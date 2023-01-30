@@ -27,6 +27,7 @@ import (
 	// 图片输出
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/zbputils/img"
 )
 
 var (
@@ -436,6 +437,7 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 	if err != nil {
 		return
 	}
+	cardPic = img.Size(cardPic, 400, 580).Im
 	picx := cardPic.Bounds().Dx()
 	picy := cardPic.Bounds().Dy()
 	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
