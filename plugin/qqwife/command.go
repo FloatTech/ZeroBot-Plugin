@@ -69,7 +69,7 @@ var (
 			"- 做媒 @攻方QQ @受方QQ\n身为管理, 群友的xing福是要搭把手的(攻受双方好感度越高成功率越高,保底30%概率)\n" +
 			"--------------------------------\n好感度规则\n--------------------------------\n" +
 			"\"娶群友\"指令好感度随机增加1~5。\n\"A牛B的C\"会导致C恨A, 好感度-5;\nB为了报复A, 好感度+5(什么柜子play)\nA为BC做媒,成功B、C对A好感度+1反之-1\n做媒成功BC好感度+1" +
-			"Tips: 群老婆列表过0点刷新",
+			"\nTips: 群老婆列表过0点刷新",
 		PrivateDataFolder: "qqwife",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),

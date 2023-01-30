@@ -122,10 +122,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: 张数必须为正"))
 				return
 			}
-			if n > 1 && !zero.OnlyGroup(ctx) {
-				ctx.SendChain(message.Text("ERROR: 抽取多张仅支持群聊"))
-				return
-			}
 			if n > 20 {
 				ctx.SendChain(message.Text("ERROR: 抽取张数过多"))
 				return
@@ -153,7 +149,7 @@ func init() {
 			}
 			imgpath := cache + "/" + imgname + ".png"
 			err := pool.SendImageFromPool("pool"+imgname, imgpath, func() error {
-				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
 				if err != nil {
 					return err
 				}
@@ -336,7 +332,7 @@ func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageS
 	}
 	if file.IsNotExist(aimgfile) {
 		var data []byte
-		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA())
+		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
 		if err != nil {
 			return
 		}
