@@ -69,7 +69,7 @@ func init() {
 	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if !runtime { //没有进行同步,就拉取一次服务器状态
-				wfapi, err := getWFAPI()
+				wfapi, err := wfapiGetData()
 				if err != nil {
 					ctx.SendChain(message.Text("Error:获取服务器时间失败"))
 				}
@@ -100,7 +100,7 @@ func init() {
 		})
 	eng.OnFullMatch("警报").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			wfapi, err := getWFAPI()
+			wfapi, err := wfapiGetData()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
@@ -213,7 +213,7 @@ func init() {
 	eng.OnFullMatch("仲裁").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			//通过wfapi获取仲裁信息
-			wfapi, err := getWFAPI()
+			wfapi, err := wfapiGetData()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
@@ -227,7 +227,7 @@ func init() {
 		})
 	eng.OnFullMatch("每日特惠").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			wfapi, err := getWFAPI()
+			wfapi, err := wfapiGetData()
 
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
@@ -258,7 +258,7 @@ func init() {
 	// 	})
 	eng.OnFullMatch("wf时间同步").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			wfapi, err := getWFAPI()
+			wfapi, err := wfapiGetData()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
@@ -291,7 +291,7 @@ func init() {
 				ctx.SendChain(stringArrayToImage(msg))
 				msg = []string{}
 
-				itemIndex := getItemNameFutureEvent(ctx, 2)
+				itemIndex := itemNameFutureEvent(ctx, 2)
 				if itemIndex == -1 {
 					return
 				}
@@ -302,7 +302,7 @@ func init() {
 			if Mf {
 				msg = []string{}
 			}
-			sells, itmeinfo, txt, err := getWMItemOrders(wmitems[name].URLName, Mf)
+			sells, itmeinfo, txt, err := wmItemOrders(wmitems[name].URLName, Mf)
 			if !Mf {
 				if itmeinfo.ZhHans.WikiLink == "" {
 					ctx.Send([]message.MessageSegment{
@@ -388,7 +388,7 @@ func init() {
 }
 
 // 获取搜索结果中的物品具体名称index的FutureEvent,传入ctx和一个递归次数上限,返回一个int，如果为返回内容为-1，说明会话超时，或主动结束，或超出递归
-func getItemNameFutureEvent(ctx *zero.Ctx, count int) int {
+func itemNameFutureEvent(ctx *zero.Ctx, count int) int {
 	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
 	select {
 	case <-time.After(time.Second * 15):
@@ -413,7 +413,7 @@ func getItemNameFutureEvent(ctx *zero.Ctx, count int) int {
 			}
 			ctx.SendChain(message.Text("请输入数字!(输入c结束会话)[", count, "]"))
 			count--
-			return getItemNameFutureEvent(ctx, count)
+			return itemNameFutureEvent(ctx, count)
 
 		}
 		return num
@@ -455,7 +455,7 @@ func stringArrayToImage(texts []string) message.MessageSegment {
 //}
 
 // 从WFapi获取数据
-func getWFAPI() (wfAPI, error) {
+func wfapiGetData() (wfAPI, error) {
 	var wfapi wfAPI //WarFrameAPI的数据实例
 	var data []byte
 	var err error
@@ -490,7 +490,7 @@ func updateWM() {
 }
 
 // 获取Warframe市场的售价表，并进行排序,cn_name为物品中文名称，onlyMaxRank表示只取最高等级的物品，返回物品售价表，物品信息，物品英文
-func getWMItemOrders(cnName string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
+func wmItemOrders(cnName string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
 
 	var wfapiio wfAPIItemsOrders
 	data, err := web.RequestDataWithHeaders(&http.Client{}, fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), "GET", func(request *http.Request) error {
