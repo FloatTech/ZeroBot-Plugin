@@ -4,30 +4,32 @@ package warframeapi
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/FloatTech/floatbox/web"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/lithammer/fuzzysearch/fuzzy"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
-
-	"github.com/FloatTech/floatbox/web"
-	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/control"
-	"github.com/lithammer/fuzzysearch/fuzzy"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
 	wmitems   map[string]items //WarFrame市场的中文名称对应的物品的字典
 	itmeNames []string         //物品名称列表
-	runtime   bool             //5分钟时间同步标志
-	//TODO:订阅功能-等待重做
-	//sublist     map[int64]*subList //订阅列表
-	//sublistPath string             //订阅列表存储路径
-
+	rt        runtime
 )
+
+// 时间同步状态
+type runtime struct {
+	rwm    sync.RWMutex
+	enable bool //是否启动
+}
 
 const wfapiurl = "https://api.warframestat.us/pc"        //星际战甲API
 const wfitemurl = "https://api.warframe.market/v1/items" //星际战甲游戏品信息列表URL
@@ -38,37 +40,18 @@ func init() {
 		Help: "warframeapi\n" +
 			"- wf时间同步\n" +
 			"- [金星|地球|火卫二]平原时间\n" +
-			//"- 订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
-			//"- 取消订阅[金星|地球|火卫二]平原[白天|夜晚]\n" +
-			//"- wf订阅检测\n" +
 			"- .wm [物品名称]\n" +
 			"- 仲裁\n" +
 			"- 警报\n" +
 			"- 每日特惠",
 		PrivateDataFolder: "warframeapi",
 	})
-	//TODO:订阅功能-等待重做
-	//订阅名单文件路径
-	//sublistPath = eng.DataFolder() + "Sublist.json"
-	//if file.IsExist(sublistPath) {
-	//	data, err := os.ReadFile(sublistPath)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	err = json.Unmarshal(data, &sublist)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//} else {
-	//	sublist = map[int64]*subList{}
-	//}
-	//获取市场物品数据
 	updateWM()
 
 	//获取具体的平原时间，在触发后，会启动持续时间按5分钟的时间更新模拟，以此处理短时间内请求时，时间不会变化的问题
 	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if !runtime { //没有进行同步,就拉取一次服务器状态
+			if !rt.enable { //没有进行同步,就拉取一次服务器状态
 				wfapi, err := wfapiGetData()
 				if err != nil {
 					ctx.SendChain(message.Text("Error:获取服务器时间失败"))
@@ -77,25 +60,32 @@ func init() {
 			}
 			switch ctx.State["args"].(string) {
 			case "地球", "夜灵":
-				ctx.SendChain(message.Text(gameTimes[0]))
+				ctx.SendChain(message.Text(gameTimes))
 			case "金星", "奥布山谷":
-				ctx.SendChain(message.Text(gameTimes[1]))
+				ctx.SendChain(message.Text(gameTimes))
 			case "魔胎之境", "火卫二", "火卫":
-				ctx.SendChain(message.Text(gameTimes[2]))
+				ctx.SendChain(message.Text(gameTimes))
 			default:
 				ctx.SendChain(message.Text("ERROR: 平原不存在"))
 			}
 			// 是否正在进行同步,没有就开启同步,有就不开启
-			if !runtime {
+			if !rt.enable {
 				// 设置标志位
-				runtime = true
+				rt.rwm.Lock()
+				if rt.enable {
+					return
+				}
+				rt.enable = true
+				rt.rwm.Unlock()
 				//30*10=300=5分钟
 				for i := 0; i < 30; i++ {
 					time.Sleep(10 * time.Second)
 					timeDet() //5分钟内每隔10秒更新一下时间
 				}
 				//5分钟时间同步结束
-				runtime = false
+				rt.rwm.Lock()
+				rt.enable = false
+				rt.rwm.Unlock()
 			}
 		})
 	eng.OnFullMatch("警报").SetBlock(true).
@@ -428,31 +418,6 @@ func stringArrayToImage(texts []string) message.MessageSegment {
 	}
 	return message.ImageBytes(b)
 }
-
-//TODO:订阅功能-等待重做
-// 添加用户订阅
-//func addUseSub(qq int64, qqGroup int64, stype int, status bool) {
-//	if sb, ok := sublist[qqGroup]; ok {
-//		if st, ok := sb.SubUser[qq]; ok {
-//			st.SubType[stype] = &status
-//		} else {
-//			sublist[qqGroup].SubUser[qq] = subType{map[int]*bool{stype: &status}, false}
-//		}
-//	} else {
-//		sublist[qqGroup] = &subList{map[int64]subType{qq: {map[int]*bool{stype: &status}, false}}, false, false}
-//	}
-//	jsonSave(sublist, sublistPath)
-//}
-//
-//// 移除用户订阅
-//func removeUseSub(qq int64, qqGroup int64, stype int) {
-//	if sb, ok := sublist[qqGroup]; ok {
-//		if _, ok := sb.SubUser[qq]; ok {
-//			delete(sublist[qqGroup].SubUser[qq].SubType, stype)
-//			jsonSave(sublist, sublistPath)
-//		}
-//	}
-//}
 
 // 从WFapi获取数据
 func wfapiGetData() (wfAPI, error) {
