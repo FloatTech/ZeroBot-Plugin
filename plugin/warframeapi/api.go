@@ -36,7 +36,7 @@ func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, 
 		return
 	}
 	err = json.Unmarshal(data, &wfapiio)
-	if len(wfapiio.Payload.Orders) <= 0 {
+	if len(wfapiio.Payload.Orders) == 0 {
 		err = errors.New("no such name")
 	}
 	od = make(orders, 0, len(wfapiio.Payload.Orders))
