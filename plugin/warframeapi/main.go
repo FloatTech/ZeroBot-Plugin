@@ -4,6 +4,7 @@ package warframeapi
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -60,11 +61,11 @@ func init() {
 			}
 			switch ctx.State["args"].(string) {
 			case "地球", "夜灵":
-				ctx.SendChain(message.Text(gameTimes))
+				ctx.SendChain(message.Text(gameTimes[0]))
 			case "金星", "奥布山谷":
-				ctx.SendChain(message.Text(gameTimes))
+				ctx.SendChain(message.Text(gameTimes[1]))
 			case "魔胎之境", "火卫二", "火卫":
-				ctx.SendChain(message.Text(gameTimes))
+				ctx.SendChain(message.Text(gameTimes[2]))
 			default:
 				ctx.SendChain(message.Text("ERROR: 平原不存在"))
 			}
@@ -72,20 +73,24 @@ func init() {
 			if !rt.enable {
 				// 设置标志位
 				rt.rwm.Lock()
-				if rt.enable {
+				if rt.enable { //预检测，防止其他线程同时进来
 					return
 				}
 				rt.enable = true
 				rt.rwm.Unlock()
-				//30*10=300=5分钟
-				for i := 0; i < 30; i++ {
-					time.Sleep(10 * time.Second)
-					timeDet() //5分钟内每隔10秒更新一下时间
-				}
-				//5分钟时间同步结束
-				rt.rwm.Lock()
-				rt.enable = false
-				rt.rwm.Unlock()
+
+				go func() {
+					//30*10=300=5分钟
+					for i := 0; i < 30; i++ {
+						time.Sleep(10 * time.Second)
+						timeDet() //5分钟内每隔10秒更新一下时间
+					}
+					//5分钟时间同步结束
+					rt.rwm.Lock()
+					rt.enable = false
+					rt.rwm.Unlock()
+				}()
+
 			}
 		})
 	eng.OnFullMatch("警报").SetBlock(true).
@@ -416,7 +421,7 @@ func stringArrayToImage(texts []string) message.MessageSegment {
 	if err != nil {
 		return message.Text("ERROR: ", err)
 	}
-	return message.ImageBytes(b)
+	return message.Image("base64://" + binary.BytesToString(b))
 }
 
 // 从WFapi获取数据
