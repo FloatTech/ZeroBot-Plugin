@@ -4,9 +4,7 @@ package warframeapi
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/zbputils/img/text"
-	"io"
 	"net/http"
 	"sort"
 	"strconv"
@@ -24,10 +22,15 @@ import (
 var (
 	wmitems   map[string]items //WarFrame市场的中文名称对应的物品的字典
 	itmeNames []string         //物品名称列表
+	runtime   bool             //5分钟时间同步标志
 	//TODO:订阅功能-等待重做
 	//sublist     map[int64]*subList //订阅列表
 	//sublistPath string             //订阅列表存储路径
+
 )
+
+const wfapiurl = "https://api.warframestat.us/pc"        //星际战甲API
+const wfitemurl = "https://api.warframe.market/v1/items" //星际战甲游戏品信息列表URL
 
 func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
@@ -59,26 +62,42 @@ func init() {
 	//} else {
 	//	sublist = map[int64]*subList{}
 	//}
+	//获取市场物品数据
 	updateWM()
 
-	//初始化游戏时间模拟
-	go gameRuntime()
+	//获取具体的平原时间，在触发后，会启动持续时间按5分钟的时间更新模拟，以此处理短时间内请求时，时间不会变化的问题
 	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			//根据具体输入的平原，来显示时间
+			if !runtime { //没有进行同步,就拉取一次服务器状态
+				wfapi, err := getWFAPI()
+				if err != nil {
+					ctx.SendChain(message.Text("Error:获取服务器时间失败"))
+				}
+				loadTime(wfapi)
+			}
 			switch ctx.State["args"].(string) {
 			case "地球", "夜灵":
-				ctx.SendChain(getTimeString(0))
+				ctx.SendChain(message.Text(gameTimes[0]))
 			case "金星", "奥布山谷":
-				ctx.SendChain(getTimeString(1))
+				ctx.SendChain(message.Text(gameTimes[1]))
 			case "魔胎之境", "火卫二", "火卫":
-				ctx.SendChain(getTimeString(2))
+				ctx.SendChain(message.Text(gameTimes[2]))
 			default:
 				ctx.SendChain(message.Text("ERROR: 平原不存在"))
-				return
+			}
+			// 是否正在进行同步,没有就开启同步,有就不开启
+			if !runtime {
+				// 设置标志位
+				runtime = true
+				//30*10=300=5分钟
+				for i := 0; i < 30; i++ {
+					time.Sleep(10 * time.Second)
+					timeDet() //5分钟内每隔10秒更新一下时间
+				}
+				//5分钟时间同步结束
+				runtime = false
 			}
 		})
-
 	eng.OnFullMatch("警报").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			wfapi, err := getWFAPI()
@@ -277,25 +296,6 @@ func init() {
 					return
 				}
 				name = sol[itemIndex]
-				//GETNUM2: //获取用户具体想查看哪个物品
-				//next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
-				//select {
-				//case <-time.After(time.Second * 15):
-				//	ctx.SendChain(message.Text("会话已结束!"))
-				//	return
-				//case e := <-next:
-				//	msg := e.Event.Message.ExtractPlainText()
-				//	if msg == "c" {
-				//		ctx.SendChain(message.Text("会话已结束!"))
-				//		return
-				//	}
-				//	num, err := strconv.Atoi(msg)
-				//	if err != nil {
-				//		ctx.SendChain(message.Text("请输入数字!(输入c结束会话)"))
-				//		goto GETNUM2
-				//	}
-				//	name = sol[num]
-				//}
 			}
 			Mf := false
 		GETWM:
@@ -303,37 +303,41 @@ func init() {
 				msg = []string{}
 			}
 			sells, itmeinfo, txt, err := getWMItemOrders(wmitems[name].URLName, Mf)
-			if itmeinfo.ZhHans.WikiLink == "" {
-				ctx.Send([]message.MessageSegment{
-					message.Image("https://warframe.market/static/assets/" + wmitems[name].Thumb),
-					message.Text(wmitems[name].ItemName, "\n"),
-				})
-			} else {
-				ctx.Send([]message.MessageSegment{
-					message.Image("https://warframe.market/static/assets/" + wmitems[name].Thumb),
-					message.Text(wmitems[name].ItemName, "\n"),
-					message.Text("wiki:", itmeinfo.ZhHans.WikiLink),
-				})
+			if !Mf {
+				if itmeinfo.ZhHans.WikiLink == "" {
+					ctx.Send([]message.MessageSegment{
+						message.Image("https://warframe.market/static/assets/" + wmitems[name].Thumb),
+						message.Text(wmitems[name].ItemName, "\n"),
+					})
+				} else {
+					ctx.Send([]message.MessageSegment{
+						message.Image("https://warframe.market/static/assets/" + wmitems[name].Thumb),
+						message.Text(wmitems[name].ItemName, "\n"),
+						message.Text("wiki:", itmeinfo.ZhHans.WikiLink),
+					})
+				}
 			}
+
 			msg = append(msg, wmitems[name].ItemName)
-			ismod := false
+
 			if err != nil {
 				ctx.Send(message.Text("Error:", err.Error()))
 				return
 			}
-			if itmeinfo.ModMaxRank != 0 {
-				ismod = true
-			}
-			max := 5
 			if sells == nil {
 				ctx.Send(message.Text("无可购买对象"))
 				return
 			}
 
+			ismod := false
+			if itmeinfo.ModMaxRank != 0 {
+				ismod = true
+			}
+
+			max := 5
 			if len(sells) <= max {
 				max = len(sells)
 			}
-
 			for i := 0; i < max; i++ {
 				if ismod {
 					msg = append(msg, fmt.Sprintf("[%d](Rank:%d/%d)  %dP - %s\n", i, sells[i].ModRank, itmeinfo.ModMaxRank, sells[i].Platinum, sells[i].User.IngameName))
@@ -341,6 +345,7 @@ func init() {
 					msg = append(msg, fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))
 				}
 			}
+
 			if ismod && !Mf {
 				msg = append(msg, "请输入编号选择，或输入r获取满级报价(30s内)\n输入c直接结束会话")
 			} else {
@@ -356,10 +361,12 @@ func init() {
 				return
 			case e := <-next:
 				msg := e.Event.Message.ExtractPlainText()
+				// 重新获取报价
 				if msg == "r" {
 					Mf = true
 					goto GETWM
 				}
+				// 主动结束会话
 				if msg == "c" {
 					ctx.SendChain(message.Text("会话已结束!"))
 					return
@@ -371,19 +378,13 @@ func init() {
 				}
 				if err == nil {
 					if ismod {
-						ctx.Send(message.Text(fmt.Sprintf("/w %s Hi! I want to buy: %s(Rank:%d) for %d platinum. (warframe.market)", sells[i].User.IngameName, txt, sells[i].ModRank, sells[i].Platinum)))
-
+						ctx.Send(message.Text("/w ", sells[i].User.IngameName, " Hi! I want to buy: ", txt, "(Rank:", sells[i].ModRank, ") for ", sells[i].Platinum, " platinum. (warframe.market)"))
 					} else {
-						ctx.Send(message.Text(fmt.Sprintf("/w %s Hi! I want to buy: %s for %d platinum. (warframe.market)", sells[i].User.IngameName, txt, sells[i].Platinum)))
+						ctx.Send(message.Text("/w ", sells[i].User.IngameName, " Hi! I want to buy: ", txt, " for ", sells[i].Platinum, " platinum. (warframe.market)"))
 					}
-					return
 				}
-
-				return
 			}
-
 		})
-
 }
 
 // 获取搜索结果中的物品具体名称index的FutureEvent,传入ctx和一个递归次数上限,返回一个int，如果为返回内容为-1，说明会话超时，或主动结束，或超出递归
@@ -425,7 +426,7 @@ func stringArrayToImage(texts []string) message.MessageSegment {
 	if err != nil {
 		return message.Text("ERROR: ", err)
 	}
-	return message.Image("base64://" + binary.BytesToString(b))
+	return message.ImageBytes(b)
 }
 
 //TODO:订阅功能-等待重做
@@ -458,7 +459,7 @@ func getWFAPI() (wfAPI, error) {
 	var wfapi wfAPI //WarFrameAPI的数据实例
 	var data []byte
 	var err error
-	data, err = web.GetData("https://api.warframestat.us/pc")
+	data, err = web.GetData(wfapiurl)
 	if err != nil {
 		return wfapi, err
 	}
@@ -472,7 +473,12 @@ func getWFAPI() (wfAPI, error) {
 // 从WF市场获取物品数据信息
 func updateWM() {
 	var itmeapi wfAPIItem //WarFrame市场的数据实例
-	data, err := getData("https://api.warframe.market/v1/items", map[string]string{"Accept": "application/json", "Language": "zh-hans"})
+
+	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
+		request.Header.Add("Accept", "application/json")
+		request.Header.Add("Language", "zh-hans")
+		return nil
+	}, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -487,7 +493,11 @@ func updateWM() {
 func getWMItemOrders(cnName string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
 
 	var wfapiio wfAPIItemsOrders
-	data, err := getData(fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), map[string]string{"Accept": "application/json", "Platform": "pc"})
+	data, err := web.RequestDataWithHeaders(&http.Client{}, fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), "GET", func(request *http.Request) error {
+		request.Header.Add("Accept", "application/json")
+		request.Header.Add("Platform", "pc")
+		return nil
+	}, nil)
 	if err != nil {
 		return nil, itemsInSet{}, "", err
 	}
@@ -524,32 +534,4 @@ func loadToFuzzy(wminfo wfAPIItem) {
 		wmitems[v.ItemName] = v
 		itmeNames = append(itmeNames, v.ItemName)
 	}
-}
-
-func getData(url string, head map[string]string) (data []byte, err error) {
-	//提交请求
-	reqest, err := http.NewRequest("GET", url, nil)
-	//增加header选项
-	for i, v := range head {
-		reqest.Header.Add(i, v)
-	}
-	if err != nil {
-		return nil, err
-	}
-	//处理返回结果
-	//发起http请求的client实例
-	client := http.Client{}
-	response, err := client.Do(reqest)
-	if err != nil {
-		return nil, err
-	}
-	data, err = io.ReadAll(response.Body)
-	response.Body.Close()
-	return data, err
-	//func jsonSave(v interface{}, path string) {
-	//	f, _ := os.Create(path)
-	//	defer f.Close()
-	//	json.NewEncoder(f).Encode(v)
-	//}
-
 }

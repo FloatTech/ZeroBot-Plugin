@@ -1,7 +1,6 @@
 package warframeapi
 
 import (
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"sync"
 	"time"
 
@@ -12,16 +11,14 @@ var (
 	gameTimes [3]*gameTime
 )
 
-// getTimeString 根据传入的世界编号，获取对应的游戏时间文本
-func getTimeString(wordType int) message.MessageSegment {
-	return message.Text(
-		"平原时间:", gameTimes[wordType].getStatus(), "\n",
-		"下次更新:", gameTimes[wordType].getTime(),
-	)
+// TimeString 根据传入的世界编号，获取对应的游戏时间文本
+func (t *gameTime) String() string {
+	return "平原时间:" + t.daynight() + "\n" +
+		"下次更新:" + t.remaintime()
 }
 
-// getStatus 获取当前游戏时间状态（白天/夜晚）
-func (t *gameTime) getStatus() string {
+// daynight 获取当前游戏时间状态（白天/夜晚）
+func (t *gameTime) daynight() string {
 	t.rwm.RLock()
 	defer t.rwm.RUnlock()
 	if t.Status {
@@ -30,8 +27,8 @@ func (t *gameTime) getStatus() string {
 	return t.StatusFalseDes
 }
 
-// getTime 获取下一次时间状态更新的剩余游戏时间（x分x秒）
-func (t *gameTime) getTime() string {
+// remaintime 获取下一次时间状态更新的剩余游戏时间（x分x秒）
+func (t *gameTime) remaintime() string {
 	t.rwm.RLock()
 	d := time.Until(t.NextTime)
 	t.rwm.RUnlock()
@@ -46,30 +43,27 @@ func (t *gameTime) getTime() string {
 //	go gameRuntime()
 //}
 
-// gameRuntime 游戏时间模拟
-func gameRuntime() {
-	wfapi, err := getWFAPI()
-	if err != nil {
-		println("ERROR:GetWFAPI失败,", err.Error())
-		return
-	}
-	loadTime(wfapi)
-	for range time.NewTicker(10 * time.Second).C {
-		timeDet()
-	}
-}
+// 游戏时间模拟
+//func gameRuntime() {
+//	wfapi, err := getWFAPI()
+//	if err != nil {
+//		println("ERROR:GetWFAPI失败,", err.Error())
+//		return
+//	}
+//	loadTime(wfapi)
+//	for range time.NewTicker(10 * time.Second).C {
+//		timeDet()
+//	}
+//}
 
 // loadTime 根据API返回内容修正游戏时间
 func loadTime(api wfAPI) {
 	//updateWM()
-	var isfass bool
-	if api.CambionCycle.Active == "fass" {
-		isfass = true
-	}
+	isfass := api.CambionCycle.Active == "fass"
 	gameTimes = [3]*gameTime{
-		{sync.RWMutex{}, "地球平原", api.CetusCycle.Expiry.Local(), api.CetusCycle.IsDay, "白天", "夜晚", 100 * 60, 50 * 60},
-		{sync.RWMutex{}, "金星平原", api.VallisCycle.Expiry.Local(), api.VallisCycle.IsWarm, "温暖", "寒冷", 400, 20 * 60},
-		{sync.RWMutex{}, "火卫二平原", api.CambionCycle.Expiry.Local(), isfass, "fass", "vome", 100 * 60, 50 * 60},
+		{Name: "地球平原", NextTime: api.CetusCycle.Expiry.Local(), Status: api.CetusCycle.IsDay, StatusTrueDes: "白天", StatusFalseDes: "夜晚", DayTime: 100 * 60, NightTime: 50 * 60},
+		{Name: "金星平原", NextTime: api.VallisCycle.Expiry.Local(), Status: api.VallisCycle.IsWarm, StatusTrueDes: "温暖", StatusFalseDes: "寒冷", DayTime: 400, NightTime: 20 * 60},
+		{Name: "火卫二平原", NextTime: api.CambionCycle.Expiry.Local(), Status: isfass, StatusTrueDes: "fass", StatusFalseDes: "vome", DayTime: 100 * 60, NightTime: 50 * 60},
 	}
 }
 
