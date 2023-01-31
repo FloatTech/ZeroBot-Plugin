@@ -30,7 +30,7 @@ require (
 	github.com/lucas-clemente/quic-go v0.31.1
 	github.com/mroth/weightedrand v1.0.0
 	github.com/pkg/errors v0.9.1
-	github.com/shirou/gopsutil/v3 v3.22.11
+	github.com/shirou/gopsutil/v3 v3.22.13-0.20230117231035-301930f9bdd0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
@@ -41,9 +41,9 @@ require (
 )
 
 require (
-	github.com/FloatTech/rendercard v0.0.8 // indirect
+	github.com/FloatTech/rendercard v0.0.8
 	github.com/antchfx/xpath v1.2.1 // indirect
-	github.com/disintegration/imaging v1.6.2 // indirect
+	github.com/disintegration/imaging v1.6.2
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fumiama/go-simple-protobuf v0.1.0 // indirect
@@ -81,8 +81,8 @@ require (
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0
 	golang.org/x/tools v0.1.12 // indirect
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
