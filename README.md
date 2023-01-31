@@ -1291,6 +1291,23 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   </details>
 <details>
+  <summary>WarframeAPI</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"`
+
+  - [x] wf时间同步
+  
+  - [x] [金星|地球|火卫二]平原状态
+  
+  - [x] .wm [物品名称]
+  
+  - [x] 仲裁
+  
+  - [x] 警报
+  
+  - [x] 每日特惠
+  </details>
+<details>
   <summary>天气/拼音查询-名言</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"`
