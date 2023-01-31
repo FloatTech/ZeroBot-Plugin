@@ -66,11 +66,14 @@ func (w *world) refresh(api *wfapi) {
 	for _, t := range w.w {
 		t.Lock()
 	}
-	w.w = [3]*timezone{
-		{Name: "地球平原", NextTime: api.CetusCycle.Expiry.Local(), IsDay: api.CetusCycle.IsDay, DayDesc: "白天", NightDesc: "夜晚", DayLen: 100 * 60, NightLen: 50 * 60},
-		{Name: "金星平原", NextTime: api.VallisCycle.Expiry.Local(), IsDay: api.VallisCycle.IsWarm, DayDesc: "温暖", NightDesc: "寒冷", DayLen: 400, NightLen: 20 * 60},
-		{Name: "火卫二平原", NextTime: api.CambionCycle.Expiry.Local(), IsDay: api.CambionCycle.Active == "fass", DayDesc: "fass", NightDesc: "vome", DayLen: 100 * 60, NightLen: 50 * 60},
-	}
+	w.w[0].NextTime = api.CetusCycle.Expiry.Local()
+	w.w[0].IsDay = api.CetusCycle.IsDay
+
+	w.w[1].NextTime = api.VallisCycle.Expiry.Local()
+	w.w[1].IsDay = api.VallisCycle.IsWarm
+
+	w.w[2].NextTime = api.CambionCycle.Expiry.Local()
+	w.w[2].IsDay = api.CambionCycle.Active == "fass"
 }
 
 // 游戏时间更新
