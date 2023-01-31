@@ -15,7 +15,6 @@ type timezone struct {
 	Name         string    `json:"name"`      // 时间名称
 	NextTime     time.Time `json:"time"`      // 下次更新时间
 	IsDay        bool      `json:"status"`    // 状态
-	hasSync      bool      `json:"-"`         // 是否已同步
 	DayDesc      string    `json:"true_des"`  // 状态说明
 	NightDesc    string    `json:"false_des"` // 状态说明
 	DayLen       int       `json:"day"`       // 白天时长
