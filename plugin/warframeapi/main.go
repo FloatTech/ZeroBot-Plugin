@@ -174,7 +174,7 @@ func init() {
 	//			return
 	//		}
 	//	})
-	//eng.OnFullMatch(`wf订阅检测`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	// eng.OnFullMatch(`wf订阅检测`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 	//	rwm.Lock()
 	//	var msg []message.MessageSegment
 	//	for i, v := range gameTimes {
