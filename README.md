@@ -1291,7 +1291,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   </details>
 <details>
-  <summary>WarframeAPI</summary>
+  <summary>星际战甲</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"`
 

@@ -2,7 +2,7 @@ package warframeapi
 
 import "time"
 
-type wfAPI struct {
+type wfapi struct {
 	Timestamp            time.Time            `json:"timestamp"`
 	News                 []news               `json:"news"`
 	Events               []events             `json:"events"`
