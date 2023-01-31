@@ -4,6 +4,7 @@ package quan
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -35,6 +36,23 @@ func init() { // 主函数
 			ctx.SendChain(message.Text("出现错误捏：", err))
 			return
 		}
-		ctx.SendChain(message.Text(str, helper.BytesToString(es))) // 输出结果
+		if len(helper.BytesToString(es)) <= 24 {
+			ctx.SendChain(message.Text("网站维护中")) // 输出结果
+			return
+		}
+		f := helper.BytesToString(es)[24:]
+		_, err = strconv.Atoi(f)
+		if err != nil {
+			ctx.SendChain(message.Text("网站维护中")) // 输出结果
+			return
+		}
+		var msg strings.Builder
+		msg.WriteString("查询账号:")
+		msg.WriteString(str)
+		msg.WriteString("\n")
+		msg.WriteString("查询状态:成功\n")
+		msg.WriteString("您的权重为:")
+		msg.WriteString(f)
+		ctx.SendChain(message.Text(msg.String())) // 输出结果
 	})
 }

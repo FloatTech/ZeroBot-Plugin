@@ -38,7 +38,7 @@ var (
 func init() {
 	engine.OnFullMatchGroup([]string{"哄我", "来碗毒鸡汤", "发个朋友圈"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		requestURL := sdMap[ctx.State["matched"].(string)]
-		data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", sdReferer, ua)
+		data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", sdReferer, ua, nil)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
