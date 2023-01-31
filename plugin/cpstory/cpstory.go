@@ -53,7 +53,7 @@ func init() {
 		text := strings.ReplaceAll(cs.Story, "<攻>", gong)
 		text = strings.ReplaceAll(text, "<受>", shou)
 		text = strings.ReplaceAll(text, cs.Gong, gong)
-		text = strings.ReplaceAll(text, cs.Shou, gong)
+		text = strings.ReplaceAll(text, cs.Shou, shou)
 		ctx.SendChain(message.Text(text))
 	})
 	engine.OnPrefix("磕cp", getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {

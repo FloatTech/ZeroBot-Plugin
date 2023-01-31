@@ -52,7 +52,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 - **-c config.json**: 从`config.json`加载`bot`配置
 - **-s config.json**: 保存现在`bot`配置到`config.json`
 - **-l latency**: 全局处理延时 (ms)
-- **-r ringlen**: 接收消息环缓冲区大小
+- **-r ringlen**: 接收消息环缓冲区大小，`0`为不设缓冲，并发处理
 - **-x max process time**: 最大处理时间 (min)
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
@@ -103,6 +103,10 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
   - [x] /启用 xxx (在发送的群/用户启用xxx)
 
   - [x] /禁用 xxx (在发送的群/用户禁用xxx)
+
+  - [x] /此处启用所有插件
+
+  - [x] /此处禁用所有插件
 
   - [x] /全局启用 xxx
 
@@ -1032,6 +1036,12 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 小说[xxx]
 
+  - 设置小说配置 zerobot 123456
+
+  - 下载小说30298
+
+  - 注: 建议去https://www.23qb.com/ 注册一个账号, 小说下载有积分限制
+
 </details>
 <details>
   <summary>nsfw图片识别</summary>
@@ -1263,12 +1273,39 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>钱包</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"`
+
+  - [x] 查看我的钱包
+
+  - [x] 查看钱包排名
+
+</details>
+<details>
   <summary>网易云音乐热评</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"`
 
   - [x] 来份网易云热评
 
+  </details>
+<details>
+  <summary>星际战甲</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"`
+
+  - [x] wf时间同步
+  
+  - [x] [金星|地球|火卫二]平原状态
+  
+  - [x] .wm [物品名称]
+  
+  - [x] 仲裁
+  
+  - [x] 警报
+  
+  - [x] 每日特惠
   </details>
 <details>
   <summary>天气/拼音查询-名言</summary>

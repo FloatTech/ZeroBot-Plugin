@@ -54,9 +54,9 @@ func init() { // 插件主体
 			"- 设置ai绘图配置 [server] [token]\n" +
 			"- 设置ai绘图撤回时间90s\n" +
 			"- 查看ai绘图配置\n" +
-			"例: 设置ai绘图配置 http://91.217.139.190:5010 abc\n" +
+			"Tips: 使用前请先前往 http://91.217.139.190:5010/token 按提示获取token" +
+			"设置token示例(请确保是主人并且响应): 设置ai绘图配置 http://91.217.139.190:5010 [token] (中括号无需输入)\n" +
 			"参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010\n" +
-			"通过 http://91.217.139.190:5010/token 获取token\n" +
 			"[prompt]参数如下\n" +
 			"tags:tag词条\nntags:ntag词条\nshape:[Portrait|Landscape|Square]\nscale:[6:20]\nseed:种子\nstrength:[0-1] 建议0-0.7\nnoise:[0-1] 建议0-0.15" +
 			"参数与参数内容用:连接,每个参数之间用回车分割",
@@ -146,7 +146,7 @@ func init() { // 插件主体
 			}
 			sendAiImg(ctx, data, cfg.Interval)
 		})
-	engine.OnRegex(`^设置ai绘图配置\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^设置ai绘图配置\s(.*[^\s$])\s(.+)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			regexMatched := ctx.State["regex_matched"].([]string)
 			err := cfg.load()
@@ -159,8 +159,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			text := fmt.Sprintf("成功设置\nbase_url: %v\ntoken: %v\ninterval: %v\n", cfg.BaseURL, cfg.Token, cfg.Interval)
-			ctx.SendChain(message.Text(text))
+			ctx.SendChain(message.Text("成功设置\nbase_url: ", cfg.BaseURL, "\ntoken: ", cfg.Token, "\ninterval: ", cfg.Interval))
 		})
 	engine.OnRegex(`^设置ai绘图撤回时间(\d{1,3})s$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -180,18 +179,16 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			text := fmt.Sprintf("成功设置\nbase_url: %v\ntoken: %v\ninterval: %v\n", cfg.BaseURL, cfg.Token, cfg.Interval)
-			ctx.SendChain(message.Text(text))
+			ctx.SendChain(message.Text("成功设置撤回时间为", cfg.Interval, "s"))
 		})
-	engine.OnFullMatch(`查看ai绘图配置`, zero.SuperUserPermission).SetBlock(true).
+	engine.OnFullMatch(`查看ai绘图配置`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			err := cfg.load()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			text := fmt.Sprintf("base_url: %v\ntoken: %v\ninterval: %v\n", cfg.BaseURL, cfg.Token, cfg.Interval)
-			ctx.SendChain(message.Text(text))
+			ctx.SendChain(message.Text("base_url: ", cfg.BaseURL, "\ntoken: ", cfg.Token, "\ninterval: ", cfg.Interval))
 		})
 }
 

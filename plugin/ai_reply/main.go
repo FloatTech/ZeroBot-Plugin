@@ -2,6 +2,7 @@
 package aireply
 
 import (
+	"regexp"
 	"strconv"
 	"time"
 
@@ -59,6 +60,7 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 
+	endpre := regexp.MustCompile(`\pP$`)
 	ent.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
@@ -72,7 +74,12 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return reply })
+			rec, err := speaker.Speak(ctx.Event.UserID, func() string {
+				if !endpre.MatchString(reply) {
+					return reply + "。"
+				}
+				return reply
+			})
 			if err != nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 				return
