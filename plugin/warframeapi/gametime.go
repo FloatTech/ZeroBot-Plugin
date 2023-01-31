@@ -1,21 +1,22 @@
 package warframeapi
 
 import (
-	"github.com/davidscholberg/go-durationfmt"
 	"sync"
 	"time"
+
+	"github.com/davidscholberg/go-durationfmt"
 )
 
 // 游戏时间模拟
 type gameTime struct {
 	rwm            sync.RWMutex
-	Name           string    `json:"name"`      //时间名称
-	NextTime       time.Time `json:"time"`      //下次更新时间
-	Status         bool      `json:"status"`    //状态
-	StatusTrueDes  string    `json:"true_des"`  //状态说明
-	StatusFalseDes string    `json:"false_des"` //状态说明
-	DayTime        int       `json:"day"`       //白天时长
-	NightTime      int       `json:"night"`     //夜间时长
+	Name           string    `json:"name"`      // 时间名称
+	NextTime       time.Time `json:"time"`      // 下次更新时间
+	Status         bool      `json:"status"`    // 状态
+	StatusTrueDes  string    `json:"true_des"`  // 状态说明
+	StatusFalseDes string    `json:"false_des"` // 状态说明
+	DayTime        int       `json:"day"`       // 白天时长
+	NightTime      int       `json:"night"`     // 夜间时长
 }
 
 var (
@@ -59,17 +60,17 @@ func loadTime(api wfAPI) {
 // timeDet游戏时间更新
 func timeDet() {
 	for _, v := range gameTimes {
-		//当前时间对比下一次游戏状态更新时间，看看还剩多少秒
+		// 当前时间对比下一次游戏状态更新时间，看看还剩多少秒
 		nt := time.Until(v.NextTime).Seconds()
-		//已经过了游戏时间状态更新时间
+		// 已经过了游戏时间状态更新时间
 		if nt < 0 {
 			v.rwm.Lock()
-			//更新游戏状态，如果是白天就切换到晚上，反之亦然
+			// 更新游戏状态，如果是白天就切换到晚上，反之亦然
 			if v.Status {
-				//计算下次的晚上更新时间
+				// 计算下次的晚上更新时间
 				v.NextTime = v.NextTime.Add(time.Duration(v.NightTime) * time.Second)
 			} else {
-				//计算下次的白天更新时间
+				// 计算下次的白天更新时间
 				v.NextTime = v.NextTime.Add(time.Duration(v.DayTime) * time.Second)
 			}
 			v.rwm.Unlock()

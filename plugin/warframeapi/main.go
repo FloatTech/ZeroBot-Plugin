@@ -4,6 +4,13 @@ package warframeapi
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -12,28 +19,22 @@ import (
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"net/http"
-	"sort"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 )
 
 var (
-	wmitems   map[string]items //WarFrame市场的中文名称对应的物品的字典
-	itmeNames []string         //物品名称列表
+	wmitems   map[string]items // WarFrame市场的中文名称对应的物品的字典
+	itmeNames []string         // 物品名称列表
 	rt        runtime
 )
 
 // 时间同步状态
 type runtime struct {
 	rwm    sync.RWMutex
-	enable bool //是否启动
+	enable bool // 是否启动
 }
 
-const wfapiurl = "https://api.warframestat.us/pc"        //星际战甲API
-const wfitemurl = "https://api.warframe.market/v1/items" //星际战甲游戏品信息列表URL
+const wfapiurl = "https://api.warframestat.us/pc"        // 星际战甲API
+const wfitemurl = "https://api.warframe.market/v1/items" // 星际战甲游戏品信息列表URL
 
 func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
@@ -49,10 +50,10 @@ func init() {
 	})
 	updateWM()
 
-	//获取具体的平原时间，在触发后，会启动持续时间按5分钟的时间更新模拟，以此处理短时间内请求时，时间不会变化的问题
+	// 获取具体的平原时间，在触发后，会启动持续时间按5分钟的时间更新模拟，以此处理短时间内请求时，时间不会变化的问题
 	eng.OnSuffix("平原时间").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if !rt.enable { //没有进行同步,就拉取一次服务器状态
+			if !rt.enable { // 没有进行同步,就拉取一次服务器状态
 				wfapi, err := wfapiGetData()
 				if err != nil {
 					ctx.SendChain(message.Text("Error:获取服务器时间失败"))
@@ -73,24 +74,23 @@ func init() {
 			if !rt.enable {
 				// 设置标志位
 				rt.rwm.Lock()
-				if rt.enable { //预检测，防止其他线程同时进来
+				if rt.enable { // 预检测，防止其他线程同时进来
 					return
 				}
 				rt.enable = true
 				rt.rwm.Unlock()
 
 				go func() {
-					//30*10=300=5分钟
+					// 30*10=300=5分钟
 					for i := 0; i < 30; i++ {
 						time.Sleep(10 * time.Second)
-						timeDet() //5分钟内每隔10秒更新一下时间
+						timeDet() // 5分钟内每隔10秒更新一下时间
 					}
-					//5分钟时间同步结束
+					// 5分钟时间同步结束
 					rt.rwm.Lock()
 					rt.enable = false
 					rt.rwm.Unlock()
 				}()
-
 			}
 		})
 	eng.OnFullMatch("警报").SetBlock(true).
@@ -100,11 +100,11 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
 				return
 			}
-			//如果返回的wfapi中，警报数量>0
+			// 如果返回的wfapi中，警报数量>0
 			if len(wfapi.Alerts) > 0 {
-				//遍历警报数据，打印警报信息
+				// 遍历警报数据，打印警报信息
 				for _, v := range wfapi.Alerts {
-					//如果警报处于激活状态
+					// 如果警报处于激活状态
 					if v.Active {
 						ctx.SendChain(stringArrayToImage([]string{
 							"节点:" + v.Mission.Node,
@@ -113,14 +113,12 @@ func init() {
 							"奖励:" + v.Mission.Reward.AsString,
 							"剩余时间:" + v.Eta,
 						}))
-
 					}
 				}
 			}
-
 		})
 	//TODO:订阅功能-等待重做
-	//eng.OnRegex(`^(订阅|取消订阅)(.*)平原(.*)$`).SetBlock(true).
+	// eng.OnRegex(`^(订阅|取消订阅)(.*)平原(.*)$`).SetBlock(true).
 	//	Handle(func(ctx *zero.Ctx) {
 	//		args := ctx.State["regex_matched"].([]string)
 	//		var isEnable bool
@@ -207,7 +205,7 @@ func init() {
 	//})
 	eng.OnFullMatch("仲裁").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			//通过wfapi获取仲裁信息
+			// 通过wfapi获取仲裁信息
 			wfapi, err := wfapiGetData()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err.Error()))
@@ -264,21 +262,21 @@ func init() {
 	// 根据名称从Warframe市场查询物品售价
 	eng.OnPrefix(".wm ").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			//根据输入的名称，从游戏物品名称列表中进行模糊搜索
+			// 根据输入的名称，从游戏物品名称列表中进行模糊搜索
 			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itmeNames)
 			var msg []string
-			//物品名称
+			// 物品名称
 			var name string
 
-			//根据搜搜结果，打印找到的物品
+			// 根据搜搜结果，打印找到的物品
 			switch len(sol) {
-			case 0: //没有搜索到任何东西
+			case 0: // 没有搜索到任何东西
 				ctx.SendChain(message.Text("无法查询到该物品"))
 				return
-			case 1: //如果只搜索到了一个
+			case 1: // 如果只搜索到了一个
 				name = sol[0]
-			default: //如果搜搜到了多个
-				//遍历搜索结果，并打印为图片展出
+			default: // 如果搜搜到了多个
+				// 遍历搜索结果，并打印为图片展出
 				for i, v := range sol {
 					msg = append(msg, fmt.Sprintf("[%d] %s", i, v))
 				}
@@ -387,21 +385,21 @@ func itemNameFutureEvent(ctx *zero.Ctx, count int) int {
 	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession()).Next()
 	select {
 	case <-time.After(time.Second * 15):
-		//超时15秒处理
+		// 超时15秒处理
 		ctx.SendChain(message.Text("会话已超时!"))
 		return -1
 	case e := <-next:
 		msg := e.Event.Message.ExtractPlainText()
-		//输入c主动结束的处理
+		// 输入c主动结束的处理
 		if msg == "c" {
 			ctx.SendChain(message.Text("会话已结束!"))
 			return -1
 		}
-		//尝试对输入进行数字转换
+		// 尝试对输入进行数字转换
 		num, err := strconv.Atoi(msg)
-		//如果出错，说明输入的并非数字，则重新触发该内容
+		// 如果出错，说明输入的并非数字，则重新触发该内容
 		if err != nil {
-			//查看是否超时
+			// 查看是否超时
 			if count == 0 {
 				ctx.SendChain(message.Text("连续输入错误，会话已结束!"))
 				return -1
@@ -409,7 +407,6 @@ func itemNameFutureEvent(ctx *zero.Ctx, count int) int {
 			ctx.SendChain(message.Text("请输入数字!(输入c结束会话)[", count, "]"))
 			count--
 			return itemNameFutureEvent(ctx, count)
-
 		}
 		return num
 	}
@@ -426,7 +423,7 @@ func stringArrayToImage(texts []string) message.MessageSegment {
 
 // 从WFapi获取数据
 func wfapiGetData() (wfAPI, error) {
-	var wfapi wfAPI //WarFrameAPI的数据实例
+	var wfapi wfAPI // WarFrameAPI的数据实例
 	var data []byte
 	var err error
 	data, err = web.GetData(wfapiurl)
@@ -442,7 +439,7 @@ func wfapiGetData() (wfAPI, error) {
 
 // 从WF市场获取物品数据信息
 func updateWM() {
-	var itmeapi wfAPIItem //WarFrame市场的数据实例
+	var itmeapi wfAPIItem // WarFrame市场的数据实例
 
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
@@ -461,7 +458,6 @@ func updateWM() {
 
 // 获取Warframe市场的售价表，并进行排序,cn_name为物品中文名称，onlyMaxRank表示只取最高等级的物品，返回物品售价表，物品信息，物品英文
 func wmItemOrders(cnName string, onlyMaxRank bool) (orders, itemsInSet, string, error) {
-
 	var wfapiio wfAPIItemsOrders
 	data, err := web.RequestDataWithHeaders(&http.Client{}, fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
@@ -473,22 +469,21 @@ func wmItemOrders(cnName string, onlyMaxRank bool) (orders, itemsInSet, string, 
 	}
 	err = json.Unmarshal(data, &wfapiio)
 	var sellOrders orders
-	//遍历市场物品列表
+	// 遍历市场物品列表
 	for _, v := range wfapiio.Payload.Orders {
-		//取其中类型为售卖，且去掉不在线的玩家
+		// 取其中类型为售卖，且去掉不在线的玩家
 		if v.OrderType == "sell" && v.User.Status != "offline" {
-			//如果需要满级报价
+			// 如果需要满级报价
 			if onlyMaxRank && v.ModRank == wfapiio.Include.Item.ItemsInSet[0].ModMaxRank {
 				sellOrders = append(sellOrders, v)
 			} else if !onlyMaxRank {
 				sellOrders = append(sellOrders, v)
 			}
-
 		}
 	}
-	//对报价表进行排序，由低到高
+	// 对报价表进行排序，由低到高
 	sort.Sort(sellOrders)
-	//获取物品信息
+	// 获取物品信息
 	for i, v := range wfapiio.Include.Item.ItemsInSet {
 		if v.URLName == cnName {
 			return sellOrders, wfapiio.Include.Item.ItemsInSet[i], wfapiio.Include.Item.ItemsInSet[i].En.ItemName, err
