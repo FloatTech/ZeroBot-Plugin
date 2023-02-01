@@ -160,11 +160,16 @@ func drawstatus(uid int64, botname string) (sendimg []byte, err error) {
 	wg := &sync.WaitGroup{}
 	wg.Add(5)
 
-	var titlecard, basiccard, diskcard, moreinfocard, shadow *gg.Context
+	titlecard := gg.NewContext(canvas.W()-70-70, 250)
+	basiccard := gg.NewContext(canvas.W()-70-70, 380)
+	diskcard := gg.NewContext(canvas.W()-70-70, diskcardh)
+	moreinfocard := gg.NewContext(canvas.W()-70-70, moreinfocardh)
+	shadow := gg.NewContext(canvas.W(), canvas.H())
+
 	var titleimg, basicimg, diskimg, moreinfoimg, shadowimg image.Image
 	go func() {
 		defer wg.Done()
-		titlecard = gg.NewContext(canvas.W()-70-70, 250)
+
 		titlecard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70)
 
 		titlecard.DrawRoundedRectangle(1, 1, float64(titlecard.W()-1*2), float64(titlecard.H()-1*2), 16)
@@ -216,7 +221,7 @@ func drawstatus(uid int64, botname string) (sendimg []byte, err error) {
 	}()
 	go func() {
 		defer wg.Done()
-		basiccard = gg.NewContext(canvas.W()-70-70, 380)
+
 		basiccard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecard.H()-40)
 
 		basiccard.DrawRoundedRectangle(1, 1, float64(basiccard.W()-1*2), float64(basiccard.H()-1*2), 16)
@@ -284,7 +289,7 @@ func drawstatus(uid int64, botname string) (sendimg []byte, err error) {
 
 	go func() {
 		defer wg.Done()
-		diskcard = gg.NewContext(canvas.W()-70-70, diskcardh)
+
 		diskcard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecard.H()-40-basiccard.H()-40)
 
 		diskcard.DrawRoundedRectangle(1, 1, float64(diskcard.W()-1*2), float64(diskcard.H()-1*2), 16)
@@ -328,7 +333,7 @@ func drawstatus(uid int64, botname string) (sendimg []byte, err error) {
 
 	go func() {
 		defer wg.Done()
-		moreinfocard = gg.NewContext(canvas.W()-70-70, moreinfocardh)
+
 		moreinfocard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecard.H()-40-basiccard.H()-40-diskcard.H()-40)
 
 		moreinfocard.DrawRoundedRectangle(1, 1, float64(moreinfocard.W()-1*2), float64(moreinfocard.H()-1*2), 16)
@@ -360,7 +365,6 @@ func drawstatus(uid int64, botname string) (sendimg []byte, err error) {
 
 	go func() {
 		defer wg.Done()
-		shadow = gg.NewContext(canvas.W(), canvas.H())
 		shadow.SetRGBA255(0, 0, 0, 100)
 		shadow.SetLineWidth(12)
 		shadow.DrawRoundedRectangle(70, 70, float64(titlecard.W()), float64(titlecard.H()), 16)
