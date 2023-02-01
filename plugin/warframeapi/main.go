@@ -4,6 +4,7 @@ package warframeapi
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -248,13 +249,23 @@ func init() {
 			case 1: // 如果只搜索到了一个
 				name = sol[0]
 			default: // 如果搜搜到了多个
-				// 遍历搜索结果, 并打印为图片展出
-				msgs := make(message.Message, len(sol)+1)
-				msgs[0] = ctxext.FakeSenderForwardNode(ctx, message.Text("包含多个结果, 请输入编号查看(15s内),输入c直接结束会话"))
-				for i, v := range sol {
-					msgs[i+1] = ctxext.FakeSenderForwardNode(ctx, message.Text("[", i, "] ", v))
+				sb := strings.Builder{}
+				if len(sol) > 25 {
+					sb.WriteString("数量过多, 只显示前25\n")
+					sol = sol[:25]
 				}
-				ctx.SendChain(msgs...)
+				sb.WriteString("[0] ")
+				sb.WriteString(sol[0])
+				for i, v := range sol[1:] {
+					sb.WriteString("\n[")
+					sb.WriteString(strconv.Itoa(i + 1))
+					sb.WriteString("] ")
+					sb.WriteString(v)
+				}
+				ctx.SendChain(
+					ctxext.FakeSenderForwardNode(ctx, message.Text("包含多个结果, 请输入编号查看(30s内),输入c直接结束会话")),
+					ctxext.FakeSenderForwardNode(ctx, message.Text(&sb)),
+				)
 				itemIndex := getitemnameindex(ctx)
 				if itemIndex < 0 {
 					return
@@ -300,6 +311,7 @@ func init() {
 			if len(sells) < max {
 				max = len(sells)
 			}
+			sb := strings.Builder{}
 			if ismod {
 				if !onlymaxrank {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx, message.Text("请输入编号选择, 或输入r获取满级报价(30s内)\n输入c直接结束会话")))
@@ -307,15 +319,18 @@ func init() {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx, message.Text("请输入编号选择(30s内)\n输入c直接结束会话")))
 				}
 				for i := 0; i < max; i++ {
-					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Text(fmt.Sprintf("[%d] (Rank:%d/%d)  %dP - %s\n", i, sells[i].ModRank, iteminfo.ModMaxRank, sells[i].Platinum, sells[i].User.IngameName))))
+					// msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
+					//	message.Text(fmt.Sprintf("[%d] (Rank:%d/%d)  %dP - %s\n", i, sells[i].ModRank, iteminfo.ModMaxRank, sells[i].Platinum, sells[i].User.IngameName))))
+					sb.WriteString(fmt.Sprintf("[%d] (Rank:%d/%d)  %dP - %s\n", i, sells[i].ModRank, iteminfo.ModMaxRank, sells[i].Platinum, sells[i].User.IngameName))
 				}
 			} else {
 				for i := 0; i < max; i++ {
-					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Text(fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))))
+					// msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
+					//	message.Text(fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))))
+					sb.WriteString(fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))
 				}
 			}
+			msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx, message.Text(&sb)))
 			ctx.SendChain(msgs...)
 
 			for i := 0; i < 3; i++ {
@@ -364,7 +379,7 @@ func getitemnameindex(ctx *zero.Ctx) int {
 	defer cancel()
 	for i := 0; i < 3; i++ {
 		select {
-		case <-time.After(time.Second * 15):
+		case <-time.After(time.Second * 30):
 			// 超时15秒处理
 			ctx.SendChain(message.Text("会话已超时!"))
 			return -1
