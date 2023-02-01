@@ -26,9 +26,7 @@ type world struct {
 	hassync uintptr
 }
 
-var (
-	gameWorld world
-)
+var gameWorld = newworld()
 
 // String 根据传入的世界编号，获取对应的游戏时间文本
 func (t *timezone) String() string {
@@ -47,6 +45,15 @@ func (t *timezone) String() string {
 	durStr, _ := durationfmt.Format(d, "%m分%s秒后")
 	sb.WriteString(durStr)
 	return sb.String()
+}
+
+func newworld() (w world) {
+	w.w = [3]*timezone{
+		{Name: "地球平原", DayDesc: "白天", NightDesc: "夜晚", DayLen: 100 * 60, NightLen: 50 * 60},
+		{Name: "金星平原", DayDesc: "温暖", NightDesc: "寒冷", DayLen: 400, NightLen: 20 * 60},
+		{Name: "火卫二平原", DayDesc: "fass", NightDesc: "vome", DayLen: 100 * 60, NightLen: 50 * 60},
+	}
+	return
 }
 
 func (w *world) hasSync() bool {

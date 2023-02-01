@@ -29,11 +29,6 @@ func init() {
 			"- wf每日特惠",
 		PrivateDataFolder: "warframeapi",
 	})
-	gameWorld.w = [3]*timezone{
-		{Name: "地球平原", DayDesc: "白天", NightDesc: "夜晚", DayLen: 100 * 60, NightLen: 50 * 60},
-		{Name: "金星平原", DayDesc: "温暖", NightDesc: "寒冷", DayLen: 400, NightLen: 20 * 60},
-		{Name: "火卫二平原", DayDesc: "fass", NightDesc: "vome", DayLen: 100 * 60, NightLen: 50 * 60},
-	}
 
 	// 获取具体的平原时间, 在触发后, 会启动持续时间按5分钟的时间更新模拟, 以此处理短时间内请求时, 时间不会变化的问题
 	eng.OnSuffix("平原时间").SetBlock(true).
@@ -254,19 +249,23 @@ func init() {
 			case 1: // 如果只搜索到了一个
 				name = sol[0]
 			default: // 如果搜搜到了多个
-				// 遍历搜索结果, 并打印为图片展出
-				msgs := make(message.Message, len(sol)+1)
-				msgs[0] = ctxext.FakeSenderForwardNode(ctx, message.Text("包含多个结果, 请输入编号查看(30s内),输入c直接结束会话"))
 				sb := strings.Builder{}
 				if len(sol) > 25 {
-					sb.WriteString("数量过多，只显示前25\n")
+					sb.WriteString("数量过多, 只显示前25\n")
 					sol = sol[:25]
 				}
-				for i, v := range sol {
-					sb.WriteString(fmt.Sprintln("[", i, "] ", v))
+				sb.WriteString("[0] ")
+				sb.WriteString(sol[0])
+				for i, v := range sol[1:] {
+					sb.WriteString("\n[")
+					sb.WriteString(strconv.Itoa(i + 1))
+					sb.WriteString("] ")
+					sb.WriteString(v)
 				}
-				msgs[1] = ctxext.FakeSenderForwardNode(ctx, message.Text(sb.String()))
-				ctx.SendChain(msgs...)
+				ctx.SendChain(
+					ctxext.FakeSenderForwardNode(ctx, message.Text("包含多个结果, 请输入编号查看(30s内),输入c直接结束会话")),
+					ctxext.FakeSenderForwardNode(ctx, message.Text(&sb)),
+				)
 				itemIndex := getitemnameindex(ctx)
 				if itemIndex < 0 {
 					return
@@ -331,7 +330,7 @@ func init() {
 					sb.WriteString(fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))
 				}
 			}
-			msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx, message.Text(sb.String())))
+			msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx, message.Text(&sb)))
 			ctx.SendChain(msgs...)
 
 			for i := 0; i < 3; i++ {
