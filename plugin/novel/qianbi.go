@@ -3,19 +3,21 @@ package novel
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/antchfx/htmlquery"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	ub "github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -32,26 +34,47 @@ const (
 	ua           = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
 	loginURL     = websiteURL + "/login.php?do=submit&jumpurl=https%3A%2F%2Fwww.23qb.com%2F"
 	searchURL    = websiteURL + "/saerch.php"
+	downloadURL  = websiteURL + "/modules/article/txtarticle.php?id=%v"
+	detailURL    = websiteURL + "/book/%v/"
 	idReg        = `/(\d+)/`
 )
 
-var gCurCookieJar *cookiejar.Jar
+var (
+	cachePath string
+	// apikey 由账号和密码拼接而成, 例: zerobot,123456
+	apikey string
+)
 
 func init() {
-	control.Register("novel", &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("novel", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "铅笔小说网搜索",
-		Help:             "- 小说[xxx]",
-	}).OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
+		Help: "- 小说[xxx]\n" +
+			"- 设置小说配置 zerobot 123456\n" +
+			"- 下载小说30298\n" +
+			"建议去https://www.23qb.com/ 注册一个账号, 小说下载有积分限制",
+		PrivateDataFolder: "novel",
+	})
+	cachePath = engine.DataFolder() + "cache/"
+	_ = os.MkdirAll(cachePath, 0755)
+	engine.OnRegex("^小说([\u4E00-\u9FA5A-Za-z0-9]{1,25})$").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("少女祈祷中......"))
-			err := login(username, password)
+			key := getAPIKey(ctx)
+			u, p, _ := strings.Cut(key, ",")
+			if u == "" {
+				u = username
+			}
+			if p == "" {
+				p = password
+			}
+			cookie, err := login(u, p)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			searchKey := ctx.State["regex_matched"].([]string)[1]
-			searchHTML, err := search(searchKey)
+			searchHTML, err := search(searchKey, cookie)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -93,7 +116,7 @@ func init() {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
-					if id := ctx.SendChain(message.Image("base64://" + helper.BytesToString(data))); id.ID() == 0 {
+					if id := ctx.SendChain(message.Image("base64://" + ub.BytesToString(data))); id.ID() == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 					}
 				} else {
@@ -124,23 +147,76 @@ func init() {
 				ctx.SendChain(message.Text(text))
 			}
 		})
+	engine.OnRegex(`^设置小说配置\s(.*[^\s$])\s(.+)$`, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			regexMatched := ctx.State["regex_matched"].([]string)
+			err := setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), regexMatched[1]+","+regexMatched[2])
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("成功设置小说配置\nusername: ", regexMatched[1], "\npassword: ", regexMatched[2]))
+		})
+	engine.OnRegex("^下载小说([0-9]{1,25})$").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			regexMatched := ctx.State["regex_matched"].([]string)
+			id := regexMatched[1]
+			ctx.SendChain(message.Text("少女祈祷中......"))
+			key := getAPIKey(ctx)
+			u, p, _ := strings.Cut(key, ",")
+			if u == "" {
+				u = username
+			}
+			if p == "" {
+				p = password
+			}
+			cookie, err := login(u, p)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			detailHTML, err := detail(id, cookie)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			doc, err := htmlquery.Parse(strings.NewReader(detailHTML))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			title := htmlquery.InnerText(htmlquery.FindOne(doc, "//*[@id='bookinfo']/div[@class='bookright']/div[@class='d_title']/h1"))
+			fileName := filepath.Join(cachePath, title+".txt")
+			if file.IsExist(fileName) {
+				ctx.UploadThisGroupFile(filepath.Join(file.BOTPATH, fileName), filepath.Base(fileName), "")
+				return
+			}
+			data, err := download(id, cookie)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			err = os.WriteFile(fileName, ub.StringToBytes(data), 0666)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.UploadThisGroupFile(filepath.Join(file.BOTPATH, fileName), filepath.Base(fileName), "")
+		})
 }
 
-func login(username, password string) (err error) {
-	gCurCookieJar, _ = cookiejar.New(nil)
-	client := &http.Client{
-		Jar: gCurCookieJar,
-	}
-	usernameData, err := ub.UTF82GBK(helper.StringToBytes(username))
+func login(username, password string) (cookie string, err error) {
+	client := &http.Client{}
+	usernameData, err := ub.UTF82GBK(ub.StringToBytes(username))
 	if err != nil {
 		return
 	}
-	usernameGbk := helper.BytesToString(usernameData)
-	passwordData, err := ub.UTF82GBK(helper.StringToBytes(password))
+	usernameGbk := ub.BytesToString(usernameData)
+	passwordData, err := ub.UTF82GBK(ub.StringToBytes(password))
 	if err != nil {
 		return
 	}
-	passwordGbk := helper.BytesToString(passwordData)
+	passwordGbk := ub.BytesToString(passwordData)
 	loginReq, err := http.NewRequest("POST", loginURL, strings.NewReader(fmt.Sprintf("username=%s&password=%s&usecookie=315360000&action=login&submit=%s", url.QueryEscape(usernameGbk), url.QueryEscape(passwordGbk), submit)))
 	if err != nil {
 		return
@@ -151,38 +227,79 @@ func login(username, password string) (err error) {
 	if err != nil {
 		return
 	}
-	_ = loginResp.Body.Close()
+	defer loginResp.Body.Close()
+	for _, v := range loginResp.Cookies() {
+		cookie += v.Name + "=" + v.Value + ";"
+	}
 	return
 }
 
-func search(searchKey string) (searchHTML string, err error) {
-	searchKeyData, err := ub.UTF82GBK(helper.StringToBytes(searchKey))
+func search(searchKey string, cookie string) (searchHTML string, err error) {
+	searchKeyData, err := ub.UTF82GBK(ub.StringToBytes(searchKey))
 	if err != nil {
 		return
 	}
-	searchKeyGbk := helper.BytesToString(searchKeyData)
-	client := &http.Client{
-		Jar: gCurCookieJar,
-	}
-	searchReq, err := http.NewRequest("POST", searchURL, strings.NewReader(fmt.Sprintf("searchkey=%s&searchtype=all", url.QueryEscape(searchKeyGbk))))
+	searchKeyGbk := ub.BytesToString(searchKeyData)
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), searchURL, "POST", func(r *http.Request) error {
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("User-Agent", ua)
+		return nil
+	}, strings.NewReader(fmt.Sprintf("searchkey=%s&searchtype=all", url.QueryEscape(searchKeyGbk))))
 	if err != nil {
 		return
 	}
-	searchReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	searchReq.Header.Set("User-Agent", ua)
-	searchResp, err := client.Do(searchReq)
+	searchData, err := ub.GBK2UTF8(data)
 	if err != nil {
 		return
 	}
-	searchData, err := io.ReadAll(searchResp.Body)
-	_ = searchResp.Body.Close()
+	searchHTML = ub.BytesToString(searchData)
+	return
+}
+
+func detail(id string, cookie string) (detailHTML string, err error) {
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(detailURL, id), "GET", func(r *http.Request) error {
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("User-Agent", ua)
+		return nil
+	}, nil)
 	if err != nil {
 		return
 	}
-	searchData, err = ub.GBK2UTF8(searchData)
+	detailData, err := ub.GBK2UTF8(data)
 	if err != nil {
 		return
 	}
-	searchHTML = helper.BytesToString(searchData)
-	return searchHTML, nil
+	detailHTML = ub.BytesToString(detailData)
+	return
+}
+
+func download(id string, cookie string) (downloadHTML string, err error) {
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(downloadURL, id), "GET", func(r *http.Request) error {
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("User-Agent", ua)
+		return nil
+	}, nil)
+	if err != nil {
+		return
+	}
+	downloadHTML = ub.BytesToString(data)
+	return
+}
+
+func getAPIKey(ctx *zero.Ctx) string {
+	if apikey == "" {
+		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		_ = m.Manager.GetExtra(-1, &apikey)
+		logrus.Debugln("[novel] get api key:", apikey)
+	}
+	return apikey
+}
+
+func setAPIKey(m *ctrl.Control[*zero.Ctx], key string) error {
+	apikey = key
+	_ = m.Manager.Response(-1)
+	return m.Manager.SetExtra(-1, apikey)
 }
