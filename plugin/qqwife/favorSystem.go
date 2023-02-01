@@ -204,7 +204,7 @@ func init() {
 				return
 			}
 			if count == 0 {
-				ctx.SendChain(message.Text("[ERROR]: 不存在好感动数据."))
+				ctx.SendChain(message.Text("[ERROR]: 不存在好感度数据."))
 				return
 			}
 			favor := favorability{}
@@ -237,7 +237,7 @@ func init() {
 					userList := strings.Split(favor.Userinfo, "+")
 					uid1, _ := strconv.ParseInt(userList[0], 10, 64)
 					uid2, _ := strconv.ParseInt(userList[1], 10, 64)
-					ctx.SendChain(message.Text("[ERROR]: 删除", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感动时发生了错误。\n错误信息:", err))
+					ctx.SendChain(message.Text("[ERROR]: 删除", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感度时发生了错误。\n错误信息:", err))
 				}
 			}
 			for userInfo, favor := range favorInfo {
@@ -250,7 +250,7 @@ func init() {
 					userList := strings.Split(userInfo, "+")
 					uid1, _ := strconv.ParseInt(userList[0], 10, 64)
 					uid2, _ := strconv.ParseInt(userList[1], 10, 64)
-					ctx.SendChain(message.Text("[ERROR]: 更新", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感动时发生了错误。\n错误信息:", err))
+					ctx.SendChain(message.Text("[ERROR]: 更新", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感度时发生了错误。\n错误信息:", err))
 				}
 			}
 			ctx.SendChain(message.Text("清理好了哦"))
