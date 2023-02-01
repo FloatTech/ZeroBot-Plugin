@@ -196,6 +196,7 @@ func init() {
 
 	engine.OnFullMatch("好感度数据整理", zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text("开始整理力，请稍等"))
 			民政局.Lock()
 			defer 民政局.Unlock()
 			count, err := 民政局.db.Count("favorability")
