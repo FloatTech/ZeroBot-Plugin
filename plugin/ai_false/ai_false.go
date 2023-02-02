@@ -398,7 +398,10 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	canvas.DrawImage(diskimg, 70, 70+titlecardh+40+basiccardh+40)
 	canvas.DrawImage(moreinfoimg, 70, 70+titlecardh+40+basiccardh+40+diskcardh+40)
 
-	canvas.LoadFontFace(text.GlowSansFontFile, 28)
+	err = canvas.LoadFontFace(text.GlowSansFontFile, 28)
+	if err != nil {
+		return
+	}
 	canvas.SetRGBA255(0, 0, 0, 255)
 	canvas.DrawStringAnchored("Created By ZeroBot-Plugin "+kanban.Version, float64(canvas.W())/2+3, float64(canvas.H())-70/2+3, 0.5, 0.5)
 	canvas.SetRGBA255(255, 255, 255, 255)
