@@ -532,7 +532,6 @@ func diskstate() (stateinfo []*status, err error) {
 			text:    []string{usage},
 		}
 	}
-
 	return
 }
 
