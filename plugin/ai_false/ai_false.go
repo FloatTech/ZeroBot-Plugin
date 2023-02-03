@@ -15,6 +15,7 @@ import (
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/ZeroBot-Plugin/kanban"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/rendercard"
@@ -66,6 +67,11 @@ func init() { // 插件主体
 			m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				ctx.SendChain(message.Text("ERROR: no such plugin"))
+				return
+			}
+			_, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			img, err := drawstatus(m, ctx.Event.SelfID, zero.BotConfig.NickName[0])
@@ -129,6 +135,11 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 	moreinfocardh := 30 + (20+32*72/96)*len(moreinfo) + 30 - 20
+
+	basicstate, err := basicstate()
+	if err != nil {
+		return
+	}
 
 	url, err := bilibili.GetRealURL(backgroundURL)
 	if err != nil {
@@ -240,10 +251,6 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		basiccard.SetRGBA255(255, 255, 255, 140)
 		basiccard.Fill()
 
-		basicstate, err := basicstate()
-		if err != nil {
-			return
-		}
 		bslen := len(basicstate)
 		for i, v := range basicstate {
 			offset := float64(i) * ((float64(basiccard.W())-200*float64(bslen))/float64(bslen+1) + 200)
@@ -307,12 +314,17 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		diskcard.SetRGBA255(255, 255, 255, 140)
 		diskcard.Fill()
 
+		err = diskcard.LoadFontFace(text.GlowSansFontFile, 32)
+		if err != nil {
+			return
+		}
+
 		dslen := len(diskstate)
 		for i, v := range diskstate {
 			offset := float64(i)*(50+20) - 20
 
 			diskcard.SetRGBA255(192, 192, 192, 255)
-			diskcard.DrawRoundedRectangle(60, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, float64(diskcard.W())-60-100, 50, 12)
+			diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, float64(diskcard.W())-40-100, 50, 12)
 			diskcard.Fill()
 
 			switch {
@@ -324,17 +336,16 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 				diskcard.SetRGBA255(145, 240, 145, 255)
 			}
 
-			diskcard.DrawRoundedRectangle(60, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-60-100)*v.precent*0.01, 50, 12)
+			diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-40-100)*v.precent*0.01, 50, 12)
 			diskcard.Fill()
 
-			err = diskcard.LoadFontFace(text.GlowSansFontFile, 32)
-			if err != nil {
-				return
-			}
 			diskcard.SetRGBA255(30, 30, 30, 255)
 
-			diskcard.DrawStringAnchored(v.name, 60/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
-			diskcard.DrawStringAnchored(v.text[0], (float64(diskcard.W())-60)/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
+			fw, _ := diskcard.MeasureString(v.name)
+			fw1, _ := diskcard.MeasureString(v.text[0])
+
+			diskcard.DrawStringAnchored(v.name, 40+10+fw/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
+			diskcard.DrawStringAnchored(v.text[0], (float64(diskcard.W())-100-10)-fw1/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
 			diskcard.DrawStringAnchored(strconv.FormatFloat(v.precent, 'f', 0, 64)+"%", float64(diskcard.W())-100/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
 		}
 		diskimg = rendercard.Fillet(diskcard.Image(), 16)
@@ -352,13 +363,13 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		moreinfocard.SetRGBA255(255, 255, 255, 140)
 		moreinfocard.Fill()
 
+		err = moreinfocard.LoadFontFace(text.GlowSansFontFile, 32)
+		if err != nil {
+			return
+		}
+
 		milen := len(moreinfo)
 		for i, v := range moreinfo {
-			err = moreinfocard.LoadFontFace(text.GlowSansFontFile, 32)
-			if err != nil {
-				return
-			}
-
 			offset := float64(i)*(20+moreinfocard.FontHeight()) - 20
 
 			moreinfocard.SetRGBA255(30, 30, 30, 255)
@@ -535,7 +546,7 @@ func diskstate() (stateinfo []*status, err error) {
 			text:    []string{usage},
 		}
 	}
-	return
+	return stateinfo, nil
 }
 
 func moreinfo(m *ctrl.Control[*zero.Ctx]) (stateinfo []*status, err error) {
