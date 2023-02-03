@@ -14,7 +14,6 @@ import (
 
 	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/AnimeAPI/bilibili"
-	"github.com/FloatTech/ZeroBot-Plugin/kanban"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
@@ -32,6 +31,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/FloatTech/ZeroBot-Plugin/kanban"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
