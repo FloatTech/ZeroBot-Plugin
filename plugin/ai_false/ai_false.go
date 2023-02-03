@@ -320,33 +320,60 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		}
 
 		dslen := len(diskstate)
-		for i, v := range diskstate {
-			offset := float64(i)*(50+20) - 20
-
+		if dslen == 1 {
 			diskcard.SetRGBA255(192, 192, 192, 255)
-			diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, float64(diskcard.W())-40-100, 50, 12)
+			diskcard.DrawRoundedRectangle(40, 40, float64(diskcard.W())-40-100, 50, 12)
 			diskcard.Fill()
 
 			switch {
-			case v.precent > 90:
+			case diskstate[0].precent > 90:
 				diskcard.SetRGBA255(255, 70, 0, 255)
-			case v.precent > 70:
+			case diskstate[0].precent > 70:
 				diskcard.SetRGBA255(255, 165, 0, 255)
 			default:
 				diskcard.SetRGBA255(145, 240, 145, 255)
 			}
 
-			diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-40-100)*v.precent*0.01, 50, 12)
+			diskcard.DrawRoundedRectangle(40, 40, (float64(diskcard.W())-40-100)*diskstate[0].precent*0.01, 50, 12)
 			diskcard.Fill()
 
 			diskcard.SetRGBA255(30, 30, 30, 255)
 
-			fw, _ := diskcard.MeasureString(v.name)
-			fw1, _ := diskcard.MeasureString(v.text[0])
+			fw, _ := diskcard.MeasureString(diskstate[0].name)
+			fw1, _ := diskcard.MeasureString(diskstate[0].text[0])
 
-			diskcard.DrawStringAnchored(v.name, 40+10+fw/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
-			diskcard.DrawStringAnchored(v.text[0], (float64(diskcard.W())-100-10)-fw1/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
-			diskcard.DrawStringAnchored(strconv.FormatFloat(v.precent, 'f', 0, 64)+"%", float64(diskcard.W())-100/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
+			diskcard.DrawStringAnchored(diskstate[0].name, 40+10+fw/2, 40+50/2, 0.5, 0.5)
+			diskcard.DrawStringAnchored(diskstate[0].text[0], (float64(diskcard.W())-100-10)-fw1/2, 40+50/2, 0.5, 0.5)
+			diskcard.DrawStringAnchored(strconv.FormatFloat(diskstate[0].precent, 'f', 0, 64)+"%", float64(diskcard.W())-100/2, 40+50/2, 0.5, 0.5)
+		} else {
+			for i, v := range diskstate {
+				offset := float64(i)*(50+20) - 20
+
+				diskcard.SetRGBA255(192, 192, 192, 255)
+				diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, float64(diskcard.W())-40-100, 50, 12)
+				diskcard.Fill()
+
+				switch {
+				case v.precent > 90:
+					diskcard.SetRGBA255(255, 70, 0, 255)
+				case v.precent > 70:
+					diskcard.SetRGBA255(255, 165, 0, 255)
+				default:
+					diskcard.SetRGBA255(145, 240, 145, 255)
+				}
+
+				diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-40-100)*v.precent*0.01, 50, 12)
+				diskcard.Fill()
+
+				diskcard.SetRGBA255(30, 30, 30, 255)
+
+				fw, _ := diskcard.MeasureString(v.name)
+				fw1, _ := diskcard.MeasureString(v.text[0])
+
+				diskcard.DrawStringAnchored(v.name, 40+10+fw/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
+				diskcard.DrawStringAnchored(v.text[0], (float64(diskcard.W())-100-10)-fw1/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
+				diskcard.DrawStringAnchored(strconv.FormatFloat(v.precent, 'f', 0, 64)+"%", float64(diskcard.W())-100/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
+			}
 		}
 		diskimg = rendercard.Fillet(diskcard.Image(), 16)
 	}()
