@@ -21,12 +21,11 @@ import (
 	// 数据库
 	sql "github.com/FloatTech/sqlite"
 	// 画图
-	"github.com/Coloured-glaze/gg"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
-	// 货币系统
 )
 
 type 婚姻登记 struct {

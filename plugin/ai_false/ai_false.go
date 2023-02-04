@@ -12,12 +12,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/ZeroBot-Plugin/kanban"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/rendercard"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -64,17 +64,7 @@ func init() { // 插件主体
 	}
 	engine.OnFullMatchGroup([]string{"检查身体", "自检", "启动自检", "系统状态"}, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			m, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if !ok {
-				ctx.SendChain(message.Text("ERROR: no such plugin"))
-				return
-			}
-			_, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			img, err := drawstatus(m, ctx.Event.SelfID, zero.BotConfig.NickName[0])
+			img, err := drawstatus(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.Event.SelfID, zero.BotConfig.NickName[0])
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -164,6 +154,11 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	}
 	avatarf := img.Size(avatar, 200, 200)
 
+	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
+	if err != nil {
+		return
+	}
+
 	canvas := gg.NewContext(1280, 70+250+40+380+diskcardh+40+moreinfocardh+40+70)
 
 	bh, bw, ch, cw := float64(back.Bounds().Dy()), float64(back.Bounds().Dx()), float64(canvas.H()), float64(canvas.W())
@@ -200,7 +195,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		titlecard.DrawImage(avatarf.Circle(0).Im, (titlecardh-avatarf.H)/2, (titlecardh-avatarf.H)/2)
 
-		err = titlecard.LoadFontFace(text.GlowSansFontFile, 72)
+		err = titlecard.LoadFontFace(fontbyte, 72)
 		if err != nil {
 			return
 		}
@@ -210,7 +205,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		titlecard.DrawStringAnchored(botname, float64(titlecardh)+fw/2, float64(titlecardh)*0.5/2, 0.5, 0.5)
 
-		err = titlecard.LoadFontFace(text.GlowSansFontFile, 24)
+		err = titlecard.LoadFontFace(fontbyte, 24)
 		if err != nil {
 			return
 		}
@@ -277,7 +272,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			basiccard.DrawCircle((float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200/2, 80)
 			basiccard.Fill()
 
-			err = basiccard.LoadFontFace(text.GlowSansFontFile, 42)
+			err = basiccard.LoadFontFace(fontbyte, 42)
 			if err != nil {
 				return
 			}
@@ -289,7 +284,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			_, fw := basiccard.MeasureString(v.name)
 			basiccard.DrawStringAnchored(v.name, (float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200+15+basiccard.FontHeight()/2, 0.5, 0.5)
 
-			err = basiccard.LoadFontFace(text.GlowSansFontFile, 20)
+			err = basiccard.LoadFontFace(fontbyte, 20)
 			if err != nil {
 				return
 			}
@@ -314,7 +309,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		diskcard.SetRGBA255(255, 255, 255, 140)
 		diskcard.Fill()
 
-		err = diskcard.LoadFontFace(text.GlowSansFontFile, 32)
+		err = diskcard.LoadFontFace(fontbyte, 32)
 		if err != nil {
 			return
 		}
@@ -390,7 +385,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		moreinfocard.SetRGBA255(255, 255, 255, 140)
 		moreinfocard.Fill()
 
-		err = moreinfocard.LoadFontFace(text.GlowSansFontFile, 32)
+		err = moreinfocard.LoadFontFace(fontbyte, 32)
 		if err != nil {
 			return
 		}
@@ -436,7 +431,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	canvas.DrawImage(diskimg, 70, 70+titlecardh+40+basiccardh+40)
 	canvas.DrawImage(moreinfoimg, 70, 70+titlecardh+40+basiccardh+40+diskcardh+40)
 
-	err = canvas.LoadFontFace(text.GlowSansFontFile, 28)
+	err = canvas.LoadFontFace(fontbyte, 28)
 	if err != nil {
 		return
 	}

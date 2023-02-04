@@ -44,6 +44,7 @@ require (
 )
 
 require (
+	github.com/FloatTech/gg v1.0.0
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/faiface/beep v1.1.0 // indirect
