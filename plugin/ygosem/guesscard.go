@@ -301,10 +301,9 @@ func gameMatch(c *zero.Ctx, beginner int64, cardData gameCardInfo, answerCount, 
 		answerCount++
 		if answerCount < 6 {
 			return message.Text("答案不对哦,还有", 6-answerCount, "次机会,加油啊~"), answerCount, tickCount, false
-		} else {
-			tickCount++
-			return message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", cardData.Name), answerCount, tickCount, true
 		}
+		tickCount++
+		return message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", cardData.Name), answerCount, tickCount, true
 	}
 }
 
@@ -337,8 +336,7 @@ func getTips(cardData gameCardInfo, quitCount int) string {
 				"这只怪兽的效果/描述含有:\n" + textrand[rand.Intn(len(textrand))],
 			}
 			return text[rand.Intn(len(text))]
-		} else {
-			return textrand[rand.Intn(len(textrand))]
 		}
+		return textrand[rand.Intn(len(textrand))]
 	}
 }

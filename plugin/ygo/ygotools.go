@@ -3,9 +3,7 @@ package ygo
 
 import (
 	"math/rand"
-	"strconv"
 	"strings"
-	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
@@ -87,17 +85,11 @@ func init() {
 			roomname += "#"
 		}
 		namelen := 20 - len(roomname)
-		if namelen > 6 {
-			namelen = 6
-		} else if namelen < 1 {
+		if namelen < 4 {
 			ctx.SendChain(message.Text("房间名只支持20个字符，请减少房间规则"))
 			return
 		}
-		if rand.Intn(3) == 0 {
-			roomname += randString(namelen)
-		} else {
-			roomname += zooms[rand.Intn(len(zoomr))]
-		}
+		roomname += zooms[rand.Intn(len(zoomr))]
 		ctx.SendChain(message.Text(zoomr[rand.Intn(len(zoomr))]))
 		ctx.SendChain(message.Text(roomname))
 	})
@@ -159,26 +151,4 @@ func jionString(option string) []string {
 		}
 	}
 	return jionString
-}
-
-// 生成token值
-func randString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-	rs := make([]string, 0, length)
-	for start := 0; start < length; start++ {
-		t := rand.Intn(10)
-		switch {
-		case start < 4:
-			rs = append(rs, string(rune(rand.Int63n(20901)+19968)))
-		case t < 3:
-			rs = append(rs, strconv.Itoa(rand.Intn(10)))
-		case t < 6:
-			rs = append(rs, string(rune(rand.Intn(26)+65)))
-		case t < 9:
-			rs = append(rs, string(rune(rand.Intn(26)+97)))
-		default:
-			rs = append(rs, string(rune(rand.Int63n(20901)+19968)))
-		}
-	}
-	return strings.Join(rs, "")
 }

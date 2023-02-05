@@ -16,18 +16,19 @@ import (
 var poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
 
 func init() {
-	engine := control.Register("yaner", &ctrl.Options[*zero.Ctx]{
+	engine := control.Register("baseCommand", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "基础指令",
+		Help:             "- @bot醒醒\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新",
 		OnDisable: func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text("宝↗生↘永↗梦↘！！！！"))
 		},
 	})
 	// 被喊名字
-	engine.OnKeywordGroup([]string{"自我介绍", "你是谁", "你谁"}, zero.OnlyToMe).SetBlock(true).
+	engine.OnKeywordGroup([]string{"醒醒"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("你好，我叫柳如娮。\n你可以叫我娮儿、小娮，当然你叫我机器人也可以ಠಿ_ಠ"))
+			ctx.SendChain(message.Text("啊？啊。啊，抱歉，刚刚不小心打瞌睡了=w="))
 		})
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
