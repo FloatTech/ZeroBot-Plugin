@@ -14,7 +14,7 @@ import (
 
 func init() {
 	engine.OnFullMatch("讲个段子").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		data, err := web.RequestDataWith(web.NewDefaultClient(), yduanziURL, "POST", yduanziReferer, ua)
+		data, err := web.RequestDataWith(web.NewDefaultClient(), yduanziURL, "POST", yduanziReferer, ua, nil)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

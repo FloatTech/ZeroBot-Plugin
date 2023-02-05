@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"

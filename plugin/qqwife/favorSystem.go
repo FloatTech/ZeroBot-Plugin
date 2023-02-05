@@ -14,9 +14,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 画图
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
 
 	// 货币系统
@@ -196,6 +196,7 @@ func init() {
 
 	engine.OnFullMatch("好感度数据整理", zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text("开始整理力，请稍等"))
 			民政局.Lock()
 			defer 民政局.Unlock()
 			count, err := 民政局.db.Count("favorability")
@@ -204,7 +205,7 @@ func init() {
 				return
 			}
 			if count == 0 {
-				ctx.SendChain(message.Text("[ERROR]: 不存在好感动数据."))
+				ctx.SendChain(message.Text("[ERROR]: 不存在好感度数据."))
 				return
 			}
 			favor := favorability{}
@@ -214,7 +215,9 @@ func init() {
 				delInfo = append(delInfo, favor.Userinfo)
 				// 解析旧数据
 				userList := strings.Split(favor.Userinfo, "+")
-				if userList[0] > userList[1] {
+				maxQQ, _ := strconv.ParseInt(userList[0], 10, 64)
+				minQQ, _ := strconv.ParseInt(userList[1], 10, 64)
+				if maxQQ > minQQ {
 					favor.Userinfo = userList[0] + "+" + userList[1]
 				} else {
 					favor.Userinfo = userList[1] + "+" + userList[0]
@@ -237,7 +240,7 @@ func init() {
 					userList := strings.Split(favor.Userinfo, "+")
 					uid1, _ := strconv.ParseInt(userList[0], 10, 64)
 					uid2, _ := strconv.ParseInt(userList[1], 10, 64)
-					ctx.SendChain(message.Text("[ERROR]: 删除", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感动时发生了错误。\n错误信息:", err))
+					ctx.SendChain(message.Text("[ERROR]: 删除", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感度时发生了错误。\n错误信息:", err))
 				}
 			}
 			for userInfo, favor := range favorInfo {
@@ -250,7 +253,7 @@ func init() {
 					userList := strings.Split(userInfo, "+")
 					uid1, _ := strconv.ParseInt(userList[0], 10, 64)
 					uid2, _ := strconv.ParseInt(userList[1], 10, 64)
-					ctx.SendChain(message.Text("[ERROR]: 更新", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感动时发生了错误。\n错误信息:", err))
+					ctx.SendChain(message.Text("[ERROR]: 更新", ctx.CardOrNickName(uid1), "和", ctx.CardOrNickName(uid2), "的好感度时发生了错误。\n错误信息:", err))
 				}
 			}
 			ctx.SendChain(message.Text("清理好了哦"))
