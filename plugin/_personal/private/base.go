@@ -14,7 +14,7 @@ func init() {
 	go func() {
 		process.SleepAbout1sTo2s()
 		ctx := zero.GetBot(1015464740)
-		m, ok := control.Lookup("yaner")
+		m, ok := control.Lookup("baseCommand")
 		if ok {
 			gid := m.GetData(-2504407110)
 			if gid != 0 {
@@ -31,7 +31,7 @@ func init() {
 	// 重启
 	zero.OnFullMatchGroup([]string{"重启", "洗手手"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			m, ok := control.Lookup("yaner")
+			m, ok := control.Lookup("baseCommand")
 			if ok {
 				err := m.SetData(-2504407110, ctx.Event.GroupID)
 				if err == nil {
