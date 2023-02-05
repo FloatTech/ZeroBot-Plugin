@@ -13,10 +13,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const serviceName = "base"
+
 var poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
 
 func init() {
-	engine := control.Register("baseCommand", &ctrl.Options[*zero.Ctx]{
+	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "基础指令",
 		Help:             "- @bot醒醒\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新",
