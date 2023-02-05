@@ -14,9 +14,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 画图
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
 
 	// 货币系统
