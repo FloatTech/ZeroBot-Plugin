@@ -303,7 +303,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		diskcard := gg.NewContext(cardw, diskcardh)
 		diskcard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecardh-40-basiccardh-40)
 
-		diskcard.DrawRoundedRectangle(1, 1, float64(diskcard.W()-1*2), float64(basiccardh-1*2), 16)
+		diskcard.DrawRoundedRectangle(1, 1, float64(diskcard.W()-1*2), float64(diskcardh-1*2), 16)
 		diskcard.SetLineWidth(3)
 		diskcard.SetRGBA255(255, 255, 255, 100)
 		diskcard.StrokePreserve()
