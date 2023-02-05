@@ -107,7 +107,7 @@ var (
 func init() {
 	engine := control.Register("baidufanyi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
-		Brief:             "百度翻译(支持回复翻译)",
+		Brief:             "百度翻译",
 		PrivateDataFolder: "baidufanyi",
 		Help: "-/[从某语言]翻译[到某语言] [翻译的内容]\n" +
 			"[]内容表示可选项\n但若不是回复翻译,翻译的内容不可少。\n" +

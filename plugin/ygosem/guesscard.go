@@ -34,7 +34,7 @@ func init() {
 	engine := control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王猜卡游戏",
-		Help:             "-猜卡游戏\n-(黑边|反色|马赛克｜旋转)猜卡游戏",
+		Help:             "-猜卡游戏\n-(黑边|反色|马赛克|旋转)猜卡游戏",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -45,7 +45,7 @@ func init() {
 			)
 		}),
 	))
-	engine.OnRegex("^(黑边|反色|马赛克|旋转)?猜卡游戏$", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex("^(黑边|反色|马赛克|旋转|切图)?猜卡游戏$", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("正在准备题目,请稍等"))
 		mode := -1
 		switch ctx.State["regex_matched"].([]string)[1] {
@@ -57,6 +57,8 @@ func init() {
 			mode = 2
 		case "旋转":
 			mode = 3
+		case "切图":
+			mode = 4
 		}
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
@@ -157,17 +159,21 @@ func init() {
 func randPicture(pic image.Image, mode int) ([]byte, func()) {
 	dst := img.Size(pic, 256*5, 256*5)
 	if mode == -1 {
-		mode = rand.Intn(4)
+		mode = rand.Intn(5)
 	}
 	switch mode {
 	case 0:
 		return setPicture(dst)
 	case 1:
 		return setBlur(dst)
-	case 3:
+	case 2:
 		return doublePicture(dst)
+	case 3:
+		return setMark(dst)
+	case 4:
+		return cutPic(pic)
 	default:
-		return setMark(pic)
+		return nil, nil
 	}
 }
 
@@ -252,8 +258,7 @@ func setBlur(dst *img.Factory) ([]byte, func()) {
 }
 
 // 马赛克
-func setMark(pic image.Image) ([]byte, func()) {
-	dst := img.Size(pic, 256*5, 256*5)
+func setMark(dst *img.Factory) ([]byte, func()) {
 	b := dst.Im.Bounds()
 	markSize := 64
 
@@ -271,6 +276,43 @@ func setMark(pic image.Image) ([]byte, func()) {
 		}
 	}
 	return writer.ToBytes(dst.Blur(3).Im)
+}
+
+// 随机切割
+func cutPic(pic image.Image) ([]byte, func()) {
+	indexOfx := rand.Intn(3)
+	indexOfy := rand.Intn(3)
+	indexOfx2 := rand.Intn(3)
+	indexOfy2 := rand.Intn(3)
+	dst := img.Size(pic, 256*5, 256*5)
+	b := dst.Im.Bounds()
+	bx := b.Max.X / 3
+	by := b.Max.Y / 3
+	returnpic := img.NewFactory(b.Max.X, b.Max.Y, color.NRGBA{255, 255, 255, 255})
+
+	for yOfMarknum := b.Min.Y; yOfMarknum <= b.Max.Y; yOfMarknum++ {
+		for xOfMarknum := b.Min.X; xOfMarknum <= b.Max.X; xOfMarknum++ {
+			if xOfMarknum == bx || yOfMarknum == by || xOfMarknum == bx*2 || yOfMarknum == by*2 {
+				//黑框
+				returnpic.Im.Set(xOfMarknum, yOfMarknum, color.NRGBA{0, 0, 0, 0})
+			}
+			if xOfMarknum >= bx*indexOfx && xOfMarknum < bx*(indexOfx+1) {
+				if yOfMarknum >= by*indexOfy && yOfMarknum < by*(indexOfy+1) {
+					a := dst.Im.At(xOfMarknum, yOfMarknum)
+					cc := color.NRGBAModel.Convert(a).(color.NRGBA)
+					returnpic.Im.Set(xOfMarknum, yOfMarknum, cc)
+				}
+			}
+			if xOfMarknum >= bx*indexOfx2 && xOfMarknum < bx*(indexOfx2+1) {
+				if yOfMarknum >= by*indexOfy2 && yOfMarknum < by*(indexOfy2+1) {
+					a := dst.Im.At(xOfMarknum, yOfMarknum)
+					cc := color.NRGBAModel.Convert(a).(color.NRGBA)
+					returnpic.Im.Set(xOfMarknum, yOfMarknum, cc)
+				}
+			}
+		}
+	}
+	return writer.ToBytes(returnpic.Im)
 }
 
 // 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
