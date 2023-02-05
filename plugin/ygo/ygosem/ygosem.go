@@ -1,15 +1,13 @@
-// Package ygo 一些关于ygo的插件
-package ygo
+// Package ygosem 基于ygosem的插件功能
+package ygosem
 
 // 本插件查卡通过网页"https://www.ygo-sem.cn/"获取的
 
 import (
 	"bytes"
-	"errors"
 	"image"
 	"math/rand"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -52,7 +50,7 @@ func init() {
 		if searchName == "" { // 如果是随机抽卡
 			url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 			// 请求html页面
-			listBody, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+			listBody, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]", err))
 				return
@@ -68,7 +66,7 @@ func init() {
 		}
 		url := "https://www.ygo-sem.cn/Cards/S.aspx?q=" + url.QueryEscape(searchName)
 		// 请求html页面
-		body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 		if err != nil {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("[ERROR]", err)))
 			return
@@ -179,7 +177,7 @@ func init() {
 					}
 					url := "https://www.ygo-sem.cn/Cards/S.aspx?dRace=&attr=&q=" + searchName + "&start=" + strconv.Itoa(searchpage*30)
 					// 请求html页面
-					body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+					body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 					if err != nil {
 						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("[ERROR]", err)))
 						return
@@ -206,7 +204,7 @@ func init() {
 							cradsreach := strings.Split(cardsnames[cardint], ".")[1]
 							url := "https://www.ygo-sem.cn/" + cardList[cradsreach]
 							// 请求html页面
-							body, err = web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+							body, err = web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 							if err != nil {
 								ctx.Send(message.Text("网页数据读取错误：", err))
 								return
@@ -272,7 +270,7 @@ func init() {
 	en.OnFullMatch("分享卡片", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
 		// 请求html页面
-		listBody, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		listBody, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
@@ -288,14 +286,14 @@ func init() {
 		searchName := strconv.Itoa(rand.Intn(maxnumber + 1))
 		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + searchName
 		// 请求html页面
-		body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		body, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
 		cardInfo := helper.BytesToString(body)
 		cardData := getCarddata(cardInfo)
-		cardData["分享"] = listnumber
+		cardData.Maxcard = listnumber
 		pictrue, err := getPic(cardInfo, false)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
@@ -312,126 +310,8 @@ func init() {
 	})
 }
 
-// 正则筛选数据
-func regexpmatch(rule, str string) [][]string {
-	return regexp.MustCompile(rule).FindAllStringSubmatch(str, -1)
-}
-
-// 获取卡名列表
-func getYGolist(body string) (cardsname map[string]string) {
-	nameList := regexpmatch(`<div class="icon_size" style="white-space: nowrap;">\s*<a href="..(.*)" target="_blank">(.*)</a>\s*</div>`, body)
-	if len(nameList) != 0 {
-		cardsname = make(map[string]string, len(nameList)*2)
-		for _, names := range nameList {
-			cardsname[names[2]] = names[1]
-		}
-	}
-	return
-}
-
-// 获取卡面信息
-func getCarddata(body string) (cardata map[string]string) {
-	cardata = make(map[string]string, 20)
-	// 获取卡名
-	cardName := regexpmatch(`<b>中文名</b> </span>&nbsp;<span class="item_box_value">\s*(.*)</span>\s*</div>`, body)
-	if len(cardName) == 0 {
-		return
-	}
-	cardata["卡名"] = cardName[0][1]
-	// 获取卡密
-	cardID := regexpmatch(`<b>卡片密码</b> </span>&nbsp;<span class="item_box_value">\s*(.*)\s*</span>`, body)
-	cardata["卡密"] = cardID[0][1]
-	// 种类
-	cardType := regexpmatch(`<b>卡片种类</b> </span>&nbsp;<span class="item_box_value" id="dCnType">\s*(.*?)\s*</span>\s*<span`, body)
-	cardata["种类"] = cardType[0][1]
-	if strings.Contains(cardType[0][1], "怪兽") {
-		// 种族
-		cardRace := regexpmatch(`<span id="dCnRace" class="item_box_value">\s*(.*)\s*</span>\s*<span id="dEnRace"`, body)
-		cardata["种族"] = cardRace[0][1]
-		// 属性
-		cardAttr := regexpmatch(`<b>属性</b> </span>&nbsp;<span class="item_box_value" id="attr">\s*(.*)\s*</span>`, body)
-		cardata["属性"] = cardAttr[0][1]
-		/*星数*/
-		switch {
-		case strings.Contains(cardType[0][1], "连接"):
-			cardLevel := regexpmatch(`<span class="item_box_value">(LINK.*)</span>`, body)
-			cardata["等级"] = cardLevel[0][1]
-		default:
-			cardLevel := regexpmatch(`<b>星数/阶级</b> </span><span class=\"item_box_value\">\s*(.*)\s*</span>`, body)
-			cardata["等级"] = cardLevel[0][1]
-			// 守备力
-			cardDef := regexpmatch(`<b>DEF</b></span>\s*&nbsp;<span class="item_box_value">\s*(\d+|\?|？)\s*</span>\s*</div>`, body)
-			cardata["守备力"] = cardDef[0][1]
-		}
-		// 攻击力
-		cardAtk := regexpmatch(`<b>ATK</b> </span>&nbsp;<span class=\"item_box_value\">\s*(\d+|\?|？)\s*</span>`, body)
-		cardata["攻击力"] = cardAtk[0][1]
-	}
-	/*效果*/
-	cardDepict := regexpmatch(`<div class="item_box_text" id="cardDepict">\s*(?s:(.*?))\s*</div>`, body)
-	cardata["效果"] = cardDepict[0][1]
-	// cardata["效果"] = strings.ReplaceAll(cardDepict[0][1], " ", "")
-	return
-}
-
-// 获取卡图
-func getPic(body string, choosepic bool) (imageBytes []byte, err error) {
-	// 获取卡图连接
-	cardpic := regexpmatch(`picsCN(/\d+/\d+).jpg`, body)
-	if len(cardpic) == 0 {
-		return nil, errors.New("getPic正则匹配失败")
-	}
-	choose := "larg/"
-	if !choosepic {
-		choose = "picsCN/"
-	}
-	picHref := "https://www.ygo-sem.cn/yugioh/" + choose + cardpic[0][1] + ".jpg"
-	// 读取获取的[]byte数据
-	return web.RequestDataWith(web.NewDefaultClient(), picHref, reqconf[0], reqconf[1], reqconf[2])
-}
-
-// 获取描述
-func getDescribe(body string) string {
-	cardName := regexpmatch(`<b>中文名</b> </span>&nbsp;<span class="item_box_value">\s*(?s:(.*?))\s*</span>\s*</div>`, body)
-	if len(cardName) == 0 {
-		return "查无此卡"
-	}
-	describeinfo := regexpmatch(`<span class="cont-list">\s*(?s:(.*?))\s*<span style="display:block;`, body)
-	if len(describeinfo) == 0 {
-		return "无相关描述,请期待更新"
-	}
-	getdescribe := strings.ReplaceAll(describeinfo[0][1], "\r\n", "")
-	getdescribe = strings.ReplaceAll(getdescribe, " ", "")
-	href1 := regexpmatch(`<span(.*?)data-content=(.*?)'>(.*?)</span>`, getdescribe)
-	if len(href1) != 0 {
-		for _, hrefv := range href1 {
-			getdescribe = strings.ReplaceAll(getdescribe, hrefv[0], "「"+hrefv[3]+"」")
-		}
-	}
-	href2 := regexpmatch(`<ahref='(.*?)'target='_blank'>(.*?)</a>`, getdescribe)
-	if len(href2) != 0 {
-		for _, hrefv := range href2 {
-			getdescribe = strings.ReplaceAll(getdescribe, hrefv[0], hrefv[2])
-		}
-	}
-	getdescribe = strings.ReplaceAll(getdescribe, "</span>", "")
-	getdescribe = strings.ReplaceAll(getdescribe, "<br/>", "\r\n")
-	getdescribe = strings.ReplaceAll(getdescribe, "<br />", "\n")
-	return "卡名：" + cardName[0][1] + "\n\n描述:\n" + getdescribe
-}
-
-// 获取调整
-func getAdjustment(body string) string {
-	adjustment := regexpmatch(`<div class="accordion-inner" id="adjust">\s*<table class="table">\s*<tbody>\s*<tr>\s*<td>\s*(?s:(.*?))\s*</td>`, body)
-	if len(adjustment) == 0 {
-		return "无相关调整，可以尝试搜索相关效果的旧卡"
-	}
-	adjust := strings.ReplaceAll(adjustment[0][1], "<br/>", "\n")
-	return strings.ReplaceAll(adjust, "<br />", "\n")
-}
-
 // 绘制图片
-func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func(), err error) {
+func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, cl func(), err error) {
 	// 卡图大小
 	cardPic, _, err := image.Decode(bytes.NewReader(pictrue))
 	if err != nil {
@@ -445,19 +325,18 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 		return
 	}
 	textWidth := 1200
-	if !strings.Contains(cardInfo["种类"], "怪兽") {
+	if !strings.Contains(cardInfo.Type, "怪兽") {
 		textWidth = 1150 - picx
 	}
-	dtext, err := text.Render(cardInfo["效果"], text.BoldFontFile, textWidth, 50)
+	textPic, err := text.Render(cardInfo.Depict, text.BoldFontFile, textWidth, 50)
 	if err != nil {
 		return
 	}
-	textPic := dtext.Image()
 	picHigh := picy + 30
-	if strings.Contains(cardInfo["种类"], "怪兽") {
+	if strings.Contains(cardInfo.Type, "怪兽") {
 		picHigh += textPic.Bounds().Dy() + 30
 	} else {
-		picHigh = math.Max(picHigh, len(cardInfo)*80+textPic.Bounds().Dy())
+		picHigh = math.Max(picHigh, 3*80+textPic.Bounds().Dy())
 	}
 	/***********设置图片的大小和底色***********/
 	canvas := gg.NewContext(1300, picHigh)
@@ -471,24 +350,25 @@ func drawimage(cardInfo map[string]string, pictrue []byte) (data []byte, cl func
 	}
 	canvas.SetRGB(0, 0, 0)
 	_, h := canvas.MeasureString("游戏王")
-	listnumber, ok := cardInfo["分享"]
+	listnumber := cardInfo.Maxcard
 	textHigh := 50.0
-	if ok {
+	if listnumber != "" {
 		canvas.DrawString("当前卡池总数："+listnumber, 10, 50)
 		textHigh += h + 30
 	}
 	textPicy := textHigh + h*3 + 30*3
-	canvas.DrawString("卡名:    "+cardInfo["卡名"], 10, textHigh)
-	canvas.DrawString("卡密:    "+cardInfo["卡密"], 10, textHigh+h+30)
-	canvas.DrawString("种类:    "+cardInfo["种类"], 10, textHigh+h*2+30*2)
-	if strings.Contains(cardInfo["种类"], "怪兽") {
-		canvas.DrawString(cardInfo["种族"]+"族    "+cardInfo["属性"], 10, textHigh+h*3+30*3+10)
-		if strings.Contains(cardInfo["种类"], "连接") {
-			canvas.DrawString(cardInfo["等级"], 10, textHigh+h*4+30*4+10)
-			canvas.DrawString("ATK:"+cardInfo["攻击力"], 10, textHigh+h*5+30*5+10)
+	canvas.DrawString("卡名:    "+cardInfo.Name, 10, textHigh)
+	canvas.DrawString("卡密:    "+cardInfo.ID, 10, textHigh+h+30)
+	canvas.DrawString("种类:    "+cardInfo.Type, 10, (textHigh+h+30)*2)
+	if strings.Contains(cardInfo.Type, "怪兽") {
+		canvas.DrawString("种族:    "+cardInfo.Race, 10, (textHigh+h+30)*3+10)
+		canvas.DrawString("属性:    "+cardInfo.Attr, 10, (textHigh+h+30)*4+10)
+		if strings.Contains(cardInfo.Type, "连接") {
+			canvas.DrawString(cardInfo.Level, 10, (textHigh+h+30)*5+10)
+			canvas.DrawString("ATK:"+cardInfo.Atk, 10, (textHigh+h+30)*6+10)
 		} else {
-			canvas.DrawString("星数/阶级:"+cardInfo["等级"], 10, textHigh+h*4+30*4+10)
-			canvas.DrawString("ATK:"+cardInfo["攻击力"]+"/def:"+cardInfo["守备力"], 10, textHigh+h*5+30*5+10)
+			canvas.DrawString("星数/阶级:"+cardInfo.Level, 10, (textHigh+h+30)*5+10)
+			canvas.DrawString("ATK:"+cardInfo.Atk+"/def:"+cardInfo.Def, 10, (textHigh+h+30)*6+10)
 		}
 		textPicy = float64(picy)
 	}
