@@ -4,14 +4,14 @@ go 1.19
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/Coloured-glaze/gg v1.3.4
 	github.com/FloatTech/AnimeAPI v1.6.1-0.20230130095520-be357484e5a7
-	github.com/FloatTech/floatbox v0.0.0-20230130095057-3d1da721425e
-	github.com/FloatTech/rendercard v0.0.8
+	github.com/FloatTech/floatbox v0.0.0-20230205065512-4039f6dd0a68
+	github.com/FloatTech/gg v1.1.0
+	github.com/FloatTech/rendercard v0.0.9-0.20230206125820-929cee91387c
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20230130095145-714ad318cd52
-	github.com/FloatTech/zbputils v1.6.2-0.20230130095422-b7fcd2a7a903
+	github.com/FloatTech/zbputils v1.6.2-0.20230206130001-6b404926bf66
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -44,12 +44,12 @@ require (
 )
 
 require (
-	github.com/FloatTech/gg v1.0.0
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fumiama/go-simple-protobuf v0.1.0 // indirect
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
+	github.com/fumiama/imgsz v0.0.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
