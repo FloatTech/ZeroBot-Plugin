@@ -1532,7 +1532,7 @@ GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" 
 5. 运行 OneBot 框架，并同时运行本插件
 
 # 关联项目
-- [kokomi-原神面板插件](https://github.com/lianhong2758/kokomi-plugin) 
+- [kokomi-原神面板查询插件](https://github.com/lianhong2758/kokomi-plugin) 
 
 ## 特别感谢
 
