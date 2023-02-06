@@ -882,7 +882,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] XX面板
 
-  -  注:本插件未并入主仓库,需自行安装(须源码方式运行才能添加插件),安装地址- [kokomi-原神面板查询插件](https://github.com/lianhong2758/kokomi-plugin) 
+  - 注:本插件未并入主仓库,需自行安装(须源码方式运行才能添加插件),安装地址- [kokomi-原神面板查询插件](https://github.com/lianhong2758/kokomi-plugin) 
 
 </details>
 <details>
