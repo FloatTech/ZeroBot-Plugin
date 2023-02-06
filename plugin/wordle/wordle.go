@@ -14,10 +14,10 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/tl"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"

@@ -16,12 +16,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Coloured-glaze/gg"
 	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/gg"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img"
