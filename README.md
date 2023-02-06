@@ -874,7 +874,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>lolicon</summary>
+  <summary>kokomi原神面板</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/kokomi"`
 
