@@ -19,12 +19,11 @@ import (
 	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -174,7 +173,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back = img.Size(back, backX, backY).Im
+				back = imgfactory.Size(back, backX, backY).Image()
 			}
 			if len(vups) > 50 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了, 只展示前50个up"))
@@ -259,12 +258,15 @@ func init() {
 			f, err := os.Create(drawedFile)
 			if err != nil {
 				log.Errorln("[bilibili]", err)
-				data, cl := writer.ToBytes(canvas.Image())
+				data, err := imgfactory.ToBytes(canvas.Image())
+				if err != nil {
+					log.Errorln("[bilibili]", err)
+					return
+				}
 				ctx.SendChain(message.ImageBytes(data))
-				cl()
 				return
 			}
-			_, err = writer.WriteTo(canvas.Image(), f)
+			_, err = imgfactory.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -318,7 +320,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			back = img.Size(back, backX, backY).Im
+			back = imgfactory.Size(back, backX, backY).Image()
 		}
 		canvas := gg.NewContext(100, 100)
 		fontSize := 50.0
@@ -384,7 +386,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back = img.Size(back, backX, backY).Im
+				back = imgfactory.Size(back, backX, backY).Image()
 			}
 			if back != nil {
 				canvas.DrawImage(back, facestart, int(channelStart))
@@ -520,12 +522,15 @@ func init() {
 		f, err := os.Create(drawedFile)
 		if err != nil {
 			log.Errorln("[bilibili]", err)
-			data, cl := writer.ToBytes(nim)
+			data, err := imgfactory.ToBytes(nim)
+			if err != nil {
+				log.Errorln("[bilibili]", err)
+				return
+			}
 			ctx.SendChain(message.ImageBytes(data))
-			cl()
 			return
 		}
-		_, err = writer.WriteTo(nim, f)
+		_, err = imgfactory.WriteTo(nim, f)
 		_ = f.Close()
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
