@@ -34,7 +34,7 @@ func init() {
 	engine := control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王猜卡游戏",
-		Help:             "-猜卡游戏\n-(黑边|反色|马赛克|旋转)猜卡游戏",
+		Help:             "-猜卡游戏\n-(黑边|反色|马赛克|旋转|切图)猜卡游戏",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {

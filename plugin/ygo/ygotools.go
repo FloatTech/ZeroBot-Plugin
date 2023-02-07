@@ -81,6 +81,9 @@ func init() {
 		roomOptions := jionString(ctx.State["regex_matched"].([]string)[2])
 		roomOption = append(roomOption, roomOptions...)
 		roomname := strings.Join(roomOption, ",")
+		if ctx.Event.GroupID == 979031435 {
+			roomname += "TM0"
+		}
 		if roomname != "" {
 			roomname += "#"
 		}

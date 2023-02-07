@@ -51,6 +51,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 百度翻译
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko"   // nekoneko
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/score"      // 签到
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cybercat"             // 云养猫
 
 	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games"      // 游戏系统
 
