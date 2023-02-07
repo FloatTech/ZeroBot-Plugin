@@ -11,7 +11,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Coloured-glaze/gg" // 注册了 jpg png gif
+	"github.com/FloatTech/gg" // 注册了 jpg png gif
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
