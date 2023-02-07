@@ -15,8 +15,8 @@ import (
 	"time"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/process"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -68,48 +68,52 @@ func init() {
 				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			engine.OnFullMatch("原神十连", fcext.DoOnceOnSuccess(
-				func(ctx *zero.Ctx) bool {
-					zipfile := engine.DataFolder() + "Genshin.zip"
-					_, err := engine.GetLazyData("Genshin.zip", false)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return false
-					}
-					err = parsezip(zipfile)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return false
-					}
-					return true
-				},
-			)).SetBlock(true).Limit(limit.LimitByUser).
-				Handle(func(ctx *zero.Ctx) {
-					c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-					if !ok {
-						ctx.SendChain(message.Text("找不到服务!"))
-						return
-					}
-					gid := ctx.Event.GroupID
-					if gid == 0 {
-						gid = -ctx.Event.UserID
-					}
-					store := (storage)(c.GetData(gid))
-					img, str, mode, err := randnums(10, store)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-					b, cl := writer.ToBytes(img)
-					if mode {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("恭喜你抽到了: \n", str), message.ImageBytes(b)))
-					} else {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("十连成功~"), message.ImageBytes(b)))
-					}
-					cl()
-				})
+		})
+
+	engine.OnFullMatch("原神十连", fcext.DoOnceOnSuccess(
+		func(ctx *zero.Ctx) bool {
+			zipfile := engine.DataFolder() + "Genshin.zip"
+			_, err := engine.GetLazyData("Genshin.zip", false)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return false
+			}
+			err = parsezip(zipfile)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return false
+			}
+			return true
+		},
+	)).SetBlock(true).Limit(ctxext.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				ctx.SendChain(message.Text("找不到服务!"))
+				return
+			}
+			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
+			store := (storage)(c.GetData(gid))
+			img, str, mode, err := randnums(10, store)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			b, err := imgfactory.ToBytes(img)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			if mode {
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("恭喜你抽到了: \n", str), message.ImageBytes(b)))
+			} else {
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("十连成功~"), message.ImageBytes(b)))
+			}
 		})
 }
 

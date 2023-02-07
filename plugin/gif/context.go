@@ -7,7 +7,7 @@ import (
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
-	"github.com/FloatTech/zbputils/img"
+	"github.com/FloatTech/imgfactory"
 	"github.com/sirupsen/logrus"
 )
 
@@ -97,10 +97,10 @@ func newContext(user int64) *context {
 	return c
 }
 
-func loadFirstFrames(paths []string, size int) (imgs []*img.Factory, err error) {
-	imgs = make([]*img.Factory, size)
+func loadFirstFrames(paths []string, size int) (imgs []*imgfactory.Factory, err error) {
+	imgs = make([]*imgfactory.Factory, size)
 	for i := range imgs {
-		imgs[i], err = img.LoadFirstFrame(paths[i], 0, 0)
+		imgs[i], err = imgfactory.LoadFirstFrame(paths[i], 0, 0)
 		if err != nil {
 			return nil, err
 		}

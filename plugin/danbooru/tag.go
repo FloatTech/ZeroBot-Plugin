@@ -11,8 +11,8 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/zbputils/control"
-	imgutils "github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text" // jpg png gif
 	_ "golang.org/x/image/webp"              // webp
 )
@@ -94,7 +94,7 @@ func tagurl(name, u string) (im image.Image, st *sorttags, err error) {
 		return
 	}
 
-	img = imgutils.Limit(img, 1280, 720)
+	img = imgfactory.Limit(img, 1280, 720)
 
 	canvas := gg.NewContext(img.Bounds().Size().X, img.Bounds().Size().Y+int(float64(img.Bounds().Size().X)*0.2)+len(tags)*img.Bounds().Size().X/25)
 	canvas.SetRGB(1, 1, 1)

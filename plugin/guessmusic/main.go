@@ -9,6 +9,7 @@ import (
 	"time"
 
 	wyy "github.com/FloatTech/AnimeAPI/neteasemusic"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -19,7 +20,6 @@ import (
 
 	// 图片输出
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
@@ -446,11 +446,14 @@ func init() {
 					canvas.DrawString("当前设置的默认歌单为: "+dlist.Name, 80, float64(85+20*j)-h)
 				}
 			}
-			data, cl := writer.ToBytes(canvas.Image())
+			data, err := imgfactory.ToBytes(canvas.Image())
+			if err != nil {
+				ctx.SendChain(message.Text(serviceErr, err))
+				return
+			}
 			if id := ctx.SendChain(message.ImageBytes(data)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
-			cl()
 		})
 	engine.OnPrefix("设置猜歌默认歌单", zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

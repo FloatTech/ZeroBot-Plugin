@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -73,7 +73,7 @@ func init() { // 插件主体
 			}
 
 			// 图片转base64
-			base64Bytes, err := writer.ToBase64(img)
+			base64Bytes, err := imgfactory.ToBase64(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

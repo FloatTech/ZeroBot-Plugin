@@ -12,14 +12,13 @@ import (
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/golang/freetype"
 	log "github.com/sirupsen/logrus"
@@ -121,7 +120,7 @@ func init() {
 				return
 			}
 			// 避免图片过大，最大 1280*720
-			back = img.Limit(back, 1280, 720)
+			back = imgfactory.Limit(back, 1280, 720)
 			canvas := gg.NewContext(back.Bounds().Size().X, int(float64(back.Bounds().Size().Y)*1.7))
 			canvas.SetRGB(1, 1, 1)
 			canvas.Clear()
@@ -171,12 +170,15 @@ func init() {
 			f, err := os.Create(drawedFile)
 			if err != nil {
 				log.Errorln("[score]", err)
-				data, cl := writer.ToBytes(canvas.Image())
+				data, err := imgfactory.ToBytes(canvas.Image())
+				if err != nil {
+					log.Errorln("[score]", err)
+					return
+				}
 				ctx.SendChain(message.ImageBytes(data))
-				cl()
 				return
 			}
-			_, err = writer.WriteTo(canvas.Image(), f)
+			_, err = imgfactory.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))

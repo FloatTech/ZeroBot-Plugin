@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/math"
+	"github.com/FloatTech/imgfactory"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -15,7 +16,6 @@ import (
 
 	// 画图
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
 
@@ -189,9 +189,12 @@ func init() {
 				canvas.Fill()
 				i++
 			}
-			data, cl := writer.ToBytes(canvas.Image())
+			data, err := imgfactory.ToBytes(canvas.Image())
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
+				return
+			}
 			ctx.SendChain(message.ImageBytes(data))
-			cl()
 		})
 
 	engine.OnFullMatch("好感度数据整理", zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).

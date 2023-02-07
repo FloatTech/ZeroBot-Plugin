@@ -874,6 +874,18 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>kokomi原神面板</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/kokomi"`
+
+  - [x] kokomi菜单
+
+  - [x] XX面板
+
+  - 注:本插件未并入主仓库,需自行安装(须源码方式运行才能添加插件),安装地址[kokomi-原神面板查询插件](https://github.com/lianhong2758/kokomi-plugin) 
+
+</details>
+<details>
   <summary>lolicon</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"`

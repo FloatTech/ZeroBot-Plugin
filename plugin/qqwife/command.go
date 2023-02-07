@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/floatbox/math"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -23,7 +24,6 @@ import (
 	// 画图
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
 )
@@ -263,9 +263,12 @@ func init() {
 				canvas.DrawString(slicename(info[2], canvas), 800, float64(260+50*i)-h)
 				canvas.DrawString("("+info[3]+")", 1150, float64(260+50*i)-h)
 			}
-			data, cl := writer.ToBytes(canvas.Image())
+			data, err := imgfactory.ToBytes(canvas.Image())
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
+				return
+			}
 			ctx.SendChain(message.ImageBytes(data))
-			cl()
 		})
 	engine.OnRegex(`^重置(所有|本群|/d+)?花名册$`, zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {

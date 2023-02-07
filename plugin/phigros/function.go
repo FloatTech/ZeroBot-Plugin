@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/zbputils/img"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 )
 
 func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
@@ -20,7 +20,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 
 	drawfile, _ := os.ReadDir(filepath + Illustration)
 
-	imgs, err := img.LoadFirstFrame(filepath+Illustration+drawfile[rand.Intn(len(drawfile))].Name(), 2048, 1080)
+	imgs, err := imgfactory.LoadFirstFrame(filepath+Illustration+drawfile[rand.Intn(len(drawfile))].Name(), 2048, 1080)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 
 	var a float64 = 75
 
-	canvas.DrawImage(img.Size(blured.Im, 9064, 4780).Im, -3352, 0)
+	canvas.DrawImage(imgfactory.Size(blured.Image(), 9064, 4780).Image(), -3352, 0)
 
 	draw4(canvas, a, 0, 166, 1324, 410)
 	canvas.SetRGBA255(0, 0, 0, 160)
@@ -71,7 +71,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 	if err != nil {
 		return err
 	}
-	canvas.DrawImage(img.Size(logo, 290, 290).Im, 50, 216)
+	canvas.DrawImage(imgfactory.Size(logo, 290, 290).Image(), 50, 216)
 
 	font, err = gg.LoadFontFace(filepath+Font, 90)
 	if err != nil {
@@ -95,7 +95,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []result) error {
 		if err != nil {
 			return err
 		}
-		canvas.DrawImage(img.Size(chall, 208, 100).Im, 1848, 404)
+		canvas.DrawImage(imgfactory.Size(chall, 208, 100).Image(), 1848, 404)
 		chalnumlen, _ := canvas.MeasureString(chalnum)
 		canvas.DrawString(chalnum, 1882+(chalnumlen/2), 192+(((338-(fh9*3))/4)*3)+(fh9*3)-14)
 	}
@@ -180,14 +180,14 @@ func mix(canvas *gg.Context, i int64, a, x, y float64, list result) (err error) 
 	canvas.SetRGBA255(0, 0, 0, 160)
 	canvas.Fill()
 
-	var rankim *img.Factory
+	var rankim *imgfactory.Factory
 	// 画rank图标
 	if list.Rank != "" {
-		rankim, err = img.LoadFirstFrame(filepath+Rank+list.Rank+".png", 110, 110)
+		rankim, err = imgfactory.LoadFirstFrame(filepath+Rank+list.Rank+".png", 110, 110)
 		if err != nil {
 			return
 		}
-		canvas.DrawImage(rankim.Im, int(x)+412, int(y)+88)
+		canvas.DrawImage(rankim.Image(), int(x)+412, int(y)+88)
 	}
 
 	// 画分数线
@@ -253,14 +253,14 @@ func mix(canvas *gg.Context, i int64, a, x, y float64, list result) (err error) 
 	draw4(canvas, a, x+68, y, 348, 238)
 	canvas.SetRGBA255(0, 0, 255, 0)
 	canvas.Fill()
-	var imgs *img.Factory
+	var imgs *imgfactory.Factory
 	if list.Songname != "" {
-		imgs, err = img.LoadFirstFrame(filepath+Illustration+list.Songname+".png", 2048, 1080)
+		imgs, err = imgfactory.LoadFirstFrame(filepath+Illustration+list.Songname+".png", 2048, 1080)
 		if err != nil {
 			return
 		}
 		cutted := cut4img(imgs, a)
-		canvas.DrawImage(img.Size(cutted.Im, 436, 230).Im, int(x)+6, int(y))
+		canvas.DrawImage(imgfactory.Size(cutted.Image(), 436, 230).Image(), int(x)+6, int(y))
 	}
 
 	// 画定数背景
@@ -316,8 +316,8 @@ func mix(canvas *gg.Context, i int64, a, x, y float64, list result) (err error) 
 }
 
 // 将矩形图片裁切为平行四边形 angle 为角度
-func cut4img(imgs *img.Factory, angle float64) *img.Factory {
-	db := imgs.Im.Bounds()
+func cut4img(imgs *imgfactory.Factory, angle float64) *imgfactory.Factory {
+	db := imgs.Image().Bounds()
 	dst := imgs
 	maxy := db.Max.Y
 	maxx := db.Max.X
@@ -325,8 +325,8 @@ func cut4img(imgs *img.Factory, angle float64) *img.Factory {
 	ax := sax
 	for autoadd := 1; autoadd < maxy; autoadd++ {
 		for ; ax > 0; ax-- {
-			dst.Im.Set(int(ax), autoadd, color.NRGBA{0, 0, 0, 0})
-			dst.Im.Set(maxx+int(-ax), maxy-autoadd, color.NRGBA{0, 0, 0, 0})
+			dst.Image().Set(int(ax), autoadd, color.NRGBA{0, 0, 0, 0})
+			dst.Image().Set(maxx+int(-ax), maxy-autoadd, color.NRGBA{0, 0, 0, 0})
 		}
 		ax = (float64(maxy-autoadd) * (math.Cos(angle * math.Pi / 180.0)))
 	}
