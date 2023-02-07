@@ -196,7 +196,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		titlecard.DrawImage(avatarf.Circle(0).Im, (titlecardh-avatarf.H)/2, (titlecardh-avatarf.H)/2)
 
-		err = titlecard.LoadFontFace(fontbyte, 72)
+		err = titlecard.ParseFontFace(fontbyte, 72)
 		if err != nil {
 			return
 		}
@@ -206,7 +206,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		titlecard.DrawStringAnchored(botname, float64(titlecardh)+fw/2, float64(titlecardh)*0.5/2, 0.5, 0.5)
 
-		err = titlecard.LoadFontFace(fontbyte, 24)
+		err = titlecard.ParseFontFace(fontbyte, 24)
 		if err != nil {
 			return
 		}
@@ -273,7 +273,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			basiccard.DrawCircle((float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200/2, 80)
 			basiccard.Fill()
 
-			err = basiccard.LoadFontFace(fontbyte, 42)
+			err = basiccard.ParseFontFace(fontbyte, 42)
 			if err != nil {
 				return
 			}
@@ -285,7 +285,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			_, fw := basiccard.MeasureString(v.name)
 			basiccard.DrawStringAnchored(v.name, (float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200+15+basiccard.FontHeight()/2, 0.5, 0.5)
 
-			err = basiccard.LoadFontFace(fontbyte, 20)
+			err = basiccard.ParseFontFace(fontbyte, 20)
 			if err != nil {
 				return
 			}
@@ -310,7 +310,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		diskcard.SetRGBA255(255, 255, 255, 140)
 		diskcard.Fill()
 
-		err = diskcard.LoadFontFace(fontbyte, 32)
+		err = diskcard.ParseFontFace(fontbyte, 32)
 		if err != nil {
 			return
 		}
@@ -386,7 +386,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		moreinfocard.SetRGBA255(255, 255, 255, 140)
 		moreinfocard.Fill()
 
-		err = moreinfocard.LoadFontFace(fontbyte, 32)
+		err = moreinfocard.ParseFontFace(fontbyte, 32)
 		if err != nil {
 			return
 		}
@@ -432,7 +432,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	canvas.DrawImage(diskimg, 70, 70+titlecardh+40+basiccardh+40)
 	canvas.DrawImage(moreinfoimg, 70, 70+titlecardh+40+basiccardh+40+diskcardh+40)
 
-	err = canvas.LoadFontFace(fontbyte, 28)
+	err = canvas.ParseFontFace(fontbyte, 28)
 	if err != nil {
 		return
 	}
