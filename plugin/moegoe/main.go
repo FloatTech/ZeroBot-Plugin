@@ -16,7 +16,7 @@ import (
 const (
 	jpapi = "https://moegoe.azurewebsites.net/api/speak?text=%s&id=%d"
 	krapi = "https://moegoe.azurewebsites.net/api/speakkr?text=%s&id=%d"
-	cnapi = "http://267978.proxy.nscc-gz.cn:8888?text=%s&speaker=%s"
+	cnapi = "https://genshinvoice.top/api?text=%s&speaker=%s&format=wav&length=1&noise=0.6&noisew=0.8"
 )
 
 var speakers = map[string]uint{
