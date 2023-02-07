@@ -23,7 +23,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if userInfo.Name == "" {
+		if userInfo == (catinfo{}) || userInfo.Name == "" {
 			ctx.SendChain(message.Reply(id), message.Text("铲屎官你还没有属于你的主子喔,快去买一只吧!"))
 			return
 		}

@@ -62,12 +62,6 @@ func (sql *catdb) insert(gid string, dbinfo catinfo) error {
 	return sql.db.Insert(gid, &dbinfo)
 }
 
-func (sql *catdb) canFind(gid, uid string) bool {
-	sql.Lock()
-	defer sql.Unlock()
-	return sql.db.CanFind(gid, "where user = "+uid)
-}
-
 func (sql *catdb) find(gid, uid string) (dbinfo catinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -75,8 +69,8 @@ func (sql *catdb) find(gid, uid string) (dbinfo catinfo, err error) {
 	if err != nil {
 		return
 	}
-	if !sql.canFind(gid, uid) {
-		return // 规避没有该用户数据的报错
+	if !sql.db.CanFind(gid, "where user = "+uid) {
+		return catinfo{}, nil // 规避没有该用户数据的报错
 	}
 	err = sql.db.Find(gid, &dbinfo, "where user = "+uid)
 	return

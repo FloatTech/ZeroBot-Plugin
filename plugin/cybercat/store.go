@@ -24,7 +24,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if userInfo.Name != "" {
+		if userInfo != (catinfo{}) && userInfo.Name != "" {
 			id = ctx.SendChain(message.Reply(id), message.Text("你居然背着你家喵喵出来找小三!"))
 			if rand.Intn(100) == 50 {
 				process.SleepAbout1sTo2s()
