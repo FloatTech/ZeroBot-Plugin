@@ -264,7 +264,7 @@ func init() {
 				canvas.DrawString("("+info[3]+")", 1150, float64(260+50*i)-h)
 			}
 			data, err := imgfactory.ToBytes(canvas.Image())
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 				return
 			}

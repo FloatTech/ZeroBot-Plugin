@@ -190,7 +190,7 @@ func init() {
 				i++
 			}
 			data, err := imgfactory.ToBytes(canvas.Image())
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 				return
 			}
