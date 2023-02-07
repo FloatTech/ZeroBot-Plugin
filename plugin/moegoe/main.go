@@ -16,7 +16,7 @@ import (
 const (
 	jpapi = "https://moegoe.azurewebsites.net/api/speak?text=%s&id=%d"
 	krapi = "https://moegoe.azurewebsites.net/api/speakkr?text=%s&id=%d"
-	cnapi = "http://267978.proxy.nscc-gz.cn:8888?text=%s&speaker=%s"
+	cnapi = "https://genshinvoice.top/api?speaker=%v&text=%v&format=wav&length=1&noise=0.6&noisew=0.8"
 )
 
 var speakers = map[string]uint{
@@ -48,6 +48,6 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			text := ctx.State["regex_matched"].([]string)[2]
 			speaker := ctx.State["regex_matched"].([]string)[1]
-			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, url.QueryEscape(text), speaker)))
+			ctx.SendChain(message.Record(fmt.Sprintf(cnapi, speaker, url.QueryEscape(text))))
 		})
 }
