@@ -12,7 +12,6 @@ import (
 	"regexp"
 	"strings"
 	"sync/atomic"
-	"time"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/process"
@@ -33,7 +32,6 @@ var (
 	filetree               = make(zipfilestructure, 32)
 	starN3, starN4, starN5 *zip.File
 	namereg                = regexp.MustCompile(`_(.*)\.png`)
-	limit                  = ctxext.NewLimiterManager(time.Minute*60, 5)
 )
 
 func init() {
