@@ -21,7 +21,7 @@ func init() {
 	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "基础指令",
-		Help:             "- @bot醒醒\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新",
+		Help:             "- @bot醒醒\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新- @bot重启\ntips:检查更新后如果没有问题后需要重启才OK",
 		OnDisable: func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text("宝↗生↘永↗梦↘！！！！"))

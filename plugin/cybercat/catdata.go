@@ -13,7 +13,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var catType = [...]string{"橘猫"}
+var catType = [...]string{"橘猫", "咖啡猫", "猫娘"}
 
 type catdb struct {
 	db *sql.Sqlite

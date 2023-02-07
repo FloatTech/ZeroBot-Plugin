@@ -46,6 +46,7 @@ func init() {
 			}
 			return
 		}
+		userInfo.User = ctx.Event.UserID
 		money := wallet.GetWalletOf(ctx.Event.UserID)
 		if money < 100 {
 			ctx.SendChain(message.Reply(id), message.Text("一只喵喵官方售价100哦;\n你身上没有足够的钱,快去赚钱吧~"))
@@ -93,7 +94,7 @@ func init() {
 		nameRecv, nameCancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^喵喵叫.*"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer nameCancel()
 		approve = false
-		over = time.NewTimer(120 * time.Second)
+		over = time.NewTimer(30 * time.Second)
 		for {
 			select {
 			case <-over.C:
@@ -143,6 +144,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
+		userInfo.User = ctx.Event.UserID
 		money := wallet.GetWalletOf(ctx.Event.UserID)
 		if money < 10 {
 			ctx.SendChain(message.Reply(id), message.Text("一盒猫粮官方售价10哦;\n你身上没有足够的钱,快去赚钱吧~"))

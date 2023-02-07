@@ -62,11 +62,24 @@ func init() {
 		}
 		food := zbmath.Min(mun/2, userInfo.Mood)
 		// 上次喂猫时间
-		lastTime := time.Unix(userInfo.LastTime, 0)
-		subtime := time.Since(lastTime).Hours()
-		i, _ := strconv.Atoi(fmt.Sprintf("%1.0f", subtime))
+		i := 0
 		// 饱食度结算
 		if userInfo.LastTime != 0 {
+			lastTime := time.Unix(userInfo.LastTime, 0)
+			subtime := time.Since(lastTime).Hours()
+			if subtime < 8 {
+				userInfo.Mood -= 5
+				if rand.Intn(3) < 0 {
+					err = catdata.insert(gidStr, userInfo)
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR]:", err))
+						return
+					}
+					ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
+					return
+				}
+			}
+			i, _ = strconv.Atoi(fmt.Sprintf("%1.0f", subtime))
 			userInfo.Satiety -= i
 			if userInfo.Satiety < 0 {
 				userInfo.Weight -= userInfo.Satiety * 2
@@ -89,13 +102,13 @@ func init() {
 		// 心情结算
 		userInfo.Mood -= (i / 2)
 		switch {
-		case rand.Intn(100) > userInfo.Mood:
+		case rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50):
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 			return
-		case rand.Intn(userInfo.Mood) < userInfo.Mood/3:
-			userInfo.Satiety = food * 4
+		case userInfo.Mood > 0 && rand.Intn(userInfo.Mood) < userInfo.Mood/3:
+			userInfo.Satiety += food * 4
 		default:
-			userInfo.Satiety = food * 2
+			userInfo.Satiety += food * 2
 
 		}
 		if userInfo.Satiety > 80 {
@@ -115,12 +128,13 @@ func init() {
 				}
 			}
 		}
+		userInfo.LastTime = time.Now().Unix()
 		err = catdata.insert(gidStr, userInfo)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了", userInfo.Name, "当前信息如下:\n",
-			"\n品种: "+userInfo.Type, "\n饱食度: ", userInfo.Satiety, "\n心情: ", userInfo.Mood, "\n体重: ", userInfo.Weight, "\n\n你的剩余猫粮(斤): "+userInfo.Type))
+		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n", userInfo.Name, "当前信息如下:\n",
+			"\n品种: "+userInfo.Type, "\n饱食度: ", userInfo.Satiety, "\n心情: ", userInfo.Mood, "\n体重: ", userInfo.Weight, "\n\n你的剩余猫粮(斤): ", userInfo.Food))
 	})
 }
