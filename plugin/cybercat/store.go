@@ -150,15 +150,19 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text("一盒猫粮官方售价10哦;\n你身上没有足够的钱,快去赚钱吧~"))
 			return
 		}
-		money = 10
+		foodmoney := 10
 		messageText := ""
 		if rand.Intn(10) < 3 {
-			money = rand.Intn(5) + 5
+			foodmoney = rand.Intn(5) + 5
 			messageText = "你前往的喵喵店时发现正好有活动,\n一袋猫粮现在只需要" + strconv.Itoa(money) + ";\n"
 		}
-		money *= mun
+		foodmoney *= mun
+		if money < foodmoney {
+			ctx.SendChain(message.Reply(id), message.Text("你身上没有足够的钱买这么多猫粮,快去赚钱吧~"))
+			return
+		}
 		userInfo.Food = 5 * mun
-		if wallet.InsertWalletOf(ctx.Event.UserID, money) != nil {
+		if wallet.InsertWalletOf(ctx.Event.UserID, foodmoney) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
