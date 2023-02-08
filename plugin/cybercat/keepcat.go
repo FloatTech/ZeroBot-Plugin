@@ -33,7 +33,7 @@ func init() {
 		}
 		// 偷吃
 		eat := 0
-		if userInfo.Food > 0 && rand.Intn(10) == 1 {
+		if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
 			eat = rand.Intn(userInfo.Food)
 			userInfo.Food -= eat
 			userInfo.Satiety += eat
@@ -60,7 +60,7 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[2] != "" {
 			mun, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		}
-		food := zbmath.Min(mun/2, userInfo.Food)
+		food := zbmath.Min(mun, userInfo.Food)
 		// 上次喂猫时间
 		i := 0
 		// 饱食度结算
@@ -69,7 +69,10 @@ func init() {
 			subtime := time.Since(lastTime).Hours()
 			if subtime < 8 {
 				userInfo.Mood -= 5
-				if rand.Intn(3) < 0 {
+				if userInfo.Mood < 0 {
+					userInfo.Mood = 0
+				}
+				if rand.Intn(3) < 0 || userInfo.Mood > 80 {
 					err = catdata.insert(gidStr, userInfo)
 					if err != nil {
 						ctx.SendChain(message.Text("[ERROR]:", err))
@@ -102,17 +105,16 @@ func init() {
 		// 心情结算
 		userInfo.Mood -= (i / 2)
 		switch {
-		case rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50):
+		case userInfo.Satiety > 10 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50):
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 			return
 		case userInfo.Mood > 0 && rand.Intn(userInfo.Mood) < userInfo.Mood/3:
-			userInfo.Satiety += food * 4
+			userInfo.Satiety += food * 40
 		default:
-			userInfo.Satiety += food * 2
+			userInfo.Satiety += food * 10
 
 		}
 		// 体重结算
-		userInfo.Food -= food
 		if userInfo.Satiety > 80 {
 			userInfo.Weight += (userInfo.Satiety - 80) / 3
 			if userInfo.Weight > 200 {
@@ -130,6 +132,7 @@ func init() {
 				}
 			}
 		}
+		userInfo.Food -= food
 		userInfo.LastTime = time.Now().Unix()
 		err = catdata.insert(gidStr, userInfo)
 		if err != nil {
