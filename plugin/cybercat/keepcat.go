@@ -60,7 +60,7 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[2] != "" {
 			mun, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		}
-		food := zbmath.Min(mun/2, userInfo.Mood)
+		food := zbmath.Min(mun/2, userInfo.Food)
 		// 上次喂猫时间
 		i := 0
 		// 饱食度结算
@@ -111,6 +111,8 @@ func init() {
 			userInfo.Satiety += food * 2
 
 		}
+		// 体重结算
+		userInfo.Food -= food
 		if userInfo.Satiety > 80 {
 			userInfo.Weight += (userInfo.Satiety - 80) / 3
 			if userInfo.Weight > 200 {
