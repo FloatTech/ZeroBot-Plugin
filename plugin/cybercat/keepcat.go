@@ -112,7 +112,6 @@ func init() {
 			userInfo.Satiety += food * 40
 		default:
 			userInfo.Satiety += food * 10
-
 		}
 		// 体重结算
 		if userInfo.Satiety > 80 {

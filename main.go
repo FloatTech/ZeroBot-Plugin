@@ -53,7 +53,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/score"      // 签到
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cybercat"             // 云养猫
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games"      // 游戏系统
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games"      // 游戏系统
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"     // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice" // 支付宝到账语音

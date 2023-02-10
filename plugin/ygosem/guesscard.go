@@ -293,7 +293,7 @@ func cutPic(pic image.Image) ([]byte, func()) {
 	for yOfMarknum := b.Min.Y; yOfMarknum <= b.Max.Y; yOfMarknum++ {
 		for xOfMarknum := b.Min.X; xOfMarknum <= b.Max.X; xOfMarknum++ {
 			if xOfMarknum == bx || yOfMarknum == by || xOfMarknum == bx*2 || yOfMarknum == by*2 {
-				//黑框
+				// 黑框
 				returnpic.Im.Set(xOfMarknum, yOfMarknum, color.NRGBA{0, 0, 0, 0})
 			}
 			if xOfMarknum >= bx*indexOfx && xOfMarknum < bx*(indexOfx+1) {
