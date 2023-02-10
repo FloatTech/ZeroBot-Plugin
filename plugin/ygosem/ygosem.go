@@ -141,7 +141,7 @@ func init() {
 			cardsnames = append(cardsnames, strconv.Itoa(i)+"."+name)
 			i++
 		}
-		listData := "找到" + listmaxn + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsnames, "\n") +
+		listData := "找到" + listmaxn + "张相关卡片,当前显示以下卡名:\n" + strings.Join(cardsnames, "\n") +
 			"\n————————————————\n输入对应数字获取卡片信息，\n或回复“取消”、“下一页”指令"
 		ctx.SendChain(message.Text(listData))
 		maxpage, _ := strconv.Atoi(listmaxn)
@@ -190,7 +190,7 @@ func init() {
 						cardsnames = append(cardsnames, strconv.Itoa(i)+"."+name)
 						i++
 					}
-					listData = "找到" + listmaxn + "张相关卡片,当前显示以下卡名：\n" + strings.Join(cardsnames, "\n") +
+					listData = "找到" + listmaxn + "张相关卡片,当前显示以下卡名:\n" + strings.Join(cardsnames, "\n") +
 						"\n————————————————\n输入对应数字获取卡片信息，\n或回复“取消”、“下一页”指令"
 					ctx.SendChain(message.Text(listData))
 				default:
@@ -206,7 +206,7 @@ func init() {
 							// 请求html页面
 							body, err = web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 							if err != nil {
-								ctx.Send(message.Text("网页数据读取错误：", err))
+								ctx.Send(message.Text("网页数据读取错误:", err))
 								return
 							}
 							cardInfo = helper.BytesToString(body)
@@ -353,26 +353,27 @@ func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, cl func(), e
 	listnumber := cardInfo.Maxcard
 	textHigh := 50.0
 	if listnumber != "" {
-		canvas.DrawString("当前卡池总数："+listnumber, 10, 50)
-		textHigh += h + 30
+		canvas.DrawString("当前卡池总数:"+listnumber, 10, 50)
+		canvas.DrawString("今日分享卡片:", 10, textHigh+h+30)
+		textHigh += (h + 30) * 2
 	}
-	textPicy := textHigh + h*3 + 30*3
+	textPicy := textHigh + h*3 + 30*2
 	canvas.DrawString("卡名:    "+cardInfo.Name, 10, textHigh)
 	canvas.DrawString("卡密:    "+cardInfo.ID, 10, textHigh+h+30)
-	canvas.DrawString("种类:    "+cardInfo.Type, 10, (textHigh+h+30)*2)
+	canvas.DrawString("种类:    "+cardInfo.Type, 10, textHigh+(h+30)*2)
 	if strings.Contains(cardInfo.Type, "怪兽") {
-		canvas.DrawString("种族:    "+cardInfo.Race, 10, (textHigh+h+30)*3+10)
-		canvas.DrawString("属性:    "+cardInfo.Attr, 10, (textHigh+h+30)*4+10)
+		canvas.DrawString("种族:    "+cardInfo.Race, 10, textHigh+(h+30)*3+10)
+		canvas.DrawString("属性:    "+cardInfo.Attr, 10, textHigh+(h+30)*4+10)
 		if strings.Contains(cardInfo.Type, "连接") {
-			canvas.DrawString(cardInfo.Level, 10, (textHigh+h+30)*5+10)
-			canvas.DrawString("ATK:"+cardInfo.Atk, 10, (textHigh+h+30)*6+10)
+			canvas.DrawString(cardInfo.Level, 10, textHigh+(h+30)*5+10)
+			canvas.DrawString("ATK:"+cardInfo.Atk, 10, textHigh+(h+30)*6+10)
 		} else {
-			canvas.DrawString("星数/阶级:"+cardInfo.Level, 10, (textHigh+h+30)*5+10)
-			canvas.DrawString("ATK:"+cardInfo.Atk+"/def:"+cardInfo.Def, 10, (textHigh+h+30)*6+10)
+			canvas.DrawString("星数/阶级:"+cardInfo.Level, 10, textHigh+(h+30)*5+10)
+			canvas.DrawString("ATK:"+cardInfo.Atk+"/def:"+cardInfo.Def, 10, textHigh+(h+30)*6+10)
 		}
-		textPicy = float64(picy)
+		textPicy = textHigh + (h+30)*6 + 30
 	}
-	// 放置卡图
+	// 放置效果
 	canvas.DrawImage(textPic, 10, int(textPicy)+10)
 	// 生成图片
 	data, cl = writer.ToBytes(canvas.Image())

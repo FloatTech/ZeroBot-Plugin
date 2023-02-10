@@ -81,9 +81,11 @@ func init() {
 				//cancel()
 				return
 			case c := <-recv:
+				over.Stop()
 				switch c.Event.Message.String() {
 				case "否":
 					ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("欢迎你的下次光临"))
+					return
 				default:
 					approve = true
 				}
