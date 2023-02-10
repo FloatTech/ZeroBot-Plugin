@@ -32,8 +32,6 @@ const (
 	images = "data/Fortune/"
 	// 基础文件位置
 	omikujson = "data/Fortune/text.json"
-	// 字体文件位置
-	font = "data/Font/sakura.ttf"
 	// 生成图缓存位置
 	cache = images + "cache/"
 )
@@ -100,11 +98,12 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
-			_, err = file.GetLazyData(font, control.Md5File, true)
+			fontdata, err := file.GetLazyData("data/Font/sakura.ttf", control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
+			ctx.State["fontdata"] = fontdata
 			return true
 		},
 	)).Limit(ctxext.LimitByGroup).SetBlock(true).
@@ -150,7 +149,7 @@ func init() {
 				if err != nil {
 					return err
 				}
-				_, err = draw(background, title, text, f)
+				_, err = draw(background, ctx.State["fontdata"].([]byte), title, text, f)
 				_ = f.Close()
 				return err
 			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
@@ -189,19 +188,19 @@ func randimage(path string, ctx *zero.Ctx) (im image.Image, index int, err error
 // @param title 签名
 // @param text 签文
 // @return 错误信息
-func draw(back image.Image, title, txt string, f io.Writer) (int64, error) {
+func draw(back image.Image, fontdata []byte, title, txt string, f io.Writer) (int64, error) {
 	canvas := gg.NewContext(back.Bounds().Size().Y, back.Bounds().Size().X)
 	canvas.DrawImage(back, 0, 0)
 	// 写标题
 	canvas.SetRGB(1, 1, 1)
-	if err := canvas.LoadFontFace(font, 45); err != nil {
+	if err := canvas.ParseFontFace(fontdata, 45); err != nil {
 		return -1, err
 	}
 	sw, _ := canvas.MeasureString(title)
 	canvas.DrawString(title, 140-sw/2, 112)
 	// 写正文
 	canvas.SetRGB(0, 0, 0)
-	if err := canvas.LoadFontFace(font, 23); err != nil {
+	if err := canvas.ParseFontFace(fontdata, 23); err != nil {
 		return -1, err
 	}
 	tw, th := canvas.MeasureString("测")
