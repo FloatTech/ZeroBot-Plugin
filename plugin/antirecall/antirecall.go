@@ -73,6 +73,5 @@ func init() {
 			}
 			msg = append(msg, message.CustomNode(username, uid, raw))
 			ctx.SendPrivateForwardMessage(su, msg)
-
 		})
 }

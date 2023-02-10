@@ -40,7 +40,6 @@ func init() {
 				msg = append(msg, message.Text("\nD100=", rs, "/", num, " ", win))
 			}
 			ctx.SendChain(msg...)
-
 		})
 	engine.OnRegex(`^[。.]setcoc\s*([0-6]{1})`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
