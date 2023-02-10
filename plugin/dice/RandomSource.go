@@ -23,7 +23,7 @@ func init() {
 				i = 1
 			} else if i > 10 {
 				i = 10
-				defer func() { msg = append(msg, message.Text("最多检定10次哦~")) }()
+				msg = append(msg, message.Text("最多检定10次哦~\n"))
 			}
 			word := ctx.State["regex_matched"].([]string)[2]
 			num := math.Str2Int64(ctx.State["regex_matched"].([]string)[3])

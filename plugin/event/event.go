@@ -26,7 +26,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			su := zero.BotConfig.SuperUsers[0]
 			c, ok := control.Lookup("event")
-			if !ok || ok && !c.IsEnabledIn(su) {
+			if !ok || ok && !c.IsEnabledIn(-su) {
 				return
 			}
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
@@ -67,7 +67,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			su := zero.BotConfig.SuperUsers[0]
 			c, ok := control.Lookup("event")
-			if !ok || ok && !c.IsEnabledIn(su) {
+			if !ok || ok && !c.IsEnabledIn(-su) {
 				return
 			}
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
