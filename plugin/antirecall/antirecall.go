@@ -43,17 +43,21 @@ func init() {
 			msg = append(msg, message.CustomNode(username, uid, img))
 			ctx.SendPrivateForwardMessage(su, msg)
 		})
-	engine.On("notice/group_recall").SetBlock(false).
+	engine.OnNotice().SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.NoticeType != "group_recall" && ctx.Event.NoticeType != "friend_recall" {
+				return
+			}
 			su := zero.BotConfig.SuperUsers[0]
 			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
-			raw := ctx.GetMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))).Elements.String()
+			raw := ctx.GetMessage(message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))).Elements
+			rawmsg := raw.String()
 			uid := ctx.Event.UserID
-			if uid == su || strings.Contains(raw, ",type=flash") || strings.Contains(raw, "CQ:reply") && strings.Contains(raw, "撤回") && uid == su {
+			botid := ctx.Event.SelfID
+			if uid == su || uid == botid || strings.Contains(rawmsg, ",type=flash") || strings.Contains(rawmsg, "CQ:reply") && strings.Contains(rawmsg, "撤回") && uid == su {
 				return
 			}
 			gid := ctx.Event.GroupID
-			botid := ctx.Event.SelfID
 			botname := zero.BotConfig.NickName[0]
 			username := ctx.CardOrNickName(uid)
 			msg := make(message.Message, 10)
@@ -64,7 +68,11 @@ func init() {
 			} else {
 				msg = append(msg, message.CustomNode(botname, botid, "来自私聊:["+username+"]("+strconv.FormatInt(uid, 10)+")\n以下是源消息："))
 			}
+			if strings.Contains(rawmsg, "CQ:record") {
+				defer ctx.SendChain(raw...)
+			}
 			msg = append(msg, message.CustomNode(username, uid, raw))
 			ctx.SendPrivateForwardMessage(su, msg)
+
 		})
 }

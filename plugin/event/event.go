@@ -22,82 +22,85 @@ func init() {
 			"- [同意|拒绝][申请|邀请][flag]\n" +
 			"Tips: 信息默认发送给主人列表第一位, 默认同意所有主人的事件, flag跟随事件一起发送",
 	})
-	engine.On("request/group/invite").SetBlock(false).
+	zero.On("request/group/invite").SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if ok {
-				su := zero.BotConfig.SuperUsers[0]
-				now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
-				flag, err := strconv.ParseInt(ctx.Event.Flag, 10, 64)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				var buf [8]byte
-				binary.BigEndian.PutUint64(buf[:], uint64(flag))
-				es := base14.EncodeToString(buf[1:])
-				userid := ctx.Event.UserID
-				username := ctx.CardOrNickName(userid)
-				data := (storage)(c.GetData(-su))
-				groupid := ctx.Event.GroupID
-				groupname := ctx.GetGroupInfo(groupid, true).Name
-				logrus.Info("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
-				if data.isinviteon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
-					ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "")
-					ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
-						"已自动同意在"+now+"收到来自"+
-							"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
-							"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
-							"\nflag:"+es)})
-					return
-				}
-				ctx.SendPrivateForwardMessage(su,
-					message.Message{message.CustomNode(username, userid,
-						"在"+now+"收到来自"+
-							"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
-							"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
-							"\n请在下方复制flag并在前面加上:"+
-							"\n同意/拒绝邀请，来决定同意还是拒绝"),
-						message.CustomNode(username, userid, es)})
+			su := zero.BotConfig.SuperUsers[0]
+			c, ok := control.Lookup("event")
+			if !ok || ok && !c.IsEnabledIn(su) {
+				return
 			}
+			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
+			flag, err := strconv.ParseInt(ctx.Event.Flag, 10, 64)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			var buf [8]byte
+			binary.BigEndian.PutUint64(buf[:], uint64(flag))
+			es := base14.EncodeToString(buf[1:])
+			userid := ctx.Event.UserID
+			username := ctx.CardOrNickName(userid)
+			data := (storage)(c.GetData(-su))
+			groupid := ctx.Event.GroupID
+			groupname := ctx.GetGroupInfo(groupid, true).Name
+			logrus.Info("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
+			if data.isinviteon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
+				ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "")
+				ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
+					"已自动同意在"+now+"收到来自"+
+						"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
+						"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
+						"\nflag:"+es)})
+				return
+			}
+			ctx.SendPrivateForwardMessage(su,
+				message.Message{message.CustomNode(username, userid,
+					"在"+now+"收到来自"+
+						"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")的群聊邀请"+
+						"\n群聊:["+groupname+"]("+strconv.FormatInt(groupid, 10)+")"+
+						"\n请在下方复制flag并在前面加上:"+
+						"\n同意/拒绝邀请，来决定同意还是拒绝"),
+					message.CustomNode(username, userid, es)})
+
 		})
-	engine.On("request/friend").SetBlock(false).
+	zero.On("request/friend").SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if ok {
-				su := zero.BotConfig.SuperUsers[0]
-				now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
-				flag, err := strconv.ParseInt(ctx.Event.Flag, 10, 64)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				var buf [8]byte
-				binary.BigEndian.PutUint64(buf[:], uint64(flag))
-				es := base14.EncodeToString(buf[1:])
-				comment := ctx.Event.Comment
-				userid := ctx.Event.UserID
-				username := ctx.CardOrNickName(userid)
-				data := (storage)(c.GetData(-su))
-				logrus.Info("[event]收到来自[", username, "](", userid, ")的好友申请")
-				if data.isapplyon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
-					ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
-					ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
-						"已自动同意在"+now+"收到来自"+
-							"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")"+
-							"\n的好友请求:"+comment+
-							"\nflag:"+es)})
-					return
-				}
-				ctx.SendPrivateForwardMessage(su,
-					message.Message{message.CustomNode(username, userid,
-						"在"+now+"收到来自"+
-							"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")"+
-							"\n的好友请求:"+comment+
-							"\n请在下方复制flag并在前面加上:"+
-							"\n同意/拒绝申请，来决定同意还是拒绝"),
-						message.CustomNode(username, userid, es)})
+			su := zero.BotConfig.SuperUsers[0]
+			c, ok := control.Lookup("event")
+			if !ok || ok && !c.IsEnabledIn(su) {
+				return
 			}
+			now := time.Unix(ctx.Event.Time, 0).Format("2006-01-02 15:04:05")
+			flag, err := strconv.ParseInt(ctx.Event.Flag, 10, 64)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			var buf [8]byte
+			binary.BigEndian.PutUint64(buf[:], uint64(flag))
+			es := base14.EncodeToString(buf[1:])
+			comment := ctx.Event.Comment
+			userid := ctx.Event.UserID
+			username := ctx.CardOrNickName(userid)
+			data := (storage)(c.GetData(-su))
+			logrus.Info("[event]收到来自[", username, "](", userid, ")的好友申请")
+			if data.isapplyon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
+				ctx.SetFriendAddRequest(ctx.Event.Flag, true, "")
+				ctx.SendPrivateForwardMessage(su, message.Message{message.CustomNode(username, userid,
+					"已自动同意在"+now+"收到来自"+
+						"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")"+
+						"\n的好友请求:"+comment+
+						"\nflag:"+es)})
+				return
+			}
+			ctx.SendPrivateForwardMessage(su,
+				message.Message{message.CustomNode(username, userid,
+					"在"+now+"收到来自"+
+						"\n用户:["+username+"]("+strconv.FormatInt(userid, 10)+")"+
+						"\n的好友请求:"+comment+
+						"\n请在下方复制flag并在前面加上:"+
+						"\n同意/拒绝申请，来决定同意还是拒绝"),
+					message.CustomNode(username, userid, es)})
 		})
 	engine.OnRegex(`^(同意|拒绝)(申请|邀请)\s*([一-踀]{4})\s*(.*)$`, zero.SuperUserPermission, zero.OnlyPrivate).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

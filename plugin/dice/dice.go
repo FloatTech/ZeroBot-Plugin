@@ -8,14 +8,14 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
 	db     = &sql.Sqlite{}
 	engine = control.Register("dice", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
-		Help:             "使用.help来查看帮助",
+		Brief:            "骰子?",
+		Help:             "试图移植的dice\n-.jrrp\n-.ra\n-.rd",
 		PublicDataFolder: "Dice",
 	})
 )
@@ -40,9 +40,4 @@ func init() {
 			panic(err)
 		}
 	}()
-	engine.OnFullMatchGroup([]string{".help", "。help"}).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			help := "试图移植的dice\n-.jrrp\n-.ra\n-.rd"
-			ctx.SendChain(message.Text(help))
-		})
 }
