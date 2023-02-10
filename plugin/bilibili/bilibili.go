@@ -187,11 +187,11 @@ func init() {
 				canvas.DrawImage(back, 0, 0)
 			}
 			canvas.SetColor(color.Black)
-			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(data, fontSize); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -324,11 +324,11 @@ func init() {
 		}
 		canvas := gg.NewContext(100, 100)
 		fontSize := 50.0
-		_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+		data, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 		}
-		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+		if err = canvas.ParseFontFace(data, fontSize); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -347,7 +347,7 @@ func init() {
 		canvas.SetColor(color.White)
 		canvas.Clear()
 		canvas.SetColor(color.Black)
-		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+		if err = canvas.ParseFontFace(data, fontSize); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}

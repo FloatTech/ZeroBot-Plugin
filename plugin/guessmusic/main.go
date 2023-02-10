@@ -406,18 +406,18 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
-			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			boldfd, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}
-			_, err = file.GetLazyData(text.FontFile, control.Md5File, true)
+			fd, err := file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}
 			/***********设置字体颜色为黑色***********/
 			canvas.SetRGB(0, 0, 0)
 			/***********设置字体大小,并获取字体高度用来定位***********/
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(boldfd, fontSize); err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
 			}
@@ -426,7 +426,7 @@ func init() {
 			canvas.DrawString("序号\t\t歌单名\t\t歌曲数量\t\t网易云歌单ID", 20, 50-h) // 放置在中间位置
 			canvas.DrawString("——————————————————————", 20, 70-h)
 			/***********设置字体大小,并获取字体高度用来定位***********/
-			if err = canvas.LoadFontFace(text.FontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(fd, fontSize); err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
 			}

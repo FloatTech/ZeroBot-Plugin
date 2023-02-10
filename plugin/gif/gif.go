@@ -1416,11 +1416,11 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 	}
 	canvas := gg.NewContext(500, 600)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	err = canvas.LoadFontFace(text.BoldFontFile, 40)
+	err = canvas.ParseFontFace(data, 40)
 	if err != nil {
 		return "", err
 	}
@@ -1438,7 +1438,7 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 		canvas := gg.NewContext(500, 600)
 		canvas.DrawImage(f.Image(), 0, 0)
 		canvas.SetColor(color.Black)
-		_ = canvas.LoadFontFace(text.BoldFontFile, 40)
+		// _ = canvas.ParseFontFace(data, 40)
 		canvas.DrawString(arg, 280-l, 560)
 		canvas.DrawImage(imgfactory.Size(f.Image(), 90, 90).Image(), 280, 505)
 		canvas.DrawString("吗", 370, 560)

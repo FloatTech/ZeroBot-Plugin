@@ -76,11 +76,11 @@ func tagurl(name, u string) (im image.Image, st *sorttags, err error) {
 	st = newsorttags(tags)
 	sort.Sort(st)
 
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	boldfd, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
-	_, err = file.GetLazyData(text.ConsolasFontFile, control.Md5File, true)
+	consfd, err := file.GetLazyData(text.ConsolasFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
@@ -100,13 +100,13 @@ func tagurl(name, u string) (im image.Image, st *sorttags, err error) {
 	canvas.SetRGB(1, 1, 1)
 	canvas.Clear()
 	canvas.DrawImage(img, 0, 0)
-	if err = canvas.LoadFontFace(text.BoldFontFile, float64(img.Bounds().Size().X)*0.1); err != nil {
+	if err = canvas.ParseFontFace(boldfd, float64(img.Bounds().Size().X)*0.1); err != nil {
 		return
 	}
 	canvas.SetRGB(0, 0, 0)
 	canvas.DrawString(name, float64(img.Bounds().Size().X)*0.02, float64(img.Bounds().Size().Y)+float64(img.Bounds().Size().X)*0.1)
 	i := float64(img.Bounds().Size().Y) + float64(img.Bounds().Size().X)*0.2
-	if err = canvas.LoadFontFace(text.ConsolasFontFile, float64(img.Bounds().Size().X)*0.04); err != nil {
+	if err = canvas.ParseFontFace(consfd, float64(img.Bounds().Size().X)*0.04); err != nil {
 		return
 	}
 	rate := float64(img.Bounds().Size().X) * 0.04

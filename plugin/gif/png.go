@@ -280,11 +280,11 @@ func anyasuki(cc *context, args ...string) (string, error) {
 	canvas.DrawRectangle(0, 500, 475, 40)
 	canvas.Fill()
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 30); err != nil {
+	if err = canvas.ParseFontFace(data, 30); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -326,11 +326,11 @@ func alwaysLike(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(back, 0, 0)
 	canvas.DrawImage(imgfactory.Size(face, 380, 380).Image(), 44, 74)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 56); err != nil {
+	if err = canvas.ParseFontFace(data, 56); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -443,11 +443,11 @@ func universal(cc *context, args ...string) (string, error) {
 	canvas.DrawRectangle(0, 500, 500, 50)
 	canvas.Fill()
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 40); err != nil {
+	if err = canvas.ParseFontFace(data, 40); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -494,11 +494,11 @@ func interview(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(huaji, 376, 50)
 	canvas.DrawImage(microphone, 300, 50)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 40); err != nil {
+	if err = canvas.ParseFontFace(data, 40); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -652,11 +652,11 @@ func playGame(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(imgfactory.Rotate(face, 10, 225, 160).Image(), 161, 117)
 	canvas.DrawImage(back, 0, 0)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 40); err != nil {
+	if err = canvas.ParseFontFace(data, 40); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -782,11 +782,11 @@ func safeSense(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(back, 0, 0)
 	canvas.DrawImage(imgfactory.Size(face, 215, 343).Image(), 215, 135)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 30); err != nil {
+	if err = canvas.ParseFontFace(data, 30); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -944,11 +944,11 @@ func makeFriend(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(imgfactory.Rotate(face, 9, 55, 55).Image(), 836, 722)
 	canvas.DrawImage(back, 0, 0)
 	canvas.SetColor(color.White)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 20); err != nil {
+	if err = canvas.ParseFontFace(data, 20); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -1023,11 +1023,11 @@ func coupon(cc *context, args ...string) (string, error) {
 	canvas.Rotate(gg.Radians(-22))
 	canvas.DrawImage(imgfactory.Size(face, 60, 60).Image(), 100, 163)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 30); err != nil {
+	if err = canvas.ParseFontFace(data, 30); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -1182,11 +1182,11 @@ func youer(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(back, 0, 0)
 	canvas.DrawImage(imgfactory.Size(tou, 350, 350).Image(), 55, 165)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 56); err != nil {
+	if err = canvas.ParseFontFace(data, 56); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -1229,11 +1229,11 @@ func xiaotianshi(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(back, 0, 0)
 	canvas.DrawImage(imgfactory.Size(face, 480, 480).Image(), 20, 80)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 35); err != nil {
+	if err = canvas.ParseFontFace(data, 35); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -1333,11 +1333,11 @@ func van(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(back, 0, 0)
 	canvas.DrawImage(imgfactory.Size(face, 480, 480).Image(), 20, 80)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 35); err != nil {
+	if err = canvas.ParseFontFace(data, 35); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
@@ -1494,11 +1494,11 @@ func mengbi(cc *context, args ...string) (string, error) {
 	canvas.DrawImage(imgfactory.Size(face, 100, 100).Image(), 392, 460)
 	canvas.DrawImage(imgfactory.Size(face, 100, 100).Image(), 606, 443)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, 80); err != nil {
+	if err = canvas.ParseFontFace(data, 80); err != nil {
 		return "", err
 	}
 	if args[0] == "" {
