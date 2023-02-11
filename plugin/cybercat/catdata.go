@@ -9,6 +9,7 @@ import (
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -49,7 +50,7 @@ var (
 		Brief:             "云养猫",
 		Help:              "- 买猫\n- 买猫粮\n- 买n袋猫粮\n- 喂猫\n- 喂猫n斤猫粮\n- 猫猫打工\n- 猫猫打工[1-9]小时\n- 猫猫状态\n- 喵喵pk@对方QQ\n- 。。。。",
 		PrivateDataFolder: "cybercat",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		catdata.db.DBPath = engine.DataFolder() + "catdata.db"
 		err := catdata.db.Open(time.Hour * 24)
