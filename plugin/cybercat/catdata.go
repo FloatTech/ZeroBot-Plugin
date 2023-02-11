@@ -48,7 +48,7 @@ var (
 	engine = control.Register("cybercat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "云养猫",
-		Help:              "- 买猫\n- 买猫粮\n- 买n袋猫粮\n- 喂猫\n- 喂猫n斤猫粮\n- 猫猫打工\n- 猫猫打工[1-9]小时\n- 猫猫状态\n- 喵喵pk@对方QQ\n- 。。。。",
+		Help:              "文字版QQ宠物复刻版(?)- 买猫\n- 买猫粮\n- 买n袋猫粮\n- 喂猫\n- 喂猫n斤猫粮\n- 猫猫打工\n- 猫猫打工[1-9]小时\n- 猫猫状态\n- 喵喵改名叫xxx\n- 喵喵pk@对方QQ\n- 。。。。",
 		PrivateDataFolder: "cybercat",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
