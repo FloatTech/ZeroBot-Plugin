@@ -57,9 +57,11 @@ func init() {
 		/***************************************************************/
 		userInfo = userInfo.settleOfData()
 		workStauts := "休闲中"
-		_, workEnd := userInfo.settleOfWork(gidStr)
+		money, workEnd := userInfo.settleOfWork(gidStr)
 		if !workEnd {
 			workStauts += "工作中"
+		} else if money > 0 {
+			workStauts += "刚刚工作回来,为你赚了" + strconv.Itoa(money)
 		}
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
