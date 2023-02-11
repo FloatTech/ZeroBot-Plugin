@@ -10,16 +10,16 @@ import (
 )
 
 type gameCardInfo struct {
-	Name    string //卡名
-	ID      string //卡密
-	Type    string //种类
-	Race    string //种族
-	Attr    string //属性
-	Level   string //等级
-	Atk     string //攻击力
-	Def     string //防御力
-	Depict  string //效果
-	Maxcard string //是否是分享的开关
+	Name    string // 卡名
+	ID      string // 卡密
+	Type    string // 种类
+	Race    string // 种族
+	Attr    string // 属性
+	Level   string // 等级
+	Atk     string // 攻击力
+	Def     string // 防御力
+	Depict  string // 效果
+	Maxcard string // 是否是分享的开关
 }
 
 // 正则筛选数据
