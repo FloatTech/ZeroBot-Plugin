@@ -2,6 +2,7 @@
 package cybercat
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -15,7 +16,7 @@ import (
 )
 
 func init() {
-	engine.OnFullMatch("买猫", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatchGroup([]string{"买猫", "买喵"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
@@ -24,7 +25,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if userInfo != (catinfo{}) && userInfo.Name != "" {
+		if userInfo != (catInfo{}) && userInfo.Name != "" {
 			id = ctx.SendChain(message.Reply(id), message.Text("你居然背着你家喵喵出来找小三!"))
 			if rand.Intn(100) != 50 {
 				process.SleepAbout1sTo2s()
@@ -34,11 +35,7 @@ func init() {
 					}
 					return
 				}
-				userInfo = catinfo{
-					User: ctx.Event.UserID,
-					Food: userInfo.Food,
-				}
-				if catdata.insert(gidStr, userInfo) == nil {
+				if catdata.delcat(gidStr, uidStr) == nil {
 					ctx.SendChain(message.Reply(id), message.Text("喔,天啊!你家喵喵离家出走了!\n你失去了喵喵!"))
 				}
 				return
@@ -62,13 +59,16 @@ func init() {
 			messageText = "你前往的喵喵店时发现正好有活动,\n一只喵喵现在只需要" + strconv.Itoa(money) + ";\n"
 		}
 		// 随机属性生成
-		typeOfcat := catType[rand.Intn(len(catType))]
-		satiety := rand.Intn(90)
-		mood := rand.Intn(100)
-		weight := rand.Intn(10) + 1
+		typeOfcat := catType[rand.Intn(len(catType))] // 品种
+		satiety := 90 * rand.Float64()                // 饱食度
+		mood := rand.Intn(100)                        // 心情
+		weight := 10 * rand.Float64()                 // 体重
 
 		id = ctx.SendChain(message.Reply(id), message.Text(messageText, "你在喵喵店看到了一只喵喵,经过询问后得知他当前的信息为:",
-			"\n品种: "+typeOfcat, "\n当前饱食度: "+strconv.Itoa(satiety), "\n当前心情: "+strconv.Itoa(mood), "\n当前体重: "+strconv.Itoa(weight),
+			"\n品种: ", typeOfcat,
+			"\n当前饱食度: ", fmt.Sprintf("%1.0f", satiety),
+			"\n当前心情: ", mood,
+			"\n当前体重: ", fmt.Sprintf("%1.2f", weight),
 			"\n你是否想要买这只喵喵呢?(回答“是/否”)"))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(是|否)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()
@@ -140,9 +140,9 @@ func init() {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
-		mun := 1
+		mun := 1.0
 		if ctx.State["regex_matched"].([]string)[2] != "" {
-			mun, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
+			mun, _ = strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
 		}
 		userInfo, err := catdata.find(gidStr, uidStr)
 		if err != nil {
@@ -161,7 +161,7 @@ func init() {
 			foodmoney = rand.Intn(5) + 5
 			messageText = "你前往的喵喵店时发现正好有活动,\n一袋猫粮现在只需要" + strconv.Itoa(foodmoney) + ";\n"
 		}
-		foodmoney *= mun
+		foodmoney *= int(mun)
 		if money < foodmoney {
 			ctx.SendChain(message.Reply(id), message.Text("你身上没有足够的钱买这么多猫粮,快去赚钱吧~"))
 			return
