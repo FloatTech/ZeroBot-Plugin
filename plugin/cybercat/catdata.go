@@ -28,7 +28,7 @@ var catType = map[string]string{
 	"Singapura": "新加坡猫", "Snowshoe": "雪鞋猫", "Toyger": "玩具虎猫", "Turkish Van": "土耳其梵猫", "York Chocolate": "约克巧克力猫", "Dragon Li": "中国狸花猫",
 	"Exotic Shorthair": "异国短毛猫", "Havana Brown": "哈瓦那褐猫", "Khao Manee": "泰国御猫", "Kurilian": "千岛短尾猫", "LaPerm": "拉邦猫", "Arabian Mau": "美英猫",
 	"Bambino": "班比诺猫", "Devon Rex": "德文狸猫", "California Spangled": "加州闪亮猫", "Sphynx": "斯芬克斯猫", "Chantilly-Tiffany": "查达利/蒂法尼猫", "Chausie": "非洲狮子猫",
-	"American Curl": "美国卷耳猫", "Aegean": "爱琴猫", "American Bobtail": "美国短尾猫", "Australian Mist": "澳大利亚雾猫", "Nekomusume": "猫娘", "other": "未知种"}
+	"American Curl": "美国卷耳猫", "Aegean": "爱琴猫", "American Bobtail": "美国短尾猫", "Australian Mist": "澳大利亚雾猫", "Nekomusume": "猫娘", "": "未知品种"}
 
 type catdb struct {
 	db *sql.Sqlite
@@ -77,7 +77,7 @@ var (
 func init() {
 	engine.OnFullMatch("吸猫").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		typeOfcat, url := getPicURL()
-		if typeOfcat == "" {
+		if url == "" {
 			ctx.SendChain(message.Text("[ERROR]: 404"))
 			return
 		}
@@ -91,11 +91,11 @@ func getPicURL() (catType, url string) {
 		return
 	}
 	picID := gjson.ParseBytes(data).Get("0.id").String()
-	data, _ = web.GetData("https://api.thecatapi.com/v1/images/" + picID)
-	if data == nil {
+	picdata, _ := web.GetData("https://api.thecatapi.com/v1/images/" + picID)
+	if picdata == nil {
 		return
 	}
-	return gjson.ParseBytes(data).Get("breeds.0.name").String(), gjson.ParseBytes(data).Get("url").String()
+	return gjson.ParseBytes(picdata).Get("breeds.0.name").String(), gjson.ParseBytes(picdata).Get("url").String()
 }
 
 func (sql *catdb) insert(gid string, dbInfo catInfo) error {

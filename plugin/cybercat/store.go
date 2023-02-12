@@ -43,13 +43,13 @@ func init() {
 		}
 		userInfo.User = ctx.Event.UserID
 		if userInfo.LastTime != 0 {
-			lastTime := time.Unix(userInfo.LastTime, 0).Day()
-			if lastTime == time.Now().Day() {
-				ctx.SendChain(message.Reply(id), message.Text("一天只能逛一次猫店哦"))
+			lastTime := time.Unix(userInfo.LastTime/10, 0).Day()
+			if lastTime == time.Now().Day() && userInfo.LastTime%10 > 2 {
+				ctx.SendChain(message.Reply(id), message.Text("一天只能逛三次猫店哦"))
 				return
 			}
 		}
-		userInfo.LastTime = time.Now().Unix()
+		userInfo.LastTime = time.Now().Unix()*10 + userInfo.LastTime%10 + 1
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
