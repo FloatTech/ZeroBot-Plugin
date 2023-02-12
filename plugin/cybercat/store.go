@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	engine.OnRegex(`^买(.*)(猫|喵)$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^买(.*猫)$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
