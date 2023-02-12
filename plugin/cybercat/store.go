@@ -74,7 +74,7 @@ func init() {
 		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
 		picurl := ""
 		if typeOfcat == "猫" {
-			typeOfcat, picurl = getPicUrl()
+			typeOfcat, picurl = getPicURL()
 			if typeOfcat == "" {
 				nameMap := make([]string, 0, len(catType))
 				for _, name := range catType {

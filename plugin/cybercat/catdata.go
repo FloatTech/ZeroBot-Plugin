@@ -76,7 +76,7 @@ var (
 
 func init() {
 	engine.OnFullMatch("吸猫").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		typeOfcat, url := getPicUrl()
+		typeOfcat, url := getPicURL()
 		if typeOfcat == "" {
 			ctx.SendChain(message.Text("[ERROR]: 404"))
 			return
@@ -85,7 +85,7 @@ func init() {
 	})
 }
 
-func getPicUrl() (catType, url string) {
+func getPicURL() (catType, url string) {
 	data, _ := web.GetData("https://api.thecatapi.com/v1/images/search")
 	if data == nil {
 		return
