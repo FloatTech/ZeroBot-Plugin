@@ -113,7 +113,7 @@ func init() {
 			fat = true // 判断用户的是否比对手的重
 		}
 		winerWeight := (userInfo.Weight + duelInfo.Weight) * rand.Float64()
-		messageText := []message.MessageSegment{}
+		messageText := make(message.Message, 0, 3)
 		switch {
 		case fat && winerWeight <= (winLine-5): //重,但对面赢了
 			messageText = append(messageText, message.Text("天啊,", duelInfo.Weight, "kg的", duelInfo.Name, "完美的借力打力,将", userInfo.Weight, "kg的", userInfo.Name, "打趴下了"))
@@ -170,7 +170,7 @@ func init() {
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 		}
-		ctx.SendChain(messageText...)
+		ctx.Send(messageText)
 	})
 	engine.OnFullMatchGroup([]string{"猫猫排行榜", "喵喵排行榜"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 

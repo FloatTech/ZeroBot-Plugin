@@ -44,12 +44,12 @@ func init() {
 		userInfo.User = ctx.Event.UserID
 		if userInfo.LastTime != 0 {
 			lastTime := time.Unix(userInfo.LastTime/10, 0).Day()
-			if lastTime == time.Now().Day() && userInfo.LastTime%10 > 2 {
+			if lastTime == time.Now().Day() && (userInfo.LastTime%10) > 2 {
 				ctx.SendChain(message.Reply(id), message.Text("一天只能逛三次猫店哦"))
 				return
 			}
 		}
-		userInfo.LastTime = time.Now().Unix()*10 + userInfo.LastTime%10 + 1
+		userInfo.LastTime = time.Now().Unix()*10 + (userInfo.LastTime%10 + 1)
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -64,6 +64,7 @@ func init() {
 				return
 			}
 		}
+		ctx.SendChain(message.Reply(id), message.Text("你前往了猫猫店"))
 		money = 100
 		messageText := ""
 		if rand.Intn(10) == 5 {
