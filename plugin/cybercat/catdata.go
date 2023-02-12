@@ -2,6 +2,7 @@
 package cybercat
 
 import (
+	"sort"
 	"sync"
 	"time"
 
@@ -30,15 +31,16 @@ type catdb struct {
 }
 
 type catInfo struct {
-	User     int64   // 主人
-	Name     string  // 喵喵名称
-	Type     string  // 品种
-	Satiety  float64 // 饱食度
-	Mood     int     // 心情
-	Weight   float64 // 体重
-	LastTime int64   // 上次喂养时间
-	Work     int64   // 打工时间
-	Food     float64 // 食物数量
+	User      int64   // 主人
+	Name      string  // 喵喵名称
+	Type      string  // 品种
+	Satiety   float64 // 饱食度
+	Mood      int     // 心情
+	Weight    float64 // 体重
+	LastTime  int64   // 上次喂养时间
+	Work      int64   // 打工时间
+	ArenaTime int64   // 上次PK时间
+	Food      float64 // 食物数量
 }
 
 var (
@@ -48,7 +50,7 @@ var (
 	engine = control.Register("cybercat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "云养猫",
-		Help:              "文字版QQ宠物复刻版(?)- 买猫\n- 买猫粮\n- 买n袋猫粮\n- 喂猫\n- 喂猫n斤猫粮\n- 猫猫打工\n- 猫猫打工[1-9]小时\n- 猫猫状态\n- 喵喵改名叫xxx\n- 喵喵pk@对方QQ\n- 。。。。",
+		Help:              "一款能赚钱的养成类插件\n- 买猫\n- 买猫粮\n- 买n袋猫粮\n- 喂猫\n- 喂猫n斤猫粮\n- 猫猫打工\n- 猫猫打工[1-9]小时\n- 猫猫状态\n- 喵喵改名叫xxx\n- 喵喵pk@对方QQ\n- 猫猫排行榜",
 		PrivateDataFolder: "cybercat",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -102,4 +104,31 @@ func (sql *catdb) delcat(gid, uid string) error {
 		Food: dbInfo.Food,
 	}
 	return sql.db.Insert(gid, &newInfo)
+}
+
+type catDataList []catInfo
+
+func (s catDataList) Len() int {
+	return len(s)
+}
+func (s catDataList) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s catDataList) Less(i, j int) bool {
+	return s[i].Weight > s[j].Weight
+}
+func (sql *catdb) getGroupdata(gid string) (list catDataList, err error) {
+	sql.RLock()
+	defer sql.RUnlock()
+	info := catInfo{}
+	err = sql.db.FindFor(gid, &info, "group by Weight", func() error {
+		if info.Name != "" {
+			list = append(list, info)
+		}
+		return nil
+	})
+	if len(list) > 1 {
+		sort.Sort(list)
+	}
+	return
 }

@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	engine.OnFullMatchGroup([]string{"买猫", "买喵"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^买(.*)(猫|喵)$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
@@ -42,6 +42,18 @@ func init() {
 			}
 		}
 		userInfo.User = ctx.Event.UserID
+		if userInfo.LastTime != 0 {
+			lastTime := time.Unix(userInfo.LastTime, 0).Day()
+			if lastTime == time.Now().Day() {
+				ctx.SendChain(message.Reply(id), message.Text("一天只能逛一次猫店哦"))
+				return
+			}
+		}
+		userInfo.LastTime = time.Now().Unix()
+		if catdata.insert(gidStr, userInfo) != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
 		money := wallet.GetWalletOf(ctx.Event.UserID)
 		if money < 100 {
 			ctx.SendChain(message.Reply(id), message.Text("一只喵喵官方售价100哦;\n你身上没有足够的钱,快去赚钱吧~"))
@@ -59,10 +71,13 @@ func init() {
 			messageText = "你前往的喵喵店时发现正好有活动,\n一只喵喵现在只需要" + strconv.Itoa(money) + ";\n"
 		}
 		// 随机属性生成
-		typeOfcat := catType[rand.Intn(len(catType))] // 品种
-		satiety := 90 * rand.Float64()                // 饱食度
-		mood := rand.Intn(100)                        // 心情
-		weight := 10 * rand.Float64()                 // 体重
+		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
+		if typeOfcat == "" {
+			typeOfcat = catType[rand.Intn(len(catType))]
+		}
+		satiety := 90 * rand.Float64() // 饱食度
+		mood := rand.Intn(100)         // 心情
+		weight := 10 * rand.Float64()  // 体重
 
 		id = ctx.SendChain(message.Reply(id), message.Text(messageText, "你在喵喵店看到了一只喵喵,经过询问后得知他当前的信息为:",
 			"\n品种: ", typeOfcat,
@@ -122,6 +137,7 @@ func init() {
 				break
 			}
 		}
+		userInfo.LastTime = 0
 		userInfo.Type = typeOfcat
 		userInfo.Satiety = satiety
 		userInfo.Mood = mood
@@ -176,5 +192,29 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Reply(id), message.Text(messageText, "你购买了", mun, "袋,共计", foodmoney))
+	})
+	engine.OnPrefixGroup([]string{"喵喵改名叫", "猫猫改名叫"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		id := ctx.Event.MessageID
+		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
+		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
+		userInfo, err := catdata.find(gidStr, uidStr)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		if userInfo == (catInfo{}) || userInfo.Name == "" {
+			ctx.SendChain(message.Reply(id), message.Text("铲屎官你还没有属于你的主子喔,快去买一只吧!"))
+			return
+		}
+		if ctx.State["args"].(string) != "" {
+			userInfo.Name = ctx.State["args"].(string)
+		} else {
+			userInfo.Name = userInfo.Type
+		}
+		if catdata.insert(gidStr, userInfo) != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		ctx.SendChain(message.Reply(id), message.Text("修改成功"))
 	})
 }

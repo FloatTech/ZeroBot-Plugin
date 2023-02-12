@@ -61,7 +61,7 @@ func init() {
 		if !workEnd {
 			workStauts = "工作中"
 		} else if money > 0 {
-			workStauts = "刚刚工作回来,为你赚了" + strconv.Itoa(money)
+			workStauts = "工作回来回来休息中\n	   为你赚了" + strconv.Itoa(money)
 		}
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -247,13 +247,13 @@ func (data *catInfo) settleOfSatiety(food float64) catInfo {
 // 体重结算
 /*
 	饱食度大于80可以长大
-	体重 = (饱食度 - 50)/10
-		= (80 - 50)/10
-		= 3 //保底3kg
+	体重 = (饱食度 - 50)/100
+		= (80 - 50)/100
+		= 0.3
 */
 func (data *catInfo) settleOfWeight() catInfo {
 	if data.Satiety > 80 {
-		data.Weight += (data.Satiety - 50) / 10
+		data.Weight += (data.Satiety - 50) / 100
 	}
 	return *data
 }
