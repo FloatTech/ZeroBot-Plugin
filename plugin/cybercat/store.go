@@ -72,19 +72,28 @@ func init() {
 		}
 		// 随机属性生成
 		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
+		picurl := ""
 		if typeOfcat == "猫" {
-			typeOfcat = catType[rand.Intn(len(catType))]
+			typeOfcat, picurl = getPicUrl()
+			if typeOfcat == "" {
+				nameMap := make([]string, 0, len(catType))
+				for _, name := range catType {
+					nameMap = append(nameMap, name)
+				}
+				typeOfcat = nameMap[rand.Intn(len(nameMap))]
+			}
 		}
 		satiety := 90 * rand.Float64() // 饱食度
 		mood := rand.Intn(100)         // 心情
 		weight := 10 * rand.Float64()  // 体重
 
-		id = ctx.SendChain(message.Reply(id), message.Text(messageText, "你在喵喵店看到了一只喵喵,经过询问后得知他当前的信息为:",
-			"\n品种: ", typeOfcat,
-			"\n当前饱食度: ", fmt.Sprintf("%1.0f", satiety),
-			"\n当前心情: ", mood,
-			"\n当前体重: ", fmt.Sprintf("%1.2f", weight),
-			"\n你是否想要买这只喵喵呢?(回答“是/否”)"))
+		id = ctx.SendChain(message.Reply(id), message.Text(messageText, "你在喵喵店看到了一只喵喵,经过询问后得知他当前的信息为:\n"),
+			message.Image(picurl),
+			message.Text("品种: ", typeOfcat,
+				"\n当前饱食度: ", fmt.Sprintf("%1.0f", satiety),
+				"\n当前心情: ", mood,
+				"\n当前体重: ", fmt.Sprintf("%1.2f", weight),
+				"\n你是否想要买这只喵喵呢?(回答“是/否”)"))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(是|否)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()
 		approve := false
@@ -142,6 +151,7 @@ func init() {
 		userInfo.Satiety = satiety
 		userInfo.Mood = mood
 		userInfo.Weight = weight
+		userInfo.Picurl = picurl
 		if wallet.InsertWalletOf(ctx.Event.UserID, -money) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return

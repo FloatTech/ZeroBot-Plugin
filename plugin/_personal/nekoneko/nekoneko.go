@@ -11,11 +11,11 @@ import (
 )
 
 func init() {
-	control.Register("nekoneko", &ctrl.Options[*zero.Ctx]{
+	control.Register("neko", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "云吸猫",
 		Help:             "   - neko",
-	}).OnFullMatch("neko").SetBlock(true).
+	}).OnKeyword("neko").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData("https://api.thecatapi.com/v1/images/search")
 			if err != nil {

@@ -67,13 +67,14 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "当前信息如下:",
-			"\n品种: "+userInfo.Type,
-			"\n饱食度: ", fmt.Sprintf("%1.0f", userInfo.Satiety),
-			"\n心情: ", userInfo.Mood,
-			"\n体重: ", fmt.Sprintf("%1.2f", userInfo.Weight),
-			"\n状态:", workStauts,
-			"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
+		ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "当前信息如下:\n"),
+			message.Image(userInfo.Picurl),
+			message.Text("品种: "+userInfo.Type,
+				"\n饱食度: ", fmt.Sprintf("%1.0f", userInfo.Satiety),
+				"\n心情: ", userInfo.Mood,
+				"\n体重: ", fmt.Sprintf("%1.2f", userInfo.Weight),
+				"\n状态:", workStauts,
+				"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
 	})
 	engine.OnRegex(`^喂猫((\d+.\d+)斤猫粮)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
@@ -163,12 +164,13 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n", userInfo.Name, "当前信息如下:",
-			"\n品种: "+userInfo.Type,
-			"\n饱食度: ", fmt.Sprintf("%1.0f", userInfo.Satiety),
-			"\n心情: ", userInfo.Mood,
-			"\n体重: ", fmt.Sprintf("%1.2f", userInfo.Weight),
-			"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
+		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n", userInfo.Name, "当前信息如下:\n"),
+			message.Image(userInfo.Picurl),
+			message.Text("品种: "+userInfo.Type,
+				"\n饱食度: ", fmt.Sprintf("%1.0f", userInfo.Satiety),
+				"\n心情: ", userInfo.Mood,
+				"\n体重: ", fmt.Sprintf("%1.2f", userInfo.Weight),
+				"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
 	})
 	engine.OnRegex(`^猫猫打工(([1-9])小时)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
