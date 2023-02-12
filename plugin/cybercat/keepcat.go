@@ -145,15 +145,11 @@ func init() {
 		}
 		/***************************************************************/
 		userInfo = userInfo.settleOfMood()
-		switch {
-		case userInfo.Satiety > 10 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50):
+		if userInfo.Satiety > 10 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50) {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 			return
-		case userInfo.Mood > 50 && rand.Intn(userInfo.Mood) < userInfo.Mood/3:
-			userInfo = userInfo.settleOfSatiety(food * 4)
-		default:
-			userInfo = userInfo.settleOfSatiety(food)
 		}
+		userInfo = userInfo.settleOfSatiety(food)
 		/***************************************************************/
 		userInfo = userInfo.settleOfWeight()
 		if userInfo.Weight > 200 {
@@ -239,6 +235,9 @@ func init() {
 func (data *catInfo) settleOfSatiety(food float64) catInfo {
 	data.Food -= food
 	if food > 0 {
+		if data.Mood > 50 && rand.Intn(data.Mood) < data.Mood/3 {
+			food *= 4
+		}
 		data.Satiety += food * 10
 	}
 	return *data

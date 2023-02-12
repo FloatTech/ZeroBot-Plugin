@@ -122,7 +122,7 @@ func init() {
 				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User), message.Text(userInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", fmt.Sprintf("%1.2f", userInfo.Weight)))
 
 			}
-			money := 10 + rand.Intn(duelInfo.Mood)
+			money := 10 + rand.Intn(zbmath.Min(30, duelInfo.Mood))
 			if wallet.InsertWalletOf(duelInfo.User, money) == nil {
 				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User), message.Text(duelInfo.Name, "为你赢得了", money))
 			}
@@ -133,7 +133,7 @@ func init() {
 				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User), message.Text(duelInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", fmt.Sprintf("%1.2f", duelInfo.Weight)))
 
 			}
-			money := 10 + rand.Intn(userInfo.Mood)
+			money := 10 + rand.Intn(zbmath.Min(30, userInfo.Mood))
 			if wallet.InsertWalletOf(userInfo.User, money) == nil {
 				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User), message.Text(userInfo.Name, "为你赢得了", money))
 			}
@@ -144,7 +144,7 @@ func init() {
 				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User), message.Text(duelInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", fmt.Sprintf("%1.2f", duelInfo.Weight)))
 
 			}
-			money := 10 + rand.Intn(userInfo.Mood)
+			money := 10 + rand.Intn(zbmath.Min(30, userInfo.Mood))
 			if wallet.InsertWalletOf(userInfo.User, money) == nil {
 				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User), message.Text(userInfo.Name, "为你赢得了", money))
 			}
@@ -154,7 +154,7 @@ func init() {
 				userInfo.Weight -= math.Min(1, userInfo.Weight/10) * rand.Float64()
 				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User), message.Text(userInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", fmt.Sprintf("%1.2f", userInfo.Weight)))
 			}
-			money := 10 + rand.Intn(duelInfo.Mood)
+			money := 10 + rand.Intn(zbmath.Min(30, duelInfo.Mood))
 			if wallet.InsertWalletOf(duelInfo.User, money) == nil {
 				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User), message.Text(duelInfo.Name, "为你赢得了", money))
 			}

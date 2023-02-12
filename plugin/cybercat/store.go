@@ -72,7 +72,7 @@ func init() {
 		}
 		// 随机属性生成
 		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
-		if typeOfcat == "" {
+		if typeOfcat == "猫" {
 			typeOfcat = catType[rand.Intn(len(catType))]
 		}
 		satiety := 90 * rand.Float64() // 饱食度
