@@ -2,7 +2,6 @@
 package cybercat
 
 import (
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -27,9 +26,9 @@ func init() {
 		}
 		if userInfo != (catInfo{}) && userInfo.Name != "" {
 			id = ctx.SendChain(message.Reply(id), message.Text("你居然背着你家喵喵出来找小三!"))
-			if rand.Intn(100) != 50 {
+			if rand.Intn(100) == 50 {
 				process.SleepAbout1sTo2s()
-				if rand.Intn(100) == 1 {
+				if rand.Intn(50) == 30 {
 					if catdata.del(gidStr, uidStr) == nil {
 						ctx.SendChain(message.Reply(id), message.Text("喔,天啊!你家喵喵带着所有猫粮离家出走了!\n你失去了所有!"))
 					}
@@ -40,6 +39,7 @@ func init() {
 				}
 				return
 			}
+			return
 		}
 		userInfo.User = ctx.Event.UserID
 		if userInfo.LastTime != 0 {
@@ -82,6 +82,8 @@ func init() {
 					nameMap = append(nameMap, name)
 				}
 				typeOfcat = nameMap[rand.Intn(len(nameMap))]
+			} else {
+				typeOfcat = catType[typeOfcat]
 			}
 		}
 		satiety := 90 * rand.Float64() // 饱食度
@@ -91,9 +93,9 @@ func init() {
 		id = ctx.SendChain(message.Reply(id), message.Text(messageText, "你在喵喵店看到了一只喵喵,经过询问后得知他当前的信息为:\n"),
 			message.Image(picurl),
 			message.Text("品种: ", typeOfcat,
-				"\n当前饱食度: ", fmt.Sprintf("%1.0f", satiety),
+				"\n当前饱食度: ", strconv.FormatFloat(satiety, 'f', 0, 64),
 				"\n当前心情: ", mood,
-				"\n当前体重: ", fmt.Sprintf("%1.2f", weight),
+				"\n当前体重: ", strconv.FormatFloat(weight, 'f', 2, 64),
 				"\n你是否想要买这只喵喵呢?(回答“是/否”)"))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(是|否)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()

@@ -61,7 +61,7 @@ func init() {
 		if !workEnd {
 			workStauts = "工作中"
 		} else if money > 0 {
-			workStauts = "工作回来回来休息中\n	   为你赚了" + strconv.Itoa(money)
+			workStauts = "从工作回来休息中\n	   为你赚了" + strconv.Itoa(money)
 		}
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -70,11 +70,11 @@ func init() {
 		ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "当前信息如下:\n"),
 			message.Image(userInfo.Picurl),
 			message.Text("品种: "+userInfo.Type,
-				"\n饱食度: ", fmt.Sprintf("%1.0f", userInfo.Satiety),
+				"\n饱食度: ", strconv.FormatFloat(userInfo.Satiety, 'f', 0, 64),
 				"\n心情: ", userInfo.Mood,
-				"\n体重: ", fmt.Sprintf("%1.2f", userInfo.Weight),
+				"\n体重: ", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64),
 				"\n状态:", workStauts,
-				"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
+				"\n\n你的剩余猫粮(斤): ", strconv.FormatFloat(userInfo.Food, 'f', 2, 64)))
 	})
 	engine.OnRegex(`^喂猫((\d+.\d+)斤猫粮)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
@@ -167,9 +167,9 @@ func init() {
 		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n", userInfo.Name, "当前信息如下:\n"),
 			message.Image(userInfo.Picurl),
 			message.Text("品种: "+userInfo.Type,
-				"\n饱食度: ", fmt.Sprintf("%1.0f", userInfo.Satiety),
+				"\n饱食度: ", strconv.FormatFloat(userInfo.Satiety, 'f', 0, 64),
 				"\n心情: ", userInfo.Mood,
-				"\n体重: ", fmt.Sprintf("%1.2f", userInfo.Weight),
+				"\n体重: ", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64),
 				"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
 	})
 	engine.OnRegex(`^猫猫打工(([1-9])小时)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -304,7 +304,6 @@ func (data *catInfo) settleOfWork(gid string) (int, bool) {
 		return 0, false
 	}
 	getFood := 5 * rand.Float64() // 工作餐
-	data.Food -= getFood
 	data.Satiety += getFood * 10
 	data.Work = 0
 	if catdata.insert(gid, *data) != nil {
