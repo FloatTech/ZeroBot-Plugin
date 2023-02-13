@@ -167,9 +167,9 @@ func randPicture(pic image.Image, mode int) ([]byte, func()) {
 	case 1:
 		return setBlur(dst)
 	case 2:
-		return doublePicture(dst)
-	case 3:
 		return setMark(dst)
+	case 3:
+		return doublePicture(dst)
 	case 4:
 		return cutPic(pic)
 	default:
