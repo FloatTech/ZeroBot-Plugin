@@ -213,7 +213,7 @@ func init() {
 			}
 			messageText = append(messageText, message.Text(
 				i+1, ".", info.Name, "(", info.Type, ")\n",
-				"体重：", strconv.FormatFloat(info.Satiety, 'f', 0, 64), "kg\n",
+				"体重：", strconv.FormatFloat(info.Weight, 'f', 0, 64), "kg\n",
 				"主人:", ctx.CardOrNickName(info.User),
 			))
 		}
