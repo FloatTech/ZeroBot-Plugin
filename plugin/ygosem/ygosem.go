@@ -336,7 +336,7 @@ func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, cl func(), e
 	if strings.Contains(cardInfo.Type, "怪兽") {
 		picHigh += textPic.Bounds().Dy() + 30
 	} else {
-		picHigh = math.Max(picHigh, 3*80+textPic.Bounds().Dy())
+		picHigh = math.Max(picHigh, 50+(20+30)*3+10+textPic.Bounds().Dy())
 	}
 	/***********设置图片的大小和底色***********/
 	canvas := gg.NewContext(1300, picHigh)
