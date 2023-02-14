@@ -88,6 +88,15 @@ func init() {
 			ctx.SendChain(message.Text("数据存在错误: 无法获取卡片信息"))
 			return
 		}
+		cardData.Depict = strings.ReplaceAll(cardData.Depict, "\n\r", "")
+		cardData.Depict = strings.ReplaceAll(cardData.Depict, "\n", "")
+		cardData.Depict = strings.ReplaceAll(cardData.Depict, " ", "")
+		field := regexpmatch(`「(?s:(.*?))」`, cardData.Depict)
+		if len(field) != 0 {
+			for i := 0; i < len(field); i++ {
+				cardData.Depict = strings.ReplaceAll(cardData.Depict, field[i][0], "「xxx」")
+			}
+		}
 		// 获取卡图连接
 		picHref := regexp.MustCompile(`picsCN(/\d+/\d+).jpg`).FindAllStringSubmatch(helper.BytesToString(body), -1)
 		if len(picHref) == 0 {
