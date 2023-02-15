@@ -73,19 +73,18 @@ func init() {
 		}
 		// 随机属性生成
 		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
-		picurl := ""
 		if typeOfcat == "猫" {
-			typeOfcat, picurl = getPicURL()
-			if typeOfcat == "" {
+			if rand.Intn(100) != 50 {
 				nameMap := make([]string, 0, len(catType))
-				for _, name := range catType {
-					nameMap = append(nameMap, name)
+				for zhName := range catType {
+					nameMap = append(nameMap, zhName)
 				}
 				typeOfcat = nameMap[rand.Intn(len(nameMap))]
 			} else {
-				typeOfcat = catType[typeOfcat]
+				typeOfcat = "猫娘"
 			}
 		}
+		picurl, _ := getPicByBreed(catBreeds[typeOfcat])
 		satiety := 90 * rand.Float64() // 饱食度
 		mood := rand.Intn(100)         // 心情
 		weight := 10 * rand.Float64()  // 体重
@@ -97,7 +96,7 @@ func init() {
 				"\n当前心情: ", mood,
 				"\n当前体重: ", strconv.FormatFloat(weight, 'f', 2, 64),
 				"\n你是否想要买这只喵喵呢?(回答“是/否”)"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(是|否)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(是|否)$"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(userInfo.User)).Repeat()
 		defer cancel()
 		approve := false
 		over := time.NewTimer(60 * time.Second)
@@ -123,7 +122,7 @@ func init() {
 			}
 		}
 		ctx.SendChain(message.Reply(id), message.Text("喵喵对你喵喵了两句,貌似是想让你给它取名呢!\n请发送“叫xxx”给它取名吧~"))
-		nameRecv, nameCancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^叫.*"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
+		nameRecv, nameCancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^叫.*"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(userInfo.User)).Repeat()
 		defer nameCancel()
 		approve = false
 		over = time.NewTimer(30 * time.Second)
@@ -233,5 +232,29 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Reply(id), message.Text("修改成功"))
+	})
+	engine.OnFullMatch("上传猫猫照片", zero.OnlyGroup, zero.MustProvidePicture, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		id := ctx.Event.MessageID
+		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
+		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
+		userInfo, err := catdata.find(gidStr, uidStr)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		if userInfo == (catInfo{}) || userInfo.Name == "" {
+			ctx.SendChain(message.Reply(id), message.Text("铲屎官你还没有属于你的主子喔,快去买一只吧!"))
+			return
+		}
+		if userInfo.Type != "猫娘" {
+			ctx.SendChain(message.Reply(id), message.Text("只有猫娘才能资格更换图片喔"))
+			return
+		}
+		userInfo.Picurl = ctx.State["image_url"].([]string)[0]
+		if catdata.insert(gidStr, userInfo) != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		ctx.SendChain(message.Reply(id), message.Text("成功"))
 	})
 }
