@@ -84,34 +84,30 @@ func init() {
 			}
 		}
 		/***************************************************************/
-		if userInfo.Satiety > 50 && rand.Intn(100) > zbmath.Max(userInfo.Mood, 80) {
-			ctx.SendChain(message.Text(userInfo.Name, "好像并没有心情PK\n", duelInfo.Name, "获得了比赛胜利"))
-			money := 10 + rand.Intn(duelInfo.Mood)
-			if wallet.InsertWalletOf(duelID, money) == nil {
-				ctx.SendChain(message.At(duelID), message.Text("你家的喵喵为你赢得了", money))
-			}
-			userInfo.ArenaTime = time.Now().Unix()
-			err = catdata.insert(gidStr, userInfo)
-			if err == nil {
-				userInfo.ArenaTime = time.Now().Unix()
-				err = catdata.insert(gidStr, userInfo)
-			}
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-			}
-			return
+		now := time.Now().Unix()
+		winer := userInfo
+		loser := duelInfo
+		/***************************************************************/
+		mood := false
+		switch {
+		case userInfo.Satiety > 50 && rand.Intn(100) > zbmath.Max(userInfo.Mood, 80):
+			mood = true
+			winer = duelInfo
+			loser = userInfo
+		case duelInfo.Satiety > 50 && rand.Intn(100) > zbmath.Max(duelInfo.Mood, 80):
+			mood = true
 		}
-		if duelInfo.Satiety > 50 && rand.Intn(100) > zbmath.Max(duelInfo.Mood, 80) {
-			ctx.SendChain(message.Text(duelInfo.Name, "好像并没有心情PK\n", userInfo.Name, "获得了比赛胜利"))
-			money := 10 + rand.Intn(userInfo.Mood)
-			if wallet.InsertWalletOf(userInfo.User, money) == nil {
-				ctx.SendChain(message.At(userInfo.User), message.Text("你家的喵喵为你赢得了", money))
+		if mood {
+			ctx.SendChain(message.Text(loser.Name, "好像并没有心情PK\n", winer.Name, "获得了比赛胜利"))
+			money := 10 + rand.Intn(int(winer.Weight))
+			if wallet.InsertWalletOf(winer.User, money) == nil {
+				ctx.SendChain(message.At(winer.User), message.Text("你家的喵喵为你赢得了", money))
 			}
-			userInfo.ArenaTime = time.Now().Unix()
-			err = catdata.insert(gidStr, userInfo)
+			winer.ArenaTime = now
+			err = catdata.insert(gidStr, winer)
 			if err == nil {
-				userInfo.ArenaTime = time.Now().Unix()
-				err = catdata.insert(gidStr, userInfo)
+				loser.ArenaTime = now
+				err = catdata.insert(gidStr, loser)
 			}
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
@@ -120,73 +116,49 @@ func init() {
 		}
 		/***************************************************************/
 		winLine := math.Min(userInfo.Weight, duelInfo.Weight)
-		fat := false
-		if winLine == duelInfo.Weight {
-			fat = true // 判断用户的是否比对手的重
+		weightLine := (userInfo.Weight + duelInfo.Weight) * rand.Float64()
+		fatLine := false
+		if winLine > weightLine-winLine*0.1 && winLine < weightLine+winLine*0.1 {
+			fatLine = true
 		}
-		winerWeight := (userInfo.Weight + duelInfo.Weight) * rand.Float64()
+		if fatLine {
+			ctx.SendChain(message.Reply(id), message.Text(duelInfo.Name, "和", userInfo.Name, "之间并没有PK的意愿呢\nPK结束"))
+			userInfo.ArenaTime = now
+			err = catdata.insert(gidStr, userInfo)
+			if err == nil {
+				duelInfo.ArenaTime = now
+				err = catdata.insert(gidStr, duelInfo)
+			}
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+			}
+		}
+		/***************************************************************/
+		winer, loser = pkweight(userInfo, duelInfo)
 		messageText := make(message.Message, 0, 3)
-		switch {
-		case fat && winerWeight <= (winLine-5): //重,但对面赢了
+		if rand.Intn(2) == 0 {
 			messageText = append(messageText, message.Text("天啊,",
-				strconv.FormatFloat(duelInfo.Weight, 'f', 2, 64), "kg的", duelInfo.Name,
-				"完美的借力打力,将", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的", userInfo.Name, "打趴下了"))
-			if rand.Float64()*100 < math.Max(20, userInfo.Weight) {
-				userInfo.Weight -= math.Min(1, duelInfo.Weight/10) * rand.Float64()
-				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User),
-					message.Text(userInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64)))
+				strconv.FormatFloat(winer.Weight, 'f', 2, 64), "kg的", winer.Name,
+				"完美的借力打力,将", strconv.FormatFloat(loser.Weight, 'f', 2, 64), "kg的", loser.Name, "打趴下了"))
+		} else {
+			messageText = append(messageText, message.Text("精彩!", strconv.FormatFloat(winer.Weight, 'f', 2, 64), "kg的", winer.Name,
+				"利用了PK地形,让", strconv.FormatFloat(loser.Weight, 'f', 2, 64), "kg的", loser.Name, "认输了"))
+		}
+		money := 10 + rand.Intn(int(winer.Weight))
+		if wallet.InsertWalletOf(winer.User, money) == nil {
+			messageText = append(messageText, message.Text("\n"), message.At(winer.User), message.Text(winer.Name, "为你赢得了", money))
+		}
+		if rand.Float64()*100 < math.Max(20, loser.Weight) {
+			loser.Weight -= math.Min(1, loser.Weight/10) * rand.Float64()
+			messageText = append(messageText, message.Text("\n"), message.At(loser.User),
+				message.Text(loser.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(loser.Weight, 'f', 2, 64)))
 
-			}
-			money := 10 + rand.Intn(zbmath.Min(30, duelInfo.Mood))
-			if wallet.InsertWalletOf(duelInfo.User, money) == nil {
-				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User), message.Text(duelInfo.Name, "为你赢得了", money))
-			}
-		case fat && winerWeight >= (winLine+15): //重,且赢了
-			messageText = append(messageText, message.Text(strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的", userInfo.Name,
-				"以绝对的体型碾压住了", strconv.FormatFloat(duelInfo.Weight, 'f', 2, 64), "kg的", duelInfo.Name))
-			if rand.Float64()*100 < math.Min(20, duelInfo.Weight) {
-				duelInfo.Weight -= math.Min(1, duelInfo.Weight/10) * rand.Float64()
-				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User),
-					message.Text(duelInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(duelInfo.Weight, 'f', 2, 64)))
-
-			}
-			money := 10 + rand.Intn(zbmath.Min(30, userInfo.Mood))
-			if wallet.InsertWalletOf(userInfo.User, money) == nil {
-				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User), message.Text(userInfo.Name, "为你赢得了", money))
-			}
-		case !fat && winerWeight <= (winLine-5): //轻,且赢了
-			ctx.SendChain(message.Text("天啊,", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的", userInfo.Name,
-				"完美的借力打力,将", strconv.FormatFloat(duelInfo.Weight, 'f', 2, 64), "kg的", duelInfo.Name, "打趴下了"))
-			if rand.Float64()*100 < math.Max(20, duelInfo.Weight) {
-				duelInfo.Weight -= math.Min(1, userInfo.Weight/10) * rand.Float64()
-				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User),
-					message.Text(duelInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(duelInfo.Weight, 'f', 2, 64)))
-
-			}
-			money := 10 + rand.Intn(zbmath.Min(30, userInfo.Mood))
-			if wallet.InsertWalletOf(userInfo.User, money) == nil {
-				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User), message.Text(userInfo.Name, "为你赢得了", money))
-			}
-		case !fat && winerWeight >= (winLine+15): //轻,但对面赢了
-			messageText = append(messageText, message.Text(strconv.FormatFloat(duelInfo.Weight, 'f', 2, 64), "kg的", duelInfo.Name,
-				"以绝对的体型碾压住了", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的", userInfo.Name))
-			if rand.Float64()*100 < math.Min(20, userInfo.Weight) {
-				userInfo.Weight -= math.Min(1, userInfo.Weight/10) * rand.Float64()
-				messageText = append(messageText, message.Text("\n"), message.At(userInfo.User),
-					message.Text(userInfo.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64)))
-			}
-			money := 10 + rand.Intn(zbmath.Min(30, duelInfo.Mood))
-			if wallet.InsertWalletOf(duelInfo.User, money) == nil {
-				messageText = append(messageText, message.Text("\n"), message.At(duelInfo.User), message.Text(duelInfo.Name, "为你赢得了", money))
-			}
-		default:
-			messageText = append(messageText, message.Text(duelInfo.Name, "和", userInfo.Name, "并没有打架的意愿呢\nPK结束"))
 		}
 		userInfo.ArenaTime = time.Now().Unix()
-		err = catdata.insert(gidStr, userInfo)
+		err = catdata.insert(gidStr, winer)
 		if err == nil {
 			duelInfo.ArenaTime = time.Now().Unix()
-			err = catdata.insert(gidStr, duelInfo)
+			err = catdata.insert(gidStr, loser)
 		}
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -219,4 +191,53 @@ func init() {
 		}
 		ctx.SendChain(messageText...)
 	})
+}
+
+// PK参数权重
+// 系数= (属性 - 基准属性)/100
+// R = (体重 - 基准属性)*0.05 + (心情 - 心情)*K*0.4 + (饱食度 - 饱食度)*R*0.4
+/**********************体重绝对优势******************************
+	// 纯比体重
+	// 17,100,100 Vs 130,100,100
+	R1 = (17 - 50) * 0.05 = -1.65
+	R2 = (130 - 50) * 0.05 = 4
+	R2 > R1,R2赢
+	// 如果心情好
+	// 17,80,100 Vs 130,40,100
+	R1 = (17 - 50) * 0.05 + (80 - 40)*(80 - 50)/100 * 0.4 = -1.65 + 4.8 = 3.15
+	R2 = (130 - 50) * 0.05 + (40 - 80)*(40 - 50)/100 * 0.4 = 4 + 1.6 = 5.6
+	R2 > R1,R2赢
+	// 如果肚子饿
+	// 17,80,80 Vs 130,40,40
+	R1 = (17 - 50) * 0.05 + (80 - 40)*(80 - 50)/100 * 0.4 + (80 - 40)*(80 - 50)/100 * 0.4 = -1.65 + 4.8 + 4.8 = 7.95
+	R2 = (130 - 50) * 0.05 + (40 - 80)*(40 - 50)/100 * 0.4 + (80 - 40)*(80 - 50)/100 * 0.4 = 4 + 1.6 + 1.6 = 7.2
+	R1 > R2,R1赢
+**********************体重均衡******************************
+	// 纯比体重
+	// 30,100,100 Vs 60,100,100
+	R1 = (30 - 50) * 0.05 = -0.1
+	R2 = (60 - 50) * 0.05 = 0.5
+	R2 > R1,R2赢
+	// 如果心情好
+	// 30,80,100 Vs 60,40,100
+	R1 = (30 - 50) * 0.05 + (80 - 40)*(80 - 50)/100 * 0.4 = -0.1 + 4.8 = 4.7
+	R2 = (60 - 50) * 0.05 + (40 - 80)*(40 - 50)/100 * 0.4 = 0.5 + 1.6 = 2.3
+	R1 > R2,R1赢
+	// 如果肚子饿
+	// 30,80,40 Vs 130,40,80
+	R1 = (30 - 50) * 0.05 + (80 - 40)*(80 - 50)/100 * 0.4 + (80 - 40)*(80 - 50)/100 * 0.4 = 4.7 + 1.6= 6.3
+	R2 = (130 - 50) * 0.05 + (40 - 80)*(40 - 50)/100 * 0.4 + (80 - 40)*(80 - 50)/100 * 0.4 = 2.3 + 4.8 = 7.1
+	R2 > R1,R2赢
+*/
+func pkweight(player1, player2 catInfo) (winer, loser catInfo) {
+	weightOfplayer1 := (player1.Weight-50)*0.05 +
+		float64((player1.Mood-player2.Mood)*(player1.Mood-50))*0.4 +
+		(player1.Satiety-player2.Satiety)*(player1.Satiety-50)*0.4
+	weightOfplayer2 := (player2.Weight-50)*0.05 +
+		float64((player2.Mood-player1.Mood)*(player2.Mood-50))*0.4 +
+		(player2.Satiety-player1.Satiety)*(player2.Satiety-50)*0.4
+	if weightOfplayer1 > weightOfplayer2 {
+		return player1, player2
+	}
+	return player2, player1
 }

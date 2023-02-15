@@ -55,7 +55,6 @@ func init() {
 			return
 		}
 		/***************************************************************/
-		userInfo = userInfo.settleOfData()
 		workStauts := "休闲中"
 		money, workEnd := userInfo.settleOfWork(gidStr)
 		if !workEnd {
@@ -63,6 +62,7 @@ func init() {
 		} else if money > 0 {
 			workStauts = "从工作回来休息中\n	   为你赚了" + strconv.Itoa(money)
 		}
+		userInfo = userInfo.settleOfData()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -262,18 +262,22 @@ func (data *catInfo) settleOfWeight() catInfo {
 // 心情结算
 /*
 	饱食度越高心情越好，体重越重越不好
-	心情 = 10 + 饱食度 * 0.9 - 体重 * 0.1
+	心情 = 原始心情 /2 * 0.4 + 饱食度 * 0.5 - 体重 * 0.1
 		// 50
-		= 10 + 50 * 0.9 - 100 * 0.1
-		= 10 + 45 - 10
-		= 45
+		= 100 /2 * 0.4 + 50 * 0.5 - 100 * 0.1
+		= 20 + 25 - 10
+		= 35
+		// 80
+		= 80 /2 * 0.4 + 80 * 0.5 - 100 * 0.1
+		= 16 + 40 - 10
+		= 46
 		// 100
-		= 10 + 100 * 0.9 - 100 * 0.1
-		= 10 + 90 - 10
-		= 90
+		= 100 /2 * 0.4 + 100 * 0.9 - 100 * 0.1
+		= 20 + 90 - 10
+		= 100
 */
 func (data *catInfo) settleOfMood() catInfo {
-	data.Mood = 10 + int(data.Satiety*0.9-data.Weight*0.1)
+	data.Mood = (data.Mood*2)/10 + int(data.Satiety*0.5-data.Weight*0.1)
 	return *data
 }
 
