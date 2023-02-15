@@ -135,6 +135,10 @@ func init() {
 			case c := <-nameRecv:
 				id = c.Event.MessageID
 				userInfo.Name = strings.ReplaceAll(c.Event.Message.String(), "叫", "")
+				if userInfo.Name == "" || len(userInfo.Name) > 30 {
+					ctx.SendChain(message.Reply(id), message.Text("请输入正确的猫名"))
+					continue
+				}
 				if rand.Intn(5) == 1 {
 					mood += rand.Intn(30)
 					if mood > 100 {
