@@ -172,6 +172,10 @@ func init() {
 		mun := 1.0
 		if ctx.State["regex_matched"].([]string)[2] != "" {
 			mun, _ = strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
+			if mun > 100 {
+				ctx.SendChain(message.Reply(id), message.Text("猫猫店库存就100袋,你想干嘛"))
+				return
+			}
 		}
 		userInfo, err := catdata.find(gidStr, uidStr)
 		if err != nil {
@@ -181,7 +185,7 @@ func init() {
 		userInfo.User = ctx.Event.UserID
 		money := wallet.GetWalletOf(ctx.Event.UserID)
 		if money < 10 {
-			ctx.SendChain(message.Reply(id), message.Text("一盒猫粮官方售价10哦;\n你身上没有足够的钱,快去赚钱吧~"))
+			ctx.SendChain(message.Reply(id), message.Text("一袋猫粮官方售价10哦;\n你身上没有足够的钱,快去赚钱吧~"))
 			return
 		}
 		foodmoney := 10
@@ -195,7 +199,7 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text("你身上没有足够的钱买这么多猫粮,快去赚钱吧~"))
 			return
 		}
-		userInfo.Food = 5 * mun
+		userInfo.Food += 5 * mun
 		if wallet.InsertWalletOf(ctx.Event.UserID, -foodmoney) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return

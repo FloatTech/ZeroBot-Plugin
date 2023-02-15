@@ -119,7 +119,7 @@ func init() {
 			if userInfo.Mood < 0 {
 				userInfo.Mood = 0
 			}
-			if rand.Intn(3) < 0 || userInfo.Mood > 80 {
+			if rand.Intn(3) == 0 || userInfo.Mood > 80 {
 				_ = catdata.insert(gidStr, userInfo)
 				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 				return
