@@ -75,8 +75,8 @@ func init() {
 		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
 		if typeOfcat == "猫" {
 			if rand.Intn(100) != 50 {
-				nameMap := make([]string, 0, len(catType))
-				for zhName := range catType {
+				nameMap := make([]string, 0, len(catBreeds))
+				for zhName := range catBreeds {
 					nameMap = append(nameMap, zhName)
 				}
 				typeOfcat = nameMap[rand.Intn(len(nameMap))]
