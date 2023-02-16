@@ -1,6 +1,6 @@
 plugins/*.so
 plugins/*.dll
-.idea
+.idea/
 .DS_Store
 .vscode
 go-zero*

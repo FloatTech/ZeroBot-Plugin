@@ -221,7 +221,6 @@ func init() {
 			// done.
 			f, err := os.Create(drawedFile)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
 				data, err := imgfactory.ToBytes(canvas.Image())
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
