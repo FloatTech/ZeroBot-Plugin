@@ -25,7 +25,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/golang/freetype"
-	log "github.com/sirupsen/logrus"
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -113,7 +112,7 @@ func init() {
 			}
 			score := wallet.GetWalletOf(uid)
 			// 绘图
-			err = initPic(picFile)
+			err, getAvatar := initPic(picFile, uid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -145,20 +144,17 @@ func init() {
 			// Aero style combine
 			canvas.DrawImage(aeroStyle.Image(), 100, 100)
 			canvas.Fill()
-			data, err := web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
 			hourWord := getHourWord(now)
+			avatar, _, err := image.Decode(bytes.NewReader(getAvatar))
 			if err != nil {
-				return
-			}
-			avatar, _, err := image.Decode(bytes.NewReader(data))
-			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			avatarf := imgfactory.Size(avatar, 200, 200)
 			canvas.DrawImage(avatarf.Circle(0).Image(), 120, 120)
 			// draw info(name,coin,etc)
 			canvas.SetRGB255(0, 0, 0)
-			data, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -225,10 +221,10 @@ func init() {
 			// done.
 			f, err := os.Create(drawedFile)
 			if err != nil {
-				log.Errorln("[score]", err)
+				ctx.SendChain(message.Text("ERROR: ", err))
 				data, err := imgfactory.ToBytes(canvas.Image())
 				if err != nil {
-					log.Errorln("[score]", err)
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 				ctx.SendChain(message.ImageBytes(data))
@@ -362,18 +358,19 @@ func getrank(count int) int {
 	return -1
 }
 
-func initPic(picFile string) error {
+func initPic(picFile string, uid int64) (err error, avatar []byte) {
 	if file.IsExist(picFile) {
-		return nil
+		return nil, nil
 	}
 	defer process.SleepAbout1sTo2s()
 	url, err := bilibili.GetRealURL(backgroundURL)
 	if err != nil {
-		return err
+		return err, nil
 	}
 	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
 	if err != nil {
-		return err
+		return err, nil
 	}
-	return os.WriteFile(picFile, data, 0644)
+	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
+	return os.WriteFile(picFile, data, 0644), avatar
 }
