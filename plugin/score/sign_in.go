@@ -371,5 +371,8 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		return nil, err
 	}
 	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
+	if err != nil {
+		return nil, err
+	}
 	return avatar, os.WriteFile(picFile, data, 0644)
 }
