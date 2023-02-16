@@ -200,10 +200,13 @@ func init() {
 			canvas.DrawStringAnchored(nextLevelStyle, 100+getLevelLength, float64(imgDY)-100-getTimeLengthHight, 0.5, 0.5) // time
 			canvas.Fill()
 			canvas.SetRGB255(255, 255, 255)
-			canvas.SetLineWidth(20)
+			if err = canvas.ParseFontFace(data, 35); err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
 			canvas.SetRGB255(0, 0, 0)
-			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2-3, float64(imgDY)-20, 0.5, 0.5) // zbp
+			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2-3, float64(imgDY)-19, 0.5, 0.5) // zbp
 			canvas.SetRGB255(255, 255, 255)
 			// Gradient
 			grad := gg.NewLinearGradient(20, 320, 400, 20)
