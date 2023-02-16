@@ -47,6 +47,8 @@ func init() {
 			if lastTime == time.Now().Day() && (userInfo.LastTime%10) > 2 {
 				ctx.SendChain(message.Reply(id), message.Text("一天只能逛三次猫店哦"))
 				return
+			} else if lastTime != time.Now().Day() {
+				userInfo.LastTime = 0
 			}
 		}
 		userInfo.LastTime = time.Now().Unix()*10 + (userInfo.LastTime%10 + 1)
