@@ -200,7 +200,7 @@ func init() {
 			canvas.DrawStringAnchored(nextLevelStyle, 100+getLevelLength, float64(imgDY)-100-getTimeLengthHight, 0.5, 0.5) // time
 			canvas.Fill()
 			canvas.SetRGB255(255, 255, 255)
-			if err = canvas.ParseFontFace(data, 35); err != nil {
+			if err = canvas.ParseFontFace(data, 20); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
