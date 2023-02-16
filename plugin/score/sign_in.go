@@ -112,7 +112,7 @@ func init() {
 			}
 			score := wallet.GetWalletOf(uid)
 			// 绘图
-			err, getAvatar := initPic(picFile, uid)
+			getAvatar, err := initPic(picFile, uid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -358,19 +358,19 @@ func getrank(count int) int {
 	return -1
 }
 
-func initPic(picFile string, uid int64) (err error, avatar []byte) {
+func initPic(picFile string, uid int64) (avatar []byte, err error) {
 	if file.IsExist(picFile) {
 		return nil, nil
 	}
 	defer process.SleepAbout1sTo2s()
 	url, err := bilibili.GetRealURL(backgroundURL)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
-	return os.WriteFile(picFile, data, 0644), avatar
+	return avatar, os.WriteFile(picFile, data, 0644)
 }
