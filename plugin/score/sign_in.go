@@ -2,7 +2,11 @@
 package score
 
 import (
-	"fmt"
+	"bytes"
+	"github.com/FloatTech/ZeroBot-Plugin/kanban"
+	"github.com/disintegration/imaging"
+	"image"
+	"image/color"
 	"math"
 	"math/rand"
 	"os"
@@ -121,52 +125,101 @@ func init() {
 			}
 			// 避免图片过大，最大 1280*720
 			back = imgfactory.Limit(back, 1280, 720)
-			canvas := gg.NewContext(back.Bounds().Size().X, int(float64(back.Bounds().Size().Y)*1.7))
-			canvas.SetRGB(1, 1, 1)
-			canvas.Clear()
+			imgDX := back.Bounds().Dx()
+			imgDY := back.Bounds().Dy()
+			canvas := gg.NewContext(imgDX, imgDY)
+			// draw Aero Style
+			aeroStyle := gg.NewContext(imgDX-202, imgDY-202)
+			aeroStyle.DrawImage(imaging.Blur(back, 2.5), -100, -100)
+			// aero draw image.
+			aeroStyle.DrawRoundedRectangle(0, 0, float64(imgDX-200), float64(imgDY-200), 16)
+			// SideLine
+			aeroStyle.SetLineWidth(3)
+			aeroStyle.SetRGBA255(255, 255, 255, 100)
+			aeroStyle.StrokePreserve()
+			aeroStyle.SetRGBA255(255, 255, 255, 140)
+			// fill
+			aeroStyle.Fill()
+			// draw background
 			canvas.DrawImage(back, 0, 0)
-			monthWord := now.Format("01/02")
+			// Aero style combine
+			canvas.DrawImage(aeroStyle.Image(), 100, 100)
+			canvas.Fill()
+			data, err := web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
 			hourWord := getHourWord(now)
-			data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			if err != nil {
+				return
+			}
+			avatar, _, err := image.Decode(bytes.NewReader(data))
+			if err != nil {
+				return
+			}
+			avatarf := imgfactory.Size(avatar, 200, 200)
+			canvas.DrawImage(avatarf.Circle(0).Image(), 120, 120)
+			// draw info(name,coin,etc)
+			canvas.SetRGB255(0, 0, 0)
+			data, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			if err = canvas.ParseFontFace(data, float64(back.Bounds().Size().X)*0.1); err != nil {
+			if err = canvas.ParseFontFace(data, 50); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			canvas.SetRGB(0, 0, 0)
-			canvas.DrawString(hourWord, float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.2)
-			canvas.DrawString(monthWord, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*1.2)
+			// draw head
 			nickName := ctx.CardOrNickName(uid)
+			canvas.DrawStringWrapped(nickName, 350, 180, 0.5, 0.5, 0.5, 0.5, gg.AlignLeft)
+			canvas.Fill()
+			// main draw
 			data, err = file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			if err = canvas.ParseFontFace(data, float64(back.Bounds().Size().X)*0.04); err != nil {
+			if err = canvas.ParseFontFace(data, 30); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			canvas.DrawString(nickName+fmt.Sprintf(" ATRI币+%d", add), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
-			canvas.DrawString("当前ATRI币:"+strconv.FormatInt(int64(score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
-			canvas.DrawString("LEVEL:"+strconv.FormatInt(int64(rank), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.5)
-			canvas.DrawRectangle(float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.55, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*0.1)
-			canvas.SetRGB255(150, 150, 150)
-			canvas.Fill()
+			canvas.DrawStringAnchored(hourWord, 350, 280, 0, 0)
+			canvas.DrawStringAnchored("ATRI币 + "+strconv.Itoa(add), 350, 350, 0, 0)
+			canvas.DrawStringAnchored("当前ATRI币："+strconv.Itoa(score), 350, 400, 0, 0)
+			canvas.DrawStringAnchored("LEVEL: "+strconv.Itoa(getrank(level)), 350, 450, 0, 0)
+			// draw Info(Time,etc.)
+			getTime := time.Now().Format("2006-01-02 15:04:05")
+			getTimeLengthWidth, getTimeLengthHight := canvas.MeasureString(getTime)
+			canvas.DrawStringAnchored(getTime, float64(imgDX)-100-20-getTimeLengthWidth/2, float64(imgDY)-100-getTimeLengthHight, 0.5, 0.5) // time
 			var nextrankScore int
 			if rank < 10 {
 				nextrankScore = rankArray[rank+1]
 			} else {
 				nextrankScore = SCOREMAX
 			}
-			canvas.SetRGB255(0, 0, 0)
-			canvas.DrawRectangle(float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.55, float64(back.Bounds().Size().X)*0.6*float64(level)/float64(nextrankScore), float64(back.Bounds().Size().Y)*0.1)
-			canvas.SetRGB255(102, 102, 102)
+			nextLevelStyle := strconv.Itoa(level) + "/" + strconv.Itoa(nextrankScore)
+			getLevelLength, _ := canvas.MeasureString(nextLevelStyle)
+			canvas.DrawStringAnchored(nextLevelStyle, 100+getLevelLength, float64(imgDY)-100-getTimeLengthHight, 0.5, 0.5) // time
 			canvas.Fill()
-			canvas.DrawString(fmt.Sprintf("%d/%d", level, nextrankScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
-
+			canvas.SetRGB255(255, 255, 255)
+			canvas.SetLineWidth(20)
+			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
+			canvas.SetRGB255(0, 0, 0)
+			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2-3, float64(imgDY)-20, 0.5, 0.5) // zbp
+			canvas.SetRGB255(255, 255, 255)
+			// Gradient
+			grad := gg.NewLinearGradient(20, 320, 400, 20)
+			grad.AddColorStop(0, color.RGBA{G: 255, A: 255})
+			grad.AddColorStop(1, color.RGBA{B: 255, A: 255})
+			grad.AddColorStop(0.5, color.RGBA{R: 255, A: 255})
+			canvas.SetStrokeStyle(grad)
+			canvas.SetLineWidth(4)
+			// level array with rectangle work.
+			gradLineLength := float64(imgDX-120) - 120
+			renderLine := (float64(level) / float64(nextrankScore)) * gradLineLength
+			canvas.MoveTo(120, float64(imgDY)-102)
+			canvas.LineTo(120+renderLine, float64(imgDY)-102)
+			canvas.ClosePath()
+			canvas.Stroke()
+			// done.
 			f, err := os.Create(drawedFile)
 			if err != nil {
 				log.Errorln("[score]", err)
@@ -186,6 +239,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
+
 	engine.OnPrefix("获得签到背景", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
