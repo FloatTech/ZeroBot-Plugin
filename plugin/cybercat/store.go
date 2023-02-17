@@ -26,7 +26,7 @@ func init() {
 		}
 		if userInfo != (catInfo{}) && userInfo.Name != "" {
 			id = ctx.SendChain(message.Reply(id), message.Text("你居然背着你家喵喵出来找小三!"))
-			if rand.Intn(100) == 50 {
+			if rand.Intn(100) < 20 {
 				process.SleepAbout1sTo2s()
 				if rand.Intn(50) == 30 {
 					if catdata.del(gidStr, uidStr) == nil {
@@ -43,15 +43,13 @@ func init() {
 		}
 		userInfo.User = ctx.Event.UserID
 		if userInfo.LastTime != 0 {
-			lastTime := time.Unix(userInfo.LastTime/10, 0).Day()
-			if lastTime == time.Now().Day() && (userInfo.LastTime%10) > 2 {
-				ctx.SendChain(message.Reply(id), message.Text("一天只能逛三次猫店哦"))
+			lastTime := time.Unix(userInfo.LastTime, 0).Day()
+			if lastTime == time.Now().Day() {
+				ctx.SendChain(message.Reply(id), message.Text("抱歉,一天只能购买一次"))
 				return
-			} else if lastTime != time.Now().Day() {
-				userInfo.LastTime = 0
 			}
 		}
-		userInfo.LastTime = time.Now().Unix()*10 + (userInfo.LastTime%10 + 1)
+		userInfo.LastTime = time.Now().Unix()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -66,24 +64,61 @@ func init() {
 				return
 			}
 		}
-		ctx.SendChain(message.Reply(id), message.Text("你前往了猫猫店"))
+		/*******************************************************/
+		messageText := make(message.Message, 0, 3)
+		messageText = append(messageText, message.Reply(id))
 		money = 100
-		messageText := ""
 		if rand.Intn(10) == 5 {
 			money = rand.Intn(50) + 50
-			messageText = "你前往的喵喵店时发现正好有活动,\n一只喵喵现在只需要" + strconv.Itoa(money) + ";\n"
+			messageText = append(messageText, message.Text("你前往的喵喵店时发现正好有活动,\n一只喵喵现在只需要", money, "\n------------------------\n"))
 		}
-		// 随机属性生成
-		typeOfcat := ctx.State["regex_matched"].([]string)[1] // 品种
+		/*******************************************************/
+		typeOfcat := ctx.State["regex_matched"].([]string)[1]
 		if typeOfcat == "猫" {
-			if rand.Intn(100) != 50 {
-				nameMap := make([]string, 0, len(catBreeds))
-				for zhName := range catBreeds {
-					nameMap = append(nameMap, zhName)
+			nameMap := make([]string, 0, len(catBreeds))
+			for zhName := range catBreeds {
+				nameMap = append(nameMap, zhName)
+			}
+			if rand.Intn(100) >= 90 {
+				nameMap = append(nameMap, "猫娘")
+			}
+			nameList := make([]int, 0, 5)
+			for i := 0; i < 5; i++ {
+				nameList = append(nameList, rand.Intn(len(nameMap)))
+			}
+			messageText = append(messageText, message.Text("当前猫店售卖以下几只猫:",
+				"\n1.", nameMap[nameList[0]],
+				"\n2.", nameMap[nameList[1]],
+				"\n3.", nameMap[nameList[2]],
+				"\n4.", nameMap[nameList[3]],
+				"\n5.", nameMap[nameList[4]],
+				"\n请发送对应序号进行购买或“取消”取消购买"))
+			ctx.Send(messageText)
+			typeRecv, typeCancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^([1-5]|取消)$"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(userInfo.User)).Repeat()
+			defer typeCancel()
+			approve := false
+			over := time.NewTimer(60 * time.Second)
+			for {
+				select {
+				case <-over.C:
+					ctx.SendChain(message.Reply(id), message.Text("你考虑的时间太长了,喵喵店都关门了!下次再来买哦~"))
+					return
+				case c := <-typeRecv:
+					over.Stop()
+					switch c.Event.Message.String() {
+					case "取消":
+						ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("欢迎你的下次光临"))
+						return
+					default:
+						index, _ := strconv.Atoi(c.Event.Message.String())
+						typeOfcat = nameMap[nameList[index-1]]
+						approve = true
+					}
 				}
-				typeOfcat = nameMap[rand.Intn(len(nameMap))]
-			} else {
-				typeOfcat = "猫娘"
+				if approve {
+					// cancel()
+					break
+				}
 			}
 		}
 		picurl, _ := getPicByBreed(catBreeds[typeOfcat])
@@ -91,7 +126,7 @@ func init() {
 		mood := rand.Intn(100)         // 心情
 		weight := 10 * rand.Float64()  // 体重
 
-		id = ctx.SendChain(message.Reply(id), message.Text(messageText, "你在喵喵店看到了一只喵喵,经过询问后得知他当前的信息为:\n"),
+		id = ctx.SendChain(message.Reply(id), message.Text("经过询问后得知它当前的信息为:\n"),
 			message.Image(picurl),
 			message.Text("品种: ", typeOfcat,
 				"\n当前饱食度: ", strconv.FormatFloat(satiety, 'f', 0, 64),
