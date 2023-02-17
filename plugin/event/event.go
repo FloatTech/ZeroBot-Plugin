@@ -61,7 +61,6 @@ func init() {
 						"\n请在下方复制flag并在前面加上:"+
 						"\n同意/拒绝邀请，来决定同意还是拒绝"),
 					message.CustomNode(username, userid, es)})
-
 		})
 	zero.On("request/friend").SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
