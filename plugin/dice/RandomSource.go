@@ -14,10 +14,10 @@ type intn interface {
 }
 
 func init() {
-	engine.OnRegex(`^[。.][Rr][AaCc]\s*([0-9]{1,2})?#?\s*([^[0-9]|.*])\s*([0-9]{1,2})$`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr][AaCc]\s*(([0-9]{1,2})#)?\s*(.*)\s+([0-9]{1,2})$`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			nickname := ctx.CardOrNickName(ctx.Event.UserID)
-			i := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
+			i := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
 			var msg message.Message
 			if i == 0 {
 				i = 1
@@ -25,8 +25,8 @@ func init() {
 				i = 10
 				msg = append(msg, message.Text("最多检定10次哦~\n"))
 			}
-			word := ctx.State["regex_matched"].([]string)[2]
-			num := math.Str2Int64(ctx.State["regex_matched"].([]string)[3])
+			word := ctx.State["regex_matched"].([]string)[3]
+			num := math.Str2Int64(ctx.State["regex_matched"].([]string)[4])
 			msg = append(msg, message.Text(nickname, "进行", word, "检定:"))
 			var r rsl
 			err := db.Find("rsl", &r, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))

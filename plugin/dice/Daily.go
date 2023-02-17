@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	engine.OnRegex(`^[.。]jrrp`).SetBlock(true).
+	engine.OnRegex(`^[。.]jrrp`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			jrrp := fcext.RandSenderPerDayN(ctx.Event.UserID, 100) + 1
