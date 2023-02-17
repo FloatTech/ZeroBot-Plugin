@@ -3,8 +3,6 @@ package score
 
 import (
 	"bytes"
-	"github.com/FloatTech/ZeroBot-Plugin/kanban"
-	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"math"
@@ -12,6 +10,10 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/disintegration/imaging"
+
+	"github.com/FloatTech/ZeroBot-Plugin/kanban"
 
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/AnimeAPI/wallet"
