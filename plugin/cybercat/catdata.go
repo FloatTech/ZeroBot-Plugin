@@ -68,7 +68,7 @@ var (
 			"- 吸猫\n(随机返回一只猫)\n- 买猫\n- 买猫粮\n- 买n袋猫粮\n- 喂猫\n- 喂猫n斤猫粮\n" +
 			"- 猫猫打工\n- 猫猫打工[1-9]小时\n- 猫猫状态\n- 喵喵改名叫xxx\n" +
 			"- 喵喵pk@对方QQ\n- 猫猫排行榜\n-----------------------\n" +
-			"Tips:\n1.打工期间的猫猫无法喂养哦\n2.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
+			"Tips:\n1.猫猫心情通过喂养提高,如果猫猫不吃可以耐心地多喂喂\n2.打工期间的猫猫无法喂养哦\n3.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
 		PrivateDataFolder: "cybercat",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -84,9 +84,9 @@ var (
 
 func init() {
 	engine.OnFullMatch("吸猫").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		typeName, temperament, description, url := getCatAPI()
-		if url == "" {
-			ctx.SendChain(message.Text("[ERROR]: 404"))
+		typeName, temperament, description, url, err := getCatAPI()
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]: ", err))
 			return
 		}
 		ctx.SendChain(message.Image(url), message.Text("品种: ", typeName,
@@ -94,18 +94,18 @@ func init() {
 	})
 }
 
-func getCatAPI() (typeName, temperament, description, url string) {
-	data, _ := web.GetData("https://api.thecatapi.com/v1/images/search?has_breeds=1")
-	if data == nil {
-		return "", "", "", ""
+func getCatAPI() (typeName, temperament, description, url string, err error) {
+	data, err := web.GetData("https://api.thecatapi.com/v1/images/search?has_breeds=1")
+	if err != nil {
+		return
 	}
 	picID := gjson.ParseBytes(data).Get("0.id").String()
-	picdata, _ := web.GetData("https://api.thecatapi.com/v1/images/" + picID)
-	if picdata == nil {
-		return "", "", "", ""
+	picdata, err := web.GetData("https://api.thecatapi.com/v1/images/" + picID)
+	if err != nil {
+		return
 	}
 	name := gjson.ParseBytes(picdata).Get("breeds.0.name").String()
-	return catType[name], gjson.ParseBytes(picdata).Get("breeds.0.temperament").String(), gjson.ParseBytes(picdata).Get("breeds.0.description").String(), gjson.ParseBytes(picdata).Get("url").String()
+	return catType[name], gjson.ParseBytes(picdata).Get("breeds.0.temperament").String(), gjson.ParseBytes(picdata).Get("breeds.0.description").String(), gjson.ParseBytes(picdata).Get("url").String(), nil
 }
 
 func getPicByBreed(catBreed string) (url string, err error) {

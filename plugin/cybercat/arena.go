@@ -50,8 +50,7 @@ func init() {
 		}
 		/***************************************************************/
 		ctx.SendChain(message.Text("等待对方回应。(发送“取消PK”撤回PK)\n请对方发送“去吧猫猫”接受PK或“拒绝”结束PK"))
-		duelID, _ := strconv.ParseInt(duelStr, 10, 64)
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(去吧猫猫|取消PK|拒绝)$"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(duelID)).Repeat()
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(去吧猫猫|取消PK|拒绝)$"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(zbmath.Str2Int64(duelStr))).Repeat()
 		defer cancel()
 		approve := false
 		over := time.NewTimer(60 * time.Second)

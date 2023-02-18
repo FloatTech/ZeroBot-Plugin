@@ -34,6 +34,12 @@ func init() {
 		if !workEnd {
 			workStauts = "工作中"
 		} else {
+			/***************************************************************/
+			if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
+				eat := userInfo.Food * rand.Float64()
+				userInfo = userInfo.settleOfSatiety(eat)
+			}
+			/***************************************************************/
 			subtime := 0.0
 			if userInfo.LastTime != 0 {
 				lastTime := time.Unix(userInfo.LastTime, 0)
@@ -324,6 +330,7 @@ func (data *catInfo) settleOfWork(gid string) (int, bool) {
 	getFood := 5 * rand.Float64() // 工作餐
 	data.Satiety += getFood * 10
 	data.Work = 0
+	data.LastTime = time.Now().Unix() - workTime*int64(time.Minute)
 	if catdata.insert(gid, *data) != nil {
 		return 0, true
 	}

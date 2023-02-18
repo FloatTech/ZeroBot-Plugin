@@ -41,14 +41,21 @@ func init() {
 			}
 			return
 		}
-		userInfo.User = ctx.Event.UserID
-		if userInfo.LastTime != 0 {
-			lastTime := time.Unix(userInfo.LastTime, 0).Day()
-			if lastTime == time.Now().Day() {
-				ctx.SendChain(message.Reply(id), message.Text("抱歉,一天只能购买一次"))
-				return
-			}
+		lastTime := time.Unix(userInfo.LastTime, 0).Day()
+		if lastTime != time.Now().Day() {
+			userInfo.Weight = 0
+			userInfo.LastTime = 0
 		}
+		userInfo.User = ctx.Event.UserID
+		typeOfcat := ctx.State["regex_matched"].([]string)[1]
+		if userInfo.LastTime != 0 && typeOfcat == "猫" {
+			ctx.SendChain(message.Reply(id), message.Text("抱歉,一天只能去猫店一次"))
+			return
+		} else if userInfo.Work > 1 {
+			ctx.SendChain(message.Reply(id), message.Text("抱歉,一天只能选购两次"))
+			return
+		}
+		userInfo.Weight++
 		userInfo.LastTime = time.Now().Unix()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -73,7 +80,6 @@ func init() {
 			messageText = append(messageText, message.Text("你前往的喵喵店时发现正好有活动,\n一只喵喵现在只需要", money, "\n------------------------\n"))
 		}
 		/*******************************************************/
-		typeOfcat := ctx.State["regex_matched"].([]string)[1]
 		if typeOfcat == "猫" {
 			nameMap := make([]string, 0, len(catBreeds))
 			for zhName := range catBreeds {
@@ -116,7 +122,6 @@ func init() {
 					}
 				}
 				if approve {
-					// cancel()
 					break
 				}
 			}
@@ -171,6 +176,7 @@ func init() {
 			}
 			moodText = "这只喵喵好像很喜欢这个名字,\n"
 		}
+		userInfo.Work = 0
 		userInfo.LastTime = 0
 		userInfo.Type = typeOfcat
 		userInfo.Satiety = satiety
