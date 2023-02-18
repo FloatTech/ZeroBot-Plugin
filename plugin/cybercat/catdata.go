@@ -2,7 +2,6 @@
 package cybercat
 
 import (
-	"sort"
 	"sync"
 	"time"
 
@@ -159,29 +158,15 @@ func (sql *catdb) delcat(gid, uid string) error {
 	return sql.db.Insert(gid, &newInfo)
 }
 
-type catDataList []catInfo
-
-func (s catDataList) Len() int {
-	return len(s)
-}
-func (s catDataList) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s catDataList) Less(i, j int) bool {
-	return s[i].Weight > s[j].Weight
-}
-func (sql *catdb) getGroupdata(gid string) (list catDataList, err error) {
+func (sql *catdb) getGroupdata(gid string) (list []catInfo, err error) {
 	sql.RLock()
 	defer sql.RUnlock()
 	info := catInfo{}
-	err = sql.db.FindFor(gid, &info, "group by Weight", func() error {
+	err = sql.db.FindFor(gid, &info, "order by Weight DESC", func() error {
 		if info.Name != "" {
 			list = append(list, info)
 		}
 		return nil
 	})
-	if len(list) > 1 {
-		sort.Sort(list)
-	}
 	return
 }

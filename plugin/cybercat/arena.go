@@ -146,12 +146,14 @@ func init() {
 		}
 		money := 10 + rand.Intn(int(winer.Weight))
 		if wallet.InsertWalletOf(winer.User, money) == nil {
-			messageText = append(messageText, message.Text("\n"), message.At(winer.User), message.Text(winer.Name, "为你赢得了", money))
+			messageText = append(messageText, message.Text("\n"), message.At(winer.User), message.Text("\n", winer.Name, "为你赢得了", money))
+		} else {
+			messageText = append(messageText, message.Text("\n"), message.At(winer.User), message.Text("\n", winer.Name, "受伤了,所赚的钱全拿来疗伤了"))
 		}
 		if rand.Float64()*100 < math.Max(20, loser.Weight) {
 			loser.Weight -= math.Min(1, loser.Weight/10) * rand.Float64()
 			messageText = append(messageText, message.Text("\n"), message.At(loser.User),
-				message.Text(loser.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(loser.Weight, 'f', 2, 64)))
+				message.Text("\n", loser.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(loser.Weight, 'f', 2, 64)))
 
 		}
 		userInfo.ArenaTime = time.Now().Unix()
