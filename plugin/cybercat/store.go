@@ -129,7 +129,7 @@ func init() {
 		picurl, _ := getPicByBreed(catBreeds[typeOfcat])
 		satiety := 90 * rand.Float64() // 饱食度
 		mood := rand.Intn(100)         // 心情
-		weight := 10 * rand.Float64()  // 体重
+		weight := 2 + 8*rand.Float64() // 体重
 
 		id = ctx.SendChain(message.Reply(id), message.Text("经过询问后得知它当前的信息为:\n"),
 			message.Image(picurl),
