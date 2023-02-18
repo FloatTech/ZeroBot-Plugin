@@ -262,6 +262,7 @@ func init() {
 			config.Z.Driver[i+len(config.W)] = s
 		}
 		logrus.Infoln("[main] 从", *runcfg, "读取配置文件")
+		webctrl.InitGui(*g)
 		return
 	}
 	config.W = []*driver.WSClient{driver.NewWebSocketClient(*url, *token)}
