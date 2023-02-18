@@ -55,7 +55,7 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text("抱歉,一天只能选购两次"))
 			return
 		}
-		userInfo.Weight++
+		userInfo.Work++
 		userInfo.LastTime = time.Now().Unix()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
