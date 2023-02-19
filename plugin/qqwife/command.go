@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/floatbox/math"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -23,7 +24,6 @@ import (
 	// 画图
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
 )
@@ -235,14 +235,14 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
-			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 			}
 			/***********设置字体颜色为黑色***********/
 			canvas.SetRGB(0, 0, 0)
 			/***********设置字体大小,并获取字体高度用来定位***********/
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize*2); err != nil {
+			if err = canvas.ParseFontFace(data, fontSize*2); err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 				return
 			}
@@ -251,7 +251,7 @@ func init() {
 			canvas.DrawString("群老婆列表", (1500-sl)/2, 160-h) // 放置在中间位置
 			canvas.DrawString("————————————————————", 0, 250-h)
 			/***********设置字体大小,并获取字体高度用来定位***********/
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(data, fontSize); err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 				return
 			}
@@ -263,9 +263,12 @@ func init() {
 				canvas.DrawString(slicename(info[2], canvas), 800, float64(260+50*i)-h)
 				canvas.DrawString("("+info[3]+")", 1150, float64(260+50*i)-h)
 			}
-			data, cl := writer.ToBytes(canvas.Image())
+			data, err = imgfactory.ToBytes(canvas.Image())
+			if err != nil {
+				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
+				return
+			}
 			ctx.SendChain(message.ImageBytes(data))
-			cl()
 		})
 	engine.OnRegex(`^重置(所有|本群|/d+)?花名册$`, zero.SuperUserPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
