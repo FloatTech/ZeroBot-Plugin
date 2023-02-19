@@ -69,20 +69,20 @@ func init() { // 插件主体
 			img, err := drawstatus(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.Event.SelfID, zero.BotConfig.NickName[0])
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
-				dowPicture()
+				_ = dowPicture()
 				return
 			}
 			sendimg, err := imgfactory.ToBytes(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
-				dowPicture()
+				_ = dowPicture()
 				return
 			}
 			if id := ctx.SendChain(message.ImageBytes(sendimg)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 			time.Sleep(3 * time.Second) //3s
-			dowPicture()
+			_ = dowPicture()
 		})
 	engine.OnRegex(`^设置默认限速为每\s*(\d+)\s*(分钟|秒)\s*(\d+)\s*次触发$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
