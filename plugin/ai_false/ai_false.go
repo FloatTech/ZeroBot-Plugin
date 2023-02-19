@@ -140,7 +140,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 
-	dldata := *(**[]byte)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bgdata))))
+	dldata := (*[]byte)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bgdata))))
 	if dldata == (*[]byte)(nil) || uintptr(time.Since(boottime).Hours()/24) >= atomic.LoadUintptr(&bgcount) {
 		url, err1 := bilibili.GetRealURL(backgroundURL)
 		if err1 != nil {
