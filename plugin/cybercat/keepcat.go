@@ -327,8 +327,13 @@ func (data *catInfo) settleOfWork(gid string) (int, bool) {
 	if subtime < float64(workTime) {
 		return 0, false
 	}
-	getFood := 5 * rand.Float64() // 工作餐
-	data.Satiety += getFood * 10
+	if rand.Intn(2) == 1 {
+		getFood := 5 * rand.Float64()
+		if rand.Intn(5) == 2 { // 20%受饿
+			getFood = -(getFood + float64(workTime)*rand.Float64())
+		}
+		data.Satiety += getFood * 10
+	}
 	data.Work = 0
 	subTime, _ := time.ParseDuration("-" + strconv.FormatInt(workTime, 10) + "h")
 	data.LastTime = time.Now().Add(subTime).Unix()
