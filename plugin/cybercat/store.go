@@ -210,6 +210,10 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
+		if userInfo.Food > 50 {
+			ctx.SendChain(message.Reply(id), message.Text("你家的猫粮已经装满仓库了!"))
+			return
+		}
 		userInfo.User = ctx.Event.UserID
 		money := wallet.GetWalletOf(ctx.Event.UserID)
 		if money < 10 {

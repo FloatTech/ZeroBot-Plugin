@@ -330,7 +330,8 @@ func (data *catInfo) settleOfWork(gid string) (int, bool) {
 	getFood := 5 * rand.Float64() // 工作餐
 	data.Satiety += getFood * 10
 	data.Work = 0
-	data.LastTime = time.Now().Unix() - workTime*int64(time.Minute)
+	subTime, _ := time.ParseDuration("-" + strconv.FormatInt(workTime, 10) + "h")
+	data.LastTime = time.Now().Add(subTime).Unix()
 	if catdata.insert(gid, *data) != nil {
 		return 0, true
 	}
