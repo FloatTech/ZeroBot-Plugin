@@ -40,6 +40,7 @@ import (
 const (
 	backgroundURL = "https://iw233.cn/api.php?sort=mp"
 	referer       = "https://weibo.com/"
+	picPath       = "data/aifalse/pic.png"
 )
 
 var boottime = time.Now()
@@ -50,6 +51,7 @@ func init() { // 插件主体
 		Brief:            "自检, 全局限速",
 		Help: "- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]\n" +
 			"- 设置默认限速为每 m [分钟 | 秒] n 次触发",
+		PrivateDataFolder: "aifalse",
 	})
 	c, ok := control.Lookup("aifalse")
 	if !ok {
@@ -67,16 +69,20 @@ func init() { // 插件主体
 			img, err := drawstatus(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.Event.SelfID, zero.BotConfig.NickName[0])
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
+				dowPicture()
 				return
 			}
 			sendimg, err := imgfactory.ToBytes(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
+				dowPicture()
 				return
 			}
 			if id := ctx.SendChain(message.ImageBytes(sendimg)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
+			time.Sleep(3 * time.Second) //3s
+			dowPicture()
 		})
 	engine.OnRegex(`^设置默认限速为每\s*(\d+)\s*(分钟|秒)\s*(\d+)\s*次触发$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -133,21 +139,18 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	if err != nil {
 		return
 	}
-
-	url, err := bilibili.GetRealURL(backgroundURL)
+	back, err := gg.LoadPNG(picPath)
 	if err != nil {
-		return
+		err = dowPicture()
+		if err != nil {
+			return
+		}
+		back, err = gg.LoadPNG(picPath)
+		if err != nil {
+			return
+		}
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
-	if err != nil {
-		return
-	}
-	back, _, err := image.Decode(bytes.NewReader(data))
-	if err != nil {
-		return
-	}
-
-	data, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
+	data, err := web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
 	if err != nil {
 		return
 	}
@@ -234,6 +237,15 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		fw, _ = titlecard.MeasureString(bs)
 
 		titlecard.DrawStringAnchored(bs, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.5/2), 0.5, 0.5)
+
+		thr, err := botrungroup()
+		if err != nil {
+			return
+		}
+		fw, _ = titlecard.MeasureString(thr)
+
+		titlecard.DrawStringAnchored(thr, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.75/2), 0.5, 0.5)
+
 		titleimg = rendercard.Fillet(titlecard.Image(), 16)
 	}()
 	go func() {
@@ -464,6 +476,26 @@ func botruntime() (string, error) {
 	return t.String(), nil
 }
 
+func botrungroup() (string, error) {
+	i := 0
+	t := &strings.Builder{}
+	t.WriteString("加入群聊数 ")
+	t.WriteString("[ ")
+	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
+		if i > 0 {
+			t.WriteString(" | ")
+		}
+		t.WriteString(strconv.Itoa(len(ctx.GetGroupList().Array())))
+		i++
+		return true
+	})
+	t.WriteString(" ] | 接收消息 ")
+	t.WriteString(strconv.FormatInt(zero.GetMessageNum("Re"), 10))
+	t.WriteString(" | 发送消息 ")
+	t.WriteString(strconv.FormatInt(zero.GetMessageNum("sent"), 10))
+	return t.String(), nil
+}
+
 func botstatus() (string, error) {
 	hostinfo, err := host.Info()
 	if err != nil {
@@ -591,4 +623,24 @@ func moreinfo(m *ctrl.Control[*zero.Ctx]) (stateinfo []*status, err error) {
 		{name: "Plugin", text: []string{"共 " + strconv.Itoa(count) + " 个"}},
 	}
 	return
+}
+
+func dowPicture() error {
+	url, err := bilibili.GetRealURL(backgroundURL)
+	if err != nil {
+		return errors.New("链接转载失败")
+	}
+	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
+	if err != nil {
+		return errors.New("获取图片失败")
+	}
+	back, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return errors.New("解析图片失败")
+	}
+	err = gg.SavePNG(picPath, back)
+	if err != nil {
+		return errors.New("保存图片失败")
+	}
+	return nil
 }
