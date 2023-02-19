@@ -42,7 +42,6 @@ import (
 const (
 	backgroundURL = "https://iw233.cn/api.php?sort=mp"
 	referer       = "https://weibo.com/"
-	picPath       = "data/aifalse/pic.png"
 )
 
 var (
@@ -57,7 +56,6 @@ func init() { // 插件主体
 		Brief:            "自检, 全局限速",
 		Help: "- 查询计算机当前活跃度: [检查身体 | 自检 | 启动自检 | 系统状态]\n" +
 			"- 设置默认限速为每 m [分钟 | 秒] n 次触发",
-		PrivateDataFolder: "aifalse",
 	})
 	c, ok := control.Lookup("aifalse")
 	if !ok {
@@ -75,20 +73,16 @@ func init() { // 插件主体
 			img, err := drawstatus(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.Event.SelfID, zero.BotConfig.NickName[0])
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
-				_ = dowPicture()
 				return
 			}
 			sendimg, err := imgfactory.ToBytes(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
-				_ = dowPicture()
 				return
 			}
 			if id := ctx.SendChain(message.ImageBytes(sendimg)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
-			time.Sleep(3 * time.Second) //3s
-			_ = dowPicture()
 		})
 	engine.OnRegex(`^设置默认限速为每\s*(\d+)\s*(分钟|秒)\s*(\d+)\s*次触发$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -140,6 +134,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 	moreinfocardh := 30 + (20+32*72/96)*len(moreinfo) + 30 - 20
+
 	basicstate, err := basicstate()
 	if err != nil {
 		return
@@ -608,24 +603,4 @@ func moreinfo(m *ctrl.Control[*zero.Ctx]) (stateinfo []*status, err error) {
 		{name: "Plugin", text: []string{"共 " + strconv.Itoa(count) + " 个"}},
 	}
 	return
-}
-
-func dowPicture() error {
-	url, err := bilibili.GetRealURL(backgroundURL)
-	if err != nil {
-		return errors.New("链接转载失败")
-	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
-	if err != nil {
-		return errors.New("获取图片失败")
-	}
-	back, _, err := image.Decode(bytes.NewReader(data))
-	if err != nil {
-		return errors.New("解析图片失败")
-	}
-	err = gg.SavePNG(picPath, back)
-	if err != nil {
-		return errors.New("保存图片失败")
-	}
-	return nil
 }
