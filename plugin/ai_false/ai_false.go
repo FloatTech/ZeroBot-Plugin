@@ -128,12 +128,15 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 	diskcardh := 40 + (20+50)*len(diskstate) + 40 - 20
-
 	moreinfo, err := moreinfo(m)
 	if err != nil {
 		return
 	}
 	moreinfocardh := 30 + (20+32*72/96)*len(moreinfo) + 30 - 20
+	basicstate, err := basicstate()
+	if err != nil {
+		return
+	}
 
 	back, err := gg.LoadPNG(picPath)
 	if err != nil {
