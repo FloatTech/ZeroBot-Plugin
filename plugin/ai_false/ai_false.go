@@ -128,6 +128,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 	diskcardh := 40 + (20+50)*len(diskstate) + 40 - 20
+
 	moreinfo, err := moreinfo(m)
 	if err != nil {
 		return
