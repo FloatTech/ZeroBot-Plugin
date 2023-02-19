@@ -10,7 +10,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/floatbox/file"
@@ -43,7 +45,11 @@ const (
 	picPath       = "data/aifalse/pic.png"
 )
 
-var boottime = time.Now()
+var (
+	boottime = time.Now()
+	bgdata   *[]byte
+	bgcount  uintptr
+)
 
 func init() { // 插件主体
 	engine := control.Register("aifalse", &ctrl.Options[*zero.Ctx]{
@@ -139,18 +145,26 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 
-	back, err := gg.LoadPNG(picPath)
-	if err != nil {
-		err = dowPicture()
-		if err != nil {
-			return
+	data := **(**[]byte)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bgdata))))
+	if data == nil || uintptr(time.Since(boottime).Hours())/24 <= atomic.LoadUintptr(&bgcount) {
+		url, err1 := bilibili.GetRealURL(backgroundURL)
+		if err1 != nil {
+			return nil, err1
 		}
-		back, err = gg.LoadPNG(picPath)
-		if err != nil {
-			return
+		data, err1 = web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
+		if err1 != nil {
+			return nil, err1
 		}
+		atomic.AddUintptr(&bgcount, 1)
+		atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(&bgdata)), unsafe.Pointer(&data))
 	}
-	data, err := web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
+
+	back, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return
+	}
+
+	data, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
 	if err != nil {
 		return
 	}
