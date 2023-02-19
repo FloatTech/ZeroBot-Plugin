@@ -135,10 +135,6 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	}
 	moreinfocardh := 30 + (20+32*72/96)*len(moreinfo) + 30 - 20
 
-	basicstate, err := basicstate()
-	if err != nil {
-		return
-	}
 	back, err := gg.LoadPNG(picPath)
 	if err != nil {
 		err = dowPicture()
@@ -237,15 +233,6 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		fw, _ = titlecard.MeasureString(bs)
 
 		titlecard.DrawStringAnchored(bs, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.5/2), 0.5, 0.5)
-
-		thr, err := botrungroup()
-		if err != nil {
-			return
-		}
-		fw, _ = titlecard.MeasureString(thr)
-
-		titlecard.DrawStringAnchored(thr, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.75/2), 0.5, 0.5)
-
 		titleimg = rendercard.Fillet(titlecard.Image(), 16)
 	}()
 	go func() {
@@ -473,26 +460,6 @@ func botruntime() (string, error) {
 	t.WriteString(strconv.FormatInt(int64(hostinfo.Uptime)/86400, 10))
 	t.WriteString(" 天 ")
 	t.WriteString(time.Unix(int64(hostinfo.Uptime), 0).UTC().Format("15:04:05"))
-	return t.String(), nil
-}
-
-func botrungroup() (string, error) {
-	i := 0
-	t := &strings.Builder{}
-	t.WriteString("加入群聊数 ")
-	t.WriteString("[ ")
-	zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-		if i > 0 {
-			t.WriteString(" | ")
-		}
-		t.WriteString(strconv.Itoa(len(ctx.GetGroupList().Array())))
-		i++
-		return true
-	})
-	t.WriteString(" ] | 接收消息 ")
-	t.WriteString(strconv.FormatInt(zero.GetMessageNum("Re"), 10))
-	t.WriteString(" | 发送消息 ")
-	t.WriteString(strconv.FormatInt(zero.GetMessageNum("sent"), 10))
 	return t.String(), nil
 }
 
