@@ -210,6 +210,10 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "还在努力打工,没有回来呢"))
 			return
 		}
+		if time.Unix(userInfo.Work, 0).Day() == time.Now().Day() {
+			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "已经很累了,你不能这么资本"))
+			return
+		}
 		/***************************************************************/
 		workTime := 1 + rand.Intn(9)
 		if ctx.State["regex_matched"].([]string)[2] != "" {
