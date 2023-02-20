@@ -43,7 +43,7 @@ func init() {
 		}
 		lastTime := time.Unix(userInfo.LastTime, 0).Day()
 		if lastTime != time.Now().Day() {
-			userInfo.Weight = 0
+			userInfo.Work = 0
 			userInfo.LastTime = 0
 		}
 		userInfo.User = ctx.Event.UserID
