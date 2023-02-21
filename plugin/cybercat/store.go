@@ -64,12 +64,14 @@ func init() {
 		money := wallet.GetWalletOf(ctx.Event.UserID)
 		if money < 100 {
 			ctx.SendChain(message.Reply(id), message.Text("一只喵喵官方售价100哦;\n你身上没有足够的钱,快去赚钱吧~"))
-			// return
+			/*
+				return //*/
+			//*
 			ctx.SendChain(message.Reply(id), message.Text("当前为测试阶段,赠送你200"))
 			if wallet.InsertWalletOf(ctx.Event.UserID, 200) != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
-			}
+			} //*/
 		}
 		/*******************************************************/
 		messageText := make(message.Message, 0, 3)

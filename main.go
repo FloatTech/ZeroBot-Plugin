@@ -49,7 +49,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygosem"             // 游戏王sem平台相关插件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 百度翻译
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/nekoneko"   // nekoneko
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/score"      // 签到
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cybercat"             // 云养猫
 
