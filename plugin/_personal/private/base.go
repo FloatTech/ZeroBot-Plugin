@@ -5,10 +5,24 @@ import (
 	"os"
 
 	"github.com/FloatTech/floatbox/process"
-	control "github.com/FloatTech/zbputils/control"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
+
+const serviceName = "base"
+
+var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
+	DisableOnDefault:  false,
+	Brief:             "基础指令",
+	Help:              "- @bot备份代码\n- @bot上传代码\n- @bot检查更新- @bot重启\ntips:检查更新后如果没有问题后需要重启才OK",
+	PrivateDataFolder: "base",
+	OnDisable: func(ctx *zero.Ctx) {
+		process.SleepAbout1sTo2s()
+		ctx.SendChain(message.Text("宝↗生↘永↗梦↘！！！！"))
+	},
+})
 
 func init() {
 	go func() {

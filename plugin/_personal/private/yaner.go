@@ -4,34 +4,19 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
-	ctrl "github.com/FloatTech/zbpctrl"
-	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const serviceName = "base"
-
-var poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
+var (
+	poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
+)
 
 func init() {
-	engine := control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "基础指令",
-		Help:             "- @bot醒醒\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新- @bot重启\ntips:检查更新后如果没有问题后需要重启才OK",
-		OnDisable: func(ctx *zero.Ctx) {
-			process.SleepAbout1sTo2s()
-			ctx.SendChain(message.Text("宝↗生↘永↗梦↘！！！！"))
-		},
-	})
-	// 被喊名字
-	engine.OnKeywordGroup([]string{"醒醒"}, zero.OnlyToMe).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("啊？啊。啊，抱歉，刚刚不小心打瞌睡了=w="))
-		})
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
@@ -74,9 +59,11 @@ func init() {
 			if rand.Intn(4) == 0 {
 				nickname := zero.BotConfig.NickName[0]
 				if rand.Intn(2) == 0 {
-					ctx.SendChain(message.Text(nickname + "..." + nickname + "觉得不行"))
+					ctx.SendChain(randText(
+						nickname+"..."+nickname+"觉得不行",
+						nickname+"..."+nickname+"觉得可以！"))
 				} else {
-					ctx.SendChain(message.Text(nickname + "..." + nickname + "觉得可以！"))
+					ctx.SendChain(randImage("Yes.jpg", "No.jpg"))
 				}
 			}
 		})
@@ -84,4 +71,7 @@ func init() {
 
 func randText(text ...string) message.MessageSegment {
 	return message.Text(text[rand.Intn(len(text))])
+}
+func randImage(fileList ...string) message.MessageSegment {
+	return message.Image("file:///" + file.BOTPATH + "/" + engine.DataFolder() + fileList[rand.Intn(len(fileList))])
 }
