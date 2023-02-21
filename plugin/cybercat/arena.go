@@ -49,8 +49,8 @@ func init() {
 			return
 		}
 		/***************************************************************/
-		ctx.SendChain(message.Text("等待对方回应。(发送“取消PK”撤回PK)\n请对方发送“去吧猫猫”接受PK或“拒绝”结束PK"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(去吧猫猫|取消PK|拒绝)$"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(zbmath.Str2Int64(duelStr))).Repeat()
+		ctx.SendChain(message.Text("等待对方回应。(发送“取消”撤回PK)\n请对方发送“去吧猫猫”接受PK或“拒绝”结束PK"))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup, zero.RegexRule("^(去吧猫猫|取消|拒绝)$"), zero.CheckGroup(ctx.Event.GroupID), zero.CheckUser(zbmath.Str2Int64(duelStr), userInfo.User)).Repeat()
 		defer cancel()
 		approve := false
 		over := time.NewTimer(60 * time.Second)
@@ -67,7 +67,7 @@ func init() {
 						ctx.SendChain(message.Reply(id), message.Text("对方拒绝了你的PK"))
 						return
 					}
-				case "取消PK":
+				case "取消":
 					if c.Event.UserID == userInfo.User {
 						over.Stop()
 						ctx.SendChain(message.Reply(id), message.Text("你取消了PK"))

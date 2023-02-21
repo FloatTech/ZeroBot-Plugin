@@ -204,6 +204,10 @@ func init() {
 				ctx.SendChain(message.Reply(id), message.Text("猫猫店库存就100袋,你想干嘛"))
 				return
 			}
+			if mun < 1 {
+				ctx.SendChain(message.Reply(id), message.Text("请输入正确的数量"))
+				return
+			}
 		}
 		userInfo, err := catdata.find(gidStr, uidStr)
 		if err != nil {
@@ -211,7 +215,7 @@ func init() {
 			return
 		}
 		if userInfo.Food > 50 {
-			ctx.SendChain(message.Reply(id), message.Text("你家的猫粮已经装满仓库了!"))
+			ctx.SendChain(message.Reply(id), message.Text("你家的猫粮已经装满仓库(上限50斤)了!"))
 			return
 		}
 		userInfo.User = ctx.Event.UserID
