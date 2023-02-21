@@ -5,11 +5,14 @@ import (
 	"math"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
 	zbmath "github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
+	"github.com/fumiama/jieba/util/helper"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -177,20 +180,22 @@ func init() {
 		if len(infoList) == 0 {
 			ctx.SendChain(message.Text("没有人养猫哦"))
 		}
-		messageText := make(message.Message, 0, 10)
+		messageText := make([]string, 0, 10)
 		for i, info := range infoList {
 			if i > 9 {
 				break
-			} else if i != 0 {
-				messageText = append(messageText, message.Text("\n"))
 			}
-			messageText = append(messageText, message.Text(
-				i+1, ".", info.Name, "(", info.Type, ")\n",
-				"体重：", strconv.FormatFloat(info.Weight, 'f', 2, 64), "kg\n",
-				"主人:", ctx.CardOrNickName(info.User),
-			))
+			messageText = append(messageText, []string{
+				strconv.Itoa(i+1) + "." + info.Name + "(" + info.Type + ")",
+				"体重：" + strconv.FormatFloat(info.Weight, 'f', 2, 64) + "斤",
+				"主人:" + ctx.CardOrNickName(info.User), "--------------------",
+			}...)
 		}
-		ctx.SendChain(messageText...)
+		textPic, err := text.RenderToBase64(strings.Join(messageText, "\n"), text.BoldFontFile, 1080, 50)
+		if err != nil {
+			return
+		}
+		ctx.SendChain(message.Image("base64://" + helper.BytesToString(textPic)))
 	})
 }
 
