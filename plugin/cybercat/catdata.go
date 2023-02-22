@@ -16,6 +16,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const apiURL = "https://api.thecatapi.com/v1/images/"
+
 var catType = map[string]string{
 	"Abyssinian": "阿比西尼亚猫", "Aegean": "爱琴猫", "American Bobtail": "美国短尾猫", "American Curl": "美国卷耳猫", "American Shorthairs": "美洲短毛猫", "American Wirehair": "美国硬毛猫",
 	"Arabian Mau": "美英猫", "Australian Mist": "澳大利亚雾猫", "Balinese": "巴厘岛猫", "Bambino": "班比诺猫", "Bengal": "孟加拉虎", "Birman": "比尔曼猫", "Bombay": "孟买猫", "British Longhair": "英国长毛猫",
@@ -114,12 +116,12 @@ func init() {
 }
 
 func getCatAPI() (typeName, temperament, description, url string, err error) {
-	data, err := web.GetData("https://api.thecatapi.com/v1/images/search?has_breeds=1")
+	data, err := web.GetData(apiURL + "search?has_breeds=1")
 	if err != nil {
 		return
 	}
 	picID := gjson.ParseBytes(data).Get("0.id").String()
-	picdata, err := web.GetData("https://api.thecatapi.com/v1/images/" + picID)
+	picdata, err := web.GetData(apiURL + picID)
 	if err != nil {
 		return
 	}
@@ -128,7 +130,7 @@ func getCatAPI() (typeName, temperament, description, url string, err error) {
 }
 
 func getPicByBreed(catBreed string) (url string, err error) {
-	data, err := web.GetData("https://api.thecatapi.com/v1/images/search?breed_ids=" + catBreed)
+	data, err := web.GetData(apiURL + "search?breed_ids=" + catBreed)
 	if err != nil {
 		return
 	}

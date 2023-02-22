@@ -32,8 +32,8 @@ func init() {
 		workStauts := "休闲中"
 		money, workEnd := userInfo.settleOfWork(gidStr)
 		if !workEnd {
-			overwork := time.Unix(userInfo.Work, 0).Add(time.Hour * time.Duration(userInfo.Work%10))
-			workStauts = overwork.Format("工作中(将在01月02日15:04下班)")
+			overwork := time.Unix(userInfo.Work/10, 0).Add(time.Hour * time.Duration(userInfo.Work%10))
+			workStauts = overwork.Format("工作中\n(将在01月02日15:04下班)")
 		} else {
 			/***************************************************************/
 			if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
@@ -185,13 +185,12 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n", userInfo.Name, "当前信息如下:\n"),
-			message.Image(userInfo.Picurl),
-			message.Text("品种: "+userInfo.Type,
-				"\n饱食度: ", strconv.FormatFloat(userInfo.Satiety, 'f', 0, 64),
-				"\n心情: ", userInfo.Mood,
-				"\n体重: ", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64),
-				"\n\n你的剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
+		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n------状态------\n",
+			"饱食度: ", strconv.FormatFloat(userInfo.Satiety, 'f', 0, 64),
+			"\n心情: ", userInfo.Mood,
+			"\n体重: ", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64),
+			"\n------仓库------\n",
+			"\n剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
 	})
 	engine.OnRegex(`^猫猫打工(([1-9])小时)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
