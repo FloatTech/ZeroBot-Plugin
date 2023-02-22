@@ -32,7 +32,8 @@ func init() {
 		workStauts := "休闲中"
 		money, workEnd := userInfo.settleOfWork(gidStr)
 		if !workEnd {
-			workStauts = "工作中"
+			overwork := time.Unix(userInfo.Work, 0).Add(time.Hour * time.Duration(userInfo.Work%10))
+			workStauts = overwork.Format("工作中(将在01月02日15:04下班)")
 		} else {
 			/***************************************************************/
 			if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
@@ -277,8 +278,11 @@ func (data *catInfo) settleOfSatiety(food float64) catInfo {
 		= 0.3
 */
 func (data *catInfo) settleOfWeight() catInfo {
-	if data.Satiety > 80 {
+	switch {
+	case data.Satiety > 80:
 		data.Weight += (data.Satiety - 50) / 100
+	case data.Satiety < 0:
+		data.Weight -= data.Satiety / 10
 	}
 	return *data
 }

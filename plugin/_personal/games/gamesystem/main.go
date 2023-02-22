@@ -88,12 +88,12 @@ func init() {
 			var yOfLine1 int // 第一列最大高度
 			var yOfLine2 int // 第二列最大高度
 			for gameName, info := range gamelist {
-				img, err := rendercard.TextCardInfo{
-					FontOfTitle:  text.SakuraFontFile,
-					FontOfText:   text.SakuraFontFile,
-					Title:        gameName,
-					DisplayTitle: true,
-					TitleSetting: "Center",
+				img, err := (&rendercard.Card{
+					TitleFont:     text.SakuraFontFile,
+					TextFont:      text.SakuraFontFile,
+					Title:         gameName,
+					CanTitleShown: true,
+					TitleAlign:    rendercard.AlignCenter,
 					Text: func() []string {
 						var infoText []string
 						if !whichGamePlayIn(gameName, gid) {
@@ -105,8 +105,8 @@ func init() {
 							"游戏奖励:", strings.ReplaceAll("    "+info.Rewards, "\n", "\n    ")}...)
 						return infoText
 					}(),
-					TextSetting: true,
-				}.DrawTextCard()
+					IsTextSplitPerElement: true,
+				}).DrawTextCard()
 				if err != nil {
 					ctx.SendChain(message.Text(serviceErr, err))
 					return
@@ -120,15 +120,16 @@ func init() {
 				i++
 			}
 			lnperpg := math.Ceil(math.Max(yOfLine1, yOfLine2), (256 + 30))
-			imgback, err := rendercard.Titleinfo{
+			imgback, err := (&rendercard.Title{
 				Line:          lnperpg,
-				Lefttitle:     "游戏系统",
-				Leftsubtitle:  "Game System",
-				Righttitle:    "FloatTech",
-				Rightsubtitle: "ZeroBot-Plugin",
-				Fontpath:      text.SakuraFontFile,
-				Imgpath:       kanbanpath,
-			}.Drawtitle()
+				LeftTitle:     "游戏系统",
+				LeftSubtitle:  "Game System",
+				RightTitle:    "FloatTech",
+				RightSubtitle: "ZeroBot-Plugin",
+				TitleFont:     text.SakuraFontFile,
+				TextFont:      text.SakuraFontFile,
+				ImagePath:     kanbanpath,
+			}).DrawTitle()
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return

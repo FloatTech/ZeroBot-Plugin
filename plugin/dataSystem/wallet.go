@@ -130,7 +130,7 @@ func init() {
 		case score > 0:
 			ctx.SendChain(message.At(adduser), message.Text("你获取ATRI币:", score))
 		case score < 0:
-			ctx.SendChain(message.At(adduser), message.Text("你失去ATRI币:", score))
+			ctx.SendChain(message.At(adduser), message.Text("你失去ATRI币:", -score))
 		}
 		// 第二个人记录
 		if devuser == 0 {
@@ -145,7 +145,7 @@ func init() {
 		case -score > 0:
 			ctx.SendChain(message.At(devuser), message.Text("你获取ATRI币:", score))
 		case -score < 0:
-			ctx.SendChain(message.At(devuser), message.Text("你失去ATRI币:", score))
+			ctx.SendChain(message.At(devuser), message.Text("你失去ATRI币:", -score))
 		}
 	})
 }
