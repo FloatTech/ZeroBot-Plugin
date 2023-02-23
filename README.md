@@ -580,6 +580,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>ChatGPT问答</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chatgpt"`
+
+  - [x] @bot chatgpt [对话内容]
+  - [x] (私聊发送)设置OpenAI apikey [apikey]
+  - 获取Key请参考[这篇文章](https://blog.csdn.net/long_songs/article/details/129039623)
+
+</details>
+<details>
   <summary>选择困难症帮手</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"`
