@@ -49,6 +49,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
+- **-g url**: 设置`webUrl`，默认为`127.0.0.1:3000`
 - **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-c config.json**: 从`config.json`加载`bot`配置
