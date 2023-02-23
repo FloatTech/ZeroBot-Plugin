@@ -239,6 +239,9 @@ func init() {
 		sus = append(sus, i)
 	}
 
+	// 启用 gui
+	webctrl.InitGui(*g)
+
 	// 通过代码写死的方式添加主人账号
 	// sus = append(sus, 12345678)
 	// sus = append(sus, 87654321)
@@ -262,7 +265,6 @@ func init() {
 			config.Z.Driver[i+len(config.W)] = s
 		}
 		logrus.Infoln("[main] 从", *runcfg, "读取配置文件")
-		webctrl.InitGui(*g)
 		return
 	}
 	config.W = []*driver.WSClient{driver.NewWebSocketClient(*url, *token)}
@@ -289,7 +291,6 @@ func init() {
 		logrus.Infoln("[main] 配置文件已保存到", *save)
 		os.Exit(0)
 	}
-	webctrl.InitGui(*g)
 }
 
 func main() {

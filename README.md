@@ -38,6 +38,8 @@
 
 > 如果您对开发插件感兴趣，欢迎加入[ZeroBot-Plugin-Playground](https://github.com/FloatTech/ZeroBot-Plugin-Playground)
 
+> webui持续开发中, 环境加入[ZeroBot-Plugin-Webui](https://github.com/guohuiyuan/ZeroBot-Plugin-Webui)
+
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
@@ -131,6 +133,8 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-p prefix] [-d|w] [-c|s config.j
   - [x] /服务列表
 
   - [x] /设置服务列表显示行数 xx
+
+  - [x] /设置webui配置 zerobot 123456
 
 	默认值为9,该设置仅运行时有效,zbp重启后重置
   - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
