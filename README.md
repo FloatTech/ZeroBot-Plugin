@@ -622,6 +622,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>今日早报</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"`
+
+  - [x] 今日早报
+
+</details>
+<details>
   <summary>DeepDanbooru二次元图标签识别</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"`
@@ -871,6 +879,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"`
 
   - [x] 喝奶茶绝绝子 | 绝绝子吃饭
+
+</details>
+<details>
+  <summary>疯狂星期四</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/kfccrazythursday"`
+
+  - [x] 疯狂星期四
 
 </details>
 <details>
@@ -1282,6 +1298,16 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 随机vtb
 
   - [x] 更新vtb
+
+</details>
+<details>
+  <summary>vtb语录</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbmusic"`
+
+  - [x] vtb点歌
+
+  - [x] vtb随机点歌
 
 </details>
 <details>
