@@ -3,6 +3,7 @@ package cybercat
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"time"
@@ -37,7 +38,7 @@ func init() {
 		} else {
 			/***************************************************************/
 			if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
-				eat := userInfo.Food * rand.Float64()
+				eat := userInfo.Food / 5 * rand.Float64()
 				userInfo = userInfo.settleOfSatiety(eat)
 			}
 			/***************************************************************/
@@ -78,6 +79,7 @@ func init() {
 			userInfo.Weight = 3 + rand.Float64()*10
 		}
 		userInfo = userInfo.settleOfData()
+		userInfo.LastTime = time.Now().Unix()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -91,7 +93,7 @@ func init() {
 				"\n状态:", workStauts,
 				"\n\n你的剩余猫粮(斤): ", strconv.FormatFloat(userInfo.Food, 'f', 2, 64)))
 	})
-	engine.OnRegex(`^喂猫((\d+(.\d+)?)斤猫粮)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^喂猫(([1-9]+(.[1-9]+)?)斤猫粮)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
@@ -114,17 +116,22 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[2] != "" {
 			food, _ = strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
 		}
-		if (food > 5 || food < 0.5) && rand.Intn(10) < 8 {
-			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, ": ????"))
-			return
-		}
 		if userInfo.Food == 0 || userInfo.Food < food {
 			ctx.SendChain(message.Reply(id), message.Text("铲屎官你已经没有足够的猫粮了"))
 			return
 		}
+		switch {
+		case food > 5 && rand.Intn(10) < 8:
+			food = 5
+			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "并没有选择吃完呢"))
+		case food < 0.5:
+			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "骂骂咧咧的走了"))
+			return
+
+		}
 		/***************************************************************/
 		if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
-			eat := (userInfo.Food - food) * rand.Float64()
+			eat := (userInfo.Food - food) / 5 * rand.Float64()
 			userInfo = userInfo.settleOfSatiety(eat)
 		}
 		/***************************************************************/
@@ -138,7 +145,7 @@ func init() {
 			if userInfo.Mood < 0 {
 				userInfo.Mood = 0
 			}
-			if rand.Intn(3) == 0 || userInfo.Mood > 80 {
+			if rand.Intn(10) == 1 || userInfo.Mood > 80 {
 				_ = catdata.insert(gidStr, userInfo)
 				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 				return
@@ -154,6 +161,7 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 			return
 		}
+		lastSatiety := userInfo.Satiety
 		userInfo = userInfo.settleOfSatiety(food)
 		/***************************************************************/
 		userInfo = userInfo.settleOfWeight()
@@ -185,11 +193,15 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Reply(id), message.Text("猫猫吃完了\n------状态------\n",
+		result := "表示食物很美味呢~"
+		if userInfo.Satiety < 80 && userInfo.Satiety-lastSatiety < 30 {
+			result = "表示完全没有饱呢!"
+		}
+		ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, result, "\n------状态------\n",
 			"饱食度: ", strconv.FormatFloat(userInfo.Satiety, 'f', 0, 64),
 			"\n心情: ", userInfo.Mood,
 			"\n体重: ", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64),
-			"\n------仓库------\n",
+			"\n------仓库------",
 			"\n剩余猫粮(斤): ", fmt.Sprintf("%1.1f", userInfo.Food)))
 	})
 	engine.OnRegex(`^猫猫打工(([1-9])小时)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -210,7 +222,7 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "还在努力打工,没有回来呢"))
 			return
 		}
-		if time.Unix(userInfo.Work/10, 0).Day() == time.Now().Day() {
+		if time.Unix(userInfo.Work/10, 0).Day() == time.Now().Day() && rand.Intn(100) != 1 {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "已经很累了,你不能这么资本"))
 			return
 		}
@@ -237,7 +249,7 @@ func init() {
 		}
 		/***************************************************************/
 		userInfo = userInfo.settleOfMood()
-		if userInfo.Satiety > 10 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50) {
+		if userInfo.Mood > 10 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50) {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情去工作"))
 			return
 		}
@@ -253,18 +265,19 @@ func init() {
 
 // 食物 & 饱食度结算
 /*
-	饱食度 = 食物 * 10
-		  = 1 * 10
-		  = 10
-	一袋猫粮 = 5斤食物
+	饱食度 = 食物 * 100/max(1,体重-30)
+		  = 1 * 100/1
+		  = 100
+		  = 1 * 100/(50-30)
+		  = 20
 */
 func (data *catInfo) settleOfSatiety(food float64) catInfo {
 	data.Food -= food
 	if food > 0 {
-		if data.Mood > 50 && rand.Intn(data.Mood) < data.Mood/3 {
+		if data.Mood < 30 && rand.Intn(data.Mood) < data.Mood/3 {
 			food *= 4
 		}
-		data.Satiety += food * 10
+		data.Satiety += food * 100 / math.Max(1, data.Weight)
 	}
 	return *data
 }
@@ -335,14 +348,12 @@ func (data *catInfo) settleOfWork(gid string) (int, bool) {
 		return 0, false
 	}
 	getFood := 5 * rand.Float64()
-	if rand.Intn(5) < 2 { // 40%受饿
+	if rand.Intn(5) < 3 { // 60%受饿
 		getFood = -(getFood + float64(workTime)*rand.Float64())
 	}
 	data.Satiety += getFood * 10
 	//data.Work = 0
-	data.Work -= workTime
-	subTime, _ := time.ParseDuration("-" + strconv.FormatInt(workTime, 10) + "h")
-	data.LastTime = time.Now().Add(subTime).Unix()
+	data.LastTime = time.Now().Add(time.Duration(workTime-int64(subtime)) * time.Hour).Unix()
 	if catdata.insert(gid, *data) != nil {
 		return 0, true
 	}

@@ -73,8 +73,9 @@ var (
 			"Tips:\n!!!答应我,别刷品种猫娘好吗!!!" +
 			"\n***欢迎大家提供更多的养猫思路***" +
 			"\n1.猫猫心情通过喂养提高,如果猫猫不吃可以耐心地多喂喂" +
-			"\n2.一天只能打工一次,打工期间的猫猫无法喂养哦" +
-			"\n3.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
+			"\n2.越重的猫猫饭量越大呢!建议使用“喂猫n斤猫粮”" +
+			"\n3.一天只能打工一次,打工期间的猫猫无法喂养哦" +
+			"\n4.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
 		PrivateDataFolder: "cybercat",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
