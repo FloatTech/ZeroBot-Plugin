@@ -120,10 +120,11 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text("铲屎官你已经没有足够的猫粮了"))
 			return
 		}
+		result := "表示食物很美味呢~"
 		switch {
 		case food > 5 && rand.Intn(10) < 8:
 			food = 5
-			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "并没有选择吃完呢"))
+			result = "并没有选择吃完呢"
 		case food < 0.5:
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "骂骂咧咧的走了"))
 			return
@@ -193,7 +194,6 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		result := "表示食物很美味呢~"
 		if userInfo.Satiety < 80 && userInfo.Satiety-lastSatiety < 30 {
 			result = "表示完全没有饱呢!"
 		}
