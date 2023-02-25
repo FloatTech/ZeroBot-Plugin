@@ -177,8 +177,8 @@ func getName(buid int64) (name string, err error) {
 	if name, ok = upMap[buid]; !ok {
 		var data []byte
 		data, err = web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", func(r *http.Request) error {
-			r.Header.Add("refer", referer)
-			r.Header.Add("user-agent", ua)
+			r.Header.Set("refer", referer)
+			r.Header.Set("user-agent", ua)
 			cookie := ""
 			if cfg != nil {
 				cookie, err = cfg.Load()
@@ -186,7 +186,7 @@ func getName(buid int64) (name string, err error) {
 					return err
 				}
 			}
-			r.Header.Add("cookie", cookie)
+			r.Header.Set("cookie", cookie)
 			return nil
 		}, nil)
 		if err != nil {

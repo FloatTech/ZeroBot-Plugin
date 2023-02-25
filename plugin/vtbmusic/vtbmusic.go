@@ -4,7 +4,6 @@ package vtbmusic
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -103,8 +102,7 @@ func init() { // 插件主体
 			"- vtb随机点歌",
 		PrivateDataFolder: "vtbmusic",
 	})
-	storePath := engine.DataFolder() + "store/"
-	_ = os.MkdirAll(storePath, 0755)
+	storePath := engine.DataFolder()
 	// 开启
 	engine.OnFullMatch(`vtb点歌`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -225,7 +223,7 @@ func init() { // 插件主体
 							ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 							return
 						}
-						err = initRecord(recordFile, recURL)
+						err = dlrec(recordFile, recURL)
 						if err != nil {
 							ctx.SendChain(message.Text("ERROR: ", err))
 							return
@@ -298,7 +296,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + recordFile))
 				return
 			}
-			err = initRecord(recordFile, recURL)
+			err = dlrec(recordFile, recURL)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -307,18 +305,13 @@ func init() { // 插件主体
 		})
 }
 
-func initRecord(recordFile, recordURL string) error {
+func dlrec(recordFile, recordURL string) error {
 	if file.IsNotExist(recordFile) {
-		client := web.NewTLS12Client()
-		req, _ := http.NewRequest("GET", recordURL, nil)
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-		data, err := io.ReadAll(resp.Body)
+		data, err := web.RequestDataWithHeaders(web.NewTLS12Client(), recordURL, "GET", func(r *http.Request) error {
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0")
+			return nil
+		}, nil)
 		if err != nil {
 			return err
 		}
