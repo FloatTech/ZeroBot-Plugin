@@ -315,10 +315,7 @@ func dlrec(recordFile, recordURL string) error {
 		if err != nil {
 			return err
 		}
-		err = os.WriteFile(recordFile, data, 0666)
-		if err != nil {
-			return err
-		}
+		return os.WriteFile(recordFile, data, 0666)
 	}
 	return nil
 }
