@@ -240,7 +240,7 @@ func init() {
 	}
 
 	// 启用 gui
-	webctrl.InitGui(*g)
+	go webctrl.RunGui(*g)
 
 	// 通过代码写死的方式添加主人账号
 	// sus = append(sus, 12345678)
