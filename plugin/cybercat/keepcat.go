@@ -274,7 +274,7 @@ func init() {
 func (data *catInfo) settleOfSatiety(food float64) catInfo {
 	data.Food -= food
 	if food > 0 {
-		if data.Mood < 30 && rand.Intn(data.Mood) < data.Mood/3 {
+		if data.Satiety < 30 && rand.Intn(data.Mood+1) < data.Mood/3 {
 			food *= 4
 		}
 		data.Satiety += food * 100 / math.Max(1, data.Weight)
