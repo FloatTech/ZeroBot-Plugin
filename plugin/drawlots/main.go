@@ -133,7 +133,8 @@ func getList() (list map[string]string, err error) {
 }
 
 func randFile(path string, indexMax int) (string, error) {
-	files, err := os.ReadDir(datapath + "/" + path)
+	picPath := datapath + "/" + path
+	files, err := os.ReadDir(picPath)
 	if err != nil {
 		return "", err
 	}
@@ -147,7 +148,7 @@ func randFile(path string, indexMax int) (string, error) {
 			}
 			return randFile(path, indexMax)
 		}
-		return path + "/" + music.Name(), err
+		return picPath + "/" + music.Name(), err
 	}
 	return "", errors.New("该抽签不存在")
 }
