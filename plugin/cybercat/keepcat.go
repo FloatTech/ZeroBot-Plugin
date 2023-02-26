@@ -192,6 +192,7 @@ func init() {
 		}
 		/***************************************************************/
 		userInfo.LastTime = time.Now().Unix()
+		userInfo.Mood += int(userInfo.Satiety)/5 - int(userInfo.Weight)/10
 		userInfo = userInfo.settleOfData()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
