@@ -98,7 +98,7 @@ func init() {
 		}
 		fmt.Println(lotsName)
 		Picurl := ctx.State["image_url"].([]string)[0]
-		err := file.DownloadTo(Picurl, datapath+"/"+lotsName+".jpg")
+		err := file.DownloadTo(Picurl, datapath+"/"+lotsName+".gif")
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
