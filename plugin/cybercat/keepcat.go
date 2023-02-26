@@ -74,13 +74,12 @@ func init() {
 				ctx.SendChain(message.Reply(id), message.Text("猫猫", userInfo.Name, "由于太胖了,已经难以存活去世了..."))
 				return
 			}
-			ctx.SendChain(message.Reply(id), message.Text("渡劫成功！", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的",
+			ctx.SendChain(message.Reply(id), message.Text("在工作中领悟,渡劫成功!", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的",
 				userInfo.Name, "进化成猫娘了!\n可以发送“上传猫猫照片”修改图像了喔"))
 			userInfo.Type = "猫娘"
 			userInfo.Weight = 3 + rand.Float64()*10
 		}
 		userInfo = userInfo.settleOfData()
-		userInfo.LastTime = time.Now().Unix()
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -131,6 +130,7 @@ func init() {
 			return
 
 		}
+		userInfo.Food -= food
 		/***************************************************************/
 		if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
 			eat := (userInfo.Food - food) / 5 * rand.Float64()
@@ -148,9 +148,9 @@ func init() {
 			if userInfo.Mood < 0 {
 				userInfo.Mood = 0
 			}
-			if rand.Intn(10) == 1 || userInfo.Mood > 80 {
+			if rand.Intn(10) == 1 || userInfo.Satiety > 80 {
 				_ = catdata.insert(gidStr, userInfo)
-				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
+				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "肚子已经很饱了,吃不动了"))
 				return
 			}
 		}
@@ -185,7 +185,7 @@ func init() {
 				ctx.SendChain(message.Reply(id), message.Text("猫猫", userInfo.Name, "由于太胖了,已经难以存活去世了..."))
 				return
 			}
-			ctx.SendChain(message.Reply(id), message.Text("渡劫成功！", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的",
+			ctx.SendChain(message.Reply(id), message.Text("渡劫成功!", strconv.FormatFloat(userInfo.Weight, 'f', 2, 64), "kg的",
 				userInfo.Name, "进化成猫娘了!\n可以发送“上传猫猫照片”修改图像了喔"))
 			userInfo.Type = "猫娘"
 			userInfo.Weight = 3 + rand.Float64()*10
