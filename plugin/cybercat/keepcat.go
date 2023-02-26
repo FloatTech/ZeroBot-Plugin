@@ -128,7 +128,6 @@ func init() {
 		case food < 0.5:
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "骂骂咧咧的走了"))
 			return
-
 		}
 		userInfo.Food -= food
 		/***************************************************************/
