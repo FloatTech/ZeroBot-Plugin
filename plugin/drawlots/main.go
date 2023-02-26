@@ -89,7 +89,7 @@ func init() {
 		defer cl()
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.ImageBytes(data))
 	})
-	en.OnPrefix("添加抽签", zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnPrefix("添加抽签", zero.MustProvidePicture, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		lotsName := ctx.State["args"].(string)
 		if lotsName == "" {
