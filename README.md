@@ -135,11 +135,11 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s
 
   - [x] /设置服务列表显示行数 xx
 
-  - [x] /设置webui账号 zerobot 123456
+  - [x] /设置webui用户名 zerobot 密码 123456
 
-  - [x] /启动webui
+  - [x] /webui启动
 
-  - [x] /停止webui
+  - [x] /webui停止
 
 	默认值为9,该设置仅运行时有效,zbp重启后重置
   - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
