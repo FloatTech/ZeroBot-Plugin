@@ -156,7 +156,6 @@ func init() {
 			loser.Weight -= math.Min(1, loser.Weight/10) * rand.Float64()
 			messageText = append(messageText, message.Text("\n"), message.At(loser.User),
 				message.Text("\n", loser.Name, "在PK中受伤了\n在医疗中心治愈过程中体重降低至", strconv.FormatFloat(loser.Weight, 'f', 2, 64)))
-
 		}
 		userInfo.ArenaTime = time.Now().Unix()
 		err = catdata.insert(gidStr, winer)
@@ -170,7 +169,6 @@ func init() {
 		ctx.Send(messageText)
 	})
 	engine.OnFullMatchGroup([]string{"猫猫排行榜", "喵喵排行榜"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		infoList, err := catdata.getGroupdata(gidStr)
 		if err != nil {
