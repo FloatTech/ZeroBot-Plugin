@@ -364,6 +364,7 @@ func (data *catInfo) settleOfWork(gid string) (int, bool) {
 	}
 	data.Satiety += getFood * 100 / math.Max(1, data.Weight)
 	data.Mood += mood
+	data.Work = time.Now().Unix() * 10
 	data.LastTime = time.Unix(data.LastTime, 0).Add(time.Duration(workTime) * time.Hour).Unix()
 	if catdata.insert(gid, *data) != nil {
 		return 0, true
