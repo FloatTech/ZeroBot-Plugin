@@ -1,5 +1,5 @@
-// Package ygo 一些关于ygo的插件
-package ygo
+// Package drawlots 多功能抽签插件
+package drawlots
 
 import (
 	"errors"
@@ -146,9 +146,8 @@ func randFile(path string, indexMax int) (string, error) {
 				return "", errors.New("该文件夹存在太多非图片文件,请清理")
 			}
 			return randFile(path, indexMax)
-		} else {
-			return path + "/" + music.Name(), err
 		}
+		return path + "/" + music.Name(), err
 	}
 	return "", errors.New("该抽签不存在")
 }
