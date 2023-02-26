@@ -27,7 +27,7 @@ var (
 	en       = control.Register("drawlots", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "gif抽签",
-		Help:              "多功能抽签\n支持图片文件夹和gif\n-------------\n- 签列表\n- 抽xxx\n- 添加抽签xxx[gif图片]",
+		Help:              "多功能抽签\n支持图片文件夹和gif\n-------------\n- 抽签列表\n- 抽签-[签名称]\n- 添加抽签[签名称][gif图片]",
 		PrivateDataFolder: "drawlots",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()
@@ -47,7 +47,7 @@ func init() {
 			logrus.Infoln("[drawlots]加载", len(lotsList), "个抽签")
 		}
 	}()
-	en.OnFullMatch("签列表").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("抽签列表").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		messageText := make([]string, 0, len(lotsList))
 		messageText = append(messageText, []string{
 			" 抽 签 签 名 [ 类 型 ] ", "----------",
@@ -63,7 +63,7 @@ func init() {
 		}
 		ctx.SendChain(message.Image("base64://" + helper.BytesToString(textPic)))
 	})
-	en.OnPrefix("抽").SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnPrefix("抽签-").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		lotsType := ctx.State["args"].(string)
 		fileType, ok := lotsList[lotsType]
 		if !ok {
