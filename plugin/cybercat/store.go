@@ -265,7 +265,7 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(id), message.Text("修改成功"))
 	})
-	engine.OnFullMatch("上传猫猫照片", zero.OnlyGroup, zero.MustProvidePicture, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnPrefix("上传猫猫照片", zero.OnlyGroup, zero.MustProvidePicture, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)

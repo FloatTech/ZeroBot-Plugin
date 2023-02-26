@@ -154,7 +154,7 @@ func init() {
 			}
 		}
 		if subtime > 1 {
-			userInfo.Satiety -= subtime
+			userInfo.Satiety -= subtime * 4
 			userInfo = userInfo.settleOfWeight()
 			userInfo.Mood -= int(subtime)
 		}
@@ -312,7 +312,7 @@ func init() {
 
 // 饱食度结算
 func (data *catInfo) settleOfSatiety(food float64) catInfo {
-	if food > 0 && data.Satiety < 30 && rand.Intn(data.Mood+1) <= data.Mood/3 {
+	if food > 0 && data.Satiety < 30 && rand.Intn(100) <= data.Mood/3 {
 		food *= 4
 	}
 	data.Satiety += food * 100 / math.Max(1, data.Weight)
