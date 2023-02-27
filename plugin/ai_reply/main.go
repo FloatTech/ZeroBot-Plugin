@@ -64,7 +64,7 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 
-	ent.OnRegex(`^设置\s*ChatGPT\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	enr.OnRegex(`^设置\s*ChatGPT\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		err := replmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
