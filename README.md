@@ -1507,7 +1507,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] @Bot 任意文本(任意一句话回复)
 
-  - [x] 设置回复模式[青云客 | 小爱]
+  - [x] 设置回复模式[青云客 | 小爱 | ChatGPT]
+
+  - [x] 设置 ChatGPT api key xxx
 
 </details>
 
