@@ -295,7 +295,6 @@ func init() {
 func main() {
 	if !strings.Contains(runtime.Version(), "go1.2") { // go1.20之前版本需要全局 seed，其他插件无需再 seed
 		rand.Seed(time.Now().UnixNano()) //nolint: staticcheck
-		rand.Int()
 	}
 	// 帮助
 	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).
