@@ -37,11 +37,6 @@ func init() {
 			workStauts = overwork.Format("工作中\n(将在01月02日15:04下班)")
 		} else {
 			/***************************************************************/
-			if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
-				eat := userInfo.Food / 5 * rand.Float64()
-				userInfo = userInfo.settleOfSatiety(eat)
-			}
-			/***************************************************************/
 			subtime := 0.0
 			if userInfo.LastTime != 0 {
 				lastTime := time.Unix(userInfo.LastTime, 0)
@@ -52,6 +47,12 @@ func init() {
 				userInfo = userInfo.settleOfWeight()
 				userInfo.Mood -= int(subtime)
 				userInfo = userInfo.settleOfData()
+				userInfo.LastTime = time.Now().Unix()
+			}
+			/******************************太饿了偷吃*********************************/
+			if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
+				eat := userInfo.Food / 5 * rand.Float64()
+				userInfo = userInfo.settleOfSatiety(eat)
 			}
 		}
 		if money > 0 {
@@ -131,12 +132,6 @@ func init() {
 		}
 		userInfo.Food -= food
 		/***************************************************************/
-		if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
-			eat := (userInfo.Food - food) / 5 * rand.Float64()
-			userInfo = userInfo.settleOfSatiety(eat)
-			userInfo.Mood += int(eat)
-		}
-		/***************************************************************/
 		subtime := 0.0
 		if userInfo.LastTime != 0 {
 			lastTime := time.Unix(userInfo.LastTime, 0)
@@ -157,6 +152,13 @@ func init() {
 			userInfo.Satiety -= subtime * 4
 			userInfo = userInfo.settleOfWeight()
 			userInfo.Mood -= int(subtime)
+			userInfo.LastTime = time.Now().Unix()
+		}
+		/***************************太饿了偷吃************************************/
+		if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
+			eat := userInfo.Food / 5 * rand.Float64()
+			userInfo = userInfo.settleOfSatiety(eat)
+			userInfo.Mood += int(eat)
 		}
 		/***************************************************************/
 		userInfo = userInfo.settleOfData()
@@ -280,15 +282,6 @@ func init() {
 		_, workEnd := userInfo.settleOfWork(gidStr)
 		if !workEnd {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "还在努力打工,没有回来呢"))
-			return
-		}
-		subtime := 0.0
-		if userInfo.LastTime != 0 {
-			lastTime := time.Unix(userInfo.LastTime, 0)
-			subtime = time.Since(lastTime).Hours()
-		}
-		if userInfo.LastTime != 0 && subtime < 2 && rand.Intn(5) < 3 {
-			ctx.SendChain(message.Reply(id), message.Text("刚吃饱没多久的", userInfo.Name, "跑走去睡觉了"))
 			return
 		}
 		/***************************************************************/
