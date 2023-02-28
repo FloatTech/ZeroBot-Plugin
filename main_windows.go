@@ -2,33 +2,33 @@ package main
 
 import (
 	"bytes"
+	"os"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/windows"
 )
 
+func SetupConsole() {
+	winConsole := windows.Handle(os.Stdin.Fd())
+
+	var mode uint32
+	err := windows.GetConsoleMode(winConsole, &mode)
+	if err != nil {
+		panic(err)
+	}
+
+	mode &^= windows.ENABLE_QUICK_EDIT_MODE
+	mode |= windows.ENABLE_EXTENDED_FLAGS
+
+	err = windows.SetConsoleMode(winConsole, mode)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func init() {
-	k32 := windows.NewLazySystemDLL("kernel32.dll")
-	getstdhandle := k32.NewProc("GetStdHandle")
-	magic := -10
-	h, _, err := getstdhandle.Call(uintptr(magic)) // STD_INPUT_HANDLE = ((DWORD)-10)
-	if int(h) == 0 || int(h) == -1 {
-		panic(err)
-	}
-	magic--
-	h, _, err = k32.NewProc("SetConsoleMode").Call(h, uintptr(0x02a7)) // 禁用快速编辑
-	if h == 0 {
-		panic(err)
-	}
-	h, _, err = getstdhandle.Call(uintptr(magic)) // STD_OUTPUT_HANDLE = ((DWORD)-11)
-	if int(h) == 0 || int(h) == -1 {
-		panic(err)
-	}
-	h, _, err = k32.NewProc("SetConsoleMode").Call(h, uintptr(0x001f)) // 启用VT100
-	if h == 0 {
-		panic(err)
-	}
+	SetupConsole()
 	// windows 带颜色 log 自定义格式
 	logrus.SetFormatter(&LogFormat{})
 }
