@@ -5,9 +5,28 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/windows"
 )
 
 func init() {
+	k32 := windows.NewLazySystemDLL("kernel32.dll")
+	getstdhandle := k32.NewProc("GetStdHandle")
+	h, _, err := getstdhandle.Call(uintptr(0xffffffff_fffffff6)) // STD_INPUT_HANDLE = ((DWORD)-10)
+	if int(h) == 0 || int(h) == -1 {
+		panic(err)
+	}
+	h, _, err = k32.NewProc("SetConsoleMode").Call(h, uintptr(0x02a7)) // 禁用快速编辑
+	if h == 0 {
+		panic(err)
+	}
+	h, _, err = getstdhandle.Call(uintptr(0xffffffff_fffffff5)) // STD_OUTPUT_HANDLE = ((DWORD)-11)
+	if int(h) == 0 || int(h) == -1 {
+		panic(err)
+	}
+	h, _, err = k32.NewProc("SetConsoleMode").Call(h, uintptr(0x001f)) // 启用VT100
+	if h == 0 {
+		panic(err)
+	}
 	// windows 带颜色 log 自定义格式
 	logrus.SetFormatter(&LogFormat{})
 }
