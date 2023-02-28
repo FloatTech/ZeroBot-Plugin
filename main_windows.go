@@ -2,31 +2,41 @@ package main
 
 import (
 	"bytes"
+	"golang.org/x/sys/windows"
+	"os"
 	"strings"
 
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sys/windows"
 )
 
 func init() {
-	k32 := windows.NewLazySystemDLL("kernel32.dll")
-	getstdhandle := k32.NewProc("GetStdHandle")
-	magic := -10
-	h, _, err := getstdhandle.Call(uintptr(magic)) // STD_INPUT_HANDLE = ((DWORD)-10)
-	if int(h) == 0 || int(h) == -1 {
+	stdin := windows.Handle(os.Stdin.Fd())
+
+	var mode uint32
+	err := windows.GetConsoleMode(stdin, &mode)
+	if err != nil {
 		panic(err)
 	}
-	magic--
-	h, _, err = k32.NewProc("SetConsoleMode").Call(h, uintptr(0x02a7)) // 禁用快速编辑
-	if h == 0 {
+
+	mode &^= windows.ENABLE_QUICK_EDIT_MODE // 禁用快速编辑模式
+	mode |= windows.ENABLE_EXTENDED_FLAGS   // 启用扩展标志
+
+	err = windows.SetConsoleMode(stdin, mode)
+	if err != nil {
 		panic(err)
 	}
-	h, _, err = getstdhandle.Call(uintptr(magic)) // STD_OUTPUT_HANDLE = ((DWORD)-11)
-	if int(h) == 0 || int(h) == -1 {
+
+	stdout := windows.Handle(os.Stdout.Fd())
+	err = windows.GetConsoleMode(stdout, &mode)
+	if err != nil {
 		panic(err)
 	}
-	h, _, err = k32.NewProc("SetConsoleMode").Call(h, uintptr(0x001f)) // 启用VT100
-	if h == 0 {
+
+	mode |= windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING // 启用虚拟终端处理
+	mode |= windows.ENABLE_PROCESSED_OUTPUT            // 启用处理后的输出
+
+	err = windows.SetConsoleMode(stdout, mode)
+	if err != nil {
 		panic(err)
 	}
 	// windows 带颜色 log 自定义格式
