@@ -340,7 +340,7 @@ func init() {
 		for i := 0; i < len(danmaku.Data.Data); i++ {
 			totalDanmuku += len(danmaku.Data.Data[i].Danmakus) + 1
 		}
-		cw := 10000
+		cw := 3000
 		mcw := float64(2000)
 		ch := 550 + len(danmaku.Data.Data)*int(faceH) + totalDanmuku*int(danmuH)
 		canvas = gg.NewContext(cw, ch)

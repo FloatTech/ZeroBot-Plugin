@@ -43,6 +43,7 @@ var (
 	index = make(map[string]uint8)
 	// 签文
 	omikujis []map[string]string
+	fontdata []byte
 )
 
 func init() {
@@ -98,12 +99,13 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
-			fontdata, err := file.GetLazyData("data/Font/sakura.ttf", control.Md5File, true)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return false
+			if fontdata == nil {
+				fontdata, err = file.GetLazyData("data/Font/sakura.ttf", control.Md5File, true)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return false
+				}
 			}
-			ctx.State["fontdata"] = fontdata
 			return true
 		},
 	)).Limit(ctxext.LimitByGroup).SetBlock(true).
@@ -149,7 +151,7 @@ func init() {
 				if err != nil {
 					return err
 				}
-				_, err = draw(background, ctx.State["fontdata"].([]byte), title, text, f)
+				_, err = draw(background, fontdata, title, text, f)
 				_ = f.Close()
 				return err
 			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))

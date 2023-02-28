@@ -13,7 +13,7 @@ func init() {
 	engine.OnRegex(`^[。.]jrrp`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
-			jrrp := fcext.RandSenderPerDayN(ctx.Event.UserID, 100) + 1
+			jrrp := fcext.RandSenderPerDayN(uid, 100) + 1
 			var j strjrrp
 			err := db.Find("strjrrp", &j, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 			if err == nil {

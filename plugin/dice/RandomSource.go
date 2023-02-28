@@ -82,30 +82,38 @@ func init() {
 				ctx.SendChain(message.Text("出错啦: ", err))
 			}
 		})
-	engine.OnRegex(`^[。.][Rr]\s*([0]*[1-9]+)?\s*[Dd]\s*([0]*[1-9]+)?`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^[。.][Rr]\s*([0-9]+)?\s*[Dd]\s*([0-9]+)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			r1 := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
-			d1 := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
-			if r1 == 0 {
-				r1 = 1
+			r1s := ctx.State["regex_matched"].([]string)[1]
+			var r1 int64 = 1
+			if r1s != "" {
+				r1 = math.Str2Int64(r1s)
 			}
+			if r1 == 0 {
+				ctx.SendChain(message.Text("阁下, 你在让我掷什么啊???"))
+				return
+			}
+			d1 := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
 			if d1 == 0 {
 				var d set
 				err := db.Find("set", &d, "where uid = "+strconv.FormatInt(ctx.Event.UserID, 10))
 				if err == nil {
 					d1 = d.D
+				} else {
+					d1 = 100
 				}
 			}
 			if r1 <= 100 {
 				var sum, i int64
 				var res message.Message
+				randnum := rand.Int63n(d1) + 1
+				sum += randnum
+				res = append(res, message.Text(randnum))
 				for ; i < r1-1; i++ {
-					rand := rand.Int63n(d1) + 1
-					sum += rand
-					res = append(res, message.Text("+", rand))
+					randnum = rand.Int63n(d1) + 1
+					sum += randnum
+					res = append(res, message.Text("+", randnum))
 				}
-				rand := rand.Int63n(d1) + 1
-				res = append(res, message.Text(rand))
 				ctx.SendChain(message.Text("阁下掷出了R", r1, "D", d1, "=", sum, "\n", res.String(), "=", sum))
 			} else {
 				ctx.SendChain(message.Text("骰子太多啦~~数不过来了！"))
