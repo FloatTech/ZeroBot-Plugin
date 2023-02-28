@@ -40,6 +40,7 @@ require (
 	github.com/wdvxdr1123/ZeroBot v1.6.9
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.3.0
+	golang.org/x/sys v0.4.0
 	golang.org/x/text v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -85,7 +86,6 @@ require (
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.4.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
