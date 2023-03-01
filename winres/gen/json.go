@@ -4,6 +4,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
@@ -55,7 +57,7 @@ const js = `{
           "0409": {
             "Comments": "OneBot plugins based on ZeroBot",
             "CompanyName": "FloatTech",
-            "FileDescription": "Project: https://github.com/FloatTech/ZeroBot-Plugin",
+            "FileDescription": "https://github.com/FloatTech/ZeroBot-Plugin",
             "FileVersion": "%s",
             "InternalName": "",
             "LegalCopyright": "%s",
@@ -80,7 +82,21 @@ func main() {
 		panic(err)
 	}
 	defer f.Close()
-	_, err = fmt.Fprintf(f, js, banner.Version, banner.Version, time.Now().Format(timeformat), banner.Version, banner.Copyright, banner.Version)
+	i := strings.LastIndex(banner.Version, "-")
+	if i <= 0 {
+		i = len(banner.Version)
+	}
+	commitcnt := strings.Builder{}
+	commitcnt.WriteString(banner.Version[1:i])
+	commitcnt.WriteByte('.')
+	commitcntcmd := exec.Command("git", "rev-list", "--count", "master")
+	commitcntcmd.Stdout = &commitcnt
+	err = commitcntcmd.Run()
+	if err != nil {
+		panic(err)
+	}
+	fv := commitcnt.String()[:commitcnt.Len()-1]
+	_, err = fmt.Fprintf(f, js, fv, banner.Version, time.Now().Format(timeformat), fv, banner.Copyright, banner.Version)
 	if err != nil {
 		panic(err)
 	}

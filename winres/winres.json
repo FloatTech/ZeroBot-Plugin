@@ -36,16 +36,16 @@
     "#1": {
       "0000": {
         "fixed": {
-          "file_version": "v1.7.0-beta1",
+          "file_version": "1.7.0.1717",
           "product_version": "v1.7.0-beta1",
-          "timestamp": "2023-03-01T14:08:55+08:00"
+          "timestamp": "2023-03-01T14:34:01+08:00"
         },
         "info": {
           "0409": {
             "Comments": "OneBot plugins based on ZeroBot",
             "CompanyName": "FloatTech",
-            "FileDescription": "Project: https://github.com/FloatTech/ZeroBot-Plugin",
-            "FileVersion": "v1.7.0-beta1",
+            "FileDescription": "https://github.com/FloatTech/ZeroBot-Plugin",
+            "FileVersion": "1.7.0.1717",
             "InternalName": "",
             "LegalCopyright": "© 2020 - 2023 FloatTech",
             "LegalTrademarks": "",
