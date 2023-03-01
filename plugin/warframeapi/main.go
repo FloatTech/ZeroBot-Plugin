@@ -15,7 +15,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var wmitems, itemNames = newwm()
+var wmitems, itemNames, _ = newwm()
 
 func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
@@ -234,7 +234,7 @@ func init() {
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
 	// 根据名称从Warframe市场查询物品售价
-	eng.OnPrefix(".wm ").SetBlock(true).
+	eng.OnPrefix(".wm ", checknwm).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 根据输入的名称, 从游戏物品名称列表中进行模糊搜索
 			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itemNames)

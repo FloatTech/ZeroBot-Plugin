@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 	"net/http"
 	"sort"
 
@@ -68,7 +70,19 @@ func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, 
 	return
 }
 
-func newwm() (wmitems map[string]items, itemNames []string) {
+// 检查值是否为空，为空则重新获取
+func checknwm(ctx *zero.Ctx) bool {
+	var err error
+	if wmitems == nil || itemNames == nil {
+		wmitems, itemNames, err = newwm()
+		if err != nil { // 获取失败
+			ctx.SendChain(message.Text("ERROR: 获取Warframe市场物品列表失败(" + err.Error() + ")"))
+			return false
+		}
+	}
+	return true
+}
+func newwm() (wmitems map[string]items, itemNames []string, err error) {
 	var itemapi wfAPIItem // WarFrame市场的数据实例
 
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
@@ -77,11 +91,11 @@ func newwm() (wmitems map[string]items, itemNames []string) {
 		return nil
 	}, nil)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 	err = json.Unmarshal(data, &itemapi)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
 	wmitems = make(map[string]items, len(itemapi.Payload.Items)*4)
