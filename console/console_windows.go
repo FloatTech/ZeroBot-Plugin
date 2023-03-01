@@ -1,12 +1,15 @@
-package main
+package console
 
 import (
 	"bytes"
-	"golang.org/x/sys/windows"
 	"os"
 	"strings"
 
+	"golang.org/x/sys/windows"
+
 	"github.com/sirupsen/logrus"
+
+	"github.com/FloatTech/ZeroBot-Plugin/kanban"
 )
 
 func init() {
@@ -50,6 +53,11 @@ func init() {
 	}
 	// windows 带颜色 log 自定义格式
 	logrus.SetFormatter(&LogFormat{})
+
+	err = windows.SetConsoleTitle("ZeroBot-Blugin " + kanban.Version + " " + kanban.Copyright)
+	if err != nil {
+		panic(err)
+	}
 }
 
 const (
