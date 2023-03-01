@@ -106,11 +106,11 @@ func (f logFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	buf := new(bytes.Buffer)
 
 	buf.WriteByte('[')
-	if hasColor {
+	if f.hasColor {
 		buf.WriteString(getLogLevelColorCode(entry.Level))
 	}
 	buf.WriteString(strings.ToUpper(entry.Level.String()))
-	if hasColor {
+	if f.hasColor {
 		buf.WriteString(colorReset)
 	}
 	buf.WriteString("] ")
