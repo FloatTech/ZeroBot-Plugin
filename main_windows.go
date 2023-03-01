@@ -2,9 +2,10 @@ package main
 
 import (
 	"bytes"
-	"golang.org/x/sys/windows"
 	"os"
 	"strings"
+
+	"golang.org/x/sys/windows"
 
 	"github.com/sirupsen/logrus"
 )
@@ -48,7 +49,7 @@ const (
 	colorCodeFatal = "\x1b[1;31m" // color.Style{color.Bold, color.Red}.String()
 	colorCodeError = "\x1b[31m"   // color.Style{color.Red}.String()
 	colorCodeWarn  = "\x1b[33m"   // color.Style{color.Yellow}.String()
-	colorCodeInfo  = "\x1b[37m"   // color.Style{color.White}.String()
+	colorCodeInfo  = "\x1b[34m"   // color.Style{color.White}.String()
 	colorCodeDebug = "\x1b[32m"   // color.Style{color.Green}.String()
 	colorCodeTrace = "\x1b[36m"   // color.Style{color.Cyan}.String()
 	colorReset     = "\x1b[0m"
@@ -60,12 +61,11 @@ type LogFormat struct{}
 // Format implements logrus.Formatter
 func (f LogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	buf := new(bytes.Buffer)
-
-	buf.WriteByte('[')
 	buf.WriteString(getLogLevelColorCode(entry.Level))
+	buf.WriteByte('[')
 	buf.WriteString(strings.ToUpper(entry.Level.String()))
-	buf.WriteString(colorReset)
 	buf.WriteString("] ")
+	buf.WriteString(colorReset)
 	buf.WriteString(entry.Message)
 	buf.WriteString(" \n")
 
