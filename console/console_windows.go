@@ -11,7 +11,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/FloatTech/ZeroBot-Plugin/kanban"
+	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
 
 var (
@@ -78,7 +78,7 @@ func init() {
 	// windows 带颜色 log 自定义格式
 	logrus.SetFormatter(&LogFormat{})
 
-	err = setConsoleTitle("ZeroBot-Blugin " + kanban.Version + " " + kanban.Copyright)
+	err = setConsoleTitle("ZeroBot-Blugin " + banner.Version + " " + banner.Copyright)
 	if err != nil {
 		panic(err)
 	}
