@@ -17,7 +17,7 @@ import (
 var (
 	//go:linkname modkernel32 golang.org/x/sys/windows.modkernel32
 	modkernel32         *windows.LazyDLL
-	procSetConsoleTitle = modkernel32.NewProc("SetConsoleTitle")
+	procSetConsoleTitle = modkernel32.NewProc("SetConsoleTitleW")
 )
 
 //go:linkname errnoErr golang.org/x/sys/windows.errnoErr
