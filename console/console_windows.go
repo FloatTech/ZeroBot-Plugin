@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"strings"
+	"unsafe"
 
 	"golang.org/x/sys/windows"
 
@@ -11,6 +12,25 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban"
 )
+
+var (
+	//go:linkname golang.org/x/sys/windows.modkernel32 modkernel32
+	modkernel32         *windows.LazyDLL
+	procSetConsoleTitle = modkernel32.NewProc("SetConsoleTitle")
+)
+
+func setConsoleTitle(title string) (err error) {
+	var p0 *uint16
+	p0, err = syscall.UTF16PtrFromString(title)
+	if err != nil {
+		return
+	}
+	r1, _, e1 := syscall.Syscall(procSetConsoleTitle.Addr(), 1, uintptr(unsafe.Pointer(p0)), 0)
+	if r1 == 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
 
 func init() {
 	stdin := windows.Handle(os.Stdin.Fd())
@@ -54,7 +74,7 @@ func init() {
 	// windows 带颜色 log 自定义格式
 	logrus.SetFormatter(&LogFormat{})
 
-	err = windows.SetConsoleTitle("ZeroBot-Blugin " + kanban.Version + " " + kanban.Copyright)
+	err = setConsoleTitle("ZeroBot-Blugin " + kanban.Version + " " + kanban.Copyright)
 	if err != nil {
 		panic(err)
 	}
