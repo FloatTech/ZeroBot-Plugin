@@ -24,8 +24,8 @@ const js = `{
     "#1": {
       "0409": {
         "identity": {
-          "name": "",
-          "version": ""
+          "name": "ZeroBot-Plugin",
+          "version": "%s"
         },
         "description": "",
         "minimum-os": "vista",
@@ -64,7 +64,7 @@ const js = `{
             "LegalTrademarks": "",
             "OriginalFilename": "ZBP.EXE",
             "PrivateBuild": "",
-            "ProductName": "",
+            "ProductName": "ZeroBot-Plugin",
             "ProductVersion": "%s",
             "SpecialBuild": ""
           }
@@ -96,7 +96,7 @@ func main() {
 		panic(err)
 	}
 	fv := commitcnt.String()[:commitcnt.Len()-1]
-	_, err = fmt.Fprintf(f, js, fv, banner.Version, time.Now().Format(timeformat), fv, banner.Copyright, banner.Version)
+	_, err = fmt.Fprintf(f, js, fv, fv, banner.Version, time.Now().Format(timeformat), fv, banner.Copyright+". All Rights Reserved.", banner.Version)
 	if err != nil {
 		panic(err)
 	}
