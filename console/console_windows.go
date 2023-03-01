@@ -15,12 +15,12 @@ import (
 )
 
 var (
-	//go:linkname golang.org/x/sys/windows.modkernel32 modkernel32
+	//go:linkname modkernel32 golang.org/x/sys/windows.modkernel32
 	modkernel32         *windows.LazyDLL
 	procSetConsoleTitle = modkernel32.NewProc("SetConsoleTitle")
 )
 
-//go:linkname golang.org/x/sys/windows.errnoErr errnoErr
+//go:linkname errnoErr golang.org/x/sys/windows.errnoErr
 func errnoErr(e syscall.Errno) error
 
 func setConsoleTitle(title string) (err error) {
