@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"strings"
+	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -18,6 +19,9 @@ var (
 	modkernel32         *windows.LazyDLL
 	procSetConsoleTitle = modkernel32.NewProc("SetConsoleTitle")
 )
+
+//go:linkname golang.org/x/sys/windows.errnoErr errnoErr
+func errnoErr(e syscall.Errno) error
 
 func setConsoleTitle(title string) (err error) {
 	var p0 *uint16
