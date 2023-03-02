@@ -1,0 +1,62 @@
+{
+  "RT_GROUP_ICON": {
+    "APP": {
+      "0000": [
+        "icon.png",
+        "icon16.png"
+      ]
+    }
+  },
+  "RT_MANIFEST": {
+    "#1": {
+      "0409": {
+        "identity": {
+          "name": "ZeroBot-Plugin",
+          "version": "1.7.0.1721"
+        },
+        "description": "",
+        "minimum-os": "vista",
+        "execution-level": "as invoker",
+        "ui-access": false,
+        "auto-elevate": false,
+        "dpi-awareness": "system",
+        "disable-theming": false,
+        "disable-window-filtering": false,
+        "high-resolution-scrolling-aware": false,
+        "ultra-high-resolution-scrolling-aware": false,
+        "long-path-aware": false,
+        "printer-driver-isolation": false,
+        "gdi-scaling": false,
+        "segment-heap": false,
+        "use-common-controls-v6": false
+      }
+    }
+  },
+  "RT_VERSION": {
+    "#1": {
+      "0000": {
+        "fixed": {
+          "file_version": "1.7.0.1721",
+          "product_version": "v1.7.0-beta1",
+          "timestamp": "2023-03-01T16:16:47+08:00"
+        },
+        "info": {
+          "0409": {
+            "Comments": "OneBot plugins based on ZeroBot",
+            "CompanyName": "FloatTech",
+            "FileDescription": "https://github.com/FloatTech/ZeroBot-Plugin",
+            "FileVersion": "1.7.0.1721",
+            "InternalName": "",
+            "LegalCopyright": "© 2020 - 2023 FloatTech. All Rights Reserved.",
+            "LegalTrademarks": "",
+            "OriginalFilename": "ZBP.EXE",
+            "PrivateBuild": "",
+            "ProductName": "ZeroBot-Plugin",
+            "ProductVersion": "v1.7.0-beta1",
+            "SpecialBuild": ""
+          }
+        }
+      }
+    }
+  }
+}
