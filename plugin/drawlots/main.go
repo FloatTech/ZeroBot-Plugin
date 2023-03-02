@@ -217,6 +217,6 @@ func randGif(gifName string) (image.Image, error) {
 	ims := make([]*image.NRGBA, len(im.Image))
 	for i, v := range im.Image {
 		ims[i] = img.Size(v, v.Bounds().Max.X, v.Bounds().Max.Y).Im
-	} //*/
+	} // */
 	return ims[rand.Intn(len(ims))], err
 }
