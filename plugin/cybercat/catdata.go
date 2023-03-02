@@ -66,14 +66,17 @@ var (
 	engine = control.Register("cybercat", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "云养猫",
-		Help: "一款既能能赚钱(?)又能看猫的养成类插件\n-----------------------\n" +
+		Help: "一款既能能赚钱(?)又能看猫的养成类插件\n----------指令----------\n" +
 			"- 吸猫\n(随机返回一只猫)\n- 吸xxx猫\n(吸指定猫种的猫)\n- 买猫\n- 买xxx猫\n- 买n袋猫粮\n- 喂猫n斤猫粮\n" +
 			"- 猫猫打工[1-9]小时\n- 撸猫\n- 猫猫状态\n- 猫猫改名叫xxx\n" +
-			"- 喵喵pk@对方QQ\n- 猫猫排行榜\n-----------------------\n" +
-			"\n1.猫猫心情影响吃饭饭和打工" +
-			"\n2.越重的猫猫饭量越大呢!" +
-			"\n3.一天只能打工一次,打工期间的猫猫无法喂养哦" +
-			"\n4.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
+			"- 喵喵pk@对方QQ\n- 猫猫排行榜\n" +
+			"\n---------注意事项---------" +
+			"\n1.喂猫时间为6点-8点、11点-13点、17点-19点;其余工作时间为6点-20点" +
+			"\n3.一袋有五斤猫粮" +
+			"\n2.猫猫心情影响吃饭饭和打工" +
+			"\n3.越重的猫猫饭量越大呢!" +
+			"\n4.一天只能打工一次,打工期间的猫猫无法喂养哦" +
+			"\n5.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
 		PrivateDataFolder: "cybercat",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -88,6 +91,12 @@ var (
 )
 
 func init() {
+	engine.UsePreHandler(func(ctx *zero.Ctx) bool {
+		if now := time.Now().Hour(); now >= 6 && now <= 20 {
+			return true
+		}
+		return false
+	})
 	engine.OnRegex(`^吸(.*猫)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		typeOfcat := ctx.State["regex_matched"].([]string)[1]
 		if typeOfcat == "猫" {

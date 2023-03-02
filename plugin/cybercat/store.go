@@ -171,12 +171,12 @@ func init() {
 			}
 			moodText = "这只喵喵好像很喜欢这个名字,\n"
 		}
-		userInfo.Work = 0
-		userInfo.LastTime = 0
 		userInfo.Type = typeOfcat
 		userInfo.Satiety = satiety
 		userInfo.Mood = mood
 		userInfo.Weight = weight
+		userInfo.LastTime = 0
+		userInfo.Work = time.Now().AddDate(0, 0, -1).Unix()
 		userInfo.Picurl = picurl
 		if wallet.InsertWalletOf(ctx.Event.UserID, -money) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))

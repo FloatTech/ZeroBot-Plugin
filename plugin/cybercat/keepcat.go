@@ -94,7 +94,12 @@ func init() {
 				"\n状态:", workStauts,
 				"\n\n你的剩余猫粮(斤): ", strconv.FormatFloat(userInfo.Food, 'f', 2, 64)))
 	})
-	engine.OnRegex(`^喂猫((\d+(.\d+)?)斤猫粮)?$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^喂猫((\d+(.\d+)?)斤猫粮)?$`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		if now := time.Now().Hour(); (now >= 6 && now <= 8) || (now >= 11 && now <= 13) || (now >= 17 && now <= 19) {
+			return true
+		}
+		return false
+	}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
@@ -113,7 +118,7 @@ func init() {
 			return
 		}
 		/***************************************************************/
-		food := 1.0
+		food := 1.0 + math.Max(userInfo.Food-1, 0)/5*rand.Float64()
 		if ctx.State["regex_matched"].([]string)[2] != "" {
 			food, _ = strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
 		}
@@ -308,7 +313,7 @@ func (data *catInfo) settleOfSatiety(food float64) catInfo {
 	if food > 0 && data.Satiety < 30 && rand.Intn(100) <= data.Mood/3 {
 		food *= 4
 	}
-	data.Satiety += food * 100 / math.Max(1, data.Weight)
+	data.Satiety += (food * 100 / math.Max(1, data.Weight/2))
 	return *data
 }
 
