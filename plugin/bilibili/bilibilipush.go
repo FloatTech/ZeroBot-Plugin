@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -175,7 +176,19 @@ func getName(buid int64) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
 		var data []byte
-		data, err = web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", referer, ua)
+		data, err = web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", func(r *http.Request) error {
+			r.Header.Set("refer", referer)
+			r.Header.Set("user-agent", ua)
+			cookie := ""
+			if cfg != nil {
+				cookie, err = cfg.Load()
+				if err != nil {
+					return err
+				}
+			}
+			r.Header.Set("cookie", cookie)
+			return nil
+		}, nil)
 		if err != nil {
 			return
 		}
@@ -232,7 +245,7 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 }
 
 func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", referer, ua)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", referer, ua, nil)
 	if err != nil {
 		return
 	}

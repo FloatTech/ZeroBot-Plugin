@@ -12,15 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/AnimeAPI/qzone"
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/jinzhu/gorm"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -311,12 +310,11 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 		imgdata   []byte
 		msgImg    image.Image
 		faceImg   image.Image
-		t         text.Text
 	)
 	if qq != 0 {
 		face, err = web.GetData(fmt.Sprintf(faceURL, qq))
 	} else {
-		face, err = web.RequestDataWith(web.NewTLS12Client(), fmt.Sprintf(anonymousURL, rand.Intn(4)+1), "GET", "gitcode.net", web.RandUA())
+		face, err = web.RequestDataWith(web.NewTLS12Client(), fmt.Sprintf(anonymousURL, rand.Intn(4)+1), "GET", "gitcode.net", web.RandUA(), nil)
 	}
 	if err != nil {
 		return
@@ -325,18 +323,17 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 	if err != nil {
 		return
 	}
-	back := img.Size(faceImg, backX, backY).Circle(0).Im
+	back := imgfactory.Size(faceImg, backX, backY).Circle(0).Image()
 	m := message.ParseMessageFromString(raw)
 	maxHeight += margin
 
 	for _, v := range m {
 		switch {
 		case v.Type == "text" && strings.TrimSpace(v.Data["text"]) != "":
-			t, err = text.Render(strings.TrimSuffix(v.Data["text"], "\r\n"), text.FontFile, 400, 40)
+			msgImg, err = text.Render(strings.TrimSuffix(v.Data["text"], "\r\n"), text.FontFile, 400, 40)
 			if err != nil {
 				return
 			}
-			msgImg = t.Image()
 		case v.Type == "image" && v.Data["url"] != "":
 			imgdata, err = web.GetData(v.Data["url"])
 			if err != nil {
@@ -351,7 +348,7 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 		}
 		canvas.DrawImage(back, margin, maxHeight)
 		if msgImg.Bounds().Dx() > 500 {
-			msgImg = img.Size(msgImg, 500, msgImg.Bounds().Dy()*500/msgImg.Bounds().Dx()).Im
+			msgImg = imgfactory.Size(msgImg, 500, msgImg.Bounds().Dy()*500/msgImg.Bounds().Dx()).Image()
 		}
 		canvas.DrawImage(msgImg, 2*margin+backX, maxHeight)
 		if 3*margin+backX+msgImg.Bounds().Dx() > maxWidth {
@@ -365,5 +362,5 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 	}
 	im := canvas.Image().(*image.RGBA)
 	nim := im.SubImage(image.Rect(0, 0, maxWidth, maxHeight))
-	return writer.ToBase64(nim)
+	return imgfactory.ToBase64(nim)
 }

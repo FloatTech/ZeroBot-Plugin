@@ -91,7 +91,7 @@ func init() { // 插件主体
 					"标题: ", illust.Title, "\n",
 					"插画ID: ", illust.Pid, "\n",
 					"画师: ", illust.UserName, "\n",
-					"画师ID: ", illust.UserId, "\n",
+					"画师ID: ", illust.UserID, "\n",
 					"直链: ", "https://pixivel.moe/detail?id=", illust.Pid,
 				)
 				if imgs != nil {
@@ -157,7 +157,7 @@ func init() { // 插件主体
 					ctx.SendChain(message.Text("请私聊发送 设置 saucenao api key [apikey] 以启用 saucenao 搜图 (方括号不需要输入), key 请前往 https://saucenao.com/user.php?page=search-api 获取"))
 				}
 				// ascii2d 搜索
-				if result, err := ascii2d.Ascii2d(pic); err != nil {
+				if result, err := ascii2d.ASCII2d(pic); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					continue
 				} else {

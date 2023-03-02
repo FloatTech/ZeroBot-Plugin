@@ -6,11 +6,10 @@ import (
 	"image/color"
 	"sync"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -39,13 +38,13 @@ func mo(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	mo := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 80, 80, 32, 32).Im,
-		imgs[1].InsertBottom(tou, 70, 90, 42, 22).Im,
-		imgs[2].InsertBottom(tou, 75, 85, 37, 27).Im,
-		imgs[3].InsertBottom(tou, 85, 75, 27, 37).Im,
-		imgs[4].InsertBottom(tou, 90, 70, 22, 42).Im,
+		imgs[0].InsertBottom(tou, 80, 80, 32, 32).Image(),
+		imgs[1].InsertBottom(tou, 70, 90, 42, 22).Image(),
+		imgs[2].InsertBottom(tou, 75, 85, 37, 27).Image(),
+		imgs[3].InsertBottom(tou, 85, 75, 27, 37).Image(),
+		imgs[4].InsertBottom(tou, 90, 70, 22, 42).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, mo))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(1, mo))
 }
 
 // cuo 搓
@@ -64,10 +63,10 @@ func cuo(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := img.Rotate(tou, 72, 0, 0)
-	m2 := img.Rotate(tou, 144, 0, 0)
-	m3 := img.Rotate(tou, 216, 0, 0)
-	m4 := img.Rotate(tou, 288, 0, 0)
+	m1 := imgfactory.Rotate(tou, 72, 0, 0)
+	m2 := imgfactory.Rotate(tou, 144, 0, 0)
+	m3 := imgfactory.Rotate(tou, 216, 0, 0)
+	m4 := imgfactory.Rotate(tou, 288, 0, 0)
 	wg.Wait()
 	if errwg != nil {
 		return "", errwg
@@ -77,13 +76,13 @@ func cuo(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	cuo := []*image.NRGBA{
-		imgs[0].InsertBottomC(tou, 0, 0, 75, 130).Im,
-		imgs[1].InsertBottomC(m1.Im, 0, 0, 75, 130).Im,
-		imgs[2].InsertBottomC(m2.Im, 0, 0, 75, 130).Im,
-		imgs[3].InsertBottomC(m3.Im, 0, 0, 75, 130).Im,
-		imgs[4].InsertBottomC(m4.Im, 0, 0, 75, 130).Im,
+		imgs[0].InsertBottomC(tou, 0, 0, 75, 130).Image(),
+		imgs[1].InsertBottomC(m1.Image(), 0, 0, 75, 130).Image(),
+		imgs[2].InsertBottomC(m2.Image(), 0, 0, 75, 130).Image(),
+		imgs[3].InsertBottomC(m3.Image(), 0, 0, 75, 130).Image(),
+		imgs[4].InsertBottomC(m4.Image(), 0, 0, 75, 130).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(5, cuo))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(5, cuo))
 }
 
 // qiao 敲
@@ -111,10 +110,10 @@ func qiao(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	qiao := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 40, 33, 57, 52).Im,
-		imgs[1].InsertUp(tou, 38, 36, 58, 50).Im,
+		imgs[0].InsertUp(tou, 40, 33, 57, 52).Image(),
+		imgs[1].InsertUp(tou, 38, 36, 58, 50).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, qiao))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(1, qiao))
 }
 
 // chi 吃
@@ -142,11 +141,11 @@ func chi(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	chi := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 0, 0, 1, 38).Im,
-		imgs[1].InsertBottom(tou, 0, 0, 1, 38).Im,
-		imgs[2].InsertBottom(tou, 0, 0, 1, 38).Im,
+		imgs[0].InsertBottom(tou, 0, 0, 1, 38).Image(),
+		imgs[1].InsertBottom(tou, 0, 0, 1, 38).Image(),
+		imgs[2].InsertBottom(tou, 0, 0, 1, 38).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, chi))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(1, chi))
 }
 
 // ceng 蹭
@@ -178,14 +177,14 @@ func ceng(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	ceng := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 75, 77, 40, 88).InsertUp(tou2, 77, 103, 102, 81).Im,
-		imgs[1].InsertUp(tou, 75, 77, 46, 100).InsertUp(img.Rotate(tou2, 10, 62, 127).Im, 0, 0, 92, 40).Im,
-		imgs[2].InsertUp(tou, 75, 77, 67, 99).InsertUp(tou2, 76, 117, 90, 8).Im,
-		imgs[3].InsertUp(tou, 75, 77, 52, 83).InsertUp(img.Rotate(tou2, -40, 94, 94).Im, 0, 0, 53, -20).Im,
-		imgs[4].InsertUp(tou, 75, 77, 56, 110).InsertUp(img.Rotate(tou2, -66, 132, 80).Im, 0, 0, 78, 40).Im,
-		imgs[5].InsertUp(tou, 75, 77, 62, 102).InsertUp(tou2, 71, 100, 110, 94).Im,
+		imgs[0].InsertUp(tou, 75, 77, 40, 88).InsertUp(tou2, 77, 103, 102, 81).Image(),
+		imgs[1].InsertUp(tou, 75, 77, 46, 100).InsertUp(imgfactory.Rotate(tou2, 10, 62, 127).Image(), 0, 0, 92, 40).Image(),
+		imgs[2].InsertUp(tou, 75, 77, 67, 99).InsertUp(tou2, 76, 117, 90, 8).Image(),
+		imgs[3].InsertUp(tou, 75, 77, 52, 83).InsertUp(imgfactory.Rotate(tou2, -40, 94, 94).Image(), 0, 0, 53, -20).Image(),
+		imgs[4].InsertUp(tou, 75, 77, 56, 110).InsertUp(imgfactory.Rotate(tou2, -66, 132, 80).Image(), 0, 0, 78, 40).Image(),
+		imgs[5].InsertUp(tou, 75, 77, 62, 102).InsertUp(tou2, 71, 100, 110, 94).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, ceng))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(8, ceng))
 }
 
 // ken 啃
@@ -213,24 +212,24 @@ func ken(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	ken := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 90, 90, 105, 150).Im,
-		imgs[1].InsertBottom(tou, 90, 83, 96, 172).Im,
-		imgs[2].InsertBottom(tou, 90, 90, 106, 148).Im,
-		imgs[3].InsertBottom(tou, 88, 88, 97, 167).Im,
-		imgs[4].InsertBottom(tou, 90, 85, 89, 179).Im,
-		imgs[5].InsertBottom(tou, 90, 90, 106, 151).Im,
-		imgs[6].Im,
-		imgs[7].Im,
-		imgs[8].Im,
-		imgs[9].Im,
-		imgs[10].Im,
-		imgs[11].Im,
-		imgs[12].Im,
-		imgs[13].Im,
-		imgs[14].Im,
-		imgs[15].Im,
+		imgs[0].InsertBottom(tou, 90, 90, 105, 150).Image(),
+		imgs[1].InsertBottom(tou, 90, 83, 96, 172).Image(),
+		imgs[2].InsertBottom(tou, 90, 90, 106, 148).Image(),
+		imgs[3].InsertBottom(tou, 88, 88, 97, 167).Image(),
+		imgs[4].InsertBottom(tou, 90, 85, 89, 179).Image(),
+		imgs[5].InsertBottom(tou, 90, 90, 106, 151).Image(),
+		imgs[6].Image(),
+		imgs[7].Image(),
+		imgs[8].Image(),
+		imgs[9].Image(),
+		imgs[10].Image(),
+		imgs[11].Image(),
+		imgs[12].Image(),
+		imgs[13].Image(),
+		imgs[14].Image(),
+		imgs[15].Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ken))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, ken))
 }
 
 // pai 拍
@@ -258,10 +257,10 @@ func pai(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	pai := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 0, 0, 1, 47).Im,
-		imgs[1].InsertUp(tou, 0, 0, 1, 67).Im,
+		imgs[0].InsertUp(tou, 0, 0, 1, 47).Image(),
+		imgs[1].InsertUp(tou, 0, 0, 1, 67).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, pai))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(1, pai))
 }
 
 // xqe 冲
@@ -289,10 +288,10 @@ func xqe(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	chong := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 30, 30, 15, 53).Im,
-		imgs[1].InsertUp(tou, 30, 30, 40, 53).Im,
+		imgs[0].InsertUp(tou, 30, 30, 15, 53).Image(),
+		imgs[1].InsertUp(tou, 30, 30, 40, 53).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(1, chong))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(1, chong))
 }
 
 // diu 丢
@@ -320,16 +319,16 @@ func diu(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	diu := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 32, 32, 108, 36).Im,
-		imgs[1].InsertUp(tou, 32, 32, 122, 36).Im,
-		imgs[2].Im,
-		imgs[3].InsertUp(tou, 123, 123, 19, 129).Im,
-		imgs[4].InsertUp(tou, 185, 185, -50, 200).InsertUp(tou, 33, 33, 289, 70).Im,
-		imgs[5].InsertUp(tou, 32, 32, 280, 73).Im,
-		imgs[6].InsertUp(tou, 35, 35, 259, 31).Im,
-		imgs[7].InsertUp(tou, 175, 175, -50, 220).Im,
+		imgs[0].InsertUp(tou, 32, 32, 108, 36).Image(),
+		imgs[1].InsertUp(tou, 32, 32, 122, 36).Image(),
+		imgs[2].Image(),
+		imgs[3].InsertUp(tou, 123, 123, 19, 129).Image(),
+		imgs[4].InsertUp(tou, 185, 185, -50, 200).InsertUp(tou, 33, 33, 289, 70).Image(),
+		imgs[5].InsertUp(tou, 32, 32, 280, 73).Image(),
+		imgs[6].InsertUp(tou, 35, 35, 259, 31).Image(),
+		imgs[7].InsertUp(tou, 175, 175, -50, 220).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, diu))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, diu))
 }
 
 // kiss 亲
@@ -366,9 +365,9 @@ func kiss(cc *context, value ...string) (string, error) {
 	kiss := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
 		kiss[i] = imgs[i].InsertUp(tou, 50, 50, userLocs[i][0], userLocs[i][1]).
-			InsertUp(tou2, 40, 40, selfLocs[i][0], selfLocs[i][1]).Im
+			InsertUp(tou2, 40, 40, selfLocs[i][0], selfLocs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, kiss))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, kiss))
 }
 
 // garbage 垃圾 垃圾桶
@@ -388,7 +387,7 @@ func garbage(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 79, 79)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 79, 79)
 	if err != nil {
 		return "", err
 	}
@@ -399,9 +398,9 @@ func garbage(cc *context, value ...string) (string, error) {
 	}
 	garbage := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		garbage[i] = imgs[i].InsertBottom(im.Im, 0, 0, locs[i][0], locs[i][1]).Im
+		garbage[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, garbage))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, garbage))
 }
 
 // thump 捶
@@ -421,7 +420,7 @@ func thump(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -432,9 +431,9 @@ func thump(cc *context, value ...string) (string, error) {
 	}
 	thump := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		thump[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		thump[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, thump))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, thump))
 }
 
 // jiujiu 啾啾
@@ -454,7 +453,7 @@ func jiujiu(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 75, 51)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 75, 51)
 	if err != nil {
 		return "", err
 	}
@@ -464,9 +463,9 @@ func jiujiu(cc *context, value ...string) (string, error) {
 	}
 	jiujiu := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		jiujiu[i] = imgs[i].InsertBottom(im.Im, 0, 0, 0, 0).Im
+		jiujiu[i] = imgs[i].InsertBottom(im.Image(), 0, 0, 0, 0).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, jiujiu))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, jiujiu))
 }
 
 // knock 2敲
@@ -486,7 +485,7 @@ func knock(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -497,9 +496,9 @@ func knock(cc *context, value ...string) (string, error) {
 	}
 	knock := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		knock[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		knock[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, knock))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, knock))
 }
 
 // 听音乐 listenMusic
@@ -529,9 +528,9 @@ func listenMusic(cc *context, value ...string) (string, error) {
 	}
 	listenmusic := make([]*image.NRGBA, 36)
 	for i := 0; i < 36; i++ {
-		listenmusic[i] = imgs[0].InsertBottomC(img.Rotate(face, float64(-i*10), 215, 215).Im, 0, 0, 207, 207).Im
+		listenmusic[i] = imgs[0].InsertBottomC(imgfactory.Rotate(face, float64(-i*10), 215, 215).Image(), 0, 0, 207, 207).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, listenmusic))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, listenmusic))
 }
 
 // loveYou 永远爱你
@@ -551,7 +550,7 @@ func loveYou(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -562,9 +561,9 @@ func loveYou(cc *context, value ...string) (string, error) {
 	}
 	loveyou := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		loveyou[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		loveyou[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, loveyou))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, loveyou))
 }
 
 // pat 2拍
@@ -584,7 +583,7 @@ func pat(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -596,9 +595,9 @@ func pat(cc *context, value ...string) (string, error) {
 	p := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
 		if i == 2 {
-			p[i] = imgs[i].InsertBottom(im.Im, locs[1][2], locs[1][3], locs[1][0], locs[1][1]).Im
+			p[i] = imgs[i].InsertBottom(im.Image(), locs[1][2], locs[1][3], locs[1][0], locs[1][1]).Image()
 		} else {
-			p[i] = imgs[i].InsertBottom(im.Im, locs[0][2], locs[0][3], locs[0][0], locs[0][1]).Im
+			p[i] = imgs[i].InsertBottom(im.Image(), locs[0][2], locs[0][3], locs[0][0], locs[0][1]).Image()
 		}
 	}
 	seq := []int{0, 1, 2, 3, 1, 2, 3, 0, 1, 2, 3, 0, 0, 1, 2, 3, 0, 0, 0, 0, 4, 5, 5, 5, 6, 7, 8, 9}
@@ -606,7 +605,7 @@ func pat(cc *context, value ...string) (string, error) {
 	for i := 0; i < len(pat); i++ {
 		pat[i] = p[seq[i]]
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, pat))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, pat))
 }
 
 // jackUp 顶
@@ -626,7 +625,7 @@ func jackUp(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -638,9 +637,9 @@ func jackUp(cc *context, value ...string) (string, error) {
 	p := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
 		if i < len(locs) {
-			p[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+			p[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 		} else {
-			p[i] = imgs[i].Im
+			p[i] = imgs[i].Image()
 		}
 	}
 	play := make([]*image.NRGBA, 0, 16)
@@ -649,7 +648,7 @@ func jackUp(cc *context, value ...string) (string, error) {
 	play = append(play, p[0:8]...)
 	play = append(play, p[12:18]...)
 	play = append(play, p[18:23]...)
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, play))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, play))
 }
 
 // pound 捣
@@ -669,7 +668,7 @@ func pound(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -680,9 +679,9 @@ func pound(cc *context, value ...string) (string, error) {
 	}
 	pound := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		pound[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		pound[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, pound))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, pound))
 }
 
 // punch 打拳
@@ -702,7 +701,7 @@ func punch(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 260, 260)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 260, 260)
 	if err != nil {
 		return "", err
 	}
@@ -713,9 +712,9 @@ func punch(cc *context, value ...string) (string, error) {
 	}
 	punch := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		punch[i] = imgs[i].InsertBottom(im.Im, 0, 0, locs[i][0], locs[i][1]-15).Im
+		punch[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]-15).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, punch))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, punch))
 }
 
 // roll 滚
@@ -735,7 +734,7 @@ func roll(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 210, 210)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 210, 210)
 	if err != nil {
 		return "", err
 	}
@@ -746,9 +745,9 @@ func roll(cc *context, value ...string) (string, error) {
 	}
 	roll := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		roll[i] = imgs[i].InsertBottomC(img.Rotate(im.Im, float64(locs[i][2]), 0, 0).Im, 0, 0, locs[i][0]+105, locs[i][1]+105).Im
+		roll[i] = imgs[i].InsertBottomC(imgfactory.Rotate(im.Image(), float64(locs[i][2]), 0, 0).Image(), 0, 0, locs[i][0]+105, locs[i][1]+105).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, roll))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, roll))
 }
 
 // suck 吸 嗦
@@ -768,7 +767,7 @@ func suck(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -779,9 +778,9 @@ func suck(cc *context, value ...string) (string, error) {
 	}
 	suck := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		suck[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		suck[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, suck))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, suck))
 }
 
 // hammer 锤
@@ -801,7 +800,7 @@ func hammer(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -812,9 +811,9 @@ func hammer(cc *context, value ...string) (string, error) {
 	}
 	hammer := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		hammer[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		hammer[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, hammer))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, hammer))
 }
 
 // tightly 紧贴 紧紧贴着
@@ -834,7 +833,7 @@ func tightly(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -845,9 +844,9 @@ func tightly(cc *context, value ...string) (string, error) {
 	}
 	tightly := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		tightly[i] = imgs[i].InsertBottom(im.Im, locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Im
+		tightly[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, tightly))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, tightly))
 }
 
 // turn 转
@@ -864,9 +863,9 @@ func turn(cc *context, value ...string) (string, error) {
 	canvas.Fill()
 	turn := make([]*image.NRGBA, 36)
 	for i := 0; i < 36; i++ {
-		turn[i] = img.Size(canvas.Image(), 0, 0).InsertUpC(img.Rotate(face, float64(10*i), 250, 250).Im, 0, 0, 125, 125).Im
+		turn[i] = imgfactory.Size(canvas.Image(), 0, 0).InsertUpC(imgfactory.Rotate(face, float64(10*i), 250, 250).Image(), 0, 0, 125, 125).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, turn))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, turn))
 }
 
 // taiguan 抬棺
@@ -894,28 +893,28 @@ func taiguan(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	taiguan := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 85, 85, 180, 65).Im,
-		imgs[1].InsertUp(tou, 85, 85, 180, 65).Im,
-		imgs[2].InsertUp(tou, 85, 85, 180, 65).Im,
-		imgs[3].InsertUp(tou, 85, 85, 180, 65).Im,
-		imgs[4].InsertUp(tou, 85, 85, 177, 65).Im,
-		imgs[5].InsertUp(tou, 85, 85, 175, 65).Im,
-		imgs[6].InsertUp(tou, 85, 85, 173, 65).Im,
-		imgs[7].InsertUp(tou, 85, 85, 171, 65).Im,
-		imgs[8].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[9].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[10].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[11].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[12].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[13].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[14].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[15].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[16].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[17].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[18].InsertUp(tou, 85, 85, 170, 65).Im,
-		imgs[19].InsertUp(tou, 85, 85, 175, 65).Im,
+		imgs[0].InsertUp(tou, 85, 85, 180, 65).Image(),
+		imgs[1].InsertUp(tou, 85, 85, 180, 65).Image(),
+		imgs[2].InsertUp(tou, 85, 85, 180, 65).Image(),
+		imgs[3].InsertUp(tou, 85, 85, 180, 65).Image(),
+		imgs[4].InsertUp(tou, 85, 85, 177, 65).Image(),
+		imgs[5].InsertUp(tou, 85, 85, 175, 65).Image(),
+		imgs[6].InsertUp(tou, 85, 85, 173, 65).Image(),
+		imgs[7].InsertUp(tou, 85, 85, 171, 65).Image(),
+		imgs[8].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[9].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[10].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[11].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[12].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[13].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[14].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[15].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[16].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[17].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[18].InsertUp(tou, 85, 85, 170, 65).Image(),
+		imgs[19].InsertUp(tou, 85, 85, 175, 65).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, taiguan))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, taiguan))
 }
 
 // zou 揍
@@ -947,11 +946,11 @@ func zou(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	zou := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 100, 45).Im,
-		imgs[1].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 101, 45).Im,
-		imgs[2].InsertUp(tou, 40, 40, 89, 140).InsertUp(tou2, 55, 55, 99, 40).Im,
+		imgs[0].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 100, 45).Image(),
+		imgs[1].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 101, 45).Image(),
+		imgs[2].InsertUp(tou, 40, 40, 89, 140).InsertUp(tou2, 55, 55, 99, 40).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, zou))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(8, zou))
 }
 
 // ci 吞
@@ -979,34 +978,34 @@ func ci(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	ci := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 25, 25, 25, 57).Im,
-		imgs[1].InsertBottom(tou, 25, 25, 27, 58).Im,
-		imgs[2].InsertBottom(tou, 25, 25, 28, 57).Im,
-		imgs[3].InsertBottom(tou, 25, 25, 30, 57).Im,
-		imgs[4].InsertBottom(tou, 25, 25, 30, 58).Im,
-		imgs[5].InsertBottom(tou, 25, 25, 30, 59).Im,
-		imgs[6].Im,
-		imgs[7].Im,
-		imgs[8].Im,
-		imgs[9].Im,
-		imgs[10].Im,
-		imgs[11].Im,
-		imgs[12].Im,
-		imgs[13].Im,
-		imgs[14].Im,
-		imgs[15].Im,
-		imgs[16].Im,
-		imgs[17].Im,
-		imgs[18].Im,
-		imgs[19].Im,
-		imgs[20].Im,
-		imgs[21].Im,
-		imgs[22].Im,
-		imgs[23].Im,
-		imgs[24].Im,
-		imgs[25].Im,
+		imgs[0].InsertBottom(tou, 25, 25, 25, 57).Image(),
+		imgs[1].InsertBottom(tou, 25, 25, 27, 58).Image(),
+		imgs[2].InsertBottom(tou, 25, 25, 28, 57).Image(),
+		imgs[3].InsertBottom(tou, 25, 25, 30, 57).Image(),
+		imgs[4].InsertBottom(tou, 25, 25, 30, 58).Image(),
+		imgs[5].InsertBottom(tou, 25, 25, 30, 59).Image(),
+		imgs[6].Image(),
+		imgs[7].Image(),
+		imgs[8].Image(),
+		imgs[9].Image(),
+		imgs[10].Image(),
+		imgs[11].Image(),
+		imgs[12].Image(),
+		imgs[13].Image(),
+		imgs[14].Image(),
+		imgs[15].Image(),
+		imgs[16].Image(),
+		imgs[17].Image(),
+		imgs[18].Image(),
+		imgs[19].Image(),
+		imgs[20].Image(),
+		imgs[21].Image(),
+		imgs[22].Image(),
+		imgs[23].Image(),
+		imgs[24].Image(),
+		imgs[25].Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ci))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, ci))
 }
 
 // worship 膜拜
@@ -1034,17 +1033,17 @@ func worship(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	worship := []*image.NRGBA{
-		imgs[0].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[1].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[2].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[3].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[4].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[5].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[6].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[7].InsertBottom(face, 140, 140, 0, 0).Im,
-		imgs[8].InsertBottom(face, 140, 140, 0, 0).Im,
+		imgs[0].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[1].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[2].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[3].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[4].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[5].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[6].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[7].InsertBottom(face, 140, 140, 0, 0).Image(),
+		imgs[8].InsertBottom(face, 140, 140, 0, 0).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, worship))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, worship))
 }
 
 // 2ceng 2蹭
@@ -1072,12 +1071,12 @@ func ceng2(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	ceng2 := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 175, 175, 78, 263).Im,
-		imgs[1].InsertBottom(tou, 175, 175, 78, 263).Im,
-		imgs[2].InsertBottom(tou, 175, 175, 78, 263).Im,
-		imgs[3].InsertBottom(tou, 175, 175, 78, 263).Im,
+		imgs[0].InsertBottom(tou, 175, 175, 78, 263).Image(),
+		imgs[1].InsertBottom(tou, 175, 175, 78, 263).Image(),
+		imgs[2].InsertBottom(tou, 175, 175, 78, 263).Image(),
+		imgs[3].InsertBottom(tou, 175, 175, 78, 263).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, ceng2))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, ceng2))
 }
 
 // dun 炖
@@ -1105,13 +1104,13 @@ func dun(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	dun := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 80, 80, 85, 45).Im,
-		imgs[1].InsertBottom(tou, 80, 80, 85, 45).Im,
-		imgs[2].InsertBottom(tou, 80, 80, 85, 45).Im,
-		imgs[3].InsertBottom(tou, 80, 80, 85, 45).Im,
-		imgs[4].InsertBottom(tou, 80, 80, 85, 45).Im,
+		imgs[0].InsertBottom(tou, 80, 80, 85, 45).Image(),
+		imgs[1].InsertBottom(tou, 80, 80, 85, 45).Image(),
+		imgs[2].InsertBottom(tou, 80, 80, 85, 45).Image(),
+		imgs[3].InsertBottom(tou, 80, 80, 85, 45).Image(),
+		imgs[4].InsertBottom(tou, 80, 80, 85, 45).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, dun))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, dun))
 }
 
 // push 滚高清重置版 过渡
@@ -1141,9 +1140,9 @@ func push(cc *context, value ...string) (string, error) {
 	}
 	push := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		push[i] = imgs[i].InsertUpC(img.Rotate(tou, float64(-22*i), 280, 280).Im, 0, 0, 523, 291).Im
+		push[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-22*i), 280, 280).Image(), 0, 0, 523, 291).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, push))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, push))
 }
 
 // peng 砰
@@ -1162,10 +1161,10 @@ func peng(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := img.Rotate(tou, 1, 80, 80)
-	m2 := img.Rotate(tou, 30, 80, 80)
-	m3 := img.Rotate(tou, 45, 85, 85)
-	m4 := img.Rotate(tou, 90, 80, 80)
+	m1 := imgfactory.Rotate(tou, 1, 80, 80)
+	m2 := imgfactory.Rotate(tou, 30, 80, 80)
+	m3 := imgfactory.Rotate(tou, 45, 85, 85)
+	m4 := imgfactory.Rotate(tou, 90, 80, 80)
 	wg.Wait()
 	if errwg != nil {
 		return "", errwg
@@ -1175,33 +1174,33 @@ func peng(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	peng := []*image.NRGBA{
-		imgs[0].Im,
-		imgs[1].Im,
-		imgs[2].Im,
-		imgs[3].Im,
-		imgs[4].Im,
-		imgs[5].Im,
-		imgs[6].Im,
-		imgs[7].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[8].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[9].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[10].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[11].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[12].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[13].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[14].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[15].InsertUp(m1.Im, 0, 0, 205, 80).Im,
-		imgs[16].InsertUp(m1.Im, 0, 0, 200, 80).Im,
-		imgs[17].InsertUp(m2.Im, 0, 0, 169, 65).Im,
-		imgs[18].InsertUp(m2.Im, 0, 0, 160, 69).Im,
-		imgs[19].InsertUp(m3.Im, 0, 0, 113, 90).Im,
-		imgs[20].InsertUp(m4.Im, 0, 0, 89, 159).Im,
-		imgs[21].InsertUp(m4.Im, 0, 0, 89, 159).Im,
-		imgs[22].InsertUp(m4.Im, 0, 0, 86, 160).Im,
-		imgs[23].InsertUp(m4.Im, 0, 0, 89, 159).Im,
-		imgs[24].InsertUp(m4.Im, 0, 0, 86, 160).Im,
+		imgs[0].Image(),
+		imgs[1].Image(),
+		imgs[2].Image(),
+		imgs[3].Image(),
+		imgs[4].Image(),
+		imgs[5].Image(),
+		imgs[6].Image(),
+		imgs[7].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[8].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[9].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[10].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[11].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[12].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[13].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[14].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[15].InsertUp(m1.Image(), 0, 0, 205, 80).Image(),
+		imgs[16].InsertUp(m1.Image(), 0, 0, 200, 80).Image(),
+		imgs[17].InsertUp(m2.Image(), 0, 0, 169, 65).Image(),
+		imgs[18].InsertUp(m2.Image(), 0, 0, 160, 69).Image(),
+		imgs[19].InsertUp(m3.Image(), 0, 0, 113, 90).Image(),
+		imgs[20].InsertUp(m4.Image(), 0, 0, 89, 159).Image(),
+		imgs[21].InsertUp(m4.Image(), 0, 0, 89, 159).Image(),
+		imgs[22].InsertUp(m4.Image(), 0, 0, 86, 160).Image(),
+		imgs[23].InsertUp(m4.Image(), 0, 0, 89, 159).Image(),
+		imgs[24].InsertUp(m4.Image(), 0, 0, 86, 160).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, peng))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(8, peng))
 }
 
 // klee 可莉吃
@@ -1221,7 +1220,7 @@ func klee(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := img.LoadFirstFrame(cc.headimgsdir[0], 82, 83)
+	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 82, 83)
 	if err != nil {
 		return "", err
 	}
@@ -1232,9 +1231,9 @@ func klee(cc *context, value ...string) (string, error) {
 	}
 	klee := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		klee[i] = imgs[i].InsertBottom(im.Im, 0, 0, locs[i][0], locs[i][1]).Im
+		klee[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, klee))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, klee))
 }
 
 // hutaoken 胡桃啃
@@ -1262,10 +1261,10 @@ func hutaoken(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	hutaoken := []*image.NRGBA{
-		imgs[0].InsertBottom(tou, 98, 101, 108, 234).Im,
-		imgs[1].InsertBottom(tou, 96, 100, 108, 237).Im,
+		imgs[0].InsertBottom(tou, 98, 101, 108, 234).Image(),
+		imgs[1].InsertBottom(tou, 96, 100, 108, 237).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, hutaoken))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(8, hutaoken))
 }
 
 // lick 2舔
@@ -1293,10 +1292,10 @@ func lick(cc *context, value ...string) (string, error) {
 		return "", err
 	}
 	lick := []*image.NRGBA{
-		imgs[0].InsertUp(tou, 44, 44, 10, 138).Im,
-		imgs[1].InsertUp(tou, 44, 44, 10, 138).Im,
+		imgs[0].InsertUp(tou, 44, 44, 10, 138).Image(),
+		imgs[1].InsertUp(tou, 44, 44, 10, 138).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, lick))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(8, lick))
 }
 
 // tiqiu 踢球
@@ -1327,9 +1326,9 @@ func tiqiu(cc *context, value ...string) (string, error) {
 	}
 	tiqiu := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		tiqiu[i] = imgs[i].InsertUpC(img.Rotate(tou, float64(-24*i), 0, 0).Im, 0, 0, locs[i][0]+38, locs[i][1]+38).Im
+		tiqiu[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-24*i), 0, 0).Image(), 0, 0, locs[i][0]+38, locs[i][1]+38).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, tiqiu))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, tiqiu))
 }
 
 // cai 踩
@@ -1356,15 +1355,15 @@ func cai(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := img.Rotate(tou, -20, 130, 80)
+	m1 := imgfactory.Rotate(tou, -20, 130, 80)
 	cai := []*image.NRGBA{
-		imgs[0].InsertBottom(m1.Im, 123, 105, 39, 188).Im,
-		imgs[1].InsertBottom(m1.Im, 123, 105, 39, 188).Im,
-		imgs[2].InsertBottom(tou, 90, 71, 50, 209).Im,
-		imgs[3].InsertBottom(tou, 85, 76, 52, 203).Im,
-		imgs[4].InsertBottom(tou, 88, 82, 49, 198).Im,
+		imgs[0].InsertBottom(m1.Image(), 123, 105, 39, 188).Image(),
+		imgs[1].InsertBottom(m1.Image(), 123, 105, 39, 188).Image(),
+		imgs[2].InsertBottom(tou, 90, 71, 50, 209).Image(),
+		imgs[3].InsertBottom(tou, 85, 76, 52, 203).Image(),
+		imgs[4].InsertBottom(tou, 88, 82, 49, 198).Image(),
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, cai))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, cai))
 }
 
 // whir 2转
@@ -1394,34 +1393,34 @@ func whirl(cc *context, value ...string) (string, error) {
 	}
 	whirl := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		whirl[i] = imgs[i].InsertUpC(img.Rotate(tou, float64(-24*i), 145, 145).Im, 0, 0, 115, 89).Im
+		whirl[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-24*i), 145, 145).Image(), 0, 0, 115, 89).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(7, whirl))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(7, whirl))
 }
 
 // always 一直
 func alwaysDoGif(cc *context, value ...string) (string, error) {
 	_ = value
 	var err error
-	var face []*image.NRGBA
+	var face []*imgfactory.Factory
 	name := cc.usrdir + "AlwaysDo.gif"
-	face, err = img.LoadAllFrames(cc.headimgsdir[0], 500, 500)
+	face, err = imgfactory.LoadAllFrames(cc.headimgsdir[0], 500, 500)
 	if err != nil {
 		// 载入失败尝试载入第一帧
-		face = make([]*image.NRGBA, 0)
-		first, err := img.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
+		face = nil
+		first, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
 		if err != nil {
 			return "", err
 		}
-		face = append(face, first.Im)
+		face = append(face, imgfactory.NewFactory(first.Image()))
 	}
 	canvas := gg.NewContext(500, 600)
 	canvas.SetColor(color.Black)
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return "", err
 	}
-	err = canvas.LoadFontFace(text.BoldFontFile, 40)
+	err = canvas.ParseFontFace(data, 40)
 	if err != nil {
 		return "", err
 	}
@@ -1437,13 +1436,13 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 	turn := make([]*image.NRGBA, length)
 	for i, f := range face {
 		canvas := gg.NewContext(500, 600)
-		canvas.DrawImage(f, 0, 0)
+		canvas.DrawImage(f.Image(), 0, 0)
 		canvas.SetColor(color.Black)
-		_ = canvas.LoadFontFace(text.BoldFontFile, 40)
+		// _ = canvas.ParseFontFace(data, 40)
 		canvas.DrawString(arg, 280-l, 560)
-		canvas.DrawImage(img.Size(f, 90, 90).Im, 280, 505)
+		canvas.DrawImage(imgfactory.Size(f.Image(), 90, 90).Image(), 280, 505)
 		canvas.DrawString("吗", 370, 560)
-		turn[i] = img.Size(canvas.Image(), 0, 0).Im
+		turn[i] = imgfactory.Size(canvas.Image(), 0, 0).Image()
 	}
-	return "file:///" + name, writer.SaveGIF2Path(name, img.MergeGif(8, turn))
+	return "file:///" + name, imgfactory.SaveGIF2Path(name, imgfactory.MergeGif(8, turn))
 }

@@ -20,15 +20,14 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/nsfw"
 	"github.com/FloatTech/AnimeAPI/scale"
+	"github.com/FloatTech/imgfactory"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 )
 
 func init() {
@@ -81,10 +80,10 @@ func init() {
 					x := im.Bounds().Size().X * 512 / px
 					y := im.Bounds().Size().Y * 512 / px
 					ctx.SendChain(message.Text("图片", im.Bounds().Size().X, "x", im.Bounds().Size().Y, "过大，调整图片至", x, "x", y))
-					im = img.Size(im, x, y).Im
+					im = imgfactory.Size(im, x, y).Image()
 					w := binary.SelectWriter()
 					defer binary.PutWriter(w)
-					_, err = writer.WriteTo(im, w)
+					_, err = imgfactory.WriteTo(im, w)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return

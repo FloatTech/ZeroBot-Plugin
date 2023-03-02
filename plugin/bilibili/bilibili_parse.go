@@ -35,7 +35,7 @@ func init() {
 	en.OnRegex(`((b23|acg).tv|bili2233.cn)/[0-9a-zA-Z]+`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			url := ctx.State["regex_matched"].([]string)[0]
-			realurl, err := bz.GetRealUrl("https://" + url)
+			realurl, err := bz.GetRealURL("https://" + url)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

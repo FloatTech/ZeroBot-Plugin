@@ -2,14 +2,11 @@
 package aireply
 
 import (
-	"os"
+	"regexp"
 	"strconv"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/aireply"
-	"github.com/FloatTech/AnimeAPI/chatgpt"
 	"github.com/FloatTech/AnimeAPI/tts/genshin"
-	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -18,7 +15,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var t = newttsmode()
+var replmd = replymode{
+	replyModes: []string{"青云客", "小爱", "ChatGPT"},
+}
+
+var ttsmd = newttsmode()
 
 func init() { // 插件主体
 	ent := control.Register("tts", &ctrl.Options[*zero.Ctx]{
@@ -35,13 +36,13 @@ func init() { // 插件主体
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "人工智能回复",
-		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT SessionToken xxx\n- 设置 ChatGPT UA xxx\n- 设置 ChatGPT CF xxx\n- 重置ChatGPT连接",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT api key xxx",
 		PrivateDataFolder: "aireply",
 	})
 
 	enr.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			aireply := getReplyMode(ctx)
+			aireply := replmd.getReplyMode(ctx)
 			reply := message.ParseMessageFromString(aireply.Talk(ctx.Event.UserID, ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
 			// 回复
 			time.Sleep(time.Second * 1)
@@ -55,7 +56,7 @@ func init() { // 插件主体
 
 	enr.OnPrefix("设置回复模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["args"].(string)
-		err := setReplyMode(ctx, param)
+		err := replmd.setReplyMode(ctx, param)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -63,116 +64,35 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 
-	chatgptfile := enr.DataFolder() + "chatgpt.txt"
-	uafile := enr.DataFolder() + "ua.txt"
-	cffile := enr.DataFolder() + "cf.txt"
-	cfg := &chatgpt.Config{
-		RefreshInterval: time.Hour,
-		Timeout:         time.Minute,
-	}
-	data, err := os.ReadFile(chatgptfile)
-	if err == nil {
-		cfg.SessionToken = binary.BytesToString(data)
-		data, err = os.ReadFile(uafile)
-		if err == nil {
-			cfg.UA = binary.BytesToString(data)
-			data, err = os.ReadFile(cffile)
-			if err == nil {
-				cfg.CFClearance = binary.BytesToString(data)
-			}
-		}
-	}
-	chats = aireply.NewChatGPT(cfg)
-	go func() {
-		for range time.NewTicker(time.Hour).C {
-			if chats == nil || cfg.SessionToken == "" {
-				continue
-			}
-			err := os.WriteFile(chatgptfile, binary.StringToBytes(cfg.SessionToken), 0644)
-			if err != nil {
-				logrus.Warnln("[aireply] 保存 chatgpt session token 到", chatgptfile, "失败:", err)
-			}
-		}
-	}()
-
-	enr.OnRegex(`^设置\s*ChatGPT\s*SessionToken\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		token := ctx.State["regex_matched"].([]string)[1]
-		f, err := os.Create(chatgptfile)
+	enr.OnRegex(`^设置\s*ChatGPT\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := replmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		defer f.Close()
-		_, err = f.WriteString(token)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		cfg.SessionToken = token
 		ctx.SendChain(message.Text("设置成功"))
 	})
 
-	enr.OnRegex(`^设置\s*ChatGPT\s*UA\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		ua := ctx.State["regex_matched"].([]string)[1]
-		f, err := os.Create(uafile)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		defer f.Close()
-		_, err = f.WriteString(ua)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		cfg.UA = ua
-		ctx.SendChain(message.Text("设置成功"))
-	})
-
-	enr.OnRegex(`^设置\s*ChatGPT\s*CF\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		cf := ctx.State["regex_matched"].([]string)[1]
-		f, err := os.Create(cffile)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		defer f.Close()
-		_, err = f.WriteString(cf)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		cfg.CFClearance = cf
-		ctx.SendChain(message.Text("设置成功"))
-	})
-
-	enr.OnFullMatch("重置ChatGPT连接").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if chats == nil {
-			ctx.SendChain(message.Text("ERROR: chats 为空"))
-			return
-		}
-		err := chats.Reset(ctx.Event.UserID)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		ctx.SendChain(message.Text("成功"))
-	})
-
+	endpre := regexp.MustCompile(`\pP$`)
 	ent.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			// 获取回复模式
-			r := getReplyMode(ctx)
+			r := replmd.getReplyMode(ctx)
 			// 获取回复的文本
 			reply := r.TalkPlain(ctx.Event.UserID, msg, zero.BotConfig.NickName[0])
 			// 获取语音
-			speaker, err := t.getSoundMode(ctx)
+			speaker, err := ttsmd.getSoundMode(ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			rec, err := speaker.Speak(ctx.Event.UserID, func() string { return reply })
+			rec, err := speaker.Speak(ctx.Event.UserID, func() string {
+				if !endpre.MatchString(reply) {
+					return reply + "。"
+				}
+				return reply
+			})
 			if err != nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 				return
@@ -197,7 +117,7 @@ func init() { // 插件主体
 		}
 		// 保存设置
 		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, n, ")")
-		err = t.setSoundMode(ctx, param, n, n)
+		err = ttsmd.setSoundMode(ctx, param, n, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -205,7 +125,7 @@ func init() { // 插件主体
 		if banner, ok := genshin.TestRecord[param]; ok {
 			logrus.Debugln("[tts] banner:", banner, "get sound mode...")
 			// 设置验证
-			speaker, err := t.getSoundMode(ctx)
+			speaker, err := ttsmd.getSoundMode(ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -239,7 +159,7 @@ func init() { // 插件主体
 			}
 		}
 		// 保存设置
-		err = t.setDefaultSoundMode(param, n, n)
+		err = ttsmd.setDefaultSoundMode(param, n, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -248,13 +168,13 @@ func init() { // 插件主体
 	})
 
 	ent.OnFullMatch("恢复成默认语音模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := t.resetSoundMode(ctx)
+		err := ttsmd.resetSoundMode(ctx)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
 		// 设置验证
-		speaker, err := t.getSoundMode(ctx)
+		speaker, err := ttsmd.getSoundMode(ctx)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -263,7 +183,7 @@ func init() { // 插件主体
 	})
 
 	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
+		err := ttsmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

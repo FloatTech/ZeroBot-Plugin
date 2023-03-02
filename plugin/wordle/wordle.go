@@ -13,11 +13,11 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/tl"
+	"github.com/FloatTech/imgfactory"
 
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -135,14 +135,13 @@ func init() {
 				return
 			}
 			game := newWordleGame(target)
-			_, img, cl, _ := game("")
+			_, img, _ := game("")
 			ctx.Send(
 				message.ReplyWithMessage(ctx.Event.MessageID,
 					message.ImageBytes(img),
 					message.Text("你有", class+1, "次机会猜出单词，单词长度为", class, "，请发送单词"),
 				),
 			)
-			cl()
 			var next *zero.FutureEvent
 			if ctx.State["regex_matched"].([]string)[1] == "个人" {
 				next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(fmt.Sprintf(`^([A-Z]|[a-z]){%d}$`, class)),
@@ -170,7 +169,7 @@ func init() {
 				case c := <-recv:
 					tick.Reset(105 * time.Second)
 					after.Reset(120 * time.Second)
-					win, img, cl, err = game(c.Event.Message.String())
+					win, img, err = game(c.Event.Message.String())
 					switch {
 					case win:
 						tick.Stop()
@@ -181,7 +180,6 @@ func init() {
 								message.Text("太棒了，你猜出来了！答案是: ", target, "(", tt, ")"),
 							),
 						)
-						cl()
 						return
 					case err == errTimesRunOut:
 						tick.Stop()
@@ -192,7 +190,6 @@ func init() {
 								message.Text("游戏结束...答案是: ", target, "(", tt, ")"),
 							),
 						)
-						cl()
 						return
 					case err == errLengthNotEnough:
 						ctx.Send(
@@ -212,17 +209,16 @@ func init() {
 								message.ImageBytes(img),
 							),
 						)
-						cl()
 					}
 				}
 			}
 		})
 }
 
-func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
+func newWordleGame(target string) func(string) (bool, []byte, error) {
 	var class = len(target)
 	record := make([]string, 0, len(target)+1)
-	return func(s string) (win bool, data []byte, cl func(), err error) {
+	return func(s string) (win bool, data []byte, err error) {
 		if s != "" {
 			s = strings.ToLower(s)
 			if target == s {
@@ -241,6 +237,7 @@ func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
 			record = append(record, s)
 			if len(record) >= cap(record) {
 				err = errTimesRunOut
+				return
 			}
 		}
 		var side = 20
@@ -271,7 +268,7 @@ func newWordleGame(target string) func(string) (bool, []byte, func(), error) {
 				}
 			}
 		}
-		data, cl = writer.ToBytes(ctx.Image())
+		data, err = imgfactory.ToBytes(ctx.Image())
 		return
 	}
 }

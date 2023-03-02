@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/quic-go/quic-go/http3"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -81,6 +81,10 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			if len(illust.ImageUrls) == 0 {
+				ctx.SendChain(message.Text("ERROR: nil image url"))
+				return
+			}
 			u := illust.ImageUrls[0]
 			n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
 			f := illust.Path(0)
@@ -94,7 +98,7 @@ func init() {
 					"标题: ", il.Title, "\n",
 					"副标题: ", il.AltTitle, "\n",
 					"ID: ", il.ID, "\n",
-					"画师: ", illust.UserName, " (", illust.UserId, ")", "\n",
+					"画师: ", illust.UserName, " (", illust.UserID, ")", "\n",
 					"分级:", il.Sanity, "\n",
 					hrefre.ReplaceAllString(strings.ReplaceAll(strings.ReplaceAll(il.Description, "<br />", "\n"), "</a>", ""), ""),
 					printtags(reflect.ValueOf(&il.Tags)),
@@ -115,6 +119,7 @@ func soutuapi(keyword string) (r resultjson, err error) {
 		"GET",
 		"https://pixivel.moe/",
 		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
+		nil,
 	)
 	if err != nil {
 		return

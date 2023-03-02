@@ -67,7 +67,7 @@ func init() {
 				data, err := web.RequestDataWith(web.NewDefaultClient(),
 					`https://res.fbigame.com/hs/v13/`+cid+`.png?auth_key=`+
 						gjson.Get(g, `list.`+strconv.Itoa(i)+`.auth_key`).String(),
-					reqconf[0], reqconf[1], reqconf[2])
+					reqconf[0], reqconf[1], reqconf[2], nil)
 				if err == nil {
 					err = os.WriteFile(cachefile, data, 0644)
 				}
@@ -95,10 +95,10 @@ func init() {
 }
 
 func sh(s string) string {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2])
+	data, err := web.RequestDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2], nil)
 	if err == nil {
 		url := hs + para + "&hash=" + strings.SplitN(strings.SplitN(helper.BytesToString(data), `var hash = "`, 2)[1], `"`, 2)[0] + "&search=" + s
-		r, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		r, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 		if err == nil {
 			return helper.BytesToString(r)
 		}
@@ -107,10 +107,10 @@ func sh(s string) string {
 }
 
 func kz(s string) string {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2])
+	data, err := web.RequestDataWith(web.NewDefaultClient(), "https://hs.fbigame.com", reqconf[0], reqconf[1], reqconf[2], nil)
 	if err == nil {
 		url := hs + para + "mod=general_deck_image&deck_code=" + s + "&deck_text=&hash=" + strings.SplitN(strings.SplitN(helper.BytesToString(data), `var hash = "`, 2)[1], `"`, 2)[0] + "&search=" + s
-		r, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2])
+		r, err := web.RequestDataWith(web.NewDefaultClient(), url, reqconf[0], reqconf[1], reqconf[2], nil)
 		if err == nil {
 			return "base64://" + gjson.Get(helper.BytesToString(r), "img").String()
 		}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	wyy "github.com/FloatTech/AnimeAPI/neteasemusic"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -18,9 +19,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 图片输出
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/floatbox/process"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -380,8 +381,9 @@ func init() {
 					break
 				}
 			}
-			err = file.DownloadTo(fileURL, cfg.MusicPath+listName+"/"+fileSearchName, true)
+			err = file.DownloadTo(fileURL, cfg.MusicPath+listName+"/"+fileSearchName)
 			if err == nil {
+				process.SleepAbout1sTo2s()
 				ctx.SendChain(message.Text("成功！"))
 			} else {
 				ctx.SendChain(message.Text(serviceErr, err))
@@ -404,18 +406,18 @@ func init() {
 			canvas.SetRGB(1, 1, 1) // 白色
 			canvas.Clear()
 			/***********下载字体，可以注销掉***********/
-			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			boldfd, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}
-			_, err = file.GetLazyData(text.FontFile, control.Md5File, true)
+			fd, err := file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 			}
 			/***********设置字体颜色为黑色***********/
 			canvas.SetRGB(0, 0, 0)
 			/***********设置字体大小,并获取字体高度用来定位***********/
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(boldfd, fontSize); err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
 			}
@@ -424,7 +426,7 @@ func init() {
 			canvas.DrawString("序号\t\t歌单名\t\t歌曲数量\t\t网易云歌单ID", 20, 50-h) // 放置在中间位置
 			canvas.DrawString("——————————————————————", 20, 70-h)
 			/***********设置字体大小,并获取字体高度用来定位***********/
-			if err = canvas.LoadFontFace(text.FontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(fd, fontSize); err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
 			}
@@ -444,11 +446,14 @@ func init() {
 					canvas.DrawString("当前设置的默认歌单为: "+dlist.Name, 80, float64(85+20*j)-h)
 				}
 			}
-			data, cl := writer.ToBytes(canvas.Image())
+			data, err := imgfactory.ToBytes(canvas.Image())
+			if err != nil {
+				ctx.SendChain(message.Text(serviceErr, err))
+				return
+			}
 			if id := ctx.SendChain(message.ImageBytes(data)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
-			cl()
 		})
 	engine.OnPrefix("设置猜歌默认歌单", zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

@@ -222,7 +222,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("那我就不手下留情了~"))
 		})
 	// 修改名片
-	engine.OnRegex(`^修改名片.*(\d+).*\s+(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^修改名片.*?(\d+).+?\s*(.*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			if len(ctx.State["regex_matched"].([]string)[2]) > 60 {
 				ctx.SendChain(message.Text("名字太长啦！"))
@@ -236,30 +236,38 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 修改头衔
-	engine.OnRegex(`^修改头衔.*(\d+).*\s+(.*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^修改头衔.*?(\d+).+?\s*(.*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
+			sptitle := ctx.State["regex_matched"].([]string)[2]
+			if sptitle == "" {
+				ctx.SendChain(message.Text("头衔不能为空！"))
+				return
+			} else if len(sptitle) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
 				return
 			}
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被修改群头衔的人
-				ctx.State["regex_matched"].([]string)[2],                 // 修改成的群头衔
+				sptitle, // 修改成的群头衔
 			)
 			ctx.SendChain(message.Text("嗯！已经修改了"))
 		})
 	// 申请头衔
-	engine.OnRegex(`^申请头衔\s+(.*)$`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^申请头衔\s*(.*)$`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if len(ctx.State["regex_matched"].([]string)[1]) > 18 {
+			sptitle := ctx.State["regex_matched"].([]string)[1]
+			if sptitle == "" {
+				ctx.SendChain(message.Text("头衔不能为空！"))
+				return
+			} else if len(sptitle) > 18 {
 				ctx.SendChain(message.Text("头衔太长啦！"))
 				return
 			}
 			ctx.SetGroupSpecialTitle(
 				ctx.Event.GroupID,
-				ctx.Event.UserID,                         // 被修改群头衔的人
-				ctx.State["regex_matched"].([]string)[1], // 修改成的群头衔
+				ctx.Event.UserID, // 被修改群头衔的人
+				sptitle,          // 修改成的群头衔
 			)
 			ctx.SendChain(message.Text("嗯！不错的头衔呢~"))
 		})

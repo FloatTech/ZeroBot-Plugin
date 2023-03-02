@@ -16,15 +16,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Coloured-glaze/gg"
 	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -174,7 +173,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back = img.Size(back, backX, backY).Im
+				back = imgfactory.Size(back, backX, backY).Image()
 			}
 			if len(vups) > 50 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了, 只展示前50个up"))
@@ -188,11 +187,11 @@ func init() {
 				canvas.DrawImage(back, 0, 0)
 			}
 			canvas.SetColor(color.Black)
-			_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+			data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(data, fontSize); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
@@ -259,12 +258,15 @@ func init() {
 			f, err := os.Create(drawedFile)
 			if err != nil {
 				log.Errorln("[bilibili]", err)
-				data, cl := writer.ToBytes(canvas.Image())
+				data, err := imgfactory.ToBytes(canvas.Image())
+				if err != nil {
+					log.Errorln("[bilibili]", err)
+					return
+				}
 				ctx.SendChain(message.ImageBytes(data))
-				cl()
 				return
 			}
-			_, err = writer.WriteTo(canvas.Image(), f)
+			_, err = imgfactory.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -291,7 +293,7 @@ func init() {
 		}
 
 		client := &http.Client{Transport: tr}
-		data, err := web.RequestDataWith(client, fmt.Sprintf(bz.DanmakuAPI, id, pagenum), "GET", "", web.RandUA())
+		data, err := web.RequestDataWith(client, fmt.Sprintf(bz.DanmakuAPI, id, pagenum), "GET", "", web.RandUA(), nil)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -318,15 +320,15 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			back = img.Size(back, backX, backY).Im
+			back = imgfactory.Size(back, backX, backY).Image()
 		}
 		canvas := gg.NewContext(100, 100)
 		fontSize := 50.0
-		_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+		data, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 		}
-		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+		if err = canvas.ParseFontFace(data, fontSize); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -338,14 +340,14 @@ func init() {
 		for i := 0; i < len(danmaku.Data.Data); i++ {
 			totalDanmuku += len(danmaku.Data.Data[i].Danmakus) + 1
 		}
-		cw := 10000
+		cw := 3000
 		mcw := float64(2000)
 		ch := 550 + len(danmaku.Data.Data)*int(faceH) + totalDanmuku*int(danmuH)
 		canvas = gg.NewContext(cw, ch)
 		canvas.SetColor(color.White)
 		canvas.Clear()
 		canvas.SetColor(color.Black)
-		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+		if err = canvas.ParseFontFace(data, fontSize); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -384,7 +386,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back = img.Size(back, backX, backY).Im
+				back = imgfactory.Size(back, backX, backY).Image()
 			}
 			if back != nil {
 				canvas.DrawImage(back, facestart, int(channelStart))
@@ -520,12 +522,15 @@ func init() {
 		f, err := os.Create(drawedFile)
 		if err != nil {
 			log.Errorln("[bilibili]", err)
-			data, cl := writer.ToBytes(nim)
+			data, err := imgfactory.ToBytes(nim)
+			if err != nil {
+				log.Errorln("[bilibili]", err)
+				return
+			}
 			ctx.SendChain(message.ImageBytes(data))
-			cl()
 			return
 		}
-		_, err = writer.WriteTo(nim, f)
+		_, err = imgfactory.WriteTo(nim, f)
 		_ = f.Close()
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
