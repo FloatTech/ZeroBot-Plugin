@@ -658,6 +658,24 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>多功能抽签</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"`
+
+  支持图包文件夹和gif抽签
+
+  - [x] (刷新)抽签列表
+  
+  - [x] 抽签-[签名]
+  
+  - [x] 查看抽签[gif签名]
+	
+  - [x] 添加抽签[签名][gif图片]
+	
+  - [x] 删除抽签[gif签名]
+
+</details>
+<details>
   <summary>女装</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dress"`
