@@ -10,11 +10,10 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/fumiama/jieba/util/helper"
 	"github.com/sirupsen/logrus"
@@ -86,8 +85,11 @@ func init() {
 			return
 		}
 		// 生成图片
-		data, cl := writer.ToBytes(lotsImg)
-		defer cl()
+		data, err := imgfactory.ToBytes(lotsImg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.ImageBytes(data))
 	})
 	en.OnPrefix("查看抽签", zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -204,19 +206,19 @@ func randGif(gifName string) (image.Image, error) {
 		return nil, err
 	}
 	/*
-		firstImg, err := img.Load(name)
+		firstImg, err := imgfactory.Load(name)
 		if err != nil {
 			return nil, err
 		}
 		ims := make([]*image.NRGBA, len(im.Image))
 		for i, v := range im.Image {
-			ims[i] = img.Size(firstImg, firstImg.Bounds().Max.X, firstImg.Bounds().Max.Y).InsertUpC(v, 0, 0, firstImg.Bounds().Max.X/2, firstImg.Bounds().Max.Y/2).Clone().Im
+			ims[i] = imgfactory.Size(firstImg, firstImg.Bounds().Max.X, firstImg.Bounds().Max.Y).InsertUpC(v, 0, 0, firstImg.Bounds().Max.X/2, firstImg.Bounds().Max.Y/2).Clone().Image()
 		}
 		/*/
-	// 如果gif图片出现信息缺失请使用上面注释掉的代码，把下面注释了(上面的存在bug)
+	// 如果gif图片出现信息缺失请使用上面注释掉的代码，把下面注释了(注意:上面的代码部分图存在bug)
 	ims := make([]*image.NRGBA, len(im.Image))
 	for i, v := range im.Image {
-		ims[i] = img.Size(v, v.Bounds().Max.X, v.Bounds().Max.Y).Im
+		ims[i] = imgfactory.Size(v, v.Bounds().Max.X, v.Bounds().Max.Y).Image()
 	} // */
 	return ims[rand.Intn(len(ims))], err
 }
