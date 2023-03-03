@@ -84,19 +84,21 @@ func checknwm(ctx *zero.Ctx) bool {
 	}
 	return true
 }
-func newwm() (wd *wmdata, err error) {
+func newwm() (*wmdata, error) {
 	var itemapi wfAPIItem // WarFrame市场的数据实例
+	var wd wmdata
+	println("正在获取Warframe市场物品列表")
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
 		request.Header.Add("Language", "zh-hans")
 		return nil
 	}, nil)
 	if err != nil {
-		return wd, err
+		return &wd, err
 	}
 	err = json.Unmarshal(data, &itemapi)
 	if err != nil {
-		return wd, err
+		return &wd, err
 	}
 	wd.wmitems = make(map[string]items, len(itemapi.Payload.Items)*4)
 	wd.itemNames = make([]string, len(itemapi.Payload.Items))
@@ -104,5 +106,6 @@ func newwm() (wd *wmdata, err error) {
 		wd.wmitems[v.ItemName] = v
 		wd.itemNames[i] = v.ItemName
 	}
-	return
+	println("获取Warframe市场物品列表完成")
+	return &wd, nil
 }
