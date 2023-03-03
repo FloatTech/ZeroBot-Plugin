@@ -71,10 +71,11 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"    // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"       // 叔叔的AI二次元图片放大
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"    // 来份涩图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"    // 搜番
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"    // 百度文心AI画图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"      // 猜单词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"       // 月幕galgame
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe" // 搜番
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI" // 百度文心AI画图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"   // 猜单词
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"    // 月幕galgame
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/thesaurus" // 游戏王combo记录器
 
