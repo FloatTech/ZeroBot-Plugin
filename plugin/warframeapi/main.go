@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -15,7 +16,13 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var wmitems, itemNames, _ = newwm()
+type wmdata struct {
+	sync.RWMutex
+	wmitems   map[string]items
+	itemNames []string
+}
+
+var wd, _ = newwm()
 
 func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
@@ -237,7 +244,9 @@ func init() {
 	eng.OnPrefix(".wm ", checknwm).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 根据输入的名称, 从游戏物品名称列表中进行模糊搜索
-			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itemNames)
+			wd.RLock()
+			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), wd.itemNames)
+			wd.RUnlock()
 			// 物品名称
 			var name string
 
@@ -282,17 +291,20 @@ func init() {
 			if onlymaxrank {
 				msgs = msgs[:0]
 			}
-			sells, iteminfo, txt, err := getitemsorder(wmitems[name].URLName, onlymaxrank)
+
+			sells, iteminfo, txt, err := getitemsorder(wd.wmitems[name].URLName, onlymaxrank)
 			if !onlymaxrank {
+				wd.RLock()
 				if iteminfo.ZhHans.WikiLink == "" {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Image("https://warframe.market/static/assets/"+wmitems[name].Thumb),
-						message.Text("\n", wmitems[name].ItemName)))
+						message.Image("https://warframe.market/static/assets/"+wd.wmitems[name].Thumb),
+						message.Text("\n", wd.wmitems[name].ItemName)))
 				} else {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Image("https://warframe.market/static/assets/"+wmitems[name].Thumb),
-						message.Text("\n", wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
+						message.Image("https://warframe.market/static/assets/"+wd.wmitems[name].Thumb),
+						message.Text("\n", wd.wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
 				}
+				wd.RUnlock()
 			}
 
 			if err != nil {
