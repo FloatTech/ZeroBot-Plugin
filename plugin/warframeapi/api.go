@@ -84,7 +84,7 @@ func checknwm(ctx *zero.Ctx) bool {
 	}
 	return true
 }
-func newwm() (wd wmdata, err error) {
+func newwm() (wd *wmdata, err error) {
 	var itemapi wfAPIItem // WarFrame市场的数据实例
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
