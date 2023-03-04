@@ -187,13 +187,13 @@ func randFile(path string, indexMax int) (string, error) {
 		if drawFile.IsDir() {
 			indexMax--
 			if indexMax <= 0 {
-				return "", errors.New("该文件夹存在太多非图片文件,请清理")
+				return "", errors.New("图包[" + path + "]存在太多非图片文件,请清理")
 			}
 			return randFile(path, indexMax)
 		}
 		return picPath + "/" + drawFile.Name(), err
 	}
-	return "", errors.New("该抽签不存在签内容")
+	return "", errors.New("图包[" + path + "]不存在签内容")
 }
 
 func randGif(gifName string) (image.Image, error) {
