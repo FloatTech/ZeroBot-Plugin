@@ -79,6 +79,7 @@ func init() {
 		if userInfo.LastTime != 0 {
 			lastTime := time.Unix(userInfo.LastTime, 0)
 			subtime = time.Since(lastTime).Hours()
+			userInfo.LastTime = time.Unix(userInfo.LastTime, 0).Add(time.Duration(subtime) * time.Hour).Unix()
 		}
 		if subtime < 8 {
 			userInfo.Mood -= 5
@@ -190,6 +191,7 @@ func init() {
 		if userInfo.LastTime != 0 {
 			lastTime := time.Unix(userInfo.LastTime, 0)
 			subtime = time.Since(lastTime).Hours()
+			userInfo.LastTime = time.Unix(userInfo.LastTime, 0).Add(time.Duration(subtime) * time.Hour).Unix()
 		}
 		userInfo.Satiety -= subtime
 		userInfo.Mood -= int(subtime)
@@ -236,6 +238,24 @@ func init() {
 		_, workEnd := userInfo.settleOfWork(gidStr)
 		if !workEnd {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "还在努力打工,没有回来呢"))
+			return
+		}
+		/***************************************************************/
+		subtime := 0.0
+		if userInfo.LastTime != 0 {
+			lastTime := time.Unix(userInfo.LastTime, 0)
+			subtime = time.Since(lastTime).Hours()
+			userInfo.LastTime = time.Unix(userInfo.LastTime, 0).Add(time.Duration(subtime) * time.Hour).Unix()
+		}
+		userInfo.Satiety -= subtime
+		userInfo.Mood -= int(subtime)
+		userInfo = userInfo.settleOfWeight()
+		if userInfo.Weight < 0 {
+			if catdata.delcat(gidStr, uidStr) != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			ctx.SendChain(message.Reply(id), message.Text("由于你长时间没有喂猫猫,", userInfo.Name, "已经饿死了..."))
 			return
 		}
 		/***************************************************************/
