@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -15,7 +16,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var wmitems, itemNames = newwm()
+var wmdr sync.RWMutex
+
+type wmdata struct {
+	wmitems   map[string]items
+	itemNames []string
+}
+
+var wd, _ = newwm()
 
 func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
@@ -234,10 +242,12 @@ func init() {
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
 	// 根据名称从Warframe市场查询物品售价
-	eng.OnPrefix(".wm ").SetBlock(true).
+	eng.OnPrefix(".wm ", checknwm).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 根据输入的名称, 从游戏物品名称列表中进行模糊搜索
-			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itemNames)
+			wmdr.RLock()
+			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), wd.itemNames)
+			wmdr.RUnlock()
 			// 物品名称
 			var name string
 
@@ -282,17 +292,20 @@ func init() {
 			if onlymaxrank {
 				msgs = msgs[:0]
 			}
-			sells, iteminfo, txt, err := getitemsorder(wmitems[name].URLName, onlymaxrank)
+
+			sells, iteminfo, txt, err := getitemsorder(wd.wmitems[name].URLName, onlymaxrank)
 			if !onlymaxrank {
+				wmdr.RLock()
 				if iteminfo.ZhHans.WikiLink == "" {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Image("https://warframe.market/static/assets/"+wmitems[name].Thumb),
-						message.Text("\n", wmitems[name].ItemName)))
+						message.Image("https://warframe.market/static/assets/"+wd.wmitems[name].Thumb),
+						message.Text("\n", wd.wmitems[name].ItemName)))
 				} else {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Image("https://warframe.market/static/assets/"+wmitems[name].Thumb),
-						message.Text("\n", wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
+						message.Image("https://warframe.market/static/assets/"+wd.wmitems[name].Thumb),
+						message.Text("\n", wd.wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
 				}
+				wmdr.RUnlock()
 			}
 
 			if err != nil {

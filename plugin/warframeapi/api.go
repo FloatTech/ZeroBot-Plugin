@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 	"net/http"
 	"sort"
 
@@ -68,27 +70,42 @@ func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, 
 	return
 }
 
-func newwm() (wmitems map[string]items, itemNames []string) {
+// 检查值是否为空，为空则重新获取
+func checknwm(ctx *zero.Ctx) bool {
+	var err error
+	wmdr.Lock()
+	defer wmdr.Unlock()
+	if wd.wmitems == nil || wd.itemNames == nil {
+		wd, err = newwm()
+		if err != nil { // 获取失败
+			ctx.SendChain(message.Text("ERROR: 获取Warframe市场物品列表失败(" + err.Error() + ")"))
+			return false
+		}
+	}
+	return true
+}
+func newwm() (*wmdata, error) {
 	var itemapi wfAPIItem // WarFrame市场的数据实例
-
+	var wd wmdata
+	println("正在获取Warframe市场物品列表")
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
 		request.Header.Add("Language", "zh-hans")
 		return nil
 	}, nil)
 	if err != nil {
-		panic(err)
+		return &wd, err
 	}
 	err = json.Unmarshal(data, &itemapi)
 	if err != nil {
-		panic(err)
+		return &wd, err
 	}
-
-	wmitems = make(map[string]items, len(itemapi.Payload.Items)*4)
-	itemNames = make([]string, len(itemapi.Payload.Items))
+	wd.wmitems = make(map[string]items, len(itemapi.Payload.Items)*4)
+	wd.itemNames = make([]string, len(itemapi.Payload.Items))
 	for i, v := range itemapi.Payload.Items {
-		wmitems[v.ItemName] = v
-		itemNames[i] = v.ItemName
+		wd.wmitems[v.ItemName] = v
+		wd.itemNames[i] = v.ItemName
 	}
-	return
+	println("获取Warframe市场物品列表完成")
+	return &wd, nil
 }
