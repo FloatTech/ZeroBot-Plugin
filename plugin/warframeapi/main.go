@@ -16,8 +16,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+var wmdr sync.RWMutex
+
 type wmdata struct {
-	sync.RWMutex
 	wmitems   map[string]items
 	itemNames []string
 }
@@ -244,9 +245,9 @@ func init() {
 	eng.OnPrefix(".wm ", checknwm).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 根据输入的名称, 从游戏物品名称列表中进行模糊搜索
-			wd.RLock()
+			wmdr.RLock()
 			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), wd.itemNames)
-			wd.RUnlock()
+			wmdr.RUnlock()
 			// 物品名称
 			var name string
 
@@ -294,7 +295,7 @@ func init() {
 
 			sells, iteminfo, txt, err := getitemsorder(wd.wmitems[name].URLName, onlymaxrank)
 			if !onlymaxrank {
-				wd.RLock()
+				wmdr.RLock()
 				if iteminfo.ZhHans.WikiLink == "" {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
 						message.Image("https://warframe.market/static/assets/"+wd.wmitems[name].Thumb),
@@ -304,7 +305,7 @@ func init() {
 						message.Image("https://warframe.market/static/assets/"+wd.wmitems[name].Thumb),
 						message.Text("\n", wd.wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
 				}
-				wd.RUnlock()
+				wmdr.RUnlock()
 			}
 
 			if err != nil {

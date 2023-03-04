@@ -73,8 +73,8 @@ func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, 
 // 检查值是否为空，为空则重新获取
 func checknwm(ctx *zero.Ctx) bool {
 	var err error
-	wd.Lock()
-	defer wd.Unlock()
+	wmdr.Lock()
+	defer wmdr.Unlock()
 	if wd.wmitems == nil || wd.itemNames == nil {
 		wd, err = newwm()
 		if err != nil { // 获取失败
