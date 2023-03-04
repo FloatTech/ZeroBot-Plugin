@@ -85,7 +85,7 @@ func init() {
 			if userInfo.Mood < 0 {
 				userInfo.Mood = 0
 			}
-			if rand.Intn(10) < 6 && userInfo.Satiety > 90 {
+			if rand.Intn(10) < 6 && subtime < 2 && userInfo.Satiety > 90 {
 				_ = catdata.insert(gidStr, userInfo)
 				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "肚子已经很饱了,吃不动了"))
 				return
