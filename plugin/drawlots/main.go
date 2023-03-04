@@ -106,20 +106,15 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileType)))
 	})
-	en.OnPrefix("加签", func(ctx *zero.Ctx) bool {
-		if zero.SuperUserPermission(ctx) {
-			return zero.MustProvidePicture(ctx)
-		}
-		return false
-	}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnPrefix("加签", zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		if lotsName == "" {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("请使用正确的指令形式")))
 			return
 		}
-		Picurl := ctx.State["image_url"].([]string)[0]
-		err := file.DownloadTo(Picurl, datapath+"/"+lotsName+".gif")
+		picURL := ctx.State["image_url"].([]string)[0]
+		err := file.DownloadTo(picURL, datapath+"/"+lotsName+".gif")
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
