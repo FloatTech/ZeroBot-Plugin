@@ -23,7 +23,7 @@ func init() {
 	engine.OnFullMatch("疯狂星期四").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		data, err := web.GetData(crazyURL)
 		if err != nil {
-			ctx.SendChain(message.Text("Error:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text(gjson.ParseBytes(data).Get("@this.0.content").String()))

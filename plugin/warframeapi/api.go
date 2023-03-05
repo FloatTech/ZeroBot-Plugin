@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"sort"
 
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/RomiChan/syncx"
+	"github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/floatbox/web"
 )
@@ -71,24 +71,22 @@ func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, 
 	return
 }
 
-// 检查值是否为空，为空则重新获取
-func checknwm(ctx *zero.Ctx) bool {
-	var err error
-	wmdr.Lock()
-	defer wmdr.Unlock()
-	if wd.wmitems == nil || wd.itemNames == nil {
-		wd, err = newwm()
-		if err != nil { // 获取失败
-			ctx.SendChain(message.Text("ERROR: 获取Warframe市场物品列表失败(" + err.Error() + ")"))
-			return false
-		}
-	}
-	return true
+type wmdata struct {
+	wmitems   map[string]items
+	itemNames []string
 }
+
+var (
+	wderr error
+	wd    = syncx.Lazy[*wmdata]{Init: func() (d *wmdata) {
+		d, wderr = newwm()
+		return
+	}}
+)
+
 func newwm() (*wmdata, error) {
 	var itemapi wfAPIItem // WarFrame市场的数据实例
 	var wd wmdata
-	println("正在获取Warframe市场物品列表")
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
 		request.Header.Add("Language", "zh-hans")
@@ -107,6 +105,6 @@ func newwm() (*wmdata, error) {
 		wd.wmitems[v.ItemName] = v
 		wd.itemNames[i] = v.ItemName
 	}
-	println("获取Warframe市场物品列表完成")
+	logrus.Infoln("[wfapi] 获取", len(wd.itemNames), "项内容")
 	return &wd, nil
 }
