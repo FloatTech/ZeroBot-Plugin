@@ -42,10 +42,11 @@ func init() {
 		Help: "- 今日电影\n" +
 			"- 预售电影",
 	}).OnRegex(`^(今日|预售)电影$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		mu.Lock()
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "今日":
+			mu.RLock()
 			todayOnPic := todayPic.Get(0)
+			mu.RUnlock()
 			if todayOnPic != nil {
 				ctx.SendChain(message.ImageBytes(todayOnPic))
 				return
@@ -70,10 +71,14 @@ func init() {
 				return
 			}
 			defer cl()
+			mu.Lock()
 			todayPic.Set(0, pic)
+			mu.Unlock()
 			ctx.SendChain(message.ImageBytes(pic))
 		case "预售":
+			mu.RLock()
 			todayOnPic := todayPic.Get(1)
+			mu.RUnlock()
 			if todayOnPic != nil {
 				ctx.SendChain(message.ImageBytes(todayOnPic))
 				return
@@ -98,10 +103,11 @@ func init() {
 				return
 			}
 			defer cl()
+			mu.Lock()
 			todayPic.Set(1, pic)
+			mu.Unlock()
 			ctx.SendChain(message.ImageBytes(pic))
 		}
-		mu.Unlock()
 	})
 }
 
@@ -177,7 +183,7 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 			}
 			PicH := (movieCardh - 20)
 			scale := 863 / 600 // 按比例缩放
-			picW := (movieCardh - 20) * scale
+			picW := poster.Bounds().Max.X * scale
 			movieCard.DrawImage(img.Size(poster, picW, PicH).Im, 10*scale, 10*scale)
 			// 写入文字信息
 			err = movieCard.LoadFontFace(fontbyte, 72/float64(scale))
@@ -300,7 +306,7 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 			}
 			PicH := (movieCardh - 20)
 			scale := 863 / 600 // 按比例缩放
-			picW := (movieCardh - 20) * scale
+			picW := poster.Bounds().Max.X * scale
 			movieCard.DrawImage(img.Size(poster, picW, PicH).Im, 10*scale, 10*scale)
 			// 写入文字信息
 			err = movieCard.LoadFontFace(fontbyte, 72/float64(scale))
