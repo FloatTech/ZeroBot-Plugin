@@ -10,12 +10,11 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/RomiChan/syncx"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
-
-var wmitems, itemNames = newwm()
 
 func init() {
 	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
@@ -234,10 +233,24 @@ func init() {
 			ctx.SendChain(message.Text("已拉取服务器时间并同步到本地模拟"))
 		})
 	// 根据名称从Warframe市场查询物品售价
-	eng.OnPrefix(".wm ").SetBlock(true).
+	eng.OnPrefix(".wm ", func(ctx *zero.Ctx) bool {
+		if wd.Get().wmitems == nil || wd.Get().itemNames == nil {
+			if wderr != nil { // 获取失败
+				ctx.SendChain(message.Text("ERROR: 获取Warframe市场物品列表失败: ", wderr))
+			} else {
+				ctx.SendChain(message.Text("ERROR: Warframe市场物品列表为空!"))
+			}
+			wd = syncx.Lazy[*wmdata]{Init: func() (d *wmdata) {
+				d, wderr = newwm()
+				return
+			}}
+			return false
+		}
+		return true
+	}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 根据输入的名称, 从游戏物品名称列表中进行模糊搜索
-			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), itemNames)
+			sol := fuzzy.FindNormalizedFold(ctx.State["args"].(string), wd.Get().itemNames)
 			// 物品名称
 			var name string
 
@@ -282,16 +295,17 @@ func init() {
 			if onlymaxrank {
 				msgs = msgs[:0]
 			}
-			sells, iteminfo, txt, err := getitemsorder(wmitems[name].URLName, onlymaxrank)
+
+			sells, iteminfo, txt, err := getitemsorder(wd.Get().wmitems[name].URLName, onlymaxrank)
 			if !onlymaxrank {
 				if iteminfo.ZhHans.WikiLink == "" {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Image("https://warframe.market/static/assets/"+wmitems[name].Thumb),
-						message.Text("\n", wmitems[name].ItemName)))
+						message.Image("https://warframe.market/static/assets/"+wd.Get().wmitems[name].Thumb),
+						message.Text("\n", wd.Get().wmitems[name].ItemName)))
 				} else {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
-						message.Image("https://warframe.market/static/assets/"+wmitems[name].Thumb),
-						message.Text("\n", wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
+						message.Image("https://warframe.market/static/assets/"+wd.Get().wmitems[name].Thumb),
+						message.Text("\n", wd.Get().wmitems[name].ItemName, "\nwiki: ", iteminfo.ZhHans.WikiLink)))
 				}
 			}
 
