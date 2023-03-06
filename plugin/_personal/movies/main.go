@@ -182,8 +182,8 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 				return
 			}
 			PicH := (movieCardh - 20)
-			scale := 863 / 600 // 按比例缩放
-			picW := poster.Bounds().Max.X * scale
+			scale := poster.Bounds().Max.Y / poster.Bounds().Max.X // 按比例缩放
+			picW := PicH / scale
 			movieCard.DrawImage(img.Size(poster, picW, PicH).Im, 10*scale, 10*scale)
 			// 写入文字信息
 			err = movieCard.LoadFontFace(fontbyte, 72/float64(scale))
@@ -251,8 +251,8 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 	}
 	wg.Wait()
 	canvas := gg.NewContext(listPicW, listPicH)
-	picScale := listPicH / back.Bounds().Max.Y
-	back = img.Size(back, back.Bounds().Max.X*picScale, back.Bounds().Max.Y*picScale).Im
+	picScale := back.Bounds().Max.Y / back.Bounds().Max.X
+	back = img.Size(back, listPicH/picScale, listPicH).Im
 	canvas.DrawImageAnchored(back, listPicW/2, listPicH/2, 0.5, 0.5)
 	for i, imgs := range movieList {
 		canvas.DrawImage(imgs, 50, (movieCardh+15)*i+20)
@@ -305,8 +305,8 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 				return
 			}
 			PicH := (movieCardh - 20)
-			scale := 863 / 600 // 按比例缩放
-			picW := poster.Bounds().Max.X * scale
+			scale := poster.Bounds().Max.Y / poster.Bounds().Max.X // 按比例缩放
+			picW := PicH / scale
 			movieCard.DrawImage(img.Size(poster, picW, PicH).Im, 10*scale, 10*scale)
 			// 写入文字信息
 			err = movieCard.LoadFontFace(fontbyte, 72/float64(scale))
@@ -369,8 +369,8 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 	}
 	wg.Wait()
 	canvas := gg.NewContext(listPicW, listPicH)
-	picScale := listPicH / back.Bounds().Max.Y
-	back = img.Size(back, back.Bounds().Max.X*picScale, back.Bounds().Max.Y*picScale).Im
+	picScale := back.Bounds().Max.Y / back.Bounds().Max.X
+	back = img.Size(back, listPicH/picScale, listPicH).Im
 	canvas.DrawImageAnchored(back, listPicW/2, listPicH/2, 0.5, 0.5)
 	for i, imgs := range movieList {
 		canvas.DrawImage(imgs, 50, (movieCardh+15)*i+20)
