@@ -242,7 +242,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		messageText = append(messageText, message.Text("你购买了", mun, "袋,共计", foodmoney, "\n当前猫粮有", userInfo.Food, "斤"))
+		messageText = append(messageText, message.Text("你购买了", mun, "袋,共计", foodmoney, "\n当前猫粮有", strconv.FormatFloat(userInfo.Food, 'f', 2, 64), "斤"))
 		ctx.Send(messageText)
 	})
 	engine.OnPrefixGroup([]string{"喵喵改名叫", "猫猫改名叫"}, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {

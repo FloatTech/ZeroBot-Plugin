@@ -79,7 +79,9 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/thesaurus" // 游戏王combo记录器
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots" // 多功能抽签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/movies" // 多功能抽签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"         // 多功能抽签
+
 	/*/                                                                  //
 	//                                                                  //
 	//                                                                  //

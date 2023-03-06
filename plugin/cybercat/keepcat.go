@@ -35,8 +35,7 @@ func init() {
 		}
 		/***************************************************************/
 		cmd := false
-		switch ctx.State["regex_matched"].([]string)[0] {
-		case "猫猫状态":
+		if ctx.State["regex_matched"].([]string)[0] == "猫猫状态" {
 			cmd = true
 		}
 		/***************************************************************/
@@ -81,7 +80,7 @@ func init() {
 			subtime = time.Since(lastTime).Hours()
 			userInfo.LastTime = time.Unix(userInfo.LastTime, 0).Add(time.Duration(subtime) * time.Hour).Unix()
 		}
-		if subtime < 8 {
+		if !cmd && subtime < 8 {
 			userInfo.Mood -= 5
 			if userInfo.Mood < 0 {
 				userInfo.Mood = 0
@@ -107,7 +106,7 @@ func init() {
 		}
 		/***************************************************************/
 		userInfo = userInfo.settleOfData()
-		if userInfo.Satiety > 80 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50) {
+		if !cmd && userInfo.Satiety > 80 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50) {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 			return
 		}
