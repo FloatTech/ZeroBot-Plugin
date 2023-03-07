@@ -15,7 +15,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/console" // 更改控制台属性
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban" // 打印 banner
-	webctrl "github.com/FloatTech/zbputils/control/web"
 
 	// ---------以下插件均可通过前面加 // 注释，注释后停用并不加载插件--------- //
 	// ----------------------插件优先级按顺序从高到低---------------------- //
@@ -193,6 +192,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
+	webctrl "github.com/FloatTech/zbputils/control/web"
 	// -----------------------以上为内置依赖，勿动------------------------ //
 )
 
@@ -210,7 +210,7 @@ func init() {
 	d := flag.Bool("d", false, "Enable debug level log and higher.")
 	w := flag.Bool("w", false, "Enable warning level log and higher.")
 	h := flag.Bool("h", false, "Display this help.")
-	g := flag.String("g", "127.0.0.1:3000", "Set Url of webui.")
+	g := flag.String("g", "127.0.0.1:3000", "Set webui url.")
 	// 直接写死 AccessToken 时，请更改下面第二个参数
 	token := flag.String("t", "", "Set AccessToken of WSClient.")
 	// 直接写死 URL 时，请更改下面第二个参数

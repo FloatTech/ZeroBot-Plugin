@@ -37,7 +37,7 @@
 
 > 如果您对开发插件感兴趣，欢迎加入[ZeroBot-Plugin-Playground](https://github.com/FloatTech/ZeroBot-Plugin-Playground)
 
-> webui持续开发中, 环境加入[ZeroBot-Plugin-Webui](https://github.com/guohuiyuan/ZeroBot-Plugin-Webui)
+> webui持续开发中, 欢迎加入[ZeroBot-Plugin-Webui](https://github.com/FloatTech/ZeroBot-Plugin-Webui)
 
 ## 命令行参数
 > `[]`代表是可选参数
@@ -48,7 +48,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
-- **-g url**: 设置`webuiUrl`，默认为`127.0.0.1:3000`
+- **-g url**: 设置`webui url`，默认为`127.0.0.1:3000`
 - **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-c config.json**: 从`config.json`加载`bot`配置
@@ -1309,7 +1309,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>vtb语录</summary>
+  <summary>vtb点歌</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbmusic"`
 
