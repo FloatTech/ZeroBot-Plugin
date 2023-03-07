@@ -1,7 +1,6 @@
 <div align="center">
-  <a href="https://crypko.ai/crypko/5k8HyUVTq5421/">
   <img src=".github/hua_nobg_512.gif" alt="椛" width = "400">
-  </a><br>
+  <br>
 
   <h1>ZeroBot-Plugin</h1>
 
