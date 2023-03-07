@@ -30,10 +30,7 @@ const (
 	ua     = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"
 )
 
-var (
-	mu       sync.RWMutex
-	todayPic = ttl.NewCache[uint64, []byte](time.Hour * 12)
-)
+var todayPic = ttl.NewCache[uint64, []byte](time.Hour * 12)
 
 func init() {
 	control.Register("movies", &ctrl.Options[*zero.Ctx]{
@@ -44,9 +41,7 @@ func init() {
 	}).OnRegex(`^(今日|预售)电影$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "今日":
-			mu.RLock()
 			todayOnPic := todayPic.Get(0)
-			mu.RUnlock()
 			if todayOnPic != nil {
 				ctx.SendChain(message.ImageBytes(todayOnPic))
 				return
@@ -71,14 +66,10 @@ func init() {
 				return
 			}
 			defer cl()
-			mu.Lock()
 			todayPic.Set(0, pic)
-			mu.Unlock()
 			ctx.SendChain(message.ImageBytes(pic))
 		case "预售":
-			mu.RLock()
 			todayOnPic := todayPic.Get(1)
-			mu.RUnlock()
 			if todayOnPic != nil {
 				ctx.SendChain(message.ImageBytes(todayOnPic))
 				return
@@ -103,9 +94,7 @@ func init() {
 				return
 			}
 			defer cl()
-			mu.Lock()
 			todayPic.Set(1, pic)
-			mu.Unlock()
 			ctx.SendChain(message.ImageBytes(pic))
 		}
 	})
