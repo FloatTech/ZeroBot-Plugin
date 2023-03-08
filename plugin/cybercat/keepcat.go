@@ -114,7 +114,7 @@ func init() {
 		/***************************************************************/
 		userInfo = userInfo.settleOfWeight()
 		switch {
-		case userInfo.Mood <= 0 && rand.Intn(10) == 1:
+		case userInfo.Mood <= 0 && rand.Intn(100) < 10:
 			if catdata.delcat(gidStr, uidStr) != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
@@ -129,7 +129,7 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text("猫猫", userInfo.Name, "由于瘦骨如柴,已经难以存活去世了..."))
 			return
 		case userInfo.Weight >= 200:
-			if rand.Intn(100) != 50 {
+			if rand.Intn(100) > 10 {
 				if catdata.delcat(gidStr, uidStr) != nil {
 					ctx.SendChain(message.Text("[ERROR]:", err))
 					return

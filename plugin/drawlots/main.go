@@ -25,8 +25,8 @@ import (
 )
 
 type info struct {
-	LotsType string // 文件后缀
-	Quantity int    // 内容数量
+	lotsType string // 文件后缀
+	quantity int    // 内容数量
 }
 
 var (
@@ -60,7 +60,7 @@ func init() {
 		messageText.WriteString(" 签 名 [ 类 型 ]       签数\n")
 		messageText.WriteString("———————————\n")
 		for name, fileInfo := range lotsList {
-			messageText.WriteString(name + "[" + fileInfo.LotsType + "]\t\t\t" + strconv.Itoa(fileInfo.Quantity) + "\n")
+			messageText.WriteString(name + "[" + fileInfo.lotsType + "]\t\t\t" + strconv.Itoa(fileInfo.quantity) + "\n")
 			messageText.WriteString("----------\n")
 		}
 		textPic, err := text.RenderToBase64(messageText.String(), text.BoldFontFile, 500, 50)
@@ -77,7 +77,7 @@ func init() {
 			ctx.SendChain(message.Text("签名[", lotsType, "]不存在"))
 			return
 		}
-		if fileInfo.LotsType == "folder" {
+		if fileInfo.lotsType == "folder" {
 			picPath, err := randFile(lotsType, 3)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
@@ -86,7 +86,7 @@ func init() {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("file:///"+picPath))
 			return
 		}
-		lotsImg, err := randGif(lotsType + "." + fileInfo.LotsType)
+		lotsImg, err := randGif(lotsType + "." + fileInfo.lotsType)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -104,11 +104,11 @@ func init() {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("签名[", lotsName, "]不存在")))
 			return
 		}
-		if fileInfo.LotsType == "folder" {
+		if fileInfo.lotsType == "folder" {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("仅支持查看gif抽签")))
 			return
 		}
-		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileInfo.LotsType)))
+		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileInfo.lotsType)))
 	})
 	en.OnPrefix("加签", zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
@@ -135,8 +135,8 @@ func init() {
 			return
 		}
 		lotsList[lotsName] = info{
-			LotsType: "gif",
-			Quantity: len(im.Image),
+			lotsType: "gif",
+			quantity: len(im.Image),
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Text("成功")))
 	})
@@ -148,11 +148,11 @@ func init() {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("签名[", lotsName, "]不存在")))
 			return
 		}
-		if fileInfo.LotsType == "folder" {
+		if fileInfo.lotsType == "folder" {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("图包请手动移除(保护图源误删),谢谢")))
 			return
 		}
-		err := os.Remove(datapath + lotsName + "." + fileInfo.LotsType)
+		err := os.Remove(datapath + lotsName + "." + fileInfo.lotsType)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -178,8 +178,8 @@ func getList() (list map[string]info, err error) {
 		if lots.IsDir() {
 			files, _ := os.ReadDir(datapath + "/" + lots.Name())
 			list[lots.Name()] = info{
-				LotsType: "folder",
-				Quantity: len(files),
+				lotsType: "folder",
+				quantity: len(files),
 			}
 			continue
 		}
@@ -197,8 +197,8 @@ func getList() (list map[string]info, err error) {
 			return nil, err
 		}
 		list[before] = info{
-			LotsType: after,
-			Quantity: len(im.Image),
+			lotsType: after,
+			quantity: len(im.Image),
 		}
 	}
 	return
