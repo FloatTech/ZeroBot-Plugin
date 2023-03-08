@@ -87,7 +87,7 @@ func listenUserChange(ctx *zero.Ctx) {
 	// 遍历返回的信息做对比，假如信息有变化则发消息
 	now := time.Now()
 	for _, playerInfo := range playerStatus {
-		msg := make(message.Message, 1)
+		var msg message.Message
 		localInfo := localPlayerMap[playerInfo.SteamID]
 		// 排除不需要处理的情况
 		if localInfo.GameID == "" && playerInfo.GameID == "" {
@@ -95,27 +95,29 @@ func listenUserChange(ctx *zero.Ctx) {
 		}
 		// 打开游戏
 		if localInfo.GameID == "" && playerInfo.GameID != "" {
-			msg[0] = message.Text(playerInfo.PersonaName, "正在玩", playerInfo.GameExtraInfo)
+			msg = append(msg, message.Text(playerInfo.PersonaName, "正在玩", playerInfo.GameExtraInfo))
 			localInfo.LastUpdate = now.Unix()
 		}
 		// 更换游戏
 		if localInfo.GameID != "" && playerInfo.GameID != localInfo.GameID && playerInfo.GameID != "" {
-			msg[0] = message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 丢下了", localInfo.GameExtraInfo, ", 转头去玩", playerInfo.GameExtraInfo)
+			msg = append(msg, message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 丢下了", localInfo.GameExtraInfo, ", 转头去玩", playerInfo.GameExtraInfo))
 			localInfo.LastUpdate = now.Unix()
 		}
 		// 关闭游戏
 		if playerInfo.GameID != localInfo.GameID && playerInfo.GameID == "" {
-			msg[0] = message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 关掉了", localInfo.GameExtraInfo)
+			msg = append(msg, message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 关掉了", localInfo.GameExtraInfo))
 			localInfo.LastUpdate = 0
 		}
-		groups := strings.Split(playerInfo.Target, ",")
-		for _, groupString := range groups {
-			group, err := strconv.ParseInt(groupString, 10, 64)
-			if err != nil {
-				ctx.SendPrivateMessage(su, message.Text("[steam] ERROR: ", err, "\nOTHER: SteamID ", localInfo.SteamID))
-				continue
+		if msg != nil {
+			groups := strings.Split(localInfo.Target, ",")
+			for _, groupString := range groups {
+				group, err := strconv.ParseInt(groupString, 10, 64)
+				if err != nil {
+					ctx.SendPrivateMessage(su, message.Text("[steam] ERROR: ", err, "\nOTHER: SteamID ", localInfo.SteamID))
+					continue
+				}
+				ctx.SendGroupMessage(group, msg)
 			}
-			ctx.SendGroupMessage(group, msg)
 		}
 		// 更新数据
 		localInfo.GameID = playerInfo.GameID

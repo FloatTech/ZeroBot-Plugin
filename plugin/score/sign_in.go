@@ -13,7 +13,7 @@ import (
 
 	"github.com/disintegration/imaging"
 
-	"github.com/FloatTech/ZeroBot-Plugin/kanban"
+	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/AnimeAPI/wallet"
@@ -202,9 +202,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
+			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+banner.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
 			canvas.SetRGB255(0, 0, 0)
-			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+kanban.Version, float64(imgDX)/2-3, float64(imgDY)-19, 0.5, 0.5) // zbp
+			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+banner.Version, float64(imgDX)/2-3, float64(imgDY)-19, 0.5, 0.5) // zbp
 			canvas.SetRGB255(255, 255, 255)
 			// Gradient
 			grad := gg.NewLinearGradient(20, 320, 400, 20)
