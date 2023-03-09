@@ -666,13 +666,13 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] (刷新)抽签列表
   
-  - [x] 抽签-[签名]
+  - [x] 抽[签名]签
   
-  - [x] 查看抽签[gif签名]
+  - [x] 看签[gif签名]
 	
-  - [x] 添加抽签[签名][gif图片]
+  - [x] 加签[签名][gif图片]
 	
-  - [x] 删除抽签[gif签名]
+  - [x] 删签[gif签名]
 
 </details>
 <details>
