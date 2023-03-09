@@ -71,7 +71,7 @@ func init() {
 		lotsType := ctx.State["regex_matched"].([]string)[1]
 		fileInfo, ok := lotsList[lotsType]
 		if !ok {
-			ctx.SendChain(message.Text("签名[", lotsType, "]不存在"))
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("才...才没有", lotsType, "签这种东西啦")))
 			return
 		}
 		if fileInfo.lotsType == "folder" {
@@ -101,11 +101,11 @@ func init() {
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		fileInfo, ok := lotsList[lotsName]
 		if !ok {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("签名[", lotsName, "]不存在")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("才...才没有", lotsName, "签这种东西啦")))
 			return
 		}
 		if fileInfo.lotsType == "folder" {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("仅支持查看gif抽签")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("只能查看gif签哦~")))
 			return
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileInfo.lotsType)))
@@ -114,7 +114,7 @@ func init() {
 		id := ctx.Event.MessageID
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		if lotsName == "" {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("请使用正确的指令形式")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("请使用正确的指令形式哦~")))
 			return
 		}
 		picURL := ctx.State["image_url"].([]string)[0]
@@ -138,18 +138,18 @@ func init() {
 			lotsType: "gif",
 			quantity: len(im.Image),
 		}
-		ctx.Send(message.ReplyWithMessage(id, message.Text("成功")))
+		ctx.Send(message.ReplyWithMessage(id, message.Text("成功！")))
 	})
 	en.OnPrefix("删签", zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		fileInfo, ok := lotsList[lotsName]
 		if !ok {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("签名[", lotsName, "]不存在")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("才...才没有", lotsName, "签这种东西啦")))
 			return
 		}
 		if fileInfo.lotsType == "folder" {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("图包请手动移除(保护图源误删),谢谢")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("为了防止误删图源，图包请手动移除哦~")))
 			return
 		}
 		err := os.Remove(datapath + lotsName + "." + fileInfo.lotsType)
@@ -158,7 +158,7 @@ func init() {
 			return
 		}
 		delete(lotsList, lotsName)
-		ctx.Send(message.ReplyWithMessage(id, message.Text("成功")))
+		ctx.Send(message.ReplyWithMessage(id, message.Text("成功！")))
 	})
 }
 
@@ -169,7 +169,7 @@ func getList() (list map[string]info, err error) {
 		return
 	}
 	if len(files) == 0 {
-		err = errors.New("不存在任何抽签")
+		err = errors.New("什么签也没有哦~")
 		return
 	}
 	for _, lots := range files {
@@ -214,13 +214,13 @@ func randFile(path string, indexMax int) (string, error) {
 		if drawFile.IsDir() {
 			indexMax--
 			if indexMax <= 0 {
-				return "", errors.New("图包[" + path + "]存在太多非图片文件,请清理")
+				return "", errors.New("图包[" + path + "]存在太多非图片文件,请清理~")
 			}
 			return randFile(path, indexMax)
 		}
 		return picPath + "/" + drawFile.Name(), err
 	}
-	return "", errors.New("图包[" + path + "]不存在签内容")
+	return "", errors.New("图包[" + path + "]不存在签内容！")
 }
 
 func randGif(gifName string) (image.Image, error) {
