@@ -67,7 +67,7 @@ func init() {
 		}
 		ctx.SendChain(message.Image("base64://" + helper.BytesToString(textPic)))
 	})
-	en.OnRegex(`^抽(.*)签$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^抽(.+)签$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		lotsType := ctx.State["regex_matched"].([]string)[1]
 		fileInfo, ok := lotsList[lotsType]
 		if !ok {
