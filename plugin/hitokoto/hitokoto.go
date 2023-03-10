@@ -2,7 +2,6 @@
 package hitokoto
 
 import (
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -53,14 +52,28 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: hitokoto empty"))
 				return
 			}
-			m := make(message.Message, 10)
-			for i := 0; i < 10; i++ {
-				b := blist[rand.Intn(len(blist))]
-				text := strings.Builder{}
-				text.WriteString(b.Hitokoto)
-				text.WriteString("\n——")
-				text.WriteString(b.From)
-				m[i] = ctxext.FakeSenderForwardNode(ctx, message.Text(text.String()))
+			m := make(message.Message, 0, 10)
+			text := strings.Builder{}
+			if len(blist) <= 10 {
+				for _, b := range blist {
+					text.WriteString(b.Hitokoto)
+					text.WriteString("\n——")
+					text.WriteString(b.From)
+					m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(text.String())))
+					text.Reset()
+				}
+			} else {
+				rand.Shuffle(len(blist), func(i, j int) {
+					blist[i], blist[j] = blist[j], blist[i]
+				})
+				for i := 0; i < 10; i++ {
+					b := blist[i]
+					text.WriteString(b.Hitokoto)
+					text.WriteString("\n——")
+					text.WriteString(b.From)
+					m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(text.String())))
+					text.Reset()
+				}
 			}
 			if id := ctx.Send(m).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
@@ -76,11 +89,15 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			tex := "请输入系列一言序号\n"
+			tex := strings.Builder{}
+			tex.WriteString("请输入系列一言序号\n")
 			for i, v := range results {
-				tex += fmt.Sprintf("%d. %s\n", i, v.Category)
+				tex.WriteString(strconv.Itoa(i))
+				tex.WriteString(". ")
+				tex.WriteString(v.Category)
+				tex.WriteString("\n")
 			}
-			base64Str, err := text.RenderToBase64(tex, text.FontFile, 400, 20)
+			base64Str, err := text.RenderToBase64(tex.String(), text.FontFile, 400, 20)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -112,14 +129,28 @@ func init() { // 插件主体
 						ctx.SendChain(message.Text("ERROR: hitokoto empty"))
 						return
 					}
-					m := make(message.Message, 10)
-					for i := 0; i < 10; i++ {
-						b := hlist[rand.Intn(len(hlist))]
-						text := strings.Builder{}
-						text.WriteString(b.Hitokoto)
-						text.WriteString("\n——")
-						text.WriteString(b.From)
-						m[i] = ctxext.FakeSenderForwardNode(ctx, message.Text(text.String()))
+					m := make(message.Message, 0, 10)
+					text := strings.Builder{}
+					if len(hlist) <= 10 {
+						for _, b := range hlist {
+							text.WriteString(b.Hitokoto)
+							text.WriteString("\n——")
+							text.WriteString(b.From)
+							m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(text.String())))
+							text.Reset()
+						}
+					} else {
+						rand.Shuffle(len(hlist), func(i, j int) {
+							hlist[i], hlist[j] = hlist[j], hlist[i]
+						})
+						for i := 0; i < 10; i++ {
+							b := hlist[i]
+							text.WriteString(b.Hitokoto)
+							text.WriteString("\n——")
+							text.WriteString(b.From)
+							m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(text.String())))
+							text.Reset()
+						}
 					}
 					if id := ctx.Send(m).ID(); id == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
