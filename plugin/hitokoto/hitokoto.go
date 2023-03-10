@@ -49,16 +49,18 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			textList := make([]string, 0, 10)
-			for _, v := range blist {
-				textList = append(textList, v.Hitokoto+"\n——"+v.From)
+			if len(blist) == 0 {
+				ctx.SendChain(message.Text("ERROR: hitokoto empty"))
+				return
 			}
-			rand.Shuffle(len(textList), func(i, j int) {
-				textList[i], textList[j] = textList[j], textList[i]
-			})
-			m := message.Message{}
-			for _, v := range textList[:10] {
-				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(v)))
+			m := make(message.Message, 10)
+			for i := 0; i < 10; i++ {
+				b := blist[rand.Intn(len(blist))]
+				text := strings.Builder{}
+				text.WriteString(b.Hitokoto)
+				text.WriteString("\n——")
+				text.WriteString(b.From)
+				m[i] = ctxext.FakeSenderForwardNode(ctx, message.Text(text.String()))
 			}
 			if id := ctx.Send(m).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
@@ -106,16 +108,18 @@ func init() { // 插件主体
 						ctx.SendChain(message.Text("ERROR: ", err))
 						return
 					}
-					textList := make([]string, 0, 10)
-					for _, v := range hlist {
-						textList = append(textList, v.Hitokoto+"\n——"+v.From)
+					if len(hlist) == 0 {
+						ctx.SendChain(message.Text("ERROR: hitokoto empty"))
+						return
 					}
-					rand.Shuffle(len(textList), func(i, j int) {
-						textList[i], textList[j] = textList[j], textList[i]
-					})
-					m := message.Message{}
-					for _, v := range textList[:10] {
-						m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text(v)))
+					m := make(message.Message, 10)
+					for i := 0; i < 10; i++ {
+						b := hlist[rand.Intn(len(hlist))]
+						text := strings.Builder{}
+						text.WriteString(b.Hitokoto)
+						text.WriteString("\n——")
+						text.WriteString(b.From)
+						m[i] = ctxext.FakeSenderForwardNode(ctx, message.Text(text.String()))
 					}
 					if id := ctx.Send(m).ID(); id == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控或下载图片用时过长，请耐心等待"))
