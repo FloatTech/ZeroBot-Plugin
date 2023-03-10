@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/RomiChan/syncx"
+	"github.com/sirupsen/logrus"
+
 	"github.com/FloatTech/floatbox/web"
 )
 
@@ -68,27 +71,40 @@ func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, 
 	return
 }
 
-func newwm() (wmitems map[string]items, itemNames []string) {
-	var itemapi wfAPIItem // WarFrame市场的数据实例
+type wmdata struct {
+	wmitems   map[string]items
+	itemNames []string
+}
 
+var (
+	wderr error
+	wd    = syncx.Lazy[*wmdata]{Init: func() (d *wmdata) {
+		d, wderr = newwm()
+		return
+	}}
+)
+
+func newwm() (*wmdata, error) {
+	var itemapi wfAPIItem // WarFrame市场的数据实例
+	var wd wmdata
 	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
 		request.Header.Add("Language", "zh-hans")
 		return nil
 	}, nil)
 	if err != nil {
-		panic(err)
+		return &wd, err
 	}
 	err = json.Unmarshal(data, &itemapi)
 	if err != nil {
-		panic(err)
+		return &wd, err
 	}
-
-	wmitems = make(map[string]items, len(itemapi.Payload.Items)*4)
-	itemNames = make([]string, len(itemapi.Payload.Items))
+	wd.wmitems = make(map[string]items, len(itemapi.Payload.Items)*4)
+	wd.itemNames = make([]string, len(itemapi.Payload.Items))
 	for i, v := range itemapi.Payload.Items {
-		wmitems[v.ItemName] = v
-		itemNames[i] = v.ItemName
+		wd.wmitems[v.ItemName] = v
+		wd.itemNames[i] = v.ItemName
 	}
-	return
+	logrus.Infoln("[wfapi] 获取", len(wd.itemNames), "项内容")
+	return &wd, nil
 }
