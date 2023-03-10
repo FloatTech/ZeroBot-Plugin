@@ -48,7 +48,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
-- **-g url**: 设置`webui url`，默认为`127.0.0.1:3000`
+- ~~**-g url**~~(默认禁用): 设置`webui url`，默认为`127.0.0.1:3000`
 - **-p prefix**: 设置命令前缀，默认为`/`
 - **-d|w**: 开启 debug | warning 级别及以上日志输出
 - **-c config.json**: 从`config.json`加载`bot`配置
@@ -88,8 +88,12 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s
 
 ## 功能
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
+
 > 通过插件控制，还可动态管理某个功能在某个群的打开/关闭。
-> 插件的优先级为`import`的先后顺序
+
+> 插件的优先级为`import`的先后顺序。
+
+> `webui`默认禁用不编译，打开后会增加程序体积并使控制台日志格式紊乱。
 
 <details>
   <summary>插件控制</summary>
@@ -132,15 +136,14 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s
 
   - [x] /服务列表
 
-  - [x] /设置服务列表显示行数 xx
+  - [x] /设置服务列表显示行数 xx (默认值为 9, 该设置仅运行时有效, zbp 重启后重置)
 
-  - [x] /设置webui用户名 zerobot 密码 123456
+  - [x] (默认禁用) /设置webui用户名 zerobot 密码 123456
 
-  - [x] /webui启动
+  - [x] (默认禁用) /webui启动
 
-  - [x] /webui停止
+  - [x] (默认禁用) /webui停止
 
-	默认值为9,该设置仅运行时有效,zbp重启后重置
   - [x] @Bot 插件冲突检测 (会在本群发送一条消息并在约 1s 后撤回以检测其它同类 bot 中已启用的插件并禁用)
 
 </details>
@@ -655,6 +658,24 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 发大病
 
   - [x] 教你一篇小作文[作文]
+
+</details>
+<details>
+  <summary>多功能抽签</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"`
+
+  支持图包文件夹和gif抽签
+
+  - [x] (刷新)抽签列表
+  
+  - [x] 抽[签名]签
+  
+  - [x] 看签[gif签名]
+	
+  - [x] 加签[签名][gif图片]
+	
+  - [x] 删签[gif签名]
 
 </details>
 <details>
