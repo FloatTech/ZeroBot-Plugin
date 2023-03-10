@@ -93,7 +93,7 @@ zerobot [-h] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s
 
 > 插件的优先级为`import`的先后顺序。
 
-> `webui`默认禁用不编译，打开后会增加程序体积并使控制台日志格式紊乱。
+> `webui`默认禁用不编译，打开后会增加程序体积。
 
 <details>
   <summary>插件控制</summary>
@@ -820,6 +820,16 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/heisi"`
 
   - [x] 来点黑丝/白丝/jk/巨乳/足控/网红
+
+</details>
+<details>
+  <summary>一言</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hitokoto"`
+
+  - [x] 一言[xxx]
+  
+  - [x] 系列一言
 
 </details>
 <details>
