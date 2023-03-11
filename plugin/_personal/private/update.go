@@ -210,6 +210,24 @@ func init() {
 			}
 			msg = append(msg, "StdOut:", stdout.String())
 		}
+		cmd := exec.Command("go", "mod", "tidy")
+		msg = append(msg, "Command:", "go mod tidy")
+		cmd.Dir = file.BOTPATH
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		err = cmd.Run()
+		if err != nil {
+			msg = append(msg, "StdErr:", err.Error(), "\n", stderr.String())
+			// 输出图片
+			img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+			return
+		}
+		msg = append(msg, "StdOut:", stdout.String())
 		// 输出图片
 		img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
 		if err != nil {
