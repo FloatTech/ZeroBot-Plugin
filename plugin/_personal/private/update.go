@@ -10,14 +10,13 @@ import (
 	"time"
 
 	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"archive/zip"
 )
-
-const zbpPath = "/Users/liuyu.fang/Documents/ZeroBot-Plug/"
 
 var (
 	commandsOfPush = [...][]string{
@@ -33,12 +32,13 @@ var (
 		{"push", "-u", "origin", "master"},
 		{"pull", "--tags", "-r", "origin", "master"},
 	}
+	commandsOfZbp = []string{"-o", file.BOTPATH + "go.mod", "https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/go.mod"}
 )
 
 func init() {
 	// 备份
 	zero.OnFullMatch("备份代码", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+		err := fileZipTo(file.BOTPATH, file.BOTPATH+time.Now().Format("_2006_01_02_15_04_05")+".zip")
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -56,7 +56,7 @@ func init() {
 		for _, command := range commandsOfPush {
 			cmd := exec.Command("git", command...)
 			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Dir = file.BOTPATH
 			cmd.Stdout = &stdout
 			cmd.Stderr = &stderr
 			err = cmd.Run()
@@ -92,7 +92,7 @@ func init() {
 			select {
 			case <-time.After(time.Second * 40): // 40s等待
 				ctx.SendChain(message.Text("等待超时,自动备份"))
-				err := fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+				err := fileZipTo(file.BOTPATH, file.BOTPATH+time.Now().Format("_2006_01_02_15_04_05")+".zip")
 				if err != nil {
 					ctx.SendChain(message.Text("[ERROR]:", err))
 					return
@@ -102,7 +102,7 @@ func init() {
 				nextcmd := e.Event.Message.String() // 获取下一个指令
 				switch nextcmd {
 				case "是":
-					err = fileZipTo(zbpPath+"ZeroBot-Plugin", zbpPath+"ZeroBot-Plugin"+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+					err := fileZipTo(file.BOTPATH, file.BOTPATH+time.Now().Format("_2006_01_02_15_04_05")+".zip")
 					if err != nil {
 						ctx.SendChain(message.Text("[ERROR]:", err))
 						return
@@ -123,7 +123,7 @@ func init() {
 		for _, command := range commandsOfFetch {
 			cmd := exec.Command("git", command...)
 			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-			cmd.Dir = zbpPath + "ZeroBot-Plugin"
+			cmd.Dir = file.BOTPATH
 			cmd.Stdout = &stdout
 			cmd.Stderr = &stderr
 			err = cmd.Run()
@@ -140,6 +140,71 @@ func init() {
 			}
 			msg = append(msg, "StdOut:", stdout.String())
 		}
+		// 输出图片
+		img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+	})
+	// 更新zbp
+	zero.OnFullMatch("更新zbp", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		var msg []string
+		var img []byte
+		var err error
+		ctx.SendChain(message.Text("是否备份?"))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
+		for {
+			select {
+			case <-time.After(time.Second * 40): // 40s等待
+				ctx.SendChain(message.Text("等待超时,自动备份"))
+				err := fileZipTo(file.BOTPATH, file.BOTPATH+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				msg = append(msg, "已经对旧版zbp压缩备份")
+			case e := <-recv:
+				nextcmd := e.Event.Message.String() // 获取下一个指令
+				switch nextcmd {
+				case "是":
+					err := fileZipTo(file.BOTPATH, file.BOTPATH+time.Now().Format("_2006_01_02_15_04_05")+".zip")
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR]:", err))
+						return
+					}
+					msg = append(msg, "已经对旧版zbp压缩备份")
+				default:
+					msg = append(msg, "已取消备份")
+				}
+			}
+			if len(msg) != 0 {
+				break
+			}
+		}
+		cancel()
+		var stdout bytes.Buffer
+		var stderr bytes.Buffer
+		msg = append(msg, "\n\n开始更新go.mod")
+		cmd := exec.Command("curl", commandsOfZbp...)
+		msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+		cmd.Dir = file.BOTPATH
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		err = cmd.Run()
+		if err != nil {
+			msg = append(msg, "StdErr:", err.Error(), "\n", stderr.String())
+			// 输出图片
+			img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
+			return
+		}
+		msg = append(msg, "StdOut:", stdout.String())
 		// 输出图片
 		img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
 		if err != nil {
