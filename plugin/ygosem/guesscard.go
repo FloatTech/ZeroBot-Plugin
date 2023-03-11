@@ -12,13 +12,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -115,8 +114,11 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
-		pictrue, cl := randPicture(pic, mode)
-		defer cl()
+		pictrue, err := randPicture(pic, mode)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]", err))
+			return
+		}
 		// 进行猜卡环节
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup,
@@ -165,8 +167,8 @@ func init() {
 }
 
 // 随机选择
-func randPicture(pic image.Image, mode int) ([]byte, func()) {
-	dst := img.Size(pic, 256*5, 256*5)
+func randPicture(pic image.Image, mode int) ([]byte, error) {
+	dst := imgfactory.Size(pic, 256*5, 256*5)
 	if mode == -1 {
 		mode = rand.Intn(5)
 	}
@@ -187,45 +189,45 @@ func randPicture(pic image.Image, mode int) ([]byte, func()) {
 }
 
 // 获取黑边
-func setPicture(dst *img.Factory) ([]byte, func()) {
+func setPicture(dst *imgfactory.Factory) ([]byte, error) {
 	dst = dst.Invert().Grayscale()
-	b := dst.Im.Bounds()
+	b := dst.Image().Bounds()
 	for y := b.Min.Y; y <= b.Max.Y; y++ {
 		for x := b.Min.X; x <= b.Max.X; x++ {
-			a := dst.Im.At(x, y)
+			a := dst.Image().At(x, y)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
 			if c.R > 127 || c.G > 127 || c.B > 127 {
 				c.R = 255
 				c.G = 255
 				c.B = 255
 			}
-			dst.Im.Set(x, y, c)
+			dst.Image().Set(x, y, c)
 		}
 	}
-	return writer.ToBytes(dst.Im)
+	return imgfactory.ToBytes(dst.Image())
 }
 
 // 旋转
-func doublePicture(dst *img.Factory) ([]byte, func()) {
-	b := dst.Im.Bounds()
+func doublePicture(dst *imgfactory.Factory) ([]byte, error) {
+	b := dst.Image().Bounds()
 	pic := dst.FlipH().FlipV()
 	for y := b.Min.Y; y <= b.Max.Y; y++ {
 		for x := b.Min.X; x <= b.Max.X; x++ {
-			a := pic.Im.At(x, y)
+			a := pic.Image().At(x, y)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
-			a1 := dst.Im.At(x, y)
+			a1 := dst.Image().At(x, y)
 			c1 := color.NRGBAModel.Convert(a1).(color.NRGBA)
 			switch {
 			case y > x && x < b.Max.X/2 && y < b.Max.Y/2:
-				dst.Im.Set(x, y, c)
+				dst.Image().Set(x, y, c)
 			case y < x && x > b.Max.X/2 && y > b.Max.Y/2:
-				dst.Im.Set(x, y, c)
+				dst.Image().Set(x, y, c)
 			case y > b.Max.Y-x && x < b.Max.X/2 && y > b.Max.Y/2:
-				dst.Im.Set(x, y, c)
+				dst.Image().Set(x, y, c)
 			case y < b.Max.Y-x && x > b.Max.X/2 && y < b.Max.Y/2:
-				dst.Im.Set(x, y, c)
+				dst.Image().Set(x, y, c)
 			default:
-				dst.Im.Set(x, y, color.NRGBA{
+				dst.Image().Set(x, y, color.NRGBA{
 					R: 255 - c1.R,
 					G: 255 - c1.G,
 					B: 255 - c1.B,
@@ -234,15 +236,15 @@ func doublePicture(dst *img.Factory) ([]byte, func()) {
 			}
 		}
 	}
-	return writer.ToBytes(dst.Im)
+	return imgfactory.ToBytes(dst.Image())
 }
 
 // 反色
-func setBlur(dst *img.Factory) ([]byte, func()) {
-	b := dst.Im.Bounds()
+func setBlur(dst *imgfactory.Factory) ([]byte, error) {
+	b := dst.Image().Bounds()
 	for y1 := b.Min.Y; y1 <= b.Max.Y; y1++ {
 		for x1 := b.Min.X; x1 <= b.Max.X; x1++ {
-			a := dst.Im.At(x1, y1)
+			a := dst.Image().At(x1, y1)
 			c := color.NRGBAModel.Convert(a).(color.NRGBA)
 			if c.R > 128 || c.G > 128 || c.B > 128 {
 				switch rand.Intn(6) {
@@ -259,69 +261,69 @@ func setBlur(dst *img.Factory) ([]byte, func()) {
 				case 5: // 紫
 					c.R, c.G, c.B = uint8(rand.Intn(60)+80), uint8(rand.Intn(60)+60), uint8(rand.Intn(50)+170)
 				}
-				dst.Im.Set(x1, y1, c)
+				dst.Image().Set(x1, y1, c)
 			}
 		}
 	}
-	return writer.ToBytes(dst.Invert().Blur(10).Im)
+	return imgfactory.ToBytes(dst.Invert().Blur(10).Image())
 }
 
 // 马赛克
-func setMark(dst *img.Factory) ([]byte, func()) {
-	b := dst.Im.Bounds()
+func setMark(dst *imgfactory.Factory) ([]byte, error) {
+	b := dst.Image().Bounds()
 	markSize := 64 * (1 + rand.Intn(2))
 
 	for yOfMarknum := 0; yOfMarknum <= math.Ceil(b.Max.Y, markSize); yOfMarknum++ {
 		for xOfMarknum := 0; xOfMarknum <= math.Ceil(b.Max.X, markSize); xOfMarknum++ {
-			a := dst.Im.At(xOfMarknum*markSize+markSize/2, yOfMarknum*markSize+markSize/2)
+			a := dst.Image().At(xOfMarknum*markSize+markSize/2, yOfMarknum*markSize+markSize/2)
 			cc := color.NRGBAModel.Convert(a).(color.NRGBA)
 			for y := 0; y < markSize; y++ {
 				for x := 0; x < markSize; x++ {
 					xOfPic := xOfMarknum*markSize + x
 					yOfPic := yOfMarknum*markSize + y
-					dst.Im.Set(xOfPic, yOfPic, cc)
+					dst.Image().Set(xOfPic, yOfPic, cc)
 				}
 			}
 		}
 	}
-	return writer.ToBytes(dst.Blur(3).Im)
+	return imgfactory.ToBytes(dst.Blur(3).Image())
 }
 
 // 随机切割
-func cutPic(pic image.Image) ([]byte, func()) {
+func cutPic(pic image.Image) ([]byte, error) {
 	indexOfx := rand.Intn(3)
 	indexOfy := rand.Intn(3)
 	indexOfx2 := rand.Intn(3)
 	indexOfy2 := rand.Intn(3)
-	dst := img.Size(pic, 256*5, 256*5)
-	b := dst.Im.Bounds()
-	bx := b.Max.X / 3
-	by := b.Max.Y / 3
-	returnpic := img.NewFactory(b.Max.X, b.Max.Y, color.NRGBA{255, 255, 255, 255})
+	dst := imgfactory.Size(pic, 256*5, 256*5)
+	b := dst.Image()
+	bx := b.Bounds().Max.X / 3
+	by := b.Bounds().Max.Y / 3
+	returnpic := imgfactory.NewFactory(b)
 
-	for yOfMarknum := b.Min.Y; yOfMarknum <= b.Max.Y; yOfMarknum++ {
-		for xOfMarknum := b.Min.X; xOfMarknum <= b.Max.X; xOfMarknum++ {
+	for yOfMarknum := b.Bounds().Min.Y; yOfMarknum <= b.Bounds().Max.Y; yOfMarknum++ {
+		for xOfMarknum := b.Bounds().Min.X; xOfMarknum <= b.Bounds().Max.X; xOfMarknum++ {
 			if xOfMarknum == bx || yOfMarknum == by || xOfMarknum == bx*2 || yOfMarknum == by*2 {
 				// 黑框
-				returnpic.Im.Set(xOfMarknum, yOfMarknum, color.NRGBA{0, 0, 0, 0})
+				returnpic.Image().Set(xOfMarknum, yOfMarknum, color.NRGBA{0, 0, 0, 0})
 			}
 			if xOfMarknum >= bx*indexOfx && xOfMarknum < bx*(indexOfx+1) {
 				if yOfMarknum >= by*indexOfy && yOfMarknum < by*(indexOfy+1) {
-					a := dst.Im.At(xOfMarknum, yOfMarknum)
+					a := dst.Image().At(xOfMarknum, yOfMarknum)
 					cc := color.NRGBAModel.Convert(a).(color.NRGBA)
-					returnpic.Im.Set(xOfMarknum, yOfMarknum, cc)
+					returnpic.Image().Set(xOfMarknum, yOfMarknum, cc)
 				}
 			}
 			if xOfMarknum >= bx*indexOfx2 && xOfMarknum < bx*(indexOfx2+1) {
 				if yOfMarknum >= by*indexOfy2 && yOfMarknum < by*(indexOfy2+1) {
-					a := dst.Im.At(xOfMarknum, yOfMarknum)
+					a := dst.Image().At(xOfMarknum, yOfMarknum)
 					cc := color.NRGBAModel.Convert(a).(color.NRGBA)
-					returnpic.Im.Set(xOfMarknum, yOfMarknum, cc)
+					returnpic.Image().Set(xOfMarknum, yOfMarknum, cc)
 				}
 			}
 		}
 	}
-	return writer.ToBytes(returnpic.Im)
+	return imgfactory.ToBytes(returnpic.Image())
 }
 
 // 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）

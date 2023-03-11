@@ -23,11 +23,10 @@ import (
 	sql "github.com/FloatTech/sqlite"
 
 	// 图片输出
-	"github.com/Coloured-glaze/gg"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
-	"github.com/FloatTech/zbputils/img"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/zbputils/img/text"
 )
 
@@ -93,14 +92,13 @@ func init() {
 		if time.Now().Format("2006/01/02") == lasttime.Format("2006/01/02") {
 			score := wallet.GetWalletOf(uid)
 			// 生成ATRI币图片
-			data, cl, err := drawimage(&userinfo, score, 0)
+			data, err := drawimage(&userinfo, score, 0)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
 			}
 			ctx.SendChain(message.Text("今天已经签到过了"))
 			ctx.SendChain(message.ImageBytes(data))
-			cl()
 			return
 		}
 		// 更新数据
@@ -126,13 +124,12 @@ func init() {
 		}
 		score := wallet.GetWalletOf(uid)
 		// 生成签到图片
-		data, cl, err := drawimage(&userinfo, score, add)
+		data, err := drawimage(&userinfo, score, add)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
 		ctx.SendChain(message.ImageBytes(data))
-		cl()
 	})
 	engine.OnRegex(`^\/修改(\s*(\[CQ:at,qq=)?(\d+).*)?信息\s*(.*)`, zero.AdminPermission, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		changeuser := ctx.State["regex_matched"].([]string)[3]
@@ -206,7 +203,7 @@ func (sdb *score) setData(userinfo userdata) error {
 }
 
 // 绘制图片
-func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err error) {
+func drawimage(userinfo *userdata, score, add int) (data []byte, err error) {
 	/***********获取头像***********/
 	backX := 500
 	backY := 500
@@ -219,7 +216,7 @@ func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err 
 	if err != nil {
 		return
 	}
-	back = img.Size(back, backX, backY).Im
+	back = imgfactory.Size(back, backX, backY).Image()
 	/***********设置图片的大小和底色***********/
 	canvas := gg.NewContext(1500, 500)
 	canvas.SetRGB(1, 1, 1)
@@ -282,7 +279,7 @@ func drawimage(userinfo *userdata, score, add int) (data []byte, cl func(), err 
 	canvas.Fill()
 	canvas.DrawString(fmt.Sprintf("%d/%d", userinfo.Level, nextLevelScore), 1250, 320-h)
 	// 生成图片
-	data, cl = writer.ToBytes(canvas.Image())
+	data, err = imgfactory.ToBytes(canvas.Image())
 	return
 }
 

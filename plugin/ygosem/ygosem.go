@@ -23,9 +23,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	// 图片输出
-	"github.com/Coloured-glaze/gg"
-	"github.com/FloatTech/floatbox/img/writer"
-	"github.com/FloatTech/zbputils/img"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 )
 
 var (
@@ -118,13 +117,12 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR]", err))
 					return
 				}
-				img, cl, err := drawimage(cardData, pictrue)
+				imgfactory, err := drawimage(cardData, pictrue)
 				if err != nil {
 					ctx.SendChain(message.Text("[ERROR]", err))
 					return
 				}
-				ctx.SendChain(message.ImageBytes(img))
-				defer cl()
+				ctx.SendChain(message.ImageBytes(imgfactory))
 			}
 			return
 		}
@@ -251,13 +249,12 @@ func init() {
 									ctx.SendChain(message.Text("[ERROR]", err))
 									return
 								}
-								img, cl, err := drawimage(cardData, pictrue)
+								imgfactory, err := drawimage(cardData, pictrue)
 								if err != nil {
 									ctx.SendChain(message.Text("[ERROR]", err))
 									return
 								}
-								ctx.SendChain(message.ImageBytes(img))
-								defer cl()
+								ctx.SendChain(message.ImageBytes(imgfactory))
 							}
 							return
 						}
@@ -300,24 +297,23 @@ func init() {
 			return
 		}
 		// 分享卡片
-		img, cl, err := drawimage(cardData, pictrue)
-		defer cl()
+		imgfactory, err := drawimage(cardData, pictrue)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
-		ctx.SendChain(message.ImageBytes(img))
+		ctx.SendChain(message.ImageBytes(imgfactory))
 	})
 }
 
 // 绘制图片
-func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, cl func(), err error) {
+func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, err error) {
 	// 卡图大小
 	cardPic, _, err := image.Decode(bytes.NewReader(pictrue))
 	if err != nil {
 		return
 	}
-	cardPic = img.Size(cardPic, 400, 580).Im
+	cardPic = imgfactory.Size(cardPic, 400, 580).Image()
 	picx := cardPic.Bounds().Dx()
 	picy := cardPic.Bounds().Dy()
 	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
@@ -376,6 +372,6 @@ func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, cl func(), e
 	// 放置效果
 	canvas.DrawImage(textPic, 10, int(textPicy)+10)
 	// 生成图片
-	data, cl = writer.ToBytes(canvas.Image())
+	data, err = imgfactory.ToBytes(canvas.Image())
 	return
 }

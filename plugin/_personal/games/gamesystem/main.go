@@ -20,10 +20,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 图片输出
-	"github.com/Coloured-glaze/gg"
-	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/rendercard"
-	"github.com/FloatTech/zbputils/img/text"
 )
 
 const (
@@ -89,8 +88,6 @@ func init() {
 			var yOfLine2 int // 第二列最大高度
 			for gameName, info := range gamelist {
 				img, err := (&rendercard.Card{
-					TitleFont:     text.SakuraFontFile,
-					TextFont:      text.SakuraFontFile,
 					Title:         gameName,
 					CanTitleShown: true,
 					TitleAlign:    rendercard.AlignCenter,
@@ -126,8 +123,6 @@ func init() {
 				LeftSubtitle:  "Game System",
 				RightTitle:    "FloatTech",
 				RightSubtitle: "ZeroBot-Plugin",
-				TitleFont:     text.SakuraFontFile,
-				TextFont:      text.SakuraFontFile,
 				ImagePath:     kanbanpath,
 			}).DrawTitle()
 			if err != nil {
@@ -141,8 +136,11 @@ func init() {
 				canvas.DrawImage(img, 25+620*(i%2), 360+yOfLine[i%2])
 				yOfLine[i%2] += img.Bounds().Max.Y + 20
 			}
-			data, cl := writer.ToBytes(canvas.Image())
-			defer cl()
+			data, err := imgfactory.ToBytes(canvas.Image())
+			if err != nil {
+				ctx.SendChain(message.Text(serviceErr, err))
+				return
+			}
 			if id := ctx.SendChain(message.ImageBytes(data)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}

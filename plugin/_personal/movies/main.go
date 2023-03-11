@@ -11,14 +11,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/ttl"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/disintegration/imaging"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -60,12 +58,11 @@ func init() {
 			if len(parsed.MovieList) == 0 {
 				ctx.SendChain(message.Text("今日无电影上映"))
 			}
-			pic, cl, err := drawOnListPic(parsed)
+			pic, err := drawOnListPic(parsed)
 			if err != nil {
 				ctx.SendChain(message.Text("[EEROR3]:", err))
 				return
 			}
-			defer cl()
 			todayPic.Set(0, pic)
 			ctx.SendChain(message.ImageBytes(pic))
 		case "预售":
@@ -88,12 +85,11 @@ func init() {
 			if len(parsed.Coming) == 0 {
 				ctx.SendChain(message.Text("没有预售信息"))
 			}
-			pic, cl, err := drawComListPic(parsed)
+			pic, err := drawComListPic(parsed)
 			if err != nil {
 				ctx.SendChain(message.Text("[EEROR6]:", err))
 				return
 			}
-			defer cl()
 			todayPic.Set(1, pic)
 			ctx.SendChain(message.ImageBytes(pic))
 		}
@@ -104,22 +100,22 @@ type movieOnList struct {
 	MovieList []movieInfo `json:"movieList"`
 }
 type movieInfo struct {
-	ID       int64   `json:"id"`       // 电影ID
-	Img      string  `json:"img"`      // 海报
-	Version  string  `json:"version"`  // 电影格式
-	Nm       string  `json:"nm"`       // 名称
-	Sc       float64 `json:"sc"`       // 评分
-	Wish     int64   `json:"wish"`     // 观看人数
-	Star     string  `json:"star"`     // 演员
-	Rt       string  `json:"rt"`       // 上映时间
-	ShowInfo string  `json:"showInfo"` // 今日上映信息
+	ID       int64   `json:"id"`         // 电影ID
+	Img      string  `json:"imgfactory"` // 海报
+	Version  string  `json:"version"`    // 电影格式
+	Nm       string  `json:"nm"`         // 名称
+	Sc       float64 `json:"sc"`         // 评分
+	Wish     int64   `json:"wish"`       // 观看人数
+	Star     string  `json:"star"`       // 演员
+	Rt       string  `json:"rt"`         // 上映时间
+	ShowInfo string  `json:"showInfo"`   // 今日上映信息
 }
 type comingList struct {
 	Coming []comingInfo `json:"coming"`
 }
 type comingInfo struct {
 	ID          int64  `json:"id"`          // 电影ID
-	Img         string `json:"img"`         // 海报
+	Img         string `json:"imgfactory"`  // 海报
 	Version     string `json:"version"`     // 电影格式
 	ShowInfo    string `json:"showInfo"`    // 今日上映信息
 	Nm          string `json:"nm"`          // 名称
@@ -128,17 +124,13 @@ type comingInfo struct {
 	ComingTitle string `json:"comingTitle"` // 上映时间
 }
 
-func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
+func drawOnListPic(lits movieOnList) (data []byte, err error) {
 	index := len(lits.MovieList)
 	backgroundURL, err := web.GetData(lits.MovieList[rand.Intn(index)].Img)
 	if err != nil {
 		return
 	}
 	back, _, err := image.Decode(bytes.NewReader(backgroundURL))
-	if err != nil {
-		return
-	}
-	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
@@ -173,9 +165,9 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 			PicH := (movieCardh - 20)
 			scale := poster.Bounds().Max.Y / poster.Bounds().Max.X // 按比例缩放
 			picW := PicH / scale
-			movieCard.DrawImage(img.Size(poster, picW, PicH).Im, 10*scale, 10*scale)
+			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10*scale, 10*scale)
 			// 写入文字信息
-			err = movieCard.LoadFontFace(fontbyte, 72/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72/float64(scale))
 			if err != nil {
 				return
 			}
@@ -207,7 +199,7 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 			movieCard.Fill()
 			movieCard.SetRGBA255(30, 30, 30, 255)
 			movieCard.DrawStringAnchored(strconv.FormatFloat(info.Sc, 'f', 2, 64), float64(movieCardw)-munW*0.9/2-10/float64(scale), float64(movieCardh)-munH*1.2-munH*1.3/2-10/float64(scale), 0.5, 0.5)
-			err = movieCard.LoadFontFace(fontbyte, 60/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 60/float64(scale))
 			if err != nil {
 				return
 			}
@@ -221,7 +213,7 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 			movieCard.SetRGBA255(30, 30, 30, 255)
 			movieCard.DrawStringAnchored(mid, float64(picW)+20/float64(scale)+nameW+10/float64(scale)+midW*1.2/2, 20/float64(scale)+nameH/2, 0.5, 0.5)
 
-			err = movieCard.LoadFontFace(fontbyte, 32/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 32/float64(scale))
 			if err != nil {
 				return
 			}
@@ -241,16 +233,16 @@ func drawOnListPic(lits movieOnList) (data []byte, cl func(), err error) {
 	wg.Wait()
 	canvas := gg.NewContext(listPicW, listPicH)
 	picScale := back.Bounds().Max.Y / back.Bounds().Max.X
-	back = img.Size(back, listPicH/picScale, listPicH).Im
+	back = imgfactory.Size(back, listPicH/picScale, listPicH).Image()
 	canvas.DrawImageAnchored(back, listPicW/2, listPicH/2, 0.5, 0.5)
 	for i, imgs := range movieList {
 		canvas.DrawImage(imgs, 50, (movieCardh+15)*i+20)
 	}
-	data, cl = writer.ToBytes(canvas.Image())
+	data, err = imgfactory.ToBytes(canvas.Image())
 	return
 }
 
-func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
+func drawComListPic(lits comingList) (data []byte, err error) {
 	index := len(lits.Coming)
 	backgroundURL, err := web.GetData(lits.Coming[rand.Intn(index)].Img)
 	if err != nil {
@@ -260,11 +252,7 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 	if err != nil {
 		return
 	}
-	back = img.Size(back, 1500, 3000).Im
-	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
-	if err != nil {
-		return
-	}
+	back = imgfactory.Size(back, 1500, 3000).Image()
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
 	listPicW := 1500
@@ -296,9 +284,9 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 			PicH := (movieCardh - 20)
 			scale := poster.Bounds().Max.Y / poster.Bounds().Max.X // 按比例缩放
 			picW := PicH / scale
-			movieCard.DrawImage(img.Size(poster, picW, PicH).Im, 10*scale, 10*scale)
+			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10*scale, 10*scale)
 			// 写入文字信息
-			err = movieCard.LoadFontFace(fontbyte, 72/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72/float64(scale))
 			if err != nil {
 				return
 			}
@@ -325,7 +313,7 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 			movieCard.Fill()
 			movieCard.SetRGBA255(30, 30, 30, 255)
 			movieCard.DrawStringAnchored(wish, float64(movieCardw)-munW*0.9/2-10/float64(scale), float64(movieCardh)-munH*1.2-munH*1.3/2-10/float64(scale), 0.5, 0.5)
-			err = movieCard.LoadFontFace(fontbyte, 60/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 60/float64(scale))
 			if err != nil {
 				return
 			}
@@ -339,7 +327,7 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 			movieCard.SetRGBA255(30, 30, 30, 255)
 			movieCard.DrawStringAnchored(mid, float64(picW)+20/float64(scale)+nameW+10/float64(scale)+midW*1.2/2, 20/float64(scale)+nameH/2, 0.5, 0.5)
 
-			err = movieCard.LoadFontFace(fontbyte, 32/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 32/float64(scale))
 			if err != nil {
 				return
 			}
@@ -359,11 +347,11 @@ func drawComListPic(lits comingList) (data []byte, cl func(), err error) {
 	wg.Wait()
 	canvas := gg.NewContext(listPicW, listPicH)
 	picScale := back.Bounds().Max.Y / back.Bounds().Max.X
-	back = img.Size(back, listPicH/picScale, listPicH).Im
+	back = imgfactory.Size(back, listPicH/picScale, listPicH).Image()
 	canvas.DrawImageAnchored(back, listPicW/2, listPicH/2, 0.5, 0.5)
 	for i, imgs := range movieList {
 		canvas.DrawImage(imgs, 50, (movieCardh+15)*i+20)
 	}
-	data, cl = writer.ToBytes(canvas.Image())
+	data, err = imgfactory.ToBytes(canvas.Image())
 	return
 }
