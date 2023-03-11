@@ -567,23 +567,21 @@ func diskstate() (stateinfo []*status, err error) {
 	if err != nil {
 		return
 	}
-	stateinfo = make([]*status, len(parts))
-	for i, v := range parts {
+	stateinfo = make([]*status, 0, len(parts))
+	for _, v := range parts {
 		mp := v.Mountpoint
+		if strings.HasPrefix(mp, "/snap/") || strings.HasPrefix(mp, "/apex/") {
+			continue
+		}
 		diskusage, err := disk.Usage(mp)
-		usage := ""
-		precent := 0.0
 		if err != nil {
-			usage = err.Error()
-		} else {
-			usage = storagefmt(float64(diskusage.Used)) + " / " + storagefmt(float64(diskusage.Total))
-			precent = math.Round(diskusage.UsedPercent)
+			continue
 		}
-		stateinfo[i] = &status{
-			precent: precent,
+		stateinfo = append(stateinfo, &status{
+			precent: math.Round(diskusage.UsedPercent),
 			name:    mp,
-			text:    []string{usage},
-		}
+			text:    []string{storagefmt(float64(diskusage.Used)) + " / " + storagefmt(float64(diskusage.Total))},
+		})
 	}
 	return stateinfo, nil
 }
