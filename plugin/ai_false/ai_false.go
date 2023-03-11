@@ -10,18 +10,19 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
+	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/rendercard"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/disintegration/imaging"
 	"github.com/shirou/gopsutil/v3/cpu"
@@ -32,7 +33,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/FloatTech/ZeroBot-Plugin/kanban"
+	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -43,7 +44,11 @@ const (
 	referer       = "https://weibo.com/"
 )
 
-var boottime = time.Now()
+var (
+	boottime = time.Now()
+	bgdata   *[]byte
+	bgcount  uintptr
+)
 
 func init() { // 插件主体
 	engine := control.Register("aifalse", &ctrl.Options[*zero.Ctx]{
@@ -70,11 +75,14 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			sendimg, cl := writer.ToBytes(img)
+			sendimg, err := imgfactory.ToBytes(img)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			if id := ctx.SendChain(message.ImageBytes(sendimg)); id.ID() == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
-			cl()
 		})
 	engine.OnRegex(`^设置默认限速为每\s*(\d+)\s*(分钟|秒)\s*(\d+)\s*次触发$`, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -132,14 +140,22 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		return
 	}
 
-	url, err := bilibili.GetRealURL(backgroundURL)
-	if err != nil {
-		return
+	dldata := (*[]byte)(atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bgdata))))
+	if dldata == (*[]byte)(nil) || uintptr(time.Since(boottime).Hours()/24) >= atomic.LoadUintptr(&bgcount) {
+		url, err1 := bilibili.GetRealURL(backgroundURL)
+		if err1 != nil {
+			return nil, err1
+		}
+		data, err1 := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
+		if err1 != nil {
+			return nil, err1
+		}
+		atomic.AddUintptr(&bgcount, 1)
+		atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(&bgdata)), unsafe.Pointer(&data))
+		dldata = &data
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
-	if err != nil {
-		return
-	}
+	data := *dldata
+
 	back, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return
@@ -153,7 +169,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	if err != nil {
 		return
 	}
-	avatarf := img.Size(avatar, 200, 200)
+	avatarf := imgfactory.Size(avatar, 200, 200)
 
 	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
 	if err != nil {
@@ -165,10 +181,10 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	bh, bw, ch, cw := float64(back.Bounds().Dy()), float64(back.Bounds().Dx()), float64(canvas.H()), float64(canvas.W())
 
 	if bh/bw < ch/cw {
-		back = img.Size(back, int(bw*ch/bh), int(bh*ch/bh)).Im
+		back = imgfactory.Size(back, int(bw*ch/bh), int(bh*ch/bh)).Image()
 		canvas.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
 	} else {
-		back = img.Size(back, int(bw*cw/bw), int(bh*cw/bw)).Im
+		back = imgfactory.Size(back, int(bw*cw/bw), int(bh*cw/bw)).Image()
 		canvas.DrawImage(back, 0, 0)
 	}
 
@@ -194,9 +210,9 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		titlecard.SetRGBA255(255, 255, 255, 140)
 		titlecard.Fill()
 
-		titlecard.DrawImage(avatarf.Circle(0).Im, (titlecardh-avatarf.H)/2, (titlecardh-avatarf.H)/2)
+		titlecard.DrawImage(avatarf.Circle(0).Image(), (titlecardh-avatarf.H())/2, (titlecardh-avatarf.H())/2)
 
-		err = titlecard.LoadFontFace(fontbyte, 72)
+		err = titlecard.ParseFontFace(fontbyte, 72)
 		if err != nil {
 			return
 		}
@@ -206,7 +222,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		titlecard.DrawStringAnchored(botname, float64(titlecardh)+fw/2, float64(titlecardh)*0.5/2, 0.5, 0.5)
 
-		err = titlecard.LoadFontFace(fontbyte, 24)
+		err = titlecard.ParseFontFace(fontbyte, 24)
 		if err != nil {
 			return
 		}
@@ -273,7 +289,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			basiccard.DrawCircle((float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200/2, 80)
 			basiccard.Fill()
 
-			err = basiccard.LoadFontFace(fontbyte, 42)
+			err = basiccard.ParseFontFace(fontbyte, 42)
 			if err != nil {
 				return
 			}
@@ -285,7 +301,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			_, fw := basiccard.MeasureString(v.name)
 			basiccard.DrawStringAnchored(v.name, (float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200+15+basiccard.FontHeight()/2, 0.5, 0.5)
 
-			err = basiccard.LoadFontFace(fontbyte, 20)
+			err = basiccard.ParseFontFace(fontbyte, 20)
 			if err != nil {
 				return
 			}
@@ -310,7 +326,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		diskcard.SetRGBA255(255, 255, 255, 140)
 		diskcard.Fill()
 
-		err = diskcard.LoadFontFace(fontbyte, 32)
+		err = diskcard.ParseFontFace(fontbyte, 32)
 		if err != nil {
 			return
 		}
@@ -386,7 +402,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		moreinfocard.SetRGBA255(255, 255, 255, 140)
 		moreinfocard.Fill()
 
-		err = moreinfocard.LoadFontFace(fontbyte, 32)
+		err = moreinfocard.ParseFontFace(fontbyte, 32)
 		if err != nil {
 			return
 		}
@@ -432,14 +448,14 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	canvas.DrawImage(diskimg, 70, 70+titlecardh+40+basiccardh+40)
 	canvas.DrawImage(moreinfoimg, 70, 70+titlecardh+40+basiccardh+40+diskcardh+40)
 
-	err = canvas.LoadFontFace(fontbyte, 28)
+	err = canvas.ParseFontFace(fontbyte, 28)
 	if err != nil {
 		return
 	}
 	canvas.SetRGBA255(0, 0, 0, 255)
-	canvas.DrawStringAnchored("Created By ZeroBot-Plugin "+kanban.Version, float64(canvas.W())/2+3, float64(canvas.H())-70/2+3, 0.5, 0.5)
+	canvas.DrawStringAnchored("Created By ZeroBot-Plugin "+banner.Version, float64(canvas.W())/2+3, float64(canvas.H())-70/2+3, 0.5, 0.5)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	canvas.DrawStringAnchored("Created By ZeroBot-Plugin "+kanban.Version, float64(canvas.W())/2, float64(canvas.H())-70/2, 0.5, 0.5)
+	canvas.DrawStringAnchored("Created By ZeroBot-Plugin "+banner.Version, float64(canvas.W())/2, float64(canvas.H())-70/2, 0.5, 0.5)
 
 	sendimg = canvas.Image()
 	return
@@ -551,23 +567,21 @@ func diskstate() (stateinfo []*status, err error) {
 	if err != nil {
 		return
 	}
-	stateinfo = make([]*status, len(parts))
-	for i, v := range parts {
+	stateinfo = make([]*status, 0, len(parts))
+	for _, v := range parts {
 		mp := v.Mountpoint
+		if strings.HasPrefix(mp, "/snap/") || strings.HasPrefix(mp, "/apex/") {
+			continue
+		}
 		diskusage, err := disk.Usage(mp)
-		usage := ""
-		precent := 0.0
 		if err != nil {
-			usage = err.Error()
-		} else {
-			usage = storagefmt(float64(diskusage.Used)) + " / " + storagefmt(float64(diskusage.Total))
-			precent = math.Round(diskusage.UsedPercent)
+			continue
 		}
-		stateinfo[i] = &status{
-			precent: precent,
+		stateinfo = append(stateinfo, &status{
+			precent: math.Round(diskusage.UsedPercent),
 			name:    mp,
-			text:    []string{usage},
-		}
+			text:    []string{storagefmt(float64(diskusage.Used)) + " / " + storagefmt(float64(diskusage.Total))},
+		})
 	}
 	return stateinfo, nil
 }

@@ -9,14 +9,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/img/writer"
+	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/fumiama/jieba/util/helper"
 	"github.com/sirupsen/logrus"
@@ -26,11 +24,10 @@ import (
 
 type info struct {
 	lotsType string // 文件后缀
-	quantity int    // 内容数量
+	quantity int    // 签数
 }
 
 var (
-	mu       sync.RWMutex
 	lotsList = func() map[string]info {
 		lotsList, err := getList()
 		if err != nil {
@@ -57,24 +54,24 @@ func init() {
 			return
 		}
 		messageText := &strings.Builder{}
-		messageText.WriteString(" 签 名 [ 类 型 ]       签数\n")
+		messageText.WriteString(" 签 名 [ 类 型 ]----签数\n")
 		messageText.WriteString("———————————\n")
 		for name, fileInfo := range lotsList {
-			messageText.WriteString(name + "[" + fileInfo.lotsType + "]\t\t\t" + strconv.Itoa(fileInfo.quantity) + "\n")
+			messageText.WriteString(name + "[" + fileInfo.lotsType + "]----" + strconv.Itoa(fileInfo.quantity) + "\n")
 			messageText.WriteString("----------\n")
 		}
-		textPic, err := text.RenderToBase64(messageText.String(), text.BoldFontFile, 500, 50)
+		textPic, err := text.RenderToBase64(messageText.String(), text.BoldFontFile, 400, 50)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 		ctx.SendChain(message.Image("base64://" + helper.BytesToString(textPic)))
 	})
-	en.OnRegex(`^抽(.*)签$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^抽(.+)签$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		lotsType := ctx.State["regex_matched"].([]string)[1]
 		fileInfo, ok := lotsList[lotsType]
 		if !ok {
-			ctx.SendChain(message.Text("签名[", lotsType, "]不存在"))
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("才...才没有", lotsType, "签这种东西啦")))
 			return
 		}
 		if fileInfo.lotsType == "folder" {
@@ -92,8 +89,11 @@ func init() {
 			return
 		}
 		// 生成图片
-		data, cl := writer.ToBytes(lotsImg)
-		defer cl()
+		data, err := imgfactory.ToBytes(lotsImg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.ImageBytes(data))
 	})
 	en.OnPrefix("看签", zero.UserOrGrpAdmin).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -101,11 +101,11 @@ func init() {
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		fileInfo, ok := lotsList[lotsName]
 		if !ok {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("签名[", lotsName, "]不存在")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("才...才没有", lotsName, "签这种东西啦")))
 			return
 		}
 		if fileInfo.lotsType == "folder" {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("仅支持查看gif抽签")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("只能查看gif签哦~")))
 			return
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileInfo.lotsType)))
@@ -114,7 +114,7 @@ func init() {
 		id := ctx.Event.MessageID
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		if lotsName == "" {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("请使用正确的指令形式")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("请使用正确的指令形式哦~")))
 			return
 		}
 		picURL := ctx.State["image_url"].([]string)[0]
@@ -138,18 +138,18 @@ func init() {
 			lotsType: "gif",
 			quantity: len(im.Image),
 		}
-		ctx.Send(message.ReplyWithMessage(id, message.Text("成功")))
+		ctx.Send(message.ReplyWithMessage(id, message.Text("成功！")))
 	})
 	en.OnPrefix("删签", zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		lotsName := strings.TrimSpace(ctx.State["args"].(string))
 		fileInfo, ok := lotsList[lotsName]
 		if !ok {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("签名[", lotsName, "]不存在")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("才...才没有", lotsName, "签这种东西啦")))
 			return
 		}
 		if fileInfo.lotsType == "folder" {
-			ctx.Send(message.ReplyWithMessage(id, message.Text("图包请手动移除(保护图源误删),谢谢")))
+			ctx.Send(message.ReplyWithMessage(id, message.Text("为了防止误删图源，图包请手动移除哦~")))
 			return
 		}
 		err := os.Remove(datapath + lotsName + "." + fileInfo.lotsType)
@@ -157,10 +157,8 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		mu.Lock()
 		delete(lotsList, lotsName)
-		mu.Unlock()
-		ctx.Send(message.ReplyWithMessage(id, message.Text("成功")))
+		ctx.Send(message.ReplyWithMessage(id, message.Text("成功！")))
 	})
 }
 
@@ -171,7 +169,7 @@ func getList() (list map[string]info, err error) {
 		return
 	}
 	if len(files) == 0 {
-		err = errors.New("不存在任何抽签")
+		err = errors.New("什么签也没有哦~")
 		return
 	}
 	for _, lots := range files {
@@ -216,13 +214,13 @@ func randFile(path string, indexMax int) (string, error) {
 		if drawFile.IsDir() {
 			indexMax--
 			if indexMax <= 0 {
-				return "", errors.New("图包[" + path + "]存在太多非图片文件,请清理")
+				return "", errors.New("图包[" + path + "]存在太多非图片文件,请清理~")
 			}
 			return randFile(path, indexMax)
 		}
 		return picPath + "/" + drawFile.Name(), err
 	}
-	return "", errors.New("图包[" + path + "]不存在签内容")
+	return "", errors.New("图包[" + path + "]不存在签内容！")
 }
 
 func randGif(gifName string) (image.Image, error) {
@@ -237,15 +235,15 @@ func randGif(gifName string) (image.Image, error) {
 		return nil, err
 	}
 	/*
-		firstImg, err := img.Load(name)
+		firstImg, err := imgfactory.Load(name)
 		if err != nil {
 			return nil, err
 		}
 		v := im.Image[rand.Intn(len(im.Image))]
-		return img.Size(firstImg, firstImg.Bounds().Max.X, firstImg.Bounds().Max.Y).InsertUpC(v, 0, 0, firstImg.Bounds().Max.X/2, firstImg.Bounds().Max.Y/2).Clone().Im,err
+		return imgfactory.Size(firstImg, firstImg.Bounds().Max.X, firstImg.Bounds().Max.Y).InsertUpC(v, 0, 0, firstImg.Bounds().Max.X/2, firstImg.Bounds().Max.Y/2).Clone().Image(),err
 	/*/
 	// 如果gif图片出现信息缺失请使用上面注释掉的代码，把下面注释了(上面代码部分图存在bug)
 	v := im.Image[rand.Intn(len(im.Image))]
-	return img.Size(v, v.Bounds().Max.X, v.Bounds().Max.Y).Im, err
+	return imgfactory.Size(v, v.Bounds().Max.X, v.Bounds().Max.Y).Image(), err
 	// */
 }

@@ -15,7 +15,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var t = newttsmode()
+var replmd = replymode{
+	replyModes: []string{"青云客", "小爱", "ChatGPT"},
+}
+
+var ttsmd = newttsmode()
 
 func init() { // 插件主体
 	ent := control.Register("tts", &ctrl.Options[*zero.Ctx]{
@@ -32,13 +36,13 @@ func init() { // 插件主体
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "人工智能回复",
-		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱]",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT api key xxx",
 		PrivateDataFolder: "aireply",
 	})
 
 	enr.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			aireply := getReplyMode(ctx)
+			aireply := replmd.getReplyMode(ctx)
 			reply := message.ParseMessageFromString(aireply.Talk(ctx.Event.UserID, ctx.ExtractPlainText(), zero.BotConfig.NickName[0]))
 			// 回复
 			time.Sleep(time.Second * 1)
@@ -52,7 +56,7 @@ func init() { // 插件主体
 
 	enr.OnPrefix("设置回复模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["args"].(string)
-		err := setReplyMode(ctx, param)
+		err := replmd.setReplyMode(ctx, param)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -60,16 +64,25 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 
+	enr.OnRegex(`^设置\s*ChatGPT\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		err := replmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("设置成功"))
+	})
+
 	endpre := regexp.MustCompile(`\pP$`)
 	ent.OnMessage(zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			// 获取回复模式
-			r := getReplyMode(ctx)
+			r := replmd.getReplyMode(ctx)
 			// 获取回复的文本
 			reply := r.TalkPlain(ctx.Event.UserID, msg, zero.BotConfig.NickName[0])
 			// 获取语音
-			speaker, err := t.getSoundMode(ctx)
+			speaker, err := ttsmd.getSoundMode(ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -104,7 +117,7 @@ func init() { // 插件主体
 		}
 		// 保存设置
 		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, n, ")")
-		err = t.setSoundMode(ctx, param, n, n)
+		err = ttsmd.setSoundMode(ctx, param, n, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -112,7 +125,7 @@ func init() { // 插件主体
 		if banner, ok := genshin.TestRecord[param]; ok {
 			logrus.Debugln("[tts] banner:", banner, "get sound mode...")
 			// 设置验证
-			speaker, err := t.getSoundMode(ctx)
+			speaker, err := ttsmd.getSoundMode(ctx)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -146,7 +159,7 @@ func init() { // 插件主体
 			}
 		}
 		// 保存设置
-		err = t.setDefaultSoundMode(param, n, n)
+		err = ttsmd.setDefaultSoundMode(param, n, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -155,13 +168,13 @@ func init() { // 插件主体
 	})
 
 	ent.OnFullMatch("恢复成默认语音模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := t.resetSoundMode(ctx)
+		err := ttsmd.resetSoundMode(ctx)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
 		// 设置验证
-		speaker, err := t.getSoundMode(ctx)
+		speaker, err := ttsmd.getSoundMode(ctx)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -170,7 +183,7 @@ func init() { // 插件主体
 	})
 
 	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := t.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
+		err := ttsmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
