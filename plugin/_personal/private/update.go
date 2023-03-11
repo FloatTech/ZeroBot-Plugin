@@ -32,7 +32,7 @@ var (
 		{"push", "-u", "origin", "master"},
 		{"pull", "--tags", "-r", "origin", "master"},
 	}
-	commandsOfZbp = []string{"-o", file.BOTPATH + "go.mod", "https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/go.mod"}
+	commandsOfZbp = []string{"-o", file.BOTPATH + "/go.mod", "https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/go.mod"}
 )
 
 func init() {
