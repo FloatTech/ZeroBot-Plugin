@@ -4,6 +4,7 @@ package drawlots
 import (
 	"errors"
 	"image"
+	"image/color"
 	"image/gif"
 	"math/rand"
 	"os"
@@ -38,10 +39,10 @@ var (
 		return lotsList
 	}()
 	en = control.Register("drawlots", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		Brief:             "多功能抽签",
-		Help:              "支持图包文件夹和gif抽签\n-------------\n- (刷新)抽签列表\n- 抽[签名]签\n- 看签[gif签名]\n- 加签[签名][gif图片]\n- 删签[gif签名]",
-		PrivateDataFolder: "drawlots",
+		DisableOnDefault: false,
+		Brief:            "多功能抽签",
+		Help:             "支持图包文件夹和gif抽签\n-------------\n- (刷新)抽签列表\n- 抽[签名]签\n- 看签[gif签名]\n- 加签[签名][gif图片]\n- 删签[gif签名]",
+		PublicDataFolder: "DrawLots",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()
 )
@@ -96,9 +97,9 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.ImageBytes(data))
 	})
-	en.OnPrefix("看签", zero.UserOrGrpAdmin).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^看(.+)签$`, zero.UserOrGrpAdmin).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
-		lotsName := strings.TrimSpace(ctx.State["args"].(string))
+		lotsName := ctx.State["regex_matched"].([]string)[1]
 		fileInfo, ok := lotsList[lotsName]
 		if !ok {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("才...才没有", lotsName, "签这种东西啦")))
@@ -110,9 +111,9 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileInfo.lotsType)))
 	})
-	en.OnPrefix("加签", zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^加(.+)签$`, zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
-		lotsName := strings.TrimSpace(ctx.State["args"].(string))
+		lotsName := ctx.State["regex_matched"].([]string)[1]
 		if lotsName == "" {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("请使用正确的指令形式哦~")))
 			return
@@ -140,9 +141,9 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Text("成功！")))
 	})
-	en.OnPrefix("删签", zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^删(.+)签$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
-		lotsName := strings.TrimSpace(ctx.State["args"].(string))
+		lotsName := ctx.State["regex_matched"].([]string)[1]
 		fileInfo, ok := lotsList[lotsName]
 		if !ok {
 			ctx.Send(message.ReplyWithMessage(id, message.Text("才...才没有", lotsName, "签这种东西啦")))
@@ -244,6 +245,6 @@ func randGif(gifName string) (image.Image, error) {
 	/*/
 	// 如果gif图片出现信息缺失请使用上面注释掉的代码，把下面注释了(上面代码部分图存在bug)
 	v := im.Image[rand.Intn(len(im.Image))]
-	return imgfactory.Size(v, v.Bounds().Max.X, v.Bounds().Max.Y).Image(), err
+	return imgfactory.NewFactoryBG(v.Rect.Max.X, v.Rect.Max.Y, color.NRGBA{0, 0, 0, 255}).InsertUp(v, 0, 0, 0, 0).Clone().Image(), err
 	// */
 }
