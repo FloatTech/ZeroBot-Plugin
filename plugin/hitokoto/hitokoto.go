@@ -63,11 +63,17 @@ func init() { // 插件主体
 					text.Reset()
 				}
 			} else {
-				rand.Shuffle(len(blist), func(i, j int) {
-					blist[i], blist[j] = blist[j], blist[i]
-				})
+				indexes := map[int]struct{}{}
 				for i := 0; i < 10; i++ {
-					b := blist[i]
+					ind := rand.Intn(len(blist))
+					if _, ok := indexes[ind]; ok {
+						i--
+						continue
+					}
+					indexes[ind] = struct{}{}
+				}
+				for k := range indexes {
+					b := blist[k]
 					text.WriteString(b.Hitokoto)
 					text.WriteString("\n——")
 					text.WriteString(b.From)
@@ -140,11 +146,17 @@ func init() { // 插件主体
 							text.Reset()
 						}
 					} else {
-						rand.Shuffle(len(hlist), func(i, j int) {
-							hlist[i], hlist[j] = hlist[j], hlist[i]
-						})
+						indexes := map[int]struct{}{}
 						for i := 0; i < 10; i++ {
-							b := hlist[i]
+							ind := rand.Intn(len(hlist))
+							if _, ok := indexes[ind]; ok {
+								i--
+								continue
+							}
+							indexes[ind] = struct{}{}
+						}
+						for k := range indexes {
+							b := hlist[k]
 							text.WriteString(b.Hitokoto)
 							text.WriteString("\n——")
 							text.WriteString(b.From)
