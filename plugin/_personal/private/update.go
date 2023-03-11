@@ -191,7 +191,7 @@ func init() {
 		var stderr bytes.Buffer
 		msg = append(msg, "\n\n开始更新go.mod")
 		for _, command := range commandsOfZbp {
-			cmd := exec.Command("git", command...)
+			cmd := exec.Command("curl", command...)
 			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
 			cmd.Dir = file.BOTPATH
 			cmd.Stdout = &stdout
