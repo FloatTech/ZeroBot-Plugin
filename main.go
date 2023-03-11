@@ -86,6 +86,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"        // 今日早报
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"         // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"            // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"         // 多功能抽签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dress"            // 女装
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"     // 漂流瓶
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"         // 合成emoji
@@ -266,9 +267,6 @@ func init() {
 		sus = append(sus, i)
 	}
 
-	// 启用 gui
-	go webctrl.RunGui(*g)
-
 	// 通过代码写死的方式添加主人账号
 	// sus = append(sus, 12345678)
 	// sus = append(sus, 87654321)
@@ -318,6 +316,9 @@ func init() {
 		logrus.Infoln("[main] 配置文件已保存到", *save)
 		os.Exit(0)
 	}
+
+	// 启用 webui
+	go webctrl.RunGui(*g)
 }
 
 func main() {
