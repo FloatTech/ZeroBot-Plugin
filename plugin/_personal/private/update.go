@@ -32,7 +32,10 @@ var (
 		{"push", "-u", "origin", "master"},
 		{"pull", "--tags", "-r", "origin", "master"},
 	}
-	commandsOfZbp = []string{"-o", file.BOTPATH + "/go.mod", "https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/go.mod"}
+	commandsOfZbp = [...][]string{
+		{"-o", file.BOTPATH + "/go.mod", "https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/go.mod"},
+		{"-o", file.BOTPATH + "/go.sum", "https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/go.sum"},
+	}
 )
 
 func init() {
@@ -187,24 +190,26 @@ func init() {
 		var stdout bytes.Buffer
 		var stderr bytes.Buffer
 		msg = append(msg, "\n\n开始更新go.mod")
-		cmd := exec.Command("curl", commandsOfZbp...)
-		msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
-		cmd.Dir = file.BOTPATH
-		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
-		err = cmd.Run()
-		if err != nil {
-			msg = append(msg, "StdErr:", err.Error(), "\n", stderr.String())
-			// 输出图片
-			img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+		for _, command := range commandsOfZbp {
+			cmd := exec.Command("git", command...)
+			msg = append(msg, "Command:", strings.Join(cmd.Args, " "))
+			cmd.Dir = file.BOTPATH
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			err = cmd.Run()
 			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
+				msg = append(msg, "StdErr:", err.Error(), "\n", stderr.String())
+				// 输出图片
+				img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
 				return
 			}
-			ctx.SendChain(message.Image("base64://" + binary.BytesToString(img)))
-			return
+			msg = append(msg, "StdOut:", stdout.String())
 		}
-		msg = append(msg, "StdOut:", stdout.String())
 		// 输出图片
 		img, err = text.RenderToBase64(strings.Join(msg, "\n"), text.BoldFontFile, 1280, 50)
 		if err != nil {
