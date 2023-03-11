@@ -100,22 +100,22 @@ type movieOnList struct {
 	MovieList []movieInfo `json:"movieList"`
 }
 type movieInfo struct {
-	ID       int64   `json:"id"`         // 电影ID
-	Img      string  `json:"imgfactory"` // 海报
-	Version  string  `json:"version"`    // 电影格式
-	Nm       string  `json:"nm"`         // 名称
-	Sc       float64 `json:"sc"`         // 评分
-	Wish     int64   `json:"wish"`       // 观看人数
-	Star     string  `json:"star"`       // 演员
-	Rt       string  `json:"rt"`         // 上映时间
-	ShowInfo string  `json:"showInfo"`   // 今日上映信息
+	ID       int64   `json:"id"`       // 电影ID
+	Img      string  `json:"img"`      // 海报
+	Version  string  `json:"version"`  // 电影格式
+	Nm       string  `json:"nm"`       // 名称
+	Sc       float64 `json:"sc"`       // 评分
+	Wish     int64   `json:"wish"`     // 观看人数
+	Star     string  `json:"star"`     // 演员
+	Rt       string  `json:"rt"`       // 上映时间
+	ShowInfo string  `json:"showInfo"` // 今日上映信息
 }
 type comingList struct {
 	Coming []comingInfo `json:"coming"`
 }
 type comingInfo struct {
 	ID          int64  `json:"id"`          // 电影ID
-	Img         string `json:"imgfactory"`  // 海报
+	Img         string `json:"img"`         // 海报
 	Version     string `json:"version"`     // 电影格式
 	ShowInfo    string `json:"showInfo"`    // 今日上映信息
 	Nm          string `json:"nm"`          // 名称
