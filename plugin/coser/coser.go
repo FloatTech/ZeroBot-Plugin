@@ -44,6 +44,9 @@ func init() {
 				return "", err
 			}
 			arr := gjson.Get(helper.BytesToString(data), "data.data").Array()
+			if len(arr) == 0 {
+				return "", errors.New("data is empty")
+			}
 			pic := arr[rand.Intn(len(arr))]
 			return pic.String(), nil
 		}, web.GetData, time.Minute)
