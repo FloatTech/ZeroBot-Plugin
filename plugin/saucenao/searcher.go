@@ -109,8 +109,13 @@ func init() { // 插件主体
 	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
+			pics, ok := ctx.State["image_url"].([]string)
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: 未获取到图片链接"))
+				return
+			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			for _, pic := range ctx.State["image_url"].([]string) {
+			for _, pic := range pics {
 				if saucenaocli != nil {
 					resp, err := saucenaocli.FromURL(pic)
 					if err == nil && resp.Count() > 0 {

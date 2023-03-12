@@ -2,10 +2,10 @@ github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhv
 github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230301080805-a8aa0e4cee1f h1:X1qnXmZgogBgTdhpXz3Gl31nHdh5X6EP1F7iKH7JRHg=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230301080805-a8aa0e4cee1f/go.mod h1:4oFxa7b00MOHULzGm0GN97u/VqCq0J0NvLCF7Puymbs=
-github.com/FloatTech/floatbox v0.0.0-20230301074105-03017a267762 h1:UU9kPDPm9vRA2/qRTK33fa07AEnE6skjdyyvImAlel0=
-github.com/FloatTech/floatbox v0.0.0-20230301074105-03017a267762/go.mod h1:J0zCOJayFOyswwCNlqBQGu2q7OPjiu78kjr0oVF+MrM=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230312042320-53aa800c2c58 h1:26/j1fmDkBwk1UwRqMDV8+IC9HMz+9xbncK/Mx3t2YQ=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230312042320-53aa800c2c58/go.mod h1:A+qtDCzq4rtwEcxzB1boBX8wjHxYWTFyafxiq0sNZyA=
+github.com/FloatTech/floatbox v0.0.0-20230312033609-f3826d7c8d00 h1:KvQd0IaJqBPkc4mpyldX9UcRVlUPVazlcmS79LU0pJ8=
+github.com/FloatTech/floatbox v0.0.0-20230312033609-f3826d7c8d00/go.mod h1:0l1xHjcTlONupyOY5lB5PY6kFWFMHQh89e1Zqm5QZlo=
 github.com/FloatTech/gg v1.1.2 h1:YolgOYg3uDHc1+g0bLtt6QuRA/pvLn+b9IBCIhOOX88=
 github.com/FloatTech/gg v1.1.2/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
 github.com/FloatTech/imgfactory v0.2.2-0.20230215052637-9f7b05520ca9 h1:Havq0z/N79KeD50L7ms+Hv8F4Sw98Dt8lXM8jECp04o=
@@ -18,8 +18,8 @@ github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJG
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230301071613-f2c5c97cec88 h1:jdTWiYXGtYZhxIn9oGYkObNVa8GtJvki+ihsoMlLJPs=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230301071613-f2c5c97cec88/go.mod h1:8IRMtcWhK4S8QdpStJqXQZtIBgAqUH72Imq3BQ45TWg=
-github.com/FloatTech/zbputils v1.6.2-0.20230310162032-fe2036d0667a h1:As8TrKJhLtPSvu/qWAav1StdHWUn7ReDcrfTJlJga1s=
-github.com/FloatTech/zbputils v1.6.2-0.20230310162032-fe2036d0667a/go.mod h1:QwQvA0E+SRcW2kjXt07etth+uunhnCC0fYGhTbl1pgk=
+github.com/FloatTech/zbputils v1.6.2-0.20230312042148-dd8632bf31f5 h1:/Zm5n+2bIpL5how66638nA0NIy+OQOgiCQuEgDYodpQ=
+github.com/FloatTech/zbputils v1.6.2-0.20230312042148-dd8632bf31f5/go.mod h1:0xorZ1IN/UYFCUyUGwHyfA4azQHvDjk0M3F4Mh+gFss=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
@@ -154,6 +154,8 @@ github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S
 github.com/onsi/ginkgo/v2 v2.2.0 h1:3ZNA3L1c5FYDFTTxbFeVGGD8jYvjYauHD30YgLxVsNI=
 github.com/onsi/ginkgo/v2 v2.2.0/go.mod h1:MEH45j8TBi6u9BMogfbp0stKC5cdGjumZj5Y7AG4VIk=
 github.com/onsi/gomega v1.20.1 h1:PA/3qinGoukvymdIDV8pii6tiZgC8kbmJO6Z5+b002Q=
+github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 h1:onHthvaw9LFnH4t2DcNVpwGmV9E1BkGknEliJkfwQj0=
+github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58/go.mod h1:DXv8WO4yhMYhSNPKjeNKa5WY9YCIEBRbNzFFPJbWO6Y=
 github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsKMEsNbx1VGcRFpLqf3715MtcvvzbA=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
