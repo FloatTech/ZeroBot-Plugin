@@ -74,15 +74,15 @@ func init() { // 插件主体
 							imgs = append(imgs, message.Image(m.String()))
 							continue
 						}
-						logrus.Debugln("[sausenao]开始下载", n)
-						logrus.Debugln("[sausenao]urls:", illust.ImageUrls)
+						logrus.Debugln("[saucenao]开始下载", n)
+						logrus.Debugln("[saucenao]urls:", illust.ImageUrls)
 						err1 := illust.DownloadToCache(i)
 						if err1 == nil {
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
 						if err1 != nil {
-							logrus.Debugln("[sausenao]下载err:", err1)
+							logrus.Debugln("[saucenao]下载err:", err1)
 						}
 					}
 					imgs = append(imgs, message.Image("file:///"+f))
