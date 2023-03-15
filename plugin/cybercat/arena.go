@@ -177,6 +177,7 @@ func init() {
 		}
 		if len(infoList) == 0 {
 			ctx.SendChain(message.Text("没有人养猫哦"))
+			return
 		}
 		messageText := make([]string, 0, 10)
 		for i, info := range infoList {

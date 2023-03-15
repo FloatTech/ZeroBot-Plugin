@@ -11,7 +11,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const serviceName = "base"
+const (
+	serviceName = "base"
+	botQQ       = 1015464740 // 机器人QQ
+)
 
 var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 	DisableOnDefault:  false,
@@ -27,19 +30,19 @@ var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 func init() {
 	go func() {
 		process.SleepAbout1sTo2s()
-		ctx := zero.GetBot(1015464740)
+		ctx := zero.GetBot(botQQ)
 		m, ok := control.Lookup(serviceName)
 		if ok {
-			gid := m.GetData(-2504407110)
+			gid := m.GetData(-zero.BotConfig.SuperUsers[0])
 			if gid != 0 {
 				ctx.SendGroupMessage(gid, message.Text("我回来了😊"))
 			} else {
-				ctx.SendPrivateMessage(2504407110, message.Text("我回来了😊"))
+				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("我回来了😊"))
 			}
 		}
-		err := m.SetData(-2504407110, 0)
+		err := m.SetData(-zero.BotConfig.SuperUsers[0], 0)
 		if err != nil {
-			ctx.SendPrivateMessage(2504407110, message.Text(err))
+			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))
 		}
 	}()
 	// 重启
@@ -47,11 +50,11 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup(serviceName)
 			if ok {
-				err := m.SetData(-2504407110, ctx.Event.GroupID)
+				err := m.SetData(-zero.BotConfig.SuperUsers[0], ctx.Event.GroupID)
 				if err == nil {
 					ctx.SendChain(message.Text("好的"))
 				} else {
-					ctx.SendPrivateMessage(2504407110, message.Text(err))
+					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))
 				}
 			}
 			os.Exit(0)
@@ -63,14 +66,14 @@ func init() {
 			ctx.Send(message.UnescapeCQCodeText(ctx.State["args"].(string)))
 		})
 	// 撤回最后的发言
-	zero.OnRegex(`^\[CQ:reply,id=(.*)].*`, zero.KeywordRule("多嘴")).SetBlock(true).
+	zero.OnRegex(`^\[CQ:reply,id=(.*)].*`, zero.KeywordRule("多嘴", "撤回")).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 获取消息id
 			mid := ctx.State["regex_matched"].([]string)[1]
 			// 撤回消息
 			if ctx.Event.Message[1].Data["qq"] != "" {
 				var nickname = zero.BotConfig.NickName[0]
-				ctx.SendChain(message.Text("9494，要像", nickname, "一样乖乖的才行哟~"))
+				ctx.SendChain(message.Text("9494,要像", nickname, "一样乖乖的才行哟~"))
 			} else {
 				ctx.SendChain(message.Text("呜呜呜呜"))
 			}
