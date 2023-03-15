@@ -37,7 +37,7 @@ func init() {
 		ctx.SendChain(message.Text("保存apikey成功！"))
 	})
 	engine.OnFullMatch("查看apikey", zero.OnlyPrivate, zero.SuperUserPermission, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Text("链接密钥为: ", apiKey))
+		ctx.SendChain(message.Text("apikey为: ", apiKey))
 	})
 	engine.OnFullMatch("拉取steam订阅", getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		su := zero.BotConfig.SuperUsers[0]
@@ -68,7 +68,7 @@ func init() {
 		// 遍历返回的信息做对比，假如信息有变化则发消息
 		now := time.Now()
 		for _, playerInfo := range playerStatus {
-			var msg message.Message
+			msg := make(message.Message, 0)
 			localInfo := localPlayerMap[playerInfo.SteamID]
 			// 排除不需要处理的情况
 			if localInfo.GameID == "" && playerInfo.GameID == "" {
