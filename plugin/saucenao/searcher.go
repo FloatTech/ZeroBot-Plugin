@@ -74,15 +74,15 @@ func init() { // 插件主体
 							imgs = append(imgs, message.Image(m.String()))
 							continue
 						}
-						logrus.Debugln("[sausenao]开始下载", n)
-						logrus.Debugln("[sausenao]urls:", illust.ImageUrls)
+						logrus.Debugln("[saucenao]开始下载", n)
+						logrus.Debugln("[saucenao]urls:", illust.ImageUrls)
 						err1 := illust.DownloadToCache(i)
 						if err1 == nil {
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
 						if err1 != nil {
-							logrus.Debugln("[sausenao]下载err:", err1)
+							logrus.Debugln("[saucenao]下载err:", err1)
 						}
 					}
 					imgs = append(imgs, message.Image("file:///"+f))
@@ -109,8 +109,13 @@ func init() { // 插件主体
 	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
+			pics, ok := ctx.State["image_url"].([]string)
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: 未获取到图片链接"))
+				return
+			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			for _, pic := range ctx.State["image_url"].([]string) {
+			for _, pic := range pics {
 				if saucenaocli != nil {
 					resp, err := saucenaocli.FromURL(pic)
 					if err == nil && resp.Count() > 0 {
