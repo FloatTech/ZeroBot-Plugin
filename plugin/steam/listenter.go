@@ -2,13 +2,11 @@ package steam
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/sirupsen/logrus"
@@ -24,25 +22,9 @@ const (
 	steamapikeygid = 3
 )
 
-var (
-	apiKey       string
-	steamKeyFile = engine.DataFolder() + "apikey.txt"
-)
+var apiKey string
 
 func init() {
-	go func() {
-		if file.IsNotExist(steamKeyFile) {
-			_, err := os.Create(steamKeyFile)
-			if err != nil {
-				panic(err)
-			}
-		}
-		apikey, err := os.ReadFile(steamKeyFile)
-		if err != nil {
-			panic(err)
-		}
-		apiKey = binary.BytesToString(apikey)
-	}()
 	engine.OnRegex(`^steam绑定\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		apiKey = ctx.State["regex_matched"].([]string)[1]
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
