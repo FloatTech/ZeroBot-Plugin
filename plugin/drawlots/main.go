@@ -2,6 +2,7 @@
 package drawlots
 
 import (
+	"bytes"
 	"errors"
 	"image"
 	"image/color"
@@ -12,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/imgfactory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
@@ -41,7 +43,9 @@ var (
 	en = control.Register("drawlots", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "多功能抽签",
-		Help:             "支持图包文件夹和gif抽签\n-------------\n- (刷新)抽签列表\n- 抽[签名]签\n- 看签[gif签名]\n- 加签[签名][gif图片]\n- 删签[gif签名]",
+		Help: "支持图包文件夹和gif抽签\n" +
+			"-------------\n" +
+			"- (刷新)抽签列表\n- 抽[签名]签\n- 看[gif签名]签\n- 加[签名]签[gif图片]\n- 删[gif签名]签",
 		PublicDataFolder: "DrawLots",
 	}).ApplySingle(ctxext.DefaultSingle)
 	datapath = file.BOTPATH + "/" + en.DataFolder()
@@ -111,7 +115,7 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(id, message.Image("file:///"+datapath+lotsName+"."+fileInfo.lotsType)))
 	})
-	en.OnRegex(`^加(.+)签$`, zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^加(.+)签.*`, zero.SuperUserPermission, zero.MustProvidePicture).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		lotsName := ctx.State["regex_matched"].([]string)[1]
 		if lotsName == "" {
@@ -119,18 +123,17 @@ func init() {
 			return
 		}
 		picURL := ctx.State["image_url"].([]string)[0]
-		err := file.DownloadTo(picURL, datapath+"/"+lotsName+".gif")
+		gifdata, err := web.GetData(picURL)
+		if err != nil {
+			return
+		}
+		im, err := gif.DecodeAll(bytes.NewReader(gifdata))
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		file, err := os.Open(datapath + "/" + lotsName + ".gif")
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		im, err := gif.DecodeAll(file)
-		_ = file.Close()
+		fileName := datapath + "/" + lotsName + ".gif"
+		err = file.DownloadTo(picURL, fileName)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
