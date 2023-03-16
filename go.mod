@@ -7,7 +7,7 @@ require (
 	github.com/FloatTech/AnimeAPI v1.6.1-0.20230312042320-53aa800c2c58
 	github.com/FloatTech/floatbox v0.0.0-20230312033609-f3826d7c8d00
 	github.com/FloatTech/gg v1.1.2
-	github.com/FloatTech/imgfactory v0.2.2-0.20230215052637-9f7b05520ca9
+	github.com/FloatTech/imgfactory v0.2.2-0.20230315152233-49741fc994f9
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
 	github.com/FloatTech/sqlite v1.5.7
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
