@@ -56,7 +56,7 @@ func init() {
 		localPlayerMap := make(map[int64]*player)
 		for i, info := range infos {
 			streamIds[i] = strconv.FormatInt(info.SteamID, 10)
-			localPlayerMap[info.SteamID] = &info
+			localPlayerMap[info.SteamID] = info
 		}
 		// 将所有用户状态查一遍
 		playerStatus, err := getPlayerStatus(streamIds...)
@@ -90,7 +90,7 @@ func init() {
 				msg = append(msg, message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 关掉了", localInfo.GameExtraInfo))
 				localInfo.LastUpdate = 0
 			}
-			if msg != nil {
+			if len(msg) != 0 {
 				groups := strings.Split(localInfo.Target, ",")
 				for _, groupString := range groups {
 					group, err := strconv.ParseInt(groupString, 10, 64)
