@@ -2,10 +2,12 @@
 package custom
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 
@@ -18,7 +20,6 @@ func init() {
 		DisableOnDefault: false,
 		Help: "自定义插件集合\n" +
 			" - /kill\n" +
-			" - 来114514份涩图\n" +
 			" - /发送公告\n" +
 			" - @bot给主人留言<内容>",
 	})
@@ -26,9 +27,30 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			os.Exit(0)
 		})
-	engine.OnRegex(`^来(.*)涩图`, zero.OnlyGroup, zero.KeywordRule("114514")).SetBlock(true).
+	engine.OnRegex(`^模拟([0-9]+)条消息`, isfirstsuperusers()).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Image("https://gchat.qpic.cn/gchatpic_new/1770747317/1049468946-3068097579-76A49478EFA68B4750B10B96917F7B58/0?term=3"))
+			var err error
+			e := ctx.Event
+			e.RawMessage = "虚拟事件"
+			e.Message = message.Message{message.Text("虚拟事件")}
+			e.NativeMessage = json.RawMessage("\"虚拟事件\"")
+			e.Time = time.Now().Unix()
+			vev, cl := binary.OpenWriterF(func(w *binary.Writer) {
+				err = json.NewEncoder(w).Encode(e)
+			})
+			defer cl()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			i, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			for j := 0; j < int(i); j++ {
+				go ctx.Echo(vev)
+			}
 		})
 	engine.OnCommand("发送公告", isfirstsuperusers()).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

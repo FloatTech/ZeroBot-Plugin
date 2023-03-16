@@ -167,7 +167,7 @@ func init() {
 			}
 			// draw head
 			nickName := ctx.CardOrNickName(uid)
-			canvas.DrawStringWrapped(nickName, 350, 180, 0.5, 0.5, 0.5, 0.5, gg.AlignLeft)
+			canvas.DrawString(nickName, 350, 180)
 			canvas.Fill()
 			// main draw
 			data, err = file.GetLazyData(text.FontFile, control.Md5File, true)
