@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/floatbox/math"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -32,28 +33,29 @@ var (
 			"记录在\"@every 1m\"触发的指令\n" +
 			"拉取steam订阅",
 		PrivateDataFolder: "steam",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 )
 
 func init() {
 	// 创建绑定流程
 	engine.OnRegex(`^steam添加订阅\s*(\d+)$`, zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		steamID := ctx.State["regex_matched"].([]string)[1]
+		steamidstr := ctx.State["regex_matched"].([]string)[1]
+		steamID := math.Str2Int64(steamidstr)
 		// 获取用户状态
-		playerStatus, err := getPlayerStatus([]string{steamID})
+		playerStatus, err := getPlayerStatus(steamidstr)
 		if err != nil {
-			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 创建失败, 获取用户信息错误"))
+			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 添加失败, 获取用户信息错误"))
 			return
 		}
 		if len(playerStatus) == 0 {
-			ctx.SendChain(message.Text("[steam] ERROR: 需要绑定的用户不存在, 请检查id或url"))
+			ctx.SendChain(message.Text("[steam] ERROR: 需要添加的用户不存在, 请检查id或url"))
 			return
 		}
 		playerData := playerStatus[0]
 		// 判断用户是否已经初始化：若未初始化，通过用户的steamID获取当前状态并初始化；若已经初始化则更新用户信息
 		info, err := database.find(steamID)
 		if err != nil {
-			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 创建失败，数据库错误"))
+			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 添加失败，数据库错误"))
 			return
 		}
 		// 处理数据
@@ -71,15 +73,15 @@ func init() {
 			info.Target = strings.Join([]string{info.Target, groupID}, ",")
 		}
 		// 更新数据库
-		if err = database.update(info); err != nil {
-			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 更新绑定失败"))
+		if err = database.update(&info); err != nil {
+			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 更新数据库失败"))
 			return
 		}
-		ctx.SendChain(message.Text("设置成功"))
+		ctx.SendChain(message.Text("添加成功"))
 	})
 	// 删除绑定流程
 	engine.OnRegex(`^steam删除订阅\s*(\d+)$`, zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		steamID := ctx.State["regex_matched"].([]string)[1]
+		steamID := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 		groupID := strconv.FormatInt(ctx.Event.GroupID, 10)
 		// 判断是否已经绑定该steamID，若已绑定就将群列表从推送群列表钟去除
 		info, err := database.findWithGroupID(steamID, groupID)
@@ -87,8 +89,8 @@ func init() {
 			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 删除失败，数据库错误"))
 			return
 		}
-		if info.SteamID == "" {
-			ctx.SendChain(message.Text("[steam] ERROR: 所需要删除的绑定不存在, 请检查绑定关系。"))
+		if info.SteamID == 0 {
+			ctx.SendChain(message.Text("[steam] ERROR: 所需要删除的用户不存在。"))
 			return
 		}
 		// 从绑定列表中剔除需要删除的对象
@@ -107,45 +109,41 @@ func init() {
 			}
 		} else {
 			info.Target = strings.Join(newTargets, ",")
-			if err = database.update(info); err != nil {
+			if err = database.update(&info); err != nil {
 				ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 删除失败，数据库错误"))
 				return
 			}
 		}
-		ctx.SendChain(message.Text("设置成功"))
+		ctx.SendChain(message.Text("删除成功"))
 	})
 	// 查询当前群绑定信息
 	engine.OnFullMatch("steam查询订阅", zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		_, err := file.GetLazyData(text.FontFile, control.Md5File, true)
-		if err != nil {
-			ctx.SendChain(message.Text("[steam] ERROR: ", err))
-			return
-		}
 		// 获取群信息
 		groupID := strconv.FormatInt(ctx.Event.GroupID, 10)
 		// 获取所有绑定信息
 		infos, err := database.findAll()
 		if err != nil {
-			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 查询绑定失败, 数据库错误"))
+			ctx.SendChain(message.Text("[steam] ERROR: ", err, "\nEXP: 查询订阅失败, 数据库错误"))
 			return
 		}
 		if len(infos) == 0 {
-			ctx.SendChain(message.Text("[steam] ERROR: 还未建立过用户绑定关系！"))
+			ctx.SendChain(message.Text("[steam] ERROR: 还未订阅过用户关系！"))
 			return
 		}
 		// 遍历所有信息，如果包含该群就收集对应的steamID
 		var sb strings.Builder
-		sb.WriteString(" 查询steam用户绑定成功, 该群绑定的用户有: \n")
+		head := " 查询steam订阅成功, 该群订阅的用户有: \n"
+		sb.WriteString(head)
 		for _, info := range infos {
 			if strings.Contains(info.Target, groupID) {
 				sb.WriteString(" ")
 				sb.WriteString(info.PersonaName)
 				sb.WriteString(":")
-				sb.WriteString(info.SteamID)
+				sb.WriteString(strconv.FormatInt(info.SteamID, 10))
 				sb.WriteString("\n")
 			}
 		}
-		if sb.String() == " 查询steam用户绑定成功, 该群绑定的用户有: \n" {
+		if sb.String() == head {
 			ctx.SendChain(message.Text("查询成功，该群暂时还没有被绑定的用户！"))
 			return
 		}

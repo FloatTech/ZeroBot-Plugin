@@ -53,13 +53,13 @@ func init() {
 		}
 		// 收集这波用户的streamId，然后查当前的状态，并建立信息映射表
 		streamIds := make([]string, len(infos))
-		localPlayerMap := make(map[string]player)
+		localPlayerMap := make(map[int64]*player)
 		for i, info := range infos {
-			streamIds[i] = info.SteamID
-			localPlayerMap[info.SteamID] = info
+			streamIds[i] = strconv.FormatInt(info.SteamID, 10)
+			localPlayerMap[info.SteamID] = &info
 		}
 		// 将所有用户状态查一遍
-		playerStatus, err := getPlayerStatus(streamIds)
+		playerStatus, err := getPlayerStatus(streamIds...)
 		if err != nil {
 			// 出错就发消息
 			ctx.SendPrivateMessage(su, message.Text("[steam] ERROR: ", err))
@@ -67,25 +67,26 @@ func init() {
 		}
 		// 遍历返回的信息做对比，假如信息有变化则发消息
 		now := time.Now()
+		msg := make(message.Message, 0, len(playerStatus))
 		for _, playerInfo := range playerStatus {
-			msg := make(message.Message, 0)
+			msg = msg[:0]
 			localInfo := localPlayerMap[playerInfo.SteamID]
 			// 排除不需要处理的情况
-			if localInfo.GameID == "" && playerInfo.GameID == "" {
+			if localInfo.GameID == 0 && playerInfo.GameID == 0 {
 				continue
 			}
 			// 打开游戏
-			if localInfo.GameID == "" && playerInfo.GameID != "" {
+			if localInfo.GameID == 0 && playerInfo.GameID != 0 {
 				msg = append(msg, message.Text(playerInfo.PersonaName, "正在玩", playerInfo.GameExtraInfo))
 				localInfo.LastUpdate = now.Unix()
 			}
 			// 更换游戏
-			if localInfo.GameID != "" && playerInfo.GameID != localInfo.GameID && playerInfo.GameID != "" {
+			if localInfo.GameID != 0 && playerInfo.GameID != localInfo.GameID && playerInfo.GameID != 0 {
 				msg = append(msg, message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 丢下了", localInfo.GameExtraInfo, ", 转头去玩", playerInfo.GameExtraInfo))
 				localInfo.LastUpdate = now.Unix()
 			}
 			// 关闭游戏
-			if playerInfo.GameID != localInfo.GameID && playerInfo.GameID == "" {
+			if playerInfo.GameID != localInfo.GameID && playerInfo.GameID == 0 {
 				msg = append(msg, message.Text(playerInfo.PersonaName, "玩了", (now.Unix()-localInfo.LastUpdate)/60, "分钟后, 关掉了", localInfo.GameExtraInfo))
 				localInfo.LastUpdate = 0
 			}
@@ -111,7 +112,7 @@ func init() {
 }
 
 // getPlayerStatus 获取用户状态
-func getPlayerStatus(streamIds []string) ([]*player, error) {
+func getPlayerStatus(streamIds ...string) ([]*player, error) {
 	players := make([]*player, 0)
 	// 拼接请求地址
 	url := fmt.Sprintf(URL+StatusURL, apiKey, strings.Join(streamIds, ","))
@@ -126,9 +127,9 @@ func getPlayerStatus(streamIds []string) ([]*player, error) {
 	index := gjson.Get(dataStr, "response.players.#").Uint()
 	for i := uint64(0); i < index; i++ {
 		players = append(players, &player{
-			SteamID:       gjson.Get(dataStr, fmt.Sprintf("response.players.%d.steamid", i)).String(),
+			SteamID:       gjson.Get(dataStr, fmt.Sprintf("response.players.%d.steamid", i)).Int(),
 			PersonaName:   gjson.Get(dataStr, fmt.Sprintf("response.players.%d.personaname", i)).String(),
-			GameID:        gjson.Get(dataStr, fmt.Sprintf("response.players.%d.gameid", i)).String(),
+			GameID:        gjson.Get(dataStr, fmt.Sprintf("response.players.%d.gameid", i)).Int(),
 			GameExtraInfo: gjson.Get(dataStr, fmt.Sprintf("response.players.%d.gameextrainfo", i)).String(),
 		})
 	}
