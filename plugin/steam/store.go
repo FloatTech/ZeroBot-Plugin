@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	database = &streamDB{db: sql.Sqlite{}}
+	database streamDB
 	// 开启并检查数据库链接
 	getDB = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		database.db.DBPath = engine.DataFolder() + "steam.db"
