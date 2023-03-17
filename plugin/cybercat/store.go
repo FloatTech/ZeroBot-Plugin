@@ -259,10 +259,14 @@ func init() {
 			return
 		}
 		newName := strings.TrimSpace(ctx.State["args"].(string))
-		if newName != "" {
-			userInfo.Name = newName
-		} else {
+		switch {
+		case newName == "" :
 			userInfo.Name = userInfo.Type
+		case len(newName) > 6*3:
+			ctx.SendChain(message.Reply(id), message.Text("请输入正确的名字"))
+			return
+		default:
+			userInfo.Name = newName
 		}
 		if catdata.insert(gidStr, userInfo) != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))

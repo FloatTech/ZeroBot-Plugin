@@ -136,8 +136,8 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
-	listPicW := 1500
 	listPicH := 3000
+	listPicW := listPicH * back.Bounds().Dx() / back.Bounds().Dy()
 	movieList := make([]image.Image, 0, index)
 	movieCardw := listPicW - 100
 	movieCardh := listPicH/index - 20
@@ -163,8 +163,8 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 				return
 			}
 			PicH := (movieCardh - 20)
-			scale := poster.Bounds().Max.Y / poster.Bounds().Max.X // 按比例缩放
-			picW := PicH / scale
+			picW := PicH * poster.Bounds().Dx() / poster.Bounds().Dy()
+			scale := poster.Bounds().Dy() / poster.Bounds().Dx() // 按比例缩放
 			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10*scale, 10*scale)
 			// 写入文字信息
 			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72/float64(scale))
@@ -255,8 +255,8 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 	back = imgfactory.Size(back, 1500, 3000).Image()
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
-	listPicW := 1500
 	listPicH := 3000
+	listPicW := listPicH * back.Bounds().Dx() / back.Bounds().Dy()
 	movieList := make([]image.Image, 0, index)
 	movieCardw := listPicW - 100
 	movieCardh := listPicH/index - 20
@@ -282,8 +282,8 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 				return
 			}
 			PicH := (movieCardh - 20)
-			scale := poster.Bounds().Max.Y / poster.Bounds().Max.X // 按比例缩放
-			picW := PicH / scale
+			picW := PicH * poster.Bounds().Dx() / poster.Bounds().Dy()
+			scale := poster.Bounds().Dy() / poster.Bounds().Dx() // 按比例缩放
 			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10*scale, 10*scale)
 			// 写入文字信息
 			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72/float64(scale))

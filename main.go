@@ -80,8 +80,8 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"   // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"    // 月幕galgame
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/movies" // 电影插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"         // 多功能抽签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots" // 多功能抽签
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/movies"   // 电影插件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/thesaurus" // 旧版词典匹配回复
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"           // 词典匹配回复
