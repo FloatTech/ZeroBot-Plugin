@@ -134,13 +134,14 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 	if err != nil {
 		return
 	}
+	listPicH := 3000
+	listPicW := float64(back.Bounds().Dx()) * float64(listPicH) / float64(back.Bounds().Dy())
+	back = imgfactory.Size(back, int(listPicW), listPicH).Image()
+	movieCardw := int(listPicW - 100)
+	movieCardh := listPicH/index - 20
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
-	listPicH := 3000
-	listPicW := listPicH * back.Bounds().Dx() / back.Bounds().Dy()
 	movieList := make([]image.Image, 0, index)
-	movieCardw := listPicW - 100
-	movieCardh := listPicH/index - 20
 	for _, movieInfos := range lits.MovieList {
 		go func(info movieInfo) {
 			defer wg.Done()
@@ -162,22 +163,28 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 			if err != nil {
 				return
 			}
-			PicH := (movieCardh - 20)
-			picW := PicH * poster.Bounds().Dx() / poster.Bounds().Dy()
-			scale := poster.Bounds().Dy() / poster.Bounds().Dx() // 按比例缩放
-			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10*scale, 10*scale)
+			PicH := movieCardh - 20
+			picW := int(float64(poster.Bounds().Dx()) * float64(PicH) / float64(poster.Bounds().Dy()))
+			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10, 10)
+
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72)
+			if err != nil {
+				return
+			}
+			_, nameH := movieCard.MeasureString(info.Nm)
+			scale := float64(PicH/4) / nameH // 按比例缩放
 			// 写入文字信息
-			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72*scale)
 			if err != nil {
 				return
 			}
 			nameW, nameH := movieCard.MeasureString(info.Nm)
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(info.Nm, float64(picW)+20/float64(scale), 20/float64(scale)+nameH/2, 0, 0.5)
+			movieCard.DrawStringAnchored(info.Nm, float64(picW)+20*scale, 20*scale+nameH/2, 0, 0.5)
 			// 评分
 			wish := strconv.FormatInt(info.Wish, 10) + "人已看"
 			munW, munH := movieCard.MeasureString(wish)
-			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10/float64(scale), float64(movieCardh)-munH*2.4-10/float64(scale), munW*0.9, munH*2.4, 72*0.2)
+			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10*scale, float64(movieCardh)-munH*2.4-10*scale, munW*0.9, munH*2.4, 72*0.2)
 			switch {
 			case info.Sc < 8.4:
 				movieCard.SetRGBA255(250, 97, 0, 200)
@@ -187,7 +194,7 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 				movieCard.SetRGBA255(240, 230, 140, 200)
 			}
 			movieCard.Fill()
-			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10/float64(scale), float64(movieCardh)-munH*1.2-10/float64(scale), munW*0.9, munH*1.2, 72*0.2)
+			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10*scale, float64(movieCardh)-munH*1.2-10*scale, munW*0.9, munH*1.2, 72*0.2)
 			switch {
 			case info.Wish < 100000: // 十万以下
 				movieCard.SetRGBA255(255, 125, 64, 200)
@@ -198,43 +205,40 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 			}
 			movieCard.Fill()
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(strconv.FormatFloat(info.Sc, 'f', 2, 64), float64(movieCardw)-munW*0.9/2-10/float64(scale), float64(movieCardh)-munH*1.2-munH*1.3/2-10/float64(scale), 0.5, 0.5)
-			err = movieCard.LoadFontFace(text.GlowSansFontFile, 60/float64(scale))
+			movieCard.DrawStringAnchored(strconv.FormatFloat(info.Sc, 'f', 2, 64), float64(movieCardw)-munW*0.9/2-10*scale, float64(movieCardh)-munH*1.2-munH*1.3/2-10*scale, 0.5, 0.5)
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 60*scale)
 			if err != nil {
 				return
 			}
-			movieCard.DrawStringAnchored(wish, float64(movieCardw)-10/float64(scale)-munW*0.9/2, float64(movieCardh)-munH*1.2/2-11/float64(scale), 0.5, 0.5)
+			movieCard.DrawStringAnchored(wish, float64(movieCardw)-10*scale-munW*0.9/2, float64(movieCardh)-munH*1.2/2-11*scale, 0.5, 0.5)
 			// 电影ID
 			mid := strconv.FormatInt(info.ID, 10)
 			midW, _ := movieCard.MeasureString(mid)
-			movieCard.DrawRoundedRectangle(float64(picW)+20/float64(scale)+nameW+10/float64(scale), 20/float64(scale), midW*1.2, nameH, 72*0.2)
+			movieCard.DrawRoundedRectangle(float64(picW)+20*scale+nameW+10*scale, 20*scale, midW*1.2, nameH, 72*0.2)
 			movieCard.SetRGBA255(221, 221, 221, 200)
 			movieCard.Fill()
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(mid, float64(picW)+20/float64(scale)+nameW+10/float64(scale)+midW*1.2/2, 20/float64(scale)+nameH/2, 0.5, 0.5)
+			movieCard.DrawStringAnchored(mid, float64(picW)+20*scale+nameW+10*scale+midW*1.2/2, 20*scale+nameH/2, 0.5, 0.5)
 
-			err = movieCard.LoadFontFace(text.GlowSansFontFile, 32/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 32*scale)
 			if err != nil {
 				return
 			}
 			_, textH := movieCard.MeasureString(info.Star)
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(info.Star, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored(info.Star, float64(picW)+20*scale, 25*scale+nameH+10*scale+textH/2, 0, 0.5)
 			movieType := "2D"
 			if info.Version != "" {
 				movieType = info.Version
 			}
-			movieCard.DrawStringAnchored("类型: "+movieType, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+(textH+10/float64(scale))*1+textH/2, 0, 0.5)
-			movieCard.DrawStringAnchored("上映时间: "+info.Rt, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+(textH+10/float64(scale))*2+textH/2, 0, 0.5)
-			movieCard.DrawStringAnchored("今日信息: "+info.ShowInfo, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+(textH+10/float64(scale))*3+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored("类型: "+movieType, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*1+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored("上映时间: "+info.Rt, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*2+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored("今日信息: "+info.ShowInfo, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*3+textH/2, 0, 0.5)
 			movieList = append(movieList, movieCard.Image())
 		}(movieInfos)
 	}
 	wg.Wait()
-	canvas := gg.NewContext(listPicW, listPicH)
-	picScale := back.Bounds().Max.Y / back.Bounds().Max.X
-	back = imgfactory.Size(back, listPicH/picScale, listPicH).Image()
-	canvas.DrawImageAnchored(back, listPicW/2, listPicH/2, 0.5, 0.5)
+	canvas := gg.NewContextForImage(back)
 	for i, imgs := range movieList {
 		canvas.DrawImage(imgs, 50, (movieCardh+15)*i+20)
 	}
@@ -252,14 +256,14 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 	if err != nil {
 		return
 	}
-	back = imgfactory.Size(back, 1500, 3000).Image()
+	listPicH := 3000
+	listPicW := float64(back.Bounds().Dx()) * float64(listPicH) / float64(back.Bounds().Dy())
+	back = imgfactory.Size(back, int(listPicW), listPicH).Image()
+	movieCardw := int(listPicW - 100)
+	movieCardh := listPicH/index - 20
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
-	listPicH := 3000
-	listPicW := listPicH * back.Bounds().Dx() / back.Bounds().Dy()
 	movieList := make([]image.Image, 0, index)
-	movieCardw := listPicW - 100
-	movieCardh := listPicH/index - 20
 	for _, movieInfos := range lits.Coming {
 		go func(info comingInfo) {
 			defer wg.Done()
@@ -281,24 +285,30 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 			if err != nil {
 				return
 			}
-			PicH := (movieCardh - 20)
-			picW := PicH * poster.Bounds().Dx() / poster.Bounds().Dy()
-			scale := poster.Bounds().Dy() / poster.Bounds().Dx() // 按比例缩放
-			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10*scale, 10*scale)
+			PicH := movieCardh - 20
+			picW := int(float64(poster.Bounds().Dx()) * float64(PicH) / float64(poster.Bounds().Dy()))
+			movieCard.DrawImage(imgfactory.Size(poster, picW, PicH).Image(), 10, 10)
+
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72)
+			if err != nil {
+				return
+			}
+			_, nameH := movieCard.MeasureString(info.Nm)
+			scale := float64(PicH/4) / nameH // 按比例缩放
 			// 写入文字信息
-			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 72*scale)
 			if err != nil {
 				return
 			}
 			nameW, nameH := movieCard.MeasureString(info.Nm)
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(info.Nm, float64(picW)+20/float64(scale), 20/float64(scale)+nameH/2, 0, 0.5)
+			movieCard.DrawStringAnchored(info.Nm, float64(picW)+20*scale, 20*scale+nameH/2, 0, 0.5)
 			// 期待人数
 			munW1, _ := movieCard.MeasureString("期待人数")
 			wish := strconv.FormatInt(info.Wish, 10)
 			munW2, munH := movieCard.MeasureString(wish)
 			munW := math.Max(munW1, munW2)
-			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10/float64(scale), float64(movieCardh)-munH*2.4-10/float64(scale), munW*0.9, munH*2.4, 72*0.2)
+			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10*scale, float64(movieCardh)-munH*2.4-10*scale, munW*0.9, munH*2.4, 72*0.2)
 			switch {
 			case info.Wish < 1000:
 				movieCard.SetRGBA255(250, 97, 0, 200)
@@ -308,47 +318,44 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 				movieCard.SetRGBA255(240, 230, 140, 200)
 			}
 			movieCard.Fill()
-			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10/float64(scale), float64(movieCardh)-munH*1.2-10/float64(scale), munW*0.9, munH*1.2, 72*0.2)
+			movieCard.DrawRoundedRectangle(float64(movieCardw)-munW*0.9-10*scale, float64(movieCardh)-munH*1.2-10*scale, munW*0.9, munH*1.2, 72*0.2)
 			movieCard.SetRGBA255(34, 139, 34, 200)
 			movieCard.Fill()
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(wish, float64(movieCardw)-munW*0.9/2-10/float64(scale), float64(movieCardh)-munH*1.2-munH*1.3/2-10/float64(scale), 0.5, 0.5)
-			err = movieCard.LoadFontFace(text.GlowSansFontFile, 60/float64(scale))
+			movieCard.DrawStringAnchored(wish, float64(movieCardw)-munW*0.9/2-10*scale, float64(movieCardh)-munH*1.2-munH*1.3/2-10*scale, 0.5, 0.5)
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 60*scale)
 			if err != nil {
 				return
 			}
-			movieCard.DrawStringAnchored("期待人数", float64(movieCardw)-10/float64(scale)-munW*0.9/2, float64(movieCardh)-munH*1.2/2-11/float64(scale), 0.5, 0.5)
+			movieCard.DrawStringAnchored("期待人数", float64(movieCardw)-10*scale-munW*0.9/2, float64(movieCardh)-munH*1.2/2-11*scale, 0.5, 0.5)
 			// 电影ID
 			mid := strconv.FormatInt(info.ID, 10)
 			midW, _ := movieCard.MeasureString(mid)
-			movieCard.DrawRoundedRectangle(float64(picW)+20/float64(scale)+nameW+10/float64(scale), 20/float64(scale), midW*1.2, nameH, 72*0.2)
+			movieCard.DrawRoundedRectangle(float64(picW)+20*scale+nameW+10*scale, 20*scale, midW*1.2, nameH, 72*0.2)
 			movieCard.SetRGBA255(221, 221, 221, 200)
 			movieCard.Fill()
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(mid, float64(picW)+20/float64(scale)+nameW+10/float64(scale)+midW*1.2/2, 20/float64(scale)+nameH/2, 0.5, 0.5)
+			movieCard.DrawStringAnchored(mid, float64(picW)+20*scale+nameW+10*scale+midW*1.2/2, 20*scale+nameH/2, 0.5, 0.5)
 
-			err = movieCard.LoadFontFace(text.GlowSansFontFile, 32/float64(scale))
+			err = movieCard.LoadFontFace(text.GlowSansFontFile, 32*scale)
 			if err != nil {
 				return
 			}
 			_, textH := movieCard.MeasureString(info.Star)
 			movieCard.SetRGBA255(30, 30, 30, 255)
-			movieCard.DrawStringAnchored(info.Star, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored(info.Star, float64(picW)+20*scale, 25*scale+nameH+10*scale+textH/2, 0, 0.5)
 			movieType := "2D"
 			if info.Version != "" {
 				movieType = info.Version
 			}
-			movieCard.DrawStringAnchored("类型: "+movieType, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+(textH+10/float64(scale))*1+textH/2, 0, 0.5)
-			movieCard.DrawStringAnchored("上映时间: "+info.ComingTitle, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+(textH+10/float64(scale))*2+textH/2, 0, 0.5)
-			movieCard.DrawStringAnchored("今日信息: "+info.ShowInfo, float64(picW)+20/float64(scale), 25/float64(scale)+nameH+10/float64(scale)+(textH+10/float64(scale))*3+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored("类型: "+movieType, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*1+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored("上映时间: "+info.ComingTitle, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*2+textH/2, 0, 0.5)
+			movieCard.DrawStringAnchored("今日信息: "+info.ShowInfo, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*3+textH/2, 0, 0.5)
 			movieList = append(movieList, movieCard.Image())
 		}(movieInfos)
 	}
 	wg.Wait()
-	canvas := gg.NewContext(listPicW, listPicH)
-	picScale := back.Bounds().Max.Y / back.Bounds().Max.X
-	back = imgfactory.Size(back, listPicH/picScale, listPicH).Image()
-	canvas.DrawImageAnchored(back, listPicW/2, listPicH/2, 0.5, 0.5)
+	canvas := gg.NewContextForImage(back)
 	for i, imgs := range movieList {
 		canvas.DrawImage(imgs, 50, (movieCardh+15)*i+20)
 	}
