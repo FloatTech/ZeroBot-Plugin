@@ -559,7 +559,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   
   - [x] b站推送列表
   
-  - [x] 拉取b站推送 (使用job执行定时任务------记录在"@every 10s"触发的指令) 
+  - [x] 拉取b站推送 (使用job执行定时任务------记录在"@every 5m"触发的指令) 
 
 </details>
 <details>
@@ -1282,6 +1282,22 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 抽老婆[@xxx]
 
   - [x] 黄油角色[@xxx]
+
+</details>
+<details>
+  <summary>steam</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"`
+
+  - [x] steam[添加|删除]订阅xxxxx
+
+  - [x] steam查看订阅
+
+  - [x] steam绑定 api key xxxxxxx
+
+  - [x] 查看apikey
+
+  - [x] 拉取steam订阅 (使用job执行定时任务------记录在"@every 1m"触发的指令) 
 
 </details>
 <details>
