@@ -27,7 +27,7 @@ type ba struct {
 func init() { // 主函数
 	en := control.Register("baidu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "百科\n" +
+		Help: "百度百科\n" +
 			"- 百度/百科+[关键字]",
 	})
 	en.OnRegex(`^[百度|百科]\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
