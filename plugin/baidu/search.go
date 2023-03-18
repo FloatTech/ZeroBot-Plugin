@@ -43,7 +43,7 @@ func init() { // 主函数
 		if r.Code == 0 {
 			ctx.SendChain(message.Text(r.Data[0].Content)) // 输出提取后的结果
 		} else {
-			ctx.SendChain(message.Text("百度百科未找到信息"))
+			ctx.SendChain(message.Text("Api访问错误"))
 		}
 	})
 }
