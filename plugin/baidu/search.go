@@ -1,5 +1,5 @@
-// Package baike 百度百科
-package baike
+// Package baidu 百度百科
+package baidu
 
 import (
 	"encoding/json"
