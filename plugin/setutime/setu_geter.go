@@ -236,10 +236,7 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 		return err
 	}
 	// 添加插画到对应的数据库table
-	if err := p.db.Insert(imgtype, illust); err != nil {
-		return err
-	}
-	return nil
+	return p.db.Insert(imgtype, illust)
 }
 
 func (p *imgpool) remove(imgtype string, id int64) error {
