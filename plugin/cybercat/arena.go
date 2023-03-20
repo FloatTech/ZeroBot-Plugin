@@ -22,6 +22,10 @@ func init() {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
+		if ctx.State["regex_matched"].([]string)[3] == uidStr {
+			ctx.SendChain(message.Reply(id), message.Text("猫猫歪头看着你表示咄咄怪事哦~"))
+			return
+		}
 		userInfo, err := catdata.find(gidStr, uidStr)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -63,21 +67,15 @@ func init() {
 				ctx.SendChain(message.Reply(id), message.Text("对方没回应,PK取消"))
 				return
 			case c := <-recv:
-				switch c.Event.Message.String() {
-				case "拒绝":
-					if c.Event.UserID == userInfo.User {
-						over.Stop()
-						ctx.SendChain(message.Reply(id), message.Text("对方拒绝了你的PK"))
-						return
-					}
-				case "取消":
-					if c.Event.UserID == userInfo.User {
-						over.Stop()
-						ctx.SendChain(message.Reply(id), message.Text("你取消了PK"))
-						return
-					}
-				case "去吧猫猫":
-					over.Stop()
+				over.Stop()
+				switch {
+				case c.Event.Message.String() == "拒绝" && c.Event.UserID == duelInfo.User:
+					ctx.SendChain(message.Reply(id), message.Text("对方拒绝了你的PK"))
+					return
+				case c.Event.Message.String() == "取消" && c.Event.UserID == userInfo.User:
+					ctx.SendChain(message.Reply(id), message.Text("你取消了PK"))
+					return
+				case c.Event.Message.String() == "去吧猫猫" && c.Event.UserID == duelInfo.User:
 					approve = true
 				}
 			}

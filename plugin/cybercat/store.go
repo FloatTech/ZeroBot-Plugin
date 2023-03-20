@@ -260,7 +260,7 @@ func init() {
 		}
 		newName := strings.TrimSpace(ctx.State["args"].(string))
 		switch {
-		case newName == "" :
+		case newName == "":
 			userInfo.Name = userInfo.Type
 		case len(newName) > 6*3:
 			ctx.SendChain(message.Reply(id), message.Text("请输入正确的名字"))

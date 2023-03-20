@@ -33,12 +33,12 @@ func init() {
 			ctx.SendChain(message.Reply(id), message.Text("铲屎官你还没有属于你的主子喔,快去买一只吧!"))
 			return
 		}
-		/***************************************************************/
-		cmd := false
+		/*************************判断指令类型**************************************/
+		cmd := false // false表示在喂猫
 		if ctx.State["regex_matched"].([]string)[0] == "猫猫状态" {
 			cmd = true
 		}
-		/***************************************************************/
+		/**************************获取工作状态*************************************/
 		stauts := "休闲中"
 		money, workEnd := userInfo.settleOfWork(gidStr)
 		switch {
@@ -51,10 +51,11 @@ func init() {
 		case cmd && money > 0:
 			stauts = "从工作回来休息中\n	为你赚了" + strconv.Itoa(money)
 		}
-		/***************************************************************/
+		/****************************计算食物数量***********************************/
 		food := 0.0
 		if !cmd {
 			stauts = "刚刚的食物很美味"
+			// 如果没有指定猫粮就 （1 + 猫粮/5*x ）斤猫粮
 			if ctx.State["regex_matched"].([]string)[2] != "" {
 				food, _ = strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
 			} else {
@@ -64,22 +65,23 @@ func init() {
 			case userInfo.Food == 0 || userInfo.Food < food:
 				ctx.SendChain(message.Reply(id), message.Text("铲屎官你已经没有足够的猫粮了"))
 				return
-			case food > 5 && rand.Intn(10) < 8:
+			// 如果猫粮太多就只吃一点，除非太饿了
+			case food > 5 && (rand.Intn(10) < 8 || userInfo.Satiety < 30):
 				food = 5
 				stauts = "食物实在太多了!"
 			case food < 0.5:
 				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "骂骂咧咧的走了"))
 				return
 			}
-			userInfo.Food -= food
 		}
-		/***************************************************************/
+		/****************************空闲时间猫体力的减少计算***********************************/
 		subtime := 0.0
 		if userInfo.LastTime != 0 {
 			lastTime := time.Unix(userInfo.LastTime, 0)
 			subtime = time.Since(lastTime).Hours()
 			userInfo.LastTime = time.Unix(userInfo.LastTime, 0).Add(time.Duration(subtime) * time.Hour).Unix()
 		}
+		// 频繁喂猫减少心情
 		if !cmd && subtime < 8 {
 			userInfo.Mood -= 5
 			if userInfo.Mood < 0 {
@@ -91,6 +93,7 @@ func init() {
 				return
 			}
 		}
+		// 当饱食度降到0以下，体力减少
 		if subtime > 1 {
 			userInfo.Satiety -= subtime * 4
 			userInfo = userInfo.settleOfWeight()
@@ -98,20 +101,21 @@ func init() {
 			userInfo.LastTime = time.Now().Unix()
 		}
 		/***************************太饿了偷吃************************************/
+		userInfo.Food -= food
 		if userInfo.Food > 0 && (rand.Intn(10) == 1 || userInfo.Satiety < 10) {
 			eat := userInfo.Food / 5 * rand.Float64()
 			userInfo = userInfo.settleOfSatiety(eat)
 			userInfo.Mood += int(eat)
 			userInfo = userInfo.settleOfWeight()
 		}
-		/***************************************************************/
+		/***************************整体结算，判断当前的心情是否继续************************************/
 		userInfo = userInfo.settleOfData()
 		if !cmd && userInfo.Satiety > 80 && rand.Intn(100) > zbmath.Max(userInfo.Mood*2-userInfo.Mood/2, 50) {
 			ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "好像并没有心情吃东西"))
 			return
 		}
+		/****************************结算食物***********************************/
 		userInfo = userInfo.settleOfSatiety(food)
-		/***************************************************************/
 		userInfo = userInfo.settleOfWeight()
 		switch {
 		case userInfo.Mood <= 0 && rand.Intn(100) < 10:
@@ -142,7 +146,7 @@ func init() {
 			userInfo.Type = "猫娘"
 			userInfo.Weight = 3 + rand.Float64()*10
 		}
-		/***************************************************************/
+		/****************************保存数据***********************************/
 		userInfo.LastTime = time.Now().Unix()
 		userInfo.Mood += int(userInfo.Satiety)/5 - int(userInfo.Weight)/10
 		userInfo = userInfo.settleOfData()

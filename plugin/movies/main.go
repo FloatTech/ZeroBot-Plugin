@@ -141,13 +141,13 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 	movieCardh := listPicH/index - 20
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
-	movieList := make([]image.Image, 0, index)
-	for _, movieInfos := range lits.MovieList {
-		go func(info movieInfo) {
+	movieList := make(map[int]image.Image, index*2)
+	for i, movieInfos := range lits.MovieList {
+		go func(info movieInfo, index int) {
 			defer wg.Done()
 			movieCard := gg.NewContext(movieCardw, movieCardh)
 			// 	毛玻璃背景
-			movieCard.DrawImage(imaging.Blur(movieCard.Image(), 8), -70, -70)
+			movieCard.DrawImage(imaging.Blur(back, 8), -50, -((movieCardh+15)*index + 20))
 			movieCard.DrawRoundedRectangle(1, 1, float64(movieCardw-1*2), float64(movieCardh-1*2), 16)
 			movieCard.SetLineWidth(3)
 			movieCard.SetRGBA255(255, 255, 255, 100)
@@ -234,8 +234,8 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 			movieCard.DrawStringAnchored("类型: "+movieType, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*1+textH/2, 0, 0.5)
 			movieCard.DrawStringAnchored("上映时间: "+info.Rt, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*2+textH/2, 0, 0.5)
 			movieCard.DrawStringAnchored("今日信息: "+info.ShowInfo, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*3+textH/2, 0, 0.5)
-			movieList = append(movieList, movieCard.Image())
-		}(movieInfos)
+			movieList[index] = movieCard.Image()
+		}(movieInfos, i)
 	}
 	wg.Wait()
 	canvas := gg.NewContextForImage(back)
@@ -263,13 +263,13 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 	movieCardh := listPicH/index - 20
 	wg := &sync.WaitGroup{}
 	wg.Add(index)
-	movieList := make([]image.Image, 0, index)
-	for _, movieInfos := range lits.Coming {
-		go func(info comingInfo) {
+	movieList := make(map[int]image.Image, index*2)
+	for i, movieInfos := range lits.Coming {
+		go func(info comingInfo, index int) {
 			defer wg.Done()
 			movieCard := gg.NewContext(movieCardw, movieCardh)
 			// 	毛玻璃背景
-			movieCard.DrawImage(imaging.Blur(movieCard.Image(), 8), -70, -70)
+			movieCard.DrawImage(imaging.Blur(back, 8), -50, -((movieCardh+15)*index + 20))
 			movieCard.DrawRoundedRectangle(1, 1, float64(movieCardw-1*2), float64(movieCardh-1*2), 16)
 			movieCard.SetLineWidth(3)
 			movieCard.SetRGBA255(255, 255, 255, 100)
@@ -351,8 +351,8 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 			movieCard.DrawStringAnchored("类型: "+movieType, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*1+textH/2, 0, 0.5)
 			movieCard.DrawStringAnchored("上映时间: "+info.ComingTitle, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*2+textH/2, 0, 0.5)
 			movieCard.DrawStringAnchored("今日信息: "+info.ShowInfo, float64(picW)+20*scale, 25*scale+nameH+10*scale+(textH+10*scale)*3+textH/2, 0, 0.5)
-			movieList = append(movieList, movieCard.Image())
-		}(movieInfos)
+			movieList[index] = movieCard.Image()
+		}(movieInfos, i)
 	}
 	wg.Wait()
 	canvas := gg.NewContextForImage(back)
