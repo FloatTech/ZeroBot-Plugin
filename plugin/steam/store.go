@@ -91,7 +91,7 @@ func (sql *streamDB) findWithGroupID(steamID int64, groupID string) (dbInfo play
 }
 
 // findAll 查询所有库信息
-func (sql *streamDB) findAll() (dbInfos []*player, err error) {
+func (sql *streamDB) findAll() (dbInfos []player, err error) {
 	sql.Lock()
 	defer sql.Unlock()
 	var info player
@@ -99,10 +99,10 @@ func (sql *streamDB) findAll() (dbInfos []*player, err error) {
 	if err != nil || num == 0 {
 		return
 	}
-	dbInfos = make([]*player, 0, num)
+	dbInfos = make([]player, 0, num)
 	err = sql.db.FindFor(TableListenPlayer, &info, "", func() error {
 		if info.SteamID != 0 {
-			dbInfos = append(dbInfos, &info)
+			dbInfos = append(dbInfos, info)
 		}
 		return nil
 	})
