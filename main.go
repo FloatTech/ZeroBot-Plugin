@@ -131,6 +131,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"           // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"       // 猜歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/heisi"            // 黑丝
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hitokoto"         // 一言
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"               // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"            // 百人一首
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"     // 关键字搜图
@@ -166,6 +167,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"         // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"          // 沙雕app
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"          // 测定
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"            // steam相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"            // 抽塔罗牌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"          // 舔狗日记
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"         // 搜番
@@ -264,13 +266,12 @@ func init() {
 		fmt.Println("Usage:")
 		flag.PrintDefaults()
 		os.Exit(0)
-	} else {
-		if *d && !*w {
-			logrus.SetLevel(logrus.DebugLevel)
-		}
-		if *w {
-			logrus.SetLevel(logrus.WarnLevel)
-		}
+	}
+	if *d && !*w {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	if *w {
+		logrus.SetLevel(logrus.WarnLevel)
 	}
 
 	for _, s := range flag.Args() {

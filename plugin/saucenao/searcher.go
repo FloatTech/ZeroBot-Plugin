@@ -74,15 +74,15 @@ func init() { // 插件主体
 							imgs = append(imgs, message.Image(m.String()))
 							continue
 						}
-						logrus.Debugln("[sausenao]开始下载", n)
-						logrus.Debugln("[sausenao]urls:", illust.ImageUrls)
+						logrus.Debugln("[saucenao]开始下载", n)
+						logrus.Debugln("[saucenao]urls:", illust.ImageUrls)
 						err1 := illust.DownloadToCache(i)
 						if err1 == nil {
 							m.SetFile(f)
 							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
 						if err1 != nil {
-							logrus.Debugln("[sausenao]下载err:", err1)
+							logrus.Debugln("[saucenao]下载err:", err1)
 						}
 					}
 					imgs = append(imgs, message.Image("file:///"+f))
@@ -109,8 +109,13 @@ func init() { // 插件主体
 	engine.OnKeywordGroup([]string{"以图搜图", "搜索图片", "以图识图"}, zero.MustProvidePicture).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
+			pics, ok := ctx.State["image_url"].([]string)
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: 未获取到图片链接"))
+				return
+			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			for _, pic := range ctx.State["image_url"].([]string) {
+			for _, pic := range pics {
 				if saucenaocli != nil {
 					resp, err := saucenaocli.FromURL(pic)
 					if err == nil && resp.Count() > 0 {
@@ -157,27 +162,27 @@ func init() { // 插件主体
 					ctx.SendChain(message.Text("请私聊发送 设置 saucenao api key [apikey] 以启用 saucenao 搜图 (方括号不需要输入), key 请前往 https://saucenao.com/user.php?page=search-api 获取"))
 				}
 				// ascii2d 搜索
-				if result, err := ascii2d.ASCII2d(pic); err != nil {
+				result, err := ascii2d.ASCII2d(pic)
+				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					continue
-				} else {
-					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
-					for i := 0; i < len(result) && i < 5; i++ {
-						msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
-							message.Image(result[i].Thumb),
-							message.Text(fmt.Sprintf(
-								"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
-								result[i].Name,
-								result[i].Type,
-								result[i].AuthNm,
-								result[i].Author,
-								result[i].Link,
-							))),
-						)
-					}
-					if id := ctx.Send(msg).ID(); id == 0 {
-						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
-					}
+				}
+				msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
+				for i := 0; i < len(result) && i < 5; i++ {
+					msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
+						message.Image(result[i].Thumb),
+						message.Text(fmt.Sprintf(
+							"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
+							result[i].Name,
+							result[i].Type,
+							result[i].AuthNm,
+							result[i].Author,
+							result[i].Link,
+						))),
+					)
+				}
+				if id := ctx.Send(msg).ID(); id == 0 {
+					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 				}
 			}
 		})

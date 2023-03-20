@@ -40,7 +40,7 @@ func randText(text ...string) message.MessageSegment {
 }
 
 // isAtriSleeping 凌晨0点到6点，ATRI 在睡觉，不回应任何请求
-func isAtriSleeping(ctx *zero.Ctx) bool {
+func isAtriSleeping(*zero.Ctx) bool {
 	if now := time.Now().Hour(); now >= 1 && now < 6 {
 		return false
 	}

@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	jiami1 = "http://ovooa.com/API/sho_u/?msg=%v"          // 加密api地址
-	jiami2 = "http://ovooa.com/API/sho_u/?format=1&msg=%v" // 解密api地址
+	jiami1 = "http://ovooa.caonm.net/API/sho_u/?msg=%v"          // 加密api地址
+	jiami2 = "http://ovooa.caonm.net/API/sho_u/?format=1&msg=%v" // 解密api地址
 
 )
 

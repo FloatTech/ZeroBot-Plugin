@@ -187,7 +187,13 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		back = imgfactory.Size(back, int(bw*cw/bw), int(bh*cw/bw)).Image()
 		canvas.DrawImage(back, 0, 0)
 	}
-
+	var blurback image.Image
+	bwg := &sync.WaitGroup{}
+	bwg.Add(1)
+	go func() {
+		defer bwg.Done()
+		blurback = imaging.Blur(canvas.Image(), 8)
+	}()
 	wg := &sync.WaitGroup{}
 	wg.Add(5)
 
@@ -200,8 +206,8 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	go func() {
 		defer wg.Done()
 		titlecard := gg.NewContext(cardw, titlecardh)
-
-		titlecard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70)
+		bwg.Wait()
+		titlecard.DrawImage(blurback, -70, -70)
 
 		titlecard.DrawRoundedRectangle(1, 1, float64(titlecard.W()-1*2), float64(titlecardh-1*2), 16)
 		titlecard.SetLineWidth(3)
@@ -253,8 +259,8 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	go func() {
 		defer wg.Done()
 		basiccard := gg.NewContext(cardw, basiccardh)
-
-		basiccard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecardh-40)
+		bwg.Wait()
+		basiccard.DrawImage(blurback, -70, -70-titlecardh-40)
 
 		basiccard.DrawRoundedRectangle(1, 1, float64(basiccard.W()-1*2), float64(basiccardh-1*2), 16)
 		basiccard.SetLineWidth(3)
@@ -317,7 +323,8 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	go func() {
 		defer wg.Done()
 		diskcard := gg.NewContext(cardw, diskcardh)
-		diskcard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecardh-40-basiccardh-40)
+		bwg.Wait()
+		diskcard.DrawImage(blurback, -70, -70-titlecardh-40-basiccardh-40)
 
 		diskcard.DrawRoundedRectangle(1, 1, float64(diskcard.W()-1*2), float64(diskcardh-1*2), 16)
 		diskcard.SetLineWidth(3)
@@ -335,6 +342,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		if dslen == 1 {
 			diskcard.SetRGBA255(192, 192, 192, 255)
 			diskcard.DrawRoundedRectangle(40, 40, float64(diskcard.W())-40-100, 50, 12)
+			diskcard.ClipPreserve()
 			diskcard.Fill()
 
 			switch {
@@ -348,7 +356,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 			diskcard.DrawRoundedRectangle(40, 40, (float64(diskcard.W())-40-100)*diskstate[0].precent*0.01, 50, 12)
 			diskcard.Fill()
-
+			diskcard.ResetClip()
 			diskcard.SetRGBA255(30, 30, 30, 255)
 
 			fw, _ := diskcard.MeasureString(diskstate[0].name)
@@ -392,8 +400,8 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 	go func() {
 		defer wg.Done()
 		moreinfocard := gg.NewContext(cardw, moreinfocardh)
-
-		moreinfocard.DrawImage(imaging.Blur(canvas.Image(), 8), -70, -70-titlecardh-40-basiccardh-40-diskcardh-40)
+		bwg.Wait()
+		moreinfocard.DrawImage(blurback, -70, -70-titlecardh-40-basiccardh-40-diskcardh-40)
 
 		moreinfocard.DrawRoundedRectangle(1, 1, float64(moreinfocard.W()-1*2), float64(moreinfocard.H()-1*2), 16)
 		moreinfocard.SetLineWidth(3)
@@ -430,7 +438,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		shadow.Stroke()
 		shadow.DrawRoundedRectangle(70, float64(70+titlecardh+40), float64(cardw), float64(basiccardh), 16)
 		shadow.Stroke()
-		shadow.DrawRoundedRectangle(70, float64(70+titlecardh+40+basiccardh+40), float64(cardw), float64(basiccardh), 16)
+		shadow.DrawRoundedRectangle(70, float64(70+titlecardh+40+basiccardh+40), float64(cardw), float64(diskcardh), 16)
 		shadow.Stroke()
 		shadow.DrawRoundedRectangle(70, float64(70+titlecardh+40+basiccardh+40+diskcardh+40), float64(cardw), float64(moreinfocardh), 16)
 		shadow.Stroke()
