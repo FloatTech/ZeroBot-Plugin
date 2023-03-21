@@ -56,9 +56,12 @@ func init() {
 			return
 		}
 		/*******************************************************/
-		userInfo.Work++
-		userInfo.LastTime = time.Now().Unix()
-		if catdata.insert(gidStr, userInfo) != nil {
+		if typeOfcat == "猫" {
+			userInfo.LastTime = time.Now().Unix()
+		} else {
+			userInfo.Work++
+		}
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
@@ -181,11 +184,11 @@ func init() {
 		userInfo.LastTime = 0
 		userInfo.Work = 0
 		userInfo.Picurl = picurl
-		if wallet.InsertWalletOf(ctx.Event.UserID, -money) != nil {
+		if err = wallet.InsertWalletOf(ctx.Event.UserID, -money); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if catdata.insert(gidStr, userInfo) != nil {
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
@@ -238,7 +241,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if catdata.insert(gidStr, userInfo) != nil {
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
@@ -268,7 +271,7 @@ func init() {
 		default:
 			userInfo.Name = newName
 		}
-		if catdata.insert(gidStr, userInfo) != nil {
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}

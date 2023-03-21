@@ -88,7 +88,10 @@ func init() {
 				userInfo.Mood = 0
 			}
 			if rand.Intn(10) < 6 && subtime < 2 && userInfo.Satiety > 90 {
-				_ = catdata.insert(gidStr, userInfo)
+				if err = catdata.insert(gidStr, userInfo); err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
 				ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, "肚子已经很饱了,吃不动了"))
 				return
 			}
@@ -119,14 +122,14 @@ func init() {
 		userInfo = userInfo.settleOfWeight()
 		switch {
 		case userInfo.Mood <= 0 && rand.Intn(100) < 10:
-			if catdata.delcat(gidStr, uidStr) != nil {
+			if err = catdata.delcat(gidStr, uidStr); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
 			}
 			ctx.SendChain(message.Reply(id), message.Text("猫猫", userInfo.Name, "和你的感情淡了,选择了离家出走"))
 			return
 		case userInfo.Weight <= 0:
-			if catdata.delcat(gidStr, uidStr) != nil {
+			if err = catdata.delcat(gidStr, uidStr); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
 			}
@@ -134,7 +137,7 @@ func init() {
 			return
 		case userInfo.Weight >= 200:
 			if rand.Intn(100) > 10 {
-				if catdata.delcat(gidStr, uidStr) != nil {
+				if err = catdata.delcat(gidStr, uidStr); err != nil {
 					ctx.SendChain(message.Text("[ERROR]:", err))
 					return
 				}
@@ -150,7 +153,7 @@ func init() {
 		userInfo.LastTime = time.Now().Unix()
 		userInfo.Mood += int(userInfo.Satiety)/5 - int(userInfo.Weight)/10
 		userInfo = userInfo.settleOfData()
-		if catdata.insert(gidStr, userInfo) != nil {
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
@@ -200,7 +203,7 @@ func init() {
 		userInfo.Mood -= int(subtime)
 		userInfo = userInfo.settleOfWeight()
 		if userInfo.Weight < 0 {
-			if catdata.delcat(gidStr, uidStr) != nil {
+			if err = catdata.delcat(gidStr, uidStr); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
 			}
@@ -219,7 +222,7 @@ func init() {
 			workTime, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		}
 		userInfo.Work = time.Now().Unix()*10 + int64(workTime)
-		if catdata.insert(gidStr, userInfo) != nil {
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
@@ -254,7 +257,7 @@ func init() {
 		userInfo.Mood -= int(subtime)
 		userInfo = userInfo.settleOfWeight()
 		if userInfo.Weight < 0 {
-			if catdata.delcat(gidStr, uidStr) != nil {
+			if err = catdata.delcat(gidStr, uidStr); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
 			}
@@ -272,7 +275,7 @@ func init() {
 			userInfo.Mood += rand.Intn(100)
 		}
 		userInfo = userInfo.settleOfData()
-		if catdata.insert(gidStr, userInfo) != nil {
+		if err = catdata.insert(gidStr, userInfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
