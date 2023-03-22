@@ -53,9 +53,9 @@ func init() {
 		// 收集这波用户的streamId，然后查当前的状态，并建立信息映射表
 		streamIds := make([]string, len(infos))
 		localPlayerMap := make(map[int64]*player)
-		for i, info := range infos {
-			streamIds[i] = strconv.FormatInt(info.SteamID, 10)
-			localPlayerMap[info.SteamID] = info
+		for i := 0; i < len(infos); i++ {
+			streamIds[i] = strconv.FormatInt(infos[i].SteamID, 10)
+			localPlayerMap[infos[i].SteamID] = &infos[i]
 		}
 		// 将所有用户状态查一遍
 		playerStatus, err := getPlayerStatus(streamIds...)
