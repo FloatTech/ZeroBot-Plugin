@@ -65,15 +65,6 @@ func init() {
 			panic(err)
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
-		/*if file.IsExist(engine.DataFolder() + "config.txt") {
-			ckey, err := os.ReadFile(engine.DataFolder() + "config.txt")
-			if err != nil {
-				panic(err)
-			}
-			if string(ckey) != "" {
-				key = string(ckey)
-			}
-		}*/
 	}()
 	engine.OnRegex(`^签到\s?(\d*)$`, initDef).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		//选择key
