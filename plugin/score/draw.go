@@ -78,7 +78,7 @@ func drawScore16(a *scodata) (image.Image, error) {
 		return nil, err
 	}
 	canvas.DrawStringAnchored(hourWord, 350, 280, 0, 0)
-	canvas.DrawStringAnchored("ATRI币 + "+strconv.Itoa(a.add), 350, 350, 0, 0)
+	canvas.DrawStringAnchored("ATRI币 + "+strconv.Itoa(a.inc), 350, 350, 0, 0)
 	canvas.DrawStringAnchored("当前ATRI币："+strconv.Itoa(a.score), 350, 400, 0, 0)
 	canvas.DrawStringAnchored("LEVEL: "+strconv.Itoa(getrank(a.level)), 350, 450, 0, 0)
 	// draw Info(Time,etc.)
@@ -155,7 +155,7 @@ func drawScore15(a *scodata) (image.Image, error) {
 	if err = canvas.LoadFontFace(text.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
 		return nil, err
 	}
-	canvas.DrawString(a.nickName+fmt.Sprintf(" ATRI币+%d", a.add), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
+	canvas.DrawString(a.nickName+fmt.Sprintf(" ATRI币+%d", a.inc), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
 	canvas.DrawString("当前ATRI币:"+strconv.FormatInt(int64(a.score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
 	canvas.DrawString("LEVEL:"+strconv.FormatInt(int64(a.rank), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.5)
 	canvas.DrawRectangle(float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.55, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*0.1)

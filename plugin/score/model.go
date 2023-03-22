@@ -128,7 +128,7 @@ type scodata struct {
 	picFile    string
 	uid        int64
 	nickName   string
-	add        int //增加币
+	inc        int //增加币
 	score      int //钱包
 	level      int
 	rank       int

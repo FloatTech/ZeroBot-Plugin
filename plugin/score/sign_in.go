@@ -137,7 +137,7 @@ func init() {
 			picFile:    picFile,
 			uid:        uid,
 			nickName:   ctx.CardOrNickName(uid),
-			add:        add,
+			inc:        add,
 			score:      wallet.GetWalletOf(uid),
 			level:      level,
 			rank:       rank,
