@@ -46,10 +46,10 @@ var (
 	initDef = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		var defkey string
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		_ = m.Manager.Response(defKeyID)
 		_ = m.Manager.GetExtra(defKeyID, &defkey)
 		if defkey == "" {
 			_ = m.Manager.SetExtra(defKeyID, "1")
-			defkey = "1"
 			return true
 		}
 		return true
