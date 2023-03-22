@@ -31,13 +31,13 @@ const (
 	referer       = "https://weibo.com/"
 	signinMax     = 1
 	// SCOREMAX 分数上限定为1200
-	SCOREMAX = 1200
+	SCOREMAX       = 1200
+	defKeyID int64 = -6
 )
 
 var (
-	defKeyID  int64 = -6
-	rankArray       = [...]int{0, 10, 20, 50, 100, 200, 350, 550, 750, 1000, 1200}
-	engine          = control.Register("score", &ctrl.Options[*zero.Ctx]{
+	rankArray = [...]int{0, 10, 20, 50, 100, 200, 350, 550, 750, 1000, 1200}
+	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "签到",
 		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
@@ -70,7 +70,7 @@ func init() {
 		//选择key
 		var key string
 		gid := ctx.Event.GroupID
-		if gid <= 0 {
+		if gid < 0 {
 			// 个人用户设为负数
 			gid = -ctx.Event.UserID
 		}
@@ -132,7 +132,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		alldata := scoData{
+		alldata := scodata{
 			drawedFile: drawedFile,
 			picFile:    picFile,
 			uid:        uid,
@@ -145,13 +145,13 @@ func init() {
 		var drawimage image.Image
 		switch key {
 		case "1":
-			drawimage, err = drawScore16(alldata)
+			drawimage, err = drawScore16(&alldata)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		case "2":
-			drawimage, err = drawScore15(alldata)
+			drawimage, err = drawScore15(&alldata)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -269,27 +269,27 @@ func init() {
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 	engine.OnRegex(`^设置(默认)?签到预设\s?(\d*)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if ctx.State["regex_matched"].([]string)[2] != "" {
-			key := ctx.State["regex_matched"].([]string)[1]
+		if ctx.State["regex_matched"].([]string)[2] == "" {
+			ctx.SendChain(message.Text("设置失败,数据为空"))
+		} else {
+			key := ctx.State["regex_matched"].([]string)[2]
 			m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			err := m.Manager.SetExtra(func(s string) int64 {
 				if s != "" {
 					return defKeyID
 				}
 				return func(ctx *zero.Ctx) int64 {
-					if ctx.Event.GroupID <= 0 {
+					if ctx.Event.GroupID < 0 {
 						return -ctx.Event.UserID
 					}
 					return ctx.Event.GroupID
 				}(ctx)
-			}(ctx.State["regex_matched"].([]string)[1]), 1)
+			}(ctx.State["regex_matched"].([]string)[1]), key)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Text("设置成功,当前", ctx.State["regex_matched"].([]string)[1], "预设为:", key))
-		} else {
-			ctx.SendChain(message.Text("设置失败,数据为空"))
 		}
 	})
 }

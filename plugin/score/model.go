@@ -123,7 +123,7 @@ func (sdb *scoredb) GetScoreRankByTopN(n int) (st []scoretable, err error) {
 	return
 }
 
-type scoData struct {
+type scodata struct {
 	drawedFile string
 	picFile    string
 	uid        int64
