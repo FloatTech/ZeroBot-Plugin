@@ -20,11 +20,11 @@ import (
 
 func drawScore16(a *scodata) (image.Image, error) {
 	// 绘图
-	getAvatar, err := initPic(a.picFile, a.uid)
+	getAvatar, err := initPic(a.picfile, a.uid)
 	if err != nil {
 		return nil, err
 	}
-	back, err := gg.LoadImage(a.picFile)
+	back, err := gg.LoadImage(a.picfile)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func drawScore16(a *scodata) (image.Image, error) {
 		return nil, err
 	}
 	// draw head
-	canvas.DrawStringWrapped(a.nickName, 350, 180, 0.5, 0.5, 0.5, 0.5, gg.AlignLeft)
+	canvas.DrawStringWrapped(a.nickname, 350, 180, 0.5, 0.5, 0.5, 0.5, gg.AlignLeft)
 	canvas.Fill()
 	// main draw
 	data, err = file.GetLazyData(text.FontFile, control.Md5File, true)
@@ -122,11 +122,11 @@ func drawScore16(a *scodata) (image.Image, error) {
 
 func drawScore15(a *scodata) (image.Image, error) {
 	// 绘图
-	_, err := initPic(a.picFile, a.uid)
+	_, err := initPic(a.picfile, a.uid)
 	if err != nil {
 		return nil, err
 	}
-	back, err := gg.LoadImage(a.picFile)
+	back, err := gg.LoadImage(a.picfile)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func drawScore15(a *scodata) (image.Image, error) {
 	if err = canvas.LoadFontFace(text.FontFile, float64(back.Bounds().Size().X)*0.04); err != nil {
 		return nil, err
 	}
-	canvas.DrawString(a.nickName+fmt.Sprintf(" ATRI币+%d", a.inc), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
+	canvas.DrawString(a.nickname+fmt.Sprintf(" ATRI币+%d", a.inc), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.3)
 	canvas.DrawString("当前ATRI币:"+strconv.FormatInt(int64(a.score), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.4)
 	canvas.DrawString("LEVEL:"+strconv.FormatInt(int64(a.rank), 10), float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.5)
 	canvas.DrawRectangle(float64(back.Bounds().Size().X)*0.1, float64(back.Bounds().Size().Y)*1.55, float64(back.Bounds().Size().X)*0.6, float64(back.Bounds().Size().Y)*0.1)

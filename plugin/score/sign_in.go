@@ -133,10 +133,10 @@ func init() {
 			return
 		}
 		alldata := scodata{
-			drawedFile: drawedFile,
-			picFile:    picFile,
+			drawedfile: drawedFile,
+			picfile:    picFile,
 			uid:        uid,
-			nickName:   ctx.CardOrNickName(uid),
+			nickname:   ctx.CardOrNickName(uid),
 			inc:        add,
 			score:      wallet.GetWalletOf(uid),
 			level:      level,

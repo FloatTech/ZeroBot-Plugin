@@ -124,10 +124,10 @@ func (sdb *scoredb) GetScoreRankByTopN(n int) (st []scoretable, err error) {
 }
 
 type scodata struct {
-	drawedFile string
-	picFile    string
+	drawedfile string
+	picfile    string
 	uid        int64
-	nickName   string
+	nickname   string
 	inc        int //增加币
 	score      int //钱包
 	level      int
