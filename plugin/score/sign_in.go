@@ -48,7 +48,8 @@ var (
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		_ = m.Manager.GetExtra(defKeyID, &defkey)
 		if defkey == "" {
-			_ = m.Manager.SetExtra(defKeyID, 1)
+			_ = m.Manager.SetExtra(defKeyID, "1")
+			defkey = "1"
 			return true
 		}
 		return true
@@ -280,16 +281,17 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[2] != "" {
 			key := ctx.State["regex_matched"].([]string)[1]
 			m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			err := m.Manager.SetExtra(func(s string)int64{
-				if s!=""{
+			err := m.Manager.SetExtra(func(s string) int64 {
+				if s != "" {
 					return defKeyID
 				}
 				return func(ctx *zero.Ctx) int64 {
-				if ctx.Event.GroupID <= 0 {
-					return -ctx.Event.UserID
-				}
-				return ctx.Event.GroupID
-			}(ctx)}(ctx.State["regex_matched"].([]string)[1]), 1)
+					if ctx.Event.GroupID <= 0 {
+						return -ctx.Event.UserID
+					}
+					return ctx.Event.GroupID
+				}(ctx)
+			}(ctx.State["regex_matched"].([]string)[1]), 1)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
