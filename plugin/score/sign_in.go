@@ -132,7 +132,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		alldata := scodata{
+		alldata := scdata{
 			drawedfile: drawedFile,
 			picfile:    picFile,
 			uid:        uid,

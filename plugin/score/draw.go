@@ -18,7 +18,7 @@ import (
 	"github.com/disintegration/imaging"
 )
 
-func drawScore16(a *scodata) (image.Image, error) {
+func drawScore16(a *scdata) (image.Image, error) {
 	// 绘图
 	getAvatar, err := initPic(a.picfile, a.uid)
 	if err != nil {
@@ -120,7 +120,7 @@ func drawScore16(a *scodata) (image.Image, error) {
 	return canvas.Image(), nil
 }
 
-func drawScore15(a *scodata) (image.Image, error) {
+func drawScore15(a *scdata) (image.Image, error) {
 	// 绘图
 	_, err := initPic(a.picfile, a.uid)
 	if err != nil {
