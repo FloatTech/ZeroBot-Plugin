@@ -9,7 +9,6 @@ import (
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -116,14 +115,12 @@ func getPlayerStatus(streamIds ...string) ([]*player, error) {
 	players := make([]*player, 0)
 	// 拼接请求地址
 	url := fmt.Sprintf(URL+StatusURL, apiKey, strings.Join(streamIds, ","))
-	logrus.Debugln("[steamstatus] getPlayerStatus url:", url)
 	// 拉取并解析数据
 	data, err := web.GetData(url)
 	if err != nil {
 		return players, err
 	}
 	dataStr := binary.BytesToString(data)
-	logrus.Debugln("[steamstatus] getPlayerStatus data:", dataStr)
 	index := gjson.Get(dataStr, "response.players.#").Uint()
 	for i := uint64(0); i < index; i++ {
 		players = append(players, &player{
@@ -133,6 +130,5 @@ func getPlayerStatus(streamIds ...string) ([]*player, error) {
 			GameExtraInfo: gjson.Get(dataStr, fmt.Sprintf("response.players.%d.gameextrainfo", i)).String(),
 		})
 	}
-	logrus.Debugln("[steamstatus] getPlayerStatus players:", players)
 	return players, nil
 }

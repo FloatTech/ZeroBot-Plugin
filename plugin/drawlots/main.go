@@ -244,10 +244,10 @@ func randGif(gifName string) (image.Image, error) {
 			return nil, err
 		}
 		v := im.Image[rand.Intn(len(im.Image))]
-		return imgfactory.Size(firstImg, firstImg.Bounds().Max.X, firstImg.Bounds().Max.Y).InsertUpC(v, 0, 0, firstImg.Bounds().Max.X/2, firstImg.Bounds().Max.Y/2).Clone().Image(),err
+		return imgfactory.Size(firstImg, firstImg.Bounds().Dx(), firstImg.Bounds().Dy()).InsertUpC(v, 0, 0, firstImg.Bounds().Dx()/2, firstImg.Bounds().Dy()/2).Clone().Image(),err
 	/*/
 	// 如果gif图片出现信息缺失请使用上面注释掉的代码，把下面注释了(上面代码部分图存在bug)
 	v := im.Image[rand.Intn(len(im.Image))]
-	return imgfactory.NewFactoryBG(v.Rect.Max.X, v.Rect.Max.Y, color.NRGBA{0, 0, 0, 255}).InsertUp(v, 0, 0, 0, 0).Clone().Image(), err
+	return imgfactory.NewFactoryBG(v.Rect.Dx(), v.Rect.Dy(), color.NRGBA{0, 0, 0, 255}).InsertUp(v, 0, 0, 0, 0).Clone().Image(), err
 	// */
 }
