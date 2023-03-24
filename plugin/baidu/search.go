@@ -30,7 +30,7 @@ func init() { // 主函数
 		Help: "百度百科\n" +
 			"- 百度/百科[关键字]",
 	})
-	en.OnRegex(`^[百度|百科]\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^百[度科]\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		es, err := web.GetData(fmt.Sprintf(api, ctx.State["regex_matched"].([]string)[1])) // 将网站返回结果赋值
 		if err != nil {
 			ctx.SendChain(message.Text("出现错误捏：", err))
