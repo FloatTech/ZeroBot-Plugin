@@ -309,7 +309,7 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
 		return
 	}
-	canvas.DrawStringAnchored(userinfo.UserName, float64(backDX)/2, 50+nameH/2, 0.5, 0.5)
+	canvas.DrawStringAnchored(userinfo.UserName, float64(backDX)/2, 200-nameH/2, 0.5, 0.5)
 
 	// level
 	if err = canvas.LoadFontFace(text.BoldFontFile, 72); err != nil {
