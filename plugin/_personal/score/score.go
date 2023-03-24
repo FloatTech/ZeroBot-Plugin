@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"math"
 	"os"
 	"strconv"
@@ -336,33 +337,41 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	canvas.DrawStringAnchored(levelrank[level], levelX+100, 50+50, 0.5, 0.5)
 	canvas.DrawStringAnchored(fmt.Sprintf("LV%d", level), levelX+100, 50+100+50, 0.5, 0.5)
 
-	_, textH := canvas.MeasureString("签到")
 	if add == 0 {
 		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), 350, 350)
 	} else {
 		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产( +%d ) : %d", userinfo.Continuous, add+level*5, score), 350, 350)
 	}
 	// 绘制等级进度条
-	createBar := func(w, h, c float64, r, g, b, a int) image.Image {
-		barCtx := gg.NewContext(int(w), int(h))
-		barCtx.DrawRoundedRectangle(0, 0, w, h, c)
-		barCtx.SetRGBA255(r, g, b, a)
-		barCtx.Fill()
-		return barCtx.Image()
+	if err = canvas.LoadFontFace(text.BoldFontFile, 50); err != nil {
+		return
 	}
-	buttomBar := createBar(1300, textH*1.2, textH*0.2, 150, 150, 150, 150)
-	canvas.DrawImageAnchored(buttomBar, backDX/2, 450-25, 0.5, 0.5)
-	topBar := createBar(1300*(float64(userinfo.Level)/float64(nextLevelScore)), textH*1.2, textH*0.2, 34, 139, 34, 200)
-	canvas.DrawImageAnchored(topBar, backDX/2, 450-25, 0.5, 0.5)
+	_, textH := canvas.MeasureString("/")
 	switch {
 	case userinfo.Level < scoreMax && add == 0:
-		canvas.DrawStringAnchored(fmt.Sprintf("%d/%d", userinfo.Level, nextLevelScore), float64(backDX)/2, 450-25, 0.5, 0.5)
+		canvas.DrawStringAnchored(fmt.Sprintf("%d/%d", userinfo.Level, nextLevelScore), float64(backDX)/2, 455-textH, 0.5, 0.5)
 	case userinfo.Level < scoreMax:
-		canvas.DrawStringAnchored(fmt.Sprintf("(%d+%d)/%d", userinfo.Level-add, add, nextLevelScore), float64(backDX)/2, 450-25, 0.5, 0.5)
+		canvas.DrawStringAnchored(fmt.Sprintf("(%d+%d)/%d", userinfo.Level-add, add, nextLevelScore), float64(backDX)/2, 455-textH, 0.5, 0.5)
 	default:
-		canvas.DrawStringAnchored("Max/Max", float64(backDX)/2, 450-25, 0.5, 0.5)
+		canvas.DrawStringAnchored("Max/Max", float64(backDX)/2, 455-textH, 0.5, 0.5)
 
 	}
+	// 创建彩虹条
+	grad := gg.NewLinearGradient(0, 500, 1500, 300)
+	grad.AddColorStop(0, color.RGBA{G: 255, A: 255})
+	grad.AddColorStop(0.25, color.RGBA{B: 255, A: 255})
+	grad.AddColorStop(0.5, color.RGBA{R: 255, A: 255})
+	grad.AddColorStop(0.75, color.RGBA{B: 255, A: 255})
+	grad.AddColorStop(1, color.RGBA{G: 255, A: 255})
+	canvas.SetStrokeStyle(grad)
+	canvas.SetLineWidth(7)
+	// 设置长度
+	gradMax := 1300.0
+	LevelLength := gradMax * (float64(userinfo.Level) / float64(nextLevelScore))
+	canvas.MoveTo((float64(backDX)-LevelLength)/2, 450)
+	canvas.LineTo((float64(backDX)+LevelLength)/2, 450)
+	canvas.ClosePath()
+	canvas.Stroke()
 	// 放置图片
 	canvas.DrawImageAnchored(back, backDX/2, imgDH/2+475, 0.5, 0.5)
 	// 生成图片
