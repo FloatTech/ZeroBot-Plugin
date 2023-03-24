@@ -39,6 +39,10 @@ var (
 func init() {
 	// 创建绑定流程
 	engine.OnRegex(`^steam添加订阅\s*(\d+)$`, zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if apiKey == "" {
+			ctx.SendChain(message.Text("ERROR: 未设置steam apikey"))
+			return
+		}
 		steamidstr := ctx.State["regex_matched"].([]string)[1]
 		steamID := math.Str2Int64(steamidstr)
 		// 获取用户状态
@@ -81,6 +85,10 @@ func init() {
 	})
 	// 删除绑定流程
 	engine.OnRegex(`^steam删除订阅\s*(\d+)$`, zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if apiKey == "" {
+			ctx.SendChain(message.Text("ERROR: 未设置steam apikey"))
+			return
+		}
 		steamID := math.Str2Int64(ctx.State["regex_matched"].([]string)[1])
 		groupID := strconv.FormatInt(ctx.Event.GroupID, 10)
 		// 判断是否已经绑定该steamID，若已绑定就将群列表从推送群列表钟去除
@@ -118,6 +126,10 @@ func init() {
 	})
 	// 查询当前群绑定信息
 	engine.OnFullMatch("steam查询订阅", zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if apiKey == "" {
+			ctx.SendChain(message.Text("ERROR: 未设置steam apikey"))
+			return
+		}
 		// 获取群信息
 		groupID := strconv.FormatInt(ctx.Event.GroupID, 10)
 		// 获取所有绑定信息

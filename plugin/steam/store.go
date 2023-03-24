@@ -7,7 +7,6 @@ import (
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
-	ctrl "github.com/FloatTech/zbpctrl"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -27,13 +26,13 @@ var (
 			return false
 		}
 		// 校验密钥是否初始化
-		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		_ = m.Manager.Response(steamapikeygid)
-		_ = m.Manager.GetExtra(steamapikeygid, &apiKey)
-		if apiKey == "" {
-			ctx.SendChain(message.Text("ERROR: 未设置steam apikey"))
+		if err = database.db.Create(SteamApiKey, &apiList{}); err != nil {
+			ctx.SendChain(message.Text("[steam] ERROR: ", err))
 			return false
 		}
+		apiInfo := apiList{}
+		_ = database.db.Find(SteamApiKey, &apiInfo, "limit 1")
+		apiKey = apiInfo.APIKey
 		return true
 	})
 )
@@ -47,7 +46,13 @@ type streamDB struct {
 const (
 	// TableListenPlayer 存储查询用户信息
 	TableListenPlayer = "listen_player"
+	// steamapikey 存储steam api key
+	SteamApiKey = "apikey"
 )
+
+type apiList struct {
+	APIKey string
+}
 
 // player 用户状态存储结构体
 type player struct {
@@ -57,6 +62,16 @@ type player struct {
 	GameID        int64  `json:"game_id"`         // 游戏ID
 	GameExtraInfo string `json:"game_extra_info"` // 游戏信息
 	LastUpdate    int64  `json:"last_update"`     // 更新时间
+}
+
+// update 如果主键不存在则插入一条新的数据，如果主键存在直接复写
+func (sql *streamDB) updateapi(dbInfo *apiList) error {
+	sql.Lock()
+	defer sql.Unlock()
+	if err := database.db.Create(SteamApiKey, &apiList{}); err != nil {
+		return err
+	}
+	return sql.db.Insert(SteamApiKey, dbInfo)
 }
 
 // update 如果主键不存在则插入一条新的数据，如果主键存在直接复写

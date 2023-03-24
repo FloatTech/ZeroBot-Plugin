@@ -8,7 +8,6 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
-	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -16,19 +15,16 @@ import (
 
 // ----------------------- 远程调用 ----------------------
 const (
-	URL            = "https://api.steampowered.com/"                          // steam API 调用地址
-	StatusURL      = "ISteamUser/GetPlayerSummaries/v2/?key=%+v&steamids=%+v" // 根据用户steamID获取用户状态
-	steamapikeygid = 3
+	URL       = "https://api.steampowered.com/"                          // steam API 调用地址
+	StatusURL = "ISteamUser/GetPlayerSummaries/v2/?key=%+v&steamids=%+v" // 根据用户steamID获取用户状态
 )
 
 var apiKey string
 
 func init() {
-	engine.OnRegex(`^steam绑定\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^steam绑定\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		apiKey = ctx.State["regex_matched"].([]string)[1]
-		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		_ = m.Manager.Response(steamapikeygid)
-		err := m.Manager.SetExtra(steamapikeygid, apiKey)
+		err := database.updateapi(&apiList{APIKey: apiKey})
 		if err != nil {
 			ctx.SendChain(message.Text("[steam] ERROR: 保存apikey失败！"))
 			return
@@ -36,9 +32,17 @@ func init() {
 		ctx.SendChain(message.Text("保存apikey成功！"))
 	})
 	engine.OnFullMatch("查看apikey", zero.OnlyPrivate, zero.SuperUserPermission, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if apiKey == "" {
+			ctx.SendChain(message.Text("ERROR: 未设置steam apikey"))
+			return
+		}
 		ctx.SendChain(message.Text("apikey为: ", apiKey))
 	})
 	engine.OnFullMatch("拉取steam订阅", getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if apiKey == "" {
+			ctx.SendChain(message.Text("ERROR: 未设置steam apikey"))
+			return
+		}
 		su := zero.BotConfig.SuperUsers[0]
 		// 获取所有处于监听状态的用户信息
 		infos, err := database.findAll()
