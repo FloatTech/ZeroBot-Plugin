@@ -3,6 +3,7 @@ package wife
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
@@ -21,6 +22,7 @@ func init() {
 		Brief:            "从老婆库抽每日老婆",
 		PublicDataFolder: "Wife",
 	}).ApplySingle(ctxext.DefaultSingle)
+	_ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
 	cards := []string{}
 	engine.OnFullMatch("抽老婆", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
