@@ -146,10 +146,7 @@ const (
 
 func match(l []string, seg *jieba.Segmenter) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
-		if zero.FullMatchRule(l...)(ctx) {
-			return true
-		}
-		return ctxext.JiebaFullMatch(seg, func(ctx *zero.Ctx) string {
+		return ctxext.JiebaSimilarity(0.5, seg, func(ctx *zero.Ctx) string {
 			return ctx.ExtractPlainText()
 		}, l...)(ctx)
 	}

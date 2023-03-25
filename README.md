@@ -573,14 +573,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>打断复读</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"`
-
-  - [x] (打断三次以上的复读)
-
-</details>
-<details>
   <summary>藏头诗</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"`
@@ -1528,17 +1520,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>词典匹配回复</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
-
-  - [x] 切换[kimo|傲娇|可爱]词库
-  - [x] 设置词库触发概率0.x (0<x<9)
-
-  - 注：由于占用资源较大，默认注释。
-
-</details>
-<details>
   <summary>鬼东西</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
@@ -1573,6 +1554,23 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置回复模式[青云客 | 小爱 | ChatGPT]
 
   - [x] 设置 ChatGPT api key xxx
+
+</details>
+<details>
+  <summary>词典匹配回复</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
+
+  - [x] 切换[kimo|傲娇|可爱]词库
+  - [x] 设置词库触发概率0.x (0<x<9)
+
+</details>
+<details>
+  <summary>打断复读</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat"`
+
+  - [x] (打断三次以上的复读)
 
 </details>
 
