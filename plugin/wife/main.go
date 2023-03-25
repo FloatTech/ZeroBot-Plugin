@@ -39,7 +39,7 @@ func init() {
 	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			card := cards[fcext.RandSenderPerDayN(ctx.Event.UserID, len(cards))]
-			data, err := engine.GetLazyData(engine.DataFolder()+"wives/"+card, true)
+			data, err := engine.GetLazyData("wives/"+card, true)
 			if err != nil {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
