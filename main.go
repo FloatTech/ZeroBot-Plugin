@@ -148,6 +148,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"      // warframeAPI插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"           // 文本指令大全
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"         // 百度文心AI画图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"             // 抽老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"       // 聊天热词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"           // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"              // 游戏王相关插件
@@ -183,7 +184,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antirecall"    // 反撤回
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cloudmusic"    // 网易云热评
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dice"          // 骰子
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/easywife"      // 本地老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/managerplugin" // 自定义群管插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moehu"         // 图库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/phigros"       // phigros b19

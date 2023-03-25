@@ -7,12 +7,10 @@ github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3 h1:SyXS1YXrRu
 github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3/go.mod h1:h+22XrJTgcn0m4aM3o1pYo5G0+Mv4v7wW5xvZQ4LabY=
 github.com/FloatTech/ZeroBot-Plugin-Webui v1.0.1-0.20230307153523-5c33f1700c1a h1:4SXwRYniDBhGuC8/c5Pbg4wdcZRwmejI5xD2AWMK+oc=
 github.com/FloatTech/ZeroBot-Plugin-Webui v1.0.1-0.20230307153523-5c33f1700c1a/go.mod h1:Se2A9vnC4eSYF7vR2LNSayV7rvbFcpgVs1ZN4sEYMyg=
-github.com/FloatTech/floatbox v0.0.0-20230316111222-7ffde57284cc h1:1yentlIEJImE0rla5xE7o73ZW37eS/byFhPEwx9WYEs=
-github.com/FloatTech/floatbox v0.0.0-20230316111222-7ffde57284cc/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
+github.com/FloatTech/floatbox v0.0.0-20230325093157-844e210a5dab h1:Tp+uRcdDBukeSowPDEo2iAux8rCd10VWqglC4a238TI=
+github.com/FloatTech/floatbox v0.0.0-20230325093157-844e210a5dab/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
 github.com/FloatTech/gg v1.1.2 h1:YolgOYg3uDHc1+g0bLtt6QuRA/pvLn+b9IBCIhOOX88=
 github.com/FloatTech/gg v1.1.2/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
-github.com/FloatTech/imgfactory v0.2.2-0.20230315152233-49741fc994f9 h1:IzZLuM/fgKclyMaU/Qb1qlLdGrs2FTietkqOWhh07Gw=
-github.com/FloatTech/imgfactory v0.2.2-0.20230315152233-49741fc994f9/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
 github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b h1:VMNci4SWBySdw/6poqF9Dn9zlT5ntTFSJOEEBjRnJ/4=
 github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
 github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9 h1:hffajvmQFfP68U6wUwHemPuuwCUoss+SEFfoLYwbGwE=

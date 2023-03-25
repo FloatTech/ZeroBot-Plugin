@@ -122,3 +122,14 @@ func (sdb *scoredb) GetScoreRankByTopN(n int) (st []scoretable, err error) {
 	err = db.Model(&scoretable{}).Order("score desc").Limit(n).Find(&st).Error
 	return
 }
+
+type scdata struct {
+	drawedfile string
+	picfile    string
+	uid        int64
+	nickname   string
+	inc        int // 增加币
+	score      int // 钱包
+	level      int
+	rank       int
+}

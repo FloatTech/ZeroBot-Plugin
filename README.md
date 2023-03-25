@@ -1279,7 +1279,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 卖萌[@xxx]
 
-  - [x] 抽老婆[@xxx]
+  - [x] 今日老婆[@xxx]
 
   - [x] 黄油角色[@xxx]
 
@@ -1459,19 +1459,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>月幕galgame图</summary>
+  <summary>抽老婆</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"`
 
-  - [x] 随机galCG
-
-  - [x] 随机gal表情包
-
-  - [x] galCG[xxx]
-
-  - [x] gal表情包[xxx]
-
-  - [x] 更新gal
+  - [x] 抽老婆
 
 </details>
 <details>
@@ -1518,6 +1510,22 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 查卡店  [卡名] -r [稀有度]
   - 注：卡店只支持单个稀有度查询
 	
+</details>
+<details>
+  <summary>月幕galgame图</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`
+
+  - [x] 随机galCG
+
+  - [x] 随机gal表情包
+
+  - [x] galCG[xxx]
+
+  - [x] gal表情包[xxx]
+
+  - [x] 更新gal
+
 </details>
 <details>
   <summary>词典匹配回复</summary>
