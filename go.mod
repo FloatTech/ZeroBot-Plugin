@@ -44,7 +44,6 @@ require (
 	golang.org/x/sys v0.4.0
 	golang.org/x/text v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/gorm v1.24.6
 	modernc.org/sqlite v1.20.0
 )
 

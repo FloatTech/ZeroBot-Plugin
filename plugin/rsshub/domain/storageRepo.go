@@ -29,14 +29,13 @@ func (s *repoStorage) initDB() (err error) {
 		logrus.Errorf("[rsshub initDB] error: %v", err)
 		return err
 	}
-	s.orm.LogMode(true)
+	//s.orm.LogMode(true)
 	return nil
 }
 
 // GetSubscribesBySource Impl
 func (s *repoStorage) GetSubscribesBySource(ctx context.Context, feedPath string) ([]*RssSubscribe, error) {
 	logrus.WithContext(ctx).Infof("[rsshub GetSubscribesBySource] feedPath: %s", feedPath)
-	//
 	rs := make([]*RssSubscribe, 0)
 	err := s.orm.Model(&RssSubscribe{}).Joins(fmt.Sprintf("%s left join %s on %s.rss_source_id=%s.id", tableNameRssSubscribe, tableNameRssSource, tableNameRssSubscribe, tableNameRssSource)).
 		Where(&RssSource{RssHubFeedPath: feedPath}).Select("rss_subscribe.*").Find(&rs).Error
