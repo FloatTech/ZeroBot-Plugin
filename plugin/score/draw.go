@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/disintegration/imaging"
+
+	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
 
 func drawScore16(a *scdata) (image.Image, error) {
