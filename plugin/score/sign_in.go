@@ -67,7 +67,7 @@ func init() {
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
 	engine.OnRegex(`^签到\s?(\d*)$`, initDef).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		//选择key
+		// 选择key
 		var key string
 		gid := ctx.Event.GroupID
 		if gid < 0 {
