@@ -3,6 +3,8 @@ package wife
 
 import (
 	"encoding/json"
+	"os"
+	"strings"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -20,6 +22,7 @@ func init() {
 		Brief:            "从老婆库抽每日老婆",
 		PublicDataFolder: "Wife",
 	}).ApplySingle(ctxext.DefaultSingle)
+	_ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
 	cards := []string{}
 	engine.OnFullMatch("抽老婆", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
@@ -40,6 +43,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			card := cards[fcext.RandSenderPerDayN(ctx.Event.UserID, len(cards))]
 			data, err := engine.GetLazyData("wives/"+card, true)
+			card, _, _ = strings.Cut(card, ".")
 			if err != nil {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
