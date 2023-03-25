@@ -17,8 +17,8 @@ import (
 func init() {
 	engine := control.Register("wife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "抽老婆\n" +
-			"- 抽老婆",
+		Help:             "- 抽老婆",
+		Brief:            "从老婆库抽每日老婆",
 		PublicDataFolder: "Wife",
 	}).ApplySingle(ctxext.DefaultSingle)
 	cards := []string{}
