@@ -128,8 +128,8 @@ type scdata struct {
 	picfile    string
 	uid        int64
 	nickname   string
-	inc        int //增加币
-	score      int //钱包
+	inc        int // 增加币
+	score      int // 钱包
 	level      int
 	rank       int
 }
