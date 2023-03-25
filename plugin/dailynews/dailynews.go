@@ -29,7 +29,7 @@ func init() {
 			}
 			picURL := gjson.Get(binary.BytesToString(data), "imageUrl").String()
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 			ctx.SendChain(message.Image(picURL))
