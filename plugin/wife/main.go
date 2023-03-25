@@ -25,12 +25,12 @@ func init() {
 		func(ctx *zero.Ctx) bool {
 			data, err := engine.GetLazyData("wife.json", true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			err = json.Unmarshal(data, &cards)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
 			logrus.Infof("[wife]加载%d个老婆", len(cards))
