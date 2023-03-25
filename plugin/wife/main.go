@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -22,7 +21,6 @@ func init() {
 		PublicDataFolder: "Wife",
 	}).ApplySingle(ctxext.DefaultSingle)
 	cards := []string{}
-	uriprefix := "file:///" + file.BOTPATH + "/" + engine.DataFolder()
 	engine.OnFullMatch("抽老婆", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			data, err := engine.GetLazyData("wife.json", true)
@@ -41,10 +39,18 @@ func init() {
 	)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			card := cards[fcext.RandSenderPerDayN(ctx.Event.UserID, len(cards))]
+			data, err := engine.GetLazyData(engine.DataFolder()+"wives/"+card, true)
+			if err != nil {
+				ctx.SendChain(
+					message.At(ctx.Event.UserID),
+					message.Text("今天的二次元老婆是~【", card, "】哒\n【图片下载失败: ", err, "】"),
+				)
+				return
+			}
 			if id := ctx.SendChain(
 				message.At(ctx.Event.UserID),
 				message.Text("今天的二次元老婆是~【", card, "】哒"),
-				message.Image(uriprefix+"wives/"+card),
+				message.ImageBytes(data),
 			); id.ID() == 0 {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
