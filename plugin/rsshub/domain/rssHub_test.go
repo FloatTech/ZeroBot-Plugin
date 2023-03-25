@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"encoding/json"
+	// for testing
 	_ "modernc.org/sqlite"
 	"testing"
 )
@@ -120,5 +121,5 @@ func Test_SyncFeed(t *testing.T) {
 		return
 	}
 	rs, _ := json.Marshal(feed)
-	t.Logf("[Test] feed: %+v", string(rs))
+	t.Logf("[Test] feed: %+v(%+v)", len(feed), len(rs))
 }

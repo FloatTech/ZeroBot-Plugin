@@ -51,6 +51,10 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 			}
 			var updateChannelView = &RssClientView{Source: cv.Source, Contents: []*RssContent{}}
 			err = repo.processContentsUpdate(ctx, cv, err, updateChannelView)
+			if err != nil {
+				logrus.WithContext(ctx).Errorf("[rsshub syncRss] process push content error: %v", err)
+				continue
+			}
 			updated[updateChannelView.Source.ID] = updateChannelView
 			logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %s, new contents: %v", cv.Source.RssHubFeedPath, len(updateChannelView.Contents))
 		}

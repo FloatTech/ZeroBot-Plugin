@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 // RepoStorage 定义RepoStorage接口
@@ -71,8 +72,8 @@ func (s *repoStorage) GetIfExistedSubscribe(ctx context.Context, gid int64, feed
 // UpsertSource Impl
 func (s *repoStorage) UpsertSource(ctx context.Context, source *RssSource) (err error) {
 	// Update columns to default value on `id` conflict
-	querySource := &RssSource{RssHubFeedPath: source.RssHubFeedPath}
-	err = s.orm.Take(querySource, "rss_hub_feed_path = ?", querySource.RssHubFeedPath).Error
+	rec := &RssSource{}
+	err = s.orm.Take(rec, "rss_hub_feed_path = ?", source.RssHubFeedPath).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithContext(ctx).Infof("[rsshub] no such source(%s) add source: %+v", source.RssHubFeedPath, source.UpdatedParsed)
@@ -84,9 +85,17 @@ func (s *repoStorage) UpsertSource(ctx context.Context, source *RssSource) (err 
 		}
 		return
 	}
+	source.ID = rec.ID
 	logrus.WithContext(ctx).Infof("[rsshub] update source: %+v", source.UpdatedParsed)
-	err = s.orm.Model(source).Where(&RssSource{ID: source.ID}).
-		Update("title", "channel_desc", "image_url", "link", "updated_parsed").Error
+	err = s.orm.Model(&source).Where(&RssSource{ID: source.ID}).
+		Updates(&RssSource{
+			Title:         source.Title,
+			ChannelDesc:   source.ChannelDesc,
+			ImageURL:      source.ImageURL,
+			Link:          source.Link,
+			UpdatedParsed: source.UpdatedParsed,
+			Mtime:         time.Now(),
+		}).Error
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[rsshub] update source error: %v", err)
 		return

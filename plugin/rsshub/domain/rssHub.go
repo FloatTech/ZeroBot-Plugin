@@ -185,6 +185,9 @@ func (repo *rssDomain) Sync(ctx context.Context) (groupView map[int64][]*RssClie
 		return
 	}
 	for _, subscribe := range subscribes {
+		if updatedViews[subscribe.RssSourceID] == nil {
+			continue
+		}
 		groupView[subscribe.GroupID] = append(groupView[subscribe.GroupID], updatedViews[subscribe.RssSourceID])
 	}
 	return
