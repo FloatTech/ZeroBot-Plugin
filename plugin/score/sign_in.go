@@ -272,24 +272,21 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[2] == "" {
 			ctx.SendChain(message.Text("设置失败,数据为空"))
 		} else {
+			s := ctx.State["regex_matched"].([]string)[1]
 			key := ctx.State["regex_matched"].([]string)[2]
-			m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			err := m.Manager.SetExtra(func(s string) int64 {
-				if s != "" {
-					return defKeyID
-				}
-				return func(ctx *zero.Ctx) int64 {
-					if ctx.Event.GroupID < 0 {
-						return -ctx.Event.UserID
-					}
-					return ctx.Event.GroupID
-				}(ctx)
-			}(ctx.State["regex_matched"].([]string)[1]), key)
+			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
+			if s != "" {
+				gid = defKeyID
+			}
+			err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.SetExtra(gid, key)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("设置成功,当前", ctx.State["regex_matched"].([]string)[1], "预设为:", key))
+			ctx.SendChain(message.Text("设置成功,当前", s, "预设为:", key))
 		}
 	})
 }
