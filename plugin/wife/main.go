@@ -3,6 +3,7 @@ package wife
 
 import (
 	"encoding/json"
+	"strings"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -40,6 +41,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			card := cards[fcext.RandSenderPerDayN(ctx.Event.UserID, len(cards))]
 			data, err := engine.GetLazyData("wives/"+card, true)
+			card, _, _ = strings.Cut(card, ".")
 			if err != nil {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
