@@ -40,7 +40,7 @@ var (
 	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "签到",
-		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
+		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 设置[默认]签到预设(1~9)\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
 		PrivateDataFolder: "score",
 	})
 	initDef = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -83,7 +83,7 @@ func init() {
 				_ = m.Manager.GetExtra(defKeyID, &key)
 			}
 		}
-		if key != "1" && key != "2" && key != "3" {
+		if !isExist(key) {
 			ctx.SendChain(message.Text("未找到签到设定:", key)) //避免签到配置错误造成无图发送,但是已经签到的情况
 			return
 		}
@@ -284,6 +284,10 @@ func init() {
 		} else {
 			s := ctx.State["regex_matched"].([]string)[1]
 			key := ctx.State["regex_matched"].([]string)[2]
+			if !isExist(key) {
+				ctx.SendChain(message.Text("未找到签到设定:", key)) //避免签到配置错误
+				return
+			}
 			gid := ctx.Event.GroupID
 			if gid == 0 {
 				gid = -ctx.Event.UserID
@@ -348,4 +352,11 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		return nil, err
 	}
 	return avatar, os.WriteFile(picFile, data, 0644)
+}
+
+func isExist(key string) bool {
+	if key != "1" && key != "2" && key != "3" {
+		return false
+	}
+	return true
 }
