@@ -26,12 +26,12 @@ var (
 			return false
 		}
 		// 校验密钥是否初始化
-		if err = database.db.Create(SteamApiKey, &apiList{}); err != nil {
+		if err = database.db.Create(SteamAPIKey, &apiList{}); err != nil {
 			ctx.SendChain(message.Text("[steam] ERROR: ", err))
 			return false
 		}
 		apiInfo := apiList{}
-		_ = database.db.Find(SteamApiKey, &apiInfo, "limit 1")
+		_ = database.db.Find(SteamAPIKey, &apiInfo, "limit 1")
 		apiKey = apiInfo.APIKey
 		return true
 	})
@@ -46,8 +46,8 @@ type streamDB struct {
 const (
 	// TableListenPlayer 存储查询用户信息
 	TableListenPlayer = "listen_player"
-	// SteamApiKey 存储steam api key
-	SteamApiKey = "apikey"
+	// SteamAPIKey 存储steam api key
+	SteamAPIKey = "apikey"
 )
 
 type apiList struct {
@@ -68,10 +68,10 @@ type player struct {
 func (sql *streamDB) updateapi(dbInfo *apiList) error {
 	sql.Lock()
 	defer sql.Unlock()
-	if err := database.db.Create(SteamApiKey, &apiList{}); err != nil {
+	if err := database.db.Create(SteamAPIKey, &apiList{}); err != nil {
 		return err
 	}
-	return sql.db.Insert(SteamApiKey, dbInfo)
+	return sql.db.Insert(SteamAPIKey, dbInfo)
 }
 
 // update 如果主键不存在则插入一条新的数据，如果主键存在直接复写
