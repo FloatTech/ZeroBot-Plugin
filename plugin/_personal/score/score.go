@@ -15,7 +15,6 @@ import (
 	"time"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/disintegration/imaging"
@@ -96,6 +95,10 @@ func init() {
 
 	engine.OnFullMatchGroup([]string{"签到", "打卡"}, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
+		picFile := cachePath + time.Now().Format("20060102_") + strconv.FormatInt(uid, 10) + ".png"
+		if err := initPic(picFile); err != nil {
+			return
+		}
 		userinfo := scoredata.getData(uid)
 		userinfo.Uid = uid
 		newName := names.GetNameOf(uid) //更新昵称
@@ -108,7 +111,7 @@ func init() {
 		// 判断是否已经签到过了
 		if time.Now().Format("2006/01/02") == lasttime.Format("2006/01/02") {
 			score := wallet.GetWalletOf(uid)
-			data, err := drawimagePro(&userinfo, score, 0)
+			data, err := drawimagePro(&userinfo, score, 0, picFile)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				data, err = drawimage(&userinfo, score, 0)
@@ -145,7 +148,7 @@ func init() {
 		}
 		score := wallet.GetWalletOf(uid)
 		// 生成签到图片
-		data, err := drawimagePro(&userinfo, score, add)
+		data, err := drawimagePro(&userinfo, score, add, picFile)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			data, err = drawimage(&userinfo, score, add)
@@ -232,18 +235,14 @@ func initPic(picFile string) (err error) {
 	if file.IsExist(picFile) {
 		return nil
 	}
-	defer process.SleepAbout1sTo2s()
+	// defer process.SleepAbout1sTo2s()
 	data, err := web.GetData("https://img.moehu.org/pic.php?id=yu-gi-oh")
 	if err != nil {
 		return err
 	}
 	return os.WriteFile(picFile, data, 0644)
 }
-func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
-	picFile := cachePath + time.Now().Format("20060102_") + strconv.FormatInt(userinfo.Uid, 10) + ".png"
-	if err = initPic(picFile); err != nil {
-		return
-	}
+func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []byte, err error) {
 	back, err := gg.LoadImage(picFile)
 	if err != nil {
 		return
@@ -301,9 +300,12 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 		return
 	}
 	nameW, nameH := canvas.MeasureString(userinfo.UserName)
-	if nameW > float64(backDX)/3 { // 如果文字超过长度了，比列缩小字体
-		textW := (float64(backDX) * 2 / 3)
-		scale := textW / nameW
+	// 昵称范围
+	textH := 300.0
+	textW := float64(backDX) * 2 / 3
+	// 如果文字超过长度了，比列缩小字体
+	if nameW > textW {
+		scale := 2 * nameH / textH
 		fontSize = fontSize * scale
 		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
 			return
@@ -314,23 +316,31 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 		names := make([]string, 0, 4)
 		// 如果一半都没到界面边界就分两行
 		wordw, _ := canvas.MeasureString(string(name[:len(name)/2]))
-		if wordw < textW {
-			names = append(names, string(name[:len(name)/2+2]))
-			names = append(names, string(name[len(name)/2+2:]))
+		if wordw < textW*3/4 {
+			names = append(names, string(name[:len(name)/2+1]))
+			names = append(names, string(name[len(name)/2+1:]))
 		} else {
 			nameLength := 0.0
 			lastIndex := 0
 			for i, word := range name {
 				wordw, _ = canvas.MeasureString(string(word))
 				nameLength += wordw
-				if nameLength > textW {
-					names = append(names, string(name[lastIndex:i]))
-					lastIndex = i
+				if nameLength > textW*3/4 || i == len(name)-1 {
+					names = append(names, string(name[lastIndex:i+1]))
+					lastIndex = i + 1
+					nameLength = 0
 				}
 			}
+			// 超过两行就重新配置一下字体大小
+			scale = float64(len(names)) * nameH / textH
+			fontSize = fontSize * scale
+			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+				return
+			}
 		}
+		fmt.Println(scale)
 		for i, nameSplit := range names {
-			canvas.DrawStringAnchored(nameSplit, float64(backDX)/2+25, 50+200*float64(i+1)/float64(len(names))-nameH/2, 0.5, 0.5)
+			canvas.DrawStringAnchored(nameSplit, float64(backDX)/2+25, 25+(200+70*scale)*float64(i+1)/float64(len(names))-nameH/2, 0.5, 0.5)
 		}
 	} else {
 		canvas.DrawStringAnchored(userinfo.UserName, float64(backDX)/2+25, 200-nameH/2, 0.5, 0.5)
@@ -363,15 +373,15 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	canvas.DrawStringAnchored(fmt.Sprintf("LV%d", level), levelX+100, 50+100+50, 0.5, 0.5)
 
 	if add == 0 {
-		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), 350, 350)
+		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), 350, 370)
 	} else {
-		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产( +%d ) : %d", userinfo.Continuous, add+level*5, score), 350, 350)
+		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产( +%d ) : %d", userinfo.Continuous, add+level*5, score), 350, 370)
 	}
 	// 绘制等级进度条
 	if err = canvas.LoadFontFace(text.BoldFontFile, 50); err != nil {
 		return
 	}
-	_, textH := canvas.MeasureString("/")
+	_, textH = canvas.MeasureString("/")
 	switch {
 	case userinfo.Level < scoreMax && add == 0:
 		canvas.DrawStringAnchored(fmt.Sprintf("%d/%d", userinfo.Level, nextLevelScore), float64(backDX)/2, 455-textH, 0.5, 0.5)

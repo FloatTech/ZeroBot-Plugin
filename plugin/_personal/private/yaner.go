@@ -44,7 +44,7 @@ func init() {
 				ctx.SendChain(randText(
 					"大坏蛋，吃"+nickname+"一拳!",
 					nickname+"生气了！ヾ(≧へ≦)〃",
-					"来自"+nickname+"对hentai的反击!",
+					"来自"+nickname+"对大坏蛋的反击!",
 				))
 				time.Sleep(time.Second * 2)
 				ctx.SetGroupBan(
@@ -55,7 +55,7 @@ func init() {
 			case 1, 3, 5:
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(randText(
-					"来自"+nickname+"对hentai的反击!",
+					"来自"+nickname+"对大坏蛋的反击!",
 					"起司偶咧!",
 					"哼!（打手）",
 					"啊啊啊啊!!!(王八拳)",
@@ -64,11 +64,11 @@ func init() {
 			default:
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(randText(
-					"捏", nickname, "的人是大坏蛋！",
+					"捏"+nickname+"的人是大坏蛋！",
 					nickname+"的脸不是拿来捏的！",
 					nickname+"要生气了哦",
 					"?",
-					"请不要捏", nickname, " >_<",
+					"请不要捏"+nickname+" >_<",
 				))
 			}
 		})
