@@ -4,6 +4,7 @@ package nativesetu
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -48,21 +49,27 @@ func init() {
 		panic(err)
 	}
 
-	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	engine.OnRegex(`^本地((/d+)张)?(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			imgtype := ctx.State["regex_matched"].([]string)[1]
-			pickMax := 3 // 返回最多张数
+			imgtype := ctx.State["regex_matched"].([]string)[3]
+			pickMax := 1 // 返回最多张数
+			if ctx.State["regex_matched"].([]string)[2] != "" {
+				pickMax, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
+			}
+			if pickMax > 5 {
+				ctx.SendChain(message.Text("hentai的需求量真可怕,让我准备准备..."))
+			}
 			sc := make([]setuclass, 0, pickMax)
 			ns.mu.RLock()
 			defer ns.mu.RUnlock()
 			for i := 0; i < pickMax; i++ {
-				img := new(setuclass)
-				err := ns.db.Pick(imgtype, img)
+				img := setuclass{}
+				err := ns.db.Pick(imgtype, &img)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				sc = append(sc, *img)
+				sc = append(sc, img)
 			}
 			if len(sc) == 0 {
 				ctx.SendChain(message.Text("ERROR: data is nil"))
