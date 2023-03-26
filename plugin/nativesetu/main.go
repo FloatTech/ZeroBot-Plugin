@@ -4,6 +4,7 @@ package nativesetu
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -26,7 +27,7 @@ func init() {
 	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "本地涩图",
-		Help: "- 本地[xxx]\n" +
+		Help: "- 本地X张[xxx]\n" +
 			"- 刷新本地[xxx]\n" +
 			"- 设置本地setu绝对路径[xxx]\n" +
 			"- 刷新所有本地setu\n" +
@@ -47,28 +48,48 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	//感谢@FloatTech@fangliuyu等各位dalao
+	
+	engine.OnRegex(`^本地((\d+)张)?(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[3] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			imgtype := ctx.State["regex_matched"].([]string)[1]
-			sc := new(setuclass)
+			imgtype := ctx.State["regex_matched"].([]string)[3]
+			pickMax := 1 // 返回最多张数
+			if ctx.State["regex_matched"].([]string)[2] != "" {
+				pickMax, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
+				if pickMax > 10 { //总得有个上限
+					pickMax = 10
+				}
+			}
+			sc := make([]setuclass, 0, pickMax)
 			ns.mu.RLock()
-			err := ns.db.Pick(imgtype, sc)
-			ns.mu.RUnlock()
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-			} else {
-				p := "file:///" + setupath + "/" + sc.Path
-				if ctx.Event.GroupID != 0 {
-					ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
-						ctxext.FakeSenderForwardNode(ctx,
-							message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p),
-						)})
+			defer ns.mu.RUnlock()
+			for i := 0; i < pickMax; i++ {
+				img := setuclass{}
+				err := ns.db.Pick(imgtype, &img)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
+				sc = append(sc, img)
+			}
+			if len(sc) == 0 {
+				ctx.SendChain(message.Text("数量不能为0哦~"))
+				return
+			}
+
+			msg := make(message.Message, 0, pickMax)
+			for _, imgInfo := range sc {
+				p := "file:///" + setupath + "/" + imgInfo.Path
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
+					message.Text(imgtype, ": ", imgInfo.Name, "\n"),
+					message.Image(p),
+				))
+			}
+			if id := ctx.Send(msg).ID(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
+
 	engine.OnRegex(`^刷新本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
