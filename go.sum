@@ -4,12 +4,12 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3 h1:SyXS1YXrRuzO3YVCZB/5gSX7vaFbSMwzN+RXLNNKq5M=
 github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3/go.mod h1:h+22XrJTgcn0m4aM3o1pYo5G0+Mv4v7wW5xvZQ4LabY=
-github.com/FloatTech/floatbox v0.0.0-20230316111222-7ffde57284cc h1:1yentlIEJImE0rla5xE7o73ZW37eS/byFhPEwx9WYEs=
-github.com/FloatTech/floatbox v0.0.0-20230316111222-7ffde57284cc/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
+github.com/FloatTech/floatbox v0.0.0-20230325120101-d69494a7cc95 h1:wRcdulvceh55bzjXPtqHsKTTil6ipnvAo+uvf4w9LTI=
+github.com/FloatTech/floatbox v0.0.0-20230325120101-d69494a7cc95/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
 github.com/FloatTech/gg v1.1.2 h1:YolgOYg3uDHc1+g0bLtt6QuRA/pvLn+b9IBCIhOOX88=
 github.com/FloatTech/gg v1.1.2/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
-github.com/FloatTech/imgfactory v0.2.2-0.20230315152233-49741fc994f9 h1:IzZLuM/fgKclyMaU/Qb1qlLdGrs2FTietkqOWhh07Gw=
-github.com/FloatTech/imgfactory v0.2.2-0.20230315152233-49741fc994f9/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
+github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b h1:VMNci4SWBySdw/6poqF9Dn9zlT5ntTFSJOEEBjRnJ/4=
+github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
 github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9 h1:hffajvmQFfP68U6wUwHemPuuwCUoss+SEFfoLYwbGwE=
 github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9/go.mod h1:NBFPhWae4hqVMeG8ELBBnUQkKce3nDjkljVn6PdiUNs=
 github.com/FloatTech/sqlite v1.5.7 h1:Bvo4LSojcZ6dVtbHrkqvt6z4v8e+sj0G5PSUIvdawsk=
