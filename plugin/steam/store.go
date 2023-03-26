@@ -46,7 +46,7 @@ type streamDB struct {
 const (
 	// TableListenPlayer 存储查询用户信息
 	TableListenPlayer = "listen_player"
-	// steamapikey 存储steam api key
+	// SteamApiKey 存储steam api key
 	SteamApiKey = "apikey"
 )
 
