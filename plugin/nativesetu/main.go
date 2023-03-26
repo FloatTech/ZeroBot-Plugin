@@ -49,7 +49,7 @@ func init() {
 		panic(err)
 	}
 
-	engine.OnRegex(`^本地((/d+)张)?(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	engine.OnRegex(`^本地((\d+)张)?(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[3] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[3]
 			pickMax := 1 // 返回最多张数
