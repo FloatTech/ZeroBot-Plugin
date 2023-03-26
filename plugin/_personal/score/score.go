@@ -228,25 +228,20 @@ func (sdb *score) setData(userinfo userdata) error {
 }
 
 // 下载图片
-func initPic(picFile string, uid int64) (avatar []byte, err error) {
-	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
-	if err != nil {
-		return nil, err
-	}
+func initPic(picFile string) (err error) {
 	if file.IsExist(picFile) {
-		return avatar, nil
+		return nil
 	}
 	defer process.SleepAbout1sTo2s()
 	data, err := web.GetData("https://img.moehu.org/pic.php?id=yu-gi-oh")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return avatar, os.WriteFile(picFile, data, 0644)
+	return os.WriteFile(picFile, data, 0644)
 }
 func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	picFile := cachePath + time.Now().Format("20060102_") + strconv.FormatInt(userinfo.Uid, 10) + ".png"
-	getAvatar, err := initPic(picFile, userinfo.Uid)
-	if err != nil {
+	if err = initPic(picFile); err != nil {
 		return
 	}
 	back, err := gg.LoadImage(picFile)
@@ -280,6 +275,10 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Stroke()
 	// 放置头像
+	getAvatar, err := web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(userinfo.Uid, 10) + "&s=640")
+	if err != nil {
+		return
+	}
 	avatar, _, err := image.Decode(bytes.NewReader(getAvatar))
 	if err != nil {
 		return
@@ -303,13 +302,39 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	}
 	nameW, nameH := canvas.MeasureString(userinfo.UserName)
 	if nameW > float64(backDX)/3 { // 如果文字超过长度了，比列缩小字体
-		scale := (float64(backDX) / 3) / nameW
+		textW := (float64(backDX) * 2 / 3)
+		scale := textW / nameW
 		fontSize = fontSize * scale
+		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			return
+		}
+		_, nameH := canvas.MeasureString(userinfo.UserName)
+		// 昵称分段
+		name := []rune(userinfo.UserName)
+		names := make([]string, 0, 4)
+		// 如果一半都没到界面边界就分两行
+		wordw, _ := canvas.MeasureString(string(name[:len(name)/2]))
+		if wordw < textW {
+			names = append(names, string(name[:len(name)/2+2]))
+			names = append(names, string(name[len(name)/2+2:]))
+		} else {
+			nameLength := 0.0
+			lastIndex := 0
+			for i, word := range name {
+				wordw, _ = canvas.MeasureString(string(word))
+				nameLength += wordw
+				if nameLength > textW {
+					names = append(names, string(name[lastIndex:i]))
+					lastIndex = i
+				}
+			}
+		}
+		for i, nameSplit := range names {
+			canvas.DrawStringAnchored(nameSplit, float64(backDX)/2+25, 50+200*float64(i+1)/float64(len(names))-nameH/2, 0.5, 0.5)
+		}
+	} else {
+		canvas.DrawStringAnchored(userinfo.UserName, float64(backDX)/2+25, 200-nameH/2, 0.5, 0.5)
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
-		return
-	}
-	canvas.DrawStringAnchored(userinfo.UserName, float64(backDX)/2, 200-nameH/2, 0.5, 0.5)
 
 	// level
 	if err = canvas.LoadFontFace(text.BoldFontFile, 72); err != nil {

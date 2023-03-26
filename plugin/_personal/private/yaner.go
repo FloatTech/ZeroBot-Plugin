@@ -13,13 +13,13 @@ import (
 )
 
 var (
-	poke = rate.NewManager[int64](time.Minute*5, 6) // 戳一戳
+	poke = rate.NewManager[int64](time.Minute*5, 11) // 戳一戳
 )
 
 func init() {
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			var nickname = zero.BotConfig.NickName[0]
+			nickname := zero.BotConfig.NickName[1]
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(message.Text(
 				[]string{
@@ -34,22 +34,41 @@ func init() {
 	engine.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if !poke.Load(ctx.Event.GroupID).AcquireN(1) {
-				return // 最多戳6次
+				return // 最多戳11次
 			}
-			nickname := zero.BotConfig.NickName[0]
-			switch rand.Intn(7) {
-			case 1:
+			nickname := zero.BotConfig.NickName[1]
+			switch rand.Intn(11) {
+			case 0:
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(randText("哼！（打手）"))
+				ctx.SendChain(message.Poke(ctx.Event.UserID))
+				ctx.SendChain(randText(
+					"大坏蛋，吃"+nickname+"一拳!",
+					nickname+"生气了！ヾ(≧へ≦)〃",
+					"来自"+nickname+"对hentai的反击!",
+				))
+				time.Sleep(time.Second * 2)
+				ctx.SetGroupBan(
+					ctx.Event.GroupID,
+					ctx.Event.UserID, // 要禁言的人的qq
+					rand.Int63n(5),   // 要禁言的时间
+				)
+			case 1, 3, 5:
+				time.Sleep(time.Second * 1)
+				ctx.SendChain(randText(
+					"来自"+nickname+"对hentai的反击!",
+					"起司偶咧!",
+					"哼!（打手）",
+					"啊啊啊啊!!!(王八拳)",
+				))
 				ctx.SendChain(message.Poke(ctx.Event.UserID))
 			default:
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(randText(
-					"哼！",
-					"（打手）",
+					"捏", nickname, "的人是大坏蛋！",
 					nickname+"的脸不是拿来捏的！",
 					nickname+"要生气了哦",
 					"?",
+					"请不要捏", nickname, " >_<",
 				))
 			}
 		})
@@ -57,7 +76,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			process.SleepAbout1sTo2s()
 			if rand.Intn(4) == 0 {
-				nickname := zero.BotConfig.NickName[0]
+				nickname := zero.BotConfig.NickName[1]
 				if rand.Intn(2) == 0 {
 					ctx.SendChain(randText(
 						nickname+"..."+nickname+"觉得不行",
