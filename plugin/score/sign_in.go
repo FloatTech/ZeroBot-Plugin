@@ -83,6 +83,10 @@ func init() {
 				_ = m.Manager.GetExtra(defKeyID, &key)
 			}
 		}
+		if key != "1" && key != "2" && key != "3" {
+			ctx.SendChain(message.Text("未找到签到设定:", key)) //避免签到配置错误造成无图发送,但是已经签到的情况
+			return
+		}
 		uid := ctx.Event.UserID
 		today := time.Now().Format("20060102")
 		// 签到图片
@@ -156,8 +160,14 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+		case "3":
+			drawimage, err = drawScore17(&alldata)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 		default:
-			ctx.SendChain(message.Text("未找到签到设定:", key))
+			ctx.SendChain(message.Text("未添加签到设定:", key))
 			return
 		}
 		// done.
