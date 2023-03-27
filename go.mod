@@ -10,9 +10,9 @@ require (
 	github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
 	github.com/FloatTech/sqlite v1.5.7
-	github.com/FloatTech/ttl v0.0.0-20230307105452-d6f7b2b647d1
+	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20230316111343-dd078fa43fe3
-	github.com/FloatTech/zbputils v1.6.2-0.20230316111555-2d1ec958de04
+	github.com/FloatTech/zbputils v1.6.2-0.20230320041820-731f824ff8f4
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -39,9 +39,9 @@ require (
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	github.com/wdvxdr1123/ZeroBot v1.6.11
 	gitlab.com/gomidi/midi/v2 v2.0.25
-	golang.org/x/image v0.6.0
-	golang.org/x/sys v0.6.0
-	golang.org/x/text v0.8.0
+	golang.org/x/image v0.3.0
+	golang.org/x/sys v0.4.0
+	golang.org/x/text v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -85,9 +85,9 @@ require (
 	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db // indirect
 	golang.org/x/exp/shiny v0.0.0-20221126150942-6ab00d035af9 // indirect
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
-	golang.org/x/mod v0.8.0 // indirect
-	golang.org/x/net v0.6.0 // indirect
-	golang.org/x/tools v0.6.0 // indirect
+	golang.org/x/mod v0.6.0 // indirect
+	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/tools v0.2.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
