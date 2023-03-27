@@ -1,4 +1,4 @@
-// Package score 签到，答题得分
+// Package score 签到
 package score
 
 import (
@@ -173,5 +173,99 @@ func drawScore15(a *scdata) (image.Image, error) {
 	canvas.SetRGB255(102, 102, 102)
 	canvas.Fill()
 	canvas.DrawString(fmt.Sprintf("%d/%d", a.level, nextrankScore), float64(back.Bounds().Size().X)*0.75, float64(back.Bounds().Size().Y)*1.62)
+	return canvas.Image(), nil
+}
+
+func drawScore17(a *scdata) (image.Image, error) {
+	getAvatar, err := initPic(a.picfile, a.uid)
+	if err != nil {
+		return nil, err
+	}
+	back, err := gg.LoadImage(a.picfile)
+	if err != nil {
+		return nil, err
+	}
+	// 避免图片过大，最大 1280*720
+	back = imgfactory.Limit(back, 1280, 720)
+	imgDX := back.Bounds().Dx()
+	imgDY := back.Bounds().Dy()
+	canvas := gg.NewContext(imgDX, imgDY)
+
+	// draw background
+	canvas.DrawImage(back, 0, 0)
+
+	// Create smaller Aero Style boxes
+	createAeroBox := func(x, y, width, height float64) {
+		aeroStyle := gg.NewContext(int(width), int(height))
+		aeroStyle.DrawRoundedRectangle(0, 0, width, height, 8)
+		aeroStyle.SetLineWidth(2)
+		aeroStyle.SetRGBA255(255, 255, 255, 100)
+		aeroStyle.StrokePreserve()
+		aeroStyle.SetRGBA255(255, 255, 255, 140)
+		aeroStyle.Fill()
+		canvas.DrawImage(aeroStyle.Image(), int(x), int(y))
+	}
+
+	// draw aero boxes for text
+	createAeroBox(20, float64(imgDY-120), 280, 100)               // left bottom
+	createAeroBox(float64(imgDX-272), float64(imgDY-60), 252, 40) // right bottom
+
+	// draw info(name, coin, etc)
+	hourWord := getHourWord(time.Now())
+	canvas.SetRGB255(0, 0, 0)
+	data, err := file.GetLazyData(text.MaokenFontFile, control.Md5File, true)
+	if err != nil {
+		return nil, err
+	}
+	if err = canvas.ParseFontFace(data, 24); err != nil {
+		return nil, err
+	}
+	getNameLengthWidth, _ := canvas.MeasureString(a.nickname)
+	// draw aero box
+	if getNameLengthWidth > 140 {
+		createAeroBox(20, 40, 140+getNameLengthWidth, 100) // left top
+	} else {
+		createAeroBox(20, 40, 280, 100) // left top
+	}
+
+	// draw avatar
+	avatar, _, err := image.Decode(bytes.NewReader(getAvatar))
+	if err != nil {
+		return nil, err
+	}
+	avatarf := imgfactory.Size(avatar, 100, 100)
+	canvas.DrawImage(avatarf.Circle(0).Image(), 30, 20)
+
+	canvas.DrawString(a.nickname, 140, 80)
+	canvas.DrawStringAnchored(hourWord, 140, 120, 0, 0)
+
+	if err = canvas.ParseFontFace(data, 20); err != nil {
+		return nil, err
+	}
+	canvas.DrawStringAnchored("ATRI币 + "+strconv.Itoa(a.inc), 40, float64(imgDY-90), 0, 0)
+	canvas.DrawStringAnchored("当前ATRI币："+strconv.Itoa(a.score), 40, float64(imgDY-60), 0, 0)
+	canvas.DrawStringAnchored("LEVEL: "+strconv.Itoa(getrank(a.level)), 40, float64(imgDY-30), 0, 0)
+
+	// Draw Info(Time, etc.)
+	getTime := time.Now().Format("2006-01-02 15:04:05")
+	canvas.DrawStringAnchored(getTime, float64(imgDX)-146, float64(imgDY)-40, 0.5, 0.5) // time
+	var nextrankScore int
+	if a.rank < 10 {
+		nextrankScore = rankArray[a.rank+1]
+	} else {
+		nextrankScore = SCOREMAX
+	}
+	nextLevelStyle := strconv.Itoa(a.level) + "/" + strconv.Itoa(nextrankScore)
+	canvas.DrawStringAnchored(nextLevelStyle, 190, float64(imgDY-30), 0, 0) // time
+
+	// Draw Zerobot-Plugin information
+	canvas.SetRGB255(255, 255, 255)
+	if err = canvas.ParseFontFace(data, 20); err != nil {
+		return nil, err
+	}
+	canvas.DrawStringAnchored("Created By Zerobot-Plugin "+banner.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
+	canvas.SetRGB255(0, 0, 0)
+	canvas.DrawStringAnchored("Created By Zerobot-Plugin "+banner.Version, float64(imgDX)/2-3, float64(imgDY)-19, 0.5, 0.5) // zbp
+	canvas.SetRGB255(255, 255, 255)
 	return canvas.Image(), nil
 }
