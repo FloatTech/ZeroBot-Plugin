@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3
-	github.com/FloatTech/floatbox v0.0.0-20230316111222-7ffde57284cc
+	github.com/FloatTech/floatbox v0.0.0-20230325120101-d69494a7cc95
 	github.com/FloatTech/gg v1.1.2
 	github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
@@ -24,6 +24,7 @@ require (
 	github.com/fumiama/go-base16384 v1.6.4
 	github.com/fumiama/go-registry v0.2.6
 	github.com/fumiama/gotracemoe v0.0.3
+	github.com/fumiama/imgsz v0.0.2
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/unibase2n v0.0.0-20221020155353-02876e777430
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
@@ -51,7 +52,6 @@ require (
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fumiama/go-simple-protobuf v0.1.0 // indirect
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
-	github.com/fumiama/imgsz v0.0.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
