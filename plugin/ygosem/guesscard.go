@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"math/rand"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -83,7 +84,7 @@ func init() {
 		}
 		// 获取卡面信息
 		cardData := getCarddata(helper.BytesToString(body))
-		if cardData == (gameCardInfo{}) {
+		if reflect.DeepEqual(cardData, gameCardInfo{}) {
 			ctx.SendChain(message.Text("数据存在错误: 无法获取卡片信息"))
 			return
 		}
@@ -299,7 +300,7 @@ func cutPic(pic image.Image) ([]byte, error) {
 	b := dst.Image()
 	bx := b.Bounds().Max.X / 3
 	by := b.Bounds().Max.Y / 3
-	returnpic := imgfactory.NewFactory(b)
+	returnpic := imgfactory.NewFactoryBG(dst.W(), dst.H(), color.NRGBA{255, 255, 255, 255})
 
 	for yOfMarknum := b.Bounds().Min.Y; yOfMarknum <= b.Bounds().Max.Y; yOfMarknum++ {
 		for xOfMarknum := b.Bounds().Min.X; xOfMarknum <= b.Bounds().Max.X; xOfMarknum++ {

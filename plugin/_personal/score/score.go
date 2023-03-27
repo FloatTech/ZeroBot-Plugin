@@ -114,11 +114,7 @@ func init() {
 			data, err := drawimagePro(&userinfo, score, 0, picFile)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
-				data, err = drawimage(&userinfo, score, 0)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:", err))
-					return
-				}
+				return
 			}
 			ctx.SendChain(message.Text("今天已经签到过了"))
 			ctx.SendChain(message.ImageBytes(data))
@@ -151,11 +147,7 @@ func init() {
 		data, err := drawimagePro(&userinfo, score, add, picFile)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
-			data, err = drawimage(&userinfo, score, add)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
+			return
 		}
 		ctx.SendChain(message.ImageBytes(data))
 	})
@@ -338,7 +330,6 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 				return
 			}
 		}
-		fmt.Println(scale)
 		for i, nameSplit := range names {
 			canvas.DrawStringAnchored(nameSplit, float64(backDX)/2+25, 25+(200+70*scale)*float64(i+1)/float64(len(names))-nameH/2, 0.5, 0.5)
 		}
@@ -394,9 +385,9 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 	// 创建彩虹条
 	grad := gg.NewLinearGradient(0, 500, 1500, 300)
 	grad.AddColorStop(0, color.RGBA{G: 255, A: 255})
-	grad.AddColorStop(0.25, color.RGBA{B: 255, A: 255})
+	grad.AddColorStop(0.35, color.RGBA{B: 255, A: 255})
 	grad.AddColorStop(0.5, color.RGBA{R: 255, A: 255})
-	grad.AddColorStop(0.75, color.RGBA{B: 255, A: 255})
+	grad.AddColorStop(0.65, color.RGBA{B: 255, A: 255})
 	grad.AddColorStop(1, color.RGBA{G: 255, A: 255})
 	canvas.SetStrokeStyle(grad)
 	canvas.SetLineWidth(7)
@@ -412,89 +403,10 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 	// 生成图片
 	return imgfactory.ToBytes(canvas.Image())
 }
-
-// 绘制图片
-func drawimage(userinfo *userdata, score, add int) (data []byte, err error) {
-	/***********获取头像***********/
-	backX := 500
-	backY := 500
-	uid := strconv.FormatInt(userinfo.Uid, 10)
-	data, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640&cache=0")
-	if err != nil {
-		return
-	}
-	back, _, err := image.Decode(bytes.NewReader(data))
-	if err != nil {
-		return
-	}
-	back = imgfactory.Size(back, backX, backY).Image()
-	/***********设置图片的大小和底色***********/
-	canvas := gg.NewContext(1500, 500)
-	canvas.SetRGB(1, 1, 1)
-	canvas.Clear()
-
-	/***********放置头像***********/
-	canvas.DrawImage(back, 0, 0)
-
-	/***********写入用户信息***********/
-	fontSize := 50.0
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
-	if err != nil {
-		return
-	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
-		return
-	}
-	canvas.SetRGB(0, 0, 0)
-	length, h := canvas.MeasureString(uid)
-	// 用户名字和QQ号
-	n, _ := canvas.MeasureString(userinfo.UserName)
-	canvas.DrawString(userinfo.UserName, 550, 130-h)
-	canvas.DrawRoundedRectangle(600+n-length*0.1, 130-h*2.5, length*1.2, h*2, fontSize*0.2)
-	canvas.SetRGB255(221, 221, 221)
-	canvas.Fill()
-	canvas.SetRGB(0, 0, 0)
-	canvas.DrawString(uid, 600+n, 130-h)
-	// 填如签到数据
-	level, nextLevelScore := getLevel(userinfo.Level)
-	if level == -1 {
-		err = errors.New("计算等级出现了问题")
-		return
-	}
-	if add == 0 {
-		canvas.DrawString(fmt.Sprintf("决斗者等级:LV%d", level), 550, 240-h)
-		canvas.DrawString("等级阶段: "+levelrank[level], 1030, 240-h)
-		canvas.DrawString(fmt.Sprintf("已连续签到 %d 天", userinfo.Continuous), 550, 320-h)
-	} else {
-		if userinfo.Level < scoreMax {
-			canvas.DrawString(fmt.Sprintf("经验 +1,ATRI币 +%d", add), 550, 240-h)
-		} else {
-			canvas.DrawString(fmt.Sprintf("签到ATRI币 + %d", add), 550, 240-h)
-		}
-		canvas.DrawString(fmt.Sprintf("决斗者等级:LV%d", level), 1000, 240-h)
-		canvas.DrawString(fmt.Sprintf("已连续签到 %d 天", userinfo.Continuous), 550, 320-h)
-	}
-	// ATRI币详情
-	canvas.DrawString(fmt.Sprintf("当前总ATRI币:%d", score), 550, 500-h)
-	// 更新时间
-	canvas.DrawString("更新日期:"+time.Unix(userinfo.UpdatedAt, 0).Format("01/02"), 1050, 500-h)
-	// 绘制等级进度条
-	canvas.DrawRectangle(550, 350-h, 900, 80)
-	canvas.SetRGB255(150, 150, 150)
-	canvas.Fill()
-	canvas.SetRGB255(0, 0, 0)
-	canvas.DrawRectangle(550, 350-h, 900*float64(userinfo.Level)/float64(nextLevelScore), 80)
-	canvas.SetRGB255(102, 102, 102)
-	canvas.Fill()
-	canvas.DrawString(fmt.Sprintf("%d/%d", userinfo.Level, nextLevelScore), 1250, 320-h)
-	// 生成图片
-	return imgfactory.ToBytes(canvas.Image())
-}
-
 func getLevel(count int) (int, int) {
 	switch {
-	case count < 2:
-		return 0, 2
+	case count < 5:
+		return 0, 5
 	case count > scoreMax:
 		return len(levelrank) - 1, scoreMax
 	default:
