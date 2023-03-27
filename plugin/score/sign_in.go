@@ -1,4 +1,4 @@
-// Package score 签到，答题得分
+// Package score 签到
 package score
 
 import (
@@ -84,7 +84,7 @@ func init() {
 			}
 		}
 		if !isExist(key) {
-			ctx.SendChain(message.Text("未找到签到设定:", key)) //避免签到配置错误造成无图发送,但是已经签到的情况
+			ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误造成无图发送,但是已经签到的情况
 			return
 		}
 		uid := ctx.Event.UserID
@@ -285,7 +285,7 @@ func init() {
 			s := ctx.State["regex_matched"].([]string)[1]
 			key := ctx.State["regex_matched"].([]string)[2]
 			if !isExist(key) {
-				ctx.SendChain(message.Text("未找到签到设定:", key)) //避免签到配置错误
+				ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误
 				return
 			}
 			gid := ctx.Event.GroupID
