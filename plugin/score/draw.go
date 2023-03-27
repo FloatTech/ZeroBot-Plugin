@@ -213,7 +213,7 @@ func drawScore17(a *scdata) (image.Image, error) {
 	// draw info(name, coin, etc)
 	hourWord := getHourWord(time.Now())
 	canvas.SetRGB255(0, 0, 0)
-	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err := file.GetLazyData(text.MaokenFontFile, control.Md5File, true)
 	if err != nil {
 		return nil, err
 	}
