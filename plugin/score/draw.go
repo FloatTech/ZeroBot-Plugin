@@ -269,3 +269,170 @@ func drawScore17(a *scdata) (image.Image, error) {
 	canvas.SetRGB255(255, 255, 255)
 	return canvas.Image(), nil
 }
+
+func drawScore18(a *scdata) (image.Image, error) {
+	back, err := gg.LoadImage(a.picfile)
+	if err != nil {
+		return nil, err
+	}
+	imgDX := back.Bounds().Dx()
+	imgDY := back.Bounds().Dy()
+	backDX := 1500
+
+	imgDW := backDX - 100
+	scale := float64(imgDW) / float64(imgDX)
+	imgDH := int(float64(imgDY) * scale)
+	back = imgfactory.Size(back, imgDW, imgDH).Image()
+
+	backDY := imgDH + 500
+	canvas := gg.NewContext(backDX, backDY)
+	// 放置毛玻璃背景
+	backBlurW := float64(imgDW) * (float64(backDY) / float64(imgDH))
+	canvas.DrawImageAnchored(imaging.Blur(imgfactory.Size(back, int(backBlurW), backDY).Image(), 8), backDX/2, backDY/2, 0.5, 0.5)
+	canvas.DrawRectangle(1, 1, float64(backDX), float64(backDY))
+	canvas.SetLineWidth(3)
+	canvas.SetRGBA255(255, 255, 255, 100)
+	canvas.StrokePreserve()
+	canvas.SetRGBA255(255, 255, 255, 140)
+	canvas.Fill()
+	// 信息框
+	canvas.DrawRoundedRectangle(20, 20, 1500-20-20, 450-20, (450-20)/5)
+	canvas.SetLineWidth(6)
+	canvas.SetDash(20.0, 10.0, 0)
+	canvas.SetRGBA255(255, 255, 255, 255)
+	canvas.Stroke()
+	// 放置头像
+	getAvatar, err := initPic(a.picfile, a.uid)
+	if err != nil {
+		return nil, err
+	}
+	avatar, _, err := image.Decode(bytes.NewReader(getAvatar))
+	if err != nil {
+		return nil, err
+	}
+	avatarf := imgfactory.Size(avatar, 300, 300)
+	canvas.DrawCircle(50+float64(avatarf.W())/2, 50+float64(avatarf.H())/2, float64(avatarf.W())/2+2)
+	canvas.SetLineWidth(3)
+	canvas.SetDash()
+	canvas.SetRGBA255(255, 255, 255, 255)
+	canvas.Stroke()
+	canvas.DrawImage(avatarf.Circle(0).Image(), 50, 50)
+	// 放置昵称
+	canvas.SetRGB(0, 0, 0)
+	fontSize := 150.0
+	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	if err != nil {
+		return nil, err
+	}
+	if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+		return nil, err
+	}
+	nameW, nameH := canvas.MeasureString(a.nickname)
+	// 昵称范围
+	textH := 300.0
+	textW := float64(backDX) * 2 / 3
+	// 如果文字超过长度了，比列缩小字体
+	if nameW > textW {
+		scale := 2 * nameH / textH
+		fontSize = fontSize * scale
+		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			return nil, err
+		}
+		_, nameH := canvas.MeasureString(a.nickname)
+		// 昵称分段
+		name := []rune(a.nickname)
+		names := make([]string, 0, 4)
+		// 如果一半都没到界面边界就分两行
+		wordw, _ := canvas.MeasureString(string(name[:len(name)/2]))
+		if wordw < textW*3/4 {
+			names = append(names, string(name[:len(name)/2+1]))
+			names = append(names, string(name[len(name)/2+1:]))
+		} else {
+			nameLength := 0.0
+			lastIndex := 0
+			for i, word := range name {
+				wordw, _ = canvas.MeasureString(string(word))
+				nameLength += wordw
+				if nameLength > textW*3/4 || i == len(name)-1 {
+					names = append(names, string(name[lastIndex:i+1]))
+					lastIndex = i + 1
+					nameLength = 0
+				}
+			}
+			// 超过两行就重新配置一下字体大小
+			scale = float64(len(names)) * nameH / textH
+			fontSize = fontSize * scale
+			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+				return nil, err
+			}
+		}
+		fmt.Println(scale)
+		for i, nameSplit := range names {
+			canvas.DrawStringAnchored(nameSplit, float64(backDX)/2+25, 25+(200+70*scale)*float64(i+1)/float64(len(names))-nameH/2, 0.5, 0.5)
+		}
+	} else {
+		canvas.DrawStringAnchored(a.nickname, float64(backDX)/2+25, 200-nameH/2, 0.5, 0.5)
+	}
+
+	// level
+	if err = canvas.LoadFontFace(text.BoldFontFile, 72); err != nil {
+		return nil, err
+	}
+	level := a.level
+	levelX := float64(backDX) * 4 / 5
+	canvas.DrawRoundedRectangle(levelX, 50, 200, 200, 200/5)
+	canvas.SetLineWidth(3)
+	canvas.SetRGBA255(0, 0, 0, 100)
+	canvas.StrokePreserve()
+	canvas.SetRGBA255(255, 255, 255, 100)
+	canvas.Fill()
+	canvas.DrawRoundedRectangle(levelX, 50, 200, 100, 200/5)
+	canvas.SetLineWidth(3)
+	canvas.SetRGBA255(0, 0, 0, 100)
+	canvas.StrokePreserve()
+	canvas.SetRGBA255(255, 255, 255, 100)
+	canvas.Fill()
+	canvas.SetRGBA255(0, 0, 0, 255)
+	//canvas.DrawStringAnchored(levelrank[level], levelX+100, 50+50, 0.5, 0.5)
+	canvas.DrawStringAnchored(fmt.Sprintf("LV%d", level), levelX+100, 50+100+50, 0.5, 0.5)
+
+	if add == 0 {
+		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, a.score), 350, 370)
+	} else {
+		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产( +%d ) : %d", userinfo.Continuous, add+level*5, score), 350, 370)
+	}
+	// 绘制等级进度条
+	if err = canvas.LoadFontFace(text.BoldFontFile, 50); err != nil {
+		return nil, err
+	}
+	_, textH = canvas.MeasureString("/")
+	switch {
+	case userinfo.Level < scoreMax && add == 0:
+		canvas.DrawStringAnchored(fmt.Sprintf("%d/%d", userinfo.Level, nextLevelScore), float64(backDX)/2, 455-textH, 0.5, 0.5)
+	case userinfo.Level < scoreMax:
+		canvas.DrawStringAnchored(fmt.Sprintf("(%d+%d)/%d", userinfo.Level-add, add, nextLevelScore), float64(backDX)/2, 455-textH, 0.5, 0.5)
+	default:
+		canvas.DrawStringAnchored("Max/Max", float64(backDX)/2, 455-textH, 0.5, 0.5)
+
+	}
+	// 创建彩虹条
+	grad := gg.NewLinearGradient(0, 500, 1500, 300)
+	grad.AddColorStop(0, color.RGBA{G: 255, A: 255})
+	grad.AddColorStop(0.25, color.RGBA{B: 255, A: 255})
+	grad.AddColorStop(0.5, color.RGBA{R: 255, A: 255})
+	grad.AddColorStop(0.75, color.RGBA{B: 255, A: 255})
+	grad.AddColorStop(1, color.RGBA{G: 255, A: 255})
+	canvas.SetStrokeStyle(grad)
+	canvas.SetLineWidth(7)
+	// 设置长度
+	gradMax := 1300.0
+	LevelLength := gradMax * (float64(userinfo.Level) / float64(nextLevelScore))
+	canvas.MoveTo((float64(backDX)-LevelLength)/2, 450)
+	canvas.LineTo((float64(backDX)+LevelLength)/2, 450)
+	canvas.ClosePath()
+	canvas.Stroke()
+	// 放置图片
+	canvas.DrawImageAnchored(back, backDX/2, imgDH/2+475, 0.5, 0.5)
+	// 生成图片
+	return canvas.Image(), nil
+}
