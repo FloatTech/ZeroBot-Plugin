@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/FloatTech/floatbox/math"
@@ -121,18 +120,16 @@ func init() {
 			return
 		}
 		// 进行猜卡环节
+		game := newGame(cardData)
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup,
-			zero.RegexRule("^(我猜.*|提示|取消)"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
+			zero.RegexRule("^((我猜.+)|提示|取消)"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()
 		tick := time.NewTimer(105 * time.Second)
 		over := time.NewTimer(120 * time.Second)
-		wg := sync.WaitGroup{}
 		var (
-			messageStr  message.MessageSegment // 文本信息
-			tickCount   = 0                    // 提示次数
-			answerCount = 0                    // 问答次数
-			win         bool                   // 是否结束游戏
+			tickCount   = 0 // 提示次数
+			answerCount = 0 // 问答次数
 		)
 		for {
 			select {
@@ -144,24 +141,51 @@ func init() {
 					message.ImageBytes(body)))
 				return
 			case c := <-recv:
-				wg.Add(1)
-				go func() {
-					messageStr, answerCount, tickCount, win = gameMatch(c, ctx.Event.UserID, cardData, answerCount, tickCount)
-					if win { // 游戏结束的话
+				answer := c.Event.Message.String()
+				if answer == "取消" {
+					if c.Event.UserID == ctx.Event.UserID {
 						tick.Stop()
 						over.Stop()
-						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr, message.ImageBytes(body))
-					} else {
+						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+							message.Text("游戏已取消\n卡名是:\n", cardData.Name),
+							message.ImageBytes(body)))
+						return
+					}
+					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("你无权限取消")))
+					return
+				}
+				if answer == "提示" {
+					if tickCount > 3 {
 						tick.Reset(105 * time.Second)
 						over.Reset(120 * time.Second)
-						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("已经没有提示了哦,加油啊")))
+						continue
 					}
-					wg.Done()
-				}()
-				wg.Wait()
-			}
-			if win {
-				break
+					tickCount++
+				} else {
+					_, answer, _ = strings.Cut(answer, "我猜")
+					answerCount++
+				}
+				messageStr, win := game(answer, tickCount-1, answerCount)
+				if win {
+					tick.Stop()
+					over.Stop()
+					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+						message.Text(messageStr),
+						message.ImageBytes(body)))
+					return
+				}
+				if answerCount >= 6 {
+					tick.Stop()
+					over.Stop()
+					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n"+cardData.Name),
+						message.ImageBytes(body)))
+					return
+				}
+				tick.Reset(105 * time.Second)
+				over.Reset(120 * time.Second)
+				ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text(messageStr)))
 			}
 		}
 	})
@@ -327,37 +351,22 @@ func cutPic(pic image.Image) ([]byte, error) {
 	return imgfactory.ToBytes(returnpic.Image())
 }
 
-// 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
-func gameMatch(c *zero.Ctx, beginner int64, cardData gameCardInfo, answerCount, tickCount int) (message.MessageSegment, int, int, bool) {
-	answer := c.Event.Message.String()
-	switch answer {
-	case "取消":
-		if c.Event.UserID == beginner {
-			return message.Text("游戏已取消\n卡名是:\n", cardData.Name), answerCount, tickCount, true
+func newGame(cardData gameCardInfo) func(string, int, int) (string, bool) {
+	return func(s string, stickCount, answerCount int) (message string, win bool) {
+		switch s {
+		case "提示":
+			tips := getTips(cardData, stickCount)
+			return tips, false
+		default:
+			name := []rune(cardData.Name)
+			switch {
+			case len([]rune(s)) < math.Ceil(len(name), 4):
+				return "请输入" + strconv.Itoa(math.Ceil(len(name), 4)) + "字以上", false
+			case strings.Contains(cardData.Name, s):
+				return "太棒了,你猜对了!\n卡名是:\n" + cardData.Name, true
+			}
 		}
-		return message.Text("你无权限取消"), answerCount, tickCount, false
-	case "提示":
-		if tickCount > 3 {
-			return message.Text("已经没有提示了哦"), answerCount, tickCount, false
-		}
-		tips := getTips(cardData, tickCount)
-		tickCount++
-		return message.Text(tips), answerCount, tickCount, false
-	default:
-		_, answer, _ := strings.Cut(answer, "我猜")
-		name := []rune(cardData.Name)
-		switch {
-		case len([]rune(answer)) < math.Ceil(len(name), 4):
-			return message.Text("请输入", math.Ceil(len(name), 4), "字以上"), answerCount, tickCount, false
-		case strings.Contains(cardData.Name, answer):
-			return message.Text("太棒了,你猜对了!\n卡名是:\n", cardData.Name), answerCount, tickCount, true
-		}
-		answerCount++
-		if answerCount < 6 {
-			return message.Text("答案不对哦,还有", 6-answerCount, "次机会,加油啊~"), answerCount, tickCount, false
-		}
-		tickCount++
-		return message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", cardData.Name), answerCount, tickCount, true
+		return "答案不对哦,还有" + strconv.Itoa(6-answerCount) + "次回答机会,加油啊~", false
 	}
 }
 
