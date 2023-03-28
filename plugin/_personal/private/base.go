@@ -3,6 +3,8 @@ package base
 
 import (
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -19,7 +21,7 @@ const (
 var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 	DisableOnDefault:  false,
 	Brief:             "基础指令",
-	Help:              "- @bot备份代码\n- @bot上传代码\n- @bot检查更新- @bot重启\ntips:检查更新后如果没有问题后需要重启才OK",
+	Help:              "- /反馈[内容]\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新- @bot重启\ntips:检查更新后如果没有问题后需要重启才OK",
 	PrivateDataFolder: "base",
 	OnDisable: func(ctx *zero.Ctx) {
 		process.SleepAbout1sTo2s()
@@ -28,6 +30,7 @@ var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 })
 
 func init() {
+	// 重启
 	go func() {
 		process.SleepAbout1sTo2s()
 		ctx := zero.GetBot(botQQ)
@@ -45,7 +48,6 @@ func init() {
 			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))
 		}
 	}()
-	// 重启
 	zero.OnFullMatchGroup([]string{"重启", "洗手手"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup(serviceName)
@@ -60,7 +62,7 @@ func init() {
 			os.Exit(0)
 		})
 	// 运行 CQ 码
-	zero.OnPrefix("run", zero.SuperUserPermission).SetBlock(false).
+	zero.OnPrefix("run", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 可注入，权限为主人
 			ctx.Send(message.UnescapeCQCodeText(ctx.State["args"].(string)))
@@ -92,4 +94,30 @@ func init() {
 			ctx.DeleteMessage(msg)
 		}
 	})
+	// 反馈信息
+	zero.OnCommand("反馈").SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			uid := ctx.Event.UserID
+			content := ctx.Event.Message.CQString()
+			if content == "" {
+				ctx.Send(
+					message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Text("你是想反馈「空手假象」combo吗?"),
+					),
+				)
+				return
+			}
+			username := ctx.CardOrNickName(uid)
+			content = strings.ReplaceAll(content, zero.BotConfig.CommandPrefix+"反馈", "")
+			text := "来自用户" + username + "(" + strconv.FormatInt(uid, 10) + ")的反馈"
+			if gid != 0 {
+				text = "来自群" + ctx.GetGroupInfo(gid, true).Name + "(" + strconv.FormatInt(gid, 10) + ")的用户\n" + username + "(" + strconv.FormatInt(uid, 10) + ")的反馈"
+			}
+			ctx.SendPrivateForwardMessage(zero.BotConfig.SuperUsers[0], message.Message{
+				message.CustomNode(username, uid, text),
+				message.CustomNode(username, uid, message.UnescapeCQCodeText(content)),
+			})
+			ctx.SendChain(message.Text("反馈成功"))
+		})
 }

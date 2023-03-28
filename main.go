@@ -345,11 +345,11 @@ func main() {
 		rand.Seed(time.Now().UnixNano()) //nolint: staticcheck
 	}
 	// 帮助
-	zero.OnFullMatchGroup([]string{"/help", ".help", "菜单"}).SetBlock(true).
+	zero.OnFullMatchGroup([]string{"/help", ".help", "。help", "#help", "帮助", "菜单"}).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(banner.Banner,
 				"\n————————————\n基础指令:\n",
-				"- 查看zbp公告\n- /服务列表\n- /用法[插件名称]\n- /启用[插件名称]\n- /禁用[插件名称]",
+				"- 查看zbp公告\n- /服务列表\n- /用法[插件名称]\n- /启用[插件名称]\n- /禁用[插件名称]\n- /反馈[内容]",
 			))
 		})
 	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).
