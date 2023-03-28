@@ -93,7 +93,7 @@ func init() {
 				s = append(s, imgfactory.Size(cov.Image(), 0, 0).Image())
 			}
 			var buf bytes.Buffer
-			gif.EncodeAll(&buf, imgfactory.MergeGif(5, s))
+			_ = gif.EncodeAll(&buf, imgfactory.MergeGif(5, s))
 			ctx.SendChain(message.ImageBytes(buf.Bytes()))
 		}
 	})
