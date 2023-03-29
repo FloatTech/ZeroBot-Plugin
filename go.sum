@@ -313,4 +313,4 @@ modernc.org/libc v1.21.5/go.mod h1:przBsL5RDOZajTVslkugzLBj1evTue36jEomFQOoYuI=
 modernc.org/mathutil v1.5.0 h1:rV0Ko/6SfM+8G+yKiyI830l3Wuz1zRutdslNoQ0kfiQ=
 modernc.org/mathutil v1.5.0/go.mod h1:mZW8CKdRPY1v87qxC/wUdX5O1qDzXMP5TH3wjfpga6E=
 modernc.org/memory v1.4.0 h1:crykUfNSnMAXaOJnnxcSzbUGMqkLWjklJKkBK2nwZwk=
-modernc.org/memory v1.4.0/go.mod h1:PkUhL0Mugw21sHPeskwZW4D6VscE/GQJOnIpCnW6pSU=
+modernc.org/memory   v1.4.0  /go.mod  h1: PkUhL0Mugw21sHPeskwZW4D6VscE/GQJOnIpCnW6pSU  =  
