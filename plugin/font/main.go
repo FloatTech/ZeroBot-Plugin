@@ -62,13 +62,13 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		//获得画布预计
+		// 获得画布预计
 		testcov := gg.NewContext(1, 1)
 		if err = testcov.ParseFontFace(data, 30); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		//取最长段
+		// 取最长段
 		txt = ""
 		for _, v := range strlist {
 			if len([]rune(v)) > len([]rune(txt)) {
