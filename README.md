@@ -719,7 +719,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"`
 
-  - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染文字xxx
+  - [x] (用[终末体|终末变体|紫罗兰体|樱酥体|Consolas体|苹方体])渲染(抖动)文字xxx
 </details>
 <details>
   <summary>每日运势</summary>
