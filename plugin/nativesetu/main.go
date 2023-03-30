@@ -4,6 +4,7 @@ package nativesetu
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -48,25 +49,35 @@ func init() {
 		panic(err)
 	}
 
-	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	engine.OnRegex(`^本地((\d+)张)?(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[3] }, ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			imgtype := ctx.State["regex_matched"].([]string)[1]
-			sc := new(setuclass)
+			imgtype := ctx.State["regex_matched"].([]string)[3]
+			pickMax := 1 // 返回最多张数
+			if ctx.State["regex_matched"].([]string)[2] != "" {
+				pickMax, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
+			}
+			if pickMax < 40 {
+				pickMax = 40
+				ctx.SendChain(message.Text("你好贪心, 最多40张哟, 少女折寿中..."))
+			}
+			msg := make(message.Message, 0, pickMax)
 			ns.mu.RLock()
-			err := ns.db.Pick(imgtype, sc)
-			ns.mu.RUnlock()
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-			} else {
-				p := "file:///" + setupath + "/" + sc.Path
-				if ctx.Event.GroupID != 0 {
-					ctx.SendGroupForwardMessage(ctx.Event.GroupID, message.Message{
-						ctxext.FakeSenderForwardNode(ctx,
-							message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p),
-						)})
+			defer ns.mu.RUnlock()
+			for i := 0; i < pickMax; i++ {
+				var img setuclass
+				err := ns.db.Pick(imgtype, &img)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
+				p := "file:///" + setupath + "/" + img.Path
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
+					message.Text(imgtype, ": ", img.Name, "\n"),
+					message.Image(p),
+				))
+			}
+			if id := ctx.Send(msg).ID(); id == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
 			}
 		})
 	engine.OnRegex(`^刷新本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
