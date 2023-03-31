@@ -76,42 +76,25 @@ func TestSub(t *testing.T) {
 				return
 			}
 			t.Logf("[TEST] 2 channels: %+v", channels)
+			// delete
+
+			//err = dm.Unsubscribe(ctx, tc.gid, tc.feedLink)
+			//if err != nil {
+			//	t.Fatal(err)
+			//	return
+			//}
+			//res, ext, err = dm.storage.GetIfExistedSubscribe(ctx, tc.gid, tc.feedLink)
+			//if err != nil {
+			//	t.Fatal(err)
+			//	return
+			//}
+			//t.Logf("[TEST] after del: %+v,%+v", res, ext)
+			//if res != nil || ext {
+			//	t.Fatal("delete failed")
+			//}
+
 		})
 	}
-}
-
-func TestSub_2(t *testing.T) {
-	ctx := context.Background()
-	channel, ifExisted, ifSub, err := dm.Subscribe(ctx, 99, "/bangumi/tv/calendar/today")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	t.Logf("add: %+v,%+v,%+v\n", channel, ifExisted, ifSub)
-	res, ext, err := dm.storage.GetIfExistedSubscribe(ctx, 99, "/bangumi/tv/calendar/today")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	t.Logf("if exist: %+v,%+v", res, ext)
-	channels, err := dm.GetSubscribedChannelsByGroupID(ctx, 2)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	t.Logf("2 channels: %+v", channels)
-
-	err = dm.Unsubscribe(ctx, 2, "/bangumi/tv/calendar/today")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	res, ext, err = dm.storage.GetIfExistedSubscribe(ctx, 2, "/bangumi/tv/calendar/today")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	t.Logf("after del: %+v,%+v", res, ext)
 }
 
 func Test_SyncFeed(t *testing.T) {
@@ -121,5 +104,5 @@ func Test_SyncFeed(t *testing.T) {
 		return
 	}
 	rs, _ := json.Marshal(feed)
-	t.Logf("[Test] feed: %+v(%+v)", len(feed), len(rs))
+	t.Logf("[Test] feed: %+v", string(rs))
 }

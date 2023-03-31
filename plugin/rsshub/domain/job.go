@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+
 	"github.com/mmcdole/gofeed"
 	"github.com/sirupsen/logrus"
 )
@@ -40,24 +41,28 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 			continue
 		}
 		// 保存
-
 		logrus.WithContext(ctx).Infof("[rsshub syncRss] cv %+v, need update(real): %v", cv.Source, needUpdate)
 		// 如果需要更新，更新channel 和 content
 		if needUpdate {
 			err = repo.storage.UpsertSource(ctx, cv.Source)
 			if err != nil {
 				logrus.WithContext(ctx).Errorf("[rsshub syncRss] upsert source error: %v", err)
-				continue
+				err = nil
+				//continue
 			}
-			var updateChannelView = &RssClientView{Source: cv.Source, Contents: []*RssContent{}}
-			err = repo.processContentsUpdate(ctx, cv, err, updateChannelView)
-			if err != nil {
-				logrus.WithContext(ctx).Errorf("[rsshub syncRss] process push content error: %v", err)
-				continue
-			}
-			updated[updateChannelView.Source.ID] = updateChannelView
-			logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %s, new contents: %v", cv.Source.RssHubFeedPath, len(updateChannelView.Contents))
 		}
+		var updateChannelView = &RssClientView{Source: cv.Source, Contents: []*RssContent{}}
+		err = repo.processContentsUpdate(ctx, cv, err, updateChannelView)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[rsshub syncRss] processContentsUpdate error: %v", err)
+			continue
+		}
+		if len(updateChannelView.Contents) == 0 {
+			logrus.WithContext(ctx).Infof("[rsshub syncRss] cv %s, no new content", cv.Source.RssHubFeedPath)
+			continue
+		}
+		updated[updateChannelView.Source.ID] = updateChannelView
+		logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %s, new contents: %v", cv.Source.RssHubFeedPath, len(updateChannelView.Contents))
 	}
 	return
 }

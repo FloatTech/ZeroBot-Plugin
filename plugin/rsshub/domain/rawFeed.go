@@ -1,16 +1,18 @@
 package domain
 
 import (
+	"bytes"
 	"encoding/json"
+	"github.com/FloatTech/floatbox/web"
 	"github.com/mmcdole/gofeed"
 	"net/http"
 	"time"
 )
 
-const (
-	acceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-	userHeader   = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36 Edg/84.0.522.63"
-)
+//const (
+//	acceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+//	userHeader   = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36 Edg/84.0.522.63"
+//)
 
 // RssHubClient rss hub client (http)
 type RssHubClient struct {
@@ -19,20 +21,12 @@ type RssHubClient struct {
 
 // FetchFeed 获取rss feed信息
 func (c *RssHubClient) FetchFeed(domain, path string) (feed *gofeed.Feed, err error) {
-	req, err := http.NewRequest("GET", domain+path, nil)
+	var data []byte
+	data, err = web.RequestDataWith(c.Client, domain+path, "GET", "", web.RandUA(), nil)
 	if err != nil {
-		return
+		return nil, err
 	}
-	req.Header.Set("accept", acceptHeader)
-	req.Header.Set("user", userHeader)
-	resp, err := c.Do(req)
-	if err != nil {
-		return
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	feed, err = gofeed.NewParser().Parse(resp.Body)
+	feed, err = gofeed.NewParser().Parse(bytes.NewBuffer(data))
 	if err != nil {
 		return
 	}

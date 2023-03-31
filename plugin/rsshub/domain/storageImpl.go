@@ -17,7 +17,7 @@ type RepoSource interface {
 	// UpsertSource 添加一个订阅源
 	UpsertSource(ctx context.Context, rfc *RssSource) error
 	// GetSources 获取所有订阅源信息
-	GetSources(ctx context.Context) ([]*RssSource, error)
+	GetSources(ctx context.Context) ([]RssSource, error)
 	// GetSourceByRssHubFeedLink 通过 rssHub 的 feed 链接获取订阅源信息
 	GetSourceByRssHubFeedLink(ctx context.Context, url string) (*RssSource, error)
 	// DeleteSource 删除一个订阅源
@@ -29,7 +29,7 @@ type RepoSubscribe interface {
 	// CreateSubscribe 添加一个订阅
 	CreateSubscribe(ctx context.Context, gid, rssSourceID int64) error
 	// DeleteSubscribe 删除一个订阅
-	DeleteSubscribe(ctx context.Context, gid int64, subscribeID int64) error
+	DeleteSubscribe(ctx context.Context, subscribeID int64) error
 	// GetSubscribeByID 获取一个订阅
 	GetSubscribeByID(ctx context.Context, gid int64, subscribeID int64) (*RssSubscribe, error)
 	// GetSubscribes 获取全部订阅

@@ -8,7 +8,7 @@ import (
 
 // ======== RSS ========[START]
 
-//type SingleFeedItem gofeed.Item
+// type SingleFeedItem gofeed.Item
 
 func genHashForFeedItem(link, guid string) string {
 	idString := link + "||" + guid
@@ -51,7 +51,7 @@ type RssSource struct {
 	// UpdatedParsed RSS页面更新时间
 	UpdatedParsed time.Time `gorm:"column:updated_parsed" json:"updated_parsed"`
 	//// Ctime create time
-	//Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
+	// Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
 	// Mtime update time
 	Mtime time.Time `gorm:"column:mtime;default:current_timestamp;" json:"mtime"`
 }
@@ -83,7 +83,7 @@ type RssContent struct {
 	Thumbnail   string    `gorm:"column:thumbnail"   json:"thumbnail"`
 	Content     string    `gorm:"column:content"     json:"content"`
 	//// Ctime create time
-	//Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
+	// Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
 	// Mtime update time
 	Mtime time.Time `gorm:"column:mtime;default:current_timestamp;" json:"mtime"`
 }
@@ -98,11 +98,11 @@ type RssSubscribe struct {
 	// Id 自增id
 	ID int64 `gorm:"column:id;primary_key;AUTO_INCREMENT"`
 	// 订阅群组
-	GroupID int64 `gorm:"column:group_id;not null;unique_index:uk_sid_gid"`
+	GroupID int64 `gorm:"column:group_id;not null;uniqueIndex:uk_sid_gid"`
 	// 订阅频道
-	RssSourceID int64 `gorm:"column:rss_source_id;not null;unique_index:uk_sid_gid"`
+	RssSourceID int64 `gorm:"column:rss_source_id;not null;uniqueIndex:uk_sid_gid"`
 	//// Ctime create time
-	//Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
+	// Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
 	// Mtime update time
 	Mtime time.Time `gorm:"column:mtime;default:current_timestamp;" json:"mtime"`
 }
