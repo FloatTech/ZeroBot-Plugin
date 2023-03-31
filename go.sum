@@ -2,10 +2,10 @@ github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhv
 github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3 h1:SyXS1YXrRuzO3YVCZB/5gSX7vaFbSMwzN+RXLNNKq5M=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230316111643-46d40c9d80e3/go.mod h1:h+22XrJTgcn0m4aM3o1pYo5G0+Mv4v7wW5xvZQ4LabY=
-github.com/FloatTech/floatbox v0.0.0-20230325120101-d69494a7cc95 h1:wRcdulvceh55bzjXPtqHsKTTil6ipnvAo+uvf4w9LTI=
-github.com/FloatTech/floatbox v0.0.0-20230325120101-d69494a7cc95/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230331074616-e33f890df71e h1:4V7UZyLZKmjXUDtmYFK5+EWIrrkSuN+jHjKXkWsqQ/A=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230331074616-e33f890df71e/go.mod h1:LSJN8VkJXBhyAdOolVNeUptJz6l1TZ+/CfXN1OafyEY=
+github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944 h1:/eQoMa6Aj3coF5F7yhzZe1+SzX6SItul7MW8//pl18o=
+github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
 github.com/FloatTech/gg v1.1.2 h1:YolgOYg3uDHc1+g0bLtt6QuRA/pvLn+b9IBCIhOOX88=
 github.com/FloatTech/gg v1.1.2/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
 github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b h1:VMNci4SWBySdw/6poqF9Dn9zlT5ntTFSJOEEBjRnJ/4=
@@ -18,10 +18,8 @@ github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJG
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230316111343-dd078fa43fe3 h1:mCVrTvS2LMNaI2bNA1Gu/B4F5MnfGaTaJClgR6+rhdA=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230316111343-dd078fa43fe3/go.mod h1:IagyEhY38VcbbQgVRzAM9f9mhaUn90rM5BTPfudtl1g=
-github.com/FloatTech/zbputils v1.6.2-0.20230316111555-2d1ec958de04 h1:ovL+7SAPTBCXy6XNRSdJhNvHtbueWCwEb/jtztmizAc=
-github.com/FloatTech/zbputils v1.6.2-0.20230316111555-2d1ec958de04/go.mod h1:jUmX4WBgGRcfjGeIobmVao10AHmXtL3gT00qLbx3/yo=
-github.com/FloatTech/zbputils v1.6.2-0.20230320041820-731f824ff8f4 h1:OrqldcPSJWnPxZtmkOd9HJmFFD3rl0Qrob89rHHpoXw=
-github.com/FloatTech/zbputils v1.6.2-0.20230320041820-731f824ff8f4/go.mod h1:jUmX4WBgGRcfjGeIobmVao10AHmXtL3gT00qLbx3/yo=
+github.com/FloatTech/zbputils v1.6.2-0.20230331074541-89a5b4840e92 h1:yp2hYvK+FaaozRG9+KPgoknbdvp5ZbrNHOjMfES0lEM=
+github.com/FloatTech/zbputils v1.6.2-0.20230331074541-89a5b4840e92/go.mod h1:3bpENp0t2puKC4Kwp+ksEcMPkuw/8pWI4G6/+/e3jCA=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
