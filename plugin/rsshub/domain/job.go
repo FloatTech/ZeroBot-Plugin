@@ -61,6 +61,7 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 			logrus.WithContext(ctx).Infof("[rsshub syncRss] cv %s, no new content", cv.Source.RssHubFeedPath)
 			continue
 		}
+		updateChannelView.Sort()
 		updated[updateChannelView.Source.ID] = updateChannelView
 		logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %s, new contents: %v", cv.Source.RssHubFeedPath, len(updateChannelView.Contents))
 	}
@@ -89,6 +90,9 @@ func (repo *rssDomain) checkSourceNeedUpdate(ctx context.Context, source *RssSou
 // processContentsUpdate 处理内容(s)更新
 func (repo *rssDomain) processContentsUpdate(ctx context.Context, cv *RssClientView, err error, updateChannelView *RssClientView) error {
 	for _, content := range cv.Contents {
+		if content == nil {
+			continue
+		}
 		content.RssSourceID = cv.Source.ID
 		var existed bool
 		existed, err = repo.processContentItemUpdate(ctx, content)

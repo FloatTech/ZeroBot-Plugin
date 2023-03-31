@@ -3,6 +3,7 @@ package domain
 import (
 	"encoding/hex"
 	"hash/fnv"
+	"sort"
 	"time"
 )
 
@@ -91,6 +92,12 @@ type RssContent struct {
 // TableName ...
 func (RssContent) TableName() string {
 	return tableNameRssContent
+}
+
+func (r *RssClientView) Sort() {
+	sort.Slice(r.Contents, func(i, j int) bool {
+		return r.Contents[i].Date.Unix() > r.Contents[j].Date.Unix()
+	})
 }
 
 // RssSubscribe 订阅关系表：群组-RSS频道

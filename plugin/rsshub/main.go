@@ -113,10 +113,14 @@ func init() {
 			return
 		}
 		// 添加成功，发送订阅源信息
-		var msg message.Message
-		msg = append(msg, message.Text("RSS订阅姬：当前订阅列表"))
-		for _, v := range rv {
-			msg = append(msg, message.Text(formatRssToTextMsg(v)))
+		msg, err := createRssSourcesMsg(ctx, rv)
+		if err != nil {
+			ctx.SendChain(message.Text("RSS订阅姬：查询失败 ", err.Error()))
+			return
+		}
+		if len(msg) == 0 {
+			ctx.SendChain(message.Text("ん? 没有订阅的频道哦~"))
+			return
 		}
 		ctx.SendChain(msg...)
 	})
@@ -136,7 +140,7 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 				continue
 			}
 			logrus.Infof("RssHub插件在群 %d 开始推送 %s", groupID, view.Source.Title)
-			ctx.SendGroupMessage(groupID, message.Text(view.Source.Title+"\n[RSS订阅姬定时推送]"))
+			//ctx.SendGroupMessage(groupID, message.Text(view.Source.Title+"\n[RSS订阅姬定时推送]"))
 			if res := ctx.SendGroupForwardMessage(groupID, msg); !res.Exists() {
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(rssHubPushErrMsg))
 			}
@@ -144,23 +148,46 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 	}
 }
 
-// createRssUpdateMsg 创建Rss更新消息
-func createRssUpdateMsg(ctx *zero.Ctx, view *domain.RssClientView) (message.Message, error) {
-	msgSlice, err := formatRssToMsg(view)
-	if err != nil {
-		return nil, err
+func createRssSourcesMsg(ctx *zero.Ctx, view []*domain.RssClientView) (message.Message, error) {
+	msgSlice := make([]message.Message, len(view))
+	// 生成消息
+	for _, v := range view {
+		if v == nil {
+			continue
+		}
+		item, err := formatRssViewToMessagesSlice(v)
+		if err != nil {
+			return nil, err
+		}
+		msgSlice = append(msgSlice, item...)
 	}
+	// 伪造一个发送者为RssHub订阅姬的消息节点
 	msg := make(message.Message, len(msgSlice))
 	for i, item := range msgSlice {
 		msg[i] = fakeSenderForwardNode(ctx.Event.SelfID, item...)
 	}
-	// 发送文字版
-	//msg:= formatRssToTextMsg(view)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//msg := make(message.Message, 2)
-	//msg[0] = message.Image("base64://" + binary.BytesToString(pic))
-	//msg[1] = message.Text(ctx.Event.SelfID, message.Text(view.Source.Link))
 	return msg, nil
+}
+
+// createRssUpdateMsg Rss更新消息
+func createRssUpdateMsg(ctx *zero.Ctx, view *domain.RssClientView) (message.Message, error) {
+	// 生成消息
+	msgSlice, err := formatRssViewToMessagesSlice(view)
+	if err != nil {
+		return nil, err
+	}
+	// 伪造一个发送者为RssHub订阅姬的消息节点
+	msg := make(message.Message, len(msgSlice))
+	for i, item := range msgSlice {
+		msg[i] = fakeSenderForwardNode(ctx.Event.SelfID, item...)
+	}
+	return msg, nil
+}
+
+// fakeSenderForwardNode 伪造一个发送者为RssHub订阅姬的消息节点，传入userID是为了减少ws io
+func fakeSenderForwardNode(userID int64, msgs ...message.MessageSegment) message.MessageSegment {
+	return message.CustomNode(
+		"RssHub订阅姬",
+		userID,
+		msgs)
 }

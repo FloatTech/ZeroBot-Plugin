@@ -32,21 +32,28 @@ func formatRssToTextMsg(view *domain.RssClientView) (msg []string) {
 	return
 }
 
-func formatRssToMsg(view *domain.RssClientView) ([]message.Message, error) {
-	// 2n+1条消息
-	fv := make([]message.Message, len(view.Contents)*2+1)
+// formatRssViewToMessagesSlice 格式化RssClientView为消息切片
+func formatRssViewToMessagesSlice(view *domain.RssClientView) ([]message.Message, error) {
+	// 2n+1条消息，如果太长就截短到50
+	cts := view.Contents
+	//if len(cts) > 20 {
+	//	cts = cts[:20]
+	//}
+	fv := make([]message.Message, len(cts)*2+1)
 	// 订阅源头图
-	toastPic, err := text.RenderToBase64(fmt.Sprintf("%s\n\n\n更新时间:%v\n", view.Source.Title, view.Source.UpdatedParsed.Format(time.ANSIC)), text.SakuraFontFile, 800, 40)
+	toastPic, err := text.RenderToBase64(fmt.Sprintf("%s\n\n\n%s\n\n\n更新时间:%v\n\n\n",
+		view.Source.Title, view.Source.Link, view.Source.UpdatedParsed.Format(time.DateTime)),
+		text.SakuraFontFile, 800, 40)
 	if err != nil {
 		return nil, err
 	}
 	fv[0] = message.Message{message.Image("base64://" + binary.BytesToString(toastPic))}
 	// 元素信息
-	for idx, item := range view.Contents {
+	for idx, item := range cts {
 		contentStr := fmt.Sprintf("%s\n\n\n", item.Title)
 		// Date为空时不显示
 		if !item.Date.IsZero() {
-			contentStr += fmt.Sprintf("更新时间：\n%v\n", item.Date.Format(time.ANSIC))
+			contentStr += fmt.Sprintf("更新时间：\n%v\n", item.Date.Format(time.DateTime))
 		}
 		var content []byte
 		content, err = text.RenderToBase64(contentStr, text.SakuraFontFile, 800, 40)
@@ -59,30 +66,4 @@ func formatRssToMsg(view *domain.RssClientView) ([]message.Message, error) {
 		fv[2*idx+2] = message.Message{message.Text(fmt.Sprintf("%s", item.Link))}
 	}
 	return fv, nil
-}
-
-// formatRssToPicMsg 格式化RssClientView为图片消息
-//func formatRssToPicMsg(view *domain.RssClientView) (content []byte, err error) {
-//	msg := fmt.Sprintf("【%s】更新时间:%v\n", view.Source.Title, view.Source.UpdatedParsed.Format(time.ANSIC))
-//	// rssItem信息
-//	for _, item := range view.Contents {
-//		contentStr := fmt.Sprintf("标题：%s\n链接：%s\n", item.Title, item.Link)
-//		if !item.Date.IsZero() {
-//			contentStr += fmt.Sprintf("更新时间：%v\n", item.Date.Format(time.ANSIC))
-//		}
-//		msg += contentStr
-//	}
-//	content, err = text.RenderToBase64(msg, text.FontFile, 800, 20)
-//	if err != nil {
-//		return
-//	}
-//	return
-//}
-
-// fakeSenderForwardNode 伪造一个发送者为RssHub订阅姬的消息节点，传入userID是为了减少ws io
-func fakeSenderForwardNode(userID int64, msgs ...message.MessageSegment) message.MessageSegment {
-	return message.CustomNode(
-		"RssHub订阅姬",
-		userID,
-		msgs)
 }
