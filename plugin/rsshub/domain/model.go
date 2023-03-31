@@ -94,6 +94,7 @@ func (RssContent) TableName() string {
 	return tableNameRssContent
 }
 
+// Sort ... order by Date desc
 func (r *RssClientView) Sort() {
 	sort.Slice(r.Contents, func(i, j int) bool {
 		return r.Contents[i].Date.Unix() > r.Contents[j].Date.Unix()
