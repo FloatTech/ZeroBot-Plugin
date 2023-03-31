@@ -10,6 +10,6 @@ var Copyright = "© 2020 - 2023 FloatTech"
 
 // Banner ...
 var Banner = "* OneBot + ZeroBot + Golang\n" +
-	"* Version " + Version + " - 2023-03-25 20:09:29 +0800 CST\n" +
+	"* Version " + Version + " - 2023-03-31 15:53:05 +0800 CST\n" +
 	"* Copyright " + Copyright + ". All Rights Reserved.\n" +
 	"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
