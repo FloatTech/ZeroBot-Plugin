@@ -64,7 +64,8 @@ func init() {
 		// 群组-频道推送视图  map[群组]推送内容数组
 		groupToFeedsMap, err := rssRepo.Sync(context.Background())
 		if err != nil {
-			ctx.SendChain(message.Text("RSS订阅姬：同步任务失败 ", err))
+			logrus.WithContext(context.Background()).Errorln("rsshub同步失败", err)
+			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("rsshub同步失败", err))
 			return
 		}
 		// 没有更新的[群组-频道推送视图]则不推送
@@ -149,7 +150,7 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 }
 
 func createRssSourcesMsg(ctx *zero.Ctx, view []*domain.RssClientView) (message.Message, error) {
-	msgSlice := make([]message.Message, len(view))
+	var msgSlice []message.Message
 	// 生成消息
 	for _, v := range view {
 		if v == nil {

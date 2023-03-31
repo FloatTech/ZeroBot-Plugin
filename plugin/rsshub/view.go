@@ -14,23 +14,23 @@ const (
 	rssHubPushErrMsg = "RssHub推送错误"
 )
 
-// formatRssToTextMsg 格式化RssClientView为文本消息
-func formatRssToTextMsg(view *domain.RssClientView) (msg []string) {
-	msg = make([]string, 0)
-	// rssChannel信息
-	msgStr := fmt.Sprintf("%s\n更新时间:%v\n", view.Source.Title, view.Source.UpdatedParsed.Format(time.ANSIC))
-	msg = append(msg, msgStr)
-	// rssItem信息
-	for _, item := range view.Contents {
-		contentStr := fmt.Sprintf("%s\n%s\n", item.Title, item.Link)
-		// Date为空时不显示
-		if !item.Date.IsZero() {
-			contentStr += fmt.Sprintf("更新时间：%v\n", item.Date.Format(time.ANSIC))
-		}
-		msg = append(msg, contentStr)
-	}
-	return
-}
+//// formatRssToTextMsg 格式化RssClientView为文本消息
+//func formatRssToTextMsg(view *domain.RssClientView) (msg []string) {
+//	msg = make([]string, 0)
+//	// rssChannel信息
+//	msgStr := fmt.Sprintf("%s\n更新时间:%v\n", view.Source.Title, view.Source.UpdatedParsed.Format(time.ANSIC))
+//	msg = append(msg, msgStr)
+//	// rssItem信息
+//	for _, item := range view.Contents {
+//		contentStr := fmt.Sprintf("%s\n%s\n", item.Title, item.Link)
+//		// Date为空时不显示
+//		if !item.Date.IsZero() {
+//			contentStr += fmt.Sprintf("更新时间：%v\n", item.Date.Format(time.ANSIC))
+//		}
+//		msg = append(msg, contentStr)
+//	}
+//	return
+//}
 
 // formatRssViewToMessagesSlice 格式化RssClientView为消息切片
 func formatRssViewToMessagesSlice(view *domain.RssClientView) ([]message.Message, error) {
@@ -43,7 +43,7 @@ func formatRssViewToMessagesSlice(view *domain.RssClientView) ([]message.Message
 	// 订阅源头图
 	toastPic, err := text.RenderToBase64(fmt.Sprintf("%s\n\n\n%s\n\n\n更新时间:%v\n\n\n",
 		view.Source.Title, view.Source.Link, view.Source.UpdatedParsed.Format(time.DateTime)),
-		text.SakuraFontFile, 800, 40)
+		text.SakuraFontFile, 1200, 40)
 	if err != nil {
 		return nil, err
 	}
@@ -56,14 +56,14 @@ func formatRssViewToMessagesSlice(view *domain.RssClientView) ([]message.Message
 			contentStr += fmt.Sprintf("更新时间：\n%v\n", item.Date.Format(time.DateTime))
 		}
 		var content []byte
-		content, err = text.RenderToBase64(contentStr, text.SakuraFontFile, 800, 40)
+		content, err = text.RenderToBase64(contentStr, text.SakuraFontFile, 1200, 40)
 		if err != nil {
 			logrus.WithError(err).Error("RssHub订阅姬渲染图片失败")
 			continue
 		}
 		itemMessagePic := message.Message{message.Image("base64://" + binary.BytesToString(content))}
 		fv[2*idx+1] = itemMessagePic
-		fv[2*idx+2] = message.Message{message.Text(fmt.Sprintf("%s", item.Link))}
+		fv[2*idx+2] = message.Message{message.Text(item.Link)}
 	}
 	return fv, nil
 }
