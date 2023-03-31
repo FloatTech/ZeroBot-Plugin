@@ -86,7 +86,7 @@ func init() {
 		if isSubExisted {
 			ctx.SendChain(message.Text("RSS订阅姬：已存在，更新成功"))
 		} else {
-			ctx.SendChain(message.Text("RSS订阅姬：添加成功"))
+			ctx.SendChain(message.Text("RSS订阅姬：添加成功\n", rv.Source.Title))
 		}
 		// 添加成功，发送订阅源快照
 		msg, err := createRssUpdateMsg(ctx, rv)
@@ -141,7 +141,7 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 				continue
 			}
 			logrus.Infof("RssHub插件在群 %d 开始推送 %s", groupID, view.Source.Title)
-			//ctx.SendGroupMessage(groupID, message.Text(view.Source.Title+"\n[RSS订阅姬定时推送]"))
+			ctx.SendGroupMessage(groupID, message.Text(fmt.Sprintf("%s\n该RssHub频道下有更新了哦~", view.Source.Title)))
 			if res := ctx.SendGroupForwardMessage(groupID, msg); !res.Exists() {
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(rssHubPushErrMsg))
 			}
