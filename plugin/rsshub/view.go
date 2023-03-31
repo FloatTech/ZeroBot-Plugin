@@ -33,7 +33,8 @@ func formatRssToTextMsg(view *domain.RssClientView) (msg []string) {
 }
 
 func formatRssToMsg(view *domain.RssClientView) ([]message.Message, error) {
-	fv := make([]message.Message, len(view.Contents)+1)
+	// 2n+1条消息
+	fv := make([]message.Message, len(view.Contents)*2+1)
 	// 订阅源头图
 	toastPic, err := text.RenderToBase64(fmt.Sprintf("%s\n\n\n更新时间:%v\n", view.Source.Title, view.Source.UpdatedParsed.Format(time.ANSIC)), text.SakuraFontFile, 800, 40)
 	if err != nil {
@@ -42,7 +43,6 @@ func formatRssToMsg(view *domain.RssClientView) ([]message.Message, error) {
 	fv[0] = message.Message{message.Image("base64://" + binary.BytesToString(toastPic))}
 	// 元素信息
 	for idx, item := range view.Contents {
-		itemMessage := message.Message{}
 		contentStr := fmt.Sprintf("%s\n\n\n", item.Title)
 		// Date为空时不显示
 		if !item.Date.IsZero() {
@@ -54,8 +54,9 @@ func formatRssToMsg(view *domain.RssClientView) ([]message.Message, error) {
 			logrus.WithError(err).Error("RssHub订阅姬渲染图片失败")
 			continue
 		}
-		itemMessage = append(itemMessage, message.Image("base64://"+binary.BytesToString(content)), message.Text(fmt.Sprintf("\n%s", item.Link)))
-		fv[idx+1] = itemMessage
+		itemMessagePic := message.Message{message.Image("base64://" + binary.BytesToString(content))}
+		fv[2*idx+1] = itemMessagePic
+		fv[2*idx+2] = message.Message{message.Text(fmt.Sprintf("%s", item.Link))}
 	}
 	return fv, nil
 }
