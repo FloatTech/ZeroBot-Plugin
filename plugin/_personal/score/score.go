@@ -16,6 +16,7 @@ import (
 	"time"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/disintegration/imaging"
@@ -223,24 +224,33 @@ func (sdb *score) setData(userinfo userdata) error {
 
 }
 
+type datajson struct {
+	Code string   `json:"code"`
+	Pic  []string `json:"pic"`
+}
+
 // 下载图片
 func initPic() (picFile string, err error) {
-	// defer process.SleepAbout1sTo2s()
+	defer process.SleepAbout1sTo2s()
 	data, err := web.GetData("https://img.moehu.org/pic.php?return=json&id=yu-gi-oh&num=1")
 	if err != nil {
 		return
-	}
-	type datajson struct {
-		Code string
-		pic  []string
 	}
 	parsed := datajson{}
 	err = json.Unmarshal(data, &parsed)
 	if err != nil {
 		return
 	}
-	names := strings.Split(parsed.pic[0], "/")
-	return names[len(names)-1], file.DownloadTo(parsed.pic[0], file.BOTPATH+cachePath+picFile)
+	if len(parsed.Pic) == 0 {
+		return "", errors.New("no picData")
+	}
+	names := strings.Split(parsed.Pic[0], "/")
+	picFile = cachePath + names[len(names)-1]
+	data, err = web.GetData(parsed.Pic[0])
+	if err != nil {
+		return
+	}
+	return picFile, os.WriteFile(picFile, data, 0644)
 }
 func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []byte, err error) {
 	back, err := gg.LoadImage(picFile)
