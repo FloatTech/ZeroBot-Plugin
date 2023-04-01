@@ -123,8 +123,8 @@ func init() {
 		game := newGame(cardData)
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup,
-			zero.RegexRule("^((我猜.+)|提示|取消)"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
-		defer cancel()
+			zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
+		// defer cancel()
 		tick := time.NewTimer(105 * time.Second)
 		over := time.NewTimer(120 * time.Second)
 		var (
@@ -136,6 +136,7 @@ func init() {
 			case <-tick.C:
 				ctx.SendChain(message.Text("还有15s作答时间"))
 			case <-over.C:
+				cancel()
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
 					message.Text("时间超时,游戏结束\n卡名是:\n", cardData.Name),
 					message.ImageBytes(body)))
@@ -144,6 +145,7 @@ func init() {
 				answer := c.Event.Message.String()
 				if answer == "取消" {
 					if c.Event.UserID == ctx.Event.UserID {
+						cancel()
 						tick.Stop()
 						over.Stop()
 						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
@@ -168,6 +170,7 @@ func init() {
 				}
 				messageStr, win := game(answer, tickCount-1, answerCount)
 				if win {
+					cancel()
 					tick.Stop()
 					over.Stop()
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
@@ -176,6 +179,7 @@ func init() {
 					return
 				}
 				if answerCount >= 6 {
+					cancel()
 					tick.Stop()
 					over.Stop()
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
