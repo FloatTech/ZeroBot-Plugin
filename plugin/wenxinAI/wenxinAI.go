@@ -82,7 +82,7 @@ func init() { // 插件主体
 			)
 		}),
 	))
-	cachePath := file.BOTPATH + engine.DataFolder() + "cache/"
+	cachePath := file.BOTPATH + "/" + engine.DataFolder() + "cache/"
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {

@@ -3,6 +3,7 @@ package score
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -47,13 +48,10 @@ type userdata struct {
 	UpdatedAt  int64  // `签到时间`
 	Continuous int    // `连续签到次数`
 	Level      int    // `决斗者等级`
+	Picname    string // `签到图片`
 }
 
-const (
-	backgroundURL = "https://iw233.cn/api.php?sort=pc"
-	referer       = "https://weibo.com/"
-	scoreMax      = 1200
-)
+const scoreMax = 1200
 
 var (
 	scoredata = &score{
@@ -95,10 +93,6 @@ func init() {
 
 	engine.OnFullMatchGroup([]string{"签到", "打卡"}, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
-		picFile := cachePath + time.Now().Format("20060102_") + strconv.FormatInt(uid, 10) + ".png"
-		if err := initPic(picFile); err != nil {
-			return
-		}
 		userinfo := scoredata.getData(uid)
 		userinfo.Uid = uid
 		newName := names.GetNameOf(uid) //更新昵称
@@ -111,6 +105,7 @@ func init() {
 		// 判断是否已经签到过了
 		if time.Now().Format("2006/01/02") == lasttime.Format("2006/01/02") {
 			score := wallet.GetWalletOf(uid)
+			picFile := userinfo.Picname
 			data, err := drawimagePro(&userinfo, score, 0, picFile)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
@@ -118,6 +113,11 @@ func init() {
 			}
 			ctx.SendChain(message.Text("今天已经签到过了"))
 			ctx.SendChain(message.ImageBytes(data))
+			return
+		}
+		picFile, err := initPic()
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
 		// 更新数据
@@ -138,6 +138,7 @@ func init() {
 			return
 		}
 		level, _ := getLevel(userinfo.Level)
+		userinfo.Picname = picFile
 		if err := wallet.InsertWalletOf(uid, add+level*5); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:货币记录失败。", err))
 			return
@@ -223,16 +224,23 @@ func (sdb *score) setData(userinfo userdata) error {
 }
 
 // 下载图片
-func initPic(picFile string) (err error) {
-	if file.IsExist(picFile) {
-		return nil
-	}
+func initPic() (picFile string, err error) {
 	// defer process.SleepAbout1sTo2s()
-	data, err := web.GetData("https://img.moehu.org/pic.php?id=yu-gi-oh")
+	data, err := web.GetData("https://img.moehu.org/pic.php?return=json&id=yu-gi-oh&num=1")
 	if err != nil {
-		return err
+		return
 	}
-	return os.WriteFile(picFile, data, 0644)
+	type datajson struct {
+		Code string
+		pic  []string
+	}
+	parsed := datajson{}
+	err = json.Unmarshal(data, &parsed)
+	if err != nil {
+		return
+	}
+	names := strings.Split(parsed.pic[0], "/")
+	return names[len(names)-1], file.DownloadTo(parsed.pic[0], file.BOTPATH+cachePath+picFile)
 }
 func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []byte, err error) {
 	back, err := gg.LoadImage(picFile)

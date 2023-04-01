@@ -105,7 +105,6 @@ func BuildPicWork(token, keyword, picType, picSize string) (taskID int64, err er
 // taskID:任务ID，用于查询结果,如果报错为错误代码
 func BuildImgWork(token, keyword, picType, picSize, image string) (taskID int64, err error) {
 	picfile, err := os.Open(image)
-
 	if err != nil {
 		return
 	}
@@ -113,7 +112,7 @@ func BuildImgWork(token, keyword, picType, picSize, image string) (taskID int64,
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	//使用给出的属性名paramName和文件名filePath创建一个新的form-data头
-	part, err := writer.CreateFormFile("png", filepath.Base(picfile.Name()))
+	part, err := writer.CreateFormFile("image/png", filepath.Base(picfile.Name()))
 	if err != nil {
 		return
 	}
@@ -124,9 +123,14 @@ func BuildImgWork(token, keyword, picType, picSize, image string) (taskID int64,
 	if err != nil {
 		return
 	}
-	requestURL := "https://wenxin.baidu.com/moduleApi/portal/api/rest/1.0/ernievilg/v1/txt2img?access_token=" + url.QueryEscape(token) +
-		"&text=" + keyword + "&style=" + picType + "&resolution=" + picSize // +"&num=6"
-	data, err := web.PostData(requestURL, writer.FormDataContentType(), body)
+	requestURL := "https://wenxin.baidu.com/moduleApi/portal/api/rest/1.0/ernievilg/v1/txt2img?access_token=" + url.QueryEscape(token)
+	postData := url.Values{}
+	postData.Add("text", keyword)
+	postData.Add("style", picType)
+	postData.Add("resolution", picSize)
+	postData.Add("image", body.String())
+	// postData.Add("num", "6")
+	data, err := web.PostData(requestURL, "application/form-data", strings.NewReader(postData.Encode()))
 	if err != nil {
 		return
 	}
