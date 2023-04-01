@@ -1,3 +1,4 @@
+// Package domain rsshub领域逻辑
 package domain
 
 import (
@@ -24,7 +25,7 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 	for i, channel := range sources {
 		var feed *gofeed.Feed
 		// 从site获取rss内容
-		feed, err = repo.rssHubClient.FetchFeed(rssHubMirrors[0], channel.RssHubFeedPath)
+		feed, err = repo.rssHubClient.FetchFeed(channel.RssHubFeedPath)
 		// 如果获取失败，则跳过
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[rsshub syncRss] fetch path(%+v) error: %v", channel.RssHubFeedPath, err)

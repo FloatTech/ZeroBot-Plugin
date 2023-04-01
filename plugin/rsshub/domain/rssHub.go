@@ -65,7 +65,7 @@ func newRssDomain(dbPath string) (*rssDomain, error) {
 func (repo *rssDomain) Subscribe(ctx context.Context, gid int64, feedPath string) (
 	rv *RssClientView, isChannelExisted, isSubExisted bool, err error) {
 	// 验证
-	feed, err := repo.rssHubClient.FetchFeed(rssHubMirrors[0], feedPath)
+	feed, err := repo.rssHubClient.FetchFeed(feedPath)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[rsshub Subscribe] add source error: %v", err)
 		return

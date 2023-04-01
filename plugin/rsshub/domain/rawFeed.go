@@ -3,8 +3,10 @@ package domain
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/mmcdole/gofeed"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -14,18 +16,42 @@ import (
 //	userHeader   = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36 Edg/84.0.522.63"
 //)
 
+var (
+	// RSSHubMirrors RSSHub镜像站地址列表，第一个为默认地址
+	rssHubMirrors = []string{
+		"https://rsshub.rssforever.com",
+		"https://rss.itggg.cn",
+		"https://rsshub.feeded.xyz",
+	}
+)
+
 // RssHubClient rss hub client (http)
 type RssHubClient struct {
 	*http.Client
 }
 
 // FetchFeed 获取rss feed信息
-func (c *RssHubClient) FetchFeed(domain, path string) (feed *gofeed.Feed, err error) {
+func (c *RssHubClient) FetchFeed(path string) (feed *gofeed.Feed, err error) {
 	var data []byte
-	data, err = web.RequestDataWith(c.Client, domain+path, "GET", "", web.RandUA(), nil)
+	// 遍历 rssHubMirrors，直到获取成功
+	for _, mirror := range rssHubMirrors {
+		data, err = web.RequestDataWith(c.Client, mirror+path, "GET", "", web.RandUA(), nil)
+		if err == nil && len(data) > 0 {
+			break
+		}
+	}
 	if err != nil {
+		logrus.Errorf("[rsshub FetchFeed] fetch feed error: %v", err)
 		return nil, err
 	}
+	if len(data) == 0 {
+		logrus.Errorf("[rsshub FetchFeed] fetch feed error: data is empty")
+		return nil, errors.New("feed data is empty")
+	}
+	//data, err = web.RequestDataWith(c.Client, domain+path, "GET", "", web.RandUA(), nil)
+	//if err != nil {
+	//	return nil, err
+	//}
 	feed, err = gofeed.NewParser().Parse(bytes.NewBuffer(data))
 	if err != nil {
 		return

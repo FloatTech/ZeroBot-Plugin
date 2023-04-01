@@ -14,13 +14,17 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const (
+	rssHubPushErrMsg = "RssHub推送错误"
+)
+
 // 初始化 repo
 var (
 	rssRepo domain.RssDomain
 	initErr error
 	// getRssRepo repo 初始化方法，单例
 	getRssRepo = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		logrus.WithContext(context.Background()).Infoln("RssHub订阅姬：初始化")
+		logrus.Infoln("RssHub订阅姬：初始化")
 		rssRepo, initErr = domain.NewRssDomain(engine.DataFolder() + "rsshub.db")
 		if initErr != nil {
 			ctx.SendChain(message.Text("RssHub订阅姬：初始化失败", initErr.Error()))
@@ -38,22 +42,23 @@ var (
 		Brief:            "RssHub订阅姬",
 		// 详细帮助
 		Help: "RssHub订阅姬desu~ \n" +
-			"支持的详细订阅列表可见 https://rsshub.netlify.app/ \n" +
+			"支持的详细订阅列表文档可见：\n" +
+			"https://rsshub.netlify.app/ \n" +
 			"- 添加rsshub订阅-rsshub路由 \n" +
 			"- 删除rsshub订阅-rsshub路由 \n" +
 			"例：添加rsshub订阅-/a9vg/a9vg\n" +
 			"- 查看rsshub订阅列表 \n" +
 			"- rsshub同步 \n" +
-			"Tips: 需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
+			"Tips: 定时刷新rsshub订阅信息需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
 			"记录在\"@every 10m\"触发的指令)\n" +
 			"rsshub同步",
 		// 插件数据存储路径
 		PrivateDataFolder: "rsshub",
 		OnEnable: func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("RSS订阅姬现在启动了哦"))
+			ctx.SendChain(message.Text("RssHub订阅姬现在启动了哦"))
 		},
 		OnDisable: func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("RSS订阅姬现在关闭了哦"))
+			ctx.SendChain(message.Text("RssHub订阅姬现在关闭了哦"))
 		},
 	}).ApplySingle(zbpCtxExt.DefaultSingle)
 )
@@ -64,7 +69,7 @@ func init() {
 		// 群组-频道推送视图  map[群组]推送内容数组
 		groupToFeedsMap, err := rssRepo.Sync(context.Background())
 		if err != nil {
-			logrus.WithContext(context.Background()).Errorln("rsshub同步失败", err)
+			logrus.Errorln("rsshub同步失败", err)
 			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("rsshub同步失败", err))
 			return
 		}
@@ -80,16 +85,16 @@ func init() {
 		routeStr := ctx.State["regex_matched"].([]string)[1]
 		rv, _, isSubExisted, err := rssRepo.Subscribe(context.Background(), ctx.Event.GroupID, routeStr)
 		if err != nil {
-			ctx.SendChain(message.Text("RSS订阅姬：添加失败", err.Error()))
+			ctx.SendChain(message.Text("RssHub订阅姬：添加失败", err.Error()))
 			return
 		}
 		if isSubExisted {
-			ctx.SendChain(message.Text("RSS订阅姬：已存在，更新成功"))
+			ctx.SendChain(message.Text("RssHub订阅姬：已存在，更新成功"))
 		} else {
-			ctx.SendChain(message.Text("RSS订阅姬：添加成功\n", rv.Source.Title))
+			ctx.SendChain(message.Text("RssHub订阅姬：添加成功\n", rv.Source.Title))
 		}
 		// 添加成功，发送订阅源快照
-		msg, err := createRssUpdateMsg(ctx, rv)
+		msg, err := newRssDetailsMsg(ctx, rv)
 		if len(msg) == 0 || err != nil {
 			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("RssHub推送错误", err))
 			return
@@ -102,21 +107,21 @@ func init() {
 		routeStr := ctx.State["regex_matched"].([]string)[1]
 		err := rssRepo.Unsubscribe(context.Background(), ctx.Event.GroupID, routeStr)
 		if err != nil {
-			ctx.SendChain(message.Text("RSS订阅姬：删除失败 ", err.Error()))
+			ctx.SendChain(message.Text("RssHub订阅姬：删除失败 ", err.Error()))
 			return
 		}
-		ctx.SendChain(message.Text(fmt.Sprintf("RSS订阅姬：删除%s成功", routeStr)))
+		ctx.SendChain(message.Text(fmt.Sprintf("RssHub订阅姬：删除%s成功", routeStr)))
 	})
 	engine.OnFullMatch("查看rsshub订阅列表", zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		rv, err := rssRepo.GetSubscribedChannelsByGroupID(context.Background(), ctx.Event.GroupID)
 		if err != nil {
-			ctx.SendChain(message.Text("RSS订阅姬：查询失败 ", err.Error()))
+			ctx.SendChain(message.Text("RssHub订阅姬：查询失败 ", err.Error()))
 			return
 		}
 		// 添加成功，发送订阅源信息
-		msg, err := createRssSourcesMsg(ctx, rv)
+		msg, err := newRssSourcesMsg(ctx, rv)
 		if err != nil {
-			ctx.SendChain(message.Text("RSS订阅姬：查询失败 ", err.Error()))
+			ctx.SendChain(message.Text("RssHub订阅姬：查询失败 ", err.Error()))
 			return
 		}
 		if len(msg) == 0 {
@@ -135,7 +140,7 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 			if view == nil || len(view.Contents) == 0 {
 				continue
 			}
-			msg, err := createRssUpdateMsg(ctx, view)
+			msg, err := newRssDetailsMsg(ctx, view)
 			if len(msg) == 0 || err != nil {
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(rssHubPushErrMsg, err))
 				continue
@@ -147,48 +152,4 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 			}
 		}
 	}
-}
-
-func createRssSourcesMsg(ctx *zero.Ctx, view []*domain.RssClientView) (message.Message, error) {
-	var msgSlice []message.Message
-	// 生成消息
-	for _, v := range view {
-		if v == nil {
-			continue
-		}
-		item, err := formatRssViewToMessagesSlice(v)
-		if err != nil {
-			return nil, err
-		}
-		msgSlice = append(msgSlice, item...)
-	}
-	// 伪造一个发送者为RssHub订阅姬的消息节点
-	msg := make(message.Message, len(msgSlice))
-	for i, item := range msgSlice {
-		msg[i] = fakeSenderForwardNode(ctx.Event.SelfID, item...)
-	}
-	return msg, nil
-}
-
-// createRssUpdateMsg Rss更新消息
-func createRssUpdateMsg(ctx *zero.Ctx, view *domain.RssClientView) (message.Message, error) {
-	// 生成消息
-	msgSlice, err := formatRssViewToMessagesSlice(view)
-	if err != nil {
-		return nil, err
-	}
-	// 伪造一个发送者为RssHub订阅姬的消息节点
-	msg := make(message.Message, len(msgSlice))
-	for i, item := range msgSlice {
-		msg[i] = fakeSenderForwardNode(ctx.Event.SelfID, item...)
-	}
-	return msg, nil
-}
-
-// fakeSenderForwardNode 伪造一个发送者为RssHub订阅姬的消息节点，传入userID是为了减少ws io
-func fakeSenderForwardNode(userID int64, msgs ...message.MessageSegment) message.MessageSegment {
-	return message.CustomNode(
-		"RssHub订阅姬",
-		userID,
-		msgs)
 }

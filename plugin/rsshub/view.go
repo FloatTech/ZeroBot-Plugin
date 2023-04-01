@@ -6,12 +6,9 @@ import (
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/sirupsen/logrus"
+	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"time"
-)
-
-const (
-	rssHubPushErrMsg = "RssHub推送错误"
 )
 
 //// formatRssToTextMsg 格式化RssClientView为文本消息
@@ -67,4 +64,49 @@ func formatRssViewToMessagesSlice(view *domain.RssClientView) ([]message.Message
 		fv[2*idx+2] = message.Message{message.Text(item.Link)}
 	}
 	return fv, nil
+}
+
+// newRssSourcesMsg Rss订阅源列表
+func newRssSourcesMsg(ctx *zero.Ctx, view []*domain.RssClientView) (message.Message, error) {
+	var msgSlice []message.Message
+	// 生成消息
+	for _, v := range view {
+		if v == nil {
+			continue
+		}
+		item, err := formatRssViewToMessagesSlice(v)
+		if err != nil {
+			return nil, err
+		}
+		msgSlice = append(msgSlice, item...)
+	}
+	// 伪造一个发送者为RssHub订阅姬的消息节点
+	msg := make(message.Message, len(msgSlice))
+	for i, item := range msgSlice {
+		msg[i] = fakeSenderForwardNode(ctx.Event.SelfID, item...)
+	}
+	return msg, nil
+}
+
+// newRssDetailsMsg Rss订阅源详情（包含文章信息列表）
+func newRssDetailsMsg(ctx *zero.Ctx, view *domain.RssClientView) (message.Message, error) {
+	// 生成消息
+	msgSlice, err := formatRssViewToMessagesSlice(view)
+	if err != nil {
+		return nil, err
+	}
+	// 伪造一个发送者为RssHub订阅姬的消息节点
+	msg := make(message.Message, len(msgSlice))
+	for i, item := range msgSlice {
+		msg[i] = fakeSenderForwardNode(ctx.Event.SelfID, item...)
+	}
+	return msg, nil
+}
+
+// fakeSenderForwardNode 伪造一个发送者为RssHub订阅姬的消息节点
+func fakeSenderForwardNode(userID int64, msgs ...message.MessageSegment) message.MessageSegment {
+	return message.CustomNode(
+		"RssHub订阅姬",
+		userID,
+		msgs)
 }
