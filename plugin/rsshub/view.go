@@ -34,11 +34,12 @@ const (
 
 // formatRssViewToMessagesSlice 格式化RssClientView为消息切片
 func formatRssViewToMessagesSlice(view *domain.RssClientView) ([]message.Message, error) {
-	// 2n+1条消息，如果太长就截短到50
+	// 取前20条
 	cts := view.Contents
-	//if len(cts) > 20 {
-	//	cts = cts[:20]
-	//}
+	if len(cts) > 20 {
+		cts = cts[:20]
+	}
+	// 2n+1条消息
 	fv := make([]message.Message, len(cts)*2+1)
 	// 订阅源头图
 	toastPic, err := text.RenderToBase64(fmt.Sprintf("%s\n\n\n%s\n\n\n更新时间:%v\n\n\n",

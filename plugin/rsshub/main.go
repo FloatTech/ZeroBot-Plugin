@@ -41,7 +41,7 @@ var (
 			"支持的详细订阅列表可见 https://rsshub.netlify.app/ \n" +
 			"- 添加rsshub订阅-rsshub路由 \n" +
 			"- 删除rsshub订阅-rsshub路由 \n" +
-			"例：添加rsshub订阅-/bangumi/tv/calendar/today\n" +
+			"例：添加rsshub订阅-/a9vg/a9vg\n" +
 			"- 查看rsshub订阅列表 \n" +
 			"- rsshub同步 \n" +
 			"Tips: 需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
@@ -95,7 +95,7 @@ func init() {
 			return
 		}
 		if id := ctx.Send(msg).ID(); id == 0 {
-			ctx.SendChain(message.Text("ERROR: 发送失败订阅源快照，可能被风控了"))
+			ctx.SendChain(message.Text("ERROR: 发送订阅源快照失败，可能被风控了"))
 		}
 	})
 	engine.OnRegex(`^删除rsshub订阅-(.+)$`, zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {

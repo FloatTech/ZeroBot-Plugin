@@ -25,14 +25,19 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 		var feed *gofeed.Feed
 		// 从site获取rss内容
 		feed, err = repo.rssHubClient.FetchFeed(rssHubMirrors[0], channel.RssHubFeedPath)
+		// 如果获取失败，则跳过
 		if err != nil {
-			return nil, err
+			logrus.WithContext(ctx).Errorf("[rsshub syncRss] fetch path(%+v) error: %v", channel.RssHubFeedPath, err)
+			continue
 		}
 		rv := convertFeedToRssView(0, channel.RssHubFeedPath, feed)
 		rssView[i] = rv
 	}
 	// 检查频道是否更新
 	for _, cv := range rssView {
+		if cv == nil {
+			continue
+		}
 		var needUpdate bool
 		needUpdate, err = repo.checkSourceNeedUpdate(ctx, cv.Source)
 		if err != nil {
