@@ -25,6 +25,11 @@ import (
 	// wenxin "github.com/FloatTech/AnimeAPI/wenxinAI/ernievilg"
 )
 
+const (
+	mode1 = "文心画图"
+	mode2 = "文心写作"
+)
+
 type keydb struct {
 	db *sql.Sqlite
 	sync.RWMutex
@@ -37,7 +42,7 @@ type apikey struct {
 	SecretKey  string // Secret Key
 	Token      string // AccessToken
 	Updatetime int64  // token的有效时间
-	MaxTimes   int    // 今日上限
+	ErrMsg     string // 上限提醒
 }
 
 var (
@@ -57,8 +62,8 @@ func init() { // 插件主体
 		Brief:            "文心AI画图",
 		Help: "基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +
 			"key申请链接:https://baidu.com/moduleApi/key\n" +
-			"- 为[自己/本群/QQ号/群+群号]设置画图key [API Key] [Secret Key]\n" +
-			"例:\n为自己设置画图key 123 456\n为10086设置画图key 123 456\n为群10010设置画图key 789 101\n" +
+			"- 为[自己/本群/QQ号/群+群号]设置" + mode1 + "key [API Key] [Secret Key]\n" +
+			"例:\n为自己设置" + mode1 + "key 123 456\n为10086设置" + mode1 + "key 123 456\n为群10010设置" + mode1 + "key 789 101\n" +
 			"- 文心画图 ([图片类型] [图片尺寸] )[图片描述]\n" +
 			"————————————————————\n" +
 			"图片类型默认为二次元\n当前支持:\n" + strings.Join(dtype[:], "、") +
@@ -102,8 +107,8 @@ func init() { // 插件主体
 			uid := -ctx.Event.UserID
 			gid := ctx.Event.GroupID
 			// 获取个人和群的key
-			userinfo, err1 := wenxinvilg.checkGroup(uid, "vilg")
-			info, err2 := wenxinvilg.checkGroup(gid, "vilg")
+			userinfo, err1 := wenxinvilg.checkGroup(uid, mode1)
+			info, err2 := wenxinvilg.checkGroup(gid, mode1)
 			switch {
 			// 如果是个人请求且报错
 			case gid == 0 && err1 != nil:
@@ -112,8 +117,8 @@ func init() { // 插件主体
 			// 如果群报错而个人没有,就切换成个人的
 			case err2 != nil && err1 == nil:
 				info = userinfo
-				if info.MaxTimes == 1 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("日访问量超限")))
+				if info.ErrMsg != "" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(info.ErrMsg)))
 					return
 				}
 			// 如果都报错就以群为优先级
@@ -121,8 +126,8 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err2))
 				return
 			default:
-				if info.MaxTimes == 1 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("日访问量超限")))
+				if info.ErrMsg != "" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(info.ErrMsg)))
 					return
 				}
 			}
@@ -149,8 +154,8 @@ func init() { // 插件主体
 			}
 			taskID, err := BuildPicWork(info.Token, keyword, picType, picSize)
 			if err != nil {
-				if taskID == 17 {
-					if err := wenxinvilg.setTimes(info.ID, "vilg", 1); err != nil {
+				if taskID == 17 || taskID == 19 {
+					if err := wenxinvilg.setTimes(info.ID, mode1, err.Error()); err != nil {
 						ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
 					}
 				}
@@ -178,6 +183,11 @@ func init() { // 插件主体
 				// 获取结果*/
 				picURL, status, err := GetPicResult(info.Token, taskID)
 				if err != nil {
+					if status == 17 || status == 19 {
+						if err := wenxinvilg.setTimes(info.ID, mode1, err.Error()); err != nil {
+							ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
+						}
+					}
 					ctx.SendChain(message.Text("[wenxinvilg]ERROR", taskID, ":\n", err))
 					return
 				}
@@ -212,8 +222,8 @@ func init() { // 插件主体
 				return
 			}
 			// 获取个人和群的key
-			userinfo, err1 := wenxinvilg.checkGroup(uid, "vilg")
-			info, err2 := wenxinvilg.checkGroup(gid, "vilg")
+			userinfo, err1 := wenxinvilg.checkGroup(uid, mode1)
+			info, err2 := wenxinvilg.checkGroup(gid, mode1)
 			switch {
 			// 如果是个人请求且报错
 			case gid == 0 && err1 != nil:
@@ -222,8 +232,8 @@ func init() { // 插件主体
 			// 如果群报错而个人没有,就切换成个人的
 			case err2 != nil && err1 == nil:
 				info = userinfo
-				if info.MaxTimes == 1 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("日访问量超限")))
+				if info.ErrMsg != "" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(info.ErrMsg)))
 					return
 				}
 			// 如果都报错就以群为优先级
@@ -231,8 +241,8 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err2))
 				return
 			default:
-				if info.MaxTimes == 1 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("日访问量超限")))
+				if info.ErrMsg != "" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(info.ErrMsg)))
 					return
 				}
 			}
@@ -259,8 +269,8 @@ func init() { // 插件主体
 			}
 			taskID, err := BuildImgWork(info.Token, keyword, picType, picSize, cachePic)
 			if err != nil {
-				if taskID == 17 {
-					if err := wenxinvilg.setTimes(info.ID, "vilg", 1); err != nil {
+				if taskID == 17 || taskID == 19 {
+					if err := wenxinvilg.setTimes(info.ID, mode1, err.Error()); err != nil {
 						ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
 					}
 				}
@@ -288,6 +298,11 @@ func init() { // 插件主体
 				// 获取结果*/
 				picURL, status, err := GetPicResult(info.Token, taskID)
 				if err != nil {
+					if status == 17 || status == 19 {
+						if err := wenxinvilg.setTimes(info.ID, mode1, err.Error()); err != nil {
+							ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
+						}
+					}
 					ctx.SendChain(message.Text("[wenxinvilg]ERROR", status, ":\n", err))
 					return
 				}
@@ -306,7 +321,7 @@ func init() { // 插件主体
 				}
 			}
 		})
-	engine.OnRegex(`^为(群)?(自己|本群|\d+)设置画图key\s(.*[^\s$])\s(.+)$`, getdb).SetBlock(true).
+	engine.OnRegex(`^为(群)?(自己|本群|\d+)设置`+mode1+`key\s(.*[^\s$])\s(.+)$`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			mode := ctx.State["regex_matched"].([]string)[1]
 			user := ctx.State["regex_matched"].([]string)[2]
@@ -324,7 +339,7 @@ func init() { // 插件主体
 			case user == "本群": // 用于本群
 				gid := ctx.Event.GroupID
 				if gid == 0 {
-					ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", "请指定群聊,或者使用指令；\n为群xxx设置AI画图key xxx xxx"))
+					ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", "请指定群聊,或者使用指令；\n为群xxx设置"+mode1+"key xxx xxx"))
 					return
 				}
 				dbID = gid
@@ -336,7 +351,7 @@ func init() { // 插件主体
 				}
 				dbID = -uid
 			}
-			err := wenxinvilg.insert(dbID, "vilg", aKey, sKey)
+			err := wenxinvilg.insert(dbID, mode1, aKey, sKey)
 			if err != nil {
 				ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
 				return
@@ -349,8 +364,8 @@ func init() { // 插件主体
 		Brief:            "文心AI文本处理",
 		Help: "基于百度文心AI的API文本处理\n" +
 			"key申请链接:https://baidu.com/moduleApi/key\n" +
-			"- 为[自己/本群/QQ号/群+群号]设置文心key [API Key] [Secret Key]\n" +
-			"例:\n为自己设置文心key 123 456\n为10086设置文心key 123 456\n为群10010设置文心key 789 101\n" +
+			"- 为[自己/本群/QQ号/群+群号]设置" + mode2 + "key [API Key] [Secret Key]\n" +
+			"例:\n为自己设置" + mode2 + "key 123 456\n为10086设置" + mode2 + "key 123 456\n为群10010设置" + mode2 + "key 789 101\n" +
 			"———————使用说明———————\n" +
 			"---- {content} 表示给出此处文本----\n" +
 			"---- [MASK] 表示给出此处问题----\n" +
@@ -382,7 +397,7 @@ func init() { // 插件主体
 			)
 		}),
 	))
-	en.OnRegex(`^为(群)?(自己|本群|\d+)设置文心key\s(.*[^\s$])\s(.+)$`, getdb).SetBlock(true).
+	en.OnRegex(`^为(群)?(自己|本群|\d+)设置`+mode2+`key\s(.*[^\s$])\s(.+)$`, getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			mode := ctx.State["regex_matched"].([]string)[1]
 			user := ctx.State["regex_matched"].([]string)[2]
@@ -400,7 +415,7 @@ func init() { // 插件主体
 			case user == "本群": // 用于本群
 				gid := ctx.Event.GroupID
 				if gid == 0 {
-					ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", "请指定群聊,或者使用指令；\n为群xxx设置AI画图key xxx xxx"))
+					ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", "请指定群聊,或者使用指令；\n为群xxx设置"+mode2+"key xxx xxx"))
 					return
 				}
 				dbID = gid
@@ -412,7 +427,7 @@ func init() { // 插件主体
 				}
 				dbID = -uid
 			}
-			err := wenxinvilg.insert(dbID, "text", aKey, sKey)
+			err := wenxinvilg.insert(dbID, mode2, aKey, sKey)
 			if err != nil {
 				ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
 				return
@@ -439,8 +454,8 @@ func init() { // 插件主体
 			uid := -ctx.Event.UserID
 			gid := ctx.Event.GroupID
 			// 获取个人和群的key
-			userinfo, err1 := wenxinvilg.checkGroup(uid, "vilg")
-			info, err2 := wenxinvilg.checkGroup(gid, "vilg")
+			userinfo, err1 := wenxinvilg.checkGroup(uid, mode2)
+			info, err2 := wenxinvilg.checkGroup(gid, mode2)
 			switch {
 			// 如果是个人请求且报错
 			case gid == 0 && err1 != nil:
@@ -449,8 +464,8 @@ func init() { // 插件主体
 			// 如果群报错而个人没有,就切换成个人的
 			case err2 != nil && err1 == nil:
 				info = userinfo
-				if info.MaxTimes == 1 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("日访问量超限")))
+				if info.ErrMsg != "" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(info.ErrMsg)))
 					return
 				}
 			// 如果都报错就以群为优先级
@@ -458,8 +473,8 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err2))
 				return
 			default:
-				if info.MaxTimes == 1 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("日访问量超限")))
+				if info.ErrMsg != "" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(info.ErrMsg)))
 					return
 				}
 			}
@@ -477,8 +492,8 @@ func init() { // 插件主体
 			}
 			taskID, err := BuildTextWork(info.Token, keyword, prompt.world, prompt.ID)
 			if err != nil {
-				if taskID == 17 {
-					if err := wenxinvilg.setTimes(info.ID, "text", 1); err != nil {
+				if taskID == 17 || taskID == 19 {
+					if err := wenxinvilg.setTimes(info.ID, mode2, err.Error()); err != nil {
 						ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
 					}
 				}
@@ -507,15 +522,17 @@ func init() { // 插件主体
 				// 获取结果*/
 				msgresult, status, err := GetTextResult(info.Token, taskID)
 				if err != nil {
+					if status == 17 || status == 19 {
+						if err := wenxinvilg.setTimes(info.ID, mode2, err.Error()); err != nil {
+							ctx.SendChain(message.Text("[wenxinvilg]ERROR:\n", err))
+						}
+					}
 					ctx.SendChain(message.Text("[wenxinvilg]ERROR", taskID, ":\n", err))
 					return
 				}
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(msgresult, "\n(用时", lastTime, ")")))
-					return
-				} else {
-					ctx.SendChain(message.Text("[wenxinvilg]ERROR: 请求超时!"))
 					return
 				}
 			}
@@ -524,58 +541,69 @@ func init() { // 插件主体
 
 // 登记group的key
 func (sql *keydb) insert(gid int64, genre, akey, skey string) error {
+	mode := "vilg"
+	if genre == mode2 {
+		mode = "text"
+	}
 	sql.Lock()
 	defer sql.Unlock()
 	// 给db文件创建表格(没有才创建),表格名称groupinfo,表格结构apikey
-	err := sql.db.Create(genre, &apikey{})
+	err := sql.db.Create(mode, &apikey{})
 	if err != nil {
 		return err
 	}
 	// 进行更新
-	return sql.db.Insert(genre, &apikey{
+	return sql.db.Insert(mode, &apikey{
 		ID:        gid,
 		APIKey:    akey,
 		SecretKey: skey,
-		MaxTimes:  0,
 	})
 }
 
 // 登记group的key
-func (sql *keydb) setTimes(gid int64, genre string, set int) error {
+func (sql *keydb) setTimes(gid int64, genre string, msg string) error {
+	mode := "vilg"
+	if genre == mode2 {
+		mode = "text"
+	}
 	sql.Lock()
 	defer sql.Unlock()
 	// 给db文件创建表格(没有才创建),表格名称groupinfo,表格结构apikey
-	err := sql.db.Create(genre, &apikey{})
+	err := sql.db.Create(mode, &apikey{})
 	if err != nil {
 		return err
 	}
 	info := apikey{}
-	_ = sql.db.Find(genre, &info, "where ID is "+strconv.FormatInt(gid, 10))
-	info.MaxTimes = set
+	_ = sql.db.Find(mode, &info, "where ID is "+strconv.FormatInt(gid, 10))
+	info.ErrMsg = msg
 	// 进行更新
-	return sql.db.Insert(genre, &info)
+	return sql.db.Insert(mode, &info)
 }
 
 // 获取group信息
-func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err error) {
+func (sql *keydb) checkGroup(gid int64, genre string) (groupinfo apikey, err error) {
+	mode := "vilg"
+	if genre == mode2 {
+		mode = "text"
+	}
 	sql.Lock()
 	defer sql.Unlock()
 	// 给db文件创建表格(没有才创建),表格名称groupinfo,表格结构apikey
-	err = sql.db.Create(model, &apikey{})
+	err = sql.db.Create(mode, &apikey{})
 	if err != nil {
 		return
 	}
 	// 先判断该群是否已经设置过key了
-	if ok := sql.db.CanFind(model, "where ID is "+strconv.FormatInt(gid, 10)); !ok {
+	if ok := sql.db.CanFind(mode, "where ID is "+strconv.FormatInt(gid, 10)); !ok {
 		if gid > 0 {
-			err = errors.New("该群没有设置过apikey,请前往https://baidu.com/moduleApi/key获取key值后,发送指令:\n为本群设置" + model + "key [API Key] [Secret Key]\n或\n为自己设置" + model + "key [API Key] [Secret Key]")
+			err = errors.New("该群没有设置过apikey,请前往https://baidu.com/moduleApi/key获取key值后,发送指令:\n为本群设置" + genre + "key [API Key] [Secret Key]\n或\n为自己设置" + genre + "key [API Key] [Secret Key]")
 		} else {
-			err = errors.New("你没有设置过apikey,请前往https://baidu.com/moduleApi/key获取key值后,发送指令:\n为自己设置" + model + "key [API Key] [Secret Key]")
+			err = errors.New("你没有设置过apikey,请前往https://baidu.com/moduleApi/key获取key值后,发送指令:\n为自己设置" + genre + "key [API Key] [Secret Key]")
 		}
 		return
 	}
 	// 获取group信息
-	err = sql.db.Find(model, &groupinfo, "where ID is "+strconv.FormatInt(gid, 10))
+	err = sql.db.Find(mode, &groupinfo, "where ID is "+strconv.FormatInt(gid, 10))
 	if err != nil {
 		return
 	}
@@ -583,16 +611,15 @@ func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err err
 	if time.Since(time.Unix(groupinfo.Updatetime, 0)).Hours() > 24 || groupinfo.Token == "" {
 		token, code, err := GetToken(groupinfo.APIKey, groupinfo.SecretKey)
 		if err != nil {
-			if code == 17 {
-				groupinfo.MaxTimes = 1
+			if code == 17 || code == 19 {
+				groupinfo.ErrMsg = err.Error()
+				_ = sql.db.Insert(mode, &groupinfo)
 			}
-			_ = sql.db.Insert(model, &groupinfo)
 			return groupinfo, err
 		}
 		groupinfo.Token = token
-		groupinfo.MaxTimes = 0
 		groupinfo.Updatetime = time.Now().Unix()
-		_ = sql.db.Insert(model, &groupinfo)
+		_ = sql.db.Insert(mode, &groupinfo)
 	}
 	return
 }

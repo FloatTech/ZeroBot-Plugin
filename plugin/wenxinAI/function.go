@@ -17,7 +17,7 @@ import (
 )
 
 type tokendata struct {
-	Code int    `json:"code"`
+	Code int64  `json:"code"`
 	Msg  string `json:"msg"`
 	Data string `json:"data"`
 }
@@ -29,7 +29,7 @@ type tokendata struct {
 // clientID为API key,clientSecret为Secret key
 //
 // token有效时间为24小时
-func GetToken(clientID, clientSecret string) (token string, code int, err error) {
+func GetToken(clientID, clientSecret string) (token string, code int64, err error) {
 	requestURL := "https://wenxin.baidu.com/moduleApi/portal/api/oauth/token?grant_type=client_credentials&client_id=" + url.QueryEscape(clientID) + "&client_secret=" + url.QueryEscape(clientSecret)
 	data, err := web.PostData(requestURL, "application/x-www-form-urlencoded", nil)
 	if err != nil {
@@ -196,6 +196,7 @@ func BuildTextWork(token, keyword, prompt string, style int) (taskID int64, err 
 //
 // stauts:结果状态,如果报错为错误代码
 func GetPicResult(token string, taskID int64) (picurls []picURL, status int64, err error) {
+	picurls = make([]picURL, 0, 10)
 	requestURL := "https://wenxin.baidu.com/moduleApi/portal/api/rest/1.0/ernievilg/v1/getImg?access_token=" + url.QueryEscape(token)
 	postData := url.Values{}
 	postData.Add("taskId", strconv.FormatInt(taskID, 10))
@@ -269,7 +270,7 @@ type msgresult struct {
 		CreateTime string `json:"createTime"`
 		RequestID  string `json:"requestId"`
 		Text       string `json:"text"`
-		TaskId     int64  `json:"taskId"`
+		TaskID     int64  `json:"taskId"`
 		Status     int64  `json:"status"`
 	} `json:"data"`
 }
