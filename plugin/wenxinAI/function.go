@@ -231,7 +231,7 @@ type picdata struct {
 	} `json:"data"`
 }
 
-// picURL ...
+// PicURL ...
 type PicURL struct {
 	Image string      `json:"image"`
 	Score interface{} `json:"score"`
