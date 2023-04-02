@@ -16,10 +16,11 @@ import (
 
 func init() {
 	engine.OnRegex(`^喂猫((\d+(.\d+)?)斤猫粮)?|猫猫状态$`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
-		if now := time.Now().Hour(); (now >= 6 && now <= 8) || (now >= 11 && now <= 13) || (now >= 17 && now <= 19) {
+		if now := time.Now().Hour(); (now >= 6 && now <= 8) || (now >= 11 && now <= 13) || (now >= 17 && now <= 19) || ctx.State["regex_matched"].([]string)[0] == "猫猫状态" {
 			return true
 		}
-		return ctx.State["regex_matched"].([]string)[0] == "猫猫状态"
+		ctx.SendChain(message.Text("猫猫只想和你一起吃传统早中晚饭咧"))
+		return false
 	}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)

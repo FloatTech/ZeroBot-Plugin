@@ -3,10 +3,15 @@ package ygosem
 
 import (
 	"errors"
+	"math/rand"
+	"os"
+	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/FloatTech/floatbox/web"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 type gameCardInfo struct {
@@ -20,6 +25,57 @@ type gameCardInfo struct {
 	Def     string // 防御力
 	Depict  string // 效果
 	Maxcard string // 是否是分享的开关
+}
+
+// web获取卡片信息
+func getSemData() (cardData gameCardInfo, picFile string, err error) {
+	url := "https://www.ygo-sem.cn/Cards/Default.aspx"
+	// 请求html页面
+	body, err := web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
+	if err != nil {
+		return
+	}
+	// 获取卡牌数量
+	listmax := regexp.MustCompile(`条 共:\s*(?s:(.*?))\s*条</span>`).FindAllStringSubmatch(helper.BytesToString(body), -1)
+	if len(listmax) == 0 {
+		err = errors.New("数据存在错误: 无法获取当前卡池数量")
+		return
+	}
+	maxnumber, _ := strconv.Atoi(listmax[0][1])
+	drawCard := strconv.Itoa(rand.Intn(maxnumber + 1))
+	url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + drawCard
+	// 获取卡片信息
+	body, err = web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
+	// 获取卡面信息
+	cardData = getCarddata(helper.BytesToString(body))
+	if reflect.DeepEqual(cardData, gameCardInfo{}) {
+		err = errors.New("数据存在错误: 无法获取卡片信息")
+		return
+	}
+	cardData.Depict = strings.ReplaceAll(cardData.Depict, "\n\r", "")
+	cardData.Depict = strings.ReplaceAll(cardData.Depict, "\n", "")
+	cardData.Depict = strings.ReplaceAll(cardData.Depict, " ", "")
+	field := regexpmatch(`「(?s:(.*?))」`, cardData.Depict)
+	if len(field) != 0 {
+		for i := 0; i < len(field); i++ {
+			cardData.Depict = strings.ReplaceAll(cardData.Depict, field[i][0], "「xxx」")
+		}
+	}
+	// 获取卡图连接
+	picHref := regexp.MustCompile(`picsCN(/\d+/\d+).jpg`).FindAllStringSubmatch(helper.BytesToString(body), -1)
+	if len(picHref) == 0 {
+		err = errors.New("数据存在错误: 无法获取卡图信息")
+		return
+	}
+	url = "https://www.ygo-sem.cn/yugioh/larg/" + picHref[0][1] + ".jpg"
+	picByte, err := web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
+	if err == nil {
+		mu.Lock()
+		defer mu.Unlock()
+		picFile = cardData.Name + ".jpg"
+		err = os.WriteFile(cachePath+picFile, picByte, 0644)
+	}
+	return
 }
 
 // 正则筛选数据

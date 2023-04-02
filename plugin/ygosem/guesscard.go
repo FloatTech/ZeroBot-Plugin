@@ -2,26 +2,27 @@
 package ygosem
 
 import (
-	"bytes"
 	"image"
 	"image/color"
 	"math/rand"
-	"reflect"
-	"regexp"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
-	"github.com/FloatTech/floatbox/web"
+	"github.com/FloatTech/gg"
 	"github.com/FloatTech/imgfactory"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
@@ -29,11 +30,21 @@ const (
 	ua     = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"
 )
 
-func init() {
-	engine := control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "游戏王猜卡游戏",
-		Help:             "-猜卡游戏\n-(黑边|反色|马赛克|旋转|切图)猜卡游戏",
+type carddb struct {
+	db *sql.Sqlite
+	sync.RWMutex
+}
+
+var (
+	mu        sync.RWMutex
+	carddatas = &carddb{
+		db: &sql.Sqlite{},
+	}
+	engine = control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault:  false,
+		Brief:             "游戏王猜卡游戏",
+		Help:              "-猜卡游戏\n-(黑边|反色|马赛克|旋转|切图)猜卡游戏",
+		PrivateDataFolder: "ygosemdata",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -44,7 +55,31 @@ func init() {
 			)
 		}),
 	))
-	engine.OnRegex("^(黑边|反色|马赛克|旋转|切图)?猜卡游戏$", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	cachePath = engine.DataFolder() + "pics/"
+	getdb     = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		carddatas.db.DBPath = engine.DataFolder() + "carddata.db"
+		err := carddatas.db.Open(time.Hour * 24)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return false
+		}
+		err = carddatas.db.Create("cards", &picInfos{})
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return false
+		}
+		return true
+	})
+)
+
+func init() {
+	go func() {
+		err := os.MkdirAll(cachePath, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}()
+	engine.OnRegex("^(黑边|反色|马赛克|旋转|切图)?猜卡游戏$", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("正在准备题目,请稍等"))
 		mode := -1
 		switch ctx.State["regex_matched"].([]string)[1] {
@@ -59,68 +94,29 @@ func init() {
 		case "切图":
 			mode = 4
 		}
-		url := "https://www.ygo-sem.cn/Cards/Default.aspx"
-		// 请求html页面
-		body, err := web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
-		if err != nil {
+		semdata, picFile, err := getSemData()
+		if err == nil {
+			err = carddatas.insert(picInfos{text: semdata, picFile: picFile})
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]", err))
+			}
+		} else {
 			ctx.SendChain(message.Text("[ERROR]", err))
-			return
-		}
-		// 获取卡牌数量
-		listmax := regexp.MustCompile(`条 共:\s*(?s:(.*?))\s*条</span>`).FindAllStringSubmatch(helper.BytesToString(body), -1)
-		if len(listmax) == 0 {
-			ctx.SendChain(message.Text("数据存在错误: 无法获取当前卡池数量"))
-			return
-		}
-		maxnumber, _ := strconv.Atoi(listmax[0][1])
-		drawCard := strconv.Itoa(rand.Intn(maxnumber + 1))
-		url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + drawCard
-		// 获取卡片信息
-		body, err = web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]", err))
-			return
-		}
-		// 获取卡面信息
-		cardData := getCarddata(helper.BytesToString(body))
-		if reflect.DeepEqual(cardData, gameCardInfo{}) {
-			ctx.SendChain(message.Text("数据存在错误: 无法获取卡片信息"))
-			return
-		}
-		cardData.Depict = strings.ReplaceAll(cardData.Depict, "\n\r", "")
-		cardData.Depict = strings.ReplaceAll(cardData.Depict, "\n", "")
-		cardData.Depict = strings.ReplaceAll(cardData.Depict, " ", "")
-		field := regexpmatch(`「(?s:(.*?))」`, cardData.Depict)
-		if len(field) != 0 {
-			for i := 0; i < len(field); i++ {
-				cardData.Depict = strings.ReplaceAll(cardData.Depict, field[i][0], "「xxx」")
+			semdata, picFile, err = carddatas.pick()
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]", err))
+				return
 			}
 		}
-		// 获取卡图连接
-		picHref := regexp.MustCompile(`picsCN(/\d+/\d+).jpg`).FindAllStringSubmatch(helper.BytesToString(body), -1)
-		if len(picHref) == 0 {
-			ctx.SendChain(message.Text("数据存在错误: 无法获取卡图信息"))
-			return
-		}
-		url = "https://www.ygo-sem.cn/yugioh/larg/" + picHref[0][1] + ".jpg"
-		body, err = web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]", err))
-			return
-		}
+		picFile = cachePath + picFile
 		// 对卡图做处理
-		pic, _, err := image.Decode(bytes.NewReader(body))
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]", err))
-			return
-		}
-		pictrue, err := randPicture(pic, mode)
+		pictrue, err := randPicture(picFile, mode)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
 			return
 		}
 		// 进行猜卡环节
-		game := newGame(cardData)
+		game := newGame(semdata)
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup,
 			zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
@@ -138,8 +134,8 @@ func init() {
 			case <-over.C:
 				cancel()
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("时间超时,游戏结束\n卡名是:\n", cardData.Name),
-					message.ImageBytes(body)))
+					message.Text("时间超时,游戏结束\n卡名是:\n", semdata.Name),
+					message.Image("file:///"+file.BOTPATH+"/"+picFile)))
 				return
 			case c := <-recv:
 				answer := c.Event.Message.String()
@@ -149,8 +145,8 @@ func init() {
 						tick.Stop()
 						over.Stop()
 						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("游戏已取消\n卡名是:\n", cardData.Name),
-							message.ImageBytes(body)))
+							message.Text("游戏已取消\n卡名是:\n", semdata.Name),
+							message.Image("file:///"+file.BOTPATH+"/"+picFile)))
 						return
 					}
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("你无权限取消")))
@@ -175,7 +171,7 @@ func init() {
 					over.Stop()
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
 						message.Text(messageStr),
-						message.ImageBytes(body)))
+						message.Image("file:///"+file.BOTPATH+"/"+picFile)))
 					return
 				}
 				if answerCount >= 6 {
@@ -183,8 +179,8 @@ func init() {
 					tick.Stop()
 					over.Stop()
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n"+cardData.Name),
-						message.ImageBytes(body)))
+						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n"+semdata.Name),
+						message.Image("file:///"+file.BOTPATH+"/"+picFile)))
 					return
 				}
 				tick.Reset(105 * time.Second)
@@ -196,7 +192,11 @@ func init() {
 }
 
 // 随机选择
-func randPicture(pic image.Image, mode int) ([]byte, error) {
+func randPicture(picFile string, mode int) ([]byte, error) {
+	pic, err := gg.LoadImage(picFile)
+	if err != nil {
+		return nil, err
+	}
 	dst := imgfactory.Size(pic, 256*5, 256*5)
 	if mode == -1 {
 		mode = rand.Intn(5)
@@ -406,4 +406,30 @@ func getTips(cardData gameCardInfo, quitCount int) string {
 		}
 		return textrand[rand.Intn(len(textrand))]
 	}
+}
+
+type picInfos struct {
+	text    gameCardInfo
+	picFile string
+}
+
+func (sql *carddb) insert(dbInfo picInfos) error {
+	sql.Lock()
+	defer sql.Unlock()
+	err := sql.db.Create("cards", &picInfos{})
+	if err == nil {
+		return err
+	}
+	return sql.db.Insert("cards", &dbInfo)
+}
+
+func (sql *carddb) pick() (dbInfo gameCardInfo, picFile string, err error) {
+	sql.RLock()
+	defer sql.RUnlock()
+	info := picInfos{}
+	err = sql.db.Pick("cards", &info)
+	if err != nil {
+		return
+	}
+	return info.text, info.picFile, nil
 }
