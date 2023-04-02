@@ -181,7 +181,7 @@ func init() { // 插件主体
 						return
 					}
 				// 获取结果*/
-				picURL, status, err := GetPicResult(info.Token, taskID)
+				picURLs, status, err := GetPicResult(info.Token, taskID)
 				if err != nil {
 					if status == 17 || status == 19 {
 						if err := wenxinvilg.setTimes(info.ID, mode1, err.Error()); err != nil {
@@ -194,7 +194,7 @@ func init() { // 插件主体
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
-					for _, imginfo := range picURL {
+					for _, imginfo := range picURLs {
 						msg = append(msg,
 							ctxext.FakeSenderForwardNode(ctx,
 								message.Image(imginfo.Image)))
@@ -296,7 +296,7 @@ func init() { // 插件主体
 						return
 					}
 				// 获取结果*/
-				picURL, status, err := GetPicResult(info.Token, taskID)
+				picURLs, status, err := GetPicResult(info.Token, taskID)
 				if err != nil {
 					if status == 17 || status == 19 {
 						if err := wenxinvilg.setTimes(info.ID, mode1, err.Error()); err != nil {
@@ -309,7 +309,7 @@ func init() { // 插件主体
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
-					for _, imginfo := range picURL {
+					for _, imginfo := range picURLs {
 						msg = append(msg,
 							ctxext.FakeSenderForwardNode(ctx,
 								message.Image(imginfo.Image)))
