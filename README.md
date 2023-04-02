@@ -1202,6 +1202,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>RssHub订阅姬</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/rsshub"`
+
+- [x] 添加rsshub订阅-[rsshub路由]
+- [x] 删除rsshub订阅-[rsshub路由]
+- [x] 查看rsshub订阅列表
+- [x] rsshub同步 (使用job执行定时任务------记录在"@every 10m"触发的指令)
+  1. 记录在"@every 10m"触发的指令  
+  2. rsshub同步  
+- 注：本插件数据源为[RssHub](https://rsshub.netlify.app/)以及其镜像站，具体支持的路由可以参考[RssHub文档](https://docs.rsshub.app/)。
+
+</details>
+<details>
   <summary>在线代码运行</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
