@@ -46,6 +46,9 @@ func getSemData() (cardData gameCardInfo, picFile string, err error) {
 	url = "https://www.ygo-sem.cn/Cards/S.aspx?q=" + drawCard
 	// 获取卡片信息
 	body, err = web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
+	if err != nil {
+		return
+	}
 	// 获取卡面信息
 	cardData = getCarddata(helper.BytesToString(body))
 	if reflect.DeepEqual(cardData, gameCardInfo{}) {
