@@ -195,8 +195,7 @@ func BuildTextWork(token, keyword, prompt string, style int) (taskID int64, err 
 // 评分目前都是null,我不知道有什么用，既然API预留了，我也预留吧
 //
 // stauts:结果状态,如果报错为错误代码
-func GetPicResult(token string, taskID int64) (picurls []picURL, status int64, err error) {
-	picurls = make([]picURL, 0, 10)
+func GetPicResult(token string, taskID int64) (picurls picURLs, status int64, err error) {
 	requestURL := "https://wenxin.baidu.com/moduleApi/portal/api/rest/1.0/ernievilg/v1/getImg?access_token=" + url.QueryEscape(token)
 	postData := url.Values{}
 	postData.Add("taskId", strconv.FormatInt(taskID, 10))
@@ -219,18 +218,19 @@ type picdata struct {
 	Code int64  `json:"code"`
 	Msg  string `json:"msg"`
 	Data struct {
-		Img        string   `json:"img"`
-		Waiting    string   `json:"waiting"`
-		ImgUrls    []picURL `json:"imgUrls"`
-		CreateTime string   `json:"createTime"`
-		RequestID  string   `json:"requestId"`
-		Style      string   `json:"style"`
-		Text       string   `json:"text"`
-		Resolution string   `json:"resolution"`
-		TaskID     int64    `json:"taskId"`
-		Status     int64    `json:"status"`
+		Img        string  `json:"img"`
+		Waiting    string  `json:"waiting"`
+		ImgUrls    picURLs `json:"imgUrls"`
+		CreateTime string  `json:"createTime"`
+		RequestID  string  `json:"requestId"`
+		Style      string  `json:"style"`
+		Text       string  `json:"text"`
+		Resolution string  `json:"resolution"`
+		TaskID     int64   `json:"taskId"`
+		Status     int64   `json:"status"`
 	} `json:"data"`
 }
+type picURLs []picURL
 
 // picURL ...
 type picURL struct {
