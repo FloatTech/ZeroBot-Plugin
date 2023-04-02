@@ -44,7 +44,7 @@ var (
 		DisableOnDefault:  false,
 		Brief:             "游戏王猜卡游戏",
 		Help:              "-猜卡游戏\n-(黑边|反色|马赛克|旋转|切图)猜卡游戏",
-		PrivateDataFolder: "ygosemdata",
+		PrivateDataFolder: "ygosem",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
@@ -63,7 +63,7 @@ var (
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
 		}
-		err = carddatas.db.Create("cards", &picInfos{})
+		err = carddatas.db.Create("cards", &gameCardInfo{})
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
@@ -96,17 +96,18 @@ func init() {
 		}
 		semdata, picFile, err := getSemData()
 		if err == nil {
-			err = carddatas.insert(picInfos{text: semdata, picFile: picFile})
+			err = carddatas.insert(semdata)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]", err))
 			}
 		} else {
 			ctx.SendChain(message.Text("[ERROR]", err))
-			semdata, picFile, err = carddatas.pick()
+			semdata, err = carddatas.pick()
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]", err))
 				return
 			}
+			picFile = semdata.PicFile
 		}
 		picFile = cachePath + picFile
 		// 对卡图做处理
@@ -408,28 +409,22 @@ func getTips(cardData gameCardInfo, quitCount int) string {
 	}
 }
 
-type picInfos struct {
-	text    gameCardInfo
-	picFile string
-}
-
-func (sql *carddb) insert(dbInfo picInfos) error {
+func (sql *carddb) insert(dbInfo gameCardInfo) error {
 	sql.Lock()
 	defer sql.Unlock()
-	err := sql.db.Create("cards", &picInfos{})
+	err := sql.db.Create("cards", &gameCardInfo{})
 	if err == nil {
-		return err
+		return sql.db.Insert("cards", &dbInfo)
 	}
-	return sql.db.Insert("cards", &dbInfo)
+	return err
 }
 
-func (sql *carddb) pick() (dbInfo gameCardInfo, picFile string, err error) {
+func (sql *carddb) pick() (dbInfo gameCardInfo, err error) {
 	sql.RLock()
 	defer sql.RUnlock()
-	info := picInfos{}
-	err = sql.db.Pick("cards", &info)
-	if err != nil {
-		return
+	err = sql.db.Create("cards", &gameCardInfo{})
+	if err == nil {
+		err = sql.db.Pick("cards", &dbInfo)
 	}
-	return info.text, info.picFile, nil
+	return
 }

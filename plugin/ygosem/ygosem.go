@@ -34,10 +34,9 @@ var (
 
 func init() {
 	en := control.Register("ygosem", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		Brief:             "游戏王进阶平台卡查",
-		Help:              "- /ys [卡名] [-(卡图|描述|调整)]\n- 分享卡片",
-		PrivateDataFolder: "ygosem",
+		DisableOnDefault: false,
+		Brief:            "游戏王进阶平台卡查",
+		Help:             "- /ys [卡名] [-(卡图|描述|调整)]\n- 分享卡片",
 	})
 	en.OnRegex(`^/ys\s*(.*)?`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		searchdata := strings.SplitN(ctx.State["regex_matched"].([]string)[1], " -", 2)
@@ -290,7 +289,7 @@ func init() {
 		}
 		cardInfo := helper.BytesToString(body)
 		cardData := getCarddata(cardInfo)
-		cardData.Maxcard = listnumber
+		cardData.PicFile = listnumber
 		pictrue, err := getPic(cardInfo, false)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]", err))
@@ -346,7 +345,7 @@ func drawimage(cardInfo gameCardInfo, pictrue []byte) (data []byte, err error) {
 	}
 	canvas.SetRGB(0, 0, 0)
 	_, h := canvas.MeasureString("游戏王")
-	listnumber := cardInfo.Maxcard
+	listnumber := cardInfo.PicFile
 	textHigh := 50.0
 	if listnumber != "" {
 		canvas.DrawString("当前卡池总数:"+listnumber, 10, 50)

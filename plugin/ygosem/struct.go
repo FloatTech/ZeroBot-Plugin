@@ -24,7 +24,7 @@ type gameCardInfo struct {
 	Atk     string // 攻击力
 	Def     string // 防御力
 	Depict  string // 效果
-	Maxcard string // 是否是分享的开关
+	PicFile string // 图片文件
 }
 
 // web获取卡片信息
@@ -47,6 +47,7 @@ func getSemData() (cardData gameCardInfo, picFile string, err error) {
 	// 获取卡片信息
 	body, err = web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
 	if err != nil {
+		err = errors.New("数据存在错误: 无法获取卡片信息")
 		return
 	}
 	// 获取卡面信息
@@ -76,6 +77,7 @@ func getSemData() (cardData gameCardInfo, picFile string, err error) {
 		mu.Lock()
 		defer mu.Unlock()
 		picFile = cardData.Name + ".jpg"
+		cardData.PicFile = picFile
 		err = os.WriteFile(cachePath+picFile, picByte, 0644)
 	}
 	return
