@@ -98,9 +98,9 @@ func init() {
 		userinfo := scoredata.getData(uid)
 		userinfo.Uid = uid
 		newName := names.GetNameOf(uid) //更新昵称
-		if newName != "" && newName != userinfo.UserName {
+		if newName != "" {
 			userinfo.UserName = newName
-		} else if userinfo.UserName == "" {
+		} else {
 			userinfo.UserName = ctx.CardOrNickName(uid)
 		}
 		lasttime := time.Unix(userinfo.UpdatedAt, 0)
