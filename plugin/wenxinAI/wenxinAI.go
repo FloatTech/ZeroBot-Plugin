@@ -194,12 +194,12 @@ func init() { // 插件主体
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
-					for imgurl, imgscore := range picURLs {
+					for _, imgInfo := range picURLs {
 						imgmsg := ctxext.FakeSenderForwardNode(ctx,
-							message.Image(imgurl))
-						if imgscore != nil {
+							message.Image(imgInfo.Image))
+						if imgInfo.Score != nil {
 							imgmsg = ctxext.FakeSenderForwardNode(ctx,
-								message.Text("wenxinScore:", imgscore), message.Image(imgurl))
+								message.Text("wenxinScore:", imgInfo.Score), message.Image(imgInfo.Image))
 						}
 						msg = append(msg,
 							imgmsg)
@@ -314,12 +314,12 @@ func init() { // 插件主体
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
-					for imgurl, imgscore := range picURLs {
+					for _, imgInfo := range picURLs {
 						imgmsg := ctxext.FakeSenderForwardNode(ctx,
-							message.Image(imgurl))
-						if imgscore != nil {
+							message.Image(imgInfo.Image))
+						if imgInfo.Score != nil {
 							imgmsg = ctxext.FakeSenderForwardNode(ctx,
-								message.Text("wenxinScore:", imgscore), message.Image(imgurl))
+								message.Text("wenxinScore:", imgInfo.Score), message.Image(imgInfo.Image))
 						}
 						msg = append(msg,
 							imgmsg)
