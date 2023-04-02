@@ -194,10 +194,15 @@ func init() { // 插件主体
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
-					for _, imginfo := range picURLs {
+					for imgurl, imgscore := range picURLs {
+						imgmsg := ctxext.FakeSenderForwardNode(ctx,
+							message.Image(imgurl))
+						if imgscore != nil {
+							imgmsg = ctxext.FakeSenderForwardNode(ctx,
+								message.Text("wenxinScore:", imgscore), message.Image(imgurl))
+						}
 						msg = append(msg,
-							ctxext.FakeSenderForwardNode(ctx,
-								message.Image(imginfo.Image)))
+							imgmsg)
 					}
 					if id := ctx.Send(msg).ID(); id == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控了"))
@@ -309,10 +314,15 @@ func init() { // 插件主体
 				if status == 1 {
 					lastTime := time.Duration(i * 10 * int(time.Second))
 					msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("我画好了！\n本次绘画用了", lastTime))}
-					for _, imginfo := range picURLs {
+					for imgurl, imgscore := range picURLs {
+						imgmsg := ctxext.FakeSenderForwardNode(ctx,
+							message.Image(imgurl))
+						if imgscore != nil {
+							imgmsg = ctxext.FakeSenderForwardNode(ctx,
+								message.Text("wenxinScore:", imgscore), message.Image(imgurl))
+						}
 						msg = append(msg,
-							ctxext.FakeSenderForwardNode(ctx,
-								message.Image(imginfo.Image)))
+							imgmsg)
 					}
 					if id := ctx.Send(msg).ID(); id == 0 {
 						ctx.SendChain(message.Text("ERROR: 可能被风控了"))

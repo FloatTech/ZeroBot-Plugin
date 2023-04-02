@@ -195,7 +195,7 @@ func BuildTextWork(token, keyword, prompt string, style int) (taskID int64, err 
 // 评分目前都是null,我不知道有什么用，既然API预留了，我也预留吧
 //
 // stauts:结果状态,如果报错为错误代码
-func GetPicResult(token string, taskID int64) (picurls []picURL, status int64, err error) {
+func GetPicResult(token string, taskID int64) (picurls map[string]any, status int64, err error) {
 	requestURL := "https://wenxin.baidu.com/moduleApi/portal/api/rest/1.0/ernievilg/v1/getImg?access_token=" + url.QueryEscape(token)
 	postData := url.Values{}
 	postData.Add("taskId", strconv.FormatInt(taskID, 10))
@@ -211,7 +211,10 @@ func GetPicResult(token string, taskID int64) (picurls []picURL, status int64, e
 	if parsed.Msg != "success" {
 		return nil, parsed.Code, errors.New(parsed.Msg)
 	}
-	picurls = parsed.Data.ImgUrls
+	picurls = make(map[string]any, 2*len(parsed.Data.ImgUrls))
+	for _, picurl := range parsed.Data.ImgUrls {
+		picurls[picurl.Image] = picurl.Score
+	}
 	return picurls, parsed.Data.Status, nil
 }
 
