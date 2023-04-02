@@ -16,9 +16,9 @@ import (
 	"time"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/disintegration/imaging"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -55,6 +55,7 @@ type userdata struct {
 const scoreMax = 1200
 
 var (
+	mu        sync.RWMutex
 	scoredata = &score{
 		db: &sql.Sqlite{},
 	}
@@ -65,7 +66,7 @@ var (
 		DisableOnDefault:  false,
 		Brief:             "签到",
 		PrivateDataFolder: "ygoscore",
-		Help:              "- 签到\n",
+		Help:              "- 签到\n- 获得签到背景",
 	})
 	cachePath = engine.DataFolder() + "cache/"
 )
@@ -134,12 +135,12 @@ func init() {
 		if userinfo.Level < scoreMax {
 			userinfo.Level += add
 		}
+		userinfo.Picname = picFile
 		if err := scoredata.setData(userinfo); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
 			return
 		}
 		level, _ := getLevel(userinfo.Level)
-		userinfo.Picname = picFile
 		if err := wallet.InsertWalletOf(uid, add+level*5); err != nil {
 			ctx.SendChain(message.Text("[ERROR]:货币记录失败。", err))
 			return
@@ -153,6 +154,20 @@ func init() {
 		}
 		ctx.SendChain(message.ImageBytes(data))
 	})
+	engine.OnPrefix("获得签到背景", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			uid := ctx.Event.UserID
+			if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
+				uid, _ = strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
+			}
+			userinfo := scoredata.getData(uid)
+			picFile := userinfo.Picname
+			if file.IsNotExist(picFile) {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请先签到！"))
+				return
+			}
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
+		})
 	engine.OnRegex(`^\/修改(\s*(\[CQ:at,qq=)?(\d+).*)?信息\s*(.*)`, zero.AdminPermission, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		changeuser := ctx.State["regex_matched"].([]string)[3]
 		data := ctx.State["regex_matched"].([]string)[4]
@@ -231,7 +246,7 @@ type datajson struct {
 
 // 下载图片
 func initPic() (picFile string, err error) {
-	defer process.SleepAbout1sTo2s()
+	// defer process.SleepAbout1sTo2s()
 	data, err := web.GetData("https://img.moehu.org/pic.php?return=json&id=yu-gi-oh&num=1")
 	if err != nil {
 		return
@@ -246,11 +261,9 @@ func initPic() (picFile string, err error) {
 	}
 	names := strings.Split(parsed.Pic[0], "/")
 	picFile = cachePath + names[len(names)-1]
-	data, err = web.GetData(parsed.Pic[0])
-	if err != nil {
-		return
-	}
-	return picFile, os.WriteFile(picFile, data, 0644)
+	mu.Lock()
+	defer mu.Unlock()
+	return picFile, file.DownloadTo(parsed.Pic[0], picFile)
 }
 func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []byte, err error) {
 	back, err := gg.LoadImage(picFile)
