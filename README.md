@@ -1207,7 +1207,9 @@ print("run[CQ:image,file="+j["img"]+"]")
 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/rsshub"`
 
 - [x] 添加rsshub订阅-[rsshub路由]
+  - 添加rsshub订阅-/a9vg/a9vg
 - [x] 删除rsshub订阅-[rsshub路由]
+  - 删除rsshub订阅-/a9vg/a9vg
 - [x] 查看rsshub订阅列表
 - [x] rsshub同步 (使用job执行定时任务------记录在"@every 10m"触发的指令)
   1. 记录在"@every 10m"触发的指令  
