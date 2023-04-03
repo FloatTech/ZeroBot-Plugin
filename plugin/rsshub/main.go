@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"regexp"
 )
 
 const (
@@ -32,6 +33,8 @@ var (
 		}
 		return true
 	})
+	// regexpForSql 防注入
+	regexpForSql = regexp.MustCompile(`[\^<>\[\]%&\*\(\)\{\}\|\=]|(union\s+select|update\s+|delete\s+|drop\s+|truncate\s+|insert\s+|exec\s+|declare\s+)`)
 )
 
 var (
@@ -83,7 +86,9 @@ func init() {
 	// 添加订阅
 	engine.OnRegex(`^添加rsshub订阅-(.+)$`, zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		routeStr := ctx.State["regex_matched"].([]string)[1]
-		rv, _, isSubExisted, err := rssRepo.Subscribe(context.Background(), ctx.Event.GroupID, routeStr)
+		input := regexpForSql.ReplaceAllString(routeStr, "")
+		logrus.Debugf("添加rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
+		rv, _, isSubExisted, err := rssRepo.Subscribe(context.Background(), ctx.Event.GroupID, input)
 		if err != nil {
 			ctx.SendChain(message.Text("RssHub订阅姬：添加失败", err.Error()))
 			return
@@ -105,12 +110,14 @@ func init() {
 	})
 	engine.OnRegex(`^删除rsshub订阅-(.+)$`, zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		routeStr := ctx.State["regex_matched"].([]string)[1]
-		err := rssRepo.Unsubscribe(context.Background(), ctx.Event.GroupID, routeStr)
+		input := regexpForSql.ReplaceAllString(routeStr, "")
+		logrus.Debugf("删除rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
+		err := rssRepo.Unsubscribe(context.Background(), ctx.Event.GroupID, input)
 		if err != nil {
 			ctx.SendChain(message.Text("RssHub订阅姬：删除失败 ", err.Error()))
 			return
 		}
-		ctx.SendChain(message.Text(fmt.Sprintf("RssHub订阅姬：删除%s成功", routeStr)))
+		ctx.SendChain(message.Text(fmt.Sprintf("RssHub订阅姬：删除%s成功", input)))
 	})
 	engine.OnFullMatch("查看rsshub订阅列表", zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		rv, err := rssRepo.GetSubscribedChannelsByGroupID(context.Background(), ctx.Event.GroupID)
