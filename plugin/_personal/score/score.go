@@ -377,22 +377,24 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 		err = errors.New("计算等级出现了问题")
 		return
 	}
+	rank := levelrank[level]
+	textW, _ = canvas.MeasureString(rank)
 	levelX := float64(backDX) * 4 / 5
-	canvas.DrawRoundedRectangle(levelX, 50, 200, 200, 200/5)
+	canvas.DrawRoundedRectangle(levelX, 50, textW*1.2, 200, 200/5)
 	canvas.SetLineWidth(3)
 	canvas.SetRGBA255(0, 0, 0, 100)
 	canvas.StrokePreserve()
 	canvas.SetRGBA255(255, 255, 255, 100)
 	canvas.Fill()
-	canvas.DrawRoundedRectangle(levelX, 50, 200, 100, 200/5)
+	canvas.DrawRoundedRectangle(levelX, 50, textW*1.2, 100, 200/5)
 	canvas.SetLineWidth(3)
 	canvas.SetRGBA255(0, 0, 0, 100)
 	canvas.StrokePreserve()
 	canvas.SetRGBA255(255, 255, 255, 100)
 	canvas.Fill()
 	canvas.SetRGBA255(0, 0, 0, 255)
-	canvas.DrawStringAnchored(levelrank[level], levelX+100, 50+50, 0.5, 0.5)
-	canvas.DrawStringAnchored(fmt.Sprintf("LV%d", level), levelX+100, 50+100+50, 0.5, 0.5)
+	canvas.DrawStringAnchored(levelrank[level], levelX+textW*1.2/2, 50+50, 0.5, 0.5)
+	canvas.DrawStringAnchored(fmt.Sprintf("LV%d", level), levelX+textW*1.2/2, 50+100+50, 0.5, 0.5)
 
 	if add == 0 {
 		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), 350, 370)
