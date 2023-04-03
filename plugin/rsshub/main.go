@@ -33,8 +33,8 @@ var (
 		}
 		return true
 	})
-	// regexpForSql 防注入
-	regexpForSql = regexp.MustCompile(`[\^<>\[\]%&\*\(\)\{\}\|\=]|(union\s+select|update\s+|delete\s+|drop\s+|truncate\s+|insert\s+|exec\s+|declare\s+)`)
+	// regexpForSQL 防注入
+	regexpForSQL = regexp.MustCompile(`[\^<>\[\]%&\*\(\)\{\}\|\=]|(union\s+select|update\s+|delete\s+|drop\s+|truncate\s+|insert\s+|exec\s+|declare\s+)`)
 )
 
 var (
@@ -86,7 +86,7 @@ func init() {
 	// 添加订阅
 	engine.OnRegex(`^添加rsshub订阅-(.+)$`, zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		routeStr := ctx.State["regex_matched"].([]string)[1]
-		input := regexpForSql.ReplaceAllString(routeStr, "")
+		input := regexpForSQL.ReplaceAllString(routeStr, "")
 		logrus.Debugf("添加rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
 		rv, _, isSubExisted, err := rssRepo.Subscribe(context.Background(), ctx.Event.GroupID, input)
 		if err != nil {
@@ -110,7 +110,7 @@ func init() {
 	})
 	engine.OnRegex(`^删除rsshub订阅-(.+)$`, zero.OnlyGroup, getRssRepo).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		routeStr := ctx.State["regex_matched"].([]string)[1]
-		input := regexpForSql.ReplaceAllString(routeStr, "")
+		input := regexpForSQL.ReplaceAllString(routeStr, "")
 		logrus.Debugf("删除rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
 		err := rssRepo.Unsubscribe(context.Background(), ctx.Event.GroupID, input)
 		if err != nil {
