@@ -92,12 +92,6 @@ var (
 )
 
 func init() {
-	engine.UsePreHandler(func(ctx *zero.Ctx) bool {
-		if now := time.Now().Hour(); now >= 6 && now <= 20 {
-			return true
-		}
-		return false
-	})
 	engine.OnRegex(`^吸(.*猫)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		typeOfcat := ctx.State["regex_matched"].([]string)[1]
 		if typeOfcat == "猫" {

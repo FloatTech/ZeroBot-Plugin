@@ -15,7 +15,13 @@ import (
 )
 
 func init() {
-	engine.OnRegex(`^买(.*猫)$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^买(.*猫)$`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		if now := time.Now().Hour(); now >= 6 && now <= 20 {
+			return true
+		}
+		ctx.SendChain(message.Text("猫店已经关门了,早上六点后再来吧"))
+		return false
+	}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
@@ -195,7 +201,13 @@ func init() {
 		messageText = append(messageText, message.Text("恭喜你买了一只喵喵"))
 		ctx.Send(messageText)
 	})
-	engine.OnRegex(`^买((\d+)袋)?猫粮$`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^买((\d+)袋)?猫粮$`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		if now := time.Now().Hour(); now >= 6 && now <= 20 {
+			return true
+		}
+		ctx.SendChain(message.Text("猫店已经关门了,早上六点后再来吧"))
+		return false
+	}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		id := ctx.Event.MessageID
 		gidStr := "group" + strconv.FormatInt(ctx.Event.GroupID, 10)
 		uidStr := strconv.FormatInt(ctx.Event.UserID, 10)
