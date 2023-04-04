@@ -291,7 +291,7 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 
 	bx, by := float64(back.Bounds().Dx()), float64(back.Bounds().Dy())
 
-	sc := 1280 / float64(bx)
+	sc := 1280 / bx
 
 	colors := gg.TakeColor(back, 3)
 
