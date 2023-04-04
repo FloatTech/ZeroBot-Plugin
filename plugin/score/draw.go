@@ -298,7 +298,7 @@ func drawScore18(a *scdata) (img image.Image, err error) {
 	defer bwg.Done()
 	blurback = imaging.Blur(back, 20)
 	bx, by = float64(back.Bounds().Dx()), float64(back.Bounds().Dy())
-	sc = 1280 / float64(bx)
+	sc = 1280 / bx
 	colors = gg.TakeColor(back, 3)
 
 	canvas := gg.NewContext(1280, 1280*int(by)/int(bx))
