@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/bilibili"
@@ -54,37 +55,53 @@ var (
 		}
 		return true
 	})
+	stylemap = map[string]func(a *scdata) (image.Image, error){
+		"1": drawScore15,
+		"2": drawScore16,
+		"3": drawScore17,
+		"4": drawScore17b2,
+	}
 )
 
 func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		_ = os.RemoveAll(cachePath)
-		err := os.MkdirAll(cachePath, 0755)
-		if err != nil {
-			panic(err)
+		ok := file.IsExist(cachePath)
+		if !ok {
+			err := os.MkdirAll(cachePath, 0777)
+			if err != nil {
+				panic(err)
+			}
+			return
+		}
+		files, err := os.ReadDir(cachePath)
+		if err == nil {
+			for _, f := range files {
+				if !strings.Contains(f.Name(), time.Now().Format("20060102")) {
+					_ = os.Remove(cachePath + f.Name())
+				}
+			}
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
 	engine.OnRegex(`^签到\s?(\d*)$`, initDef).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		// 选择key
-		var key string
+		key := ctx.State["regex_matched"].([]string)[1]
 		gid := ctx.Event.GroupID
 		if gid < 0 {
 			// 个人用户设为负数
 			gid = -ctx.Event.UserID
 		}
-		if ctx.State["regex_matched"].([]string)[1] != "" {
-			key = ctx.State["regex_matched"].([]string)[1]
-		} else {
+		if key == "" {
 			m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			_ = m.Manager.GetExtra(gid, &key)
 			if key == "" {
 				_ = m.Manager.GetExtra(defKeyID, &key)
 			}
 		}
-		if !isExist(key) {
-			ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误造成无图发送,但是已经签到的情况
+		drawfunc, ok := stylemap[key]
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key))
 			return
 		}
 		uid := ctx.Event.UserID
@@ -131,12 +148,14 @@ func init() {
 		// 更新钱包
 		rank := getrank(level)
 		add := 1 + rand.Intn(10) + rank*5 // 等级越高获得的钱越高
-		err = wallet.InsertWalletOf(uid, add)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		alldata := scdata{
+		go func() {
+			err = wallet.InsertWalletOf(uid, add)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+		}()
+		alldata := &scdata{
 			drawedfile: drawedFile,
 			picfile:    picFile,
 			uid:        uid,
@@ -146,28 +165,9 @@ func init() {
 			level:      level,
 			rank:       rank,
 		}
-		var drawimage image.Image
-		switch key {
-		case "1":
-			drawimage, err = drawScore16(&alldata)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		case "2":
-			drawimage, err = drawScore15(&alldata)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		case "3":
-			drawimage, err = drawScore17(&alldata)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		default:
-			ctx.SendChain(message.Text("未添加签到设定:", key))
+		drawimage, err := drawfunc(alldata)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		// done.
@@ -182,7 +182,7 @@ func init() {
 			return
 		}
 		_, err = imgfactory.WriteTo(drawimage, f)
-		_ = f.Close()
+		defer f.Close()
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -204,7 +204,9 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请先签到！"))
 				return
 			}
-			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile))
+			if id := ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile)); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR: 消息发送失败, 账号可能被风控"))
+			}
 		})
 	engine.OnFullMatch("查看等级排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -279,13 +281,13 @@ func init() {
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 	engine.OnRegex(`^设置(默认)?签到预设\s?(\d*)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if ctx.State["regex_matched"].([]string)[2] == "" {
-			ctx.SendChain(message.Text("设置失败,数据为空"))
+		if key := ctx.State["regex_matched"].([]string)[2]; key == "" {
+			ctx.SendChain(message.Text("设置失败, 数据为空"))
 		} else {
 			s := ctx.State["regex_matched"].([]string)[1]
-			key := ctx.State["regex_matched"].([]string)[2]
-			if !isExist(key) {
-				ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误
+			_, ok := stylemap[key]
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key)) // 避免签到配置错误
 				return
 			}
 			gid := ctx.Event.GroupID
@@ -300,7 +302,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("设置成功,当前", s, "预设为:", key))
+			ctx.SendChain(message.Text("设置成功, 当前", s, "预设为:", key))
 		}
 	})
 }
@@ -335,28 +337,21 @@ func getrank(count int) int {
 }
 
 func initPic(picFile string, uid int64) (avatar []byte, err error) {
-	if file.IsExist(picFile) {
-		return nil, nil
-	}
 	defer process.SleepAbout1sTo2s()
+	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
+	if err != nil {
+		return
+	}
+	if file.IsExist(picFile) {
+		return
+	}
 	url, err := bilibili.GetRealURL(backgroundURL)
 	if err != nil {
-		return nil, err
+		return
 	}
 	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
 	if err != nil {
-		return nil, err
-	}
-	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
-	if err != nil {
-		return nil, err
+		return
 	}
 	return avatar, os.WriteFile(picFile, data, 0644)
-}
-
-func isExist(key string) bool {
-	if key != "1" && key != "2" && key != "3" {
-		return false
-	}
-	return true
 }
