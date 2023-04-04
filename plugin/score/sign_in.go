@@ -2,7 +2,6 @@
 package score
 
 import (
-	"errors"
 	"image"
 	"math"
 	"math/rand"
@@ -56,6 +55,12 @@ var (
 		}
 		return true
 	})
+	stylemap = map[string]func(a *scdata) (image.Image, error){
+		"1": drawScore15,
+		"2": drawScore16,
+		"3": drawScore17,
+		"4": drawScore17b2,
+	}
 )
 
 func init() {
@@ -87,8 +92,9 @@ func init() {
 				_ = m.Manager.GetExtra(defKeyID, &key)
 			}
 		}
-		if !isExist(key) {
-			ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误造成无图发送,但是已经签到的情况
+		drawfunc, ok := stylemap[key]
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key))
 			return
 		}
 		uid := ctx.Event.UserID
@@ -108,13 +114,14 @@ func init() {
 			}
 			return
 		case siUpdateTimeStr != today:
-			// 更新签到次数
+			// 如果是跨天签到就清数据
 			err := sdb.InsertOrUpdateSignInCountByUID(uid, 0)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		}
+		// 更新签到次数
 		err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -151,19 +158,7 @@ func init() {
 			level:      level,
 			rank:       rank,
 		}
-		var drawimage image.Image
-		switch key {
-		case "1":
-			drawimage, err = drawScore16(alldata)
-		case "2":
-			drawimage, err = drawScore15(alldata)
-		case "3":
-			drawimage, err = drawScore17(alldata)
-		case "4":
-			drawimage, err = drawScore17b1(alldata)
-		default:
-			err = errors.New("未添加签到设定: " + key)
-		}
+		drawimage, err := drawfunc(alldata)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -203,7 +198,7 @@ func init() {
 				return
 			}
 			if id := ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile)); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR:消息发送失败，账号可能被风控"))
+				ctx.SendChain(message.Text("ERROR: 消息发送失败, 账号可能被风控"))
 			}
 		})
 	engine.OnFullMatch("查看等级排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
@@ -279,13 +274,14 @@ func init() {
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 	engine.OnRegex(`^设置(默认)?签到预设\s?(\d*)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if ctx.State["regex_matched"].([]string)[2] == "" {
-			ctx.SendChain(message.Text("设置失败,数据为空"))
+		if key := ctx.State["regex_matched"].([]string)[2]; key == "" {
+			ctx.SendChain(message.Text("设置失败, 数据为空"))
+			return
 		} else {
 			s := ctx.State["regex_matched"].([]string)[1]
-			key := ctx.State["regex_matched"].([]string)[2]
-			if !isExist(key) {
-				ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误
+			_, ok := stylemap[key]
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key)) // 避免签到配置错误
 				return
 			}
 			gid := ctx.Event.GroupID
@@ -300,7 +296,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("设置成功,当前", s, "预设为:", key))
+			ctx.SendChain(message.Text("设置成功, 当前", s, "预设为:", key))
 		}
 	})
 }
@@ -336,11 +332,11 @@ func getrank(count int) int {
 
 func initPic(picFile string, uid int64) (avatar []byte, err error) {
 	defer process.SleepAbout1sTo2s()
-	if file.IsExist(picFile) {
-		return web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
-	}
 	avatar, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
 	if err != nil {
+		return
+	}
+	if file.IsExist(picFile) {
 		return
 	}
 	url, err := bilibili.GetRealURL(backgroundURL)
@@ -352,8 +348,4 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		return
 	}
 	return avatar, os.WriteFile(picFile, data, 0644)
-}
-
-func isExist(key string) bool {
-	return key == "1" || key == "2" || key == "3" || key == "4"
 }

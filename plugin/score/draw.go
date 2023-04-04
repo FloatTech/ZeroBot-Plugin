@@ -273,7 +273,7 @@ func drawScore17(a *scdata) (image.Image, error) {
 	return canvas.Image(), nil
 }
 
-func drawScore17b1(a *scdata) (img image.Image, err error) {
+func drawScore17b2(a *scdata) (img image.Image, err error) {
 	fontdata, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, false)
 	if err != nil {
 		return
@@ -290,31 +290,33 @@ func drawScore17b1(a *scdata) (img image.Image, err error) {
 	if err != nil {
 		return
 	}
-	var bwg sync.WaitGroup
-	bwg.Add(1)
-	go func() {
-		defer bwg.Done()
-		blurback = imaging.Blur(back, 20)
-	}()
+
 	bx, by := float64(back.Bounds().Dx()), float64(back.Bounds().Dy())
+
 	sc := 1280 / float64(bx)
+
 	colors := gg.TakeColor(back, 3)
 
 	canvas := gg.NewContext(1280, 1280*int(by)/int(bx))
 
 	cw, ch := float64(canvas.W()), float64(canvas.H())
 
-	_, sch := cw*6/10, ch*6/10
+	sch := ch * 6 / 10
 
 	var scbackimg, backshadowimg, avatarimg, avatarbackimg, avatarshadowimg, whitetext, blacktext image.Image
 	var wg sync.WaitGroup
-	wg.Add(7)
+	wg.Add(8)
 	go func() {
 		defer wg.Done()
 		scback := gg.NewContext(canvas.W(), canvas.H())
 		scback.ScaleAbout(sc, sc, cw/2, ch/2)
 		scback.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
 		scback.Identity()
+
+		go func() {
+			defer wg.Done()
+			blurback = imaging.Blur(scback.Image(), 20)
+		}()
 
 		scbackimg = rendercard.Fillet(scback.Image(), 12)
 	}()
@@ -331,12 +333,9 @@ func drawScore17b1(a *scdata) (img image.Image, err error) {
 
 		backshadowimg = imaging.Blur(shadow.Image(), 8)
 	}()
-	var aw, ah float64
-	var awg sync.WaitGroup
-	awg.Add(1)
+
 	go func() {
 		defer wg.Done()
-		defer awg.Done()
 		avatar, _, err := image.Decode(bytes.NewReader(getAvatar))
 		if err != nil {
 			return
@@ -346,7 +345,7 @@ func drawScore17b1(a *scdata) (img image.Image, err error) {
 
 		scavatar := gg.NewContext(int((ch-sch)/2/2/2*3), int((ch-sch)/2/2/2*3))
 
-		aw, ah = float64(scavatar.W()), float64(scavatar.H())
+		aw, ah := float64(scavatar.W()), float64(scavatar.H())
 
 		scavatar.ScaleAbout(isc, isc, aw/2, ah/2)
 		scavatar.DrawImageAnchored(avatar, scavatar.W()/2, scavatar.H()/2, 0.5, 0.5)
@@ -360,23 +359,21 @@ func drawScore17b1(a *scdata) (img image.Image, err error) {
 		return
 	}
 	namew, _ := canvas.MeasureString(a.nickname)
+	aw, ah := (ch-sch)/2/2/2*3, (ch-sch)/2/2/2*3
 
 	go func() {
 		defer wg.Done()
-		awg.Wait()
 		avatarshadowimg = imaging.Blur(customrectangle(cw, ch, aw, ah, namew, color.Black), 8)
 	}()
 
 	go func() {
 		defer wg.Done()
-		awg.Wait()
 		avatarbackimg = customrectangle(cw, ch, aw, ah, namew, colors[0])
 	}()
 
 	go func() {
 		defer wg.Done()
-		awg.Wait()
-		whitetext, err = customtext(a, fontdata, cw, ch, aw, ah, color.White)
+		whitetext, err = customtext(a, fontdata, cw, ch, aw, color.White)
 		if err != nil {
 			return
 		}
@@ -384,25 +381,20 @@ func drawScore17b1(a *scdata) (img image.Image, err error) {
 
 	go func() {
 		defer wg.Done()
-		awg.Wait()
-		blacktext, err = customtext(a, fontdata, cw, ch, aw, ah, color.Black)
+		blacktext, err = customtext(a, fontdata, cw, ch, aw, color.Black)
 		if err != nil {
 			return
 		}
 	}()
-
-	canvas.ScaleAbout(sc, sc, cw/2, ch/2)
-
-	bwg.Wait()
-
-	canvas.DrawImageAnchored(blurback, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
-	canvas.Identity()
 
 	wg.Wait()
 	if scbackimg == nil || backshadowimg == nil || avatarimg == nil || avatarbackimg == nil || avatarshadowimg == nil || whitetext == nil || blacktext == nil {
 		err = errors.New("图片渲染失败")
 		return
 	}
+
+	canvas.DrawImageAnchored(blurback, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
+
 	canvas.DrawImage(backshadowimg, 0, 0)
 
 	canvas.ScaleAbout(0.6, 0.6, cw-cw/3, ch/2)
@@ -433,7 +425,7 @@ func customrectangle(cw, ch, aw, ah, namew float64, rtgcolor color.Color) (img i
 	return
 }
 
-func customtext(a *scdata, fontdata []byte, cw, ch, aw, ah float64, textcolor color.Color) (img image.Image, err error) {
+func customtext(a *scdata, fontdata []byte, cw, ch, aw float64, textcolor color.Color) (img image.Image, err error) {
 	canvas := gg.NewContext(int(cw), int(ch))
 	canvas.SetColor(textcolor)
 	scw, sch := cw*6/10, ch*6/10
