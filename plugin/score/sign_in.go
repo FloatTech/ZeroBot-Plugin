@@ -54,6 +54,12 @@ var (
 		}
 		return true
 	})
+	drawMap = map[string]func(a *scdata) (image.Image, error){
+		"1": drawScore15,
+		"2": drawScore16,
+		"3": drawScore17,
+		"4": drawScore18,
+	}
 )
 
 func init() {
@@ -83,7 +89,8 @@ func init() {
 				_ = m.Manager.GetExtra(defKeyID, &key)
 			}
 		}
-		if !isExist(key) {
+		drawfunc, ok := drawMap[key]
+		if !ok {
 			ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误造成无图发送,但是已经签到的情况
 			return
 		}
@@ -146,28 +153,9 @@ func init() {
 			level:      level,
 			rank:       rank,
 		}
-		var drawimage image.Image
-		switch key {
-		case "1":
-			drawimage, err = drawScore16(&alldata)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		case "2":
-			drawimage, err = drawScore15(&alldata)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		case "3":
-			drawimage, err = drawScore17(&alldata)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		default:
-			ctx.SendChain(message.Text("未添加签到设定:", key))
+		drawimage, err := drawfunc(&alldata)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		// done.
@@ -284,7 +272,8 @@ func init() {
 		} else {
 			s := ctx.State["regex_matched"].([]string)[1]
 			key := ctx.State["regex_matched"].([]string)[2]
-			if !isExist(key) {
+			_, ok := drawMap[key]
+			if !ok {
 				ctx.SendChain(message.Text("未找到签到设定:", key)) // 避免签到配置错误
 				return
 			}
@@ -352,11 +341,4 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		return nil, err
 	}
 	return avatar, os.WriteFile(picFile, data, 0644)
-}
-
-func isExist(key string) bool {
-	if key != "1" && key != "2" && key != "3" {
-		return false
-	}
-	return true
 }
