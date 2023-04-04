@@ -4,6 +4,7 @@ package dish
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"strings"
 	"time"
 
 	sql "github.com/FloatTech/sqlite"
@@ -23,9 +24,17 @@ type dish struct {
 }
 
 var (
-	db      = &sql.Sqlite{}
-	healthy = false
+	db          = &sql.Sqlite{}
+	initialized = false
 )
+
+func sqlPrepare(source string) (dest string) {
+	// 防止sql注入，将输入字符串进行转义
+	dest = strings.ReplaceAll(source, "\"", "\\\"")
+	dest = strings.ReplaceAll(dest, "'", "\\'")
+	dest = strings.ReplaceAll(dest, "\\", "\\\\")
+	return dest
+}
 
 func init() {
 	en := control.Register("dish", &ctrl.Options[*zero.Ctx]{
@@ -38,24 +47,24 @@ func init() {
 	db.DBPath = en.DataFolder() + "dishes.db"
 
 	if _, err := en.GetLazyData("dishes.db", true); err != nil {
-		healthy = false
+		logrus.Warnln("[dish]获取菜谱数据库文件失败")
 	} else if err = db.Open(time.Hour * 24); err != nil {
-		healthy = false
+		logrus.Warnln("[dish]连接菜谱数据库失败")
 	} else if err = db.Create("dishes", &dish{}); err != nil {
-		healthy = false
+		logrus.Warnln("[dish]同步菜谱数据表失败")
 	} else if count, countErr := db.Count("dishes"); countErr != nil {
-		healthy = false
+		logrus.Warnln("[dish]统计菜谱数据失败")
 	} else {
 		logrus.Infoln("[dish]加载", count, "条菜谱")
-		healthy = true
+		initialized = true
 	}
 
-	if !healthy {
+	if !initialized {
 		logrus.Warnln("[dish]插件未能成功初始化")
 	}
 
 	en.OnPrefixGroup([]string{"怎么做", "烹饪"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		if !healthy {
+		if !initialized {
 			ctx.SendChain(message.Text("客官，本店暂未开业"))
 			return
 		}
@@ -63,7 +72,7 @@ func init() {
 		name := ctx.NickName()
 		dishName := ctx.State["args"].(string)
 		var d dish
-		if err := db.Find("dishes", &d, "WHERE name = '"+dishName+"'"); err != nil {
+		if err := db.Find("dishes", &d, fmt.Sprintf("WHERE name = %s", sqlPrepare(dishName))); err != nil {
 			ctx.SendChain(message.Text(fmt.Sprintf("未能为客官%s找到%s的做法qwq", name, dishName)))
 		} else {
 			ctx.SendChain(message.Text(fmt.Sprintf(
@@ -77,7 +86,7 @@ func init() {
 	})
 
 	en.OnPrefixGroup([]string{"随机菜谱", "随便做点菜"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		if !healthy {
+		if !initialized {
 			ctx.SendChain(message.Text("客官，本店暂未开业"))
 			return
 		}
