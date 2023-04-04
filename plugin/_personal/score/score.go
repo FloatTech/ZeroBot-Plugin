@@ -9,6 +9,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -120,7 +121,11 @@ func init() {
 		picFile, err := initPic()
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
-			return
+			picFile, err = randFile(3)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
 		}
 		// 更新数据
 		add := 1
@@ -265,6 +270,28 @@ func initPic() (picFile string, err error) {
 	defer mu.Unlock()
 	return picFile, file.DownloadTo(parsed.Pic[0], picFile)
 }
+
+func randFile(indexMax int) (string, error) {
+	files, err := os.ReadDir(cachePath)
+	if err != nil {
+		return "", err
+	}
+	if len(files) > 0 {
+		drawFile := files[rand.Intn(len(files))].Name()
+		// 如果是文件夹就递归
+		before, _, ok := strings.Cut(drawFile, ".")
+		if !ok || before == "" {
+			indexMax--
+			if indexMax <= 0 {
+				return "", errors.New("存在太多非图片文件,请清理~")
+			}
+			return randFile(indexMax)
+		}
+		return cachePath + drawFile, err
+	}
+	return "", errors.New("不存在本地签到图片")
+}
+
 func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []byte, err error) {
 	back, err := gg.LoadImage(picFile)
 	if err != nil {
