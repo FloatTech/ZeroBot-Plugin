@@ -94,7 +94,7 @@ func init() {
 		name := ctx.NickName()
 		var d dish
 		if err := db.Pick("dishes", &d); err != nil {
-			ctx.SendChain(message.Text(fmt.Sprintf("小店好像出错了，暂时端不出菜来惹")))
+			ctx.SendChain(message.Text("小店好像出错了，暂时端不出菜来惹"))
 		} else {
 			ctx.SendChain(message.Text(fmt.Sprintf(
 				"已为客官%s送上%s的做法：\n"+
