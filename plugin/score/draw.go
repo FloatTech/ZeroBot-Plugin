@@ -376,7 +376,7 @@ func drawScore18(a *scdata) (img image.Image, err error) {
 	go func() {
 		defer wg.Done()
 		awg.Wait()
-		whitetext, err = customtext(a, fontdata, cw, ch, aw, ah, color.White)
+		whitetext, err = customtext(a, fontdata, cw, ch, aw, color.White)
 		if err != nil {
 			return
 		}
@@ -385,7 +385,7 @@ func drawScore18(a *scdata) (img image.Image, err error) {
 	go func() {
 		defer wg.Done()
 		awg.Wait()
-		blacktext, err = customtext(a, fontdata, cw, ch, aw, ah, color.Black)
+		blacktext, err = customtext(a, fontdata, cw, ch, aw, color.Black)
 		if err != nil {
 			return
 		}
@@ -433,7 +433,7 @@ func customrectangle(cw, ch, aw, ah, namew float64, rtgcolor color.Color) (img i
 	return
 }
 
-func customtext(a *scdata, fontdata []byte, cw, ch, aw, ah float64, textcolor color.Color) (img image.Image, err error) {
+func customtext(a *scdata, fontdata []byte, cw, ch, aw float64, textcolor color.Color) (img image.Image, err error) {
 	canvas := gg.NewContext(int(cw), int(ch))
 	canvas.SetColor(textcolor)
 	scw, sch := cw*6/10, ch*6/10
