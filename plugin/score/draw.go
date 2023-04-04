@@ -284,8 +284,6 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 		return
 	}
 
-	var blurback image.Image
-
 	back, err := gg.LoadImage(a.picfile)
 	if err != nil {
 		return
@@ -303,9 +301,10 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 
 	sch := ch * 6 / 10
 
-	var scbackimg, backshadowimg, avatarimg, avatarbackimg, avatarshadowimg, whitetext, blacktext image.Image
+	var blurback, scbackimg, backshadowimg, avatarimg, avatarbackimg, avatarshadowimg, whitetext, blacktext image.Image
 	var wg sync.WaitGroup
 	wg.Add(8)
+
 	go func() {
 		defer wg.Done()
 		scback := gg.NewContext(canvas.W(), canvas.H())
@@ -320,6 +319,7 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 
 		scbackimg = rendercard.Fillet(scback.Image(), 12)
 	}()
+
 	go func() {
 		defer wg.Done()
 		pureblack := gg.NewContext(canvas.W(), canvas.H())
@@ -334,6 +334,8 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 		backshadowimg = imaging.Blur(shadow.Image(), 8)
 	}()
 
+	aw, ah := (ch-sch)/2/2/2*3, (ch-sch)/2/2/2*3
+
 	go func() {
 		defer wg.Done()
 		avatar, _, err := image.Decode(bytes.NewReader(getAvatar))
@@ -343,9 +345,7 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 
 		isc := (ch - sch) / 2 / 2 / 2 * 3 / float64(avatar.Bounds().Dy())
 
-		scavatar := gg.NewContext(int((ch-sch)/2/2/2*3), int((ch-sch)/2/2/2*3))
-
-		aw, ah := float64(scavatar.W()), float64(scavatar.H())
+		scavatar := gg.NewContext(int(aw), int(ah))
 
 		scavatar.ScaleAbout(isc, isc, aw/2, ah/2)
 		scavatar.DrawImageAnchored(avatar, scavatar.W()/2, scavatar.H()/2, 0.5, 0.5)
@@ -359,7 +359,6 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 		return
 	}
 	namew, _ := canvas.MeasureString(a.nickname)
-	aw, ah := (ch-sch)/2/2/2*3, (ch-sch)/2/2/2*3
 
 	go func() {
 		defer wg.Done()
@@ -438,7 +437,7 @@ func customtext(a *scdata, fontdata []byte, cw, ch, aw float64, textcolor color.
 	if err != nil {
 		return
 	}
-	canvas.DrawStringAnchored(time.Now().Format("2006/01/02"), cw-cw/6, (ch-sch)/2/4*3, 0.5, 0.5)
+	canvas.DrawStringAnchored(time.Now().Format("2006/01/02"), cw-cw/6, ch/2-sch/2-canvas.FontHeight(), 0.5, 0.5)
 
 	err = canvas.ParseFontFace(fontdata, (ch-sch)/2/2/2)
 	if err != nil {
@@ -452,8 +451,8 @@ func customtext(a *scdata, fontdata []byte, cw, ch, aw float64, textcolor color.
 	}
 	nextLevelStyle := strconv.Itoa(a.level) + "/" + strconv.Itoa(nextrankScore)
 
-	canvas.DrawStringAnchored("Level "+strconv.Itoa(a.rank), cw/3*2-scw/2, ch-(ch-sch)/2/4*3, 0, 0.5)
-	canvas.DrawStringAnchored(nextLevelStyle, cw/3*2+scw/2, ch-(ch-sch)/2/4*3, 1, 0.5)
+	canvas.DrawStringAnchored("Level "+strconv.Itoa(a.rank), cw/3*2-scw/2, ch/2+sch/2+canvas.FontHeight(), 0, 0.5)
+	canvas.DrawStringAnchored(nextLevelStyle, cw/3*2+scw/2, ch/2+sch/2+canvas.FontHeight(), 1, 0.5)
 
 	err = canvas.ParseFontFace(fontdata, (ch-sch)/2/2/3)
 	if err != nil {
