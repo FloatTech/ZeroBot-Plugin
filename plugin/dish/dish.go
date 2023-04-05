@@ -63,11 +63,7 @@ func init() {
 
 		name := ctx.NickName()
 		dishName := ctx.State["args"].(string)
-		if strings.Contains(dishName, "'") {
-			ctx.SendChain(message.Text("不合法的输入"))
-		} else if strings.Contains(dishName, "\"") {
-			ctx.SendChain(message.Text("不合法的输入"))
-		} else if strings.Contains(dishName, "\\") {
+		if strings.Contains(dishName, "'") || strings.Contains(dishName, "\"") || strings.Contains(dishName, "\\") {
 			ctx.SendChain(message.Text("不合法的输入"))
 		} else {
 			var d dish
