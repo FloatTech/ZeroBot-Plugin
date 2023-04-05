@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-// Package score 签到，答题得分
-=======
 // Package score 签到
->>>>>>> upstream/master
 package score
 
 import (
