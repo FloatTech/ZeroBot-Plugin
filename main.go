@@ -86,6 +86,10 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/thesaurus" // 旧版词典匹配回复
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
+
 	/*/                                                                  //
 	//                                                                  //
 	//                                                                  //
@@ -188,7 +192,7 @@ import (
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"           // 鬼东西
 
-	//                               ^^^^                               /*/
+	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^中优先级区^^^^^^^                      //
 	//               ^^^^^^^^^^^^^^中优先级区^^^^^^^^^^^^^^               //
@@ -210,9 +214,9 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat" // 打断复读
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat" // 打断复读
 
-	//                               ^^^^                               //
+	//                               ^^^^                               /*/
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^低优先级区^^^^^^^                      //
 	//               ^^^^^^^^^^^^^^低优先级区^^^^^^^^^^^^^^               //
