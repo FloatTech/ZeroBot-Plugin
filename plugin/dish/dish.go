@@ -28,19 +28,11 @@ var (
 	initialized = false
 )
 
-func sqlPrepare(source string) (dest string) {
-	// 防止sql注入，将输入字符串进行转义
-	dest = strings.ReplaceAll(source, "\"", "\\\"")
-	dest = strings.ReplaceAll(dest, "'", "\\'")
-	dest = strings.ReplaceAll(dest, "\\", "\\\\")
-	return dest
-}
-
 func init() {
 	en := control.Register("dish", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "程序员做饭指南",
-		Help:             "-怎么做[xxx]|[烹饪xxx]|[随机菜谱]|[随便做点菜]",
+		Help:             "-怎么做[xxx]|烹饪[xxx]|随机菜谱|随便做点菜",
 		PublicDataFolder: "Dish",
 	})
 
@@ -71,17 +63,25 @@ func init() {
 
 		name := ctx.NickName()
 		dishName := ctx.State["args"].(string)
-		var d dish
-		if err := db.Find("dishes", &d, fmt.Sprintf("WHERE name = %s", sqlPrepare(dishName))); err != nil {
-			ctx.SendChain(message.Text(fmt.Sprintf("未能为客官%s找到%s的做法qwq", name, dishName)))
+		if strings.Contains(dishName, "'") {
+			ctx.SendChain(message.Text("不合法的输入"))
+		} else if strings.Contains(dishName, "\"") {
+			ctx.SendChain(message.Text("不合法的输入"))
+		} else if strings.Contains(dishName, "\\") {
+			ctx.SendChain(message.Text("不合法的输入"))
 		} else {
-			ctx.SendChain(message.Text(fmt.Sprintf(
-				"已为客官%s找到%s的做法辣！\n"+
-					"原材料：%s\n"+
-					"步骤：\n"+
-					"%s",
-				name, dishName, d.Materials, d.Steps),
-			))
+			var d dish
+			if err := db.Find("dishes", &d, fmt.Sprintf("WHERE name like %%%s%%", dishName)); err != nil {
+				ctx.SendChain(message.Text(fmt.Sprintf("未能为客官%s找到%s的做法qwq", name, dishName)))
+			} else {
+				ctx.SendChain(message.Text(fmt.Sprintf(
+					"已为客官%s找到%s的做法辣！\n"+
+						"原材料：%s\n"+
+						"步骤：\n"+
+						"%s",
+					name, dishName, d.Materials, d.Steps),
+				))
+			}
 		}
 	})
 
