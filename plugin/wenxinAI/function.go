@@ -108,15 +108,15 @@ func BuildImgWork(token, keyword, picType, picSize, image string) (taskID int64,
 	if err != nil {
 		return
 	}
-	//创建一个multipart类型的写文件
+	// 创建一个multipart类型的写文件
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	//使用给出的属性名paramName和文件名filePath创建一个新的form-data头
+	// 使用给出的属性名paramName和文件名filePath创建一个新的form-data头
 	part, err := writer.CreateFormFile("image/png", filepath.Base(picfile.Name()))
 	if err != nil {
 		return
 	}
-	//将源复制到目标，将file写入到part   是按默认的缓冲区32k循环操作的，不会将内容一次性全写入内存中,这样就能解决大文件的问题
+	// 将源复制到目标，将file写入到part   是按默认的缓冲区32k循环操作的，不会将内容一次性全写入内存中,这样就能解决大文件的问题
 	_, err = io.Copy(part, picfile)
 	_ = writer.Close()
 	_ = picfile.Close()

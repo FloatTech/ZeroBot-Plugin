@@ -271,7 +271,7 @@ func init() {
 		switch choose {
 		case 0:
 			text = "不耐烦的走掉了,心情降低至"
-			userInfo.Mood -= rand.Intn(userInfo.Mood + 1)
+			userInfo.Mood -= rand.Intn(zbmath.Max(1, userInfo.Mood))
 		case 1:
 			userInfo.Mood += rand.Intn(100)
 		}

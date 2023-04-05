@@ -121,11 +121,6 @@ func init() {
 		picFile, err := initPic()
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
-			picFile, err = randFile(3)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
 		}
 		// 更新数据
 		add := 1
@@ -253,8 +248,8 @@ type datajson struct {
 func initPic() (picFile string, err error) {
 	// defer process.SleepAbout1sTo2s()
 	data, err := web.GetData("https://img.moehu.org/pic.php?return=json&id=yu-gi-oh&num=1")
-	if err != nil {
-		return
+	if err != nil { // 如果api跑路了抽本地
+		return randFile(3)
 	}
 	parsed := datajson{}
 	err = json.Unmarshal(data, &parsed)
@@ -266,6 +261,9 @@ func initPic() (picFile string, err error) {
 	}
 	names := strings.Split(parsed.Pic[0], "/")
 	picFile = cachePath + names[len(names)-1]
+	if file.IsExist(picFile) {
+		return picFile, nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 	return picFile, file.DownloadTo(parsed.Pic[0], picFile)
@@ -342,11 +340,11 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 	// 放置昵称
 	canvas.SetRGB(0, 0, 0)
 	fontSize := 150.0
-	_, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
+	data, err = file.GetLazyData(text.MaokenFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
-	if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+	if err = canvas.ParseFontFace(data, fontSize); err != nil {
 		return
 	}
 	nameW, nameH := canvas.MeasureString(userinfo.UserName)
@@ -357,7 +355,7 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 	if nameW > textW {
 		scale := 2 * nameH / textH
 		fontSize = fontSize * scale
-		if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+		if err = canvas.ParseFontFace(data, fontSize); err != nil {
 			return
 		}
 		_, nameH := canvas.MeasureString(userinfo.UserName)
@@ -384,7 +382,7 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 			// 超过两行就重新配置一下字体大小
 			scale = float64(len(names)) * nameH / textH
 			fontSize = fontSize * scale
-			if err = canvas.LoadFontFace(text.BoldFontFile, fontSize); err != nil {
+			if err = canvas.ParseFontFace(data, fontSize); err != nil {
 				return
 			}
 		}
@@ -396,7 +394,7 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 	}
 
 	// level
-	if err = canvas.LoadFontFace(text.BoldFontFile, 72); err != nil {
+	if err = canvas.ParseFontFace(data, 72); err != nil {
 		return
 	}
 	level, nextLevelScore := getLevel(userinfo.Level)
@@ -429,7 +427,7 @@ func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []by
 		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产( +%d ) : %d", userinfo.Continuous, add+level*5, score), 350, 370)
 	}
 	// 绘制等级进度条
-	if err = canvas.LoadFontFace(text.BoldFontFile, 50); err != nil {
+	if err = canvas.ParseFontFace(data, 50); err != nil {
 		return
 	}
 	_, textH = canvas.MeasureString("/")
