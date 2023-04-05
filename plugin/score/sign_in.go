@@ -66,12 +66,19 @@ var (
 func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
-		_ = os.Mkdir(cachePath, 0777)
+		ok := file.IsExist(cachePath)
+		if !ok {
+			err := os.MkdirAll(cachePath, 0777)
+			if err != nil {
+				panic(err)
+			}
+			return
+		}
 		files, err := os.ReadDir(cachePath)
 		if err == nil {
 			for _, f := range files {
 				if !strings.Contains(f.Name(), time.Now().Format("20060102")) {
-					os.Remove(cachePath + f.Name())
+					_ = os.Remove(cachePath + f.Name())
 				}
 			}
 		}
@@ -276,7 +283,6 @@ func init() {
 	engine.OnRegex(`^设置(默认)?签到预设\s?(\d*)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		if key := ctx.State["regex_matched"].([]string)[2]; key == "" {
 			ctx.SendChain(message.Text("设置失败, 数据为空"))
-			return
 		} else {
 			s := ctx.State["regex_matched"].([]string)[1]
 			_, ok := stylemap[key]
