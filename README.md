@@ -653,6 +653,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>程序员做饭指南</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dish"`
+
+  - [x] 怎么做 | 烹饪[菜名]
+
+  - [x] 随机菜谱 | 随便做点菜
+
+</details>
+<details>
   <summary>多功能抽签</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"`
