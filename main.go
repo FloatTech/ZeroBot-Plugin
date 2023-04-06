@@ -86,6 +86,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"        // 今日早报
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"         // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"            // 嘉心糖发病
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dish"             // 程序员做饭指南
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"         // 多功能抽签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dress"            // 女装
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drift_bottle"     // 漂流瓶
