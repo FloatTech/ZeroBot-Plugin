@@ -44,7 +44,7 @@ func init() {
 		logrus.Warnln("[dish]连接菜谱数据库失败")
 	} else if err = db.Create("dishes", &dish{}); err != nil {
 		logrus.Warnln("[dish]同步菜谱数据表失败")
-	} else if count, countErr := db.Count("dishes"); countErr != nil {
+	} else if count, err := db.Count("dishes"); err != nil {
 		logrus.Warnln("[dish]统计菜谱数据失败")
 	} else {
 		logrus.Infoln("[dish]加载", count, "条菜谱")
@@ -63,21 +63,29 @@ func init() {
 
 		name := ctx.NickName()
 		dishName := ctx.State["args"].(string)
-		if strings.Contains(dishName, "'") || strings.Contains(dishName, "\"") || strings.Contains(dishName, "\\") {
-			ctx.SendChain(message.Text("不合法的输入"))
+
+		if dishName == "" {
+			return
+		}
+
+		if strings.Contains(dishName, "'") ||
+			strings.Contains(dishName, "\"") ||
+			strings.Contains(dishName, "\\") ||
+			strings.Contains(dishName, ";") {
+			return
 		} else {
 			var d dish
 			if err := db.Find("dishes", &d, fmt.Sprintf("WHERE name like %%%s%%", dishName)); err != nil {
-				ctx.SendChain(message.Text(fmt.Sprintf("未能为客官%s找到%s的做法qwq", name, dishName)))
-			} else {
-				ctx.SendChain(message.Text(fmt.Sprintf(
-					"已为客官%s找到%s的做法辣！\n"+
-						"原材料：%s\n"+
-						"步骤：\n"+
-						"%s",
-					name, dishName, d.Materials, d.Steps),
-				))
+				return
 			}
+
+			ctx.SendChain(message.Text(fmt.Sprintf(
+				"已为客官%s找到%s的做法辣！\n"+
+					"原材料：%s\n"+
+					"步骤：\n"+
+					"%s",
+				name, dishName, d.Materials, d.Steps),
+			))
 		}
 	})
 
@@ -91,14 +99,15 @@ func init() {
 		var d dish
 		if err := db.Pick("dishes", &d); err != nil {
 			ctx.SendChain(message.Text("小店好像出错了，暂时端不出菜来惹"))
-		} else {
-			ctx.SendChain(message.Text(fmt.Sprintf(
-				"已为客官%s送上%s的做法：\n"+
-					"原材料：%s\n"+
-					"步骤：\n"+
-					"%s",
-				name, d.Name, d.Materials, d.Steps),
-			))
+			logrus.Warnln("[dish]随机菜谱请求出错：" + err.Error())
 		}
+
+		ctx.SendChain(message.Text(fmt.Sprintf(
+			"已为客官%s送上%s的做法：\n"+
+				"原材料：%s\n"+
+				"步骤：\n"+
+				"%s",
+			name, d.Name, d.Materials, d.Steps),
+		))
 	})
 }
