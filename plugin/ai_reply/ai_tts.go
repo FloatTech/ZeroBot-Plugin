@@ -12,28 +12,47 @@ import (
 	"github.com/FloatTech/AnimeAPI/tts"
 	"github.com/FloatTech/AnimeAPI/tts/baidutts"
 	"github.com/FloatTech/AnimeAPI/tts/genshin"
-	"github.com/FloatTech/AnimeAPI/tts/mockingbird"
+	"github.com/FloatTech/AnimeAPI/tts/ttscn"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
 
 // 数据结构: [4 bits] [4 bits] [8 bits] [8 bits]
-// 			[拟声鸟模式] [百度模式] [tts模式] [回复模式]
+// 			[ttscn模式] [百度模式] [tts模式] [回复模式]
 
 // defaultttsindexkey
 // 数据结构: [4 bits] [4 bits] [8 bits]
-// 			[拟声鸟模式] [百度模式] [tts模式]
+// 			[ttscn模式] [百度模式] [tts模式]
 
-// [tts模式]: 0~63 genshin 64 baidu 65 mockingbird
+// [tts模式]: 0~63 genshin 64 baidu 65 ttscn
 
 const (
 	lastgsttsindex = 63 + iota
 	baiduttsindex
-	mockingbirdttsindex
+	ttscnttsindex
 )
 
 // extrattsname is the tts other than genshin vits
-var extrattsname = []string{"百度", "拟声鸟"}
+var extrattsname = []string{"百度", "TTSCN"}
+
+var ttscnspeakers = [...]string{
+	"晓晓（女 - 年轻人）",
+	"云扬（男 - 年轻人）",
+	"晓辰（女 - 年轻人 - 抖音热门）",
+	"晓涵（女 - 年轻人）",
+	"晓墨（女 - 年轻人）",
+	"晓秋（女 - 中年人）",
+	"晓睿（女 - 老年）",
+	"晓双（女 - 儿童）",
+	"晓萱（女 - 年轻人）",
+	"晓颜（女 - 年轻人）",
+	"晓悠（女 - 儿童）",
+	"云希（男 - 年轻人 - 抖音热门）",
+	"云野（男 - 中年人）",
+	"晓梦（女 - 年轻人）",
+	"晓伊（女 - 儿童）",
+	"晓甄（女 - 年轻人）",
+}
 
 const (
 	defaultttsindexkey    = -2905
@@ -148,7 +167,7 @@ func newttsmode() *ttsmode {
 	if ok {
 		index := m.GetData(defaultttsindexkey)
 		msk := index & 0xff
-		if msk >= 0 && (msk < int64(len(genshin.SoundList)) || msk == baiduttsindex || msk == mockingbirdttsindex) {
+		if msk >= 0 && (msk < int64(len(genshin.SoundList)) || msk == baiduttsindex || msk == ttscnttsindex) {
 			t.mode.Store(defaultttsindexkey, index)
 		}
 	}
@@ -191,7 +210,7 @@ func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt
 		case extrattsname[0]:
 			index = baiduttsindex
 		case extrattsname[1]:
-			index = mockingbirdttsindex
+			index = ttscnttsindex
 		default:
 			return errors.New("语音人物" + name + "未注册index")
 		}
@@ -212,7 +231,7 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 		i = m.GetData(gid) >> 8
 	}
 	m := i & 0xff
-	if m < 0 || (m >= int64(len(genshin.SoundList)) && m != baiduttsindex && m != mockingbirdttsindex) {
+	if m < 0 || (m >= int64(len(genshin.SoundList)) && m != baiduttsindex && m != ttscnttsindex) {
 		i, _ = t.mode.Load(defaultttsindexkey)
 		m = i & 0xff
 	}
@@ -224,7 +243,7 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 			ins = baidutts.NewBaiduTTS(int(i&0x0f00) >> 8)
 		case extrattsname[1]:
 			var err error
-			ins, err = mockingbird.NewMockingBirdTTS(int(i&0xf000) >> 12)
+			ins, err = ttscn.NewTTSCN("中文（普通话，简体）", ttscnspeakers[int(i&0xf000)>>12], ttscn.KBRates[0])
 			if err != nil {
 				return nil, err
 			}
@@ -268,7 +287,7 @@ func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) er
 		case extrattsname[0]:
 			index = baiduttsindex
 		case extrattsname[1]:
-			index = mockingbirdttsindex
+			index = ttscnttsindex
 		default:
 			return errors.New("语音人物" + name + "未注册index")
 		}
