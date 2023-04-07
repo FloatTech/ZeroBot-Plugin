@@ -35,6 +35,25 @@ const (
 // extrattsname is the tts other than genshin vits
 var extrattsname = []string{"百度", "TTSCN"}
 
+var ttscnspeakers = [...]string{
+	"晓晓（女 - 年轻人）",
+	"云扬（男 - 年轻人）",
+	"晓辰（女 - 年轻人 - 抖音热门）",
+	"晓涵（女 - 年轻人）",
+	"晓墨（女 - 年轻人）",
+	"晓秋（女 - 中年人）",
+	"晓睿（女 - 老年）",
+	"晓双（女 - 儿童）",
+	"晓萱（女 - 年轻人）",
+	"晓颜（女 - 年轻人）",
+	"晓悠（女 - 儿童）",
+	"云希（男 - 年轻人 - 抖音热门）",
+	"云野（男 - 中年人）",
+	"晓梦（女 - 年轻人）",
+	"晓伊（女 - 儿童）",
+	"晓甄（女 - 年轻人）",
+}
+
 const (
 	defaultttsindexkey    = -2905
 	gsapikeyextragrp      = -1
@@ -224,24 +243,7 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 			ins = baidutts.NewBaiduTTS(int(i&0x0f00) >> 8)
 		case extrattsname[1]:
 			var err error
-			ins, err = ttscn.NewTTSCN("中文（普通话，简体）", [...]string{
-				"晓晓（女 - 年轻人）",
-				"云扬（男 - 年轻人）",
-				"晓辰（女 - 年轻人 - 抖音热门）",
-				"晓涵（女 - 年轻人）",
-				"晓墨（女 - 年轻人）",
-				"晓秋（女 - 中年人）",
-				"晓睿（女 - 老年）",
-				"晓双（女 - 儿童）",
-				"晓萱（女 - 年轻人）",
-				"晓颜（女 - 年轻人）",
-				"晓悠（女 - 儿童）",
-				"云希（男 - 年轻人 - 抖音热门）",
-				"云野（男 - 中年人）",
-				"晓梦（女 - 年轻人）",
-				"晓伊（女 - 儿童）",
-				"晓甄（女 - 年轻人）",
-			}[int(i&0xf000)>>12], ttscn.KBRates[0])
+			ins, err = ttscn.NewTTSCN("中文（普通话，简体）", ttscnspeakers[int(i&0xf000)>>12], ttscn.KBRates[0])
 			if err != nil {
 				return nil, err
 			}
