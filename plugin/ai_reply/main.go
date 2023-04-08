@@ -26,11 +26,12 @@ func init() { // 插件主体
 		DisableOnDefault: true,
 		Brief:            "人工智能语音回复",
 		Help: "- @Bot 任意文本(任意一句话回复)\n" +
-			"- 设置语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
-			"- 设置默认语音模式[原神人物/百度/拟声鸟] 数字(百度/拟声鸟模式)\n" +
+			"- 设置语音模式[原神人物/百度/TTSCN] 数字(百度/TTSCN说话人)\n" +
+			"- 设置默认语音模式[原神人物/百度/TTSCN] 数字(百度/TTSCN说话人)\n" +
 			"- 恢复成默认语音模式\n" +
 			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
-			"当前适用的原神人物含有以下：\n" + list(genshin.SoundList[:], 5),
+			"当前适用的原神人物含有以下: \n" + list(genshin.SoundList[:], 5) +
+			"\n当前适用的TTSCN人物含有以下(以数字顺序代表): \n" + list(ttscnspeakers[:], 5),
 	})
 
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
