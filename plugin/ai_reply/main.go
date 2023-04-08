@@ -15,9 +15,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var replmd = replymode{
-	replyModes: []string{"青云客", "小爱", "ChatGPT"},
-}
+var replmd = replymode([]string{"青云客", "小爱", "ChatGPT"})
 
 var ttsmd = newttsmode()
 
@@ -32,6 +30,7 @@ func init() { // 插件主体
 			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"当前适用的原神人物含有以下: \n" + list(genshin.SoundList[:], 5) +
 			"\n当前适用的TTSCN人物含有以下(以数字顺序代表): \n" + list(ttscnspeakers[:], 5),
+		PrivateDataFolder: "tts",
 	})
 
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
@@ -66,7 +65,7 @@ func init() { // 插件主体
 	})
 
 	enr.OnRegex(`^设置\s*ChatGPT\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := replmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
+		err := ཆཏ.set(ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -184,7 +183,7 @@ func init() { // 插件主体
 	})
 
 	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		err := ttsmd.setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.State["regex_matched"].([]string)[1])
+		err := 原.set(ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

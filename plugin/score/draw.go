@@ -22,6 +22,8 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
 
+type scoredrawer func(a *scdata) (image.Image, error)
+
 func drawScore16(a *scdata) (image.Image, error) {
 	// 绘图
 	getAvatar, err := initPic(a.picfile, a.uid)
