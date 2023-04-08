@@ -2,7 +2,6 @@
 package score
 
 import (
-	"image"
 	"math"
 	"math/rand"
 	"os"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/AnimeAPI/wallet"
-	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/floatbox/web"
@@ -32,8 +30,7 @@ const (
 	referer       = "https://weibo.com/"
 	signinMax     = 1
 	// SCOREMAX 分数上限定为1200
-	SCOREMAX       = 1200
-	defKeyID int64 = -6
+	SCOREMAX = 1200
 )
 
 var (
@@ -41,25 +38,14 @@ var (
 	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "签到",
-		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 设置[默认]签到预设(1~9)\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
+		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 设置签到预设(0~3)\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
 		PrivateDataFolder: "score",
 	})
-	initDef = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		var defkey string
-		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		_ = m.Manager.Response(defKeyID)
-		_ = m.Manager.GetExtra(defKeyID, &defkey)
-		if defkey == "" {
-			_ = m.Manager.SetExtra(defKeyID, "1")
-			return true
-		}
-		return true
-	})
-	stylemap = map[string]func(a *scdata) (image.Image, error){
-		"1": drawScore15,
-		"2": drawScore16,
-		"3": drawScore17,
-		"4": drawScore17b2,
+	styles = []scoredrawer{
+		drawScore15,
+		drawScore16,
+		drawScore17,
+		drawScore17b2,
 	}
 )
 
@@ -84,7 +70,7 @@ func init() {
 		}
 		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
-	engine.OnRegex(`^签到\s?(\d*)$`, initDef).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^签到\s?(\d*)$`).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		// 选择key
 		key := ctx.State["regex_matched"].([]string)[1]
 		gid := ctx.Event.GroupID
@@ -92,15 +78,18 @@ func init() {
 			// 个人用户设为负数
 			gid = -ctx.Event.UserID
 		}
+		k := uint8(0)
 		if key == "" {
-			m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			_ = m.Manager.GetExtra(gid, &key)
-			if key == "" {
-				_ = m.Manager.GetExtra(defKeyID, &key)
+			k = uint8(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).GetData(gid))
+		} else {
+			kn, err := strconv.Atoi(key)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			k = uint8(kn)
 		}
-		drawfunc, ok := stylemap[key]
-		if !ok {
+		if int(k) >= len(styles) {
 			ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key))
 			return
 		}
@@ -165,7 +154,7 @@ func init() {
 			level:      level,
 			rank:       rank,
 		}
-		drawimage, err := drawfunc(alldata)
+		drawimage, err := styles[k](alldata)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -280,30 +269,28 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	engine.OnRegex(`^设置(默认)?签到预设\s?(\d*)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		if key := ctx.State["regex_matched"].([]string)[2]; key == "" {
-			ctx.SendChain(message.Text("设置失败, 数据为空"))
-		} else {
-			s := ctx.State["regex_matched"].([]string)[1]
-			_, ok := stylemap[key]
-			if !ok {
-				ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key)) // 避免签到配置错误
-				return
-			}
-			gid := ctx.Event.GroupID
-			if gid == 0 {
-				gid = -ctx.Event.UserID
-			}
-			if s != "" {
-				gid = defKeyID
-			}
-			err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.SetExtra(gid, key)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			ctx.SendChain(message.Text("设置成功, 当前", s, "预设为:", key))
+	engine.OnRegex(`^设置签到预设\s*(\d+)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		key := ctx.State["regex_matched"].([]string)[1]
+		kn, err := strconv.Atoi(key)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
 		}
+		k := uint8(kn)
+		if int(k) >= len(styles) {
+			ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key))
+			return
+		}
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		err = ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).SetData(gid, int64(k))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("设置成功"))
 	})
 }
 

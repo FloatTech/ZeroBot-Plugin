@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/sirupsen/logrus"
@@ -42,12 +43,14 @@ const (
 var (
 	cachePath string
 	// apikey 由账号和密码拼接而成, 例: zerobot,123456
-	apikey string
+	apikey   string
+	apikeymu sync.Mutex
 )
 
 func init() {
 	engine := control.Register("novel", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
+		Extra:            control.ExtraFromString("novel"),
 		Brief:            "铅笔小说网搜索",
 		Help: "- 小说[xxx]\n" +
 			"- 设置小说配置 zerobot 123456\n" +
@@ -290,16 +293,19 @@ func download(id string, cookie string) (downloadHTML string, err error) {
 }
 
 func getAPIKey(ctx *zero.Ctx) string {
+	apikeymu.Lock()
+	defer apikeymu.Unlock()
 	if apikey == "" {
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		_ = m.Manager.GetExtra(-1, &apikey)
+		_ = m.GetExtra(&apikey)
 		logrus.Debugln("[novel] get api key:", apikey)
 	}
 	return apikey
 }
 
 func setAPIKey(m *ctrl.Control[*zero.Ctx], key string) error {
+	apikeymu.Lock()
+	defer apikeymu.Unlock()
 	apikey = key
-	_ = m.Manager.Response(-1)
-	return m.Manager.SetExtra(-1, apikey)
+	return m.SetExtra(apikey)
 }
