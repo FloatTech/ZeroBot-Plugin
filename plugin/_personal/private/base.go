@@ -18,6 +18,7 @@ const serviceName = "base"
 var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 	DisableOnDefault:  false,
 	Brief:             "基础指令",
+	Extra:             control.ExtraFromString(serviceName),
 	Help:              "- /反馈[内容]\n- @bot备份代码\n- @bot上传代码\n- @bot检查更新\n- @bot重启\n重启需要将bat文件改成while或者goto循环\ntips:检查更新后如果没有问题后需要重启才OK",
 	PrivateDataFolder: "base",
 	OnDisable: func(ctx *zero.Ctx) {
@@ -34,12 +35,18 @@ func init() {
 		process.SleepAbout1sTo2s()
 		m, ok := control.Lookup(serviceName)
 		if ok {
-			botQQ := m.GetData(0)
-			if botQQ <= 0 {
+			var resetInfo string
+			_ = m.GetExtra(&resetInfo)
+			if resetInfo == "" {
 				return
 			}
+			qqList := strings.Split(resetInfo, ":")
+			if len(qqList) < 2 {
+				return
+			}
+			botQQ, _ := strconv.ParseInt(qqList[0], 10, 64)
+			gid, _ := strconv.ParseInt(qqList[1], 10, 64)
 			ctx := zero.GetBot(botQQ)
-			gid := m.GetData(-1)
 			switch {
 			case gid > 0:
 				ctx.SendGroupMessage(gid, message.Text("我回来了😊"))
@@ -48,12 +55,9 @@ func init() {
 			default:
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("我回来了😊"))
 			}
-			err := m.SetData(0, 0) // 清除缓存
+			err := m.SetExtra(qqList[0] + ":0") // 清除缓存
 			if err != nil {
-				err = m.SetData(-1, 0) // 清除缓存
-				if err != nil {
-					ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))
-				}
+				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))
 			}
 		}
 	}()
@@ -61,17 +65,14 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup(serviceName)
 			if ok {
-				err := m.SetData(0, ctx.Event.RawEvent.Get("self_id").Int())
-				if err != nil {
-					ctx.SendChain(message.Text("保存botQQ号失败,", err))
-				}
 				gid := ctx.Event.GroupID
-				if gid == 0 {
+				if zero.OnlyPrivate(ctx) {
 					gid = -ctx.Event.UserID
 				}
-				err = m.SetData(-1, gid)
+				err := m.SetExtra(ctx.Event.RawEvent.Get("self_id").String() + ":" + strconv.FormatInt(gid, 10))
 				if err != nil {
-					ctx.SendChain(message.Text("保存响应对象失败,", err))
+					ctx.SendChain(message.Text(err))
+					return
 				}
 			}
 			ctx.SendChain(message.Text("好的"))
