@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/FloatTech/floatbox/binary"
@@ -16,19 +17,22 @@ import (
 
 // ----------------------- 远程调用 ----------------------
 const (
-	URL            = "https://api.steampowered.com/"                          // steam API 调用地址
-	StatusURL      = "ISteamUser/GetPlayerSummaries/v2/?key=%+v&steamids=%+v" // 根据用户steamID获取用户状态
-	steamapikeygid = 3
+	apiurl    = "https://api.steampowered.com/"                          // steam API 调用地址
+	statusurl = "ISteamUser/GetPlayerSummaries/v2/?key=%+v&steamids=%+v" // 根据用户steamID获取用户状态
 )
 
-var apiKey string
+var (
+	apiKey   string
+	apiKeyMu sync.Mutex
+)
 
 func init() {
 	engine.OnRegex(`^steam绑定\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		apiKeyMu.Lock()
+		defer apiKeyMu.Unlock()
 		apiKey = ctx.State["regex_matched"].([]string)[1]
 		m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		_ = m.Manager.Response(steamapikeygid)
-		err := m.Manager.SetExtra(steamapikeygid, apiKey)
+		err := m.SetExtra(apiKey)
 		if err != nil {
 			ctx.SendChain(message.Text("[steam] ERROR: 保存apikey失败！"))
 			return
@@ -36,6 +40,8 @@ func init() {
 		ctx.SendChain(message.Text("保存apikey成功！"))
 	})
 	engine.OnFullMatch("查看apikey", zero.OnlyPrivate, zero.SuperUserPermission, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		apiKeyMu.Lock()
+		defer apiKeyMu.Unlock()
 		ctx.SendChain(message.Text("apikey为: ", apiKey))
 	})
 	engine.OnFullMatch("拉取steam订阅", getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -55,7 +61,7 @@ func init() {
 		localPlayerMap := make(map[int64]*player)
 		for i := 0; i < len(infos); i++ {
 			streamIds[i] = strconv.FormatInt(infos[i].SteamID, 10)
-			localPlayerMap[infos[i].SteamID] = &infos[i]
+			localPlayerMap[infos[i].SteamID] = infos[i]
 		}
 		// 将所有用户状态查一遍
 		playerStatus, err := getPlayerStatus(streamIds...)
@@ -114,7 +120,9 @@ func init() {
 func getPlayerStatus(streamIds ...string) ([]*player, error) {
 	players := make([]*player, 0)
 	// 拼接请求地址
-	url := fmt.Sprintf(URL+StatusURL, apiKey, strings.Join(streamIds, ","))
+	apiKeyMu.Lock()
+	url := fmt.Sprintf(apiurl+statusurl, apiKey, strings.Join(streamIds, ","))
+	apiKeyMu.Unlock()
 	// 拉取并解析数据
 	data, err := web.GetData(url)
 	if err != nil {
