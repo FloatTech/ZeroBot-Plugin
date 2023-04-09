@@ -2,6 +2,7 @@ package aireply
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/RomiChan/syncx"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -57,6 +58,7 @@ const defaultttsindexkey = -2905
 var (
 	原  = newapikeystore("./data/tts/o.txt")
 	ཆཏ = newapikeystore("./data/tts/c.txt")
+	百  = newapikeystore("./data/tts/b.txt")
 )
 
 type replymode []string
@@ -202,7 +204,8 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 	if !ok || ins == nil {
 		switch mode {
 		case extrattsname[0]:
-			ins = baidutts.NewBaiduTTS(int(i&0x0f00) >> 8)
+			id, sec, _ := strings.Cut(百.k, ",")
+			ins = baidutts.NewBaiduTTS(int(i&0x0f00)>>8, id, sec)
 		case extrattsname[1]:
 			var err error
 			ins, err = ttscn.NewTTSCN("中文（普通话，简体）", ttscnspeakers[int(i&0xf000)>>12], ttscn.KBRates[0])
