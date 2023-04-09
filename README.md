@@ -1386,7 +1386,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 来份网易云热评
 
-  </details>
+</details>
+<details>
+  <summary>据意查句</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"`
+
+  - [x] 据意查句 大海
+  
+  - [x] 登录据意查句 
+
+</details>
 <details>
   <summary>星际战甲</summary>
 
