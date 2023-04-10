@@ -18,8 +18,8 @@ github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJG
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230408032827-50ef967f2849 h1:ARKWV3tXJLENWY6vcwTStEDwJckYnxoHXgZMsuJ3gUw=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230408032827-50ef967f2849/go.mod h1:IagyEhY38VcbbQgVRzAM9f9mhaUn90rM5BTPfudtl1g=
-github.com/FloatTech/zbputils v1.6.2-0.20230410061920-5cc4e86b882b h1:SKiGdj1CpeBAmIFF5OvdgdDbSA+nUKj4zcZF/Jb4D2k=
-github.com/FloatTech/zbputils v1.6.2-0.20230410061920-5cc4e86b882b/go.mod h1:GLuSpLdTOCpqkR1oxqjuDz/rOif/ZrH4zGhtMzBqlqo=
+github.com/FloatTech/zbputils v1.6.2-0.20230410152717-6fc617e7c2fb h1:qaNGMdblE/Ix3xbBcnTOYCjKVNy2W8JXuUAqJHuMTAI=
+github.com/FloatTech/zbputils v1.6.2-0.20230410152717-6fc617e7c2fb/go.mod h1:GLuSpLdTOCpqkR1oxqjuDz/rOif/ZrH4zGhtMzBqlqo=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
