@@ -192,13 +192,12 @@ func getPara(ctx *zero.Ctx) bool {
 // setAPIKey 获取apikey
 func getAPIKey(ctx *zero.Ctx) (apikey string) {
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	_ = m.Manager.GetExtra(-1, &apikey)
+	_ = m.GetExtra(&apikey)
 	logrus.Debugln("[wantquotes] get api key:", apikey)
 	return
 }
 
 // setAPIKey 设置apikey, 格式为unionid|secret
 func setAPIKey(m *ctrl.Control[*zero.Ctx], apikey string) error {
-	_ = m.Manager.Response(-1)
-	return m.Manager.SetExtra(-1, apikey)
+	return m.SetExtra(apikey)
 }
