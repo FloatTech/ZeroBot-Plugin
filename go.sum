@@ -21,8 +21,8 @@ github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJG
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230408032827-50ef967f2849 h1:ARKWV3tXJLENWY6vcwTStEDwJckYnxoHXgZMsuJ3gUw=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230408032827-50ef967f2849/go.mod h1:IagyEhY38VcbbQgVRzAM9f9mhaUn90rM5BTPfudtl1g=
-github.com/FloatTech/zbputils v1.6.2-0.20230410042038-a0edcffb78dc h1:UHFFiG1VG2XmVhFeZ/hGDtryDvu4gSRM1UabT2vleE0=
-github.com/FloatTech/zbputils v1.6.2-0.20230410042038-a0edcffb78dc/go.mod h1:GLuSpLdTOCpqkR1oxqjuDz/rOif/ZrH4zGhtMzBqlqo=
+github.com/FloatTech/zbputils v1.6.2-0.20230410061920-5cc4e86b882b h1:SKiGdj1CpeBAmIFF5OvdgdDbSA+nUKj4zcZF/Jb4D2k=
+github.com/FloatTech/zbputils v1.6.2-0.20230410061920-5cc4e86b882b/go.mod h1:GLuSpLdTOCpqkR1oxqjuDz/rOif/ZrH4zGhtMzBqlqo=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
