@@ -104,7 +104,7 @@ func init() { // 插件主体
 			}
 		})
 
-	ent.OnRegex(`^设置语音模式\s*(.*)\s+(\d*)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	ent.OnRegex(`^设置语音模式\s*([\S\D]*)\s+(\d*)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
 		num := ctx.State["regex_matched"].([]string)[2]
 		n := 0
@@ -147,7 +147,7 @@ func init() { // 插件主体
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功"))
 	})
 
-	ent.OnRegex(`^设置默认语音模式\s*([\S\D]*)\s*(\d*)$`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	ent.OnRegex(`^设置默认语音模式\s*([\S\D]*)\s+(\d*)$`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
 		num := ctx.State["regex_matched"].([]string)[2]
 		n := 0
