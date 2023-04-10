@@ -43,9 +43,9 @@ func init() {
 		logrus.Warnln("[dish]获取菜谱数据库文件失败")
 	} else if err = db.Open(time.Hour * 24); err != nil {
 		logrus.Warnln("[dish]连接菜谱数据库失败")
-	} else if err = db.Create("dishes", &dish{}); err != nil {
+	} else if err = db.Create("dish", &dish{}); err != nil {
 		logrus.Warnln("[dish]同步菜谱数据表失败")
-	} else if count, err := db.Count("dishes"); err != nil {
+	} else if count, err := db.Count("dish"); err != nil {
 		logrus.Warnln("[dish]统计菜谱数据失败")
 	} else {
 		logrus.Infoln("[dish]加载", count, "条菜谱")
@@ -77,7 +77,7 @@ func init() {
 		}
 
 		var d dish
-		if err := db.Find("dishes", &d, fmt.Sprintf("WHERE name like %%%s%%", dishName)); err != nil {
+		if err := db.Find("dish", &d, fmt.Sprintf("WHERE name like %%%s%%", dishName)); err != nil {
 			return
 		}
 
@@ -98,7 +98,7 @@ func init() {
 
 		name := ctx.NickName()
 		var d dish
-		if err := db.Pick("dishes", &d); err != nil {
+		if err := db.Pick("dish", &d); err != nil {
 			ctx.SendChain(message.Text("小店好像出错了，暂时端不出菜来惹"))
 			logrus.Warnln("[dish]随机菜谱请求出错：" + err.Error())
 			return
