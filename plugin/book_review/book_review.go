@@ -27,7 +27,7 @@ func init() {
 		db.DBPath = engine.DataFolder() + "bookreview.db"
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("bookreview.db", true)
-		err := db.Open(time.Hour * 24)
+		err := db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return false

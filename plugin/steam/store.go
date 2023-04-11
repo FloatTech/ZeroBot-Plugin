@@ -17,7 +17,7 @@ var (
 	// 开启并检查数据库链接
 	getDB = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		database.db.DBPath = engine.DataFolder() + "steam.db"
-		err := database.db.Open(time.Hour * 24)
+		err := database.db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text("[steam] ERROR: ", err))
 			return false

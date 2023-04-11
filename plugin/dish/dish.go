@@ -41,7 +41,7 @@ func init() {
 
 	if _, err := en.GetLazyData("dishes.db", true); err != nil {
 		logrus.Warnln("[dish]获取菜谱数据库文件失败")
-	} else if err = db.Open(time.Hour * 24); err != nil {
+	} else if err = db.Open(time.Hour); err != nil {
 		logrus.Warnln("[dish]连接菜谱数据库失败")
 	} else if err = db.Create("dish", &dish{}); err != nil {
 		logrus.Warnln("[dish]同步菜谱数据表失败")

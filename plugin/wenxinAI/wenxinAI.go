@@ -100,7 +100,7 @@ func init() { // 插件主体
 	))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		vilginfo.db.DBPath = engine.DataFolder() + "ernieVilg.db"
-		err := vilginfo.db.Open(time.Hour * 24)
+		err := vilginfo.db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text(serviceErr, err))
 			return false
@@ -302,7 +302,7 @@ func init() { // 插件主体
 	))
 	getmodeldb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		modelinfo.db.DBPath = engine.DataFolder() + "ernieModel.db"
-		err := modelinfo.db.Open(time.Hour * 24)
+		err := modelinfo.db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text(modelErr, err))
 			return false
