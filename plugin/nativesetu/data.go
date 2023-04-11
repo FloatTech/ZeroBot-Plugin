@@ -47,7 +47,7 @@ func (n *nsetu) scanall(path string) error {
 	root := os.DirFS(path)
 	_ = n.db.Close()
 	_ = os.Remove(n.db.DBPath)
-	err := n.db.Open(time.Hour * 24)
+	err := n.db.Open(time.Hour)
 	if err != nil {
 		return err
 	}

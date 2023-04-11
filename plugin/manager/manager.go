@@ -73,7 +73,7 @@ func init() { // 插件主体
 
 	go func() {
 		db.DBPath = engine.DataFolder() + "config.db"
-		err := db.Open(time.Hour * 24)
+		err := db.Open(time.Hour)
 		if err != nil {
 			panic(err)
 		}
