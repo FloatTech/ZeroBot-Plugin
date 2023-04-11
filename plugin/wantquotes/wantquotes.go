@@ -26,10 +26,11 @@ const (
 	showqrcode    = "https://mp.weixin.qq.com/cgi-bin/showqrcode"
 	loginCheck    = "/api/login_check/"
 	semantic      = "/api/semantic/"
+	semanticURL   = wantquotesURL + semantic + "?query=%s&type=%s&unionid=%s&secret=%s"
 )
 
 var (
-	typeList = []string{"现", "现-名言", "现-佳句", "现-佳句-文学", "现-佳句-诗歌", "现-佳句-其他", "现-网络", "现-台词", "现-台词-影视剧", "现-台词-动漫", "现-台词-综艺",
+	typeList = [...]string{"现", "现-名言", "现-佳句", "现-佳句-文学", "现-佳句-诗歌", "现-佳句-其他", "现-网络", "现-台词", "现-台词-影视剧", "现-台词-动漫", "现-台词-综艺",
 		"古", "谚", "谚-谚语", "谚-俗语", "谚-惯用语", "歇"}
 )
 
@@ -61,6 +62,7 @@ type Quotes struct {
 func init() {
 	engine := control.Register("wantquotes", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
+		Extra:            control.ExtraFromString("wantquotes"),
 		Brief:            "据意查句",
 		Help: "- 据意查句 大海 (需登录据意查句)\n" +
 			"- 登录据意查句",
@@ -71,9 +73,12 @@ func init() {
 	engine.OnRegex(`^据意查句\s?(.{1,25})$`, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		keyword := ctx.State["regex_matched"].([]string)[1]
 		quotesType := ctx.State["quotesType"].(string)
-		key := getAPIKey(ctx)
+		var key string
+		manager := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		_ = manager.GetExtra(&key)
+		logrus.Debugln("[wantquotes] get api key:", key)
 		unionid, secret, _ := strings.Cut(key, "|")
-		apiURL := fmt.Sprintf("%s?query=%s&type=%s&unionid=%s&secret=%s", wantquotesURL+semantic, url.QueryEscape(keyword), url.QueryEscape(quotesType), url.QueryEscape(unionid), url.QueryEscape(secret))
+		apiURL := fmt.Sprintf(semanticURL, url.QueryEscape(keyword), url.QueryEscape(quotesType), url.QueryEscape(unionid), url.QueryEscape(secret))
 		data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL, "GET", wantquotesURL, web.RandUA(), nil)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -120,31 +125,42 @@ func init() {
 		}
 		ctx.SendChain(message.Text("WantQuotes\n微信扫码登录\n首次登录需关注公众号"))
 		ctx.SendChain(message.ImageBytes(showQrcodeData))
-		now := time.Now()
+
+		ticker := time.NewTicker(2 * time.Second) // 创建每秒触发一次的定时器
+		done := make(chan bool)
+
+		go func() {
+			time.Sleep(120 * time.Second) // 等待120秒后关闭定时器
+			done <- true
+		}()
+
 		for {
-			if time.Since(now).Seconds() > 120 {
-				ctx.SendChain(message.Text("据意查句登录超时,请重新登录"))
-				return
-			}
-			time.Sleep(2 * time.Second)
-			loginCheckData, err := web.RequestDataWith(web.NewDefaultClient(), wantquotesURL+loginCheck+"?scene_id="+qrRsp.SceneID, "GET", "", web.RandUA(), nil)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			var lcr loginCheckRsp
-			err = json.Unmarshal(loginCheckData, &lcr)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			if lcr.Login == 1 {
-				err := setAPIKey(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), lcr.Unionid+"|"+lcr.Secret)
+			select {
+			case <-ticker.C:
+				loginCheckData, err := web.RequestDataWith(web.NewDefaultClient(), wantquotesURL+loginCheck+"?scene_id="+qrRsp.SceneID, "GET", "", web.RandUA(), nil)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.Text("据意查句登录成功"))
+				var lcr loginCheckRsp
+				err = json.Unmarshal(loginCheckData, &lcr)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				if lcr.Login == 1 {
+					manager := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+					err := manager.SetExtra(lcr.Unionid + "|" + lcr.Secret)
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: ", err))
+						return
+					}
+					ctx.SendChain(message.Text("据意查句登录成功"))
+					return
+				}
+			case <-done:
+				ctx.SendChain(message.Text("据意查句登录超时,请重新登录"))
+				ticker.Stop()
 				return
 			}
 		}
@@ -187,17 +203,4 @@ func getPara(ctx *zero.Ctx) bool {
 			return true
 		}
 	}
-}
-
-// setAPIKey 获取apikey
-func getAPIKey(ctx *zero.Ctx) (apikey string) {
-	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	_ = m.GetExtra(&apikey)
-	logrus.Debugln("[wantquotes] get api key:", apikey)
-	return
-}
-
-// setAPIKey 设置apikey, 格式为unionid|secret
-func setAPIKey(m *ctrl.Control[*zero.Ctx], apikey string) error {
-	return m.SetExtra(apikey)
 }
