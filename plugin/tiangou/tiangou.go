@@ -37,7 +37,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
 			}
-			err = db.Open(time.Hour * 24)
+			err = db.Open(time.Hour)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false

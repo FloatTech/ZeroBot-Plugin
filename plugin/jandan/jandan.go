@@ -33,7 +33,7 @@ func init() {
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		db.DBPath = engine.DataFolder() + "pics.db"
 		_, _ = engine.GetLazyData("pics.db", false)
-		err := db.Open(time.Hour * 24)
+		err := db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return false

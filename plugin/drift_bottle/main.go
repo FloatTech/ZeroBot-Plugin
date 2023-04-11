@@ -40,7 +40,7 @@ func init() {
 		PrivateDataFolder: "driftbottle",
 	})
 	seaSide.DBPath = en.DataFolder() + "sea.db"
-	err := seaSide.Open(time.Hour * 24)
+	err := seaSide.Open(time.Hour)
 	if err != nil {
 		panic(err)
 	}
