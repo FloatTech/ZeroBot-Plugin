@@ -82,7 +82,7 @@ var (
 	))
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		民政局.db.DBPath = engine.DataFolder() + "结婚登记表.db"
-		err := 民政局.db.Open(time.Hour * 24)
+		err := 民政局.db.Open(time.Hour)
 		if err == nil {
 			// 创建群配置表
 			err = 民政局.db.Create("updateinfo", &updateinfo{})
