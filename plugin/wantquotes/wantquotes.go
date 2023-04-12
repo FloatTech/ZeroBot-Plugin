@@ -75,7 +75,11 @@ func init() {
 		quotesType := ctx.State["quotesType"].(string)
 		var key string
 		manager := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		_ = manager.GetExtra(&key)
+		err := manager.GetExtra(&key)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		logrus.Debugln("[wantquotes] get api key:", key)
 		unionid, secret, _ := strings.Cut(key, "|")
 		apiURL := fmt.Sprintf(semanticURL, url.QueryEscape(keyword), url.QueryEscape(quotesType), url.QueryEscape(unionid), url.QueryEscape(secret))
@@ -127,40 +131,33 @@ func init() {
 		ctx.SendChain(message.ImageBytes(showQrcodeData))
 
 		ticker := time.NewTicker(2 * time.Second) // 创建每秒触发一次的定时器
-		done := make(chan bool)
-
-		go func() {
-			time.Sleep(120 * time.Second) // 等待120秒后关闭定时器
-			done <- true
-		}()
-
-		for {
-			select {
-			case <-ticker.C:
-				loginCheckData, err := web.RequestDataWith(web.NewDefaultClient(), wantquotesURL+loginCheck+"?scene_id="+qrRsp.SceneID, "GET", "", web.RandUA(), nil)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				var lcr loginCheckRsp
-				err = json.Unmarshal(loginCheckData, &lcr)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-				if lcr.Login == 1 {
-					manager := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-					err := manager.SetExtra(lcr.Unionid + "|" + lcr.Secret)
-					if err != nil {
-						ctx.SendChain(message.Text("ERROR: ", err))
-						return
-					}
-					ctx.SendChain(message.Text("据意查句登录成功"))
-					return
-				}
-			case <-done:
+		defer ticker.Stop()
+		count := 0
+		for _ = range ticker.C {
+			count++
+			if count == 60 {
 				ctx.SendChain(message.Text("据意查句登录超时,请重新登录"))
-				ticker.Stop()
+				return
+			}
+			loginCheckData, err := web.RequestDataWith(web.NewDefaultClient(), wantquotesURL+loginCheck+"?scene_id="+qrRsp.SceneID, "GET", "", web.RandUA(), nil)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			var lcr loginCheckRsp
+			err = json.Unmarshal(loginCheckData, &lcr)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			if lcr.Login == 1 {
+				manager := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+				err := manager.SetExtra(lcr.Unionid + "|" + lcr.Secret)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				ctx.SendChain(message.Text("据意查句登录成功"))
 				return
 			}
 		}
