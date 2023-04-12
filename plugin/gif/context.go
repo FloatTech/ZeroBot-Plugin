@@ -119,6 +119,7 @@ func encodeGIFToBase64(name string, gifImage *gif.GIF) (string, error) {
 		return "", fmt.Errorf(name, err)
 	}
 	encodedGIF := base64.StdEncoding.EncodeToString(buf.Bytes())
+	//保存文件
 	//err = imgfactory.SaveGIF2Path(name, gifImage)
 	//if err != nil {
 	//	return "", err
