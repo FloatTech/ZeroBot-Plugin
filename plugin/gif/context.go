@@ -3,7 +3,7 @@ package gif
 import (
 	"bytes"
 	"encoding/base64"
-	"fmt"
+	"errors"
 	"image/gif"
 	"os"
 	"strconv"
@@ -116,7 +116,8 @@ func encodeGIFToBase64(name string, gifImage *gif.GIF) (string, error) {
 	var buf bytes.Buffer
 	err := gif.EncodeAll(&buf, gifImage)
 	if err != nil {
-		return "", fmt.Errorf(name, err)
+		//这里只是为了使用这个name而这么写
+		return "", errors.New(name + err.Error())
 	}
 	encodedGIF := base64.StdEncoding.EncodeToString(buf.Bytes())
 	//保存文件
