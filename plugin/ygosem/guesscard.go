@@ -485,7 +485,7 @@ func (sql *carddb) loadpunish(gid int64, i int) error {
 	err := sql.db.Create("punish", &punish{})
 	if err == nil {
 		var groupInfo punish
-		_ = sql.db.Find("punish", &groupInfo, "where Group is "+strconv.FormatInt(gid, 10))
+		_ = sql.db.Find("punish", &groupInfo, "where GroupID is "+strconv.FormatInt(gid, 10))
 		groupInfo.GroupID = gid
 		groupInfo.LastTime = time.Now().Unix()
 		groupInfo.Value += i
@@ -502,7 +502,7 @@ func (sql *carddb) checkGroup(gid int64) (float64, bool) {
 		return 0, true
 	}
 	groupInfo := new(punish)
-	_ = sql.db.Find("punish", &groupInfo, "where Group is "+strconv.FormatInt(gid, 10))
+	_ = sql.db.Find("punish", &groupInfo, "where GroupID is "+strconv.FormatInt(gid, 10))
 	if groupInfo.LastTime > 0 {
 		subTime := time.Since(time.Unix(groupInfo.LastTime, 0)).Minutes()
 		if subTime >= 30 {
