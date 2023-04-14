@@ -35,6 +35,12 @@ type carddb struct {
 	sync.RWMutex
 }
 
+type punish struct {
+	GroupID  int64 // 群ID
+	LastTime int64 // 时间
+	Value    int   // 惩罚值
+}
+
 var (
 	mu        sync.RWMutex
 	carddatas = &carddb{
@@ -43,7 +49,7 @@ var (
 	engine = control.Register("guessygo", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "游戏王猜卡游戏",
-		Help:              "-猜卡游戏\n-(黑边|反色|马赛克|旋转|切图)猜卡游戏",
+		Help:              "-猜卡游戏\n-(黑边|反色|马赛克|旋转|切图)猜卡游戏\n-----------------------\n惩罚值:\n当惩罚值达到30将关闭猜卡游戏功能30分钟",
 		PrivateDataFolder: "ygosem",
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
@@ -68,6 +74,11 @@ var (
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
 		}
+		err = carddatas.db.Create("punish", &punish{})
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return false
+		}
 		return true
 	})
 )
@@ -79,7 +90,14 @@ func init() {
 			panic(err)
 		}
 	}()
-	engine.OnRegex("^(黑边|反色|马赛克|旋转|切图)?猜卡游戏$", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex("^(黑边|反色|马赛克|旋转|切图)?猜卡游戏$", zero.OnlyGroup, getdb, func(ctx *zero.Ctx) bool {
+		subTime, ok := carddatas.checkGroup(ctx.Event.GroupID)
+		if !ok {
+			ctx.SendChain(message.Text("处于处罚期间,", strconv.FormatFloat(subTime, 'f', 0, 64), "分钟后解除"))
+			return false
+		}
+		return true
+	}).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("正在准备题目,请稍等"))
 		mode := -1
 		switch ctx.State["regex_matched"].([]string)[1] {
@@ -119,9 +137,9 @@ func init() {
 		// 进行猜卡环节
 		game := newGame(semdata)
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.OnlyGroup,
+		recv, cancel := zero.NewFutureEvent("message", 1, false, zero.OnlyGroup,
 			zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
-		// defer cancel()
+		defer cancel()
 		tick := time.NewTimer(105 * time.Second)
 		over := time.NewTimer(120 * time.Second)
 		var (
@@ -133,57 +151,87 @@ func init() {
 			case <-tick.C:
 				ctx.SendChain(message.Text("还有15s作答时间"))
 			case <-over.C:
-				cancel()
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("时间超时,游戏结束\n卡名是:\n", semdata.Name),
-					message.Image("file:///"+file.BOTPATH+"/"+picFile)))
+				err := carddatas.loadpunish(ctx.Event.GroupID, 6)
+				if err != nil {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Text("时间超时,游戏结束\n卡名是:\n", semdata.Name, "\n"),
+						message.Image("file:///"+file.BOTPATH+"/"+picFile),
+						message.Text("\n", err)))
+				} else {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Text("时间超时,游戏结束\n卡名是:\n", semdata.Name, "\n"),
+						message.Image("file:///"+file.BOTPATH+"/"+picFile),
+						message.Text("\n惩罚值+6")))
+				}
 				return
 			case c := <-recv:
 				answer := c.Event.Message.String()
 				if answer == "取消" {
 					if c.Event.UserID == ctx.Event.UserID {
-						cancel()
 						tick.Stop()
 						over.Stop()
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-							message.Text("游戏已取消\n卡名是:\n", semdata.Name),
-							message.Image("file:///"+file.BOTPATH+"/"+picFile)))
+						err := carddatas.loadpunish(ctx.Event.GroupID, 5)
+						if err != nil {
+							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+								message.Text("游戏已取消\n卡名是:\n", semdata.Name, "\n"),
+								message.Image("file:///"+file.BOTPATH+"/"+picFile),
+								message.Text("\n", err)))
+						} else {
+							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+								message.Text("游戏已取消\n卡名是:\n", semdata.Name, "\n"),
+								message.Image("file:///"+file.BOTPATH+"/"+picFile),
+								message.Text("\n惩罚值+5")))
+						}
 						return
 					}
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("你无权限取消")))
 					return
 				}
-				if answer == "提示" {
-					if tickCount > 3 {
-						tick.Reset(105 * time.Second)
-						over.Reset(120 * time.Second)
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("已经没有提示了哦,加油啊")))
-						continue
-					}
-					tickCount++
-				} else {
+				if answer != "提示" {
 					_, answer, _ = strings.Cut(answer, "我猜")
-					answerCount++
+				} else if tickCount > 3 {
+					tick.Reset(105 * time.Second)
+					over.Reset(120 * time.Second)
+					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("已经没有提示了哦,加油啊")))
+					continue
 				}
-				messageStr, win := game(answer, tickCount-1, answerCount)
+				answerTimes, tickTimes, messageStr, win := game(answer, tickCount, answerCount)
 				if win {
-					cancel()
 					tick.Stop()
 					over.Stop()
-					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-						message.Text(messageStr),
-						message.Image("file:///"+file.BOTPATH+"/"+picFile)))
+					err := carddatas.loadpunish(ctx.Event.GroupID, 1)
+					if err != nil {
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text(messageStr, "\n"),
+							message.Image("file:///"+file.BOTPATH+"/"+picFile),
+							message.Text("\n", err)))
+					} else {
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text(messageStr, "\n"),
+							message.Image("file:///"+file.BOTPATH+"/"+picFile),
+							message.Text("\n惩罚值+1")))
+					}
 					return
 				}
-				if answerCount >= 6 {
-					cancel()
+				if answerTimes >= 6 {
 					tick.Stop()
 					over.Stop()
-					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n"+semdata.Name),
-						message.Image("file:///"+file.BOTPATH+"/"+picFile)))
+					err := carddatas.loadpunish(ctx.Event.GroupID, 5)
+					if err != nil {
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", semdata.Name, "\n"),
+							message.Image("file:///"+file.BOTPATH+"/"+picFile),
+							message.Text("\n", err)))
+					} else {
+						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+							message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", semdata.Name, "\n"),
+							message.Image("file:///"+file.BOTPATH+"/"+picFile),
+							message.Text("\n惩罚值+5")))
+					}
 					return
 				}
+				answerCount = answerTimes
+				tickCount = tickTimes
 				tick.Reset(105 * time.Second)
 				over.Reset(120 * time.Second)
 				ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text(messageStr)))
@@ -301,7 +349,7 @@ func setBlur(dst *imgfactory.Factory) ([]byte, error) {
 // 马赛克
 func setMark(dst *imgfactory.Factory) ([]byte, error) {
 	b := dst.Image().Bounds()
-	markSize := 64 * (1 + rand.Intn(2))
+	markSize := 32 * (1 + rand.Intn(2))
 
 	for yOfMarknum := 0; yOfMarknum <= math.Ceil(b.Max.Y, markSize); yOfMarknum++ {
 		for xOfMarknum := 0; xOfMarknum <= math.Ceil(b.Max.X, markSize); xOfMarknum++ {
@@ -356,22 +404,24 @@ func cutPic(pic image.Image) ([]byte, error) {
 	return imgfactory.ToBytes(returnpic.Image())
 }
 
-func newGame(cardData gameCardInfo) func(string, int, int) (string, bool) {
-	return func(s string, stickCount, answerCount int) (message string, win bool) {
+func newGame(cardData gameCardInfo) func(string, int, int) (int, int, string, bool) {
+	return func(s string, stickCount, answerCount int) (int, int, string, bool) {
 		switch s {
 		case "提示":
 			tips := getTips(cardData, stickCount)
-			return tips, false
+			stickCount++
+			return answerCount, stickCount, tips, false
 		default:
 			name := []rune(cardData.Name)
 			switch {
 			case len([]rune(s)) < math.Ceil(len(name), 4):
-				return "请输入" + strconv.Itoa(math.Ceil(len(name), 4)) + "字以上", false
+				return answerCount, stickCount, "请输入" + strconv.Itoa(math.Ceil(len(name), 4)) + "字以上", false
 			case strings.Contains(cardData.Name, s):
-				return "太棒了,你猜对了!\n卡名是:\n" + cardData.Name, true
+				return answerCount, stickCount, "太棒了,你猜对了!\n卡名是:\n" + cardData.Name, true
 			}
 		}
-		return "答案不对哦,还有" + strconv.Itoa(6-answerCount) + "次回答机会,加油啊~", false
+		count := answerCount + 1
+		return count, stickCount, "答案不对哦,还有" + strconv.Itoa(6-count) + "次回答机会,加油啊~", false
 	}
 }
 
@@ -427,4 +477,42 @@ func (sql *carddb) pick() (dbInfo gameCardInfo, err error) {
 		err = sql.db.Pick("cards", &dbInfo)
 	}
 	return
+}
+
+func (sql *carddb) loadpunish(gid int64, i int) error {
+	sql.Lock()
+	defer sql.Unlock()
+	err := sql.db.Create("punish", &punish{})
+	if err == nil {
+		var groupInfo punish
+		_ = sql.db.Find("punish", &groupInfo, "where Group is "+strconv.FormatInt(gid, 10))
+		groupInfo.GroupID = gid
+		groupInfo.LastTime = time.Now().Unix()
+		groupInfo.Value += i
+		return sql.db.Insert("punish", &groupInfo)
+	}
+	return err
+}
+
+func (sql *carddb) checkGroup(gid int64) (float64, bool) {
+	sql.Lock()
+	defer sql.Unlock()
+	err := sql.db.Create("punish", &punish{})
+	if err != nil {
+		return 0, true
+	}
+	groupInfo := new(punish)
+	_ = sql.db.Find("punish", &groupInfo, "where Group is "+strconv.FormatInt(gid, 10))
+	if groupInfo.LastTime > 0 {
+		subTime := time.Since(time.Unix(groupInfo.LastTime, 0)).Minutes()
+		if subTime >= 30 {
+			groupInfo.LastTime = time.Now().Unix()
+			groupInfo.Value = 0
+			_ = sql.db.Insert("punish", &groupInfo)
+			return subTime, true
+		} else if groupInfo.Value >= 30 {
+			return subTime, false
+		}
+	}
+	return 0, true
 }

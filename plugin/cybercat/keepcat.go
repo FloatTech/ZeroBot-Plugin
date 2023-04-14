@@ -19,6 +19,9 @@ func init() {
 		if now := time.Now().Hour(); (now >= 6 && now <= 8) || (now >= 11 && now <= 13) || (now >= 17 && now <= 19) || ctx.State["regex_matched"].([]string)[0] == "猫猫状态" {
 			return true
 		}
+		if rand.Intn(3) == 1 {
+			return true
+		}
 		ctx.SendChain(message.Text("猫猫只想和你一起吃传统早中晚饭咧"))
 		return false
 	}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {

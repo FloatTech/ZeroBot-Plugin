@@ -21,6 +21,7 @@ import (
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/disintegration/imaging"
+	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -105,11 +106,10 @@ func init() {
 			userinfo.UserName = ctx.CardOrNickName(uid)
 		}
 		lasttime := time.Unix(userinfo.UpdatedAt, 0)
+		score := wallet.GetWalletOf(uid)
 		// 判断是否已经签到过了
 		if time.Now().Format("2006/01/02") == lasttime.Format("2006/01/02") {
-			score := wallet.GetWalletOf(uid)
-			picFile := userinfo.Picname
-			data, err := drawimagePro(&userinfo, score, 0, picFile)
+			data, err := drawimagePro(&userinfo, score, 0)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
@@ -118,10 +118,17 @@ func init() {
 			ctx.SendChain(message.ImageBytes(data))
 			return
 		}
-		picFile, err := initPic()
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
-		}
+		var picFile string
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			picPath, err := initPic()
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+			}
+			picFile = picPath
+		}()
 		// 更新数据
 		add := 1
 		subtime := time.Since(lasttime).Hours()
@@ -135,19 +142,23 @@ func init() {
 		if userinfo.Level < scoreMax {
 			userinfo.Level += add
 		}
+		wg.Wait()
 		userinfo.Picname = picFile
-		if err := scoredata.setData(userinfo); err != nil {
-			ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
-			return
-		}
-		level, _ := getLevel(userinfo.Level)
-		if err := wallet.InsertWalletOf(uid, add+level*5); err != nil {
-			ctx.SendChain(message.Text("[ERROR]:货币记录失败。", err))
-			return
-		}
-		score := wallet.GetWalletOf(uid)
+		go func() {
+			if err := scoredata.setData(userinfo); err != nil {
+				ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
+				return
+			}
+			level, _ := getLevel(userinfo.Level)
+			if err := wallet.InsertWalletOf(uid, add+level*5); err != nil {
+				ctx.SendChain(message.Text("[ERROR]:货币记录失败。", err))
+				return
+			}
+			score = wallet.GetWalletOf(uid)
+		}()
 		// 生成签到图片
-		data, err := drawimagePro(&userinfo, score, add, picFile)
+		wg.Wait()
+		data, err := drawimagePro(&userinfo, score, add)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
@@ -249,12 +260,14 @@ func initPic() (picFile string, err error) {
 	// defer process.SleepAbout1sTo2s()
 	data, err := web.GetData("https://img.moehu.org/pic.php?return=json&id=yu-gi-oh&num=1")
 	if err != nil { // 如果api跑路了抽本地
+		logrus.Warnln("[score] 访问api失败,将从本地抽取:", err)
 		return randFile(3)
 	}
 	parsed := datajson{}
 	err = json.Unmarshal(data, &parsed)
 	if err != nil {
-		return
+		logrus.Warnln("[score] 解析api失败,将从本地抽取:", err)
+		return randFile(3)
 	}
 	if len(parsed.Pic) == 0 {
 		return "", errors.New("no picData")
@@ -266,7 +279,12 @@ func initPic() (picFile string, err error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
-	return picFile, file.DownloadTo(parsed.Pic[0], picFile)
+	err = file.DownloadTo(parsed.Pic[0], picFile)
+	if err != nil {
+		logrus.Warnln("[score] 下载图片失败,将从本地抽取:", err)
+		return randFile(3)
+	}
+	return picFile, nil
 }
 
 func randFile(indexMax int) (string, error) {
@@ -290,8 +308,8 @@ func randFile(indexMax int) (string, error) {
 	return "", errors.New("不存在本地签到图片")
 }
 
-func drawimagePro(userinfo *userdata, score, add int, picFile string) (data []byte, err error) {
-	back, err := gg.LoadImage(picFile)
+func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
+	back, err := gg.LoadImage(userinfo.Picname)
 	if err != nil {
 		return
 	}
