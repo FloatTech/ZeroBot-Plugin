@@ -93,7 +93,7 @@ func init() {
 	engine.OnRegex("^(黑边|反色|马赛克|旋转|切图)?猜卡游戏$", zero.OnlyGroup, getdb, func(ctx *zero.Ctx) bool {
 		subTime, ok := carddatas.checkGroup(ctx.Event.GroupID)
 		if !ok {
-			ctx.SendChain(message.Text("处于处罚期间,", strconv.FormatFloat(subTime, 'f', 0, 64), "分钟后解除"))
+			ctx.SendChain(message.Text("处于处罚期间,", strconv.FormatFloat(30-subTime, 'f', 0, 64), "分钟后解除"))
 			return false
 		}
 		return true
