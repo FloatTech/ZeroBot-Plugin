@@ -2,7 +2,7 @@
 package quan
 
 import (
-	"fmt"
+	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -11,12 +11,17 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
-	quan = "http://tc.tfkapi.top/API/qqqz.php?qq=%v" // api
+	quan = "http://tfapi.top/API/qqqz.php?type=json&qq=" // api
 )
+
+type result struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Qz   string `json:"qz"`
+}
 
 func init() { // 主函数
 	en := control.Register("quan", &ctrl.Options[*zero.Ctx]{
@@ -31,28 +36,25 @@ func init() { // 主函数
 		if str == "" {                                  // user
 			str = strconv.FormatInt(ctx.Event.UserID, 10)
 		}
-		es, err := web.GetData(fmt.Sprintf(quan, str)) // 将网站返回结果赋值
+		es, err := web.GetData(quan + str) // 将网站返回结果赋值
 		if err != nil {
-			ctx.SendChain(message.Text("出现错误捏：", err))
+			ctx.SendChain(message.Text("出现错误捏: ", err))
 			return
 		}
-		if len(helper.BytesToString(es)) <= 24 {
-			ctx.SendChain(message.Text("网站维护中")) // 输出结果
-			return
-		}
-		f := helper.BytesToString(es)[24:]
-		_, err = strconv.Atoi(f)
+		var data result
+		err = json.Unmarshal(es, &data)
 		if err != nil {
-			ctx.SendChain(message.Text("网站维护中")) // 输出结果
+			ctx.SendChain(message.Text("解析json错误: ", err))
 			return
 		}
 		var msg strings.Builder
-		msg.WriteString("查询账号:")
+		msg.WriteString("查询账号: ")
 		msg.WriteString(str)
 		msg.WriteString("\n")
-		msg.WriteString("查询状态:成功\n")
-		msg.WriteString("您的权重为:")
-		msg.WriteString(f)
+		msg.WriteString("查询状态: ")
+		msg.WriteString(data.Msg)
+		msg.WriteString("\n您的权重为: ")
+		msg.WriteString(data.Qz)
 		ctx.SendChain(message.Text(msg.String())) // 输出结果
 	})
 }
