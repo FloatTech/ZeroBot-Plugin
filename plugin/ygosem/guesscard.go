@@ -135,7 +135,6 @@ func init() {
 			return
 		}
 		// 进行猜卡环节
-		game := newGame(semdata)
 		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
 		recv, cancel := zero.NewFutureEvent("message", 1, false, zero.OnlyGroup,
 			zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
@@ -195,7 +194,7 @@ func init() {
 					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("已经没有提示了哦,加油啊")))
 					continue
 				}
-				answerTimes, tickTimes, messageStr, win := game(answer, tickCount, answerCount)
+				answerTimes, tickTimes, messageStr, win := semdata.games(answer, tickCount, answerCount)
 				if win {
 					tick.Stop()
 					over.Stop()
@@ -404,25 +403,23 @@ func cutPic(pic image.Image) ([]byte, error) {
 	return imgfactory.ToBytes(returnpic.Image())
 }
 
-func newGame(cardData gameCardInfo) func(string, int, int) (int, int, string, bool) {
-	return func(s string, stickCount, answerCount int) (int, int, string, bool) {
-		switch s {
-		case "提示":
-			tips := getTips(cardData, stickCount)
-			stickCount++
-			return answerCount, stickCount, tips, false
-		default:
-			name := []rune(cardData.Name)
-			switch {
-			case len([]rune(s)) < math.Ceil(len(name), 4):
-				return answerCount, stickCount, "请输入" + strconv.Itoa(math.Ceil(len(name), 4)) + "字以上", false
-			case strings.Contains(cardData.Name, s):
-				return answerCount, stickCount, "太棒了,你猜对了!\n卡名是:\n" + cardData.Name, true
-			}
+func (cardData gameCardInfo) games(s string, stickCount int, answerCount int) (int, int, string, bool) {
+	switch s {
+	case "提示":
+		tips := getTips(cardData, stickCount)
+		stickCount++
+		return answerCount, stickCount, tips, false
+	default:
+		name := []rune(cardData.Name)
+		switch {
+		case len([]rune(s)) < math.Ceil(len(name), 4):
+			return answerCount, stickCount, "请输入" + strconv.Itoa(math.Ceil(len(name), 4)) + "字以上", false
+		case strings.Contains(cardData.Name, s):
+			return answerCount, stickCount, "太棒了,你猜对了!\n卡名是:\n" + cardData.Name, true
 		}
-		count := answerCount + 1
-		return count, stickCount, "答案不对哦,还有" + strconv.Itoa(6-count) + "次回答机会,加油啊~", false
 	}
+	count := answerCount + 1
+	return count, stickCount, "答案不对哦,还有" + strconv.Itoa(6-count) + "次回答机会,加油啊~", false
 }
 
 // 拼接提示词
