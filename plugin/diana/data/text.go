@@ -27,7 +27,7 @@ func LoadText(dbfile string) error {
 	if err != nil {
 		return err
 	}
-	err = db.Open(time.Hour * 24)
+	err = db.Open(time.Hour)
 	if err != nil {
 		return err
 	}

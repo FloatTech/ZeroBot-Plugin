@@ -43,7 +43,7 @@ func init() {
 			logrus.Infoln("[nsetu] set setu dir to", setupath)
 		}
 	}
-	err := ns.db.Open(time.Hour * 24)
+	err := ns.db.Open(time.Hour)
 	if err != nil {
 		panic(err)
 	}

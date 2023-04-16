@@ -26,7 +26,7 @@ func init() {
 			db.DBPath = en.DataFolder() + "cxh.db"
 			// os.RemoveAll(dbpath)
 			_, _ = en.GetLazyData("cxh.db", true)
-			err := db.Open(time.Hour * 24)
+			err := db.Open(time.Hour)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
