@@ -351,7 +351,7 @@ func setBlur(dst *imgfactory.Factory) ([]byte, error) {
 // 马赛克
 func setMark(dst *imgfactory.Factory) ([]byte, error) {
 	b := dst.Image().Bounds()
-	markSize := 32 * (1 + rand.Intn(2))
+	markSize := 40 + 16*(rand.Intn(3))
 
 	for yOfMarknum := 0; yOfMarknum <= math.Ceil(b.Max.Y, markSize); yOfMarknum++ {
 		for xOfMarknum := 0; xOfMarknum <= math.Ceil(b.Max.X, markSize); xOfMarknum++ {
