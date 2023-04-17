@@ -76,10 +76,10 @@ func geturl(kword string) (u, brief string, ok bool) {
 	doc.Find(".moe-infobox").Find("tr").Each(func(i int, s *goquery.Selection) {
 		b = append(b, strings.TrimSpace(s.Text()))
 	})
-	for k_, v_ := range b {
-		v_ = strings.TrimSpace(v_)
-		if v_ == "基本资料" || v_ == "基本信息" || v_ == "名字" || v_ == "名称" {
-			k = k_ + 1
+	for kk, v := range b {
+		v = strings.TrimSpace(v)
+		if v == "基本资料" || v == "基本信息" || v == "名字" || v == "名称" {
+			k = kk + 1
 			break
 		}
 	}
