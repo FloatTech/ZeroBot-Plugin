@@ -1,10 +1,6 @@
 package gif
 
 import (
-	"bytes"
-	"encoding/base64"
-	"errors"
-	"image/gif"
 	"os"
 	"strconv"
 	"sync"
@@ -110,20 +106,4 @@ func loadFirstFrames(paths []string, size int) (imgs []*imgfactory.Factory, err 
 		}
 	}
 	return imgs, nil
-}
-
-func encodeGIFToBase64(name string, gifImage *gif.GIF) (string, error) {
-	var buf bytes.Buffer
-	err := gif.EncodeAll(&buf, gifImage)
-	if err != nil {
-		//这里只是为了使用这个name而这么写
-		return "", errors.New(name + err.Error())
-	}
-	encodedGIF := base64.StdEncoding.EncodeToString(buf.Bytes())
-	//保存文件
-	//err = imgfactory.SaveGIF2Path(name, gifImage)
-	//if err != nil {
-	//	return "", err
-	//}
-	return "base64://" + encodedGIF, nil
 }

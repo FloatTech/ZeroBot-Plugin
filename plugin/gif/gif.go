@@ -19,7 +19,7 @@ func mo(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "摸.gif"
+	//name := cc.usrdir + "摸.gif"
 	c := dlrange("mo", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -45,7 +45,7 @@ func mo(cc *context, value ...string) (string, error) {
 		imgs[4].InsertBottom(tou, 90, 70, 22, 42).Image(),
 	}
 	g := imgfactory.MergeGif(1, mo)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // cuo 搓
@@ -54,7 +54,7 @@ func cuo(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "搓.gif"
+	//name := cc.usrdir + "搓.gif"
 	c := dlrange("cuo", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -84,7 +84,7 @@ func cuo(cc *context, value ...string) (string, error) {
 		imgs[4].InsertBottomC(m4.Image(), 0, 0, 75, 130).Image(),
 	}
 	g := imgfactory.MergeGif(5, cuo)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // qiao 敲
@@ -93,7 +93,7 @@ func qiao(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "敲.gif"
+	//name := cc.usrdir + "敲.gif"
 	c := dlrange("qiao", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -116,7 +116,7 @@ func qiao(cc *context, value ...string) (string, error) {
 		imgs[1].InsertUp(tou, 38, 36, 58, 50).Image(),
 	}
 	g := imgfactory.MergeGif(1, qiao)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // chi 吃
@@ -125,7 +125,7 @@ func chi(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "吃.gif"
+	//name := cc.usrdir + "吃.gif"
 	c := dlrange("chi", 3, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -149,7 +149,7 @@ func chi(cc *context, value ...string) (string, error) {
 		imgs[2].InsertBottom(tou, 0, 0, 1, 38).Image(),
 	}
 	g := imgfactory.MergeGif(1, chi)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // ceng 蹭
@@ -158,7 +158,7 @@ func ceng(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "蹭.gif"
+	//name := cc.usrdir + "蹭.gif"
 	c := dlrange("ceng", 6, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -189,7 +189,7 @@ func ceng(cc *context, value ...string) (string, error) {
 		imgs[5].InsertUp(tou, 75, 77, 62, 102).InsertUp(tou2, 71, 100, 110, 94).Image(),
 	}
 	g := imgfactory.MergeGif(8, ceng)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // ken 啃
@@ -198,7 +198,7 @@ func ken(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "啃.gif"
+	//name := cc.usrdir + "啃.gif"
 	c := dlrange("ken", 16, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -235,7 +235,7 @@ func ken(cc *context, value ...string) (string, error) {
 		imgs[15].Image(),
 	}
 	g := imgfactory.MergeGif(7, ken)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // pai 拍
@@ -244,7 +244,7 @@ func pai(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "拍.gif"
+	//name := cc.usrdir + "拍.gif"
 	c := dlrange("pai", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -267,7 +267,7 @@ func pai(cc *context, value ...string) (string, error) {
 		imgs[1].InsertUp(tou, 0, 0, 1, 67).Image(),
 	}
 	g := imgfactory.MergeGif(1, pai)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // xqe 冲
@@ -276,7 +276,7 @@ func xqe(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "冲.gif"
+	//name := cc.usrdir + "冲.gif"
 	c := dlrange("xqe", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -299,7 +299,7 @@ func xqe(cc *context, value ...string) (string, error) {
 		imgs[1].InsertUp(tou, 30, 30, 40, 53).Image(),
 	}
 	g := imgfactory.MergeGif(1, chong)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // diu 丢
@@ -308,7 +308,7 @@ func diu(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "丢.gif"
+	//name := cc.usrdir + "丢.gif"
 	c := dlrange("diu", 8, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -337,7 +337,7 @@ func diu(cc *context, value ...string) (string, error) {
 		imgs[7].InsertUp(tou, 175, 175, -50, 220).Image(),
 	}
 	g := imgfactory.MergeGif(7, diu)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // kiss 亲
@@ -347,7 +347,7 @@ func kiss(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 13
-	name := cc.usrdir + "Kiss.gif"
+	//name := cc.usrdir + "Kiss.gif"
 	c := dlrange("kiss", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -377,7 +377,7 @@ func kiss(cc *context, value ...string) (string, error) {
 			InsertUp(tou2, 40, 40, selfLocs[i][0], selfLocs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, kiss)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // garbage 垃圾 垃圾桶
@@ -387,7 +387,7 @@ func garbage(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 25
-	name := cc.usrdir + "Garbage.gif"
+	//name := cc.usrdir + "Garbage.gif"
 	c := dlrange("garbage", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -411,7 +411,7 @@ func garbage(cc *context, value ...string) (string, error) {
 		garbage[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, garbage)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // thump 捶
@@ -421,7 +421,7 @@ func thump(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 4
-	name := cc.usrdir + "Thump.gif"
+	//name := cc.usrdir + "Thump.gif"
 	c := dlrange("thump", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -445,7 +445,7 @@ func thump(cc *context, value ...string) (string, error) {
 		thump[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, thump)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // jiujiu 啾啾
@@ -455,7 +455,7 @@ func jiujiu(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	name := cc.usrdir + "Jiujiu.gif"
+	//name := cc.usrdir + "Jiujiu.gif"
 	c := dlrange("jiujiu", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -478,7 +478,7 @@ func jiujiu(cc *context, value ...string) (string, error) {
 		jiujiu[i] = imgs[i].InsertBottom(im.Image(), 0, 0, 0, 0).Image()
 	}
 	g := imgfactory.MergeGif(7, jiujiu)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // knock 2敲
@@ -488,7 +488,7 @@ func knock(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	name := cc.usrdir + "Knock.gif"
+	//name := cc.usrdir + "Knock.gif"
 	c := dlrange("knock", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -512,7 +512,7 @@ func knock(cc *context, value ...string) (string, error) {
 		knock[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, knock)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // 听音乐 listenMusic
@@ -522,7 +522,7 @@ func listenMusic(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 1
-	name := cc.usrdir + "ListenMusic.gif"
+	//name := cc.usrdir + "ListenMusic.gif"
 	c := dlrange("listen_music", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -545,7 +545,7 @@ func listenMusic(cc *context, value ...string) (string, error) {
 		listenmusic[i] = imgs[0].InsertBottomC(imgfactory.Rotate(face, float64(-i*10), 215, 215).Image(), 0, 0, 207, 207).Image()
 	}
 	g := imgfactory.MergeGif(7, listenmusic)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // loveYou 永远爱你
@@ -555,7 +555,7 @@ func loveYou(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 2
-	name := cc.usrdir + "LoveYou.gif"
+	//name := cc.usrdir + "LoveYou.gif"
 	c := dlrange("love_you", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -579,7 +579,7 @@ func loveYou(cc *context, value ...string) (string, error) {
 		loveyou[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, loveyou)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // pat 2拍
@@ -589,7 +589,7 @@ func pat(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 10
-	name := cc.usrdir + "Pat.gif"
+	//name := cc.usrdir + "Pat.gif"
 	c := dlrange("pat", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -622,7 +622,7 @@ func pat(cc *context, value ...string) (string, error) {
 		pat[i] = p[seq[i]]
 	}
 	g := imgfactory.MergeGif(7, pat)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // jackUp 顶
@@ -632,7 +632,7 @@ func jackUp(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 23
-	name := cc.usrdir + "JackUp.gif"
+	//name := cc.usrdir + "JackUp.gif"
 	c := dlrange("play", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -666,7 +666,7 @@ func jackUp(cc *context, value ...string) (string, error) {
 	play = append(play, p[12:18]...)
 	play = append(play, p[18:23]...)
 	g := imgfactory.MergeGif(7, play)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // pound 捣
@@ -676,7 +676,7 @@ func pound(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	name := cc.usrdir + "Pound.gif"
+	//name := cc.usrdir + "Pound.gif"
 	c := dlrange("pound", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -700,7 +700,7 @@ func pound(cc *context, value ...string) (string, error) {
 		pound[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, pound)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // punch 打拳
@@ -710,7 +710,7 @@ func punch(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 13
-	name := cc.usrdir + "Punch.gif"
+	//name := cc.usrdir + "Punch.gif"
 	c := dlrange("punch", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -734,7 +734,7 @@ func punch(cc *context, value ...string) (string, error) {
 		punch[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]-15).Image()
 	}
 	g := imgfactory.MergeGif(7, punch)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // roll 滚
@@ -744,7 +744,7 @@ func roll(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	name := cc.usrdir + "roll.gif"
+	//name := cc.usrdir + "roll.gif"
 	c := dlrange("roll", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -768,7 +768,7 @@ func roll(cc *context, value ...string) (string, error) {
 		roll[i] = imgs[i].InsertBottomC(imgfactory.Rotate(im.Image(), float64(locs[i][2]), 0, 0).Image(), 0, 0, locs[i][0]+105, locs[i][1]+105).Image()
 	}
 	g := imgfactory.MergeGif(7, roll)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // suck 吸 嗦
@@ -778,7 +778,7 @@ func suck(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 12
-	name := cc.usrdir + "Suck.gif"
+	//name := cc.usrdir + "Suck.gif"
 	c := dlrange("suck", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -802,7 +802,7 @@ func suck(cc *context, value ...string) (string, error) {
 		suck[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, suck)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // hammer 锤
@@ -812,7 +812,7 @@ func hammer(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 7
-	name := cc.usrdir + "Hammer.gif"
+	//name := cc.usrdir + "Hammer.gif"
 	c := dlrange("hammer", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -836,7 +836,7 @@ func hammer(cc *context, value ...string) (string, error) {
 		hammer[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, hammer)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // tightly 紧贴 紧紧贴着
@@ -846,7 +846,7 @@ func tightly(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 20
-	name := cc.usrdir + "Tightly.gif"
+	//name := cc.usrdir + "Tightly.gif"
 	c := dlrange("tightly", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -870,13 +870,13 @@ func tightly(cc *context, value ...string) (string, error) {
 		tightly[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, tightly)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // turn 转
 func turn(cc *context, value ...string) (string, error) {
 	_ = value
-	name := cc.usrdir + "Turn.gif"
+	//name := cc.usrdir + "Turn.gif"
 	face, err := cc.getLogo(0, 0)
 	if err != nil {
 		return "", err
@@ -890,7 +890,7 @@ func turn(cc *context, value ...string) (string, error) {
 		turn[i] = imgfactory.Size(canvas.Image(), 0, 0).InsertUpC(imgfactory.Rotate(face, float64(10*i), 250, 250).Image(), 0, 0, 125, 125).Image()
 	}
 	g := imgfactory.MergeGif(7, turn)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // taiguan 抬棺
@@ -899,7 +899,7 @@ func taiguan(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "taiguan.gif"
+	//name := cc.usrdir + "taiguan.gif"
 	c := dlrange("taiguan", 20, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -940,7 +940,7 @@ func taiguan(cc *context, value ...string) (string, error) {
 		imgs[19].InsertUp(tou, 85, 85, 175, 65).Image(),
 	}
 	g := imgfactory.MergeGif(7, taiguan)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // zou 揍
@@ -949,7 +949,7 @@ func zou(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "zou.gif"
+	//name := cc.usrdir + "zou.gif"
 	c := dlrange("zou", 3, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -977,7 +977,7 @@ func zou(cc *context, value ...string) (string, error) {
 		imgs[2].InsertUp(tou, 40, 40, 89, 140).InsertUp(tou2, 55, 55, 99, 40).Image(),
 	}
 	g := imgfactory.MergeGif(8, zou)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // ci 吞
@@ -986,7 +986,7 @@ func ci(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "ci.gif"
+	//name := cc.usrdir + "ci.gif"
 	c := dlrange("ci", 26, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1033,7 +1033,7 @@ func ci(cc *context, value ...string) (string, error) {
 		imgs[25].Image(),
 	}
 	g := imgfactory.MergeGif(7, ci)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // worship 膜拜
@@ -1042,7 +1042,7 @@ func worship(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
-	name := cc.usrdir + "worship.gif"
+	//name := cc.usrdir + "worship.gif"
 	c := dlrange("worship", 9, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1072,7 +1072,7 @@ func worship(cc *context, value ...string) (string, error) {
 		imgs[8].InsertBottom(face, 140, 140, 0, 0).Image(),
 	}
 	g := imgfactory.MergeGif(7, worship)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // 2ceng 2蹭
@@ -1081,7 +1081,7 @@ func ceng2(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "ceng2.gif"
+	//name := cc.usrdir + "ceng2.gif"
 	c := dlrange("ceng2", 4, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1106,7 +1106,7 @@ func ceng2(cc *context, value ...string) (string, error) {
 		imgs[3].InsertBottom(tou, 175, 175, 78, 263).Image(),
 	}
 	g := imgfactory.MergeGif(7, ceng2)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // dun 炖
@@ -1115,7 +1115,7 @@ func dun(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "dun.gif"
+	//name := cc.usrdir + "dun.gif"
 	c := dlrange("dun", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1141,7 +1141,7 @@ func dun(cc *context, value ...string) (string, error) {
 		imgs[4].InsertBottom(tou, 80, 80, 85, 45).Image(),
 	}
 	g := imgfactory.MergeGif(7, dun)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // push 滚高清重置版 过渡
@@ -1151,7 +1151,7 @@ func push(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 16
-	name := cc.usrdir + "push.gif"
+	//name := cc.usrdir + "push.gif"
 	c := dlrange("push", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1174,7 +1174,7 @@ func push(cc *context, value ...string) (string, error) {
 		push[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-22*i), 280, 280).Image(), 0, 0, 523, 291).Image()
 	}
 	g := imgfactory.MergeGif(7, push)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // peng 砰
@@ -1183,7 +1183,7 @@ func peng(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "peng.gif"
+	//name := cc.usrdir + "peng.gif"
 	c := dlrange("peng", 25, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1233,7 +1233,7 @@ func peng(cc *context, value ...string) (string, error) {
 		imgs[24].InsertUp(m4.Image(), 0, 0, 86, 160).Image(),
 	}
 	g := imgfactory.MergeGif(8, peng)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // klee 可莉吃
@@ -1243,7 +1243,7 @@ func klee(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 31
-	name := cc.usrdir + "klee.gif"
+	//name := cc.usrdir + "klee.gif"
 	c := dlrange("klee", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1267,7 +1267,7 @@ func klee(cc *context, value ...string) (string, error) {
 		klee[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]).Image()
 	}
 	g := imgfactory.MergeGif(7, klee)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // hutaoken 胡桃啃
@@ -1276,7 +1276,7 @@ func hutaoken(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "hutaoken.gif"
+	//name := cc.usrdir + "hutaoken.gif"
 	c := dlrange("hutaoken", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1299,7 +1299,7 @@ func hutaoken(cc *context, value ...string) (string, error) {
 		imgs[1].InsertBottom(tou, 96, 100, 108, 237).Image(),
 	}
 	g := imgfactory.MergeGif(8, hutaoken)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // lick 2舔
@@ -1308,7 +1308,7 @@ func lick(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "lick.gif"
+	//name := cc.usrdir + "lick.gif"
 	c := dlrange("lick", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1331,7 +1331,7 @@ func lick(cc *context, value ...string) (string, error) {
 		imgs[1].InsertUp(tou, 44, 44, 10, 138).Image(),
 	}
 	g := imgfactory.MergeGif(8, lick)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // tiqiu 踢球
@@ -1341,7 +1341,7 @@ func tiqiu(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 15
-	name := cc.usrdir + "tiqiu.gif"
+	//name := cc.usrdir + "tiqiu.gif"
 	c := dlrange("tiqiu", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1365,7 +1365,7 @@ func tiqiu(cc *context, value ...string) (string, error) {
 		tiqiu[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-24*i), 0, 0).Image(), 0, 0, locs[i][0]+38, locs[i][1]+38).Image()
 	}
 	g := imgfactory.MergeGif(7, tiqiu)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // cai 踩
@@ -1374,7 +1374,7 @@ func cai(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	name := cc.usrdir + "cai.gif"
+	//name := cc.usrdir + "cai.gif"
 	c := dlrange("cai", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1401,7 +1401,7 @@ func cai(cc *context, value ...string) (string, error) {
 		imgs[4].InsertBottom(tou, 88, 82, 49, 198).Image(),
 	}
 	g := imgfactory.MergeGif(7, cai)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // whir 2转
@@ -1411,7 +1411,7 @@ func whirl(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 15
-	name := cc.usrdir + "whirl.gif"
+	//name := cc.usrdir + "whirl.gif"
 	c := dlrange("whirl", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1434,7 +1434,7 @@ func whirl(cc *context, value ...string) (string, error) {
 		whirl[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-24*i), 145, 145).Image(), 0, 0, 115, 89).Image()
 	}
 	g := imgfactory.MergeGif(7, whirl)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
 
 // always 一直
@@ -1442,7 +1442,7 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 	_ = value
 	var err error
 	var face []*imgfactory.Factory
-	name := cc.usrdir + "AlwaysDo.gif"
+	//name := cc.usrdir + "AlwaysDo.gif"
 	face, err = imgfactory.LoadAllTrueFrames(cc.headimgsdir[0], 500, 500)
 	if err != nil {
 		// 载入失败尝试载入第一帧
@@ -1484,5 +1484,5 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 		turn[i] = imgfactory.Size(canvas.Image(), 0, 0).Image()
 	}
 	g := imgfactory.MergeGif(8, turn)
-	return encodeGIFToBase64(name, g)
+	return imgfactory.GIF2Base64(g)
 }
