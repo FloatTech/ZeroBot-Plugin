@@ -73,7 +73,6 @@ func geturl(kword string) (u, brief string, ok bool) {
 		b = append(b, strings.TrimSpace(s.Text()))
 	})
 	for kk, v := range b {
-		v = strings.TrimSpace(v)
 		if v == "基本资料" || v == "基本信息" || v == "名字" || v == "名称" {
 			k = kk + 1
 			break
