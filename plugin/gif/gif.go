@@ -19,7 +19,7 @@ func mo(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "摸.gif"
+	// name := cc.usrdir + "摸.gif"
 	c := dlrange("mo", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -54,7 +54,7 @@ func cuo(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "搓.gif"
+	// name := cc.usrdir + "搓.gif"
 	c := dlrange("cuo", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -93,7 +93,7 @@ func qiao(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "敲.gif"
+	// name := cc.usrdir + "敲.gif"
 	c := dlrange("qiao", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -125,7 +125,7 @@ func chi(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "吃.gif"
+	// name := cc.usrdir + "吃.gif"
 	c := dlrange("chi", 3, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -158,7 +158,7 @@ func ceng(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "蹭.gif"
+	// name := cc.usrdir + "蹭.gif"
 	c := dlrange("ceng", 6, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -198,7 +198,7 @@ func ken(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "啃.gif"
+	// name := cc.usrdir + "啃.gif"
 	c := dlrange("ken", 16, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -244,7 +244,7 @@ func pai(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "拍.gif"
+	// name := cc.usrdir + "拍.gif"
 	c := dlrange("pai", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -276,7 +276,7 @@ func xqe(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "冲.gif"
+	// name := cc.usrdir + "冲.gif"
 	c := dlrange("xqe", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -308,7 +308,7 @@ func diu(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "丢.gif"
+	// name := cc.usrdir + "丢.gif"
 	c := dlrange("diu", 8, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -347,7 +347,7 @@ func kiss(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 13
-	//name := cc.usrdir + "Kiss.gif"
+	// name := cc.usrdir + "Kiss.gif"
 	c := dlrange("kiss", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -387,7 +387,7 @@ func garbage(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 25
-	//name := cc.usrdir + "Garbage.gif"
+	// name := cc.usrdir + "Garbage.gif"
 	c := dlrange("garbage", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -421,7 +421,7 @@ func thump(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 4
-	//name := cc.usrdir + "Thump.gif"
+	// name := cc.usrdir + "Thump.gif"
 	c := dlrange("thump", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -455,7 +455,7 @@ func jiujiu(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	//name := cc.usrdir + "Jiujiu.gif"
+	// name := cc.usrdir + "Jiujiu.gif"
 	c := dlrange("jiujiu", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -488,7 +488,7 @@ func knock(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	//name := cc.usrdir + "Knock.gif"
+	// name := cc.usrdir + "Knock.gif"
 	c := dlrange("knock", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -522,7 +522,7 @@ func listenMusic(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 1
-	//name := cc.usrdir + "ListenMusic.gif"
+	// name := cc.usrdir + "ListenMusic.gif"
 	c := dlrange("listen_music", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -555,7 +555,7 @@ func loveYou(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 2
-	//name := cc.usrdir + "LoveYou.gif"
+	// name := cc.usrdir + "LoveYou.gif"
 	c := dlrange("love_you", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -589,7 +589,7 @@ func pat(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 10
-	//name := cc.usrdir + "Pat.gif"
+	// name := cc.usrdir + "Pat.gif"
 	c := dlrange("pat", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -632,7 +632,7 @@ func jackUp(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 23
-	//name := cc.usrdir + "JackUp.gif"
+	// name := cc.usrdir + "JackUp.gif"
 	c := dlrange("play", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -676,7 +676,7 @@ func pound(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	//name := cc.usrdir + "Pound.gif"
+	// name := cc.usrdir + "Pound.gif"
 	c := dlrange("pound", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -710,7 +710,7 @@ func punch(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 13
-	//name := cc.usrdir + "Punch.gif"
+	// name := cc.usrdir + "Punch.gif"
 	c := dlrange("punch", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -744,7 +744,7 @@ func roll(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 8
-	//name := cc.usrdir + "roll.gif"
+	// name := cc.usrdir + "roll.gif"
 	c := dlrange("roll", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -778,7 +778,7 @@ func suck(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 12
-	//name := cc.usrdir + "Suck.gif"
+	// name := cc.usrdir + "Suck.gif"
 	c := dlrange("suck", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -812,7 +812,7 @@ func hammer(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 7
-	//name := cc.usrdir + "Hammer.gif"
+	// name := cc.usrdir + "Hammer.gif"
 	c := dlrange("hammer", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -846,7 +846,7 @@ func tightly(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 20
-	//name := cc.usrdir + "Tightly.gif"
+	// name := cc.usrdir + "Tightly.gif"
 	c := dlrange("tightly", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -876,7 +876,7 @@ func tightly(cc *context, value ...string) (string, error) {
 // turn 转
 func turn(cc *context, value ...string) (string, error) {
 	_ = value
-	//name := cc.usrdir + "Turn.gif"
+	// name := cc.usrdir + "Turn.gif"
 	face, err := cc.getLogo(0, 0)
 	if err != nil {
 		return "", err
@@ -899,7 +899,7 @@ func taiguan(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "taiguan.gif"
+	// name := cc.usrdir + "taiguan.gif"
 	c := dlrange("taiguan", 20, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -949,7 +949,7 @@ func zou(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "zou.gif"
+	// name := cc.usrdir + "zou.gif"
 	c := dlrange("zou", 3, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -986,7 +986,7 @@ func ci(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "ci.gif"
+	// name := cc.usrdir + "ci.gif"
 	c := dlrange("ci", 26, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1042,7 +1042,7 @@ func worship(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var err error
 	var m sync.Mutex
-	//name := cc.usrdir + "worship.gif"
+	// name := cc.usrdir + "worship.gif"
 	c := dlrange("worship", 9, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1081,7 +1081,7 @@ func ceng2(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "ceng2.gif"
+	// name := cc.usrdir + "ceng2.gif"
 	c := dlrange("ceng2", 4, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1115,7 +1115,7 @@ func dun(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "dun.gif"
+	// name := cc.usrdir + "dun.gif"
 	c := dlrange("dun", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1151,7 +1151,7 @@ func push(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 16
-	//name := cc.usrdir + "push.gif"
+	// name := cc.usrdir + "push.gif"
 	c := dlrange("push", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1183,7 +1183,7 @@ func peng(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "peng.gif"
+	// name := cc.usrdir + "peng.gif"
 	c := dlrange("peng", 25, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1243,7 +1243,7 @@ func klee(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 31
-	//name := cc.usrdir + "klee.gif"
+	// name := cc.usrdir + "klee.gif"
 	c := dlrange("klee", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1276,7 +1276,7 @@ func hutaoken(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "hutaoken.gif"
+	// name := cc.usrdir + "hutaoken.gif"
 	c := dlrange("hutaoken", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1308,7 +1308,7 @@ func lick(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "lick.gif"
+	// name := cc.usrdir + "lick.gif"
 	c := dlrange("lick", 2, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1341,7 +1341,7 @@ func tiqiu(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 15
-	//name := cc.usrdir + "tiqiu.gif"
+	// name := cc.usrdir + "tiqiu.gif"
 	c := dlrange("tiqiu", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1374,7 +1374,7 @@ func cai(cc *context, value ...string) (string, error) {
 	var wg sync.WaitGroup
 	var errwg error
 	var m sync.Mutex
-	//name := cc.usrdir + "cai.gif"
+	// name := cc.usrdir + "cai.gif"
 	c := dlrange("cai", 5, &wg, func(e error) {
 		m.Lock()
 		errwg = e
@@ -1411,7 +1411,7 @@ func whirl(cc *context, value ...string) (string, error) {
 	var err error
 	var m sync.Mutex
 	piclen := 15
-	//name := cc.usrdir + "whirl.gif"
+	// name := cc.usrdir + "whirl.gif"
 	c := dlrange("whirl", piclen, &wg, func(e error) {
 		m.Lock()
 		err = e
@@ -1442,7 +1442,7 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 	_ = value
 	var err error
 	var face []*imgfactory.Factory
-	//name := cc.usrdir + "AlwaysDo.gif"
+	// name := cc.usrdir + "AlwaysDo.gif"
 	face, err = imgfactory.LoadAllTrueFrames(cc.headimgsdir[0], 500, 500)
 	if err != nil {
 		// 载入失败尝试载入第一帧
