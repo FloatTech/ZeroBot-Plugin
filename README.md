@@ -1374,7 +1374,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbwife"`
 
-  - [x] 抽vtb
+  - [x] 抽vtb(老婆)
 
 </details>
 <details>

@@ -21,7 +21,7 @@ func init() { // 插件主体
 	engine := control.Register("vtbwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "抽vtb老婆",
-		Help:             "- 抽vtb",
+		Help:             "- 抽vtb(老婆)",
 		PublicDataFolder: "VtbWife",
 	})
 	var keys []string
