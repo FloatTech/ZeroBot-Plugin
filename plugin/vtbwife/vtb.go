@@ -5,11 +5,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	//"os"
 	"strings"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/PuerkitoBio/goquery"
@@ -31,14 +29,9 @@ func init() { // 插件主体
 			if err != nil {
 				panic(err)
 			}
-			/*content, err := os.ReadFile(engine.DataFolder() + "wife_list.txt") // 779分界
-			if err != nil {
-				log.Println("[vtbwife]读取vtbwife数据文件失败: ", err)
-				return false
-			}*/
 			// 将文件内容转换为单词
 			keys = strings.Split(string(content), "\n")
-			log.Println("[vtbwife]加载", len(keys), "位wife数据...")
+			log.Println("[vtbwife]加载", len(keys), "位wtb...")
 			return true
 		})).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		var key, u, b string
@@ -51,19 +44,10 @@ func init() { // 插件主体
 			}
 			break
 		}
-		if !ok {
-			ctx.SendChain(message.Text("-获取图片链接失败"))
-			return
-		}
-		img, err := web.GetData(u)
-		if err != nil {
-			ctx.SendChain(message.Text("-获取图片失败惹", err))
-			return
-		}
 		txt := message.Text(
 			"\n今天你的VTB老婆是: ", key,
 		)
-		if id := ctx.SendChain(message.At(ctx.Event.UserID), txt, message.ImageBytes(img), message.Text(b)); id.ID() == 0 {
+		if id := ctx.SendChain(message.At(ctx.Event.UserID), txt, message.Image(u), message.Text(b)); id.ID() == 0 {
 			ctx.SendChain(message.At(ctx.Event.UserID), txt, message.Text("图片发送失败...\n"), message.Text(b))
 		}
 	})
@@ -84,23 +68,30 @@ func geturl(kword string) (u, brief string, ok bool) {
 	doc.Find("style").Remove()
 	doc.Find("script").Remove()
 	doc.Find(".fans-medal-level").Remove()
-	var b []string
+	var (
+		b   []string
+		k   int
+		buf strings.Builder
+	)
 	doc.Find(".moe-infobox").Find("tr").Each(func(i int, s *goquery.Selection) {
 		b = append(b, strings.TrimSpace(s.Text()))
 	})
-	var k int
-	for kk, vv := range b {
-		if strings.TrimSpace(vv) == "基本资料" || strings.TrimSpace(vv) == "基本信息" || strings.TrimSpace(vv) == "名字" || strings.TrimSpace(vv) == "名称" {
-			k = kk + 1
+	for k_, v_ := range b {
+		v_ = strings.TrimSpace(v_)
+		if v_ == "基本资料" || v_ == "基本信息" || v_ == "名字" || v_ == "名称" {
+			k = k_ + 1
 			break
 		}
 	}
 	if k != 0 {
-		brief = b[k-1] + "\n"
+		buf.WriteString(b[k-1])
+		buf.WriteString("\n")
 	}
 	for ; k < len(b); k++ {
-		brief += strings.Replace(strings.Replace(b[k], "\n", ": ", 1), "\n", "", 1) + "\n"
+		buf.WriteString(strings.Replace(strings.Replace(b[k], "\n", ": ", 1), "\n", "", 1))
+		buf.WriteString("\n")
 	}
-	brief = strings.TrimSpace(brief)
+
+	brief = strings.TrimSpace(buf.String())
 	return
 }
