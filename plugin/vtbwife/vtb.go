@@ -36,13 +36,9 @@ func init() { // 插件主体
 		})).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		var key, u, b string
 		var ok bool
-		for i := 0; i < 3; i++ {
+		for i := 0; i < 3 && !ok; i++ {
 			key = keys[fcext.RandSenderPerDayN(ctx.Event.UserID, len(keys))+i]
 			u, b, ok = geturl(key)
-			if !ok {
-				continue
-			}
-			break
 		}
 		txt := message.Text(
 			"\n今天你的VTB老婆是: ", key,
