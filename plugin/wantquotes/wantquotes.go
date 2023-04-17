@@ -133,8 +133,7 @@ func init() {
 		ticker := time.NewTicker(2 * time.Second) // 创建每秒触发一次的定时器
 		defer ticker.Stop()
 		count := 0
-		for now := range ticker.C {
-			_ = now
+		for range ticker.C {
 			count++
 			if count == 60 {
 				ctx.SendChain(message.Text("据意查句登录超时,请重新登录"))
