@@ -135,7 +135,10 @@ func init() {
 			return
 		}
 		// 进行猜卡环节
-		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
+		if msgID := ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue)); msgID.ID() == 0 {
+			ctx.SendChain(message.Text("[ERROR]题目发送失败，可能是风控了"))
+			return
+		}
 		recv, cancel := zero.NewFutureEvent("message", 1, false, zero.OnlyGroup,
 			zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()

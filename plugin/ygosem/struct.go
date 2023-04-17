@@ -90,7 +90,14 @@ func regexpmatch(rule, str string) [][]string {
 
 // 正则返回第n组的数据
 func regexpmatchByRaw(rule, str string, n int) []string {
-	return regexp.MustCompile(rule).FindAllStringSubmatch(str, -1)[n]
+	reg := regexpmatch(rule, str)
+	if reg == nil {
+		return nil
+	}
+	if n > len(reg) {
+		return reg[len(reg)-1]
+	}
+	return reg[n]
 }
 
 // 正则返回第0组的数据
