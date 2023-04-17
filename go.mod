@@ -13,6 +13,7 @@ require (
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.5.3-0.20230411055601-7cdff751dd67
 	github.com/FloatTech/zbputils v1.6.2-0.20230411114057-4c71136244b2
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -46,6 +47,7 @@ require (
 )
 
 require (
+	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/faiface/beep v1.1.0 // indirect

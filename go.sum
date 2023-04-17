@@ -20,11 +20,13 @@ github.com/FloatTech/zbpctrl v1.5.3-0.20230411055601-7cdff751dd67 h1:KGfXWryE3VG
 github.com/FloatTech/zbpctrl v1.5.3-0.20230411055601-7cdff751dd67/go.mod h1:gkGC1C1eEUd/Ld/ja68zas5j2ZktIZCdnj2FMaM+Au0=
 github.com/FloatTech/zbputils v1.6.2-0.20230411114057-4c71136244b2 h1:Dx64RjcbxhsOHinykOPAlYqvPd9tE375IQrWqlNmDXs=
 github.com/FloatTech/zbputils v1.6.2-0.20230411114057-4c71136244b2/go.mod h1:m3IW5z7vLMNgNtVNUfcYtOF1du6PnjckifdRK2hVjA0=
+github.com/PuerkitoBio/goquery v1.5.1 h1:PSPBGne8NIUWw+/7vFBV+kG2J/5MOjbzc7154OaKCSE=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
 github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5 h1:bBmmB7he0iVN4m5mcehfheeRUEer/Avo4ujnxI3uCqs=
 github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5/go.mod h1:0UcFaCkhp6vZw6l5Dpq0Dp673CoF9GdvA8lTfst0GiU=
+github.com/andybalholm/cascadia v1.1.0 h1:BuuO6sSfQNFRu1LppgbD25Hr2vLYW25JvxHs5zzsLTo=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/antchfx/htmlquery v1.2.5 h1:1lXnx46/1wtv1E/kzmH8vrfMuUKYgkdDBA9pIdMJnk4=
 github.com/antchfx/htmlquery v1.2.5/go.mod h1:2MCVBzYVafPBmKbrmwB9F5xdd+IEgRY61ci2oOsOQVw=

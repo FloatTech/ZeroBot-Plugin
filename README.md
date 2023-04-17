@@ -1367,6 +1367,14 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] vtb点歌
 
   - [x] vtb随机点歌
+  
+</details>
+<details>
+  <summary>vtb语录</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbwife"`
+
+  - [x] 抽vtb
 
 </details>
 <details>
