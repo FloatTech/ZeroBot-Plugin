@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	duUrl    = "https://api.a20safe.com/api.php?api=21&key=%s&text=%s" // api地址
-	weikiUrl = "https://api.a20safe.com/api.php?api=23&key=%s&text=%s"
-	key      = "7d06a110e9e20a684e02934549db1d3d"
+	duURL   = "https://api.a20safe.com/api.php?api=21&key=%s&text=%s" // api地址
+	wikiURL = "https://api.a20safe.com/api.php?api=23&key=%s&text=%s"
+	key     = "7d06a110e9e20a684e02934549db1d3d"
 )
 
 type result struct {
@@ -37,9 +37,9 @@ func init() { // 主函数
 		var err error
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "百度", "百科":
-			es, err = web.GetData(fmt.Sprintf(duUrl, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
+			es, err = web.GetData(fmt.Sprintf(duURL, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
 		case "wiki", "维基":
-			es, err = web.GetData(fmt.Sprintf(weikiUrl, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
+			es, err = web.GetData(fmt.Sprintf(wikiURL, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
 		}
 		if err != nil {
 			ctx.SendChain(message.Text("出现错误捏：", err))
