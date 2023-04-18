@@ -358,7 +358,7 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	// 放置昵称
 	canvas.SetRGB(0, 0, 0)
 	fontSize := 150.0
-	data, err = file.GetLazyData(text.MaokenFontFile, control.Md5File, true)
+	data, err = file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
@@ -442,7 +442,7 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	if add == 0 {
 		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), 350, 370)
 	} else {
-		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产( +%d ) : %d", userinfo.Continuous, add+level*5, score), 350, 370)
+		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产(+%d): %d", userinfo.Continuous, add+level*5, score), 350, 370)
 	}
 	// 绘制等级进度条
 	if err = canvas.ParseFontFace(data, 50); err != nil {

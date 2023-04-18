@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/FloatTech/floatbox/file"
@@ -60,7 +59,7 @@ func init() {
 					}
 				}
 			}
-			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n回答“-[歌曲信息(歌名歌手等)|提示|取消]”\n一共3段语音,6次机会"))
+			ctx.SendChain(message.Text("正在准备歌曲,请稍等\n以“-[歌曲信息(歌名歌手等)]”格式回答\n发送“-提示”发送下一段语音\n发送“-取消”结束猜歌\n一共3段语音,6次机会"))
 			// 随机抽歌
 			pathOfMusic, musicName, err := musicLottery(cfg.MusicPath, mode)
 			if err != nil {
@@ -110,7 +109,6 @@ func init() {
 			wait := time.NewTimer(40 * time.Second)
 			tick := time.NewTimer(105 * time.Second)
 			after := time.NewTimer(120 * time.Second)
-			wg := sync.WaitGroup{}
 			var (
 				messageStr  message.MessageSegment // 文本信息
 				tickCount   = 0                    // 音频数量
@@ -123,7 +121,8 @@ func init() {
 					ctx.SendChain(message.Text("猜歌游戏,你还有15s作答时间"))
 				case <-after.C:
 					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-						message.Text("时间超时,猜歌结束,公布答案：\n", answerString)))
+						message.Text("时间超时,猜歌结束,公布答案：\n", answerString, "\n\n下面欣赏猜歌的歌曲")))
+					ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
 					return
 				case <-wait.C:
 					wait.Reset(40 * time.Second)
@@ -137,31 +136,26 @@ func init() {
 					)
 					ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
 				case c := <-recv:
-					wg.Add(1)
-					go func() {
-						messageStr, answerCount, tickCount, win = gameMatch(c, ctx.Event.UserID, musicInfo, answerCount, tickCount)
-						if win { // 游戏结束的话
-							wait.Stop()
-							tick.Stop()
-							after.Stop()
-							ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
-							ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-						} else {
-							wait.Reset(40 * time.Second)
-							tick.Reset(105 * time.Second)
-							after.Reset(120 * time.Second)
-							if tickCount > 2 || messageStr.Data["text"] == "你无权限取消" {
-								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
-							} else {
-								ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
-								ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
-							}
-						}
-						wg.Done()
-					}()
-					wg.Wait()
-					if win {
+					messageStr, answerCount, tickCount, win = gameMatch(c, ctx.Event.UserID, musicInfo, answerCount, tickCount)
+					if win { // 游戏结束的话
+						wait.Stop()
+						tick.Stop()
+						after.Stop()
+						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
 						return
+					}
+					wait.Reset(40 * time.Second)
+					tick.Reset(105 * time.Second)
+					after.Reset(120 * time.Second)
+					switch {
+					case tickCount > 2:
+						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+						ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
+					case messageStr.Data["text"] == "你无权限取消":
+						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+					default:
+						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+						ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
 					}
 				}
 			}
@@ -296,11 +290,11 @@ func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tic
 		}
 		return message.Text("再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
 	case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
-		return message.Text("太棒了,你猜对歌曲名了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+		return message.Text("太棒了,你猜对歌曲名了！答案是\n", musicInfo[len(musicInfo)-1]), answerTimes, tickTimes, true
 	case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
-		return message.Text("太棒了,你猜对歌手名了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+		return message.Text("太棒了,你猜对歌手名了！答案是\n", musicInfo[len(musicInfo)-1]), answerTimes, tickTimes, true
 	case len(musicInfo) == 4 && (strings.Contains(musicInfo[2], answer) || strings.EqualFold(musicInfo[2], answer)):
-		return message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+		return message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1]), answerTimes, tickTimes, true
 	default:
 		answerTimes++
 		tickTimes++

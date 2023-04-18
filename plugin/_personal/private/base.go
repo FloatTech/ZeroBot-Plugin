@@ -55,19 +55,6 @@ func init() {
 			default:
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("我回来了😊"))
 			}
-			if gid != 0 {
-				zero.RangeBot(func(id int64, ctx *zero.Ctx) bool {
-					for _, g := range ctx.GetGroupList().Array() {
-						gids := g.Get("group_id").Int()
-						if gids == gid {
-							continue
-						}
-						ctx.SendGroupMessage(gids, message.Text("娮儿刚刚被连锁「天神荡」了,吓得重启了一下"))
-						process.SleepAbout1sTo2s()
-					}
-					return true
-				})
-			}
 			err := m.SetExtra(qqList[0] + ":0") // 清除缓存
 			if err != nil {
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))

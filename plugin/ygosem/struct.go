@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/FloatTech/floatbox/web"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
@@ -26,6 +27,10 @@ type gameCardInfo struct {
 	Depict  string // 效果
 	PicFile string // 图片文件
 }
+
+var (
+	mu sync.RWMutex
+)
 
 // web获取卡片信息
 func getSemData() (cardData gameCardInfo, picFile string, err error) {
@@ -47,7 +52,6 @@ func getSemData() (cardData gameCardInfo, picFile string, err error) {
 	// 获取卡片信息
 	body, err = web.RequestDataWith(web.NewDefaultClient(), url, "GET", url, ua, nil)
 	if err != nil {
-		err = errors.New("数据存在错误: 无法获取卡片信息")
 		return
 	}
 	// 获取卡面信息
@@ -64,6 +68,10 @@ func getSemData() (cardData gameCardInfo, picFile string, err error) {
 		for i := 0; i < len(field); i++ {
 			cardData.Depict = strings.ReplaceAll(cardData.Depict, field[i][0], "「xxx」")
 		}
+	}
+	err = carddatas.insert(cardData)
+	if err != nil {
+		return
 	}
 	// 获取卡图连接
 	picHref := regexp.MustCompile(`picsCN(/\d+/\d+).jpg`).FindAllStringSubmatch(helper.BytesToString(body), -1)
