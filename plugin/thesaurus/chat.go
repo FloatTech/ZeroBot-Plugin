@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/ctxext"
@@ -192,6 +194,7 @@ func init() {
 					return
 				}
 				type reply struct {
+					ID  int
 					Msg string
 				}
 				m := reply{}
@@ -200,8 +203,25 @@ func init() {
 					logrus.Warnln("[chat] 🦙 unmarshal err:", err)
 					return
 				}
-				if len(m.Msg) > 0 {
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(m.Msg)))
+				for i := 0; i < 60; i++ {
+					time.Sleep(time.Second * 4)
+					data, err := web.RequestDataWithHeaders(http.DefaultClient, alpacapiurl+"/get?id="+strconv.Itoa(m.ID), "GET",
+						func(r *http.Request) error {
+							r.Header.Set("Authorization", alpacatoken)
+							return nil
+						}, nil)
+					if err != nil {
+						continue
+					}
+					err = json.Unmarshal(data, &m)
+					if err != nil {
+						logrus.Warnln("[chat] 🦙 unmarshal err:", err)
+						return
+					}
+					if len(m.Msg) > 0 {
+						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(m.Msg)))
+					}
+					return
 				}
 			}
 		})
