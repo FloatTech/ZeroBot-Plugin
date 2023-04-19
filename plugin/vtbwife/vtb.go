@@ -2,6 +2,7 @@
 package vtbwife
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -36,9 +37,10 @@ func init() { // 插件主体
 		})).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		var key, u, b string
 		var ok bool
-		for i := 0; i < 3 && !ok; i++ {
+		for i := 0; i < 10 && !ok; i++ {
 			key = keys[fcext.RandSenderPerDayN(ctx.Event.UserID, len(keys))+i]
 			u, b, ok = geturl(key)
+			fmt.Println(key)
 		}
 		txt := message.Text(
 			"\n今天你的VTB老婆是: ", key,
@@ -61,6 +63,9 @@ func geturl(kword string) (u, brief string, ok bool) {
 		return "", "", false
 	}
 	u, ok = doc.Find(".infobox-image").Attr("src") // class加.
+	if !ok {
+		return "", "", ok
+	}
 	doc.Find("style").Remove()
 	doc.Find("script").Remove()
 	doc.Find(".fans-medal-level").Remove()
@@ -88,5 +93,8 @@ func geturl(kword string) (u, brief string, ok bool) {
 	}
 
 	brief = strings.TrimSpace(buf.String())
-	return
+	if brief == "" {
+		return "", "", false
+	}
+	return u, brief, true
 }
