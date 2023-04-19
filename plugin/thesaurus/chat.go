@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -106,7 +107,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功!"))
 	})
-	engine.OnRegex(`^设置🦙API地址\s*(http.*)\s*$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^设置🦙API地址\s*(http.*)\s*$`, zero.SuperUserPermission, zero.OnlyPrivate).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		alpacapiurl = ctx.State["regex_matched"].([]string)[1]
 		err := os.WriteFile(alpacapifile, binary.StringToBytes(alpacapiurl), 0644)
 		if err != nil {
@@ -115,7 +116,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功!"))
 	})
-	engine.OnRegex(`^设置🦙token\s*([0-9a-f]{112})\s*$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^设置🦙token\s*([0-9a-f]{112})\s*$`, zero.SuperUserPermission, zero.OnlyPrivate).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		alpacatoken = ctx.State["regex_matched"].([]string)[1]
 		err := os.WriteFile(alpacatokenfile, binary.StringToBytes(alpacatoken), 0644)
 		if err != nil {
@@ -181,16 +182,26 @@ func init() {
 		}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
 			if msg != "" {
-				data, err := web.GetData(alpacapiurl + "/reply?msg=" + url.QueryEscape(msg))
-				if err == nil {
-					type reply struct {
-						Msg string
-					}
-					m := reply{}
-					err := json.Unmarshal(data, &m)
-					if err == nil && len(m.Msg) > 0 {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(m.Msg)))
-					}
+				data, err := web.RequestDataWithHeaders(http.DefaultClient, alpacapiurl+"/reply?msg="+url.QueryEscape(msg), "GET",
+					func(r *http.Request) error {
+						r.Header.Set("Authorization", alpacatoken)
+						return nil
+					}, nil)
+				if err != nil {
+					logrus.Warnln("[chat] 🦙 err:", err)
+					return
+				}
+				type reply struct {
+					Msg string
+				}
+				m := reply{}
+				err = json.Unmarshal(data, &m)
+				if err != nil {
+					logrus.Warnln("[chat] 🦙 unmarshal err:", err)
+					return
+				}
+				if len(m.Msg) > 0 {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(m.Msg)))
 				}
 			}
 		})
