@@ -5,10 +5,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"math/rand"
+	"net/url"
+	"os"
 	"strings"
 
+	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/jieba"
@@ -22,10 +27,33 @@ func init() {
 	engine := control.Register("thesaurus", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "词典匹配回复",
-		Help:             "- 切换[kimo|傲娇|可爱]词库\n- 设置词库触发概率0.x (0<x<9)",
+		Help:             "- 切换[kimo|傲娇|可爱|🦙]词库\n- 设置词库触发概率0.x (0<x<9)",
 		PublicDataFolder: "Chat",
 	})
-	engine.OnRegex(`^切换(kimo|傲娇|可爱)词库$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	alpacafolder := engine.DataFolder() + "alpaca/"
+	err := os.MkdirAll(alpacafolder, 0755)
+	if err != nil {
+		panic(err)
+	}
+	alpacapifile := alpacafolder + "api.txt"
+	alpacapiurl := ""
+	if file.IsExist(alpacapifile) {
+		data, err := os.ReadFile(alpacapifile)
+		if err != nil {
+			panic(err)
+		}
+		alpacapiurl = binary.BytesToString(data)
+	}
+	alpacatokenfile := alpacafolder + "token.txt"
+	alpacatoken := ""
+	if file.IsExist(alpacatokenfile) {
+		data, err := os.ReadFile(alpacatokenfile)
+		if err != nil {
+			panic(err)
+		}
+		alpacatoken = binary.BytesToString(data)
+	}
+	engine.OnRegex(`^切换(kimo|傲娇|可爱|🦙)词库$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if !ok {
 			ctx.SendChain(message.Text("ERROR: 找不到 manager"))
@@ -44,6 +72,8 @@ func init() {
 			t = tDERE
 		case "可爱":
 			t = tKAWA
+		case "🦙":
+			t = tALPACA
 		}
 		err := c.SetData(gid, (d&^3)|t)
 		if err != nil {
@@ -70,6 +100,24 @@ func init() {
 		}
 		d := c.GetData(gid)
 		err := c.SetData(gid, (d&3)|(int64(n)<<59))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	engine.OnRegex(`^设置🦙API地址\s*(http.*)\s*$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		alpacapiurl = ctx.State["regex_matched"].([]string)[1]
+		err := os.WriteFile(alpacapifile, binary.StringToBytes(alpacapiurl), 0644)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	engine.OnRegex(`^设置🦙token\s*([0-9a-f]{112})\s*$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		alpacatoken = ctx.State["regex_matched"].([]string)[1]
+		err := os.WriteFile(alpacatokenfile, binary.StringToBytes(alpacatoken), 0644)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -128,6 +176,24 @@ func init() {
 		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg)).
 			SetBlock(false).
 			Handle(randreply(sm.K))
+		engine.OnMessage(canmatch(tALPACA), func(ctx *zero.Ctx) bool {
+			return !zero.HasPicture(ctx) && alpacapiurl != "" && alpacatoken != ""
+		}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+			msg := ctx.ExtractPlainText()
+			if msg != "" {
+				data, err := web.GetData(alpacapiurl + "/reply?msg=" + url.QueryEscape(msg))
+				if err == nil {
+					type reply struct {
+						Msg string
+					}
+					m := reply{}
+					err := json.Unmarshal(data, &m)
+					if err == nil && len(m.Msg) > 0 {
+						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(m.Msg)))
+					}
+				}
+			}
+		})
 	}()
 }
 
@@ -142,6 +208,7 @@ const (
 	tKIMO = iota
 	tDERE
 	tKAWA
+	tALPACA
 )
 
 func match(l []string, seg *jieba.Segmenter) zero.Rule {
