@@ -219,7 +219,7 @@ func init() {
 						return
 					}
 					if len(m.Msg) > 0 {
-						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(m.Msg)))
+						ctx.Send(message.Text(m.Msg))
 					}
 					return
 				}
