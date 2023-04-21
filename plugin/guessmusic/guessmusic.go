@@ -110,10 +110,8 @@ func init() {
 			tick := time.NewTimer(105 * time.Second)
 			after := time.NewTimer(120 * time.Second)
 			var (
-				messageStr  message.MessageSegment // 文本信息
-				tickCount   = 0                    // 音频数量
-				answerCount = 0                    // 问答次数
-				win         bool                   // 是否赢得游戏
+				tickCount   = 0 // 音频数量
+				answerCount = 0 // 问答次数
 			)
 			for {
 				select {
@@ -131,31 +129,70 @@ func init() {
 						wait.Stop()
 						continue
 					}
-					ctx.SendChain(
-						message.Text("好像有些难度呢,再听这段音频,要仔细听哦"),
-					)
+					ctx.SendChain(message.Text("好像有些难度呢,再听这段音频,要仔细听哦"))
 					ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
 				case c := <-recv:
-					messageStr, answerCount, tickCount, win = gameMatch(c, ctx.Event.UserID, musicInfo, answerCount, tickCount)
-					if win { // 游戏结束的话
+					answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
+					switch {
+					case answer == "取消":
+						if c.Event.UserID != ctx.Event.UserID {
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("你无权限取消"))
+							continue
+						}
+						ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+							message.Text("时间超时,猜歌结束,公布答案：\n", answerString, "\n\n下面欣赏猜歌的歌曲")))
+						ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
+						return
+					case answer == "提示":
+						wait.Reset(40 * time.Second)
+						tick.Reset(105 * time.Second)
+						after.Reset(120 * time.Second)
+						tickCount++
+						if tickCount > 2 {
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("已经没有提示了哦"))
+							continue
+						}
+						ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("再听这段音频,要仔细听哦"))
+						ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
+						continue
+					case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
 						wait.Stop()
 						tick.Stop()
 						after.Stop()
-						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+						ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("太棒了,你猜对歌曲名了！答案是\n", musicInfo[len(musicInfo)-1]))
 						return
-					}
-					wait.Reset(40 * time.Second)
-					tick.Reset(105 * time.Second)
-					after.Reset(120 * time.Second)
-					switch {
-					case tickCount > 2:
-						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
-						ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
-					case messageStr.Data["text"] == "你无权限取消":
-						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
+					case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
+						wait.Stop()
+						tick.Stop()
+						after.Stop()
+						ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("太棒了,你猜对歌手名了！答案是\n", musicInfo[len(musicInfo)-1]))
+						return
+					case len(musicInfo) == 4 && (strings.Contains(musicInfo[2], answer) || strings.EqualFold(musicInfo[2], answer)):
+						wait.Stop()
+						tick.Stop()
+						after.Stop()
+						ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1]))
+						return
 					default:
-						ctx.SendChain(message.Reply(c.Event.MessageID), messageStr)
-						ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
+						wait.Reset(40 * time.Second)
+						tick.Reset(105 * time.Second)
+						after.Reset(120 * time.Second)
+						answerCount++
+						tickCount++
+						switch {
+						case tickCount > 2 && answerCount < 6:
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("答案不对哦,还有", 6-answerCount, "次答题,加油啊~"))
+							continue
+						case tickCount > 2:
+							ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+								message.Text("次数到了,没能猜出来。答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲")))
+							ctx.SendChain(message.Record("file:///" + pathOfMusic + musicName))
+							return
+						default:
+							ctx.SendChain(message.Reply(c.Event.MessageID), message.Text("答案不对,再听这段音频,要仔细听哦"))
+							ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + strconv.Itoa(tickCount) + ".wav"))
+							continue
+						}
 					}
 				}
 			}
@@ -272,39 +309,4 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 		return
 	}
 	return
-}
-
-// 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
-func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tickTimes int) (message.MessageSegment, int, int, bool) {
-	answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
-	switch {
-	case answer == "取消":
-		if c.Event.UserID == beginner {
-			return message.Text("游戏已取消,猜歌答案是\n", musicInfo[len(musicInfo)-1], "\n\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
-		}
-		return message.Text("你无权限取消"), answerTimes, tickTimes, false
-	case answer == "提示":
-		tickTimes++
-		if tickTimes > 2 {
-			return message.Text("已经没有提示了哦"), answerTimes, tickTimes, false
-		}
-		return message.Text("再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
-	case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
-		return message.Text("太棒了,你猜对歌曲名了！答案是\n", musicInfo[len(musicInfo)-1]), answerTimes, tickTimes, true
-	case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
-		return message.Text("太棒了,你猜对歌手名了！答案是\n", musicInfo[len(musicInfo)-1]), answerTimes, tickTimes, true
-	case len(musicInfo) == 4 && (strings.Contains(musicInfo[2], answer) || strings.EqualFold(musicInfo[2], answer)):
-		return message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1]), answerTimes, tickTimes, true
-	default:
-		answerTimes++
-		tickTimes++
-		switch {
-		case tickTimes > 2 && answerTimes < 6:
-			return message.Text("答案不对哦,还有", 6-answerTimes, "次答题,加油啊~"), answerTimes, tickTimes, false
-		case tickTimes > 2:
-			return message.Text("次数到了,没能猜出来。答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
-		default:
-			return message.Text("答案不对,再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
-		}
-	}
 }

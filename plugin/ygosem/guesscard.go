@@ -105,9 +105,15 @@ func init() {
 		return true
 	}).SetBlock(true).Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("正在准备题目,请稍等"))
-		semdata, picFile, err := getSemData()
+		var (
+			length     int
+			semdata    gameCardInfo
+			picFile    string
+			err        error
+			answerName string
+		)
+		semdata, picFile, err = getSemData()
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]", err))
 			semdata, err = carddatas.pick()
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]", err))
@@ -115,6 +121,8 @@ func init() {
 			}
 			picFile = semdata.PicFile
 		}
+		answerName = semdata.Name
+		length = math.Ceil(len([]rune(answerName)), 4)
 		picFile = cachePath + picFile
 		// 对卡图做处理
 		pictrue, err := randPicture(picFile, ctx.State["regex_matched"].([]string)[1])
@@ -123,17 +131,12 @@ func init() {
 			return
 		}
 		// 进行猜卡环节
-		if msgID := ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue)); msgID.ID() == 0 {
-			ctx.SendChain(message.Text("[ERROR]题目发送失败，可能是风控了"))
-			return
-		}
-		recv, cancel := zero.NewFutureEvent("message", 1, false, zero.OnlyGroup,
-			zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.CheckGroup(ctx.Event.GroupID)).Repeat()
+		ctx.SendChain(message.Text("请回答下图的卡名\n以“我猜xxx”格式回答\n(xxx需包含卡名1/4以上)\n或发“提示”得提示;“取消”结束游戏"), message.ImageBytes(pictrue))
+		recv, cancel := zero.NewFutureEvent("message", 1, true, zero.RegexRule("^((我猜.+)|提示|取消)$"), zero.OnlyGroup, zero.CheckGroup(ctx.Event.GroupID)).Repeat()
 		defer cancel()
 		tick := time.NewTimer(105 * time.Second)
 		over := time.NewTimer(120 * time.Second)
 		var (
-			length      = math.Ceil(len([]rune(semdata.Name)), 4)
 			worry       = 1 //错误次数
 			tickCount   = 0 // 提示次数
 			answerCount = 0 // 问答次数
@@ -147,17 +150,21 @@ func init() {
 				if err == nil {
 					err = errors.New("惩罚值+" + strconv.Itoa(worry))
 				}
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("时间超时,游戏结束\n卡名是:\n", semdata.Name, "\n"),
+				msgID := ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("时间超时,游戏结束\n卡名是:\n", answerName, "\n"),
 					message.Image("file:///"+file.BOTPATH+"/"+picFile),
 					message.Text("\n", err)))
+				if msgID.ID() == 0 {
+					ctx.SendChain(message.Text("图片发送失败,可能被风控\n答案是:", answerName))
+				}
 				return
 			case c := <-recv:
+				msgID := c.Event.MessageID
 				answer := c.Event.Message.String()
 				_, after, ok := strings.Cut(answer, "我猜")
 				if ok {
 					if len([]rune(after)) < length {
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("请输入", length, "字以上")))
+						ctx.Send(message.ReplyWithMessage(msgID, message.Text("请输入", length, "字以上")))
 						continue
 					}
 					answer = after
@@ -165,7 +172,7 @@ func init() {
 				switch {
 				case answer == "取消":
 					if c.Event.UserID != ctx.Event.UserID {
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("你无权限取消")))
+						ctx.Send(message.ReplyWithMessage(msgID, message.Text("你无权限取消")))
 						continue
 					}
 					tick.Stop()
@@ -175,49 +182,62 @@ func init() {
 					if err == nil {
 						err = errors.New("惩罚值+" + strconv.Itoa(worry))
 					}
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
-						message.Text("游戏已取消\n卡名是:\n", semdata.Name, "\n"),
+					msgID := ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID,
+						message.Text("游戏已取消\n卡名是:\n", answerName, "\n"),
 						message.Image("file:///"+file.BOTPATH+"/"+picFile),
 						message.Text("\n", err)))
+					if msgID.ID() == 0 {
+						ctx.SendChain(message.Text("图片发送失败,可能被风控\n答案是:", answerName))
+					}
 					return
 				case answer == "提示" && tickCount > 3:
 					tick.Reset(105 * time.Second)
 					over.Reset(120 * time.Second)
-					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text("已经没有提示了哦,加油啊")))
+					ctx.Send(message.ReplyWithMessage(msgID, message.Text("已经没有提示了哦,加油啊")))
 					continue
-				case answerCount >= 5:
+				case answer != "提示" && answerCount > 5:
 					tick.Stop()
 					over.Stop()
 					err := carddatas.loadpunish(ctx.Event.GroupID, worry)
 					if err == nil {
 						err = errors.New("惩罚值+" + strconv.Itoa(worry))
 					}
-					ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", semdata.Name, "\n"),
+					msgID := ctx.Send(message.ReplyWithMessage(msgID,
+						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", answerName, "\n"),
 						message.Image("file:///"+file.BOTPATH+"/"+picFile),
 						message.Text("\n", err)))
-					return
-				default:
-					answerTimes, tickTimes, messageStr, win := semdata.games(answer, tickCount, answerCount)
-					if win {
-						tick.Stop()
-						over.Stop()
-						err := carddatas.loadpunish(ctx.Event.GroupID, worry)
-						if err == nil {
-							err = errors.New("惩罚值+" + strconv.Itoa(worry))
-						}
-						ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
-							message.Text(messageStr, "\n"),
-							message.Image("file:///"+file.BOTPATH+"/"+picFile),
-							message.Text("\n", err)))
-						return
+					if msgID.ID() == 0 {
+						ctx.SendChain(message.Text("图片发送失败,可能被风控\n答案是:", answerName))
 					}
+					return
+				case answer == "提示":
 					worry++
-					answerCount = answerTimes
-					tickCount = tickTimes
+					tickCount++
 					tick.Reset(105 * time.Second)
 					over.Reset(120 * time.Second)
-					ctx.Send(message.ReplyWithMessage(c.Event.MessageID, message.Text(messageStr)))
+					tips := getTips(semdata, tickCount)
+					ctx.Send(message.ReplyWithMessage(msgID, message.Text(tips)))
+				case strings.Contains(answerName, answer):
+					tick.Stop()
+					over.Stop()
+					err := carddatas.loadpunish(ctx.Event.GroupID, worry)
+					if err == nil {
+						err = errors.New("惩罚值+" + strconv.Itoa(worry))
+					}
+					msgID := ctx.Send(message.ReplyWithMessage(msgID,
+						message.Text("太棒了,你猜对了!\n卡名是:\n", answerName, "\n"),
+						message.Image("file:///"+file.BOTPATH+"/"+picFile),
+						message.Text("\n", err)))
+					if msgID.ID() == 0 {
+						ctx.SendChain(message.Text("图片发送失败,可能被风控\n答案是:", answerName))
+					}
+					return
+				default:
+					worry++
+					answerCount++
+					tick.Reset(105 * time.Second)
+					over.Reset(120 * time.Second)
+					ctx.Send(message.ReplyWithMessage(msgID, message.Text("答案不对哦,还有"+strconv.Itoa(6-answerCount)+"次回答机会,加油啊~")))
 				}
 			}
 		}
@@ -377,20 +397,6 @@ func cutPic(dst *imgfactory.Factory) ([]byte, error) {
 		}
 	}
 	return imgfactory.ToBytes(returnpic.Image())
-}
-
-func (cardData gameCardInfo) games(s string, stickCount int, answerCount int) (int, int, string, bool) {
-	switch {
-	case s == "提示":
-		tips := getTips(cardData, stickCount)
-		stickCount++
-		return answerCount, stickCount, tips, false
-	case strings.Contains(cardData.Name, s):
-		return answerCount, stickCount, "太棒了,你猜对了!\n卡名是:\n" + cardData.Name, true
-	default:
-		count := answerCount + 1
-		return count, stickCount, "答案不对哦,还有" + strconv.Itoa(6-count) + "次回答机会,加油啊~", false
-	}
 }
 
 // 拼接提示词
