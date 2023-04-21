@@ -12,6 +12,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const url = "http://8.134.179.136/vtbwife?id="
+
 func init() { // 插件主体
 	engine := control.Register("vtbwife", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
@@ -19,7 +21,7 @@ func init() { // 插件主体
 		Help:             "- 抽vtb(老婆)",
 	})
 	engine.OnRegex(`^抽(vtb|VTB)(老婆)?$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		body, err := web.GetData("http://8.134.179.136/vtbwife?id=" + strconv.Itoa(int(ctx.Event.UserID)))
+		body, err := web.GetData(url + strconv.Itoa(int(ctx.Event.UserID)))
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
