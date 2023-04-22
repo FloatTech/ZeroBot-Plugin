@@ -188,10 +188,10 @@ func init() {
 						r.Header.Set("Authorization", alpacatoken)
 						return nil
 					}, bytes.NewReader(binary.NewWriterF(func(writer *binary.Writer) {
-						_ = json.NewEncoder(writer).Encode(&alpacamsg{
+						_ = json.NewEncoder(writer).Encode(&[]alpacamsg{{
 							Name:    ctx.CardOrNickName(ctx.Event.UserID),
 							Message: msg,
-						})
+						}})
 					})))
 				if err != nil {
 					logrus.Warnln("[chat] 🦙 err:", err)
