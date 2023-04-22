@@ -13,7 +13,9 @@ import (
 )
 
 const (
-	api = "https://api.a20safe.com/api.php?api=21&key=7d06a110e9e20a684e02934549db1d3d&text=%s" // api地址
+	duURL   = "https://api.a20safe.com/api.php?api=21&key=%s&text=%s" // api地址
+	wikiURL = "https://api.a20safe.com/api.php?api=23&key=%s&text=%s"
+	key     = "7d06a110e9e20a684e02934549db1d3d"
 )
 
 type result struct {
@@ -27,11 +29,18 @@ type result struct {
 func init() { // 主函数
 	en := control.Register("baidu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "百度百科\n" +
-			"- 百度/百科[关键字]",
+		Help: "百科\n" +
+			"- 百度/百科/维基/wiki[关键字]",
 	})
-	en.OnRegex(`^百[度科]\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		es, err := web.GetData(fmt.Sprintf(api, ctx.State["regex_matched"].([]string)[1])) // 将网站返回结果赋值
+	en.OnRegex(`^(百度|维基|百科|wiki)\s*(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		var es []byte
+		var err error
+		switch ctx.State["regex_matched"].([]string)[1] {
+		case "百度", "百科":
+			es, err = web.GetData(fmt.Sprintf(duURL, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
+		case "wiki", "维基":
+			es, err = web.GetData(fmt.Sprintf(wikiURL, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
+		}
 		if err != nil {
 			ctx.SendChain(message.Text("出现错误捏：", err))
 			return
