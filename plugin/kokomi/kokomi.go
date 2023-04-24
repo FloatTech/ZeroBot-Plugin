@@ -99,7 +99,7 @@ func getData(url string) (data []byte, err error) {
 			err = errors.New(s)
 			return
 		} else if response.StatusCode == http.StatusInternalServerError {
-			err = errors.New("\n-----------------------------")
+			err = errors.New("\n服务器无法正确处理消息")
 		}
 		data, _ = io.ReadAll(response.Body)
 		response.Body.Close()
