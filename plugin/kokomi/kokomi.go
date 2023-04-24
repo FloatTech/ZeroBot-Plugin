@@ -44,15 +44,33 @@ func init() {
 			if i = ctx.State["regex_matched"].([]string)[2]; i == "" {
 				i = strconv.FormatInt(ctx.Event.UserID, 10)
 			}
-			body, err := getData(api + genshin + "qtop?qq=" + i + "&role=" + str)
+			if str == "更新" {
+				body, err := getData(api + genshin + "find?qq=" + i)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", string(body), err))
+					return
+				}
+				ctx.SendChain(message.Text(string(body)))
+			} else {
+				body, err := getData(api + genshin + "qtop?qq=" + i + "&role=" + str)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", string(body), err))
+					return
+				}
+				ctx.SendChain(message.ImageBytes(body))
+			}
+			return
+		}
+		i = ctx.State["regex_matched"].([]string)[3]
+		if str == "更新" {
+			body, err := getData(api + genshin + "find?uid=" + i)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", string(body), err))
 				return
 			}
-			ctx.SendChain(message.ImageBytes(body))
+			ctx.SendChain(message.Text(string(body)))
 			return
 		}
-		i = ctx.State["regex_matched"].([]string)[3]
 		body, err := getData(api + genshin + "utop?uid=" + i + "&role=" + str)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", string(body), err))
