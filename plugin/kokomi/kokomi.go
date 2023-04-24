@@ -2,9 +2,12 @@
 package kokomi
 
 import (
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -24,12 +27,12 @@ func init() {
 	})
 	en.OnRegex(`^(?:#|＃)?\s*绑定+?\s*(?:uid|UID|Uid)?\s*(\d+)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		suid := ctx.State["regex_matched"].([]string)[1] // 获取uid
-		body, err := web.GetData(api + genshin + "bound?qq=" + strconv.Itoa(int(ctx.Event.UserID)) + "&uid=" + suid)
+		body, err := getData(api + genshin + "bound?qq=" + strconv.Itoa(int(ctx.Event.UserID)) + "&uid=" + suid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR: ", string(body), err))
 			return
 		}
-		ctx.SendChain(message.Text(body))
+		ctx.SendChain(message.Text(string(body)))
 	})
 	en.OnRegex(`^(?:#|＃)?(.*)面板\s*(?:(?:\[CQ:at,qq=)(\d+))?(\d+)?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		var i string
@@ -41,29 +44,44 @@ func init() {
 			if i = ctx.State["regex_matched"].([]string)[2]; i == "" {
 				i = strconv.FormatInt(ctx.Event.UserID, 10)
 			}
-			body, err := web.GetData(api + genshin + "qtop?qq=" + i + "&role=" + str)
+			body, err := getData(api + genshin + "qtop?qq=" + i + "&role=" + str)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR: ", string(body), err))
 				return
 			}
 			ctx.SendChain(message.ImageBytes(body))
 			return
 		}
 		i = ctx.State["regex_matched"].([]string)[3]
-		body, err := web.GetData(api + genshin + "utop?uid=" + i + "&role=" + str)
+		body, err := getData(api + genshin + "utop?uid=" + i + "&role=" + str)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR: ", string(body), err))
 			return
 		}
 		ctx.SendChain(message.ImageBytes(body))
 	})
 	en.OnRegex(`^(?:#|＃)?\s*更新+?\s*(?:uid|UID|Uid)?\s*(\d+)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		suid := ctx.State["regex_matched"].([]string)[1] // 获取uid
-		body, err := web.GetData(api + genshin + "find?uid=" + suid)
+		body, err := getData(api + genshin + "find?uid=" + suid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR: ", string(body), err))
 			return
 		}
-		ctx.SendChain(message.Text(body))
+		ctx.SendChain(message.Text(string(body)))
 	})
+}
+
+// GetData 获取数据
+func getData(url string) (data []byte, err error) {
+	var response *http.Response
+	response, err = http.Get(url)
+	if err == nil {
+		if response.StatusCode != http.StatusOK {
+			s := fmt.Sprintf("\ncode: %d", response.StatusCode)
+			err = errors.New(s)
+		}
+		data, _ = io.ReadAll(response.Body)
+		response.Body.Close()
+	}
+	return
 }
