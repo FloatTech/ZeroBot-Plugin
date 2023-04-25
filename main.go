@@ -48,9 +48,9 @@ import (
 	//                                                                  //
 	//                                                                  //
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"                // 游戏王相关插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygosem"             // 游戏王sem平台相关插件
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"    // 游戏王相关插件
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygosem" // 游戏王sem平台相关插件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/baidufanyi" // 百度翻译
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/score"      // 签到
@@ -58,28 +58,32 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games" // 游戏系统
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"     // ai绘图
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"     // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice" // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"    // b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"       // 好友申请群聊邀请事件处理
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"         // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"      // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"  // 猜歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"      // 日韩 VITS 模型拟声
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"       // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"     // 拼音首字母缩写释义工具
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"      // 一群一天一夫一妻制群老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/quan"        // QQ权重查询
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"     // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"    // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"       // 叔叔的AI二次元图片放大
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"    // 来份涩图
+
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"      // 日韩 VITS 模型拟声
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"     // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"   // 拼音首字母缩写释义工具
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"    // 一群一天一夫一妻制群老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/quan"      // QQ权重查询
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"   // 在线运行代码
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"  // 以图搜图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygomoegoe" // 日韩 VITS 模型拟声
+
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"       // 叔叔的AI二次元图片放大
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime" // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe" // 搜番
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI" // 百度文心AI画图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"     // 抽老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"   // 猜单词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"    // 月幕galgame
+
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI" // 百度文心AI画图
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"   // 抽老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle" // 猜单词
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"  // 月幕galgame
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots" // 多功能抽签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/movies"   // 电影插件
@@ -88,7 +92,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
 
 	/*/                                                                  //
 	//                                                                  //

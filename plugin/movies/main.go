@@ -134,7 +134,7 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 	if err != nil {
 		return
 	}
-	listPicH := 3000
+	listPicH := 8000
 	listPicW := float64(back.Bounds().Dx()) * float64(listPicH) / float64(back.Bounds().Dy())
 	back = imgfactory.Size(back, int(listPicW), listPicH).Image()
 	movieCardw := int(listPicW - 100)

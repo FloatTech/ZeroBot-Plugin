@@ -142,9 +142,10 @@ func init() {
 		if userinfo.Level < scoreMax {
 			userinfo.Level += add
 		}
-		wg.Wait()
+		wg.Add(1)
 		userinfo.Picname = picFile
 		go func() {
+			defer wg.Done()
 			if err := scoredata.setData(userinfo); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
 				return

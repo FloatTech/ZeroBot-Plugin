@@ -14,6 +14,7 @@ import (
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
+	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/imgfactory"
 	sql "github.com/FloatTech/sqlite"
@@ -127,7 +128,7 @@ func init() {
 		// 对卡图做处理
 		pictrue, err := randPicture(picFile, ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]", err))
+			ctx.SendChain(message.Text("[ERROR]", picFile, " ", err))
 			return
 		}
 		// 进行猜卡环节
@@ -159,6 +160,7 @@ func init() {
 				}
 				return
 			case c := <-recv:
+				process.SleepAbout1sTo2s()
 				msgID := c.Event.MessageID
 				answer := c.Event.Message.String()
 				_, after, ok := strings.Cut(answer, "我猜")
@@ -212,10 +214,10 @@ func init() {
 					return
 				case answer == "提示":
 					worry++
-					tickCount++
 					tick.Reset(105 * time.Second)
 					over.Reset(120 * time.Second)
 					tips := getTips(semdata, tickCount)
+					tickCount++
 					ctx.Send(message.ReplyWithMessage(msgID, message.Text(tips)))
 				case strings.Contains(answerName, answer):
 					tick.Stop()
