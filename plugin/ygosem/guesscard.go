@@ -197,7 +197,7 @@ func init() {
 					over.Reset(120 * time.Second)
 					ctx.Send(message.ReplyWithMessage(msgID, message.Text("已经没有提示了哦,加油啊")))
 					continue
-				case answer != "提示" && answerCount > 5:
+				case answer != "提示" && answerCount >= 5:
 					tick.Stop()
 					over.Stop()
 					err := carddatas.loadpunish(ctx.Event.GroupID, worry)

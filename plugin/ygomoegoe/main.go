@@ -4,7 +4,6 @@ package moegoe
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -31,18 +30,13 @@ var (
 		"鬼柳京介": 5, "鬼柳": 5,
 		"榊遊矢": 6, "榊游矢": 6, "游矢": 6,
 	}
-	speakerList = func() []string {
-		speakerList := make([]string, len(speakers))
-		for speaker := range speakers {
-			speakerList = append(speakerList, speaker)
-		}
-		return speakerList
-	}()
 )
 
 type repdata struct {
 	Data DataTTS `json:"data"`
 }
+
+// DataTTS ...
 type DataTTS struct {
 	Model  string `json:"model"` //非必需
 	ID     uint   `json:"id"`
@@ -51,7 +45,17 @@ type DataTTS struct {
 	Output string `json:"outputName"`
 }
 
+type respData struct {
+	ID      uint   `json:"id"`
+	Speaker string `json:"speaker"`
+	URL     string `json:"url"`
+}
+
 func init() {
+	speakerList := make([]string, len(speakers))
+	for speaker := range speakers {
+		speakerList = append(speakerList, speaker)
+	}
 	en := control.Register("ygomoegoe", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王 moegoe 模型拟声",
@@ -82,11 +86,12 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			if resp == nil {
-				ctx.SendChain(message.Text("ERROR: 生成数据失败"))
+			var reslut respData
+			err = json.Unmarshal(resp, &reslut)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			fmt.Println(string(resp))
-			ctx.SendChain(message.Record("file:///Users/liuyu.fang/Documents/Vits/MoeGoe/audios/" + strconv.FormatInt(ctx.Event.UserID, 10) + ".wav"))
+			ctx.SendChain(message.Record("file:///Users/liuyu.fang/Documents/Vits/MoeGoe/" + reslut.URL))
 		})
 }
