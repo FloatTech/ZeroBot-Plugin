@@ -52,7 +52,7 @@ type respData struct {
 }
 
 func init() {
-	speakerList := make([]string, len(speakers))
+	speakerList := make([]string, 0, len(speakers))
 	for speaker := range speakers {
 		speakerList = append(speakerList, speaker)
 	}
