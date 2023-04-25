@@ -2,17 +2,16 @@
 package kokomi
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"strconv"
 
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
@@ -23,18 +22,25 @@ func init() {
 	en := control.Register("kokomi", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "原神面板查询",
-		Help:             "- 绑定xxx\n",
+		Help: "- 绑定xxx\n" +
+			"- xx面板",
 	})
 	en.OnRegex(`^(?:#|＃)?\s*绑定+?\s*(?:uid|UID|Uid)?\s*(\d+)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		suid := ctx.State["regex_matched"].([]string)[1] // 获取uid
-		body, err := getData(api + "bound?qq=" + strconv.Itoa(int(ctx.Event.UserID)) + "&uid=" + suid)
+		body, err := web.GetData(api + "bound?qq=" + strconv.Itoa(int(ctx.Event.UserID)) + "&uid=" + suid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", helper.BytesToString(body), err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Text(helper.BytesToString(body)))
+		msg, _, err := fixmessage(body)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text(msg))
 	})
 	en.OnRegex(`^(?:#|＃)?(.*)面板\s*(?:(?:\[CQ:at,qq=)(\d+))?(\d+)?(.*)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		fmt.Println(ctx.State["regex_matched"].([]string)[1], ctx.State["regex_matched"].([]string)[2], ctx.State["regex_matched"].([]string)[3], ctx.State["regex_matched"].([]string)[4])
 		var i string
 		str := ctx.State["regex_matched"].([]string)[1] // 获取key
 		if str == "" {
@@ -45,64 +51,91 @@ func init() {
 				i = strconv.FormatInt(ctx.Event.UserID, 10)
 			}
 			if str == "更新" {
-				body, err := getData(api + "find?qq=" + i)
+				body, err := web.GetData(api + "find?qq=" + i)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", helper.BytesToString(body), err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.Text(helper.BytesToString(body)))
+				msg, _, err := fixmessage(body)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				ctx.SendChain(message.Text(msg))
 			} else {
-				body, err := getData(api + "qtop?qq=" + i + "&role=" + str)
+				body, err := web.GetData(api + "qtop?qq=" + i + "&role=" + str)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", helper.BytesToString(body), err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				ctx.SendChain(message.ImageBytes(body))
+				_, url, err := fixmessage(body)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				ctx.SendChain(message.Image(url))
 			}
 			return
 		}
 		i = ctx.State["regex_matched"].([]string)[3]
 		if str == "更新" {
-			body, err := getData(api + "find?uid=" + i)
+			body, err := web.GetData(api + "find?uid=" + i)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", helper.BytesToString(body), err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Text(helper.BytesToString(body)))
+			msg, _, err := fixmessage(body)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Text(msg))
 			return
 		}
-		body, err := getData(api + "utop?uid=" + i + "&role=" + str)
+		body, err := web.GetData(api + "utop?uid=" + i + "&role=" + str)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", helper.BytesToString(body), err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.ImageBytes(body))
+		_, url, err := fixmessage(body)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Image(url))
 	})
-	en.OnRegex(`^(?:#|＃)?\s*更新+?\s*(?:uid|UID|Uid)?\s*(\d+)?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^(?:#|＃)?\s*更新+?\s*(?:uid|UID|Uid)?\s*(\d+)`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		suid := ctx.State["regex_matched"].([]string)[1] // 获取uid
-		body, err := getData(api + "find?uid=" + suid)
+		body, err := web.GetData(api + "find?uid=" + suid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", helper.BytesToString(body), err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Text(helper.BytesToString(body)))
+		msg, _, err := fixmessage(body)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text(msg))
 	})
 }
 
-// GetData 获取数据
-func getData(url string) (data []byte, err error) {
-	var response *http.Response
-	response, err = http.Get(url)
-	if err == nil {
-		if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusInternalServerError {
-			s := fmt.Sprintf("status code: %d", response.StatusCode)
-			err = errors.New(s)
-			return
-		} else if response.StatusCode == http.StatusInternalServerError {
-			err = errors.New("\n服务器无法正确处理消息")
-		}
-		data, _ = io.ReadAll(response.Body)
-		response.Body.Close()
+type result struct {
+	Code int    `json:"code"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+	UID  string `json:"uid"`
+	Msg  string `json:"msg"`
+}
+
+func fixmessage(data []byte) (msg, url string, err error) {
+	var r result
+	err = json.Unmarshal(data, &r)
+	if err != nil {
+		return "", "", errors.New(r.Msg)
 	}
-	return
+	if r.Code != 200 {
+		return "", "", errors.New(r.Msg)
+	}
+	return r.Msg, r.URL, nil
 }
