@@ -84,7 +84,7 @@ func init() {
 		scoredata.db.DBPath = engine.DataFolder() + "score.db"
 		err := scoredata.db.Open(time.Hour * 24)
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR]:", err))
+			ctx.SendChain(message.Text("[init ERROR]:", err))
 			return false
 		}
 		err = scoredata.db.Create("score", &userdata{})
@@ -118,33 +118,40 @@ func init() {
 			ctx.SendChain(message.ImageBytes(data))
 			return
 		}
-		var picFile string
 		var wg sync.WaitGroup
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			picPath, err := initPic()
+			picFile, err := initPic()
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 			}
-			picFile = picPath
+			userinfo.Picname = picFile
+			if err := scoredata.setData(userinfo); err != nil {
+				ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
+				return
+			}
+			userinfo.Picname = picFile
+			if err := scoredata.setData(userinfo); err != nil {
+				ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
+				return
+			}
 		}()
-		// 更新数据
 		add := 1
-		subtime := time.Since(lasttime).Hours()
-		if subtime > 48 {
-			userinfo.Continuous = 1
-		} else {
-			userinfo.Continuous += 1
-			add = int(math.Min(5, float64(userinfo.Continuous)))
-		}
-		userinfo.UpdatedAt = time.Now().Unix()
-		if userinfo.Level < scoreMax {
-			userinfo.Level += add
-		}
 		wg.Add(1)
-		userinfo.Picname = picFile
 		go func() {
+			// 更新数据
+			subtime := time.Since(lasttime).Hours()
+			if subtime > 48 {
+				userinfo.Continuous = 1
+			} else {
+				userinfo.Continuous += 1
+				add = int(math.Min(5, float64(userinfo.Continuous)))
+			}
+			userinfo.UpdatedAt = time.Now().Unix()
+			if userinfo.Level < scoreMax {
+				userinfo.Level += add
+			}
 			defer wg.Done()
 			if err := scoredata.setData(userinfo); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
@@ -289,7 +296,7 @@ func initPic() (picFile string, err error) {
 }
 
 func randFile(indexMax int) (string, error) {
-	files, err := os.ReadDir(cachePath)
+	files, err := os.ReadDir(file.BOTPATH + cachePath)
 	if err != nil {
 		return "", err
 	}
@@ -349,7 +356,7 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	if err != nil {
 		return
 	}
-	avatarf := imgfactory.Size(avatar, 300, 300)
+	avatarf := imgfactory.Size(avatar, 270, 270)
 	canvas.DrawCircle(50+float64(avatarf.W())/2, 50+float64(avatarf.H())/2, float64(avatarf.W())/2+2)
 	canvas.SetLineWidth(3)
 	canvas.SetDash()
@@ -422,7 +429,7 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 		return
 	}
 	rank := levelrank[level]
-	textW, _ = canvas.MeasureString(rank)
+	textW, textH = canvas.MeasureString(rank)
 	levelX := float64(backDX) * 4 / 5
 	canvas.DrawRoundedRectangle(levelX, 50, textW*1.2, 200, 200/5)
 	canvas.SetLineWidth(3)
@@ -441,9 +448,9 @@ func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
 	canvas.DrawStringAnchored(fmt.Sprintf("LV%d", level), levelX+textW*1.2/2, 50+100+50, 0.5, 0.5)
 
 	if add == 0 {
-		canvas.DrawString(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), 350, 370)
+		canvas.DrawStringAnchored(fmt.Sprintf("已连签 %d 天    总资产: %d", userinfo.Continuous, score), float64(backDX)/2, 370-textH/2, 0.5, 0.5)
 	} else {
-		canvas.DrawString(fmt.Sprintf("连签 %d 天 总资产(+%d): %d", userinfo.Continuous, add+level*5, score), 350, 370)
+		canvas.DrawStringAnchored(fmt.Sprintf("连签 %d 天 总资产(+%d): %d", userinfo.Continuous, add+level*5, score), float64(backDX)/2, 370-textH/2, 0.5, 0.5)
 	}
 	// 绘制等级进度条
 	if err = canvas.ParseFontFace(data, 50); err != nil {

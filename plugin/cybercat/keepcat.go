@@ -33,11 +33,6 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[0] == "猫猫状态" {
 			cmd = true
 		}
-		now := time.Now().Hour()
-		if !cmd && ((now < 6 || (now > 8 && now < 11) || (now > 14 && now < 17) || now > 21) && (userInfo.Satiety > 50 || rand.Intn(3) != 1)) {
-			ctx.SendChain(message.Text("猫猫只想和你一起吃传统早中晚饭咧"))
-			return
-		}
 		/**************************获取工作状态*************************************/
 		stauts := "休闲中"
 		money, workEnd := userInfo.settleOfWork(gidStr)
@@ -50,6 +45,15 @@ func init() {
 			stauts = overwork.Format("工作中\n(将在01月02日15:04下班)")
 		case cmd && money > 0:
 			stauts = "从工作回来休息中\n	为你赚了" + strconv.Itoa(money)
+		}
+		now := time.Now().Hour()
+		if !cmd && ((now < 6 || (now > 8 && now < 11) || (now > 14 && now < 17) || now > 21) && (userInfo.Satiety > 50 || rand.Intn(3) != 1)) {
+			if userInfo.Satiety > 50 {
+				ctx.SendChain(message.Text("猫猫拍了拍饱饱的肚子表示并不饿呢"))
+				return
+			}
+			ctx.SendChain(message.Text("猫猫只想和你一起吃传统早中晚饭咧"))
+			return
 		}
 		/****************************计算食物数量***********************************/
 		food := 0.0
