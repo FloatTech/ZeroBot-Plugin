@@ -90,7 +90,7 @@ func init() {
 		var img []byte
 		var err error
 		ctx.SendChain(message.Text("是否备份?"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
+		recv, cancel := zero.NewFutureEvent("message", 1, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
 		for {
 			select {
 			case <-time.After(time.Second * 40): // 40s等待
@@ -157,7 +157,7 @@ func init() {
 		var img []byte
 		var err error
 		ctx.SendChain(message.Text("是否备份?"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
+		recv, cancel := zero.NewFutureEvent("message", 1, false, zero.RegexRule(`^(是|否)$`), zero.SuperUserPermission).Repeat()
 		for {
 			select {
 			case <-time.After(time.Second * 40): // 40s等待
