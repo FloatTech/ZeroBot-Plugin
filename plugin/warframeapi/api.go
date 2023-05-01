@@ -1,6 +1,7 @@
 package warframeapi
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,7 +31,11 @@ func newwfapi() (w wfapi, err error) {
 // 获取Warframe市场的售价表，并进行排序,cn_name为物品中文名称，onlyMaxRank表示只取最高等级的物品，返回物品售价表，物品信息，物品英文
 func getitemsorder(cnName string, onlyMaxRank bool) (od orders, it *itemsInSet, n string, err error) {
 	var wfapiio wfAPIItemsOrders
-	data, err := web.RequestDataWithHeaders(&http.Client{}, fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), "GET", func(request *http.Request) error {
+	data, err := web.RequestDataWithHeaders(&http.Client{Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		},
+	}}, fmt.Sprintf("https://api.warframe.market/v1/items/%s/orders?include=item", cnName), "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
 		request.Header.Add("Platform", "pc")
 		return nil
@@ -87,7 +92,11 @@ var (
 func newwm() (*wmdata, error) {
 	var itemapi wfAPIItem // WarFrame市场的数据实例
 	var wd wmdata
-	data, err := web.RequestDataWithHeaders(&http.Client{}, wfitemurl, "GET", func(request *http.Request) error {
+	data, err := web.RequestDataWithHeaders(&http.Client{Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		},
+	}}, wfitemurl, "GET", func(request *http.Request) error {
 		request.Header.Add("Accept", "application/json")
 		request.Header.Add("Language", "zh-hans")
 		return nil

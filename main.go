@@ -58,7 +58,6 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games" // 游戏系统
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"     // ai绘图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice" // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"    // b站相关
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"       // 好友申请群聊邀请事件处理
@@ -66,21 +65,17 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"      // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"  // 猜歌
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"      // 日韩 VITS 模型拟声
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"     // 点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"   // 拼音首字母缩写释义工具
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"    // 一群一天一夫一妻制群老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/quan"      // QQ权重查询
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"   // 在线运行代码
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"  // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygomoegoe" // 日韩 VITS 模型拟声
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygomoegoe" //
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"       // 叔叔的AI二次元图片放大
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime" // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe" // 搜番
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI" // 百度文心AI画图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"   // 抽老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle" // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"  // 月幕galgame
@@ -92,7 +87,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
 
 	/*/                                                                  //
 	//                                                                  //
@@ -186,6 +181,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbmusic"         // vtb点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"           // 钱包
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"        // 网易云音乐热评
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"       // 据意查句
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"      // warframeAPI插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"           // 文本指令大全
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"         // 百度文心AI画图
@@ -299,6 +295,9 @@ func init() {
 	// sus = append(sus, 12345678)
 	// sus = append(sus, 87654321)
 
+	// 启用 webui
+	// go webctrl.RunGui(*g)
+
 	if *runcfg != "" {
 		f, err := os.Open(*runcfg)
 		if err != nil {
@@ -344,9 +343,6 @@ func init() {
 		logrus.Infoln("[main] 配置文件已保存到", *save)
 		os.Exit(0)
 	}
-
-	// 启用 webui
-	// go webctrl.RunGui(*g)
 }
 
 func main() {

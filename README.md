@@ -436,11 +436,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>百度百科</summary>
+  <summary>百科</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
 
-  - [x] 百度/百科[xxx]
+  - [x] 百度/百科/维基/wiki[xxx]
 
 </details>
 <details>
@@ -1386,7 +1386,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 来份网易云热评
 
-  </details>
+</details>
+<details>
+  <summary>据意查句</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"`
+
+  - [x] 据意查句 大海
+  
+  - [x] 登录据意查句 
+
+</details>
 <details>
   <summary>星际战甲</summary>
 

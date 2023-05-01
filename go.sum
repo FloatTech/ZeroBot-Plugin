@@ -8,8 +8,8 @@ github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944 h1:/eQoMa6Aj3co
 github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
-github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b h1:VMNci4SWBySdw/6poqF9Dn9zlT5ntTFSJOEEBjRnJ/4=
-github.com/FloatTech/imgfactory v0.2.2-0.20230322091809-b0ddbe44b94b/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
+github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef h1:CJbK/2FRwPuZpeb6M4sWK2d7oXDnBEGhpkQuQrgc91A=
+github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
 github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9 h1:hffajvmQFfP68U6wUwHemPuuwCUoss+SEFfoLYwbGwE=
 github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9/go.mod h1:NBFPhWae4hqVMeG8ELBBnUQkKce3nDjkljVn6PdiUNs=
 github.com/FloatTech/sqlite v1.6.2 h1:FytbExjpvYalZxxITtmSenHiPGLPUvlz47LY/P0SCCw=
