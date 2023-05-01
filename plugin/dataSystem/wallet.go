@@ -18,17 +18,32 @@ import (
 )
 
 func init() {
-	helpInfo = append(helpInfo, "----------货 币 系 统---------"+
-		"- 查看我的钱包\n"+
-		"- 查看钱包排名\n"+
-		"注:为本群排行，若群人数太多不建议使用该功能!!!\n"+
-		"- /钱包 [QQ号|@群友]\n"+
-		"- /记录 @群友 ATRI币值\n"+
-		"- /记录 @加分群友 @减分群友 ATRI币值")
 	engine.OnFullMatchGroup([]string{"查看我的钱包", "/钱包"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
 		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
+	})
+	engine.OnRegex(`/钱包(\s*\[CQ:at,qq=)?(\d+)`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		uid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		ctx.SendChain(message.Text(ctx.CardOrNickName(uid), "的钱包当前有", wallet.GetWalletOf(uid), "ATRI币"))
+	})
+	engine.OnRegex(`支付(\s*\[CQ:at,qq=)?(\d+)\s*(\d+)`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		uid := ctx.Event.UserID
+		money := wallet.GetWalletOf(uid)
+		transform, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
+		if money < transform {
+			ctx.SendChain(message.Text("你钱包当前只有", money, "ATRI币,无法完成支付"))
+		}
+		target, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		err := wallet.InsertWalletOf(uid, -transform)
+		if err == nil {
+			err = wallet.InsertWalletOf(target, transform)
+		}
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("支付成功"))
 	})
 	engine.OnFullMatch("查看钱包排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -112,10 +127,6 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	engine.OnRegex(`/钱包(\s*\[CQ:at,qq=)?(\d+)`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		uid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-		ctx.SendChain(message.Text(ctx.CardOrNickName(uid), "的钱包当前有", wallet.GetWalletOf(uid), "ATRI币"))
-	})
 	engine.OnRegex(`^\/记录\s*\[CQ:at,qq=(\d+)(.*\[CQ:at,qq=(\d+))?.*[^(-?\d+)$](-?\d+)`, zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		devuser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[3], 10, 64)

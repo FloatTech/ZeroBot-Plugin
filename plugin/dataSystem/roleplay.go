@@ -35,8 +35,6 @@ var (
 )
 
 func init() {
-	helpInfo = append(helpInfo, "----------昵 称 系 统---------"+
-		"- @bot 叫我[xxx]\n- 注销昵称 [xxx/qq号/@QQ]")
 	if file.IsNotExist("data/wallet") {
 		err := os.MkdirAll("data/wallet", 0755)
 		if err != nil {

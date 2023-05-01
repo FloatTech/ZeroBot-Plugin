@@ -39,16 +39,18 @@ type repdata struct {
 // DataTTS ...
 type DataTTS struct {
 	Model  string `json:"model"` //非必需
+	User   string `json:"uid"`
 	ID     uint   `json:"id"`
-	TTS    bool   `json:"tts_choice"` //非必需
 	Text   string `json:"text"`
 	Output string `json:"outputName"`
 }
 
 type respData struct {
+	Code    int    `json:"code"`
 	ID      uint   `json:"id"`
 	Speaker string `json:"speaker"`
 	URL     string `json:"url"`
+	Message string `json:"message"`
 }
 
 func init() {
@@ -60,7 +62,7 @@ func init() {
 		DisableOnDefault: false,
 		Brief:            "游戏王 moegoe 模型拟声",
 		Help: "- 让[xxxx]说(日语)\n" +
-			"当前角色:\n游城十代;丸藤亮;海马濑人;爱德菲尼克斯;不动游星;鬼柳京介;榊遊矢;",
+			"当前角色:\n" + strings.Join(speakerList, "\n"),
 	}).ApplySingle(ctxext.DefaultSingle)
 	en.OnRegex("^让(" + strings.Join(speakerList, "|") + ")说([A-Za-z\\s\\d\u3005\u3040-\u30ff\u4e00-\u9fff\uff11-\uff19\uff21-\uff3a\uff41-\uff5a\uff66-\uff9d\\pP]+)$").Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -72,7 +74,7 @@ func init() {
 					Model:  "ygo7",
 					ID:     id,
 					Text:   text,
-					TTS:    true,
+					User:   "liuyu",
 					Output: strconv.FormatInt(ctx.Event.UserID, 10),
 				},
 			}
@@ -90,6 +92,41 @@ func init() {
 			err = json.Unmarshal(resp, &reslut)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			ctx.SendChain(message.Record("file:///Users/liuyu.fang/Documents/Vits/MoeGoe/" + reslut.URL))
+		})
+	en.OnRegex("^让伊卡洛斯说(.+)$").Limit(ctxext.LimitByGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text("正在尝试"))
+			text := ctx.State["regex_matched"].([]string)[1]
+			urlValues := repdata{
+				Data: DataTTS{
+					Model:  "ikaros",
+					ID:     0,
+					Text:   "[ZH]" + text + "[ZH]",
+					User:   "liuyu",
+					Output: strconv.FormatInt(ctx.Event.UserID, 10),
+				},
+			}
+			data, err := json.Marshal(urlValues)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			resp, err := web.PostData(ygomoegoeapi, "application/json", bytes.NewReader(data))
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			var reslut respData
+			err = json.Unmarshal(resp, &reslut)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			if reslut.Code == -1 {
+				ctx.SendChain(message.Text("ERROR: ", reslut.Message))
 				return
 			}
 			ctx.SendChain(message.Record("file:///Users/liuyu.fang/Documents/Vits/MoeGoe/" + reslut.URL))

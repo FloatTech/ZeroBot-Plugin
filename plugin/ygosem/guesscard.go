@@ -14,7 +14,6 @@ import (
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
-	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/imgfactory"
 	sql "github.com/FloatTech/sqlite"
@@ -160,7 +159,7 @@ func init() {
 				}
 				return
 			case c := <-recv:
-				process.SleepAbout1sTo2s()
+				time.Sleep(time.Millisecond * time.Duration(rand.Intn(50)))
 				msgID := c.Event.MessageID
 				answer := c.Event.Message.String()
 				_, after, ok := strings.Cut(answer, "我猜")
