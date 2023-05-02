@@ -118,6 +118,25 @@ func init() {
 		}
 		ctx.SendChain(message.Text(msg))
 	})
+
+	en.OnRegex(`^(?:\[CQ:at,qq=)?(\d+)?\]?\s*(?:#|＃)?队伍伤害\s*((\D+)\s(\D+)\s(\D+)\s(\D+))?`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		names := []string{ctx.State["regex_matched"].([]string)[3], ctx.State["regex_matched"].([]string)[4], ctx.State["regex_matched"].([]string)[5], ctx.State["regex_matched"].([]string)[6]} // 获取key
+		sqquid := ctx.State["regex_matched"].([]string)[1]                                                                                                                                        // 获取第三者qquid
+		if sqquid == "" {
+			sqquid = strconv.FormatInt(ctx.Event.UserID, 10)
+		}
+		body, err := web.GetData(fmt.Sprintf("%sgroup?qq=%s&1=%s&2=%s&3=%s&4=%s", api, sqquid, names[0], names[1], names[2], names[3]))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		_, url, err := fixmessage(body)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Image(url))
+	})
 }
 
 type result struct {
