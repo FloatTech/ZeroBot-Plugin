@@ -38,10 +38,11 @@ var (
 	engine    = control.Register("score", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "签到",
-		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 设置签到预设(0~3)\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
+		Help:              "- 签到\n- 获得签到背景[@xxx] | 获得签到背景\n- 设置签到预设(0~4)\n注:0为随机签到预设\n- 查看等级排名\n注:为跨群排名\n- 查看我的钱包\n- 查看钱包排名\n注:为本群排行，若群人数太多不建议使用该功能!!!",
 		PrivateDataFolder: "score",
 	})
 	styles = []scoredrawer{
+		drawScore15,
 		drawScore15,
 		drawScore16,
 		drawScore17,
@@ -88,6 +89,9 @@ func init() {
 				return
 			}
 			k = uint8(kn)
+		}
+		if k == uint8(0) {
+			k = uint8(rand.Intn(4) + 1)
 		}
 		if int(k) >= len(styles) {
 			ctx.SendChain(message.Text("ERROR: 未找到签到设定: ", key))
