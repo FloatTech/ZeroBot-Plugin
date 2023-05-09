@@ -81,6 +81,9 @@ func (w *world) refresh(api *wfapi) {
 
 	w.w[2].NextTime = api.CambionCycle.Expiry.Local()
 	w.w[2].IsDay = api.CambionCycle.Active == "fass"
+	for _, t := range w.w {
+		t.Unlock()
+	}
 }
 
 // 游戏时间更新

@@ -18,10 +18,11 @@ import (
 func init() {
 	engine := control.Register("custom", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Help: "自定义插件集合\n" +
-			" - /kill\n" +
+		Brief:            "自订工具",
+		Help: " - /kill\n" +
 			" - /发送公告\n" +
-			" - @bot给主人留言<内容>",
+			" - @bot给主人留言<内容>\n" +
+			" - 模拟xx条消息",
 	})
 	engine.OnFullMatchGroup([]string{"pause", "restart", "/kill"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -48,9 +49,11 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			for j := 0; j < int(i); j++ {
-				go ctx.Echo(vev)
-			}
+			go func() {
+				for j := int64(0); j < i; j++ {
+					go ctx.Echo(vev)
+				}
+			}()
 		})
 	engine.OnCommand("发送公告", isfirstsuperusers()).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
