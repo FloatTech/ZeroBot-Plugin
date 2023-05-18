@@ -276,7 +276,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 			return err
 		}
 		if len(cardList) == 0 {
-			return errors.Errorf("%v的历史动态数为0", buid)
+			continue
 		}
 		t, ok := lastTime[buid]
 		// 第一次先记录时间,啥也不做

@@ -2,22 +2,16 @@
 package moegoe
 
 import (
-	"bytes"
-	"encoding/json"
-	"strconv"
+	"fmt"
+	"net/url"
 	"strings"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-)
-
-const (
-	ygomoegoeapi = "http://127.0.0.1:25565/tts"
 )
 
 var (
@@ -31,27 +25,6 @@ var (
 		"榊遊矢": 6, "榊游矢": 6, "游矢": 6,
 	}
 )
-
-type repdata struct {
-	Data DataTTS `json:"data"`
-}
-
-// DataTTS ...
-type DataTTS struct {
-	Model  string `json:"model"` //非必需
-	User   string `json:"uid"`
-	ID     uint   `json:"id"`
-	Text   string `json:"text"`
-	Output string `json:"outputName"`
-}
-
-type respData struct {
-	Code    int    `json:"code"`
-	ID      uint   `json:"id"`
-	Speaker string `json:"speaker"`
-	URL     string `json:"url"`
-	Message string `json:"message"`
-}
 
 func init() {
 	speakerList := make([]string, 0, len(speakers))
@@ -68,67 +41,12 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("正在尝试"))
 			text := ctx.State["regex_matched"].([]string)[2]
+			if len([]rune(text)) > 30 {
+				ctx.SendChain(message.Text("仅支持30符号以内的文字"))
+				return
+			}
 			id := speakers[ctx.State["regex_matched"].([]string)[1]]
-			urlValues := repdata{
-				Data: DataTTS{
-					Model:  "ygo7",
-					ID:     id,
-					Text:   text,
-					User:   "liuyu",
-					Output: strconv.FormatInt(ctx.Event.UserID, 10),
-				},
-			}
-			data, err := json.Marshal(urlValues)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			resp, err := web.PostData(ygomoegoeapi, "application/json", bytes.NewReader(data))
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			var reslut respData
-			err = json.Unmarshal(resp, &reslut)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			ctx.SendChain(message.Record("file:///Users/liuyu.fang/Documents/Vits/MoeGoe/" + reslut.URL))
-		})
-	en.OnRegex("^让伊卡洛斯说(.+)$").Limit(ctxext.LimitByGroup).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("正在尝试"))
-			text := ctx.State["regex_matched"].([]string)[1]
-			urlValues := repdata{
-				Data: DataTTS{
-					Model:  "ikaros",
-					ID:     0,
-					Text:   "[ZH]" + text + "[ZH]",
-					User:   "liuyu",
-					Output: strconv.FormatInt(ctx.Event.UserID, 10),
-				},
-			}
-			data, err := json.Marshal(urlValues)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			resp, err := web.PostData(ygomoegoeapi, "application/json", bytes.NewReader(data))
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			var reslut respData
-			err = json.Unmarshal(resp, &reslut)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			if reslut.Code == -1 {
-				ctx.SendChain(message.Text("ERROR: ", reslut.Message))
-				return
-			}
-			ctx.SendChain(message.Record("file:///Users/liuyu.fang/Documents/Vits/MoeGoe/" + reslut.URL))
+			url := fmt.Sprintf("http://127.0.0.1:25565/ygo7/%v?text=%v&type=wav&output=%v", id, url.QueryEscape(text), ctx.Event.UserID)
+			ctx.SendChain(message.Record(url))
 		})
 }

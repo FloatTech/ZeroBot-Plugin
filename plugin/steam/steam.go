@@ -10,7 +10,6 @@ import (
 	"github.com/FloatTech/floatbox/math"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -34,7 +33,7 @@ var (
 			"记录在\"@every 1m\"触发的指令\n" +
 			"拉取steam订阅",
 		PrivateDataFolder: "steam",
-	}).ApplySingle(ctxext.DefaultSingle)
+	})
 )
 
 func init() {

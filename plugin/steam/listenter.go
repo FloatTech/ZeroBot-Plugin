@@ -10,6 +10,7 @@ import (
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -50,7 +51,7 @@ func init() {
 		infos, err := database.findAll()
 		if err != nil {
 			// 挂了就给管理员发消息
-			ctx.SendPrivateMessage(su, message.Text("[steam] ERROR: ", err))
+			logrus.Warningf("[steam] ERROR: %s", err.Error())
 			return
 		}
 		if len(infos) == 0 {
@@ -67,7 +68,7 @@ func init() {
 		playerStatus, err := getPlayerStatus(streamIds...)
 		if err != nil {
 			// 出错就发消息
-			ctx.SendPrivateMessage(su, message.Text("[steam] ERROR: ", err))
+			logrus.Warningf("[steam] ERROR: %s", err.Error())
 			return
 		}
 		// 遍历返回的信息做对比，假如信息有变化则发消息

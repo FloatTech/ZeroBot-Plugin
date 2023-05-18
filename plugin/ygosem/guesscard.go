@@ -60,6 +60,7 @@ var (
 	}).ApplySingle(single.New(
 		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
 		single.WithPostFn[int64](func(ctx *zero.Ctx) {
+			ctx.Break()
 			ctx.Send(
 				message.ReplyWithMessage(ctx.Event.MessageID,
 					message.Text("已经有正在进行的游戏..."),
@@ -144,8 +145,11 @@ func init() {
 		for {
 			select {
 			case <-tick.C:
+				tick.Stop()
 				ctx.SendChain(message.Text("还有15s作答时间"))
 			case <-over.C:
+				tick.Stop()
+				over.Stop()
 				err := carddatas.loadpunish(ctx.Event.GroupID, worry)
 				if err == nil {
 					err = errors.New("惩罚值+" + strconv.Itoa(worry))
@@ -159,7 +163,7 @@ func init() {
 				}
 				return
 			case c := <-recv:
-				time.Sleep(time.Millisecond * time.Duration(rand.Intn(50)))
+				time.Sleep(time.Millisecond * time.Duration(10+rand.Intn(50)))
 				msgID := c.Event.MessageID
 				answer := c.Event.Message.String()
 				_, after, ok := strings.Cut(answer, "我猜")
@@ -196,21 +200,6 @@ func init() {
 					over.Reset(120 * time.Second)
 					ctx.Send(message.ReplyWithMessage(msgID, message.Text("已经没有提示了哦,加油啊")))
 					continue
-				case answer != "提示" && answerCount >= 5:
-					tick.Stop()
-					over.Stop()
-					err := carddatas.loadpunish(ctx.Event.GroupID, worry)
-					if err == nil {
-						err = errors.New("惩罚值+" + strconv.Itoa(worry))
-					}
-					msgID := ctx.Send(message.ReplyWithMessage(msgID,
-						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", answerName, "\n"),
-						message.Image("file:///"+file.BOTPATH+"/"+picFile),
-						message.Text("\n", err)))
-					if msgID.ID() == 0 {
-						ctx.SendChain(message.Text("图片发送失败,可能被风控\n答案是:", answerName))
-					}
-					return
 				case answer == "提示":
 					worry++
 					tick.Reset(105 * time.Second)
@@ -227,6 +216,21 @@ func init() {
 					}
 					msgID := ctx.Send(message.ReplyWithMessage(msgID,
 						message.Text("太棒了,你猜对了!\n卡名是:\n", answerName, "\n"),
+						message.Image("file:///"+file.BOTPATH+"/"+picFile),
+						message.Text("\n", err)))
+					if msgID.ID() == 0 {
+						ctx.SendChain(message.Text("图片发送失败,可能被风控\n答案是:", answerName))
+					}
+					return
+				case answerCount >= 5:
+					tick.Stop()
+					over.Stop()
+					err := carddatas.loadpunish(ctx.Event.GroupID, worry)
+					if err == nil {
+						err = errors.New("惩罚值+" + strconv.Itoa(worry))
+					}
+					msgID := ctx.Send(message.ReplyWithMessage(msgID,
+						message.Text("次数到了,很遗憾没能猜出来\n卡名是:\n", answerName, "\n"),
 						message.Image("file:///"+file.BOTPATH+"/"+picFile),
 						message.Text("\n", err)))
 					if msgID.ID() == 0 {
