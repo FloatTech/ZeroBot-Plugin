@@ -16,10 +16,10 @@ github.com/FloatTech/sqlite v1.6.2 h1:FytbExjpvYalZxxITtmSenHiPGLPUvlz47LY/P0SCC
 github.com/FloatTech/sqlite v1.6.2/go.mod h1:zFbHzRfB+CJ+VidfjuVbrcin3DAz283F7hF1hIeHzpY=
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJGLDNIdRX3BI546D3O7k7vrVueZw=
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
-github.com/FloatTech/zbpctrl v1.5.3-0.20230411055601-7cdff751dd67 h1:KGfXWryE3VGFDC8Z6661d/7xm8oLNPpFB5ODb7DqYJc=
-github.com/FloatTech/zbpctrl v1.5.3-0.20230411055601-7cdff751dd67/go.mod h1:gkGC1C1eEUd/Ld/ja68zas5j2ZktIZCdnj2FMaM+Au0=
-github.com/FloatTech/zbputils v1.6.2-0.20230411114057-4c71136244b2 h1:Dx64RjcbxhsOHinykOPAlYqvPd9tE375IQrWqlNmDXs=
-github.com/FloatTech/zbputils v1.6.2-0.20230411114057-4c71136244b2/go.mod h1:m3IW5z7vLMNgNtVNUfcYtOF1du6PnjckifdRK2hVjA0=
+github.com/FloatTech/zbpctrl v1.5.3-0.20230514154630-b74e6fcca380 h1:qmwoT8xVaND01aCdwy+5/j6z490nehQWZAVyTBN8ahU=
+github.com/FloatTech/zbpctrl v1.5.3-0.20230514154630-b74e6fcca380/go.mod h1:gkGC1C1eEUd/Ld/ja68zas5j2ZktIZCdnj2FMaM+Au0=
+github.com/FloatTech/zbputils v1.6.2-0.20230514154857-9363fdb11fd6 h1:uss0/IszBjik7LSM5Q4xQ9FaDXAC7vK7y1dAaOj4UAk=
+github.com/FloatTech/zbputils v1.6.2-0.20230514154857-9363fdb11fd6/go.mod h1:JXRQf2GAzpd7gp853LP6PU3O4pkRoFFuKGykcBChPNk=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
