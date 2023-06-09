@@ -53,7 +53,8 @@ var (
 
 func init() {
 	en.OnFullMatchGroup([]string{"抽签列表", "刷新抽签列表"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		lotsList, err := getList() // 刷新列表
+		var err error
+		lotsList, err = getList() // 刷新列表
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
