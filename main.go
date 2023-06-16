@@ -143,6 +143,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbmusic"         // vtb点歌
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"           // 钱包
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"        // 网易云音乐热评
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"       // 据意查句
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"      // warframeAPI插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"           // 文本指令大全
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"         // 百度文心AI画图
@@ -258,6 +259,9 @@ func init() {
 	// sus = append(sus, 12345678)
 	// sus = append(sus, 87654321)
 
+	// 启用 webui
+	// go webctrl.RunGui(*g)
+
 	if *runcfg != "" {
 		f, err := os.Open(*runcfg)
 		if err != nil {
@@ -303,9 +307,6 @@ func init() {
 		logrus.Infoln("[main] 配置文件已保存到", *save)
 		os.Exit(0)
 	}
-
-	// 启用 webui
-	// go webctrl.RunGui(*g)
 }
 
 func main() {
