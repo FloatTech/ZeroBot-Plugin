@@ -5,10 +5,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"math/rand"
+	"net/http"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/fumiama/jieba"
@@ -22,10 +29,33 @@ func init() {
 	engine := control.Register("thesaurus", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "词典匹配回复",
-		Help:             "- 切换[kimo|傲娇|可爱]词库\n- 设置词库触发概率0.x (0<x<9)",
+		Help:             "- 切换[kimo|傲娇|可爱|🦙]词库\n- 设置词库触发概率0.x (0<x<9)",
 		PublicDataFolder: "Chat",
 	})
-	engine.OnRegex(`^切换(kimo|傲娇|可爱)词库$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	alpacafolder := engine.DataFolder() + "alpaca/"
+	err := os.MkdirAll(alpacafolder, 0755)
+	if err != nil {
+		panic(err)
+	}
+	alpacapifile := alpacafolder + "api.txt"
+	alpacapiurl := ""
+	if file.IsExist(alpacapifile) {
+		data, err := os.ReadFile(alpacapifile)
+		if err != nil {
+			panic(err)
+		}
+		alpacapiurl = binary.BytesToString(data)
+	}
+	alpacatokenfile := alpacafolder + "token.txt"
+	alpacatoken := ""
+	if file.IsExist(alpacatokenfile) {
+		data, err := os.ReadFile(alpacatokenfile)
+		if err != nil {
+			panic(err)
+		}
+		alpacatoken = binary.BytesToString(data)
+	}
+	engine.OnRegex(`^切换(kimo|傲娇|可爱|🦙)词库$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if !ok {
 			ctx.SendChain(message.Text("ERROR: 找不到 manager"))
@@ -44,6 +74,8 @@ func init() {
 			t = tDERE
 		case "可爱":
 			t = tKAWA
+		case "🦙":
+			t = tALPACA
 		}
 		err := c.SetData(gid, (d&^3)|t)
 		if err != nil {
@@ -70,6 +102,24 @@ func init() {
 		}
 		d := c.GetData(gid)
 		err := c.SetData(gid, (d&3)|(int64(n)<<59))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	engine.OnRegex(`^设置🦙API地址\s*(http.*)\s*$`, zero.SuperUserPermission, zero.OnlyPrivate).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		alpacapiurl = ctx.State["regex_matched"].([]string)[1]
+		err := os.WriteFile(alpacapifile, binary.StringToBytes(alpacapiurl), 0644)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功!"))
+	})
+	engine.OnRegex(`^设置🦙token\s*([0-9a-f]{112})\s*$`, zero.SuperUserPermission, zero.OnlyPrivate).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		alpacatoken = ctx.State["regex_matched"].([]string)[1]
+		err := os.WriteFile(alpacatokenfile, binary.StringToBytes(alpacatoken), 0644)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -128,6 +178,57 @@ func init() {
 		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg)).
 			SetBlock(false).
 			Handle(randreply(sm.K))
+		engine.OnMessage(canmatch(tALPACA), func(ctx *zero.Ctx) bool {
+			return alpacapiurl != "" && alpacatoken != ""
+		}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+			msg := ctx.ExtractPlainText()
+			if msg != "" {
+				data, err := web.RequestDataWithHeaders(http.DefaultClient, alpacapiurl+"/reply", "POST",
+					func(r *http.Request) error {
+						r.Header.Set("Authorization", alpacatoken)
+						return nil
+					}, bytes.NewReader(binary.NewWriterF(func(writer *binary.Writer) {
+						_ = json.NewEncoder(writer).Encode(&[]alpacamsg{{
+							Name:    ctx.CardOrNickName(ctx.Event.UserID),
+							Message: msg,
+						}})
+					})))
+				if err != nil {
+					logrus.Warnln("[chat] 🦙 err:", err)
+					return
+				}
+				type reply struct {
+					ID  int
+					Msg string
+				}
+				m := reply{}
+				err = json.Unmarshal(data, &m)
+				if err != nil {
+					logrus.Warnln("[chat] 🦙 unmarshal err:", err)
+					return
+				}
+				for i := 0; i < 60; i++ {
+					time.Sleep(time.Second * 4)
+					data, err := web.RequestDataWithHeaders(http.DefaultClient, alpacapiurl+"/get?id="+strconv.Itoa(m.ID), "GET",
+						func(r *http.Request) error {
+							r.Header.Set("Authorization", alpacatoken)
+							return nil
+						}, nil)
+					if err != nil {
+						continue
+					}
+					err = json.Unmarshal(data, &m)
+					if err != nil {
+						logrus.Warnln("[chat] 🦙 unmarshal err:", err)
+						return
+					}
+					if len(m.Msg) > 0 {
+						ctx.Send(message.Text(m.Msg))
+					}
+					return
+				}
+			}
+		})
 	}()
 }
 
@@ -138,10 +239,16 @@ type simai struct {
 	K map[string][]string `yaml:"可爱"`
 }
 
+type alpacamsg struct {
+	Name    string
+	Message string
+}
+
 const (
 	tKIMO = iota
 	tDERE
 	tKAWA
+	tALPACA
 )
 
 func match(l []string, seg *jieba.Segmenter) zero.Rule {
