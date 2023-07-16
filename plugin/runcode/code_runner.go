@@ -59,7 +59,7 @@ func init() {
 					} else {
 						// 运行成功
 						output = cutTooLong(strings.Trim(output, "\n"))
-						if israw {
+						if israw && zero.AdminPermission(ctx) {
 							ctx.SendChain(message.Text(output))
 						} else {
 							ctx.SendChain(
