@@ -1295,7 +1295,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] steam[添加|删除]订阅xxxxx
 
-  - [x] steam查看订阅
+  - [x] steam查询订阅
 
   - [x] steam绑定 api key xxxxxxx
 
