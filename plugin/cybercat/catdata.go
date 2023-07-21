@@ -77,7 +77,10 @@ var (
 			"\n3.猫猫心情影响吃饭饭和打工" +
 			"\n4.越重的猫猫饭量越大呢!" +
 			"\n5.一天只能打工一次,打工期间的猫猫无法喂养哦" +
-			"\n6.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片",
+			"\n6.品种为猫娘的猫猫可以使用“上传猫猫照片”更换图片" +
+			"\n---------猫猫小助手---------\n在群聊中使用job插件设置定时, 例: \n" +
+			"记录在\"@hourly\"触发的指令\n" +
+			"观察猫猫",
 		PrivateDataFolder: "cybercat",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -193,4 +196,10 @@ func (sql *catdb) getGroupdata(gid string) (list []catInfo, err error) {
 		return nil
 	})
 	return
+}
+
+func (sdb *catdb) findAll(gidStr string) ([]*catInfo, error) {
+	sdb.RLock()
+	defer sdb.RUnlock()
+	return sql.FindAll[catInfo](sdb.db, gidStr, "")
 }

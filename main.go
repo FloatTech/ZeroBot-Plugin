@@ -314,7 +314,7 @@ func init() {
 			config.Z.Driver[i] = w
 		}
 		for i, s := range config.S {
-			config.Z.Driver[i+len(config.W)] = s
+			config.Z.Driver[i+len(config.W)] = driver.NewWebSocketServer(16, s.Url, s.AccessToken)
 		}
 		logrus.Infoln("[main] 从", *runcfg, "读取配置文件")
 		return

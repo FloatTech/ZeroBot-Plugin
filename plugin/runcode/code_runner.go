@@ -12,7 +12,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var ro = runoob.NewRunOOB("b6365362a90ac2ac7098ba52c13e352b")
+var ro = runoob.NewRunOOB("066417defb80d038228de76ec581a50a")
 
 func init() {
 	control.Register("runcode", &ctrl.Options[*zero.Ctx]{
@@ -59,7 +59,7 @@ func init() {
 					} else {
 						// 运行成功
 						output = cutTooLong(strings.Trim(output, "\n"))
-						if israw {
+						if israw && zero.AdminPermission(ctx) {
 							ctx.SendChain(message.Text(output))
 						} else {
 							ctx.SendChain(

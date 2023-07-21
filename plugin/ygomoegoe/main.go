@@ -46,7 +46,14 @@ func init() {
 				return
 			}
 			id := speakers[ctx.State["regex_matched"].([]string)[1]]
-			url := fmt.Sprintf("http://127.0.0.1:25565/ygo7/%v?text=%v&type=wav&output=%v", id, url.QueryEscape(text), ctx.Event.UserID)
+			url := fmt.Sprintf("http://127.0.0.1:255625/ygo/%v?text=%v&type=wav&output=%v", id, url.QueryEscape(text), ctx.Event.UserID)
+			ctx.SendChain(message.Record(url))
+		})
+	en.OnRegex("^让洛天依说(.+)$").Limit(ctxext.LimitByGroup).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text("正在尝试"))
+			text := ctx.State["regex_matched"].([]string)[1]
+			url := fmt.Sprintf("http://127.0.0.1:25525/LuoTianyi/0?text=[ZH]%v[ZH]&type=wav&output=%v", url.QueryEscape(text), ctx.Event.UserID)
 			ctx.SendChain(message.Record(url))
 		})
 }

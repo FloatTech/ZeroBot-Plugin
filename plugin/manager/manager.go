@@ -464,7 +464,7 @@ func init() { // 插件主体
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					userid := ctx.Event.UserID
-					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "以里侧表示从游戏中除外了!"))
 				}
 			}
 		})

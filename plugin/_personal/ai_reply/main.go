@@ -82,7 +82,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			return
 		}
-		replyMsg, err := web.GetData("http://127.0.0.1:25565/tts?uid=liuyu&model=cantonese&id=21&text=" + url.QueryEscape("[ZH]"+reply+"[ZH]"+"&outputName="+strconv.FormatInt(ctx.Event.UserID, 10)))
+		replyMsg, err := web.GetData("http://127.0.0.1:25525/tts?model=cantonese&id=21&text=" + url.QueryEscape("[ZH]"+reply+"[ZH]"+"&outputName="+strconv.FormatInt(ctx.Event.UserID, 10)))
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			return

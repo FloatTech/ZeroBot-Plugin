@@ -109,6 +109,20 @@ func init() {
 		score := wallet.GetWalletOf(uid)
 		// 判断是否已经签到过了
 		if time.Now().Format("2006/01/02") == lasttime.Format("2006/01/02") {
+			if userinfo.Picname == "" {
+				picFile, err := initPic()
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR]:", err))
+					return
+				}
+				if picFile != "" {
+					userinfo.Picname = picFile
+					if err := scoredata.setData(userinfo); err != nil {
+						ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
+						return
+					}
+				}
+			}
 			data, err := drawimagePro(&userinfo, score, 0)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
@@ -125,10 +139,9 @@ func init() {
 			picFile, err := initPic()
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
 			}
-			userinfo.Picname = picFile
-			if err := scoredata.setData(userinfo); err != nil {
-				ctx.SendChain(message.Text("[ERROR]:签到记录失败。", err))
+			if picFile == "" {
 				return
 			}
 			userinfo.Picname = picFile
@@ -317,6 +330,10 @@ func randFile(indexMax int) (string, error) {
 }
 
 func drawimagePro(userinfo *userdata, score, add int) (data []byte, err error) {
+	if userinfo.Picname == "" {
+		err = errors.New("[ERROR]:签到图片获取失败")
+		return
+	}
 	back, err := gg.LoadImage(userinfo.Picname)
 	if err != nil {
 		return
