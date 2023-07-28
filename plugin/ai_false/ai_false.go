@@ -211,9 +211,9 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		titlecard.DrawRoundedRectangle(1, 1, float64(titlecard.W()-1*2), float64(titlecardh-1*2), 16)
 		titlecard.SetLineWidth(3)
-		titlecard.SetRGBA255(255, 255, 255, 100)
+		titlecard.SetRGBA255(nightswitch(100))
 		titlecard.StrokePreserve()
-		titlecard.SetRGBA255(255, 255, 255, 140)
+		titlecard.SetRGBA255(nightswitch(140))
 		titlecard.Fill()
 
 		titlecard.DrawImage(avatarf.Circle(0).Image(), (titlecardh-avatarf.H())/2, (titlecardh-avatarf.H())/2)
@@ -224,7 +224,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		}
 		fw, _ := titlecard.MeasureString(botname)
 
-		titlecard.SetRGBA255(30, 30, 30, 255)
+		titlecard.SetRGBA255(fontnightswitch())
 
 		titlecard.DrawStringAnchored(botname, float64(titlecardh)+fw/2, float64(titlecardh)*0.5/2, 0.5, 0.5)
 
@@ -264,9 +264,9 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		basiccard.DrawRoundedRectangle(1, 1, float64(basiccard.W()-1*2), float64(basiccardh-1*2), 16)
 		basiccard.SetLineWidth(3)
-		basiccard.SetRGBA255(255, 255, 255, 100)
+		basiccard.SetRGBA255(nightswitch(100))
 		basiccard.StrokePreserve()
-		basiccard.SetRGBA255(255, 255, 255, 140)
+		basiccard.SetRGBA255(nightswitch(140))
 		basiccard.Fill()
 
 		bslen := len(basicstate)
@@ -303,7 +303,8 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			basiccard.SetRGBA255(213, 213, 213, 255)
 			basiccard.DrawStringAnchored(strconv.FormatFloat(v.precent, 'f', 0, 64)+"%", (float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200/2, 0.5, 0.5)
 
-			basiccard.SetRGBA255(30, 30, 30, 255)
+			basiccard.SetRGBA255(fontnightswitch())
+
 			_, fw := basiccard.MeasureString(v.name)
 			basiccard.DrawStringAnchored(v.name, (float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200+15+basiccard.FontHeight()/2, 0.5, 0.5)
 
@@ -311,7 +312,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			if err != nil {
 				return
 			}
-			basiccard.SetRGBA255(30, 30, 30, 180)
+			basiccard.SetRGBA255(fontnightswitch())
 
 			textoffsety := basiccard.FontHeight() + 10
 			for k, s := range v.text {
@@ -328,9 +329,9 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		diskcard.DrawRoundedRectangle(1, 1, float64(diskcard.W()-1*2), float64(diskcardh-1*2), 16)
 		diskcard.SetLineWidth(3)
-		diskcard.SetRGBA255(255, 255, 255, 100)
+		diskcard.SetRGBA255(nightswitch(100))
 		diskcard.StrokePreserve()
-		diskcard.SetRGBA255(255, 255, 255, 140)
+		diskcard.SetRGBA255(nightswitch(140))
 		diskcard.Fill()
 
 		err = diskcard.ParseFontFace(fontbyte, 32)
@@ -357,7 +358,8 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 			diskcard.DrawRoundedRectangle(40, 40, (float64(diskcard.W())-40-100)*diskstate[0].precent*0.01, 50, 12)
 			diskcard.Fill()
 			diskcard.ResetClip()
-			diskcard.SetRGBA255(30, 30, 30, 255)
+
+			diskcard.SetRGBA255(fontnightswitch())
 
 			fw, _ := diskcard.MeasureString(diskstate[0].name)
 			fw1, _ := diskcard.MeasureString(diskstate[0].text[0])
@@ -385,7 +387,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 				diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-40-100)*v.precent*0.01, 50, 12)
 				diskcard.Fill()
 
-				diskcard.SetRGBA255(30, 30, 30, 255)
+				diskcard.SetRGBA255(fontnightswitch())
 
 				fw, _ := diskcard.MeasureString(v.name)
 				fw1, _ := diskcard.MeasureString(v.text[0])
@@ -405,9 +407,9 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 		moreinfocard.DrawRoundedRectangle(1, 1, float64(moreinfocard.W()-1*2), float64(moreinfocard.H()-1*2), 16)
 		moreinfocard.SetLineWidth(3)
-		moreinfocard.SetRGBA255(255, 255, 255, 100)
+		moreinfocard.SetRGBA255(nightswitch(100))
 		moreinfocard.StrokePreserve()
-		moreinfocard.SetRGBA255(255, 255, 255, 140)
+		moreinfocard.SetRGBA255(nightswitch(140))
 		moreinfocard.Fill()
 
 		err = moreinfocard.ParseFontFace(fontbyte, 32)
@@ -419,7 +421,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		for i, v := range moreinfo {
 			offset := float64(i)*(20+moreinfocard.FontHeight()) - 20
 
-			moreinfocard.SetRGBA255(30, 30, 30, 255)
+			moreinfocard.SetRGBA255(fontnightswitch())
 
 			fw, _ := moreinfocard.MeasureString(v.name)
 			fw1, _ := moreinfocard.MeasureString(v.text[0])
@@ -497,6 +499,8 @@ func botstatus() (string, error) {
 	t.WriteString(runtime.Version())
 	t.WriteString(" | ")
 	t.WriteString(cases.Title(language.English).String(hostinfo.OS))
+	t.WriteString(" ")
+	t.WriteString(runtime.GOARCH)
 	return t.String(), nil
 }
 
@@ -515,7 +519,15 @@ func basicstate() (stateinfo [3]*status, err error) {
 	if err != nil {
 		return
 	}
-	cores := strconv.Itoa(int(cpuinfo[0].Cores)) + " Core"
+	cpucore, err := cpu.Counts(false)
+	if err != nil {
+		return
+	}
+	cputhread, err := cpu.Counts(true)
+	if err != nil {
+		return
+	}
+	cores := strconv.Itoa(cpucore) + "C" + strconv.Itoa(cputhread) + "T"
 	times := "最大 " + strconv.FormatFloat(cpuinfo[0].Mhz/1000, 'f', 1, 64) + "Ghz"
 
 	stateinfo[0] = &status{
@@ -595,6 +607,10 @@ func diskstate() (stateinfo []*status, err error) {
 }
 
 func moreinfo(m *ctrl.Control[*zero.Ctx]) (stateinfo []*status, err error) {
+	var mems runtime.MemStats
+	runtime.ReadMemStats(&mems)
+	fmtmem := storagefmt(float64(mems.Sys))
+
 	hostinfo, err := host.Info()
 	if err != nil {
 		return
@@ -603,12 +619,30 @@ func moreinfo(m *ctrl.Control[*zero.Ctx]) (stateinfo []*status, err error) {
 	if err != nil {
 		return
 	}
+
 	count := len(m.Manager.M)
 	stateinfo = []*status{
 		{name: "OS", text: []string{hostinfo.Platform}},
-		{name: "CPU", text: []string{cpuinfo[0].ModelName}},
+		{name: "CPU", text: []string{strings.TrimSpace(cpuinfo[0].ModelName)}},
 		{name: "Version", text: []string{hostinfo.PlatformVersion}},
 		{name: "Plugin", text: []string{"共 " + strconv.Itoa(count) + " 个"}},
+		{name: "Memory", text: []string{"已用 " + fmtmem}},
 	}
 	return
+}
+
+func nightswitch(a int) (int, int, int, int) {
+	now := time.Now().Hour()
+	if now > 7 && now < 19 {
+		return 255, 255, 255, a
+	}
+	return 0, 0, 0, a
+}
+
+func fontnightswitch() (int, int, int, int) {
+	now := time.Now().Hour()
+	if now > 7 && now < 19 {
+		return 30, 30, 30, 255
+	}
+	return 235, 235, 235, 255
 }
