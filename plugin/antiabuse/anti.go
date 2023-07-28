@@ -70,7 +70,7 @@ func init() {
 			if err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.DoBlock(uid); err == nil {
 				t := time.Now().Unix()
 				cache.Set(uid, struct{}{})
-				ctx.SetGroupBan(gid, uid, int64(bandur.Minutes()))
+				ctx.SetThisGroupBan(uid, int64(bandur.Minutes()))
 				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽", bandur))
 				db.Lock()
 				defer db.Unlock()
