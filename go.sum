@@ -2,8 +2,8 @@ github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhv
 github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230409024643-f25135dee0da h1:QyH0zpWt3YspNNfZ+5f8+QStvtmxrzld/DoocKjF+rc=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230409024643-f25135dee0da/go.mod h1:UnCPjtpIzpNBZ02yeGYp+oYVxgoi5aF2yAK2bkOVxtI=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230724165034-a3cf504fab92 h1:B4IaLEhnXdr7oqszneri6ykdHggL2GvPUueBB5WxYVQ=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230724165034-a3cf504fab92/go.mod h1:fWJ5hx1ggDmLyLldO53Go97zc1JpWnDpsC5qeTOcaVw=
 github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944 h1:/eQoMa6Aj3coF5F7yhzZe1+SzX6SItul7MW8//pl18o=
 github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
@@ -18,8 +18,8 @@ github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJG
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230514154630-b74e6fcca380 h1:qmwoT8xVaND01aCdwy+5/j6z490nehQWZAVyTBN8ahU=
 github.com/FloatTech/zbpctrl v1.5.3-0.20230514154630-b74e6fcca380/go.mod h1:gkGC1C1eEUd/Ld/ja68zas5j2ZktIZCdnj2FMaM+Au0=
-github.com/FloatTech/zbputils v1.6.2-0.20230514154857-9363fdb11fd6 h1:uss0/IszBjik7LSM5Q4xQ9FaDXAC7vK7y1dAaOj4UAk=
-github.com/FloatTech/zbputils v1.6.2-0.20230514154857-9363fdb11fd6/go.mod h1:JXRQf2GAzpd7gp853LP6PU3O4pkRoFFuKGykcBChPNk=
+github.com/FloatTech/zbputils v1.6.2-0.20230728081122-94d4d957f3bf h1:PwH9aMnmN+m204cVIqUrI3e7nsdQi/IGW012Fjzb1bs=
+github.com/FloatTech/zbputils v1.6.2-0.20230728081122-94d4d957f3bf/go.mod h1:JRnGR7EGeEQgxOs+c0rZAhrS9Es2BTcGHdIDHXIPRzQ=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
@@ -203,8 +203,8 @@ github.com/tklauser/numcpus v0.6.0 h1:kebhY2Qt+3U6RNK7UqpYNA+tJ23IBEGKkB7JQBfDYm
 github.com/tklauser/numcpus v0.6.0/go.mod h1:FEZLMke0lhOUG6w2JadTzp0a+Nl8PF/GFkQ5UVIcaL4=
 github.com/wcharczuk/go-chart/v2 v2.1.0 h1:tY2slqVQ6bN+yHSnDYwZebLQFkphK4WNrVwnt7CJZ2I=
 github.com/wcharczuk/go-chart/v2 v2.1.0/go.mod h1:yx7MvAVNcP/kN9lKXM/NTce4au4DFN99j6i1OwDclNA=
-github.com/wdvxdr1123/ZeroBot v1.6.11 h1:44Wr6CsCtWlFensK5IhuVCWkosdRw0rA8SygVD8DgoI=
-github.com/wdvxdr1123/ZeroBot v1.6.11/go.mod h1:y29UIOy0RD3P+0meDNIWRhcJF3jtWPN9xP9hgt/AJAU=
+github.com/wdvxdr1123/ZeroBot v1.7.4 h1:+148rELpf/FCDW2EuvKqpb9bNKcwKRtoh16s2sIb5SE=
+github.com/wdvxdr1123/ZeroBot v1.7.4/go.mod h1:y29UIOy0RD3P+0meDNIWRhcJF3jtWPN9xP9hgt/AJAU=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=

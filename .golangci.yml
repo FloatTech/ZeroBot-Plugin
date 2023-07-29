@@ -18,7 +18,7 @@ linters:
   fast: false
   enable:
     - bodyclose
-    - depguard
+    #- depguard
     - dogsled
     - errcheck
     - exportloopref

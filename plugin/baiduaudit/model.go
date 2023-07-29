@@ -68,7 +68,7 @@ func (bdres *baiduRes) audit(ctx *zero.Ctx, configpath string) {
 			bantime = group.BANTime * 60
 		}
 		// 执行禁言
-		ctx.SetGroupBan(ctx.Event.GroupID, ctx.Event.UserID, bantime)
+		ctx.SetThisGroupBan(ctx.Event.UserID, bantime)
 	}
 	// 查看是否开启撤回提示
 	if group.DMRemind {
