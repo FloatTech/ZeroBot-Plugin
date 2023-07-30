@@ -5,13 +5,11 @@ import (
 	"math"
 	"math/rand"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
 	zbmath "github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
@@ -286,63 +284,6 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Reply(id), message.Text(userInfo.Name, text, userInfo.Mood))
-	})
-	engine.OnFullMatch("观察猫猫", getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			logrus.Warningf("[cybercat] ERROR: 请在群聊中使用")
-			return
-		}
-		gidStr := "group" + strconv.FormatInt(gid, 10)
-		infos, err := catdata.findAll(gidStr)
-		if err != nil {
-			logrus.Warningf("[cybercat] ERROR: %s", err.Error())
-			return
-		}
-		if len(infos) == 0 {
-			logrus.Warningf("[cybercat] ERROR: 没有任何猫猫信息...")
-			return
-		}
-		var wg sync.WaitGroup
-		for _, catStatus := range infos {
-			if catStatus.Name == "" {
-				continue
-			}
-			wg.Add(1)
-			go func(catStatus *catInfo) {
-				defer wg.Done()
-				msg := make(message.Message, 0, 3)
-				workTime := float64(catStatus.Work % 10)
-				lastTime := time.Unix(catStatus.Work/10, 0)
-				subtime := time.Since(lastTime).Hours()
-				if catStatus.LastTime != 0 {
-					lastTime := time.Unix(catStatus.LastTime, 0)
-					subtime = time.Since(lastTime).Hours()
-				}
-				if subtime > 1 {
-					catStatus.Satiety -= subtime * 4
-					if catStatus.Satiety < 0 && subtime > 72 {
-						if err = catdata.delcat(gidStr, strconv.FormatInt(ctx.Event.UserID, 10)); err != nil {
-							ctx.SendChain(message.Text("[ERROR]:", err))
-							return
-						}
-						msg = append(msg, message.Text("[猫猫小助手]"), message.At(catStatus.User), message.Text("你的猫猫因为长时间没喂东西饿死了..."))
-						ctx.SendGroupMessage(gid, msg)
-						return
-					}
-					if catStatus.Satiety < 30 {
-						msg = append(msg, message.Text("[猫猫小助手]"), message.At(catStatus.User), message.Text("你的猫猫看起来很饿"))
-						ctx.SendGroupMessage(gid, msg)
-					}
-					return
-				}
-				if subtime > workTime {
-					msg = append(msg, message.Text("[猫猫小助手]"), message.At(catStatus.User), message.Text("你的猫猫好像打工回家了"))
-					ctx.SendGroupMessage(gid, msg)
-				}
-			}(catStatus)
-			wg.Wait()
-		}
 	})
 }
 
