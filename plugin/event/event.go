@@ -39,8 +39,8 @@ func init() {
 				userid := ctx.Event.UserID
 				username := ctx.CardOrNickName(userid)
 				data := (storage)(c.GetData(-su))
+				groupname := ctx.GetThisGroupInfo(true).Name
 				groupid := ctx.Event.GroupID
-				groupname := ctx.GetGroupInfo(groupid, true).Name
 				logrus.Info("[event]收到来自[", username, "](", userid, ")的群聊邀请，群:[", groupname, "](", groupid, ")")
 				if data.isinviteon() || (!data.ismasteroff() && zero.SuperUserPermission(ctx)) {
 					ctx.SetGroupAddRequest(ctx.Event.Flag, "invite", true, "")
