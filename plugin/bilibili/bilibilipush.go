@@ -190,9 +190,7 @@ func init() {
 func getName(buid int64) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
-		newUrlStr := signURL(fmt.Sprintf(infoURL, buid)) // 签名
-		fmt.Println(newUrlStr)
-		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), newUrlStr, "GET", func(r *http.Request) error {
+		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), signURL(fmt.Sprintf(infoURL, buid)), "GET", func(r *http.Request) error {
 			r.Header.Set("User-Agent", ua)
 			return nil
 		}, nil)
@@ -221,7 +219,7 @@ func getMixinKey(orig string) string {
 	return str.String()[:32]
 }
 
-func EncWbi(params map[string]string, imgKey string, subKey string) map[string]string {
+func encWbi(params map[string]string, imgKey string, subKey string) map[string]string {
 	mixinKey := getMixinKey(imgKey + subKey)
 	currTime := strconv.FormatInt(time.Now().Unix(), 10)
 	params["wts"] = currTime
@@ -298,13 +296,13 @@ func signURL(urlStr string) string {
 	for k, v := range query {
 		params[k] = v[0]
 	}
-	newParams := EncWbi(params, imgKey, subKey)
+	newParams := encWbi(params, imgKey, subKey)
 	for k, v := range newParams {
 		query.Set(k, v)
 	}
 	urlObj.RawQuery = query.Encode()
-	newUrlStr := urlObj.String()
-	return newUrlStr
+	newURL := urlObj.String()
+	return newURL
 }
 
 // subscribe 订阅
