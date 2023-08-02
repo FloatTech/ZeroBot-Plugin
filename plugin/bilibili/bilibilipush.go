@@ -3,10 +3,16 @@ package bilibili
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"sort"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -24,17 +30,26 @@ import (
 
 const (
 	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
-	referer = "https://www.bilibili.com/"
-	infoURL = "https://api.bilibili.com/x/space/acc/info?mid=%v"
+	referer = "https://space.bilibili.com/%v"
+	infoURL = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%v&token=&platform=web&web_location=1550101"
+	navURL  = "https://api.bilibili.com/x/web-interface/nav"
 )
 
 // bdb bilibili推送数据库
 var bdb *bilibilipushdb
 
 var (
-	lastTime   = map[int64]int64{}
-	liveStatus = map[int64]int{}
-	upMap      = map[int64]string{}
+	lastTime       = map[int64]int64{}
+	liveStatus     = map[int64]int{}
+	upMap          = map[int64]string{}
+	mixinKeyEncTab = []int{
+		46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
+		33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40,
+		61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11,
+		36, 20, 34, 44, 52,
+	}
+	cache          sync.Map
+	lastUpdateTime time.Time
 )
 
 func init() {
@@ -60,7 +75,7 @@ func init() {
 	en.OnRegex(`^添加[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
-		if err != nil {
+		if err != nil || name == "" {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -175,33 +190,121 @@ func init() {
 func getName(buid int64) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
-		var data []byte
-		data, err = web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", func(r *http.Request) error {
-			r.Header.Set("refer", referer)
-			r.Header.Set("user-agent", ua)
-			cookie := ""
-			if cfg != nil {
-				cookie, err = cfg.Load()
-				if err != nil {
-					return err
-				}
-			}
-			r.Header.Set("cookie", cookie)
+		newUrlStr := signURL(fmt.Sprintf(infoURL, buid)) // 签名
+		fmt.Println(newUrlStr)
+		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), newUrlStr, "GET", func(r *http.Request) error {
+			r.Header.Set("User-Agent", ua)
 			return nil
 		}, nil)
 		if err != nil {
-			return
+			return "", err
 		}
 		status := int(gjson.Get(binary.BytesToString(data), "code").Int())
 		if status != 0 {
 			err = errors.New(gjson.Get(binary.BytesToString(data), "message").String())
-			return
+			return "", err
 		}
 		name = gjson.Get(binary.BytesToString(data), "data.name").String()
 		bdb.insertBilibiliUp(buid, name)
 		upMap[buid] = name
 	}
 	return
+}
+
+func getMixinKey(orig string) string {
+	var str strings.Builder
+	for _, v := range mixinKeyEncTab {
+		if v < len(orig) {
+			str.WriteByte(orig[v])
+		}
+	}
+	return str.String()[:32]
+}
+
+func EncWbi(params map[string]string, imgKey string, subKey string) map[string]string {
+	mixinKey := getMixinKey(imgKey + subKey)
+	currTime := strconv.FormatInt(time.Now().Unix(), 10)
+	params["wts"] = currTime
+	// Sort keys
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	// Remove unwanted characters
+	for k, v := range params {
+		v = strings.ReplaceAll(v, "!", "")
+		v = strings.ReplaceAll(v, "'", "")
+		v = strings.ReplaceAll(v, "(", "")
+		v = strings.ReplaceAll(v, ")", "")
+		v = strings.ReplaceAll(v, "*", "")
+		params[k] = v
+	}
+	// Build URL parameters
+	var str strings.Builder
+	for _, k := range keys {
+		str.WriteString(fmt.Sprintf("%s=%s&", k, params[k]))
+	}
+	query := strings.TrimSuffix(str.String(), "&")
+	// Calculate w_rid
+	hash := md5.Sum([]byte(query + mixinKey))
+	params["w_rid"] = hex.EncodeToString(hash[:])
+	return params
+}
+
+func updateCache() {
+	if time.Now().Sub(lastUpdateTime).Minutes() < 10 {
+		return
+	}
+	imgKey, subKey := getWbiKeys()
+	cache.Store("imgKey", imgKey)
+	cache.Store("subKey", subKey)
+	lastUpdateTime = time.Now()
+}
+
+func getWbiKeysCached() (string, string) {
+	updateCache()
+	imgKeyI, _ := cache.Load("imgKey")
+	subKeyI, _ := cache.Load("subKey")
+	return imgKeyI.(string), subKeyI.(string)
+}
+
+func getWbiKeys() (string, string) {
+	var err error
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), navURL, "GET", func(r *http.Request) error {
+		cookie := ""
+		if cfg != nil {
+			cookie, err = cfg.Load()
+			if err != nil {
+				return err
+			}
+		}
+		r.Header.Set("cookie", cookie)
+		return nil
+	}, nil)
+	json := string(data)
+	imgURL := gjson.Get(json, "data.wbi_img.img_url").String()
+	subURL := gjson.Get(json, "data.wbi_img.sub_url").String()
+	imgKey := strings.Split(strings.Split(imgURL, "/")[len(strings.Split(imgURL, "/"))-1], ".")[0]
+	subKey := strings.Split(strings.Split(subURL, "/")[len(strings.Split(subURL, "/"))-1], ".")[0]
+	return imgKey, subKey
+}
+
+func signURL(urlStr string) string {
+	urlObj, _ := url.Parse(urlStr)
+	imgKey, subKey := getWbiKeysCached()
+	query := urlObj.Query()
+	params := map[string]string{}
+	for k, v := range query {
+		params[k] = v[0]
+	}
+	newParams := EncWbi(params, imgKey, subKey)
+	for k, v := range newParams {
+		query.Set(k, v)
+	}
+	urlObj.RawQuery = query.Encode()
+	newUrlStr := urlObj.String()
+	return newUrlStr
 }
 
 // subscribe 订阅
@@ -276,7 +379,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 			return err
 		}
 		if len(cardList) == 0 {
-			return errors.Errorf("%v的历史动态数为0", buid)
+			return nil
 		}
 		t, ok := lastTime[buid]
 		// 第一次先记录时间,啥也不做
@@ -374,4 +477,12 @@ func sendLive(ctx *zero.Ctx) error {
 		return true
 	})
 	return nil
+}
+
+type XSpaceAccInfoRequest struct {
+	Mid         int64  `json:"mid"`
+	Platform    string `json:"platform"`
+	Jsonp       string `json:"jsonp"`
+	Token       string `json:"token"`
+	WebLocation string `json:"web_location"`
 }
