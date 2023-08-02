@@ -477,7 +477,7 @@ func sendLive(ctx *zero.Ctx) error {
 	return nil
 }
 
-// xSpaceAccInfoRequest 表示获取 bilibili 用户空间信息的请求。
+// XSpaceAccInfoRequest 表示获取 bilibili 用户空间信息的请求。
 type XSpaceAccInfoRequest struct {
 	Mid         int64  `json:"mid"`
 	Platform    string `json:"platform"`
