@@ -52,13 +52,7 @@ var (
 	cache          syncx.Map[string, string]
 	lastUpdateTime time.Time
 
-	replacements = map[string]string{
-		"!": "",
-		"'": "",
-		"(": "",
-		")": "",
-		"*": "",
-	}
+	replacements = [...]string{"!", "'", "(", ")", "*"}
 )
 
 func init() {
@@ -246,8 +240,8 @@ func encWbi(params map[string]string, imgKey string, subKey string) map[string]s
 	sort.Strings(keys)
 	// Remove unwanted characters
 	for k, v := range params {
-		for old, new := range replacements {
-			v = strings.ReplaceAll(v, old, new)
+		for _, old := range replacements {
+			v = strings.ReplaceAll(v, old, "")
 		}
 		params[k] = v
 	}
