@@ -9,16 +9,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
-
-	"github.com/pkg/errors"
-	"github.com/tidwall/gjson"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 
 	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/floatbox/binary"
@@ -26,6 +21,12 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/RomiChan/syncx"
+	"github.com/pkg/errors"
+	"github.com/tidwall/gjson"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
@@ -42,14 +43,22 @@ var (
 	lastTime       = map[int64]int64{}
 	liveStatus     = map[int64]int{}
 	upMap          = map[int64]string{}
-	mixinKeyEncTab = []int{
+	mixinKeyEncTab = [...]int{
 		46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
 		33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40,
 		61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11,
 		36, 20, 34, 44, 52,
 	}
-	cache          sync.Map
+	cache          syncx.Map[string, string]
 	lastUpdateTime time.Time
+
+	replacements = map[string]string{
+		"!": "",
+		"'": "",
+		"(": "",
+		")": "",
+		"*": "",
+	}
 )
 
 func init() {
@@ -211,14 +220,20 @@ func getName(buid int64) (name string, err error) {
 
 func getMixinKey(orig string) string {
 	var str strings.Builder
+	t := 0
 	for _, v := range mixinKeyEncTab {
 		if v < len(orig) {
 			str.WriteByte(orig[v])
+			t++
+		}
+		if t > 31 {
+			break
 		}
 	}
-	return str.String()[:32]
+	return str.String()
 }
 
+// Wbi签名算法
 func encWbi(params map[string]string, imgKey string, subKey string) map[string]string {
 	mixinKey := getMixinKey(imgKey + subKey)
 	currTime := strconv.FormatInt(time.Now().Unix(), 10)
@@ -231,60 +246,60 @@ func encWbi(params map[string]string, imgKey string, subKey string) map[string]s
 	sort.Strings(keys)
 	// Remove unwanted characters
 	for k, v := range params {
-		v = strings.ReplaceAll(v, "!", "")
-		v = strings.ReplaceAll(v, "'", "")
-		v = strings.ReplaceAll(v, "(", "")
-		v = strings.ReplaceAll(v, ")", "")
-		v = strings.ReplaceAll(v, "*", "")
+		for old, new := range replacements {
+			v = strings.ReplaceAll(v, old, new)
+		}
 		params[k] = v
 	}
 	// Build URL parameters
 	var str strings.Builder
 	for _, k := range keys {
-		str.WriteString(fmt.Sprintf("%s=%s&", k, params[k]))
+		str.WriteString(k)
+		str.WriteByte('=')
+		str.WriteString(params[k])
+		str.WriteByte('&')
 	}
 	query := strings.TrimSuffix(str.String(), "&")
 	// Calculate w_rid
-	hash := md5.Sum([]byte(query + mixinKey))
-	params["w_rid"] = hex.EncodeToString(hash[:])
+	h := md5.New()
+	h.Write([]byte(query))
+	h.Write([]byte(mixinKey))
+	params["w_rid"] = hex.EncodeToString(h.Sum(make([]byte, 0, md5.Size)))
 	return params
 }
 
-func updateCache() {
-	if time.Since(lastUpdateTime).Minutes() < 10 {
-		return
-	}
-	imgKey, subKey := getWbiKeys()
-	cache.Store("imgKey", imgKey)
-	cache.Store("subKey", subKey)
-	lastUpdateTime = time.Now()
-}
-
 func getWbiKeysCached() (string, string) {
-	updateCache()
+	if time.Since(lastUpdateTime).Minutes() > 10 {
+		imgKey, subKey := getWbiKeys()
+		cache.Store("imgKey", imgKey)
+		cache.Store("subKey", subKey)
+		lastUpdateTime = time.Now()
+		return imgKey, subKey
+	}
 	imgKeyI, _ := cache.Load("imgKey")
 	subKeyI, _ := cache.Load("subKey")
-	return imgKeyI.(string), subKeyI.(string)
+	return imgKeyI, subKeyI
 }
 
 func getWbiKeys() (string, string) {
-	var err error
-	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), navURL, "GET", func(r *http.Request) error {
-		cookie := ""
+	data, _ := web.RequestDataWithHeaders(web.NewDefaultClient(), navURL, "GET", func(r *http.Request) error {
 		if cfg != nil {
-			cookie, err = cfg.Load()
-			if err != nil {
-				return err
+			cookie, err := cfg.Load()
+			if err == nil {
+				r.Header.Set("cookie", cookie)
+				return nil
 			}
+			return err
 		}
-		r.Header.Set("cookie", cookie)
-		return nil
+		return errors.New("未配置Bilbili-cookie")
 	}, nil)
-	json := string(data)
+	json := helper.BytesToString(data)
 	imgURL := gjson.Get(json, "data.wbi_img.img_url").String()
 	subURL := gjson.Get(json, "data.wbi_img.sub_url").String()
-	imgKey := strings.Split(strings.Split(imgURL, "/")[len(strings.Split(imgURL, "/"))-1], ".")[0]
-	subKey := strings.Split(strings.Split(subURL, "/")[len(strings.Split(subURL, "/"))-1], ".")[0]
+	imgKey := imgURL[strings.LastIndex(imgURL, "/")+1:]
+	imgKey = strings.TrimSuffix(imgKey, filepath.Ext(imgKey))
+	subKey := subURL[strings.LastIndex(subURL, "/")+1:]
+	subKey = strings.TrimSuffix(subKey, filepath.Ext(subKey))
 	return imgKey, subKey
 }
 
@@ -294,7 +309,9 @@ func signURL(urlStr string) string {
 	query := urlObj.Query()
 	params := map[string]string{}
 	for k, v := range query {
-		params[k] = v[0]
+		if len(v) > 0 {
+			params[k] = v[0]
+		}
 	}
 	newParams := encWbi(params, imgKey, subKey)
 	for k, v := range newParams {
@@ -475,13 +492,4 @@ func sendLive(ctx *zero.Ctx) error {
 		return true
 	})
 	return nil
-}
-
-// XSpaceAccInfoRequest 表示获取 bilibili 用户空间信息的请求。
-type XSpaceAccInfoRequest struct {
-	Mid         int64  `json:"mid"`
-	Platform    string `json:"platform"`
-	Jsonp       string `json:"jsonp"`
-	Token       string `json:"token"`
-	WebLocation string `json:"web_location"`
 }
