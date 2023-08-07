@@ -227,8 +227,7 @@ func getMixinKey(orig string) string {
 	return str.String()
 }
 
-// Wbi签名算法
-func encWbi(params map[string]string, imgKey string, subKey string) map[string]string {
+func wbiSign(params map[string]string, imgKey string, subKey string) map[string]string {
 	mixinKey := getMixinKey(imgKey + subKey)
 	currTime := strconv.FormatInt(time.Now().Unix(), 10)
 	params["wts"] = currTime
@@ -245,18 +244,15 @@ func encWbi(params map[string]string, imgKey string, subKey string) map[string]s
 		}
 		params[k] = v
 	}
-	// Build URL parameters
-	var str strings.Builder
-	for _, k := range keys {
-		str.WriteString(k)
-		str.WriteByte('=')
-		str.WriteString(params[k])
-		str.WriteByte('&')
-	}
-	query := strings.TrimSuffix(str.String(), "&")
-	// Calculate w_rid
 	h := md5.New()
-	h.Write([]byte(query))
+	for k, v := range keys {
+		h.Write([]byte(v))
+		h.Write([]byte{'='})
+		h.Write([]byte(params[v]))
+		if k < len(keys)-1 {
+			h.Write([]byte{'&'})
+		}
+	}
 	h.Write([]byte(mixinKey))
 	params["w_rid"] = hex.EncodeToString(h.Sum(make([]byte, 0, md5.Size)))
 	return params
@@ -285,7 +281,7 @@ func getWbiKeys() (string, string) {
 			}
 			return err
 		}
-		return errors.New("未配置Bilbili-cookie")
+		return errors.New("未配置-cookie")
 	}, nil)
 	json := helper.BytesToString(data)
 	imgURL := gjson.Get(json, "data.wbi_img.img_url").String()
@@ -307,7 +303,7 @@ func signURL(urlStr string) string {
 			params[k] = v[0]
 		}
 	}
-	newParams := encWbi(params, imgKey, subKey)
+	newParams := wbiSign(params, imgKey, subKey)
 	for k, v := range newParams {
 		query.Set(k, v)
 	}
