@@ -40,7 +40,7 @@ func init() {
 				msg = append(msg, message.Text(dice))
 			}
 		}
-		msg = append(msg, message.Text(" = ", sum, diceRule(cocSetting.DiceRule, sum, defaultDice*times/2, defaultDice*times, 0)))
+		msg = append(msg, message.Text(" = ", sum, diceRule(cocSetting.DiceRule, sum, defaultDice*times/2, defaultDice*times)))
 		ctx.Send(msg)
 	})
 	engine.OnRegex(`^(.|。)(r|R)([1-9]\d*)?(d|D)?([1-9]\d*)?a(\S+)( (.*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -96,25 +96,25 @@ func init() {
 		sum := 0
 		for i := times; i > 0; i-- {
 			dice := rand.Intn(defaultDice) + 1
-			msg = append(msg, message.Text("🎲 => ", dice, diceRule(cocSetting.DiceRule, dice, limit, defaultDice, 0), "\n"))
+			msg = append(msg, message.Text("🎲 => ", dice, diceRule(cocSetting.DiceRule, dice, limit, defaultDice), "\n"))
 			sum += dice
 		}
 		if times > 1 {
-			msg = append(msg, message.Text("合计 = ", sum, diceRule(cocSetting.DiceRule, sum, limit*times, defaultDice*times, 0)))
+			msg = append(msg, message.Text("合计 = ", sum, diceRule(cocSetting.DiceRule, sum, limit*times, defaultDice*times)))
 		}
 		ctx.Send(msg)
 	})
 }
 
-func diceRule(ruleType, dice, decision, maxDice, minDice int) string {
+func diceRule(ruleType, dice, decision, maxDice int) string {
 	// 50的位置
-	halflimit := float64(maxDice-minDice) / 2
+	halflimit := float64(maxDice) / 2
 	// 大成功值范围
-	tenStrike := float64(maxDice-minDice) * 6 / 100
+	tenStrike := float64(maxDice) * 6 / 100
 	// 成功值范围
-	limit := float64(decision - minDice)
+	limit := float64(decision)
 	// 大失败值范围
-	fiasco := float64(maxDice-minDice) * 95 / 100
+	fiasco := float64(maxDice) * 95 / 100
 	// 骰子数
 	piece := float64(dice)
 	switch ruleType {

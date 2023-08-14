@@ -33,7 +33,7 @@ func init() {
 			return
 		}
 		var (
-			cocInfo cocJson
+			cocInfo cocJSON
 			err     error
 		)
 		if file.IsNotExist(engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + strconv.FormatInt(uid, 10) + ".json") {
@@ -95,7 +95,7 @@ func init() {
 	})
 }
 
-func drawImage(userInfo cocJson) (imagePicByte []byte, err error) {
+func drawImage(userInfo cocJSON) (imagePicByte []byte, err error) {
 	var (
 		wg             sync.WaitGroup
 		userIDBlock    image.Image
@@ -202,7 +202,7 @@ func drawImage(userInfo cocJson) (imagePicByte []byte, err error) {
 }
 
 // 绘制ID区域
-func (userInfo *cocJson) drawIDBlock() (image.Image, error) {
+func (userInfo *cocJSON) drawIDBlock() (image.Image, error) {
 	fontSize := 25.0
 	userIDstr := "编号:" + strconv.FormatInt(userInfo.ID, 10)
 	canvas := gg.NewContext(1, 1)
@@ -230,7 +230,7 @@ func (userInfo *cocJson) drawIDBlock() (image.Image, error) {
 }
 
 // 绘制基本信息区域
-func (userInfo *cocJson) drawInfoBlock() (image.Image, error) {
+func (userInfo *cocJSON) drawInfoBlock() (image.Image, error) {
 	fontSize := 50.0
 	raw := len(userInfo.BaseInfo)
 	canvas := gg.NewContext(1, 1)
@@ -268,7 +268,7 @@ func (userInfo *cocJson) drawInfoBlock() (image.Image, error) {
 }
 
 // 绘制属性信息区域
-func (userInfo *cocJson) drawAttrBlock() (image.Image, error) {
+func (userInfo *cocJSON) drawAttrBlock() (image.Image, error) {
 	fontSize := 25.0
 	raw := len(userInfo.Attribute)
 	canvas := gg.NewContext(1, 1)
@@ -327,7 +327,7 @@ func (userInfo *cocJson) drawAttrBlock() (image.Image, error) {
 }
 
 // 绘制其他信息区域
-func (userInfo *cocJson) drawOtherBlock() (pic, halfPic image.Image, err error) {
+func (userInfo *cocJSON) drawOtherBlock() (pic, halfPic image.Image, err error) {
 	fontSize := 35.0
 	glowsd, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {

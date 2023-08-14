@@ -45,11 +45,11 @@ func init() {
 					Value:    50,
 				},
 			}
-			defaultJson := cocJson{
+			defaultJSON := cocJSON{
 				BaseInfo:  baseAttr,
 				Attribute: attributes,
 			}
-			err := savePanel(defaultJson)
+			err := savePanel(defaultJSON)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -122,13 +122,13 @@ func init() {
 					Value:    25,
 				},
 			}
-			defaultJson := cocJson{
+			defaultJSON := cocJSON{
 				BaseInfo:  baseAttr,
 				Attribute: attributes,
 			}
 			reader, err := os.Create(sampleFile)
 			if err == nil {
-				err = json.NewEncoder(reader).Encode(&defaultJson)
+				err = json.NewEncoder(reader).Encode(&defaultJSON)
 			}
 			if err != nil {
 				panic(err.Error())
@@ -138,7 +138,7 @@ func init() {
 }
 
 // 加载数据(2个参数：群号，用户)
-func loadPanel(gid int64, uid ...int64) (info cocJson, err error) {
+func loadPanel(gid int64, uid ...int64) (info cocJSON, err error) {
 	cfgFile := strconv.FormatInt(gid, 10)
 	if uid != nil {
 		cfgFile += "/" + strconv.FormatInt(uid[0], 10) + ".json"
@@ -156,7 +156,7 @@ func loadPanel(gid int64, uid ...int64) (info cocJson, err error) {
 }
 
 // 保存数据(3个参数：数据，群号，用户)
-func savePanel(cfg cocJson, infoID ...int64) error {
+func savePanel(cfg cocJSON, infoID ...int64) error {
 	cfgFile := engine.DataFolder() + DefaultJsonFile
 	if infoID != nil {
 		str := ""

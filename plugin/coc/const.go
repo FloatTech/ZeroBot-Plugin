@@ -8,7 +8,9 @@ import (
 )
 
 const (
+	// DefaultJsonFile COC面板
 	DefaultJsonFile = "COC面板.json"
+	// SettingJsonFile 设置
 	SettingJsonFile = "/setting.json"
 )
 
@@ -31,7 +33,7 @@ var (
 )
 
 // 默认的json模版
-type cocJson struct {
+type cocJSON struct {
 	ID        int64       `json:"ID"`   // QQ
 	BaseInfo  []baseInfo  `json:"基本信息"` // 基本信息
 	Attribute []attribute `json:"属性详情"` // 属性

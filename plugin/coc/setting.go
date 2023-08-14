@@ -216,12 +216,12 @@ func init() {
 		result := ""
 		for i := times; i > 0; i-- {
 			dice := rand.Intn(defaultDice) + 1
-			result = diceRule(cocSetting.DiceRule, dice, limit, defaultDice, 0)
+			result = diceRule(cocSetting.DiceRule, dice, limit, defaultDice)
 			msg = append(msg, message.Text("🎲 => ", dice, result, "\n"))
 			sum += dice
 		}
 		if times > 1 {
-			result = diceRule(cocSetting.DiceRule, sum, limit*times, defaultDice*times, 0)
+			result = diceRule(cocSetting.DiceRule, sum, limit*times, defaultDice*times)
 			msg = append(msg, message.Text("合计=", sum, result))
 		}
 		if strings.Contains(result, "成功") {
@@ -327,7 +327,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		var cocInfo cocJson
+		var cocInfo cocJSON
 		if file.IsNotExist(engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + strconv.FormatInt(uid, 10) + ".json") {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("对方还没有创建角色"))
 			return
@@ -393,7 +393,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		var cocInfo cocJson
+		var cocInfo cocJSON
 		if file.IsNotExist(engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + strconv.FormatInt(uid, 10) + ".json") {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("对方还没有创建角色"))
 			return
