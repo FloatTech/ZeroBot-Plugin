@@ -139,8 +139,6 @@ func init() {
 			defaultDice = 100  // 6
 			limit       = -1   // 8 -> name
 			atrr        string // 9 -> name
-			atrrValue   = 0    // 10
-			money       = 0    // 13
 			success     = false
 		)
 
@@ -179,11 +177,10 @@ func init() {
 		if ctx.State["regex_matched"].([]string)[9] == "" {
 			ctx.SendChain(message.Text("[ERROR]:参数错误"))
 			return
-		} else {
-			for _, info := range cocInfo.Attribute {
-				if ctx.State["regex_matched"].([]string)[9] == info.Name {
-					atrr = info.Name
-				}
+		}
+		for _, info := range cocInfo.Attribute {
+			if ctx.State["regex_matched"].([]string)[9] == info.Name {
+				atrr = info.Name
 			}
 		}
 		if atrr == "" {
@@ -191,15 +188,15 @@ func init() {
 			return
 		}
 
-		atrrValue, err = strconv.Atoi(ctx.State["regex_matched"].([]string)[10])
+		atrrValue, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[10])
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:属性增加值参数错误"))
 			return
 		}
 
 		if ctx.State["regex_matched"].([]string)[13] != "" {
-			money, err = strconv.Atoi(ctx.State["regex_matched"].([]string)[9])
-			if err != nil {
+			money, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[9])
+			if err != nil || money < 0 {
 				ctx.SendChain(message.Text("[ERROR]:金钱参数错误"))
 				return
 			}
@@ -327,16 +324,14 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		var cocInfo cocJSON
 		if file.IsNotExist(engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + strconv.FormatInt(uid, 10) + ".json") {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("对方还没有创建角色"))
 			return
-		} else {
-			cocInfo, err = loadPanel(gid, uid)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
+		}
+		cocInfo, err := loadPanel(gid, uid)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
 		}
 		pic, err := drawImage(cocInfo)
 		if err != nil {
@@ -393,16 +388,14 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		var cocInfo cocJSON
 		if file.IsNotExist(engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + strconv.FormatInt(uid, 10) + ".json") {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("对方还没有创建角色"))
 			return
-		} else {
-			cocInfo, err = loadPanel(gid, uid)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
+		}
+		cocInfo, err := loadPanel(gid, uid)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
 		}
 		baseMsg := strings.Split(ctx.State["regex_matched"].([]string)[6], "/")
 		for _, msgInfo := range baseMsg {
