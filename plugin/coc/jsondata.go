@@ -12,7 +12,7 @@ import (
 func init() {
 	go func() {
 		// 新建默认coc面板
-		cfgFile := engine.DataFolder() + DefaultJsonFile
+		cfgFile := engine.DataFolder() + DefaultJSONFile
 		if file.IsNotExist(cfgFile) {
 			// 配置默认 config
 			baseAttr := []baseInfo{
@@ -143,7 +143,7 @@ func loadPanel(gid int64, uid ...int64) (info cocJSON, err error) {
 	if uid != nil {
 		cfgFile += "/" + strconv.FormatInt(uid[0], 10) + ".json"
 	} else {
-		cfgFile += "/" + DefaultJsonFile
+		cfgFile += "/" + DefaultJSONFile
 	}
 	reader, err := os.Open(engine.DataFolder() + cfgFile)
 	if err == nil {
@@ -157,7 +157,7 @@ func loadPanel(gid int64, uid ...int64) (info cocJSON, err error) {
 
 // 保存数据(3个参数：数据，群号，用户)
 func savePanel(cfg cocJSON, infoID ...int64) error {
-	cfgFile := engine.DataFolder() + DefaultJsonFile
+	cfgFile := engine.DataFolder() + DefaultJSONFile
 	if infoID != nil {
 		str := ""
 		for i, ID := range infoID {
@@ -181,7 +181,7 @@ func savePanel(cfg cocJSON, infoID ...int64) error {
 
 // 加载设置(2个参数：群号，用户)
 func loadSetting(gid int64) (info settingInfo, err error) {
-	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJsonFile
+	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJSONFile
 	if file.IsNotExist(cfgFile) {
 		//info.DefaultDice = 100
 		return
@@ -199,7 +199,7 @@ func loadSetting(gid int64) (info settingInfo, err error) {
 
 // 保存数据(3个参数：数据，群号，用户)
 func saveSetting(info settingInfo, gid int64) error {
-	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJsonFile
+	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJSONFile
 	reader, err := os.Create(cfgFile)
 	if err == nil {
 		err = json.NewEncoder(reader).Encode(&info)

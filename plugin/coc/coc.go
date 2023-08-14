@@ -27,7 +27,7 @@ func init() {
 	engine.OnPrefixGroup([]string{".coc", "。coc", ".COC"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		infoFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + DefaultJsonFile
+		infoFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + DefaultJSONFile
 		if file.IsNotExist(infoFile) {
 			ctx.SendChain(message.Text("你群还没有布置coc,请相关人员后台布局coc.(详情看用法)"))
 			return

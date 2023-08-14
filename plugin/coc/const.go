@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	// DefaultJsonFile COC面板
-	DefaultJsonFile = "COC面板.json"
-	// SettingJsonFile 设置
-	SettingJsonFile = "/setting.json"
+	// DefaultJSONFile COC面板
+	DefaultJSONFile = "COC面板.json"
+	// SettingJSONFile 设置
+	SettingJSONFile = "/setting.json"
 )
 
 var (
