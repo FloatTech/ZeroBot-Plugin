@@ -28,7 +28,7 @@ var engine = control.Register(serviceName, &ctrl.Options[*zero.Ctx]{
 })
 
 func init() {
-	// 重启
+	/*/ 重启
 	go func() {
 		process.GlobalInitMutex.Lock()
 		defer process.GlobalInitMutex.Unlock()
@@ -44,7 +44,7 @@ func init() {
 			if len(qqList) < 2 {
 				return
 			}
-			botQQ, _ := strconv.ParseInt(qqList[0], 10, 64)
+			botQQ, err := strconv.ParseInt(qqList[0], 10, 64)
 			gid, _ := strconv.ParseInt(qqList[1], 10, 64)
 			ctx := zero.GetBot(botQQ)
 			switch {
@@ -60,7 +60,7 @@ func init() {
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(err))
 			}
 		}
-	}()
+	}()*/
 	zero.OnFullMatchGroup([]string{"重启", "洗手手"}, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			m, ok := control.Lookup(serviceName)

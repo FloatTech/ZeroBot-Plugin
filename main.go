@@ -57,6 +57,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cybercat"             // 云养猫
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games" // 游戏系统
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coc"             // 游戏系统
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice" // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"    // b站相关

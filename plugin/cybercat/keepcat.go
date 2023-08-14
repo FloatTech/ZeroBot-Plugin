@@ -308,6 +308,11 @@ func (data *catInfo) settleOfWeight() catInfo {
 		data.Weight += (data.Satiety - 50) / 100
 	case data.Satiety < 0:
 		data.Weight += data.Satiety / 10
+		if data.Weight < 0 {
+			needFood := math.Min(-data.Weight*5, data.Food)
+			data.Food -= needFood
+			data.Weight += needFood / 5
+		}
 	}
 	return *data
 }
@@ -323,6 +328,12 @@ func (data *catInfo) settleOfData() catInfo {
 		data.Mood = 100
 	} else if data.Mood < 0 {
 		data.Mood = 0
+	}
+	//if data.Weight < 0 {
+	//	data.Mood = 0
+	//}
+	if data.Food < 0 {
+		data.Food = 0
 	}
 	return *data
 }
