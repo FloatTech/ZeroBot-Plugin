@@ -416,9 +416,8 @@ func init() {
 					if err != nil {
 						ctx.SendChain(message.Text("[ERROR]:", err))
 						return
-					} else {
-						cocInfo.BaseInfo[i].Value = munberValue
 					}
+					cocInfo.BaseInfo[i].Value = munberValue
 				}
 			}
 		}
