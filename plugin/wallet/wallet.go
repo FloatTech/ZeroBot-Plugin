@@ -23,7 +23,7 @@ func init() {
 	en := control.Register("wallet", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "钱包",
-		Help:              "- 查看我的钱包\n- 查看钱包排名",
+		Help:              "- 查看我的钱包\n- 查看钱包排名\n- 支付@qq [金额]",
 		PrivateDataFolder: "wallet",
 	})
 	cachePath := en.DataFolder() + "cache/"
@@ -38,6 +38,11 @@ func init() {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
 		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
+	})
+
+	en.OnRegex(`/钱包(\s*\[CQ:at,qq=)?(\d+)`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		uid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		ctx.SendChain(message.Text(ctx.CardOrNickName(uid), "的钱包当前有", wallet.GetWalletOf(uid), "ATRI币"))
 	})
 
 	en.OnFullMatch("查看钱包排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
@@ -122,4 +127,55 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
+	en.OnRegex(`支付(\s*\[CQ:at,qq=)?(\d+)\s*(\d+)`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		uid := ctx.Event.UserID
+		money := wallet.GetWalletOf(uid)
+		transform, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
+		if money < transform {
+			ctx.SendChain(message.Text("你钱包当前只有", money, "ATRI币,无法完成支付"))
+			return
+		}
+		target, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		err := wallet.InsertWalletOf(uid, -transform)
+		if err == nil {
+			err = wallet.InsertWalletOf(target, transform)
+		}
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("支付成功"))
+	})
+	en.OnRegex(`^\/记录\s*\[CQ:at,qq=(\d+)(.*\[CQ:at,qq=(\d+))?.*(-?[1-9]\d*)`, zero.SuperUserPermission, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		adduser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		devuser, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[3], 10, 64)
+		score, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[4])
+		// 第一个人记录
+		err := wallet.InsertWalletOf(adduser, score)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		switch {
+		case score > 0:
+			ctx.SendChain(message.At(adduser), message.Text("你获取ATRI币:", score))
+		case score < 0:
+			ctx.SendChain(message.At(adduser), message.Text("你失去ATRI币:", -score))
+		}
+		// 第二个人记录
+		if devuser == 0 {
+			return
+		}
+		err = wallet.InsertWalletOf(devuser, -score)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		switch {
+		case -score > 0:
+			ctx.SendChain(message.At(devuser), message.Text("你获取ATRI币:", score))
+		case -score < 0:
+			ctx.SendChain(message.At(devuser), message.Text("你失去ATRI币:", -score))
+		}
+	})
 }

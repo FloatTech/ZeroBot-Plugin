@@ -28,7 +28,6 @@ import (
 	// 数据库
 
 	"github.com/FloatTech/AnimeAPI/wallet"
-	names "github.com/FloatTech/ZeroBot-Plugin/plugin/dataSystem"
 	sql "github.com/FloatTech/sqlite"
 
 	// 图片输出
@@ -99,12 +98,7 @@ func init() {
 		uid := ctx.Event.UserID
 		userinfo := scoredata.getData(uid)
 		userinfo.Uid = uid
-		newName := names.GetNameOf(uid) //更新昵称
-		if newName != "" {
-			userinfo.UserName = newName
-		} else {
-			userinfo.UserName = ctx.CardOrNickName(uid)
-		}
+		userinfo.UserName = ctx.CardOrNickName(uid) // 更新昵称
 		lasttime := time.Unix(userinfo.UpdatedAt, 0)
 		score := wallet.GetWalletOf(uid)
 		// 判断是否已经签到过了

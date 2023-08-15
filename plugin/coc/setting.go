@@ -33,8 +33,16 @@ func init() {
 			return
 		}
 		baseMsg := strings.Split(ctx.State["args"].(string), "/")
+		if baseMsg == nil || len(baseMsg) < 1 {
+			ctx.SendChain(message.Text("[ERROR]:参数错误"))
+			return
+		}
 		for _, msgInfo := range baseMsg {
 			msgValue := strings.Split(msgInfo, "#")
+			if msgValue == nil || len(baseMsg) <= 1 {
+				ctx.SendChain(message.Text("[ERROR]:参数错误"))
+				return
+			}
 			for i, info := range cocInfo.BaseInfo {
 				if msgValue[0] == info.Name {
 					munberValue, err := strconv.Atoi(msgValue[1])
@@ -115,8 +123,10 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 	engine.OnRegex(`^(.|。)(s|S)(a|A) ([1-9]\d*)?(d|D)([1-9]\d*)?(a(\S+))? (\S+) ((-|\+)?[1-9]\d*)(\s+([1-9]\d*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		cocSetting := settingGoup[ctx.Event.GroupID]
 		gid := ctx.Event.GroupID
+		mu.Lock()
+		cocSetting := settingGoup[gid]
+		mu.Unlock()
 		uid := ctx.Event.UserID
 		infoFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + DefaultJSONFile
 		if file.IsNotExist(infoFile) {
@@ -241,7 +251,9 @@ func init() {
 	})
 	engine.OnRegex(`^(.|。)(setpc|SETPC)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Lock()
+		cocSetting := settingGoup[gid]
+		mu.Unlock()
 		uid, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[4], 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -259,7 +271,9 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 	engine.OnPrefixGroup([]string{".setdice", "。setdice", ".SETDICE"}, getsetting, func(ctx *zero.Ctx) bool {
+		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Unlock()
 		if cocSetting.CocPC == 0 {
 			return zero.AdminPermission(ctx)
 		} else if cocSetting.CocPC != 0 && ctx.Event.UserID != cocSetting.CocPC {
@@ -269,7 +283,9 @@ func init() {
 		return true
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Lock()
+		cocSetting := settingGoup[gid]
+		mu.Unlock()
 		defaultDice, err := strconv.Atoi(strings.TrimSpace(ctx.State["args"].(string)))
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -284,7 +300,9 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 	engine.OnPrefixGroup([]string{".setrule", "。setrule", ".SETRULE"}, getsetting, func(ctx *zero.Ctx) bool {
+		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Unlock()
 		if cocSetting.CocPC == 0 {
 			return zero.AdminPermission(ctx)
 		} else if cocSetting.CocPC != 0 && ctx.Event.UserID != cocSetting.CocPC {
@@ -294,7 +312,9 @@ func init() {
 		return true
 	}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Lock()
+		cocSetting := settingGoup[gid]
+		mu.Unlock()
 		defaultRule, err := strconv.Atoi(strings.TrimSpace(ctx.State["args"].(string)))
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -309,7 +329,9 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 	engine.OnRegex(`^(.|。)(show|SHOW)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, func(ctx *zero.Ctx) bool {
+		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Unlock()
 		if cocSetting.CocPC == 0 {
 			return zero.AdminPermission(ctx)
 		} else if cocSetting.CocPC != 0 && ctx.Event.UserID != cocSetting.CocPC {
@@ -346,7 +368,9 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
 		}
+		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Unlock()
 		if cocSetting.CocPC == 0 {
 			return zero.AdminPermission(ctx)
 		} else if (cocSetting.CocPC != 0 && ctx.Event.UserID != cocSetting.CocPC) || uid != ctx.Event.UserID {
@@ -373,7 +397,9 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
 	engine.OnRegex(`^(.|。)(pcset|PCSET)(\[CQ:at,qq=)?(\d+)(\])? (.*)$`, getsetting, func(ctx *zero.Ctx) bool {
+		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
+		mu.Unlock()
 		if cocSetting.CocPC == 0 {
 			return zero.AdminPermission(ctx)
 		} else if cocSetting.CocPC != 0 && ctx.Event.UserID != cocSetting.CocPC {

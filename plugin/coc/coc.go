@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"math"
+	"io"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
@@ -24,6 +26,83 @@ import (
 )
 
 func init() {
+	engine.OnPrefixGroup([]string{".loadcoc", "。loadcoc", ".LOADCOC"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		sampleFile := engine.DataFolder() + "面版填写示例.json"
+		infoFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + "/" + DefaultJSONFile
+		fileName := strings.TrimSpace(ctx.State["args"].(string))
+		if fileName == "" {
+			sourceFileStat, err := os.Stat(sampleFile)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+
+			if !sourceFileStat.Mode().IsRegular() {
+				ctx.SendChain(message.Text("[ERROR]:", sampleFile, " is not a regular file"))
+				return
+			}
+
+			source, err := os.Open(sampleFile)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			defer source.Close()
+
+			destination, err := os.Create(infoFile)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+
+			defer destination.Close()
+			_, err = io.Copy(destination, source)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			ctx.SendChain(message.Text("设置面板完成"))
+			return
+		}
+		// 判断群文件是否存在
+		fileSearchName, fileURL := getFileURLbyFileName(ctx, fileName)
+		if fileSearchName == "" {
+			ctx.SendChain(message.Text("请确认群文件文件名称是否正确或存在"))
+			return
+		}
+		// 下载文件
+		ctx.SendChain(message.Text("在群文件中找到了歌曲,信息如下:\n", fileSearchName, "\n确认正确后回复“是/否”进行设置"))
+		next := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(是|否)`), ctx.CheckSession())
+		recv, cancel := next.Repeat()
+		defer cancel()
+		wait := time.NewTimer(120 * time.Second)
+		answer := ""
+		for {
+			select {
+			case <-wait.C:
+				wait.Stop()
+				ctx.SendChain(message.Text("等待超时，取消设置"))
+				return
+			case c := <-recv:
+				wait.Stop()
+				answer = c.Event.Message.String()
+			}
+			if answer == "否" {
+				ctx.SendChain(message.Text("设置已经取消"))
+				return
+			}
+			if answer != "" {
+				break
+			}
+		}
+		err := file.DownloadTo(fileURL, infoFile)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功！"))
+	})
 	engine.OnPrefixGroup([]string{".coc", "。coc", ".COC"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
@@ -95,14 +174,67 @@ func init() {
 	})
 }
 
+// 遍历群文件
+func getFileURLbyFileName(ctx *zero.Ctx, fileName string) (fileSearchName, fileURL string) {
+	filesOfGroup := ctx.GetThisGroupRootFiles()
+	files := filesOfGroup.Get("files").Array()
+	folders := filesOfGroup.Get("folders").Array()
+	// 遍历当前目录的文件名
+	if len(files) != 0 {
+		for _, fileNameOflist := range files {
+			if strings.Contains(fileNameOflist.Get("file_name").String(), fileName) {
+				fileSearchName = fileNameOflist.Get("file_name").String()
+				fileURL = ctx.GetThisGroupFileUrl(fileNameOflist.Get("busid").Int(), fileNameOflist.Get("file_id").String())
+				return
+			}
+		}
+	}
+	// 遍历子文件夹
+	if len(folders) != 0 {
+		for _, folderNameOflist := range folders {
+			folderID := folderNameOflist.Get("folder_id").String()
+			fileSearchName, fileURL = getFileURLbyfolderID(ctx, fileName, folderID)
+			if fileSearchName != "" {
+				return
+			}
+		}
+	}
+	return
+}
+func getFileURLbyfolderID(ctx *zero.Ctx, fileName, folderid string) (fileSearchName, fileURL string) {
+	filesOfGroup := ctx.GetThisGroupFilesByFolder(folderid)
+	files := filesOfGroup.Get("files").Array()
+	folders := filesOfGroup.Get("folders").Array()
+	// 遍历当前目录的文件名
+	if len(files) != 0 {
+		for _, fileNameOflist := range files {
+			if strings.Contains(fileNameOflist.Get("file_name").String(), fileName) {
+				fileSearchName = fileNameOflist.Get("file_name").String()
+				fileURL = ctx.GetThisGroupFileUrl(fileNameOflist.Get("busid").Int(), fileNameOflist.Get("file_id").String())
+				return
+			}
+		}
+	}
+	// 遍历子文件夹
+	if len(folders) != 0 {
+		for _, folderNameOflist := range folders {
+			folderID := folderNameOflist.Get("folder_id").String()
+			fileSearchName, fileURL = getFileURLbyfolderID(ctx, fileName, folderID)
+			if fileSearchName != "" {
+				return
+			}
+		}
+	}
+	return
+}
+
 func drawImage(userInfo cocJSON) (imagePicByte []byte, err error) {
 	var (
-		wg             sync.WaitGroup
-		userIDBlock    image.Image
-		infoBlock      image.Image
-		atrrBlock      image.Image
-		otherBlock     image.Image
-		halfSkillBlock image.Image
+		wg          sync.WaitGroup
+		userIDBlock image.Image // 编号
+		infoBlock   image.Image // 基本信息
+		atrrBlock   image.Image // 属性信息
+		otherBlock  image.Image // 其他信息
 	)
 	wg.Add(1)
 	// 绘制ID
@@ -135,33 +267,25 @@ func drawImage(userInfo cocJSON) (imagePicByte []byte, err error) {
 	// 绘制技能框
 	go func() {
 		defer wg.Done()
-		otherBlock, halfSkillBlock, err = userInfo.drawOtherBlock()
+		otherBlock, err = userInfo.drawOtherBlock()
 		if err != nil {
 			return
 		}
 	}()
 	wg.Wait()
-	if userIDBlock == nil || infoBlock == nil || atrrBlock == nil || otherBlock == nil || halfSkillBlock == nil {
+	if userIDBlock == nil || infoBlock == nil || atrrBlock == nil || otherBlock == nil {
 		return
 	}
 	// 计算图片高度
-	choose := 0
-	picDY := 1000
 	backDX := 1020
-	backDY := 1020
-	switch {
-	case 25+userIDBlock.Bounds().Dy()+25+infoBlock.Bounds().Dy()+atrrBlock.Bounds().Dy()+50 > 1000:
-		choose = 1
-		picDY = 25 + userIDBlock.Bounds().Dy() + 25 + infoBlock.Bounds().Dy() + atrrBlock.Bounds().Dy() + 50
-		backDY = 10 + picDY + 50 + otherBlock.Bounds().Dy() + 10
-	case 25+userIDBlock.Bounds().Dy()+25+infoBlock.Bounds().Dy()+atrrBlock.Bounds().Dy()+25+halfSkillBlock.Bounds().Dy()+50 > 1000:
-		choose = 2
-		backDY = 10 + picDY + 10 + otherBlock.Bounds().Dy() + 10
-	}
+	backDY := 15 + userIDBlock.Bounds().Dy() + 5 + infoBlock.Bounds().Dy() + 10 + atrrBlock.Bounds().Dy() + 20 + otherBlock.Bounds().Dy() + 10 + 10
 	canvas := gg.NewContext(backDX, backDY)
 
 	// 画底色
 	canvas.DrawRectangle(0, 0, float64(backDX), float64(backDY))
+	canvas.SetRGBA255(150, 150, 150, 255)
+	canvas.Fill()
+	canvas.DrawRectangle(10, 10, float64(backDX-20), float64(backDY-20))
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 
@@ -174,36 +298,33 @@ func drawImage(userInfo cocJSON) (imagePicByte []byte, err error) {
 	if err != nil {
 		return
 	}
-	avatarf := imgfactory.Size(avatar, picDY, picDY)
-	canvas.DrawImageAnchored(avatarf.Blur(10).Image(), 10+picDY/2, 10+picDY/2, 0.5, 0.5)
-	canvas.DrawImageAnchored(avatarf.Clip(picDY/2, picDY, 0, 0).Image(), 10+picDY/4, 10+picDY/2, 0.5, 0.5)
-
+	avatarf := imgfactory.Size(avatar, 500, 500).Image()
+	canvas.DrawImage(avatarf, 20, 30)
 	// 头像框
-	canvas.DrawRectangle(10, 10, float64(picDY), float64(picDY))
+	canvas.DrawRectangle(20, 30, 500, 500)
 	canvas.SetLineWidth(3)
 	canvas.SetRGBA255(0, 0, 0, 255)
 	canvas.Stroke()
 
-	// 放入信息
-	tempDY := 20
+	// 编号
+	tempDY := 15
 	canvas.DrawImageAnchored(userIDBlock, backDX-10-20-userIDBlock.Bounds().Dx()/2, tempDY+userIDBlock.Bounds().Dy()/2, 0.5, 0.5)
-	tempDY = 35 + userIDBlock.Bounds().Dy() + 25
-	canvas.DrawImageAnchored(infoBlock, backDX-10-20-infoBlock.Bounds().Dx()/2, tempDY+infoBlock.Bounds().Dy()/2, 0.5, 0.5)
-	tempDY = 35 + userIDBlock.Bounds().Dy() + 25 + infoBlock.Bounds().Dy()
-	canvas.DrawImageAnchored(atrrBlock, backDX-10-20-atrrBlock.Bounds().Dx()/2, tempDY+atrrBlock.Bounds().Dy()/2, 0.5, 0.5)
-	if choose == 0 {
-		tempDY = 35 + userIDBlock.Bounds().Dy() + 25 + infoBlock.Bounds().Dy() + atrrBlock.Bounds().Dy() + 10
-		canvas.DrawImageAnchored(halfSkillBlock, backDX-10-20-halfSkillBlock.Bounds().Dx()/2, tempDY+halfSkillBlock.Bounds().Dy()/2, 0.5, 0.5)
-	} else {
-		canvas.DrawImageAnchored(otherBlock, 10+otherBlock.Bounds().Dx()/2, 10+picDY+10+otherBlock.Bounds().Dy()/2, 0.5, 0.5)
-	}
+	// 放入基本信息
+	tempDY += +userIDBlock.Bounds().Dy() + 5
+	canvas.DrawImage(infoBlock, 20+500+10, tempDY)
+	// 放入属性信息
+	tempDY += infoBlock.Bounds().Dy() + 10
+	canvas.DrawImage(atrrBlock, 10, tempDY)
+	// 放入其他信息
+	tempDY += atrrBlock.Bounds().Dy() + 20
+	canvas.DrawImage(otherBlock, 20, tempDY)
 
 	return imgfactory.ToBytes(canvas.Image())
 }
 
 // 绘制ID区域
 func (userInfo *cocJSON) drawIDBlock() (image.Image, error) {
-	fontSize := 25.0
+	fontSize := 30.0
 	userIDstr := "编号:" + strconv.FormatInt(userInfo.ID, 10)
 	canvas := gg.NewContext(1, 1)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
@@ -233,6 +354,13 @@ func (userInfo *cocJSON) drawIDBlock() (image.Image, error) {
 func (userInfo *cocJSON) drawInfoBlock() (image.Image, error) {
 	fontSize := 50.0
 	raw := len(userInfo.BaseInfo)
+	maxStr := ""
+	for _, info := range userInfo.BaseInfo {
+		str := fmt.Sprintf("%v : %v", info.Name, info.Value)
+		if len(maxStr) < len(str) {
+			maxStr = str
+		}
+	}
 	canvas := gg.NewContext(1, 1)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -241,10 +369,22 @@ func (userInfo *cocJSON) drawInfoBlock() (image.Image, error) {
 	if err = canvas.ParseFontFace(data, fontSize); err != nil {
 		return nil, err
 	}
-	_, textH := canvas.MeasureString("高度")
-	canvas = gg.NewContext(500-40, 50+int(textH*2)*raw)
+	textW, textH := canvas.MeasureString(maxStr)
+	if textW > 500-20 {
+		for ; textW >= 500-20; fontSize-- {
+			if err = canvas.ParseFontFace(data, fontSize); err != nil {
+				return nil, err
+			}
+			textW, textH = canvas.MeasureString(maxStr)
+		}
+	}
+	backDY := 15 + int(textH*2)*raw
+	if backDY < 500 {
+		backDY = 500
+	}
+	canvas = gg.NewContext(500-40, backDY)
 	// 画底色
-	canvas.DrawRectangle(0, 0, 500-40, textH*2*float64(raw)+50)
+	canvas.DrawRectangle(0, 0, 500-40, float64(backDY))
 	canvas.SetRGBA255(255, 255, 255, 150)
 	canvas.Fill()
 	// 放字
@@ -254,12 +394,12 @@ func (userInfo *cocJSON) drawInfoBlock() (image.Image, error) {
 	for i, info := range userInfo.BaseInfo {
 		str := fmt.Sprintf("%v : %v", info.Name, info.Value)
 		textW, _ := canvas.MeasureString(str)
-		textDY := 50.0 + textH*2*float64(i)
+		textDY := 10 + textH*2*float64(i)
 		canvas.SetColor(color.Black)
 		canvas.DrawStringAnchored(str, 25+textW/2, textDY+textH/2, 0.5, 0.5)
 		textDY += textH * 1.5
 		// 画下划线
-		canvas.DrawLine(25, textDY, 500-40-25, textDY)
+		canvas.DrawLine(25, textDY, 500-20-25, textDY)
 		canvas.SetLineWidth(3)
 		canvas.SetRGBA255(0, 0, 0, 255)
 		canvas.Stroke()
@@ -269,7 +409,7 @@ func (userInfo *cocJSON) drawInfoBlock() (image.Image, error) {
 
 // 绘制属性信息区域
 func (userInfo *cocJSON) drawAttrBlock() (image.Image, error) {
-	fontSize := 25.0
+	fontSize := 50.0
 	raw := len(userInfo.Attribute)
 	canvas := gg.NewContext(1, 1)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
@@ -280,46 +420,60 @@ func (userInfo *cocJSON) drawAttrBlock() (image.Image, error) {
 		return nil, err
 	}
 	_, textH := canvas.MeasureString("高度")
-	offset := 0.0
-	median := 0.0
-	for _, info := range userInfo.Attribute {
-		textW, _ := canvas.MeasureString(strconv.Itoa(info.MaxValue))
-		if offset < textW {
-			offset = textW
-		}
-	}
+	nameW := 0.0
+	valueW := 0.0
 	for _, info := range userInfo.Attribute {
 		textW, _ := canvas.MeasureString(info.Name)
-		if median < textW {
-			median = textW
+		if nameW < textW {
+			nameW = textW
 		}
 	}
-	median = (500 - 40 - median - 10 - 300 - 10 - offset) / 2
-	canvas = gg.NewContext(500-40, 50+int(textH*2)*raw)
+	for _, info := range userInfo.Attribute {
+		textW, _ := canvas.MeasureString(strconv.Itoa(info.MaxValue))
+		if valueW < textW {
+			valueW = textW
+		}
+	}
+	barW := 500 - nameW - 10 - 10 - valueW - 10
+	backX := 980
+	backY := 20 + int(textH*2)*raw/2
+	canvas = gg.NewContext(backX, backY)
 	// 画底色
-	canvas.DrawRectangle(0, 0, 500-40, textH*2*float64(raw)+50)
+	canvas.DrawRectangle(0, 0, float64(backX), float64(backY))
 	canvas.SetRGBA255(255, 255, 255, 150)
 	canvas.Fill()
-	// 放字
+	/*/ 边框框
+	canvas.DrawRectangle(0, 0, float64(backX), float64(raw))
+	canvas.SetLineWidth(3)
+	canvas.SetRGBA255(0, 0, 0, 255)
+	canvas.Stroke()
+	// 放字*/
 	if err = canvas.ParseFontFace(data, fontSize); err != nil {
 		return nil, err
 	}
+	r := -1.0
 	for i, info := range userInfo.Attribute {
-		nameW, _ := canvas.MeasureString(info.Name)
+		infoNameW, _ := canvas.MeasureString(info.Name)
 		valueStr := strconv.Itoa(info.Value)
-		valueW, _ := canvas.MeasureString(valueStr)
-		textDY := 25.0 + textH*2*float64(i)
+		infoValueW, _ := canvas.MeasureString(valueStr)
+		textX := 0.0
+		if i%2 == 1 {
+			textX = 510
+		} else {
+			r++
+		}
+		textY := 10.0 + textH*2*r
 		canvas.SetColor(color.Black)
 		// 名称
-		canvas.DrawStringAnchored(info.Name, 500-20-median-offset-10-300-10-nameW/2, textDY+textH/2, 0.5, 0.5)
+		canvas.DrawStringAnchored(info.Name, textX+nameW-infoNameW/2, textY+textH/2, 0.5, 0.5)
 		// 数值
-		canvas.DrawStringAnchored(valueStr, 500-20-median-offset/2-valueW/2, textDY+textH/2, 0.5, 0.5)
+		canvas.DrawStringAnchored(valueStr, textX+nameW+10+barW+10+infoValueW/2, textY+textH/2, 0.5, 0.5)
 		// 画属性条
-		canvas.DrawRectangle(170-median-offset, textDY, 300, textH*1.2)
+		canvas.DrawRectangle(textX+nameW+10, textY, barW, textH*1.2)
 		canvas.SetRGB255(150, 150, 150)
 		canvas.Fill()
 		canvas.SetRGB255(0, 0, 0)
-		canvas.DrawRectangle(170-median-offset, textDY, 300*(math.Abs(float64(info.Value))/math.Max(float64(info.MaxValue), float64(info.MaxValue)-float64(info.MinValue))), textH*1.2)
+		canvas.DrawRectangle(textX+nameW+10, textY, barW*((float64(info.Value)-float64(info.MinValue))/float64(info.MaxValue)-float64(info.MinValue)), textH*1.2)
 		canvas.SetRGB255(102, 102, 102)
 		canvas.Fill()
 	}
@@ -327,15 +481,18 @@ func (userInfo *cocJSON) drawAttrBlock() (image.Image, error) {
 }
 
 // 绘制其他信息区域
-func (userInfo *cocJSON) drawOtherBlock() (pic, halfPic image.Image, err error) {
-	fontSize := 35.0
+func (userInfo *cocJSON) drawOtherBlock() (pic image.Image, err error) {
+	fontSize := 25.0
 	glowsd, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return
 	}
-	newplugininfo, err := rendercard.Truncate(glowsd, userInfo.Other, 500-60, 50)
+	newplugininfo, err := rendercard.Truncate(glowsd, userInfo.Other, 970, 50)
 	if err != nil {
 		return
+	}
+	if len(newplugininfo) == 0 || (len(newplugininfo) < 2 && newplugininfo[0] == "") {
+		newplugininfo = []string{"暂无其他资料"}
 	}
 	canvas := gg.NewContext(1, 1)
 	if err = canvas.ParseFontFace(glowsd, fontSize); err != nil {
@@ -346,62 +503,26 @@ func (userInfo *cocJSON) drawOtherBlock() (pic, halfPic image.Image, err error) 
 	if raw < 200 {
 		raw = 200
 	}
-	canvas = gg.NewContext(500-40, raw)
+	canvas = gg.NewContext(980, raw)
 	// 画底色
-	canvas.DrawRectangle(0, 0, 500-40, float64(raw))
+	canvas.DrawRectangle(0, 0, 980, float64(raw))
 	canvas.SetRGBA255(255, 255, 255, 150)
 	canvas.Fill()
-	// 放字
-	if err = canvas.ParseFontFace(glowsd, fontSize); err != nil {
-		return
-	}
-	canvas.SetColor(color.Black)
-	for i, info := range newplugininfo {
-		if info == "" {
-			info = "暂无信息"
-		}
-		textW, _ := canvas.MeasureString(info)
-		textDY := 25.0 + textH*2*float64(i)
-		canvas.DrawStringAnchored(info, 10+textW/2, textDY+textH/2, 0.5, 0.5)
-	}
-	halfPic = canvas.Image()
-	// 绘制整个图
-	newplugininfo, err = rendercard.Truncate(glowsd, userInfo.Other, 900, 50)
-	if err != nil {
-		return
-	}
-	raw = 50 + int(textH*2)*len(newplugininfo)
-	if raw < 200 {
-		raw = 200
-	}
-	canvas = gg.NewContext(1, 1)
-	if err = canvas.ParseFontFace(glowsd, fontSize); err != nil {
-		return
-	}
-	_, textH = canvas.MeasureString("高度")
-	canvas = gg.NewContext(1000, raw)
-	// 画底色
-	canvas.DrawRectangle(0, 0, 1000, float64(raw))
-	canvas.SetRGBA255(255, 255, 255, 150)
-	canvas.Fill()
-	// 放字
-	if err = canvas.ParseFontFace(glowsd, fontSize); err != nil {
-		return
-	}
-	canvas.SetColor(color.Black)
-	for i, info := range newplugininfo {
-		if info == "" {
-			info = "暂无信息"
-		}
-		textW, _ := canvas.MeasureString(info)
-		textDY := 25.0 + textH*2*float64(i)
-		canvas.DrawStringAnchored(info, 10+textW/2, textDY+textH/2, 0.5, 0.5)
-	}
 	// 边框框
-	canvas.DrawRectangle(0, 0, 1000, float64(raw))
+	canvas.DrawRectangle(0, 0, 980, float64(raw))
 	canvas.SetLineWidth(3)
 	canvas.SetRGBA255(0, 0, 0, 255)
 	canvas.Stroke()
+	// 放字
+	if err = canvas.ParseFontFace(glowsd, fontSize); err != nil {
+		return
+	}
+	canvas.SetColor(color.Black)
+	for i, info := range newplugininfo {
+		textW, _ := canvas.MeasureString(info)
+		textDY := 25.0 + textH*2*float64(i)
+		canvas.DrawStringAnchored(info, 15+textW/2, textDY+textH/2, 0.5, 0.5)
+	}
 	pic = canvas.Image()
 	return
 }

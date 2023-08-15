@@ -38,7 +38,7 @@ import (
 
 	_ "github.com/FloatTech/zbputils/job" // 定时指令触发器
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dataSystem" // 公用数据系统
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet" // 钱包
 	//                               ^^^^                               //
 	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^高优先级区^^^^^^^                      //
@@ -57,7 +57,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cybercat"             // 云养猫
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games" // 游戏系统
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coc"             // 游戏系统
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coc"             // coc辅助器
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice" // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"    // b站相关

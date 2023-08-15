@@ -62,7 +62,7 @@ func init() {
 					Value: "",
 				},
 				{
-					Name:  "身份",
+					Name:  "职业",
 					Value: "",
 				},
 			}
@@ -181,6 +181,8 @@ func savePanel(cfg cocJSON, infoID ...int64) error {
 
 // 加载设置(2个参数：群号，用户)
 func loadSetting(gid int64) (info settingInfo, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJSONFile
 	if file.IsNotExist(cfgFile) {
 		//info.DefaultDice = 100
@@ -199,6 +201,8 @@ func loadSetting(gid int64) (info settingInfo, err error) {
 
 // 保存数据(3个参数：数据，群号，用户)
 func saveSetting(info settingInfo, gid int64) error {
+	mu.Lock()
+	defer mu.Unlock()
 	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJSONFile
 	reader, err := os.Create(cfgFile)
 	if err == nil {
