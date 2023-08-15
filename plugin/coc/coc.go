@@ -170,7 +170,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.ImageBytes(pic))
+		ctx.SendChain(message.ImageBytes(pic))
 	})
 }
 
@@ -314,7 +314,7 @@ func drawImage(userInfo cocJSON) (imagePicByte []byte, err error) {
 	canvas.DrawImage(infoBlock, 20+500+10, tempDY)
 	// 放入属性信息
 	tempDY += infoBlock.Bounds().Dy() + 10
-	canvas.DrawImage(atrrBlock, 10, tempDY)
+	canvas.DrawImage(atrrBlock, 20, tempDY)
 	// 放入其他信息
 	tempDY += atrrBlock.Bounds().Dy() + 20
 	canvas.DrawImage(otherBlock, 20, tempDY)
