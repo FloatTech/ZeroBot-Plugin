@@ -66,12 +66,11 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"      // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"  // 猜歌
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"     // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"   // 拼音首字母缩写释义工具
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"    // 一群一天一夫一妻制群老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"   // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"  // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygomoegoe" //
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"    // 点歌
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"  // 拼音首字母缩写释义工具
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"   // 一群一天一夫一妻制群老婆
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"  // 在线运行代码
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao" // 以图搜图
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime" // 来份涩图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"

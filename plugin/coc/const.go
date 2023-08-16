@@ -65,19 +65,16 @@ var (
 	mu          sync.Mutex
 	settingGoup = make(map[int64]settingInfo, 256)
 	getsetting  = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		mu.Lock()
-		defer mu.Unlock()
 		gid := ctx.Event.GroupID
 		_, ok := settingGoup[gid]
 		if ok {
 			return true
 		}
-		settingInfo, err := loadSetting(gid)
+		_, err := loadSetting(gid)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
 			return false
 		}
-		settingGoup[gid] = settingInfo
 		return true
 	})
 )
