@@ -233,17 +233,14 @@ func wbiSign(params map[string]string, imgKey string, subKey string) map[string]
 	params["wts"] = currTime
 	// Sort keys
 	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	// Remove unwanted characters
 	for k, v := range params {
+		keys = append(keys, k)
 		for _, old := range replacements {
 			v = strings.ReplaceAll(v, old, "")
 		}
 		params[k] = v
 	}
+	sort.Strings(keys)
 	h := md5.New()
 	for k, v := range keys {
 		h.Write([]byte(v))
