@@ -2,6 +2,7 @@
 package mcfish
 
 import (
+	"bytes"
 	"errors"
 	"image"
 	"image/color"
@@ -156,8 +157,11 @@ func drawEquipInfoBlock(equipInfo equip, fontdata []byte) (image.Image, error) {
 	canvas.SetLineWidth(3)
 	canvas.SetRGBA255(0, 0, 0, 255)
 	canvas.Stroke()
-
-	equipPic, err := imgfactory.Load(engine.DataFolder() + equipInfo.Equip + ".png")
+	getAvatar, err := engine.GetLazyData(equipInfo.Equip+".png", false)
+	if err != nil {
+		return nil, err
+	}
+	equipPic, _, err := image.Decode(bytes.NewReader(getAvatar))
 	if err != nil {
 		return nil, err
 	}

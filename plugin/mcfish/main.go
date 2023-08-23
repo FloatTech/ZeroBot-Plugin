@@ -128,6 +128,12 @@ var (
 	fishLimit = 50 // 钓鱼次数上限
 )
 
+func init() {
+	for name := range thingPice {
+		_, _ = engine.GetLazyData(name+".png", false)
+	}
+}
+
 // 获取装备信息
 func (sql *fishdb) getUserEquip(uid int64) (userInfo equip, err error) {
 	sql.Lock()

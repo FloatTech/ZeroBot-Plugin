@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
-	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -151,13 +150,7 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR at fish.go.7]:", err))
 					return
 				}
-				thingPic, err := imgfactory.Load(engine.DataFolder() + "book.png")
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name))
-					return
-				}
-				pic, err := imgfactory.ToBytes(thingPic)
+				pic, err := engine.GetLazyData("book.png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
 					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name))
@@ -190,13 +183,7 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR at fish.go.8]:", err))
 					return
 				}
-				thingPic, err := imgfactory.Load(engine.DataFolder() + poleName + ".png")
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName))
-					return
-				}
-				pic, err := imgfactory.ToBytes(thingPic)
+				pic, err := engine.GetLazyData(poleName+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
 					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName))
@@ -212,13 +199,7 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR at fish.go.9]:", err))
 					return
 				}
-				thingPic, err := imgfactory.Load(engine.DataFolder() + waste + ".png")
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", waste))
-					return
-				}
-				pic, err := imgfactory.ToBytes(thingPic)
+				pic, err := engine.GetLazyData(waste+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
 					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", waste))
@@ -258,13 +239,7 @@ func init() {
 					ctx.SendChain(message.Text("[ERROR at fish.go.11]:", err))
 					return
 				}
-				thingPic, err := imgfactory.Load(engine.DataFolder() + fishName + ".png")
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName))
-					return
-				}
-				pic, err := imgfactory.ToBytes(thingPic)
+				pic, err := engine.GetLazyData(fishName+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
 					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName))
