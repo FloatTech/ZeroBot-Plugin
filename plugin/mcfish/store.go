@@ -37,7 +37,11 @@ var (
 )
 
 func init() {
-	engine.OnFullMatchGroup([]string{"钓鱼看板", "钓鱼商店"}, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatchGroup([]string{"钓鱼看板", "钓鱼商店"}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		ok := refreshFish(ctx)
+		if ok {
+			return
+		}
 		infos, err := dbdata.getStoreInfo()
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.2]:", err))
