@@ -138,7 +138,7 @@ func init() {
 		tick := time.NewTimer(105 * time.Second)
 		over := time.NewTimer(120 * time.Second)
 		var (
-			worry       = 1 //错误次数
+			worry       = 1 // 错误次数
 			tickCount   = 0 // 提示次数
 			answerCount = 0 // 问答次数
 		)

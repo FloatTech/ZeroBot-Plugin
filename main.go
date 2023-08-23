@@ -48,7 +48,7 @@ import (
 	//                                                                  //
 	//                                                                  //
 
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
+	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/ygocombo" // 游戏王combo记录器
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"    // 游戏王相关插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygosem" // 游戏王sem平台相关插件
 
@@ -58,6 +58,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/games" // 游戏系统
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coc"             // coc辅助器
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcfish"          // 游戏王sem平台相关插件
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice" // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"    // b站相关
@@ -85,8 +86,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/_personal/thesaurus" // 旧版词典匹配回复
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
-
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply"  // 人工智能回复
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
 
 	/*/                                                                  //

@@ -127,16 +127,24 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	en.OnRegex(`支付(\s*\[CQ:at,qq=)?(\d+)\s*(\d+)`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^支付(\s*\[CQ:at,qq=)?(\d+).*([1-9]\d*)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
-		transform, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
+		transform, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		if money < transform {
 			ctx.SendChain(message.Text("你钱包当前只有", money, "ATRI币,无法完成支付"))
 			return
 		}
-		target, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-		err := wallet.InsertWalletOf(uid, -transform)
+		target, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		err = wallet.InsertWalletOf(uid, -transform)
 		if err == nil {
 			err = wallet.InsertWalletOf(target, transform)
 		}

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	engine.OnRegex(`^(.|。)(r|R)([1-9]\d*)?(d|D)?([1-9]\d*)?( (.*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^(\.|。)(r|R)([1-9]\d*)?(d|D)?([1-9]\d*)?( (.*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		defaultDice := 100
 		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
@@ -41,7 +41,7 @@ func init() {
 		}
 		ctx.Send(msg)
 	})
-	engine.OnRegex(`^(.|。)(r|R)([1-9]\d*)?(d|D)?([1-9]\d*)?a(\S+)( (.*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^(\.|。)(r|R)([1-9]\d*)?(d|D)?([1-9]\d*)?a(\S+)( (.*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
 		mu.Lock()

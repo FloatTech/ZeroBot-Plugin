@@ -132,7 +132,7 @@ func init() {
 			}
 			ctx.SendChain(message.Reply(id), message.Text("猫猫", userInfo.Name, "和你的感情淡了,选择了离家出走"))
 			return
-		case userInfo.Weight <= 0 && subtime > 72: //三天不喂食就死
+		case userInfo.Weight <= 0 && subtime > 72: // 三天不喂食就死
 			if err = catdata.delcat(gidStr, uidStr); err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
 				return
@@ -329,9 +329,9 @@ func (data *catInfo) settleOfData() catInfo {
 	} else if data.Mood < 0 {
 		data.Mood = 0
 	}
-	//if data.Weight < 0 {
-	//	data.Mood = 0
-	//}
+	if data.Weight < 0 {
+		data.Weight = -5
+	}
 	if data.Food < 0 {
 		data.Food = 0
 	}

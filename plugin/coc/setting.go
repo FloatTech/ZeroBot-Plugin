@@ -122,7 +122,7 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
-	engine.OnRegex(`^(.|。)(s|S)(a|A) ([1-9]\d*)?(d|D)([1-9]\d*)?(a(\S+))? (\S+) ((-|\+)?[1-9]\d*)(\s+([1-9]\d*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^(\.|。)(s|S)(a|A) ([1-9]\d*)?(d|D)([1-9]\d*)?(a(\S+))? (\S+) ((-|\+)?[1-9]\d*)(\s+([1-9]\d*))?$`, getsetting).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		mu.Lock()
 		cocSetting := settingGoup[gid]
@@ -249,7 +249,7 @@ func init() {
 		ctx.Send(msg)
 
 	})
-	engine.OnRegex(`^(.|。)(setpc|SETPC)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^(\.|。)(setpc|SETPC)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		mu.Lock()
 		cocSetting := settingGoup[gid]
@@ -328,7 +328,7 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
-	engine.OnRegex(`^(.|。)(show|SHOW)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, func(ctx *zero.Ctx) bool {
+	engine.OnRegex(`^(\.|。)(show|SHOW)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, func(ctx *zero.Ctx) bool {
 		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
 		mu.Unlock()
@@ -362,7 +362,7 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.ImageBytes(pic))
 	})
-	engine.OnRegex(`^(.|。)(kill|KILL)(\[CQ:at,qq=)?(\d+)?(\])?`, getsetting, func(ctx *zero.Ctx) bool {
+	engine.OnRegex(`^(\.|。)(kill|KILL)(\[CQ:at,qq=)?(\d+)?(\])?`, getsetting, func(ctx *zero.Ctx) bool {
 		uid, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[4], 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR]:", err))
@@ -396,7 +396,7 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
 	})
-	engine.OnRegex(`^(.|。)(pcset|PCSET)(\[CQ:at,qq=)?(\d+)(\])? (.*)$`, getsetting, func(ctx *zero.Ctx) bool {
+	engine.OnRegex(`^(\.|。)(pcset|PCSET)(\[CQ:at,qq=)?(\d+)(\])? (.*)$`, getsetting, func(ctx *zero.Ctx) bool {
 		mu.Lock()
 		cocSetting := settingGoup[ctx.Event.GroupID]
 		mu.Unlock()

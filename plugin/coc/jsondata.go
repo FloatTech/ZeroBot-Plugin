@@ -164,10 +164,10 @@ func savePanel(cfg cocJSON, infoID ...int64) error {
 			str += strconv.FormatInt(ID, 10)
 			if i != len(infoID)-1 {
 				str += "/"
-				//if file.IsNotExist(engine.DataFolder() + str) {
+				// if file.IsNotExist(engine.DataFolder() + str) {
 				//	_, err := os.Create(engine.DataFolder() + str)
 				//	return err
-				//}
+				// }
 			}
 		}
 		cfgFile = engine.DataFolder() + str + ".json"
@@ -185,7 +185,7 @@ func loadSetting(gid int64) (info settingInfo, err error) {
 	defer mu.Unlock()
 	cfgFile := engine.DataFolder() + strconv.FormatInt(gid, 10) + SettingJSONFile
 	if file.IsNotExist(cfgFile) {
-		//info.DefaultDice = 100
+		// info.DefaultDice = 100
 		return
 	}
 	reader, err := os.Open(cfgFile)
