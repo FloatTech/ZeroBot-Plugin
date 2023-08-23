@@ -95,7 +95,7 @@ func init() {
 			ctx.Send(msg)
 			// 等待用户下一步选择
 			sell := false
-			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID)).Repeat()
+			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 			defer cancel()
 			for {
 				select {
@@ -227,7 +227,7 @@ func init() {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
 			// 等待用户下一步选择
 			sell := false
-			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID)).Repeat()
+			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 			defer cancel()
 			for {
 				select {
@@ -442,9 +442,9 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			pice = (thingPice[name]-(equipAttribute[name]-durable)-maintenance*2)*discount[name]/100 + induceLevel*1000 + favorLevel*2500
+			pice = (thingPice[info.Name]-(equipAttribute[info.Name]-durable)-maintenance*2)*discount[info.Name]/100 + induceLevel*1000 + favorLevel*2500
 		} else {
-			pice = thingPice[name] * discount[name] / 100
+			pice = thingPice[info.Name] * discount[info.Name] / 100
 		}
 
 		canvas.DrawStringAnchored(name, 10+nameW/2, textDy+textH/2, 0.5, 0.5)

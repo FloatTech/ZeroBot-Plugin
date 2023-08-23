@@ -33,7 +33,7 @@ func init() {
 		if equipInfo == (equip{}) {
 			ctx.SendChain(message.Text("你尚未装备鱼竿,是否花费100购买鱼竿?\n回答\"是\"或\"否\""))
 			// 等待用户下一步选择
-			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.OnlyGroup, zero.CheckUser(ctx.Event.UserID)).Repeat()
+			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 			defer cancel()
 			buy := false
 			for {
