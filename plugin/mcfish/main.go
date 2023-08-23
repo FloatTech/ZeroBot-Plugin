@@ -114,7 +114,7 @@ var (
 			"-> 金竿 : 耐久上限:70 均价700 上钩概率:0.6%\n-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.3%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.1%\n" +
 			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间.均价:1000, 上钩概率:0.5%\n-> 海之眷顾 : 增加宝藏上钩概率.均价:2500, 上钩概率:0.5%\n" +
 			"3.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:21%\n-> 鲑鱼 : 均价:50 上钩概率:6%\n-> 热带鱼 : 均价:100 上钩概率:1.8%\n-> 河豚 : 均价:300 上钩概率:0.9%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.3%",
-		PrivateDataFolder: "mcfish",
+		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		dbdata.db.DBPath = engine.DataFolder() + "fishdata.db"
