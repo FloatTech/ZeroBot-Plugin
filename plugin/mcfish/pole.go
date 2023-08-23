@@ -91,6 +91,13 @@ func init() {
 			}
 		}
 		newEquipInfo := poles[index]
+		packEquip := articles[index]
+		packEquip.Number = 0
+		err = dbdata.updateUserThingInfo(uid, packEquip)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at pole.go.3]:", err))
+			return
+		}
 		err = dbdata.updateUserEquip(newEquipInfo)
 		if err == nil && equipInfo != (equip{}) {
 			oldthing := article{
@@ -102,7 +109,7 @@ func init() {
 			err = dbdata.updateUserThingInfo(uid, oldthing)
 		}
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at pole.go.3]:", err))
+			ctx.SendChain(message.Text("[ERROR at pole.go.4]:", err))
 			return
 		}
 		ctx.Send(
@@ -115,7 +122,7 @@ func init() {
 		uid := ctx.Event.UserID
 		equipInfo, err := dbdata.getUserEquip(uid)
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at pole.go.4]:", err))
+			ctx.SendChain(message.Text("[ERROR at pole.go.5]:", err))
 			return
 		}
 		if equipInfo.Equip == "" {
@@ -128,7 +135,7 @@ func init() {
 		}
 		articles, err := dbdata.getUserThingInfo(uid, equipInfo.Equip)
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at pole.go.5]:", err))
+			ctx.SendChain(message.Text("[ERROR at pole.go.6]:", err))
 			return
 		}
 		if len(articles) == 0 {
@@ -213,15 +220,15 @@ func init() {
 				equipInfo.Favor = 3
 			}
 		}
-		equipInfo.Maintenance++
-		err = dbdata.updateUserEquip(equipInfo)
+		thingInfo := articles[index]
+		thingInfo.Number = 0
+		err = dbdata.updateUserThingInfo(uid, thingInfo)
 		if err == nil {
-			thingInfo := articles[index]
-			thingInfo.Number = 0
-			err = dbdata.updateUserThingInfo(uid, thingInfo)
+			equipInfo.Maintenance++
+			err = dbdata.updateUserEquip(equipInfo)
 		}
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at pole.go.6]:", err))
+			ctx.SendChain(message.Text("[ERROR at pole.go.7]:", err))
 			return
 		}
 		ctx.Send(
