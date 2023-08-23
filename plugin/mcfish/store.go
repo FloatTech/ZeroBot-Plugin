@@ -135,19 +135,19 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.6]:", err))
 			return
 		}
-		pice := 0
+		var pice int
 		if strings.Contains(thingName, "竿") {
 			poleInfo := strings.Split(thing.Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			pice = (thingPice[thingName]-(equipAttribute[thingName]-durable)-maintenance*2)*discount[thingName]/100 + induceLevel*1000 + favorLevel*2500
+			equipPice := (thingPice[thingName]-(equipAttribute[thingName]-durable)-maintenance*2)*discount[thingName]/100 + induceLevel*1000 + favorLevel*2500
 			newCommodity := store{
 				Duration: time.Now().Unix(),
 				Name:     thingName,
 				Number:   1,
-				Price:    pice,
+				Price:    equipPice,
 				Other:    thing.Other,
 			}
 			err = dbdata.updateStoreInfo(newCommodity)
@@ -155,9 +155,9 @@ func init() {
 				ctx.SendChain(message.Text("[ERROR at store.go.7]:", err))
 				return
 			}
-			pice /= (6 * 10)
+			pice = equipPice * 6 / 10
 		} else {
-			pice = thingPice[thingName]
+			pice = thingPice[thingName] * discount[thingName] / 100
 			things, err1 := dbdata.getStoreThingInfo(thingName)
 			if err1 != nil {
 				ctx.SendChain(message.Text("[ERROR at store.go.8]:", err1))
@@ -178,7 +178,6 @@ func init() {
 				return
 			}
 		}
-		pice = thingPice[thingName] * discount[thingName] / 100
 		err = wallet.InsertWalletOf(uid, pice)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.10]:", err))

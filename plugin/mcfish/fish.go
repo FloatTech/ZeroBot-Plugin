@@ -166,7 +166,7 @@ func init() {
 				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name), message.ImageBytes(pic))
 				return
 			case dice > bookProbability && dice <= poleProbability:
-				poleName := "木竿"
+				var poleName string
 				switch rand.Intn(len(equipAttribute)) {
 				case 1:
 					poleName = "铁竿"
@@ -227,7 +227,7 @@ func init() {
 				ctx.SendChain(message.At(uid), message.Text("你钓到了", waste, ",为河流净化做出了贡献,给了你", money, "奖励金"), message.ImageBytes(pic))
 				return
 			default:
-				fishName := "鳕鱼"
+				var fishName string
 				dice = rand.Intn(100)
 				switch {
 				case dice >= 70:
