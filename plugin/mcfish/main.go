@@ -356,7 +356,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			maintenance := rand.Intn(10)
 			induceLevel := rand.Intn(2)
 			favorLevel := rand.Intn(2)
-			pice := 100 - (30 - durable) - maintenance*2 + induceLevel*1000 + favorLevel*2500
+			pice := 100 - (30 - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800
 			pole := store{
 				Duration: time.Now().Unix(),
 				Name:     "木竿",

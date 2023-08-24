@@ -21,9 +21,9 @@ import (
 )
 
 var (
-	lastTime    = 0
+	refresh     = false
 	refreshFish = func(ctx *zero.Ctx) bool {
-		if len(discount) != 0 && lastTime == time.Now().Day() {
+		if len(discount) != 0 && refresh {
 			return true
 		}
 		ok, err := dbdata.refreshStroeInfo()
@@ -31,7 +31,7 @@ var (
 			ctx.SendChain(message.Text("[ERROR at store.go.1]:", err))
 			return false
 		}
-		lastTime = time.Now().Day()
+		refresh = ok
 		return ok
 	}
 )
@@ -142,7 +142,7 @@ func init() {
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			equipPice := (thingPice[thingName] - (equipAttribute[thingName] - durable) - maintenance*2 + induceLevel*1000 + favorLevel*2500) * discount[thingName] / 100
+			equipPice := (thingPice[thingName] - (equipAttribute[thingName] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discount[thingName] / 100
 			newCommodity := store{
 				Duration: time.Now().Unix(),
 				Name:     thingName,
@@ -211,7 +211,7 @@ func init() {
 				maintenance, _ := strconv.Atoi(poleInfo[1])
 				induceLevel, _ := strconv.Atoi(poleInfo[2])
 				favorLevel, _ := strconv.Atoi(poleInfo[3])
-				thingPice := (thingPice[info.Name] - (equipAttribute[info.Name] - durable) - maintenance*2 + induceLevel*1000 + favorLevel*2500) * discount[info.Name] / 100
+				thingPice := (thingPice[info.Name] - (equipAttribute[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discount[info.Name] / 100
 				pice = append(pice, thingPice)
 			} else {
 				thingPice := thingPice[info.Name] * discount[info.Name] / 100
@@ -385,18 +385,7 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 		if numberW < textW {
 			numberW = textW
 		}
-		pice := 0
-		if strings.Contains(info.Name, "竿") {
-			poleInfo := strings.Split(info.Other, "/")
-			durable, _ := strconv.Atoi(poleInfo[0])
-			maintenance, _ := strconv.Atoi(poleInfo[1])
-			induceLevel, _ := strconv.Atoi(poleInfo[2])
-			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			pice = (thingPice[info.Name]-(equipAttribute[info.Name]-durable)-maintenance*2)*discount[info.Name]/100 + induceLevel*1000 + favorLevel*2500
-		} else {
-			pice = thingPice[info.Name] * discount[info.Name] / 100
-		}
-		textW, _ = canvas.MeasureString(strconv.Itoa(pice))
+		textW, _ = canvas.MeasureString("10000")
 		if priceW < textW {
 			priceW = textW
 		}
@@ -451,7 +440,7 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			pice = (thingPice[info.Name]-(equipAttribute[info.Name]-durable)-maintenance*2)*discount[info.Name]/100 + induceLevel*1000 + favorLevel*2500
+			pice = (thingPice[info.Name] - (equipAttribute[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discount[info.Name] / 100
 		} else {
 			pice = thingPice[info.Name] * discount[info.Name] / 100
 		}

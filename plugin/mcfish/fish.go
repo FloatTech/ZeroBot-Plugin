@@ -176,7 +176,7 @@ func init() {
 					Duration: time.Now().Unix(),
 					Name:     poleName,
 					Number:   1,
-					Other:    strconv.Itoa(rand.Intn(equipAttribute[poleName])+1) + "/" + strconv.Itoa(rand.Intn(10)) + "/" + strconv.Itoa(rand.Intn(3)) + "/" + strconv.Itoa(rand.Intn(3)),
+					Other:    strconv.Itoa(rand.Intn(equipAttribute[poleName])+1) + "/" + strconv.Itoa(rand.Intn(10)) + "/" + strconv.Itoa(rand.Intn(2)) + "/" + strconv.Itoa(rand.Intn(2)),
 				}
 				err = dbdata.updateUserThingInfo(uid, newPole)
 				if err != nil {
