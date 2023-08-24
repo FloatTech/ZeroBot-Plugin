@@ -142,7 +142,7 @@ func init() {
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			equipPice := (thingPice[thingName]-(equipAttribute[thingName]-durable)-maintenance*2)*discount[thingName]/100 + induceLevel*1000 + favorLevel*2500
+			equipPice := (thingPice[thingName] - (equipAttribute[thingName] - durable) - maintenance*2 + induceLevel*1000 + favorLevel*2500) * discount[thingName] / 100
 			newCommodity := store{
 				Duration: time.Now().Unix(),
 				Name:     thingName,
@@ -157,7 +157,7 @@ func init() {
 			}
 			pice = equipPice * 6 / 10
 		} else {
-			pice = thingPice[thingName] * discount[thingName] / 100
+			fishPice := thingPice[thingName] * discount[thingName] / 100
 			things, err1 := dbdata.getStoreThingInfo(thingName)
 			if err1 != nil {
 				ctx.SendChain(message.Text("[ERROR at store.go.8]:", err1))
@@ -168,7 +168,7 @@ func init() {
 					Duration: time.Now().Unix(),
 					Name:     thingName,
 					Number:   0,
-					Price:    pice,
+					Price:    fishPice,
 				})
 			}
 			things[0].Number += number
@@ -177,19 +177,20 @@ func init() {
 				ctx.SendChain(message.Text("[ERROR at store.go.9]:", err))
 				return
 			}
+			pice = fishPice * 6 / 10
 		}
-		err = wallet.InsertWalletOf(uid, pice)
+		err = wallet.InsertWalletOf(uid, pice*number)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.10]:", err))
 			return
 		}
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice)))
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice*number)))
 	})
 	engine.OnRegex(`^购买(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		thingName := ctx.State["regex_matched"].([]string)[1]
 		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
-		if number == 0 {
+		if number == 0 || strings.Contains(thingName, "竿") {
 			number = 1
 		}
 		thingInfos, err := dbdata.getStoreThingInfo(thingName)
@@ -202,24 +203,32 @@ func init() {
 			return
 		}
 		index := 0
-		pice := 0
+		pice := make([]int, 0, len(thingInfos))
+		for _, info := range thingInfos {
+			if strings.Contains(thingName, "竿") {
+				poleInfo := strings.Split(info.Other, "/")
+				durable, _ := strconv.Atoi(poleInfo[0])
+				maintenance, _ := strconv.Atoi(poleInfo[1])
+				induceLevel, _ := strconv.Atoi(poleInfo[2])
+				favorLevel, _ := strconv.Atoi(poleInfo[3])
+				thingPice := (thingPice[info.Name] - (equipAttribute[info.Name] - durable) - maintenance*2 + induceLevel*1000 + favorLevel*2500) * discount[info.Name] / 100
+				pice = append(pice, thingPice)
+			} else {
+				thingPice := thingPice[info.Name] * discount[info.Name] / 100
+				pice = append(pice, thingPice)
+			}
+
+		}
 		if len(thingInfos) > 1 {
 			msg := make(message.Message, 3+len(thingInfos))
 			msg = append(msg, message.Text("找到以下物品:\n"))
 			for i, info := range thingInfos {
 				if strings.Contains(thingName, "竿") {
-					poleInfo := strings.Split(info.Other, "/")
-					durable, _ := strconv.Atoi(poleInfo[0])
-					maintenance, _ := strconv.Atoi(poleInfo[1])
-					induceLevel, _ := strconv.Atoi(poleInfo[2])
-					favorLevel, _ := strconv.Atoi(poleInfo[3])
-					pice = (thingPice[info.Name]-(equipAttribute[info.Name]-durable)-maintenance*2)*discount[info.Name]/100 + induceLevel*1000 + favorLevel*2500
 					msg = append(msg, message.Text(
-						strconv.Itoa(i), info.Name, "(", info.Other, ")", "  数量:", info.Number, "  价格:", pice, "\n"))
+						strconv.Itoa(i), info.Name, "(", info.Other, ")", "  数量:", info.Number, "  价格:", pice[i], "\n"))
 				} else {
-					pice = thingPice[thingName] * discount[thingName] / 100
 					msg = append(msg, message.Text(
-						strconv.Itoa(i), info.Name, "  数量:", info.Number, "  价格:", pice, "\n"))
+						strconv.Itoa(i), info.Name, "  数量:", info.Number, "  价格:", pice[i], "\n"))
 				}
 
 			}
@@ -268,11 +277,11 @@ func init() {
 			return
 		}
 		money := wallet.GetWalletOf(uid)
-		if money < pice {
+		if money < pice[index]*number {
 			ctx.SendChain(message.Text("你身上的钱(", money, ")不够支付"))
 			return
 		}
-		err = wallet.InsertWalletOf(uid, -pice)
+		err = wallet.InsertWalletOf(uid, -pice[index]*number)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.13]:", err))
 			return
@@ -309,7 +318,7 @@ func init() {
 				return
 			}
 		}
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你成功花了", pice, "购买了", thingName)))
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你成功花了", pice[index]*number, "购买了", thingName)))
 	})
 }
 
