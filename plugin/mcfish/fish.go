@@ -91,10 +91,10 @@ func init() {
 			poleProbability := 11 + equipInfo.Favor*3
 			bookProbability := 1 + equipInfo.Favor*1
 			// 钓到鱼的范围
-			getFishMaxDy := 8
+			getFishMaxDy := 9
 			getFishMinDy := 2
-			getFishMaxDx := 8
-			getFishMinDx := 2
+			getFishMaxDx := 9
+			getFishMinDx := 1
 
 			fishDx := rand.Intn(11)
 			fishDy := rand.Intn(11)
