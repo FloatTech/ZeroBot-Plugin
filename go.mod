@@ -1,6 +1,6 @@
 module github.com/FloatTech/ZeroBot-Plugin
 
-go 1.20
+go 1.21
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
@@ -32,7 +32,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/mroth/weightedrand v1.0.0
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.32.0
+	github.com/quic-go/quic-go v0.38.1
 	github.com/shirou/gopsutil/v3 v3.23.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
@@ -40,8 +40,8 @@ require (
 	github.com/wdvxdr1123/ZeroBot v1.7.4
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.3.0
-	golang.org/x/sys v0.4.0
-	golang.org/x/text v0.6.0
+	golang.org/x/sys v0.8.0
+	golang.org/x/text v0.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -54,7 +54,7 @@ require (
 	github.com/fumiama/imgsz v0.0.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
@@ -67,14 +67,12 @@ require (
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
-	github.com/onsi/ginkgo/v2 v2.2.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pkumza/numcn v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
-	github.com/quic-go/qtls-go1-18 v0.2.0 // indirect
-	github.com/quic-go/qtls-go1-19 v0.2.0 // indirect
-	github.com/quic-go/qtls-go1-20 v0.1.0 // indirect
+	github.com/quic-go/qtls-go1-20 v0.3.3 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
@@ -85,9 +83,9 @@ require (
 	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db // indirect
 	golang.org/x/exp/shiny v0.0.0-20221126150942-6ab00d035af9 // indirect
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
-	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/net v0.4.0 // indirect
-	golang.org/x/tools v0.2.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/tools v0.9.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	modernc.org/libc v1.21.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
