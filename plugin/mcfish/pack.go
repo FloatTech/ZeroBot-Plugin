@@ -85,7 +85,7 @@ func drawPackImage(equipInfo equip, articles []article) (imagePicByte []byte, er
 	}
 	// 计算图片高度
 	backDX := 1020
-	backDY := 10 + equipBlock.Bounds().Dy() + 10 + packBlock.Bounds().Dy()
+	backDY := 10 + equipBlock.Bounds().Dy() + 10 + packBlock.Bounds().Dy() + 10
 	canvas := gg.NewContext(backDX, backDY)
 
 	// 画底色
@@ -265,28 +265,26 @@ func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, err
 		return nil, err
 	}
 	titleW, titleH := canvas.MeasureString("背包信息")
-	err = canvas.ParseFontFace(fontdata, 50)
+	err = canvas.ParseFontFace(fontdata, 40)
 	if err != nil {
 		return nil, err
 	}
 	_, textH := canvas.MeasureString("高度")
 
 	nameW := 0.0
-	valueW := 0.0
 	for _, info := range articles {
 		textW, _ := canvas.MeasureString(info.Name + "(" + info.Other + ")")
-		if nameW < textW {
+		if textW > nameW {
 			nameW = textW
 		}
-		textW, _ = canvas.MeasureString(strconv.Itoa(info.Number))
-		if valueW < textW {
-			valueW = textW
-		}
 	}
+	valueW, _ := canvas.MeasureString("10000")
 
-	bolckW := int(10 + nameW + 10 + valueW + 10)
-	wallW := (1000 - bolckW*2 - 20) / 2
-	backY := 10 + int(titleH*1.6) + 10 + int(textH*2)*(math.Ceil(len(articles), 2)+1)
+	bolckW := int(10 + nameW + 20 + valueW + 10)
+	backY := 10 + int(titleH*1.6) + 10 + int(textH*2)*(len(articles)+1)
+	if bolckW*2 < 1000 {
+		backY = 10 + int(titleH*1.6) + 10 + int(textH*2)*(math.Ceil(len(articles), 2)+1)
+	}
 	canvas = gg.NewContext(1000, math.Max(backY, 300))
 	// 画底色
 	canvas.DrawRectangle(0, 0, 1000, float64(backY))
@@ -311,31 +309,46 @@ func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, err
 	canvas.Stroke()
 
 	textDy := 10 + titleH*1.7
-	if err = canvas.ParseFontFace(fontdata, 50); err != nil {
+	if err = canvas.ParseFontFace(fontdata, 40); err != nil {
 		return nil, err
 	}
 	canvas.SetColor(color.Black)
-	canvas.DrawStringAnchored("名称", float64(wallW)+10+nameW/2, textDy+textH/2, 0.5, 0.5)
-	canvas.DrawStringAnchored("数量", float64(wallW)+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-	canvas.DrawStringAnchored("名称", float64(wallW)+float64(bolckW)+20+nameW/2, textDy+textH/2, 0.5, 0.5)
-	canvas.DrawStringAnchored("数量", float64(wallW)+float64(bolckW)+20+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-	cell := 0
-	textDy += textH * 2
-	for _, info := range articles {
-		name := info.Name
-		if info.Other != "" {
-			name += "(" + info.Other + ")"
+	if bolckW*2 < 1000 {
+		wall := float64(1000-bolckW*2) / 2
+		canvas.DrawStringAnchored("名称", wall+10+nameW/2, textDy+textH/2, 0.5, 0.5)
+		canvas.DrawStringAnchored("数量", wall+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+		canvas.DrawStringAnchored("名称", wall+float64(bolckW)+10+nameW/2, textDy+textH/2, 0.5, 0.5)
+		canvas.DrawStringAnchored("数量", wall+float64(bolckW)+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+		textDy += textH * 2
+		cell := 0
+		for _, info := range articles {
+			name := info.Name
+			if info.Other != "" {
+				name += "(" + info.Other + ")"
+			}
+			valueStr := strconv.Itoa(info.Number)
+			if cell == 2 {
+				cell = 0
+				textDy += textH * 2
+			}
+			canvas.DrawStringAnchored(name, wall+float64((10+bolckW)*cell)+10+nameW/2, textDy+textH/2, 0.5, 0.5)
+			canvas.DrawStringAnchored(valueStr, wall+float64((10+bolckW)*cell)+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+			cell++
 		}
-		infoNameW, _ := canvas.MeasureString(name)
-		valueStr := strconv.Itoa(info.Number)
-		infoValueW, _ := canvas.MeasureString(valueStr)
-		if cell == 2 {
-			cell = 0
+	} else {
+		canvas.DrawStringAnchored("名称", 10+nameW/2, textDy+textH/2, 0.5, 0.5)
+		canvas.DrawStringAnchored("数量", float64(1000-bolckW)/2+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+		for _, info := range articles {
+			name := info.Name
+			if info.Other != "" {
+				name += "(" + info.Other + ")"
+			}
+			valueStr := strconv.Itoa(info.Number)
 			textDy += textH * 2
+			canvas.DrawStringAnchored(name, 10+nameW/2, textDy+textH/2, 0.5, 0.5)
+			canvas.DrawStringAnchored(valueStr, float64(1000-bolckW)/2+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
 		}
-		canvas.DrawStringAnchored(name, float64(wallW)+float64((10+bolckW)*cell)+10+infoNameW/2, textDy+textH/2, 0.5, 0.5)
-		canvas.DrawStringAnchored(valueStr, float64(wallW)+float64((10+bolckW)*cell)+10+nameW+10+infoValueW/2, textDy+textH/2, 0.5, 0.5)
-		cell++
+
 	}
 	return canvas.Image(), nil
 }

@@ -82,6 +82,10 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at fish.go.5]:", err))
 			return
 		}
+		msg := ""
+		if equipInfo.Durable < 10 {
+			msg = "\n(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
+		}
 		timer := time.NewTimer(time.Second * time.Duration(rand.Intn(waitTime)+1))
 		for {
 			<-timer.C
@@ -123,7 +127,7 @@ func init() {
 				}
 			}
 			if fishDx < getFishMinDx || fishDx > getFishMaxDx || fishDy < getFishMinDy || fishDy > getFishMaxDy {
-				ctx.SendChain(message.At(uid), message.Text("很遗憾你没有钓到鱼"))
+				ctx.SendChain(message.At(uid), message.Text("很遗憾你没有钓到鱼", msg))
 				return
 			}
 			dice := rand.Intn(100)
@@ -153,24 +157,25 @@ func init() {
 				pic, err := engine.GetLazyData("book.png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name))
+					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name, msg))
 					return
 				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name), message.ImageBytes(pic))
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name, msg), message.ImageBytes(pic))
 				return
 			case dice > bookProbability && dice <= poleProbability:
 				var poleName string
-				switch rand.Intn(len(equipAttribute)) {
-				case 1:
-					poleName = "铁竿"
-				case 2:
-					poleName = "金竿"
-				case 3:
-					poleName = "钻石竿"
-				case 4:
-					poleName = "下界合金竿竿竿"
-				default:
+				dice := rand.Intn(100)
+				switch {
+				case dice >= 30:
 					poleName = "木竿"
+				case dice >= 10 && dice < 30:
+					poleName = "铁竿"
+				case dice >= 4 && dice < 10:
+					poleName = "金竿"
+				case dice >= 1 && dice < 4:
+					poleName = "钻石竿"
+				default:
+					poleName = "下界合金竿竿竿"
 				}
 				newPole := article{
 					Duration: time.Now().Unix(),
@@ -186,10 +191,10 @@ func init() {
 				pic, err := engine.GetLazyData(poleName+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName))
+					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName, msg))
 					return
 				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName), message.ImageBytes(pic))
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName, msg), message.ImageBytes(pic))
 				return
 			case dice >= wasteProbability:
 				waste := wasteList[rand.Intn(len(wasteList))]
@@ -202,25 +207,25 @@ func init() {
 				pic, err := engine.GetLazyData(waste+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", waste))
+					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", waste, msg))
 					return
 				}
-				ctx.SendChain(message.At(uid), message.Text("你钓到了", waste, ",为河流净化做出了贡献,给了你", money, "奖励金"), message.ImageBytes(pic))
+				ctx.SendChain(message.At(uid), message.Text("你钓到了", waste, "\n为河流净化做出了贡献,给了你", money, "奖励金", msg), message.ImageBytes(pic))
 				return
 			default:
 				var fishName string
 				dice = rand.Intn(100)
 				switch {
-				case dice >= 70:
-					fishName = "鲑鱼"
-				case dice >= 20 && dice < 70:
-					fishName = "热带鱼"
-				case dice >= 6 && dice < 20:
-					fishName = "河豚"
-				case dice >= 3 && dice < 6:
-					fishName = "鹦鹉螺"
-				default:
+				case dice >= 30:
 					fishName = "鳕鱼"
+				case dice >= 10 && dice < 30:
+					fishName = "鲑鱼"
+				case dice >= 4 && dice < 10:
+					fishName = "热带鱼"
+				case dice >= 1 && dice < 4:
+					fishName = "河豚"
+				default:
+					fishName = "鹦鹉螺"
 				}
 				fishes, err := dbdata.getUserThingInfo(uid, fishName)
 				if err != nil {
@@ -242,13 +247,10 @@ func init() {
 				pic, err := engine.GetLazyData(fishName+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName))
+					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName, msg))
 					return
 				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName), message.ImageBytes(pic))
-				if equipInfo.Durable < 10 {
-					ctx.SendChain(message.At(uid), message.Text("你的鱼竿耐久仅剩", equipInfo.Durable))
-				}
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName, msg), message.ImageBytes(pic))
 				return
 			}
 		}

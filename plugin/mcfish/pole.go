@@ -48,14 +48,14 @@ func init() {
 		check := false
 		index := 0
 		if len(poles) > 1 {
-			msg := make(message.Message, 3+len(articles))
+			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("找到以下鱼竿:\n"))
 			for i, info := range poles {
-				msg = append(msg, message.Text(i, ".耐久", info.Durable, "/维修", info.Maintenance,
-					"/诱饵", enchantLevel[info.Induce], "/海之眷顾", enchantLevel[info.Favor],
+				msg = append(msg, message.Text("[", i, "]耐", info.Durable, "/修", info.Maintenance,
+					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor],
 					"的", info.Equip, "\n"))
 			}
-			msg = append(msg, message.Text("\n————————————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Text("\n————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(msg)
 			// 等待用户下一步选择
 			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
@@ -161,7 +161,7 @@ func init() {
 		index := 0
 		check := false
 		if len(articles) > 1 {
-			msg := make(message.Message, 3+len(articles))
+			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Text("找到以下鱼竿:\n"))
 			for i, info := range poles {
 				msg = append(msg, message.Text(i, ".耐久", info.Durable, "/维修", info.Maintenance,
