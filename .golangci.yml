@@ -59,7 +59,7 @@ run:
   tests: false
   skip-dirs:
     - order
-  go: '1.20'
+  go: '1.21'
 
 # output configuration options
 output:
