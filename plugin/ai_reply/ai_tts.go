@@ -23,10 +23,10 @@ import (
 // 数据结构: [4 bits] [4 bits] [8 bits]
 // 			[ttscn模式] [百度模式] [tts模式]
 
-// [tts模式]: 0~63 genshin 64 baidu 65 ttscn
+// [tts模式]: 0~255 genshin 256 baidu 257 ttscn
 
 const (
-	lastgsttsindex = 63 + iota
+	lastgsttsindex = 255 + iota
 	baiduttsindex
 	ttscnttsindex
 )
@@ -119,8 +119,8 @@ var ttsins = func() map[string]tts.TTS {
 }()
 
 var ttsModes = func() []string {
-	s := append(genshin.SoundList[:], make([]string, 64-len(genshin.SoundList))...) // 0-63
-	s = append(s, extrattsname...)                                                  // 64 65 ...
+	s := append(genshin.SoundList[:], make([]string, lastgsttsindex-len(genshin.SoundList))...) // 0-255
+	s = append(s, extrattsname...)                                                              // 256 257 ...
 	return s
 }()
 

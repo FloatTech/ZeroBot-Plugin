@@ -3,16 +3,17 @@ package bilibili
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"path/filepath"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
-
-	"github.com/pkg/errors"
-	"github.com/tidwall/gjson"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 
 	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/floatbox/binary"
@@ -20,21 +21,38 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/RomiChan/syncx"
+	"github.com/pkg/errors"
+	"github.com/tidwall/gjson"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 const (
 	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
-	referer = "https://www.bilibili.com/"
-	infoURL = "https://api.bilibili.com/x/space/acc/info?mid=%v"
+	referer = "https://space.bilibili.com/%v"
+	infoURL = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%v&token=&platform=web&web_location=1550101"
+	navURL  = "https://api.bilibili.com/x/web-interface/nav"
 )
 
 // bdb bilibili推送数据库
 var bdb *bilibilipushdb
 
 var (
-	lastTime   = map[int64]int64{}
-	liveStatus = map[int64]int{}
-	upMap      = map[int64]string{}
+	lastTime       = map[int64]int64{}
+	liveStatus     = map[int64]int{}
+	upMap          = map[int64]string{}
+	mixinKeyEncTab = [...]int{
+		46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
+		33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40,
+		61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11,
+		36, 20, 34, 44, 52,
+	}
+	cache          syncx.Map[string, string]
+	lastUpdateTime time.Time
+
+	replacements = [...]string{"!", "'", "(", ")", "*"}
 )
 
 func init() {
@@ -60,7 +78,7 @@ func init() {
 	en.OnRegex(`^添加[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
-		if err != nil {
+		if err != nil || name == "" {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -175,33 +193,120 @@ func init() {
 func getName(buid int64) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
-		var data []byte
-		data, err = web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(infoURL, buid), "GET", func(r *http.Request) error {
-			r.Header.Set("refer", referer)
-			r.Header.Set("user-agent", ua)
-			cookie := ""
-			if cfg != nil {
-				cookie, err = cfg.Load()
-				if err != nil {
-					return err
-				}
-			}
-			r.Header.Set("cookie", cookie)
+		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), signURL(fmt.Sprintf(infoURL, buid)), "GET", func(r *http.Request) error {
+			r.Header.Set("User-Agent", ua)
 			return nil
 		}, nil)
 		if err != nil {
-			return
+			return "", err
 		}
 		status := int(gjson.Get(binary.BytesToString(data), "code").Int())
 		if status != 0 {
 			err = errors.New(gjson.Get(binary.BytesToString(data), "message").String())
-			return
+			return "", err
 		}
 		name = gjson.Get(binary.BytesToString(data), "data.name").String()
 		bdb.insertBilibiliUp(buid, name)
 		upMap[buid] = name
 	}
 	return
+}
+
+func getMixinKey(orig string) string {
+	var str strings.Builder
+	t := 0
+	for _, v := range mixinKeyEncTab {
+		if v < len(orig) {
+			str.WriteByte(orig[v])
+			t++
+		}
+		if t > 31 {
+			break
+		}
+	}
+	return str.String()
+}
+
+func wbiSign(params map[string]string, imgKey string, subKey string) map[string]string {
+	mixinKey := getMixinKey(imgKey + subKey)
+	currTime := strconv.FormatInt(time.Now().Unix(), 10)
+	params["wts"] = currTime
+	// Sort keys
+	keys := make([]string, 0, len(params))
+	for k, v := range params {
+		keys = append(keys, k)
+		for _, old := range replacements {
+			v = strings.ReplaceAll(v, old, "")
+		}
+		params[k] = v
+	}
+	sort.Strings(keys)
+	h := md5.New()
+	for k, v := range keys {
+		h.Write([]byte(v))
+		h.Write([]byte{'='})
+		h.Write([]byte(params[v]))
+		if k < len(keys)-1 {
+			h.Write([]byte{'&'})
+		}
+	}
+	h.Write([]byte(mixinKey))
+	params["w_rid"] = hex.EncodeToString(h.Sum(make([]byte, 0, md5.Size)))
+	return params
+}
+
+func getWbiKeysCached() (string, string) {
+	if time.Since(lastUpdateTime).Minutes() > 10 {
+		imgKey, subKey := getWbiKeys()
+		cache.Store("imgKey", imgKey)
+		cache.Store("subKey", subKey)
+		lastUpdateTime = time.Now()
+		return imgKey, subKey
+	}
+	imgKeyI, _ := cache.Load("imgKey")
+	subKeyI, _ := cache.Load("subKey")
+	return imgKeyI, subKeyI
+}
+
+func getWbiKeys() (string, string) {
+	data, _ := web.RequestDataWithHeaders(web.NewDefaultClient(), navURL, "GET", func(r *http.Request) error {
+		if cfg != nil {
+			cookie, err := cfg.Load()
+			if err == nil {
+				r.Header.Set("cookie", cookie)
+				return nil
+			}
+			return err
+		}
+		return errors.New("未配置-cookie")
+	}, nil)
+	json := helper.BytesToString(data)
+	imgURL := gjson.Get(json, "data.wbi_img.img_url").String()
+	subURL := gjson.Get(json, "data.wbi_img.sub_url").String()
+	imgKey := imgURL[strings.LastIndex(imgURL, "/")+1:]
+	imgKey = strings.TrimSuffix(imgKey, filepath.Ext(imgKey))
+	subKey := subURL[strings.LastIndex(subURL, "/")+1:]
+	subKey = strings.TrimSuffix(subKey, filepath.Ext(subKey))
+	return imgKey, subKey
+}
+
+func signURL(urlStr string) string {
+	urlObj, _ := url.Parse(urlStr)
+	imgKey, subKey := getWbiKeysCached()
+	query := urlObj.Query()
+	params := map[string]string{}
+	for k, v := range query {
+		if len(v) > 0 {
+			params[k] = v[0]
+		}
+	}
+	newParams := wbiSign(params, imgKey, subKey)
+	for k, v := range newParams {
+		query.Set(k, v)
+	}
+	urlObj.RawQuery = query.Encode()
+	newURL := urlObj.String()
+	return newURL
 }
 
 // subscribe 订阅
@@ -276,7 +381,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 			return err
 		}
 		if len(cardList) == 0 {
-			return errors.Errorf("%v的历史动态数为0", buid)
+			return nil
 		}
 		t, ok := lastTime[buid]
 		// 第一次先记录时间,啥也不做
