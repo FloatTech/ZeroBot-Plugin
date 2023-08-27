@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20230724165034-a3cf504fab92
+	github.com/FloatTech/AnimeAPI v1.6.1-0.20230827144904-758793598579
 	github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944
 	github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
@@ -21,7 +21,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/go-base16384 v1.6.4
+	github.com/fumiama/go-base16384 v1.7.0
 	github.com/fumiama/go-registry v0.2.6
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565

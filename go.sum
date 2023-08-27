@@ -2,8 +2,8 @@ github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhv
 github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230724165034-a3cf504fab92 h1:B4IaLEhnXdr7oqszneri6ykdHggL2GvPUueBB5WxYVQ=
-github.com/FloatTech/AnimeAPI v1.6.1-0.20230724165034-a3cf504fab92/go.mod h1:fWJ5hx1ggDmLyLldO53Go97zc1JpWnDpsC5qeTOcaVw=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230827144904-758793598579 h1:IMbVe2zNXAgoNaSnNzXq9F3PSgf6tbqbDUjzBwmCOkA=
+github.com/FloatTech/AnimeAPI v1.6.1-0.20230827144904-758793598579/go.mod h1:6vYu7bW5gPQsBnXB+I6yk+eJQaaAwusoQ/I/wQMwOAI=
 github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944 h1:/eQoMa6Aj3coF5F7yhzZe1+SzX6SItul7MW8//pl18o=
 github.com/FloatTech/floatbox v0.0.0-20230331064925-9af336a84944/go.mod h1:FwQm6wk+b4wuW54KCKn3zccMX47Q5apnHD/Yakzv0fI=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
@@ -58,8 +58,8 @@ github.com/fumiama/bigfft v0.0.0-20211011143303-6e0bfa3c836b h1:Zt3pFQditAdWTHCO
 github.com/fumiama/bigfft v0.0.0-20211011143303-6e0bfa3c836b/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/fumiama/cron v1.3.0 h1:ZWlwuexF+HQHl3cYytEE5HNwD99q+3vNZF1GrEiXCFo=
 github.com/fumiama/cron v1.3.0/go.mod h1:bz5Izvgi/xEUI8tlBN8BI2jr9Moo8N4or0KV8xXuPDY=
-github.com/fumiama/go-base16384 v1.6.4 h1:rYDRwD/th2cG4U7QLokpzmST1cCxZGXtHmolOUePt5o=
-github.com/fumiama/go-base16384 v1.6.4/go.mod h1:OEn+947GV5gsbTAnyuUW/SrfxJYUdYupSIQXOuGOcXM=
+github.com/fumiama/go-base16384 v1.7.0 h1:6fep7XPQWxRlh4Hu+KsdH+6+YdUp+w6CwRXtMWSsXCA=
+github.com/fumiama/go-base16384 v1.7.0/go.mod h1:OEn+947GV5gsbTAnyuUW/SrfxJYUdYupSIQXOuGOcXM=
 github.com/fumiama/go-registry v0.2.6 h1:+vEeBUwa1+GC87ujW3Km42fi8O/H7QcpVJWu1iuGNh0=
 github.com/fumiama/go-registry v0.2.6/go.mod h1:HjYagPZXzR2xCCxaSQerqX7JRzC0yiv2kslDdBiTq/g=
 github.com/fumiama/go-simple-protobuf v0.1.0 h1:rLzJgNqB6LHNDVMl81yyNt6ZKziWtVfu+ioF0edlEVw=
