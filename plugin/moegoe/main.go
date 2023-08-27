@@ -2,6 +2,8 @@
 package moegoe
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"net/url"
 
@@ -9,6 +11,8 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/AnimeAPI/tts/genshin"
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -53,6 +57,16 @@ func init() {
 			}
 			text := ctx.State["regex_matched"].([]string)[2]
 			name := ctx.State["regex_matched"].([]string)[1]
-			ctx.SendChain(message.Record(fmt.Sprintf(genshin.CNAPI, name, url.QueryEscape(text), url.QueryEscape(原.k))))
+			rec := fmt.Sprintf(genshin.CNAPI, name, url.QueryEscape(text), url.QueryEscape(原.k))
+			b := md5.Sum(binary.StringToBytes(rec))
+			fn := hex.EncodeToString(b[:])
+			fp := "data/tts/" + fn
+			if file.IsNotExist(fp) {
+				if file.DownloadTo(rec, fp) != nil {
+					return
+				}
+			}
+			rec = "file:///" + file.BOTPATH + "/" + fp
+			ctx.SendChain(message.Record(rec))
 		})
 }
