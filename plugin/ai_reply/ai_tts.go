@@ -23,10 +23,10 @@ import (
 // 数据结构: [4 bits] [4 bits] [8 bits]
 // 			[ttscn模式] [百度模式] [tts模式]
 
-// [tts模式]: 0~255 genshin 256 baidu 257 ttscn
+// [tts模式]: 0~200 genshin 201 baidu 202 ttscn
 
 const (
-	lastgsttsindex = 255 + iota
+	lastgsttsindex = 200 + iota
 	baiduttsindex
 	ttscnttsindex
 )
@@ -111,7 +111,7 @@ func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 }
 
 var ttsins = func() map[string]tts.TTS {
-	m := make(map[string]tts.TTS, 128)
+	m := make(map[string]tts.TTS, 512)
 	for _, mode := range append(genshin.SoundList[:], extrattsname...) {
 		m[mode] = nil
 	}
@@ -119,8 +119,8 @@ var ttsins = func() map[string]tts.TTS {
 }()
 
 var ttsModes = func() []string {
-	s := append(genshin.SoundList[:], make([]string, lastgsttsindex-len(genshin.SoundList))...) // 0-255
-	s = append(s, extrattsname...)                                                              // 256 257 ...
+	s := append(genshin.SoundList[:], make([]string, lastgsttsindex-len(genshin.SoundList))...) // 0-200
+	s = append(s, extrattsname...)                                                              // 201 202 ...
 	return s
 }()
 
