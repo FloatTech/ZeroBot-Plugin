@@ -55,7 +55,7 @@ func init() {
 					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor],
 					"的", info.Equip, "\n"))
 			}
-			msg = append(msg, message.Text("\n————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(msg)
 			// 等待用户下一步选择
 			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
@@ -168,7 +168,7 @@ func init() {
 					"/诱饵", enchantLevel[info.Induce], "/海之眷顾", enchantLevel[info.Favor],
 					"的", info.Equip, "\n"))
 			}
-			msg = append(msg, message.Text("\n————————————————\n输入对应序号进行修复,或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n输入对应序号进行修复,或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
 			// 等待用户下一步选择
 			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
@@ -204,7 +204,17 @@ func init() {
 			}
 		}
 		newEquipInfo := poles[index]
-		equipInfo.Durable += newEquipInfo.Durable * 8 / 10
+		number, err := dbdata.getNumberFor(uid, "竿")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
+			return
+		}
+		if number <= 10 {
+			number = 8
+		} else {
+			number = 10
+		}
+		equipInfo.Durable += newEquipInfo.Durable * number / 10
 		if equipInfo.Durable > equipAttribute[equipInfo.Equip] {
 			equipInfo.Durable = equipAttribute[equipInfo.Equip]
 		}

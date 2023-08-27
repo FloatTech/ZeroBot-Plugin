@@ -7,8 +7,10 @@ import (
 	"image"
 	"image/color"
 	"strconv"
+	"strings"
 	"sync"
 
+	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/gg"
@@ -33,7 +35,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at pack.go.2]:", err))
 			return
 		}
-		pic, err := drawPackImage(equipInfo, articles)
+		pic, err := drawPackImage(uid, equipInfo, articles)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at pack.go.3]:", err))
 			return
@@ -42,7 +44,7 @@ func init() {
 	})
 }
 
-func drawPackImage(equipInfo equip, articles []article) (imagePicByte []byte, err error) {
+func drawPackImage(uid int64, equipInfo equip, articles []article) (imagePicByte []byte, err error) {
 	fontdata, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
 		return nil, err
@@ -72,7 +74,7 @@ func drawPackImage(equipInfo equip, articles []article) (imagePicByte []byte, er
 		if len(articles) == 0 {
 			packBlock, err = drawArticleEmptyBlock(fontdata)
 		} else {
-			packBlock, err = drawArticleInfoBlock(articles, fontdata)
+			packBlock, err = drawArticleInfoBlock(uid, articles, fontdata)
 		}
 		if err != nil {
 			return
@@ -258,7 +260,7 @@ func drawArticleEmptyBlock(fontdata []byte) (image.Image, error) {
 	canvas.DrawStringAnchored("背包没有存放任何东西", 500, 10+textH*2+50, 0.5, 0)
 	return canvas.Image(), nil
 }
-func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, error) {
+func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image.Image, error) {
 	canvas := gg.NewContext(1, 1)
 	err := canvas.ParseFontFace(fontdata, 100)
 	if err != nil {
@@ -313,6 +315,8 @@ func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, err
 		return nil, err
 	}
 	canvas.SetColor(color.Black)
+	numberOfFish := 0
+	numberOfEquip := 0
 	if bolckW*2 < 1000 {
 		wall := float64(1000-bolckW*2) / 2
 		canvas.DrawStringAnchored("名称", wall+10+nameW/2, textDy+textH/2, 0.5, 0.5)
@@ -324,7 +328,10 @@ func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, err
 		for _, info := range articles {
 			name := info.Name
 			if info.Other != "" {
+				numberOfEquip++
 				name += "(" + info.Other + ")"
+			} else if strings.Contains(name, "鱼") {
+				numberOfFish += info.Number
 			}
 			valueStr := strconv.Itoa(info.Number)
 			if cell == 2 {
@@ -341,7 +348,10 @@ func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, err
 		for _, info := range articles {
 			name := info.Name
 			if info.Other != "" {
+				numberOfEquip++
 				name += "(" + info.Other + ")"
+			} else if strings.Contains(name, "鱼") {
+				numberOfFish += info.Number
 			}
 			valueStr := strconv.Itoa(info.Number)
 			textDy += textH * 2
@@ -349,6 +359,25 @@ func drawArticleInfoBlock(articles []article, fontdata []byte) (image.Image, err
 			canvas.DrawStringAnchored(valueStr, float64(1000-bolckW)/2+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
 		}
 
+	}
+	if err = canvas.ParseFontFace(fontdata, 35); err != nil {
+		return nil, err
+	}
+	textDy = 10
+	text := "钱包余额: " + strconv.Itoa(wallet.GetWalletOf(uid))
+	textW, textH := canvas.MeasureString(text)
+	w, _ := canvas.MeasureString("维修大师[已激活]")
+	if w > textW {
+		textW = w
+	}
+	canvas.DrawStringAnchored(text, 980-textW/2, textDy+textH/2, 0.5, 0.5)
+	textDy += textH * 1.5
+	if numberOfFish > 100 {
+		canvas.DrawStringAnchored("钓鱼佬[已激活]", 980-textW/2, textDy+textH/2, 0.5, 0.5)
+		textDy += textH * 1.5
+	}
+	if numberOfEquip > 10 {
+		canvas.DrawStringAnchored("维修大师[已激活]", 980-textW/2, textDy+textH/2, 0.5, 0.5)
 	}
 	return canvas.Image(), nil
 }

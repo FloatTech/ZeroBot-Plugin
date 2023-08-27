@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/gg"
@@ -22,18 +23,18 @@ import (
 
 var (
 	refresh     = false
-	refreshFish = func(ctx *zero.Ctx) bool {
-		if len(discount) != 0 && refresh {
+	timeNow     = time.Now().Day()
+	refreshFish = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		if refresh && timeNow == time.Now().Day() {
 			return true
 		}
-		ok, err := dbdata.refreshStroeInfo()
+		refresh, err := dbdata.refreshStroeInfo()
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.1]:", err))
-			return false
+			return refresh
 		}
-		refresh = ok
-		return ok
-	}
+		return refresh
+	})
 )
 
 func init() {
@@ -91,7 +92,7 @@ func init() {
 				}
 
 			}
-			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("\n————————————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(msg)
 			// 等待用户下一步选择
 			sell := false
@@ -176,17 +177,19 @@ func init() {
 			return
 		}
 		if strings.Contains(thingName, "竿") {
-			newCommodity := store{
-				Duration: time.Now().Unix(),
-				Name:     thingName,
-				Number:   1,
-				Price:    pice,
-				Other:    thing.Other,
-			}
-			err = dbdata.updateStoreInfo(newCommodity)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR at store.go.7]:", err))
-				return
+			if pice >= thingPice[thingName]*3/4 { // 不值钱的删了
+				newCommodity := store{
+					Duration: time.Now().Unix(),
+					Name:     thingName,
+					Number:   1,
+					Price:    pice,
+					Other:    thing.Other,
+				}
+				err = dbdata.updateStoreInfo(newCommodity)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR at store.go.7]:", err))
+					return
+				}
 			}
 			pice = pice * 8 / 10
 		} else {
@@ -264,7 +267,7 @@ func init() {
 				}
 
 			}
-			msg = append(msg, message.Text("\n————————————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
 			// 等待用户下一步选择
 			sell := false
@@ -468,23 +471,31 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	if err = canvas.ParseFontFace(fontdata, 35); err != nil {
 		return nil, err
 	}
-	textDx, textDh := canvas.MeasureString("下界合金竿(均价1000)->100%")
+	textDx, textDh := canvas.MeasureString("下界合金竿(均价1000)")
+	valueDx, _ := canvas.MeasureString("+100%")
 	i := 0
 	for name, info := range discount {
 		text := name + "(均价" + strconv.Itoa(thingPice[name]) + ") "
-		if info-100 > 0 {
-			text += "+"
-		}
-		text += strconv.Itoa(info-100) + "%"
+
 		if i == 2 {
 			i = 0
 			textDy += textDh * 2
 		}
-		canvas.DrawStringAnchored(text, 10+textDx*float64(i)+10, textDy+textDh/2, 0, 0.5)
+		canvas.SetColor(color.Black)
+		canvas.DrawStringAnchored(text, 20+(textDx+valueDx+10)*float64(i)+10, textDy+textDh/2, 0, 0.5)
+		if info-100 > 0 {
+			canvas.SetRGBA255(200, 50, 50, 255)
+			text = "+" + strconv.Itoa(info-100) + "%"
+		} else {
+			canvas.SetRGBA255(50, 200, 100, 255)
+			text = strconv.Itoa(info-100) + "%"
+		}
+		canvas.DrawStringAnchored(text, 20+(textDx+valueDx+10)*float64(i)+10+textDx+10, textDy+textDh/2, 0, 0.5)
 		i++
 	}
+	canvas.SetColor(color.Black)
 	textDy += textDh * 2
-	canvas.DrawStringAnchored("注:出售商品将会额外扣除20%的税收,附魔鱼竿价格按实际价格", 10, textDy+textDh/2, 0, 0.5)
+	canvas.DrawStringAnchored("注:出售商品将会额外扣除20%的税收,附魔鱼竿请按实际价格", 10, textDy+10+textDh/2, 0, 0.5)
 
 	textDy += textH * 2
 	err = canvas.ParseFontFace(fontdata, 100)

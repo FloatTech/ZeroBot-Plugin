@@ -82,6 +82,7 @@ type fishState struct {
 	ID       int64
 	Duration int64
 	Fish     int
+	Equip    int
 }
 
 type storeDiscount struct {
@@ -99,7 +100,8 @@ var (
 	discount = map[string]int{
 		"鳕鱼": 100, "鲑鱼": 100, "热带鱼": 100, "河豚": 100, "鹦鹉螺": 100, "木竿": 100, "铁竿": 100, "金竿": 100, "钻石竿": 100, "下界合金竿": 100, "诱钓": 100, "海之眷顾": 100,
 	}
-	wasteList    = []string{"唱片", "木棍", "帽子", "鞋子", "瓶子", "拌线钩", "骨头", "皮革", "腐肉", "碗"}
+	fishList     = []string{"鳕鱼", "鲑鱼", "热带鱼"}
+	wasteList    = []string{"海草", "木棍", "帽子", "鞋子", "瓶子", "拌线钩", "骨头", "皮革", "腐肉", "碗"}
 	enchantLevel = []string{"0", "Ⅰ", "Ⅱ", "Ⅲ"}
 	dbdata       = &fishdb{
 		db: &sql.Sqlite{},
@@ -108,14 +110,15 @@ var (
 		DisableOnDefault: false,
 		Brief:            "钓鱼",
 		Help: "一款钓鱼模拟器\n----------指令----------\n" +
-			"- 钓鱼看板\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n" +
+			"- 钓鱼看板/钓鱼商店\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n" +
 			"- 钓鱼背包\n- 装备xx竿\n- 附魔鱼竿[诱钓|海之眷顾]\n- 修复鱼竿\n" +
 			"- 进行钓鱼\n" +
 			"注:\n1.每日的商店价格是波动的!!如何最大化收益自己考虑一下喔\n" +
 			"2.装备信息:\n-> 木竿 : 耐久上限:30 均价:100 上钩概率:7%\n-> 铁竿 : 耐久上限:50 均价:300 上钩概率:2%\n" +
 			"-> 金竿 : 耐久上限:70 均价700 上钩概率:0.6%\n-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.3%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.1%\n" +
 			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间.均价:1000, 上钩概率:0.5%\n-> 海之眷顾 : 增加宝藏上钩概率.均价:2500, 上钩概率:0.5%\n" +
-			"3.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:21%\n-> 鲑鱼 : 均价:50 上钩概率:6%\n-> 热带鱼 : 均价:100 上钩概率:1.8%\n-> 河豚 : 均价:300 上钩概率:0.9%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.3%",
+			"3.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:21%\n-> 鲑鱼 : 均价:50 上钩概率:6%\n-> 热带鱼 : 均价:100 上钩概率:1.8%\n-> 河豚 : 均价:300 上钩概率:0.9%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.3%\n" +
+			"4.成就:\n-> 当背包除河豚和鹦鹉螺外的鱼数量大于100时激活[钓鱼佬],钓到物品概率概率提高至90%\n-> 当背包鱼竿数量大于10时激活[修复大师],修复物品时耐久百分百继承",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -296,7 +299,6 @@ func (sql *fishdb) updateStoreInfo(thingInfo store) (err error) {
 
 // 更新上限信息
 func (sql *fishdb) updateFishInfo(uid int64) (ok bool, err error) {
-	ok = true
 	sql.Lock()
 	defer sql.Unlock()
 	userInfo := fishState{ID: uid}
@@ -310,10 +312,10 @@ func (sql *fishdb) updateFishInfo(uid int64) (ok bool, err error) {
 		userInfo.Duration = time.Now().Unix()
 	}
 	if userInfo.Fish > fishLimit {
-		ok = false
+		return false, nil
 	}
 	userInfo.Fish++
-	return ok, sql.db.Insert("fishState", &userInfo)
+	return true, sql.db.Insert("fishState", &userInfo)
 }
 
 // 更新上限信息
@@ -325,12 +327,13 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		return false, err
 	}
 	lastTime := storeDiscount{}
-	_ = sql.db.Find("stroeDiscount", &lastTime, "where Nme = 'lastTime'")
+	_ = sql.db.Find("stroeDiscount", &lastTime, "where Name = 'lastTime'")
 	refresh := false
-	if time.Now().Day() != lastTime.Discount {
+	if timeNow != lastTime.Discount {
+		timeNow = time.Now().Day()
 		lastTime = storeDiscount{
 			Name:     "lastTime",
-			Discount: time.Now().Day(),
+			Discount: timeNow,
 		}
 		err = sql.db.Insert("stroeDiscount", &lastTime)
 		if err != nil {
@@ -351,23 +354,6 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			if err != nil {
 				return
 			}
-			// 每日上架1鱼竿
-			durable := rand.Intn(30) + 1
-			maintenance := rand.Intn(10)
-			induceLevel := rand.Intn(2)
-			favorLevel := rand.Intn(2)
-			pice := 100 - (30 - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800
-			pole := store{
-				Duration: time.Now().Unix(),
-				Name:     "木竿",
-				Number:   1,
-				Price:    pice,
-				Other:    strconv.Itoa(durable) + "/" + strconv.Itoa(maintenance) + "/" + strconv.Itoa(induceLevel) + "/" + strconv.Itoa(favorLevel),
-			}
-			err = sql.db.Insert("stroeDiscount", &pole)
-			if err != nil {
-				return
-			}
 		default:
 			err = sql.db.Find("stroeDiscount", &thing, "where Name = '"+name+"'")
 			if err != nil {
@@ -380,5 +366,87 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			discount[name] = 100
 		}
 	}
+	if refresh { // 每天调控1种鱼
+		thingInfo := store{}
+		err = sql.db.Create("store", &thingInfo)
+		if err != nil {
+			return
+		}
+		fish := fishList[rand.Intn(len(fishList))]
+		_ = sql.db.Find("store", &thingInfo, "where Name = '"+fish+"'")
+		if thingInfo == (store{}) {
+			thingInfo.Duration = time.Now().Unix()
+			thingInfo.Name = fish
+			thingInfo.Price = thingPice[fish] * discount[fish] / 100
+		}
+		thingInfo.Number -= (discount[fish] - 100)
+		if thingInfo.Number < 0 {
+			thingInfo.Number = 0
+		}
+		_ = sql.db.Insert("store", &thingInfo)
+	}
 	return true, nil
+}
+
+func (sql *fishdb) getNumberFor(uid int64, thing string) (number int, err error) {
+	name := strconv.FormatInt(uid, 10) + "Pack"
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := article{}
+	err = sql.db.Create(name, &userInfo)
+	if err != nil {
+		return
+	}
+	count, err := sql.db.Count(name)
+	if err != nil {
+		return
+	}
+	if count == 0 {
+		return
+	}
+	if !sql.db.CanFind(name, "where Name glob '*"+thing+"*'") {
+		return
+	}
+	err = sql.db.FindFor(name, &article{}, "where Name glob '*"+thing+"*'", func() error {
+		number++
+		return nil
+	})
+	return
+}
+
+func (sql *fishdb) checkEquipFor(uid int64) (ok bool, err error) {
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := fishState{ID: uid}
+	err = sql.db.Create("fishState", &userInfo)
+	if err != nil {
+		return false, err
+	}
+	if !sql.db.CanFind("fishState", "where ID = "+strconv.FormatInt(uid, 10)) {
+		return true, nil
+	}
+	err = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	if err != nil {
+		return false, err
+	}
+	if userInfo.Equip > 3 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (sql *fishdb) setEquipFor(uid int64) (err error) {
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := fishState{ID: uid}
+	err = sql.db.Create("fishState", &userInfo)
+	if err != nil {
+		return err
+	}
+	_ = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	if err != nil {
+		return err
+	}
+	userInfo.Equip++
+	return sql.db.Insert("fishState", &userInfo)
 }

@@ -31,7 +31,16 @@ func init() {
 			return
 		}
 		if equipInfo == (equip{}) {
-			ctx.SendChain(message.Text("你尚未装备鱼竿,是否花费100购买鱼竿?\n回答\"是\"或\"否\""))
+			ok, err := dbdata.checkEquipFor(uid)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.2.1]:", err))
+				return
+			}
+			if !ok {
+				ctx.SendChain(message.At(uid), message.Text("请装备鱼竿后钓鱼", err))
+				return
+			}
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你尚未装备鱼竿,是否花费100购买鱼竿?\n回答\"是\"或\"否\""))
 			// 等待用户下一步选择
 			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 			defer cancel()
@@ -67,6 +76,11 @@ func init() {
 						ctx.SendChain(message.Text("[ERROR at fish.go.4]:", err))
 						return
 					}
+					err = dbdata.setEquipFor(uid)
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR at fish.go.4]:", err))
+						return
+					}
 					buy = true
 				}
 				if buy {
@@ -90,169 +104,180 @@ func init() {
 		for {
 			<-timer.C
 			timer.Stop()
-			// 概率
-			wasteProbability := 41 + equipInfo.Favor*10
-			poleProbability := 11 + equipInfo.Favor*3
-			bookProbability := 1 + equipInfo.Favor*1
-			// 钓到鱼的范围
-			getFishMaxDy := 9
-			getFishMinDy := 2
-			getFishMaxDx := 9
-			getFishMinDx := 1
+			break
+		}
+		// 概率
+		wasteProbability := 41 + equipInfo.Favor*10
+		poleProbability := 11 + equipInfo.Favor*3
+		bookProbability := 1 + equipInfo.Favor*1
+		// 钓到鱼的范围
+		number, err := dbdata.getNumberFor(uid, "鱼")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
+			return
+		}
+		getFishMaxDy := 9
+		getFishMinDy := 2
+		getFishMaxDx := 9
+		getFishMinDx := 1
+		if number > 100 {
+			getFishMaxDy = 10
+			getFishMaxDx = 10
+			getFishMinDx = 0
+		}
 
-			fishDx := rand.Intn(11)
-			fishDy := rand.Intn(11)
-			for i := 0; i < 10; i++ {
-				switch rand.Intn(4) {
-				case 0:
-					fishDx--
-					if fishDx < 0 {
-						fishDx = 10
-					}
-				case 1:
-					fishDx++
-					if fishDx > 10 {
-						fishDx = 0
-					}
-				case 2:
-					fishDy--
-					if fishDy < 0 {
-						fishDy = 10
-					}
-				default:
-					fishDy++
-					if fishDy > 10 {
-						fishDx = 0
-					}
+		fishDx := rand.Intn(11)
+		fishDy := rand.Intn(11)
+		for i := 0; i < 10; i++ {
+			switch rand.Intn(4) {
+			case 0:
+				fishDx--
+				if fishDx < 0 {
+					fishDx = 10
+				}
+			case 1:
+				fishDx++
+				if fishDx > 10 {
+					fishDx = 0
+				}
+			case 2:
+				fishDy--
+				if fishDy < 0 {
+					fishDy = 10
+				}
+			default:
+				fishDy++
+				if fishDy > 10 {
+					fishDx = 0
 				}
 			}
-			if fishDx < getFishMinDx || fishDx > getFishMaxDx || fishDy < getFishMinDy || fishDy > getFishMaxDy {
-				ctx.SendChain(message.At(uid), message.Text("很遗憾你没有钓到鱼", msg))
+		}
+		if fishDx < getFishMinDx || fishDx > getFishMaxDx || fishDy < getFishMinDy || fishDy > getFishMaxDy {
+			ctx.SendChain(message.At(uid), message.Text("很遗憾你没有钓到鱼", msg))
+			return
+		}
+		dice := rand.Intn(100)
+		switch {
+		case dice <= bookProbability:
+			bookName := "诱钓"
+			if rand.Intn(2) == 1 {
+				bookName = "海之眷顾"
+			}
+			books, err := dbdata.getUserThingInfo(uid, bookName)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.6]:", err))
 				return
 			}
+			if len(books) == 0 {
+				books = append(books, article{
+					Duration: time.Now().Unix(),
+					Name:     bookName,
+				})
+			}
+			books[0].Number++
+			err = dbdata.updateUserThingInfo(uid, books[0])
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.7]:", err))
+				return
+			}
+			pic, err := engine.GetLazyData("book.png", false)
+			if err != nil {
+				logrus.Warnln("[mcfish]error:", err)
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name, msg))
+				return
+			}
+			ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name, msg), message.ImageBytes(pic))
+			return
+		case dice > bookProbability && dice <= poleProbability:
+			var poleName string
 			dice := rand.Intn(100)
 			switch {
-			case dice <= bookProbability:
-				bookName := "诱钓"
-				if rand.Intn(2) == 1 {
-					bookName = "海之眷顾"
-				}
-				books, err := dbdata.getUserThingInfo(uid, bookName)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at fish.go.6]:", err))
-					return
-				}
-				if len(books) == 0 {
-					books = append(books, article{
-						Duration: time.Now().Unix(),
-						Name:     bookName,
-					})
-				}
-				books[0].Number++
-				err = dbdata.updateUserThingInfo(uid, books[0])
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at fish.go.7]:", err))
-					return
-				}
-				pic, err := engine.GetLazyData("book.png", false)
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name, msg))
-					return
-				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", books[0].Name, msg), message.ImageBytes(pic))
-				return
-			case dice > bookProbability && dice <= poleProbability:
-				var poleName string
-				dice := rand.Intn(100)
-				switch {
-				case dice >= 30:
-					poleName = "木竿"
-				case dice >= 10 && dice < 30:
-					poleName = "铁竿"
-				case dice >= 4 && dice < 10:
-					poleName = "金竿"
-				case dice >= 1 && dice < 4:
-					poleName = "钻石竿"
-				default:
-					poleName = "下界合金竿竿竿"
-				}
-				newPole := article{
-					Duration: time.Now().Unix(),
-					Name:     poleName,
-					Number:   1,
-					Other:    strconv.Itoa(rand.Intn(equipAttribute[poleName])+1) + "/" + strconv.Itoa(rand.Intn(10)) + "/" + strconv.Itoa(rand.Intn(2)) + "/" + strconv.Itoa(rand.Intn(2)),
-				}
-				err = dbdata.updateUserThingInfo(uid, newPole)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at fish.go.8]:", err))
-					return
-				}
-				pic, err := engine.GetLazyData(poleName+".png", false)
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName, msg))
-					return
-				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName, msg), message.ImageBytes(pic))
-				return
-			case dice >= wasteProbability:
-				waste := wasteList[rand.Intn(len(wasteList))]
-				money := 10
-				err := wallet.InsertWalletOf(uid, money)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at fish.go.9]:", err))
-					return
-				}
-				pic, err := engine.GetLazyData(waste+".png", false)
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", waste, msg))
-					return
-				}
-				ctx.SendChain(message.At(uid), message.Text("你钓到了", waste, "\n为河流净化做出了贡献,给了你", money, "奖励金", msg), message.ImageBytes(pic))
-				return
+			case dice >= 30:
+				poleName = "木竿"
+			case dice >= 10 && dice < 30:
+				poleName = "铁竿"
+			case dice >= 4 && dice < 10:
+				poleName = "金竿"
+			case dice >= 1 && dice < 4:
+				poleName = "钻石竿"
 			default:
-				var fishName string
-				dice = rand.Intn(100)
-				switch {
-				case dice >= 30:
-					fishName = "鳕鱼"
-				case dice >= 10 && dice < 30:
-					fishName = "鲑鱼"
-				case dice >= 4 && dice < 10:
-					fishName = "热带鱼"
-				case dice >= 1 && dice < 4:
-					fishName = "河豚"
-				default:
-					fishName = "鹦鹉螺"
-				}
-				fishes, err := dbdata.getUserThingInfo(uid, fishName)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at fish.go.10]:", err))
-					return
-				}
-				if len(fishes) == 0 {
-					fishes = append(fishes, article{
-						Duration: time.Now().Unix(),
-						Name:     fishName,
-					})
-				}
-				fishes[0].Number++
-				err = dbdata.updateUserThingInfo(uid, fishes[0])
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at fish.go.11]:", err))
-					return
-				}
-				pic, err := engine.GetLazyData(fishName+".png", false)
-				if err != nil {
-					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName, msg))
-					return
-				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName, msg), message.ImageBytes(pic))
+				poleName = "下界合金竿竿竿"
+			}
+			newPole := article{
+				Duration: time.Now().Unix(),
+				Name:     poleName,
+				Number:   1,
+				Other:    strconv.Itoa(rand.Intn(equipAttribute[poleName])+1) + "/" + strconv.Itoa(rand.Intn(10)) + "/" + strconv.Itoa(rand.Intn(3)) + "/" + strconv.Itoa(rand.Intn(2)),
+			}
+			err = dbdata.updateUserThingInfo(uid, newPole)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.8]:", err))
 				return
 			}
+			pic, err := engine.GetLazyData(poleName+".png", false)
+			if err != nil {
+				logrus.Warnln("[mcfish]error:", err)
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName, msg))
+				return
+			}
+			ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", poleName, msg), message.ImageBytes(pic))
+			return
+		case dice >= wasteProbability:
+			waste := wasteList[rand.Intn(len(wasteList))]
+			money := 10
+			err := wallet.InsertWalletOf(uid, money)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.9]:", err))
+				return
+			}
+			pic, err := engine.GetLazyData(waste+".png", false)
+			if err != nil {
+				logrus.Warnln("[mcfish]error:", err)
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", waste, msg))
+				return
+			}
+			ctx.SendChain(message.At(uid), message.Text("你钓到了", waste, "\n为河流净化做出了贡献,给了你", money, "奖励金", msg), message.ImageBytes(pic))
+			return
+		default:
+			var fishName string
+			dice = rand.Intn(100)
+			switch {
+			case dice >= 30:
+				fishName = "鳕鱼"
+			case dice >= 10 && dice < 30:
+				fishName = "鲑鱼"
+			case dice >= 4 && dice < 10:
+				fishName = "热带鱼"
+			case dice >= 1 && dice < 4:
+				fishName = "河豚"
+			default:
+				fishName = "鹦鹉螺"
+			}
+			fishes, err := dbdata.getUserThingInfo(uid, fishName)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.10]:", err))
+				return
+			}
+			if len(fishes) == 0 {
+				fishes = append(fishes, article{
+					Duration: time.Now().Unix(),
+					Name:     fishName,
+				})
+			}
+			fishes[0].Number++
+			err = dbdata.updateUserThingInfo(uid, fishes[0])
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.11]:", err))
+				return
+			}
+			pic, err := engine.GetLazyData(fishName+".png", false)
+			if err != nil {
+				logrus.Warnln("[mcfish]error:", err)
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName, msg))
+				return
+			}
+			ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", fishName, msg), message.ImageBytes(pic))
+			return
 		}
 	})
 }
