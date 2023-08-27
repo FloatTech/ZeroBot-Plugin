@@ -57,7 +57,7 @@ func init() {
 			}
 			text := ctx.State["regex_matched"].([]string)[2]
 			name := ctx.State["regex_matched"].([]string)[1]
-			rec := fmt.Sprintf(genshin.CNAPI, name, url.QueryEscape(text), url.QueryEscape(原.k))
+			rec := fmt.Sprintf(genshin.CNAPI, url.QueryEscape(name), url.QueryEscape(text), url.QueryEscape(原.k))
 			b := md5.Sum(binary.StringToBytes(rec))
 			fn := hex.EncodeToString(b[:])
 			fp := "data/tts/" + fn

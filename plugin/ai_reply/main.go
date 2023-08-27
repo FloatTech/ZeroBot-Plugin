@@ -2,17 +2,12 @@
 package aireply
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/tts/genshin"
-	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -109,17 +104,6 @@ func init() { // 插件主体
 			if err != nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 				return
-			}
-			if strings.HasPrefix(rec, "http") {
-				b := md5.Sum(binary.StringToBytes(rec))
-				fn := hex.EncodeToString(b[:])
-				fp := ttscachedir + fn
-				if file.IsNotExist(fp) {
-					if file.DownloadTo(rec, fp) != nil {
-						return
-					}
-				}
-				rec = "file:///" + file.BOTPATH + "/" + fp
 			}
 			// 发送语音
 			if id := ctx.SendChain(message.Record(rec)); id.ID() == 0 {
