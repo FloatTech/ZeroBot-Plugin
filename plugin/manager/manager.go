@@ -95,13 +95,11 @@ func init() { // 插件主体
 	// 升为管理
 	engine.OnRegex(`^升为管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupAdmin(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupAdmin(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被升为管理的人的qq
 				true,
 			)
-			nickname := ctx.GetGroupMemberInfo( // 被升为管理的人的昵称
-				ctx.Event.GroupID,
+			nickname := ctx.GetThisGroupMemberInfo( // 被升为管理的人的昵称
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被升为管理的人的qq
 				false,
 			).Get("nickname").Str
@@ -110,13 +108,11 @@ func init() { // 插件主体
 	// 取消管理
 	engine.OnRegex(`^取消管理.*?(\d+)`, zero.OnlyGroup, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupAdmin(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupAdmin(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被取消管理的人的qq
 				false,
 			)
-			nickname := ctx.GetGroupMemberInfo( // 被取消管理的人的昵称
-				ctx.Event.GroupID,
+			nickname := ctx.GetThisGroupMemberInfo( // 被取消管理的人的昵称
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被取消管理的人的qq
 				false,
 			).Get("nickname").Str
@@ -125,13 +121,11 @@ func init() { // 插件主体
 	// 踢出群聊
 	engine.OnRegex(`^踢出群聊.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupKick(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupKick(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
 			)
-			nickname := ctx.GetGroupMemberInfo( // 被踢出群聊的人的昵称
-				ctx.Event.GroupID,
+			nickname := ctx.GetThisGroupMemberInfo( // 被踢出群聊的人的昵称
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
 			).Get("nickname").Str
@@ -148,19 +142,13 @@ func init() { // 插件主体
 	// 开启全体禁言
 	engine.OnRegex(`^开启全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupWholeBan(
-				ctx.Event.GroupID,
-				true,
-			)
+			ctx.SetThisGroupWholeBan(true)
 			ctx.SendChain(message.Text("全员自闭开始~"))
 		})
 	// 解除全员禁言
 	engine.OnRegex(`^解除全员禁言$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupWholeBan(
-				ctx.Event.GroupID,
-				false,
-			)
+			ctx.SetThisGroupWholeBan(false)
 			ctx.SendChain(message.Text("全员自闭结束~"))
 		})
 	// 禁言
@@ -180,8 +168,7 @@ func init() { // 插件主体
 			if duration >= 43200 {
 				duration = 43199 // qq禁言最大时长为一个月
 			}
-			ctx.SetGroupBan(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupBan(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 要禁言的人的qq
 				duration*60, // 要禁言的时间（分钟）
 			)
@@ -190,8 +177,7 @@ func init() { // 插件主体
 	// 解除禁言
 	engine.OnRegex(`^解除禁言.*?(\d+)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			ctx.SetGroupBan(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupBan(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 要解除禁言的人的qq
 				0,
 			)
@@ -222,8 +208,7 @@ func init() { // 插件主体
 			if duration >= 2592000 {
 				duration = 2591999 // qq禁言最大时长为一个月
 			}
-			ctx.SetGroupBan(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupBan(
 				ctx.Event.UserID,
 				int64(duration), // 要自闭的时间（分钟）
 			)
@@ -236,8 +221,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("名字太长啦！"))
 				return
 			}
-			ctx.SetGroupCard(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupCard(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被修改群名片的人
 				ctx.State["regex_matched"].([]string)[2],                 // 修改成的群名片
 			)
@@ -254,8 +238,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("头衔太长啦！"))
 				return
 			}
-			ctx.SetGroupSpecialTitle(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupSpecialTitle(
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被修改群头衔的人
 				sptitle, // 修改成的群头衔
 			)
@@ -272,8 +255,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("头衔太长啦！"))
 				return
 			}
-			ctx.SetGroupSpecialTitle(
-				ctx.Event.GroupID,
+			ctx.SetThisGroupSpecialTitle(
 				ctx.Event.UserID, // 被修改群头衔的人
 				sptitle,          // 修改成的群头衔
 			)
@@ -453,7 +435,7 @@ func init() { // 插件主体
 						case <-time.After(time.Minute):
 							cancel()
 							ctx.SendChain(message.Text("拜拜啦~"))
-							ctx.SetGroupKick(ctx.Event.GroupID, uid, false)
+							ctx.SetThisGroupKick(uid, false)
 						case <-recv:
 							cancel()
 							ctx.SendChain(message.Text("答对啦~"))
@@ -598,7 +580,7 @@ func init() { // 插件主体
 			if ok {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", true, "")
 				process.SleepAbout1sTo2s()
-				ctx.SetGroupCard(ctx.Event.GroupID, ctx.Event.UserID, ghun)
+				ctx.SetThisGroupCard(ctx.Event.UserID, ghun)
 			} else {
 				ctx.SetGroupAddRequest(ctx.Event.Flag, "add", false, reason)
 			}
@@ -622,7 +604,7 @@ func init() { // 插件主体
 		}
 	})
 	engine.OnCommand("精华列表", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		list := ctx.GetGroupEssenceMessageList(ctx.Event.GroupID).Array()
+		list := ctx.GetThisGroupEssenceMessageList().Array()
 		msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("本群精华列表："))}
 		n := len(list)
 		if n > 30 {
@@ -679,7 +661,7 @@ func welcometocq(ctx *zero.Ctx, welcome string) string {
 	at := "[CQ:at,qq=" + uid + "]"                                                          // at用户
 	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640,cache=0]" // 用户头像
 	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                         // 群id
-	groupname := ctx.GetGroupInfo(ctx.Event.GroupID, true).Name                             // 群名
+	groupname := ctx.GetThisGroupInfo(true).Name                                            // 群名
 	cqstring := strings.ReplaceAll(welcome, "{at}", at)
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)

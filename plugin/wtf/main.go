@@ -44,7 +44,7 @@ func init() {
 			var secondname string
 			if len(ctx.Event.Message) > 1 && ctx.Event.Message[1].Type == "at" {
 				qq, _ := strconv.ParseInt(ctx.Event.Message[1].Data["qq"], 10, 64)
-				secondname = ctx.GetGroupMemberInfo(ctx.Event.GroupID, qq, false).Get("nickname").Str
+				secondname = ctx.GetThisGroupMemberInfo(qq, false).Get("nickname").Str
 			}
 			name = ctx.Event.Sender.NickName
 			var text string
