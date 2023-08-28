@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	engine.OnFullMatch("进行钓鱼", getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnFullMatchGroup([]string{"进行钓鱼", "🎣"}, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		ok, err := dbdata.updateFishInfo(uid)
 		if err != nil {
