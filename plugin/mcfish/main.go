@@ -38,8 +38,9 @@ type userInfo struct {
 	Globe    int // 河豚 3%
 	Nautilus int // 鹦鹉螺 1%
 	// 宝藏 1%
-	Induce int // 诱钓 50%
-	Favor  int // 眷顾 50%
+	Induce int // 诱钓 60%
+	Favor  int // 眷顾 39%
+	Record  int // 唱片 1%
 	// 垃圾 59%
 	Leaf    int // 荷叶 10%
 	Rod     int // 木棍 10%
@@ -68,6 +69,7 @@ type article struct {
 	Name     string
 	Number   int
 	Other    string // 耐久/维修次数/诱钓/眷顾
+	Type     string
 }
 
 type store struct {
@@ -76,6 +78,7 @@ type store struct {
 	Number   int
 	Price    int
 	Other    string // 耐久/维修次数/诱钓/眷顾
+	Type     string
 }
 
 type fishState struct {
@@ -95,10 +98,10 @@ var (
 		"木竿": 30, "铁竿": 50, "金竿": 70, "钻石竿": 100, "下界合金竿": 150,
 	}
 	thingPice = map[string]int{
-		"鳕鱼": 10, "鲑鱼": 50, "热带鱼": 100, "河豚": 300, "鹦鹉螺": 500, "木竿": 100, "铁竿": 300, "金竿": 700, "钻石竿": 1500, "下界合金竿": 3100, "诱钓": 1000, "海之眷顾": 2500,
+		"鳕鱼": 10, "鲑鱼": 50, "热带鱼": 100, "河豚": 300, "鹦鹉螺": 500, "木竿": 100, "铁竿": 300, "金竿": 700, "钻石竿": 1500, "下界合金竿": 3100, "诱钓": 1000, "海之眷顾": 2500, "唱片": 3000,
 	}
 	discount = map[string]int{
-		"鳕鱼": 100, "鲑鱼": 100, "热带鱼": 100, "河豚": 100, "鹦鹉螺": 100, "木竿": 100, "铁竿": 100, "金竿": 100, "钻石竿": 100, "下界合金竿": 100, "诱钓": 100, "海之眷顾": 100,
+		"鳕鱼": 100, "鲑鱼": 100, "热带鱼": 100, "河豚": 100, "鹦鹉螺": 100, "木竿": 100, "铁竿": 100, "金竿": 100, "钻石竿": 100, "下界合金竿": 100, "诱钓": 100, "海之眷顾": 100, "唱片": 100,
 	}
 	fishList     = []string{"鳕鱼", "鲑鱼", "热带鱼"}
 	wasteList    = []string{"海草", "木棍", "帽子", "鞋子", "瓶子", "拌线钩", "骨头", "皮革", "腐肉", "碗"}
@@ -116,9 +119,10 @@ var (
 			"注:\n1.每日的商店价格是波动的!!如何最大化收益自己考虑一下喔\n" +
 			"2.装备信息:\n-> 木竿 : 耐久上限:30 均价:100 上钩概率:7%\n-> 铁竿 : 耐久上限:50 均价:300 上钩概率:2%\n" +
 			"-> 金竿 : 耐久上限:70 均价700 上钩概率:0.6%\n-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.3%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.1%\n" +
-			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间.均价:1000, 上钩概率:0.5%\n-> 海之眷顾 : 增加宝藏上钩概率.均价:2500, 上钩概率:0.5%\n" +
+			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间.均价:1000, 上钩概率:0.6%\n-> 海之眷顾 : 增加宝藏上钩概率.均价:2500, 上钩概率:0.39%\n" +
 			"3.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:21%\n-> 鲑鱼 : 均价:50 上钩概率:6%\n-> 热带鱼 : 均价:100 上钩概率:1.8%\n-> 河豚 : 均价:300 上钩概率:0.9%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.3%\n" +
-			"4.成就:\n-> 当背包除河豚和鹦鹉螺外的鱼数量大于100时激活[钓鱼佬],钓到物品概率概率提高至90%\n-> 当背包鱼竿数量大于10时激活[修复大师],修复物品时耐久百分百继承",
+			"4.成就:\n-> 当背包除河豚和鹦鹉螺外的鱼数量大于100时激活[钓鱼佬],钓到物品概率概率提高至90%\n-> 当背包鱼竿数量大于10时激活[修复大师],修复物品时耐久百分百继承\n" +
+			"5.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 唱片 : 出售物品时使用将会使价格翻倍 上钩概率:0.01%\n-> 默认状态钓鱼上钩概率为56%\n-> 附魔的鱼竿会因附魔变得昂贵",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -185,7 +189,7 @@ func (sql *fishdb) getUserPack(uid int64) (thingInfos []article, err error) {
 	if count == 0 {
 		return
 	}
-	err = sql.db.FindFor(strconv.FormatInt(uid, 10)+"Pack", &userInfo, "group by Duration", func() error {
+	err = sql.db.FindFor(strconv.FormatInt(uid, 10)+"Pack", &userInfo, "ORDER by Type, Name ASC", func() error {
 		thingInfos = append(thingInfos, userInfo)
 		return nil
 	})
@@ -250,7 +254,7 @@ func (sql *fishdb) getStoreInfo() (thingInfos []store, err error) {
 	if count == 0 {
 		return
 	}
-	err = sql.db.FindFor("store", &thingInfo, "group by Duration", func() error {
+	err = sql.db.FindFor("store", &thingInfo, "ORDER by Type, Name ASC", func() error {
 		thingInfos = append(thingInfos, thingInfo)
 		return nil
 	})
@@ -329,8 +333,8 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 	lastTime := storeDiscount{}
 	_ = sql.db.Find("stroeDiscount", &lastTime, "where Name = 'lastTime'")
 	refresh := false
+	timeNow := time.Now().Day()
 	if timeNow != lastTime.Discount {
-		timeNow = time.Now().Day()
 		lastTime = storeDiscount{
 			Name:     "lastTime",
 			Discount: timeNow,
@@ -376,12 +380,13 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		_ = sql.db.Find("store", &thingInfo, "where Name = '"+fish+"'")
 		if thingInfo == (store{}) {
 			thingInfo.Duration = time.Now().Unix()
+			thingInfo.Type = "fish"
 			thingInfo.Name = fish
 			thingInfo.Price = thingPice[fish] * discount[fish] / 100
 		}
 		thingInfo.Number -= (discount[fish] - 100)
-		if thingInfo.Number < 0 {
-			thingInfo.Number = 0
+		if thingInfo.Number < 1 {
+			thingInfo.Number = 1
 		}
 		_ = sql.db.Insert("store", &thingInfo)
 	}

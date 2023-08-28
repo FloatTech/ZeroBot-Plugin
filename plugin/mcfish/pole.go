@@ -102,6 +102,7 @@ func init() {
 		if err == nil && equipInfo != (equip{}) {
 			oldthing := article{
 				Duration: time.Now().Unix(),
+				Type:     "pole",
 				Name:     equipInfo.Equip,
 				Number:   1,
 				Other:    strconv.Itoa(equipInfo.Durable) + "/" + strconv.Itoa(equipInfo.Maintenance) + "/" + strconv.Itoa(equipInfo.Induce) + "/" + strconv.Itoa(equipInfo.Favor),
