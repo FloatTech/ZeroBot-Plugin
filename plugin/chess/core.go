@@ -305,7 +305,7 @@ func Ranking() message.Message {
 	ranking, err := getRankingString()
 	if err != nil {
 		log.Errorln("[chess]", "Fail to get player ranking.", err)
-		return simpleText("服务器错误，无法获取排行榜信息。请联系开发者修 bug。\n反馈地址 https://github.com/aimerneige/yukichan-bot/issues\n")
+		return simpleText("服务器错误，无法获取排行榜信息。请联系开发者修 bug。")
 	}
 	return simpleText(ranking)
 }
@@ -319,7 +319,7 @@ func Rate(senderUin int64, senderName string) message.Message {
 	}
 	if err != nil {
 		log.Errorln("[chess]", "Fail to get player rank.", err)
-		return simpleText("服务器错误，无法获取等级分信息。请联系开发者修 bug。\n反馈地址 https://github.com/aimerneige/yukichan-bot/issues\n")
+		return simpleText("服务器错误，无法获取等级分信息。请联系开发者修 bug。")
 	}
 	return simpleText(fmt.Sprintf("玩家「%s」目前的等级分：%d", senderName, rate))
 }
@@ -333,7 +333,7 @@ func CleanUserRate(senderUin int64) message.Message {
 	}
 	if err != nil {
 		log.Errorln("[chess]", "Fail to clean player rank.", err)
-		return simpleText("服务器错误，无法清空等级分。请联系开发者修 bug。\n反馈地址 https://github.com/aimerneige/yukichan-bot/issues\n")
+		return simpleText("服务器错误，无法清空等级分。请联系开发者修 bug。")
 	}
 	return simpleText(fmt.Sprintf("已清空用户「%d」的等级分。", senderUin))
 }
@@ -527,7 +527,7 @@ func textWithAt(target int64, msg string) message.Message {
 }
 
 func errorText(errMsg string) message.Message {
-	return simpleText("发生错误，请联系开发者修 bug。\n反馈地址 https://github.com/aimerneige/yukichan-bot/issues\n错误信息：" + errMsg)
+	return simpleText("发生错误，请联系开发者修 bug。\n错误信息：" + errMsg)
 }
 
 // updateELORate 更新 elo 等级分
@@ -561,11 +561,7 @@ func updateELORate(whiteUin, blackUin int64, whiteName, blackName string, whiteS
 		return err
 	}
 	// 更新黑棋玩家的 ELO 等级分
-	if err := dbService.UpdateELOByUin(blackUin, blackName, blackRate); err != nil {
-		return err
-	}
-
-	return nil
+	return dbService.UpdateELOByUin(blackUin, blackName, blackRate)
 }
 
 // cleanTempFiles 清理临时文件
@@ -575,11 +571,7 @@ func cleanTempFiles(groupCode int64) error {
 		return err
 	}
 	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
-	if err := os.Remove(pngFilePath); err != nil {
-		return err
-	}
-
-	return nil
+	return os.Remove(pngFilePath)
 }
 
 // generateBoardSVG 生成棋盘 SVG 图片
@@ -599,23 +591,18 @@ func generateBoardSVG(svgFilePath, fenStr string, gameTurn chess.Color, sqs ...c
 	mark := image.MarkSquares(yellow, sqs...)
 	board := pos.Board()
 	fromBlack := image.Perspective(gameTurn)
-	if err := image.SVG(f, board, fromBlack, mark); err != nil {
-		return err
-	}
-
-	return nil
+	return image.SVG(f, board, fromBlack, mark)
 }
 
 // getChessString 获取 PGN 字符串
 func getChessString(room chessRoom) string {
 	game := room.chessGame
-	siteString := "[Site \"github.com/aimerneige/yukichan-bot\"]\n"
 	dataString := fmt.Sprintf("[Date \"%s\"]\n", time.Now().Format("2006-01-02"))
 	whiteString := fmt.Sprintf("[White \"%s\"]\n", room.whiteName)
 	blackString := fmt.Sprintf("[Black \"%s\"]\n", room.blackName)
 	chessString := game.String()
 
-	return siteString + dataString + whiteString + blackString + chessString
+	return dataString + whiteString + blackString + chessString
 }
 
 // getELORate 获取玩家的 ELO 等级分
