@@ -262,6 +262,12 @@ func Play(senderUin int64, groupCode int64, moveStr string) message.Message {
 				}
 				msg += winner
 				msg += "胜利，因为将杀。\n"
+			case chess.NoMethod:
+			case chess.Resignation:
+			case chess.DrawOffer:
+			case chess.ThreefoldRepetition:
+			case chess.FiftyMoveRule:
+			default:
 			}
 			chessString := getChessString(room)
 			eloString := ""
