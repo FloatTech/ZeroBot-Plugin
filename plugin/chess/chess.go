@@ -2,8 +2,6 @@
 package chess
 
 import (
-	_ "embed"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"path"
@@ -14,16 +12,19 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/chess/service"
 )
 
-//go:embed assets/cheese.jpeg
-var cheeseData []byte
-
-//go:embed assets/help.txt
-var helpString string
+const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
+- 参与/创建一盘盲棋：「盲棋」(blind)
+- 投降认输：「认输」 (resign)
+- 请求、接受和棋：「和棋」 (draw)
+- 走棋：!Nxf3 中英文感叹号均可，格式请参考“代数记谱法”(Algebraic notation)
+- 中断对局：「中断」 (abort)（仅群主/管理员有效）
+- 查看等级分排行榜：「排行榜」(ranking)
+- 查看自己的等级分：「等级分」(rate)
+- 清空等级分：「清空等级分 QQ号」(.clean.rate) （仅超管有效）`
 
 var (
 	tempFileDir string
@@ -132,13 +133,5 @@ func init() {
 			} else {
 				ctx.Send(fmt.Sprintf("解析失败「%s」不是正确的 QQ 号。", args))
 			}
-		})
-	engine.OnFullMatch("cheese").
-		SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(
-				message.Text("Chess Cheese Cheese Chess"),
-				message.Image("base64://"+base64.StdEncoding.EncodeToString(cheeseData)),
-			)
 		})
 }
