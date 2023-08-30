@@ -197,7 +197,7 @@ func drawEquipInfoBlock(equipInfo equip, fontdata []byte) (image.Image, error) {
 	}
 	textW, textH = canvas.MeasureString("维修次数")
 	durable := strconv.Itoa(equipInfo.Durable)
-	valueW, _ := canvas.MeasureString(durable)
+	valueW, _ := canvas.MeasureString("100")
 	barW := 1000 - textDx - textW - 10 - valueW - 10
 
 	canvas.DrawStringAnchored("装备耐久", textDx+textW/2, textDy+textH/2, 0.5, 0.5)
@@ -267,7 +267,7 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 		return nil, err
 	}
 	titleW, titleH := canvas.MeasureString("背包信息")
-	err = canvas.ParseFontFace(fontdata, 40)
+	err = canvas.ParseFontFace(fontdata, 35)
 	if err != nil {
 		return nil, err
 	}
@@ -311,7 +311,7 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 	canvas.Stroke()
 
 	textDy := 10 + titleH*1.7
-	if err = canvas.ParseFontFace(fontdata, 40); err != nil {
+	if err = canvas.ParseFontFace(fontdata, 35); err != nil {
 		return nil, err
 	}
 	canvas.SetColor(color.Black)

@@ -88,18 +88,36 @@ func init() {
 				}
 			}
 		}
+		msg := ""
+		if equipInfo.Equip != "美西螈" {
+			equipInfo.Durable--
+			err = dbdata.updateUserEquip(equipInfo)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.5]:", err))
+				return
+			}
+			if equipInfo.Durable < 10 {
+				msg = "\n(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
+			}
+		} else {
+			fishNmae, err := dbdata.pickFishFor(uid)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
+				return
+			}
+			if fishNmae == "" {
+				equipInfo.Durable = 0
+				err = dbdata.updateUserEquip(equipInfo)
+				if err != nil {
+					ctx.SendChain(message.Text("[ERROR at fish.go.5]:", err))
+				}
+				ctx.SendChain(message.Text("美西螈因为没吃到鱼,钓鱼时一直没回来,你失去了美西螈"))
+				return
+			}
+			msg = "\n(美西螈吃掉了一条" + fishNmae + ")"
+		}
 		waitTime := 120 / (equipInfo.Induce + 1)
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你开始去钓鱼了,请耐心等待鱼上钩(预计要", time.Second*time.Duration(waitTime), ")"))
-		equipInfo.Durable--
-		err = dbdata.updateUserEquip(equipInfo)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at fish.go.5]:", err))
-			return
-		}
-		msg := ""
-		if equipInfo.Durable < 10 {
-			msg = "\n(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
-		}
 		timer := time.NewTimer(time.Second * time.Duration(rand.Intn(waitTime)+1))
 		for {
 			<-timer.C
@@ -120,7 +138,7 @@ func init() {
 		getFishMinDy := 2
 		getFishMaxDx := 9
 		getFishMinDx := 1
-		if number > 100 {
+		if number > 100 || equipInfo.Equip == "美西螈" {
 			getFishMaxDy = 10
 			getFishMaxDx = 10
 			getFishMinDx = 0
@@ -164,9 +182,12 @@ func init() {
 			picName := "book"
 			switch {
 			case dice == 0:
+				picName = "美西螈"
+				fishName = "美西螈"
+			case dice == 1:
 				picName = "唱片"
 				fishName = "唱片"
-			case dice < 40 && dice != 0:
+			case dice < 41 && dice > 1:
 				fishName = "海之眷顾"
 			default:
 				fishName = "诱钓"
@@ -183,7 +204,14 @@ func init() {
 					Name:     fishName,
 				})
 			}
+			if fishName == "美西螈" {
+				books[0].Type = "pole"
+				books[0].Other = "999/0/0/0"
+			}
 			books[0].Number++
+			if equipInfo.Equip == "美西螈" && fishName != "美西螈" {
+				books[0].Number += 2
+			}
 			err = dbdata.updateUserThingInfo(uid, books[0])
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR at fish.go.7]:", err))
@@ -234,6 +262,9 @@ func init() {
 		case dice >= wasteProbability:
 			waste := wasteList[rand.Intn(len(wasteList))]
 			money := 10
+			if equipInfo.Equip == "美西螈" {
+				money *= 3
+			}
 			err := wallet.InsertWalletOf(uid, money)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR at fish.go.9]:", err))
@@ -250,7 +281,9 @@ func init() {
 		default:
 			dice = rand.Intn(100)
 			switch {
-			case dice >= 30:
+			case dice == 99:
+				fishName = "墨鱼"
+			case dice >= 30 && dice != 99:
 				fishName = "鳕鱼"
 			case dice >= 10 && dice < 30:
 				fishName = "鲑鱼"
@@ -274,6 +307,9 @@ func init() {
 				})
 			}
 			fishes[0].Number++
+			if equipInfo.Equip == "美西螈" || equipInfo.Equip == "三叉戟" {
+				fishes[0].Number += 2
+			}
 			err = dbdata.updateUserThingInfo(uid, fishes[0])
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR at fish.go.11]:", err))
