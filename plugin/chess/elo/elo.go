@@ -1,3 +1,4 @@
+// Package elo ELO 等级分计算
 package elo
 
 import (

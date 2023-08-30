@@ -1,3 +1,4 @@
+// Package chess 国际象棋
 package chess
 
 import (

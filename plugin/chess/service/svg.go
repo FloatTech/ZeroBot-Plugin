@@ -1,3 +1,4 @@
+// Package service 依赖服务 SVG
 package service
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/srwiley/rasterx"
 )
 
+// SVG2PNG svg 转 png
 func SVG2PNG(svgPath, pngPath string) error {
 	w, h := 720, 720
 	in, err := os.Open(svgPath)

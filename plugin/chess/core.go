@@ -1,7 +1,7 @@
 package chess
 
 import (
-	_ "embed"
+	_ "embed" // for embed assets
 	"encoding/base64"
 	"fmt"
 	"image/color"
@@ -13,7 +13,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/notnil/chess"
 	"github.com/notnil/chess/image"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -81,7 +80,7 @@ func Draw(groupCode, senderUin int64) message.Message {
 			}
 			err := room.chessGame.Draw(chess.DrawOffer)
 			if err != nil {
-				logrus.Errorln("[chess]", "Fail to draw a game.", err)
+				log.Errorln("[chess]", "Fail to draw a game.", err)
 				return textWithAt(senderUin, "程序发生了错误，和棋失败，请反馈开发者修复 bug。")
 			}
 			chessString := getChessString(room)
@@ -319,7 +318,7 @@ func Rate(senderUin int64, senderName string) message.Message {
 		return simpleText("没有查找到等级分信息。请至少进行一局对局。")
 	}
 	if err != nil {
-		logrus.Errorln("[chess]", "Fail to get player rank.", err)
+		log.Errorln("[chess]", "Fail to get player rank.", err)
 		return simpleText("服务器错误，无法获取等级分信息。请联系开发者修 bug。\n反馈地址 https://github.com/aimerneige/yukichan-bot/issues\n")
 	}
 	return simpleText(fmt.Sprintf("玩家「%s」目前的等级分：%d", senderName, rate))
@@ -333,7 +332,7 @@ func CleanUserRate(senderUin int64) message.Message {
 		return simpleText("没有查找到等级分信息。请检查用户 uid 是否正确。")
 	}
 	if err != nil {
-		logrus.Errorln("[chess]", "Fail to clean player rank.", err)
+		log.Errorln("[chess]", "Fail to clean player rank.", err)
 		return simpleText("服务器错误，无法清空等级分。请联系开发者修 bug。\n反馈地址 https://github.com/aimerneige/yukichan-bot/issues\n")
 	}
 	return simpleText(fmt.Sprintf("已清空用户「%d」的等级分。", senderUin))
@@ -409,7 +408,7 @@ func abortGame(groupCode int64, hint string) message.Message {
 	room := instance.gameRooms[groupCode]
 	err := room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
-		logrus.Errorln("[chess]", "Fail to draw a game.", err)
+		log.Errorln("[chess]", "Fail to draw a game.", err)
 		return simpleText("程序发生了错误，和棋失败，请反馈开发者修复 bug。")
 	}
 	chessString := getChessString(room)
