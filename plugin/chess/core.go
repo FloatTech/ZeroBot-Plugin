@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -239,16 +240,17 @@ func Play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		// 检查游戏是否结束
 		if room.chessGame.Method() != chess.NoMethod {
 			whiteScore, blackScore := 0.5, 0.5
-			msg := "游戏结束，"
+			var msgBuilder strings.Builder
+			msgBuilder.WriteString("游戏结束，")
 			switch room.chessGame.Method() {
 			case chess.FivefoldRepetition:
-				msg += "和棋，因为五次重复走子。\n"
+				msgBuilder.WriteString("和棋，因为五次重复走子。\n")
 			case chess.SeventyFiveMoveRule:
-				msg += "和棋，因为七十五步规则。\n"
+				msgBuilder.WriteString("和棋，因为七十五步规则。\n")
 			case chess.InsufficientMaterial:
-				msg += "和棋，因为不可能将死。\n"
+				msgBuilder.WriteString("和棋，因为不可能将死。\n")
 			case chess.Stalemate:
-				msg += "和棋，因为逼和（无子可动和棋）。\n"
+				msgBuilder.WriteString("和棋，因为逼和（无子可动和棋）。\n")
 			case chess.Checkmate:
 				var winner string
 				if room.chessGame.Position().Turn() == chess.White {
@@ -260,8 +262,8 @@ func Play(senderUin int64, groupCode int64, moveStr string) message.Message {
 					blackScore = 0.0
 					winner = "白方"
 				}
-				msg += winner
-				msg += "胜利，因为将杀。\n"
+				msgBuilder.WriteString(winner)
+				msgBuilder.WriteString("胜利，因为将杀。\n")
 			case chess.NoMethod:
 			case chess.Resignation:
 			case chess.DrawOffer:
@@ -284,7 +286,9 @@ func Play(senderUin int64, groupCode int64, moveStr string) message.Message {
 				}
 				eloString = elo
 			}
-			replyMsg := simpleText(msg + eloString + chessString)
+			msgBuilder.WriteString(eloString)
+			msgBuilder.WriteString(chessString)
+			replyMsg := simpleText(msgBuilder.String())
 			if !room.isBlindfold {
 				replyMsg = append(replyMsg, boardImgEle)
 			}
@@ -492,19 +496,20 @@ func getELOString(room chessRoom, whiteScore, blackScore float64) (string, error
 	if room.whitePlayer == 0 || room.blackPlayer == 0 {
 		return "", nil
 	}
-	eloString := "玩家等级分：\n"
+	var msgBuilder strings.Builder
+	msgBuilder.WriteString("玩家等级分：\n")
 	dbService := service.NewDBService()
 	if err := updateELORate(room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName, whiteScore, blackScore, dbService); err != nil {
-		eloString += "发生错误，无法更新等级分。"
-		return eloString, err
+		msgBuilder.WriteString("发生错误，无法更新等级分。")
+		return msgBuilder.String(), err
 	}
 	whiteRate, blackRate, err := getELORate(room.whitePlayer, room.blackPlayer, dbService)
 	if err != nil {
-		eloString += "发生错误，无法获取等级分。"
-		return eloString, err
+		msgBuilder.WriteString("发生错误，无法获取等级分。")
+		return msgBuilder.String(), err
 	}
-	eloString += fmt.Sprintf("%s：%d\n%s：%d\n\n", room.whiteName, whiteRate, room.blackName, blackRate)
-	return eloString, nil
+	msgBuilder.WriteString(fmt.Sprintf("%s：%d\n%s：%d\n\n", room.whiteName, whiteRate, room.blackName, blackRate))
+	return msgBuilder.String(), nil
 }
 
 // getRankingString 获取等级分排行榜的文本内容
@@ -514,11 +519,12 @@ func getRankingString() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ret := "当前等级分排行榜：\n\n"
+	var msgBuilder strings.Builder
+	msgBuilder.WriteString("当前等级分排行榜：\n\n")
 	for _, elo := range eloList {
-		ret += fmt.Sprintf("%s: %d\n", elo.Name, elo.Rate)
+		msgBuilder.WriteString(fmt.Sprintf("%s: %d\n", elo.Name, elo.Rate))
 	}
-	return ret, nil
+	return msgBuilder.String(), nil
 }
 
 func simpleText(msg string) message.Message {
