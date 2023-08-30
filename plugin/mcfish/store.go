@@ -84,11 +84,10 @@ func init() {
 			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("找到以下物品:\n"))
 			for i, info := range articles {
 				if info.Other != "" {
-					msg = append(msg, message.Text(
-						"[", i, "]", info.Name, "(", info.Other, ")", " 数量: ", info.Number, "\n"))
+					msg = append(msg, message.Text("[", i, "] ", info.Name, "(", info.Other, ")\n"))
 				} else {
 					msg = append(msg, message.Text(
-						"[", i, "]", info.Name, "  ", info.Number, "\n"))
+						"[", i, "]", info.Name, "  数量: ", info.Number, "\n"))
 				}
 
 			}
@@ -309,7 +308,7 @@ func init() {
 			for i, info := range thingInfos {
 				if strings.Contains(thingName, "竿") {
 					msg = append(msg, message.Text(
-						"[", i, "]", info.Name, "(", info.Other, ")", " 数量:", info.Number, " 价格:", pice[i], "\n"))
+						"[", i, "]", info.Name, "(", info.Other, ") 价格:", pice[i], "\n"))
 				} else {
 					msg = append(msg, message.Text(
 						"[", i, "]", info.Name, "  数量:", info.Number, "  价格:", pice[i], "\n"))

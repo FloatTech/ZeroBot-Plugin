@@ -52,9 +52,8 @@ func init() {
 			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("找到以下鱼竿:\n"))
 			for i, info := range poles {
-				msg = append(msg, message.Text("[", i, "]耐", info.Durable, "/修", info.Maintenance,
-					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor],
-					"的", info.Equip, "\n"))
+				msg = append(msg, message.Text("[", i, "] ", info.Equip, " : 耐", info.Durable, "/修", info.Maintenance,
+					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor], "\n"))
 			}
 			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(msg)
@@ -190,9 +189,8 @@ func init() {
 			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Text("找到以下鱼竿:\n"))
 			for i, info := range poles {
-				msg = append(msg, message.Text(i, ".耐久", info.Durable, "/维修", info.Maintenance,
-					"/诱饵", enchantLevel[info.Induce], "/海之眷顾", enchantLevel[info.Favor],
-					"的", info.Equip, "\n"))
+				msg = append(msg, message.Text("[", i, "] ", info.Equip, " : 耐", info.Durable, "/修", info.Maintenance,
+					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor], "\n"))
 			}
 			msg = append(msg, message.Text("————————\n输入对应序号进行修复,或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
@@ -348,11 +346,12 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at pole.go.10]:", err))
 			return
 		}
-		if len(articles) == 0 {
+		max := len(articles)
+		if max == 0 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你的合成材料不足"))
 			return
 		}
-		poles := make(map[int]equip, len(articles))
+		poles := make(map[int]equip, max)
 		for i, info := range articles {
 			poleInfo := strings.Split(info.Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
@@ -368,15 +367,15 @@ func init() {
 				Favor:       favorLevel,
 			}
 		}
-		list := []string{"0", "1", "2"}
+		list := []int{0, 1, 2}
 		check := false
 		if len(articles) > 3 {
 			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Text("找到以下鱼竿:\n"))
 			for i, info := range poles {
-				msg = append(msg, message.Text(i, ".耐", info.Durable, "/修", info.Maintenance,
-					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor],
-					"的", info.Equip, "\n"))
+				msg = append(msg, message.Text("[", i, "] ", info.Equip, " : 耐", info.Durable, "/修", info.Maintenance,
+					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor], "\n"))
+				time.Sleep(time.Microsecond * 500)
 			}
 			msg = append(msg, message.Text("————————\n输入3个序号进行合成(用空格分割),或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
@@ -402,16 +401,31 @@ func init() {
 						)
 						return
 					}
-					list = strings.Split(nextcmd, " ")
+					chooseList := strings.Split(nextcmd, " ")
 					if list[0] == list[1] || list[0] == list[2] || list[1] == list[2] {
-						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
+						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[0]请输入正确的序号\n", list))
 						continue
 					}
-					max := strconv.Itoa(len(poles))
-					if list[0] > max || list[1] > max || list[2] > max {
-						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("请输入正确的序号"))
+					first, err := strconv.Atoi(chooseList[0])
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR at pole.go.11.1]:", err))
+						return
+					}
+					second, err := strconv.Atoi(chooseList[1])
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR at pole.go.11.2]:", err))
+						return
+					}
+					third, err := strconv.Atoi(chooseList[2])
+					if err != nil {
+						ctx.SendChain(message.Text("[ERROR at pole.go.11.3]:", err))
+						return
+					}
+					if first > max || second > max || third > max {
+						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", max, "]请输入正确的序号\n", list))
 						continue
 					}
+					list = []int{first, second, third}
 					check = true
 				}
 				if check {
@@ -419,13 +433,9 @@ func init() {
 				}
 			}
 		}
-		durable := 0
-		for _, data := range list {
-			index, err := strconv.Atoi(data)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR at pole.go.11]:", err))
-				return
-			}
+		favorLevel := 0
+		induceLevel := 0
+		for _, index := range list {
 			thingInfo := articles[index]
 			thingInfo.Number = 0
 			err = dbdata.updateUserThingInfo(uid, thingInfo)
@@ -433,7 +443,8 @@ func init() {
 				ctx.SendChain(message.Text("[ERROR at pole.go.12]:", err))
 				return
 			}
-			durable += poles[index].Durable / 2
+			favorLevel += poles[index].Favor
+			induceLevel += poles[index].Induce
 		}
 		if rand.Intn(10) > 6 {
 			ctx.Send(
@@ -441,16 +452,14 @@ func init() {
 					message.Text("合成失败,材料已销毁"),
 				),
 			)
-		}
-		if durable > equipAttribute[thingName] {
-			durable = equipAttribute[thingName]
+			return
 		}
 		newthing := article{
 			Duration: time.Now().Unix(),
 			Type:     "pole",
 			Name:     thingName,
 			Number:   1,
-			Other:    strconv.Itoa(durable) + "/0/0/0",
+			Other:    strconv.Itoa(equipAttribute[thingName]) + "/0/" + strconv.Itoa(induceLevel/3) + "/" + strconv.Itoa(favorLevel/3),
 		}
 		err = dbdata.updateUserThingInfo(uid, newthing)
 		if err != nil {
