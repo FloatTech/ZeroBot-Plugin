@@ -94,12 +94,12 @@ func init() {
 				ctx.Send(replyMessage)
 			}
 		})
-	engine.OnRegex("[!|！]([0-9]|[A-Z]|[a-z]|=|-)+", zero.OnlyGroup).
+	engine.OnRegex("^[!|！]([0-8]|[R|N|B|Q|K|O|a-h|x]|[-|=|+])+$", zero.OnlyGroup).
 		SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
-			userMsgStr := ctx.Event.Message.ExtractPlainText()
+			userMsgStr := ctx.State["regex_matched"].([]string)[0]
 			userMsgStr = strings.Replace(userMsgStr, "！", "!", 1)
 			moveStr := userMsgStr[1:]
 			if replyMessage := Play(userUin, groupCode, moveStr); len(replyMessage) >= 1 {
