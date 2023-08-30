@@ -54,7 +54,7 @@ func init() {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			groupCode := ctx.Event.GroupID
-			if replyMessage := Game(groupCode, userUin, userName); len(replyMessage) >= 1 {
+			if replyMessage := game(groupCode, userUin, userName); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -63,7 +63,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
-			if replyMessage := Resign(groupCode, userUin); len(replyMessage) >= 1 {
+			if replyMessage := resign(groupCode, userUin); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -72,7 +72,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
-			if replyMessage := Draw(groupCode, userUin); len(replyMessage) >= 1 {
+			if replyMessage := draw(groupCode, userUin); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -80,7 +80,7 @@ func init() {
 		SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			groupCode := ctx.Event.GroupID
-			if replyMessage := Abort(groupCode); len(replyMessage) >= 1 {
+			if replyMessage := abort(groupCode); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -90,7 +90,7 @@ func init() {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			groupCode := ctx.Event.GroupID
-			if replyMessage := Blindfold(groupCode, userUin, userName); len(replyMessage) >= 1 {
+			if replyMessage := blindfold(groupCode, userUin, userName); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -100,16 +100,15 @@ func init() {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
 			userMsgStr := ctx.State["regex_matched"].([]string)[0]
-			userMsgStr = strings.Replace(userMsgStr, "！", "!", 1)
-			moveStr := userMsgStr[1:]
-			if replyMessage := Play(userUin, groupCode, moveStr); len(replyMessage) >= 1 {
+			moveStr := strings.TrimPrefix(strings.TrimPrefix(userMsgStr, "！"), "!")
+			if replyMessage := play(userUin, groupCode, moveStr); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
 	engine.OnFullMatchGroup([]string{"排行榜", "ranking"}).
 		SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			if replyMessage := Ranking(); len(replyMessage) >= 1 {
+			if replyMessage := ranking(); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -118,7 +117,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
-			if replyMessage := Rate(userUin, userName); len(replyMessage) >= 1 {
+			if replyMessage := rate(userUin, userName); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
 			}
 		})
@@ -126,12 +125,13 @@ func init() {
 		SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["args"].(string)
-			if playerUin, err := strconv.ParseInt(strings.TrimSpace(args), 10, 64); err == nil && playerUin > 0 {
-				if replyMessage := CleanUserRate(playerUin); len(replyMessage) >= 1 {
-					ctx.Send(replyMessage)
-				}
-			} else {
+			playerUin, err := strconv.ParseInt(strings.TrimSpace(args), 10, 64)
+			if err != nil || playerUin <= 0 {
 				ctx.Send(fmt.Sprintf("解析失败「%s」不是正确的 QQ 号。", args))
+				return
+			}
+			if replyMessage := cleanUserRate(playerUin); len(replyMessage) >= 1 {
+				ctx.Send(replyMessage)
 			}
 		})
 }
