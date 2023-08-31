@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/gg"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/RomiChan/syncx"
 	"github.com/jinzhu/gorm"
 	"github.com/notnil/chess"
@@ -604,8 +605,7 @@ func generateCharBoardImage(boardString string) (string, error) {
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
-	// TODO: upload this font to zbpdata
-	fnt := "./unifont-15.0.06.ttf"
+	fnt := text.GNUUnifontFontFile
 	if err := dc.LoadFontFace(fnt, FontSize); err != nil {
 		return "", err
 	}
