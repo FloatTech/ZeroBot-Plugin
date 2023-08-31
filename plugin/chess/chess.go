@@ -13,6 +13,8 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/single"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
@@ -26,14 +28,23 @@ const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
 - 清空等级分：「清空等级分 QQ号」(.clean.rate) （仅超管有效）`
 
 var (
-	limit       = ctxext.NewLimiterManager(time.Second*3, 1)
+	limit       = ctxext.NewLimiterManager(time.Microsecond*2500, 1)
 	tempFileDir string
 	engine      = control.Register("chess", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "国际象棋",
 		Help:              helpString,
 		PrivateDataFolder: "chess",
-	}).ApplySingle(ctxext.DefaultSingle)
+	}).ApplySingle(single.New(
+		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
+		single.WithPostFn[int64](func(ctx *zero.Ctx) {
+			ctx.Send(
+				message.ReplyWithMessage(ctx.Event.MessageID,
+					message.Text("有操作正在执行, 请稍后再试..."),
+				),
+			)
+		}),
+	))
 )
 
 func init() {

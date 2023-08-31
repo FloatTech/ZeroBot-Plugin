@@ -1,15 +1,18 @@
 package chess
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"image/color"
+	"io"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/FloatTech/gg"
 	"github.com/jinzhu/gorm"
 	"github.com/notnil/chess"
 	"github.com/notnil/chess/image"
@@ -463,10 +466,11 @@ func getBoardElement(groupCode int64) (*message.MessageSegment, bool, string) {
 	// TODO: 使用原生 go 库渲染 svg
 	if !commandExists("inkscape") {
 		boardString := room.chessGame.Position().Board().Draw()
-		if len(room.chessGame.Moves()) == 0 {
-			boardString += "\n安装 inkscape 后可以生成图片。"
+		boardImageB64, err := generateCharBoardImage(boardString)
+		if err != nil {
+			return nil, false, "生成棋盘图片时发生错误"
 		}
-		replyMsg := message.Text(boardString)
+		replyMsg := message.Image("base64://" + boardImageB64)
 		return &replyMsg, true, ""
 	}
 	// 获取高亮方块
@@ -596,6 +600,45 @@ func cleanTempFiles(groupCode int64) error {
 	}
 	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
 	return os.Remove(pngFilePath)
+}
+
+// generateCharBoardImage 生成文字版的棋盘
+func generateCharBoardImage(boardString string) (string, error) {
+	boardString = strings.TrimPrefix(boardString, "\n")
+	boardString = strings.TrimSuffix(boardString, "\n")
+	const FontSize = 72
+	h := FontSize*8 + 36
+	w := FontSize*9 + 24
+	dc := gg.NewContext(h, w)
+	dc.SetRGB(1, 1, 1)
+	dc.Clear()
+	dc.SetRGB(0, 0, 0)
+	// TODO: upload this font to zbpdata
+	fnt := "./unifont-15.0.06.ttf"
+	if err := dc.LoadFontFace(fnt, FontSize); err != nil {
+		return "", err
+	}
+	lines := strings.Split(boardString, "\n")
+	if len(lines) != 9 {
+		lines = make([]string, 9)
+		lines[0] = "ERROR [500]"
+		lines[1] = "程序内部错误"
+		lines[2] = "棋盘字符串不合法"
+		lines[3] = "请反馈开发者修复"
+	}
+	for i := 0; i < 9; i++ {
+		dc.DrawString(lines[i], 18, float64(FontSize*(i+1)))
+	}
+	imgBuffer := bytes.NewBuffer([]byte{})
+	if err := dc.EncodePNG(imgBuffer); err != nil {
+		return "", err
+	}
+	imgData, err := io.ReadAll(imgBuffer)
+	if err != nil {
+		return "", err
+	}
+	imgB64 := base64.StdEncoding.EncodeToString(imgData)
+	return imgB64, nil
 }
 
 // generateBoardSVG 生成棋盘 SVG 图片
