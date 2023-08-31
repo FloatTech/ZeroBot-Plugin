@@ -1,4 +1,4 @@
-package elo
+package chess
 
 import (
 	"math"
@@ -32,7 +32,7 @@ func TestCalculateNewRate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := CalculateNewRate(tt.args.whiteRate, tt.args.blackRate, tt.args.whiteScore, tt.args.blackScore)
+			got, got1 := calculateNewRate(tt.args.whiteRate, tt.args.blackRate, tt.args.whiteScore, tt.args.blackScore)
 			if got != tt.want {
 				t.Errorf("CalculateNewRate() got = %v, want %v", got, tt.want)
 			}

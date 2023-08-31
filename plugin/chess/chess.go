@@ -8,12 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zero "github.com/wdvxdr1123/ZeroBot"
-
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/chess/service"
 )
 
 const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
@@ -29,24 +26,23 @@ const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
 var (
 	tempFileDir string
 	engine      = control.Register("chess", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "国际象棋",
-		Help:             helpString,
+		DisableOnDefault:  false,
+		Brief:             "国际象棋",
+		Help:              helpString,
+		PrivateDataFolder: "chess",
 	})
 )
 
 func init() {
 	// 初始化临时文件夹
 	tempFileDir = path.Join(engine.DataFolder(), "temp")
-	if !file.IsExist(tempFileDir) {
-		err := os.MkdirAll(tempFileDir, 0750)
-		if err != nil {
-			panic(err)
-		}
+	err := os.MkdirAll(tempFileDir, 0750)
+	if err != nil {
+		panic(err)
 	}
 	// 初始化数据库
 	dbFilePath := engine.DataFolder() + "chess.db"
-	service.InitDatabase(dbFilePath)
+	initDatabase(dbFilePath)
 	// 注册指令
 	engine.OnFullMatchGroup([]string{"下棋", "chess"}, zero.OnlyGroup).
 		SetBlock(true).

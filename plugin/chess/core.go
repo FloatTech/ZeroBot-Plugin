@@ -1,7 +1,6 @@
 package chess
 
 import (
-	_ "embed" // for embed assets
 	"encoding/base64"
 	"fmt"
 	"image/color"
@@ -16,9 +15,6 @@ import (
 	"github.com/notnil/chess/image"
 	log "github.com/sirupsen/logrus"
 	"github.com/wdvxdr1123/ZeroBot/message"
-
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/chess/elo"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/chess/service"
 )
 
 var instance *chessService
@@ -48,302 +44,315 @@ func init() {
 	}
 }
 
-// Game 下棋
-func Game(groupCode, senderUin int64, senderName string) message.Message {
+// game 下棋
+func game(groupCode, senderUin int64, senderName string) message.Message {
 	return createGame(false, groupCode, senderUin, senderName)
 }
 
-// Blindfold 盲棋
-func Blindfold(groupCode, senderUin int64, senderName string) message.Message {
+// blindfold 盲棋
+func blindfold(groupCode, senderUin int64, senderName string) message.Message {
 	return createGame(true, groupCode, senderUin, senderName)
 }
 
-// Abort 中断对局
-func Abort(groupCode int64) message.Message {
+// abort 中断对局
+func abort(groupCode int64) message.Message {
 	if _, ok := instance.gameRooms[groupCode]; ok {
 		return abortGame(groupCode, "对局已被管理员中断，游戏结束。")
 	}
 	return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
 }
 
-// Draw 和棋
-func Draw(groupCode, senderUin int64) message.Message {
-	if room, ok := instance.gameRooms[groupCode]; ok {
-		if senderUin == room.whitePlayer || senderUin == room.blackPlayer {
-			room.lastMoveTime = time.Now().Unix()
-			if room.drawPlayer == 0 {
-				room.drawPlayer = senderUin
-				instance.gameRooms[groupCode] = room
-				return textWithAt(senderUin, "请求和棋，发送「和棋」或「draw」接受和棋。走棋视为拒绝和棋。")
-			}
-			if room.drawPlayer == senderUin {
-				return textWithAt(senderUin, "已发起和棋请求，请勿重复发送。")
-			}
-			err := room.chessGame.Draw(chess.DrawOffer)
-			if err != nil {
-				log.Errorln("[chess]", "Fail to draw a game.", err)
-				return textWithAt(senderUin, "程序发生了错误，和棋失败，请反馈开发者修复 bug。")
-			}
-			chessString := getChessString(room)
-			eloString := ""
-			if len(room.chessGame.Moves()) > 4 {
-				dbService := service.NewDBService()
-				if err := dbService.CreatePGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-					log.Errorln("[chess]", "Fail to create PGN.", err)
-				}
-				whiteScore, blackScore := 0.5, 0.5
-				elo, err := getELOString(room, whiteScore, blackScore)
-				if err != nil {
-					log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
-				}
-				eloString = elo
-			}
-			replyMsg := textWithAt(senderUin, "接受和棋，游戏结束。\n"+eloString+chessString)
-			if err := cleanTempFiles(groupCode); err != nil {
-				log.Errorln("[chess]", "Fail to clean temp files", err)
-			}
-			delete(instance.gameRooms, groupCode)
-			return replyMsg
-		}
-		return textWithAt(senderUin, "不是对局中的玩家，无法请求和棋。")
+// draw 和棋
+func draw(groupCode, senderUin int64) message.Message {
+	// 检查对局是否存在
+	room, ok := instance.gameRooms[groupCode]
+	if !ok {
+		return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
 	}
-	return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
+	// 检查消息发送者是否为对局中的玩家
+	if senderUin != room.whitePlayer && senderUin != room.blackPlayer {
+		return textWithAt(senderUin, "您不是对局中的玩家，无法请求和棋。")
+	}
+	// 处理和棋逻辑
+	room.lastMoveTime = time.Now().Unix()
+	if room.drawPlayer == 0 {
+		room.drawPlayer = senderUin
+		instance.gameRooms[groupCode] = room
+		return textWithAt(senderUin, "请求和棋，发送「和棋」或「draw」接受和棋。走棋视为拒绝和棋。")
+	}
+	if room.drawPlayer == senderUin {
+		return textWithAt(senderUin, "已发起和棋请求，请勿重复发送。")
+	}
+	err := room.chessGame.Draw(chess.DrawOffer)
+	if err != nil {
+		log.Errorln("[chess]", "Fail to draw a game.", err)
+		return textWithAt(senderUin, fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。", err))
+	}
+	chessString := getChessString(room)
+	eloString := ""
+	if len(room.chessGame.Moves()) > 4 {
+		// 若走子次数超过 4 认为是有效对局，存入数据库
+		dbService := newDBService()
+		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+			log.Errorln("[chess]", "Fail to create PGN.", err)
+		}
+		whiteScore, blackScore := 0.5, 0.5
+		elo, err := getELOString(room, whiteScore, blackScore)
+		if err != nil {
+			log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
+		}
+		eloString = elo
+	}
+	replyMsg := textWithAt(senderUin, "接受和棋，游戏结束。\n"+eloString+chessString)
+	if err := cleanTempFiles(groupCode); err != nil {
+		log.Errorln("[chess]", "Fail to clean temp files", err)
+	}
+	delete(instance.gameRooms, groupCode)
+	return replyMsg
 }
 
-// Resign 认输
-func Resign(groupCode, senderUin int64) message.Message {
-	if room, ok := instance.gameRooms[groupCode]; ok {
-		// 检查是否是当前游戏玩家
-		if senderUin == room.whitePlayer || senderUin == room.blackPlayer {
-			// 如果对局未建立，中断对局
-			if room.whitePlayer == 0 || room.blackPlayer == 0 {
-				delete(instance.gameRooms, groupCode)
-				return simpleText("对局已释放。")
-			}
-			var resignColor chess.Color
-			if senderUin == room.whitePlayer {
-				resignColor = chess.White
-			} else {
-				resignColor = chess.Black
-			}
-			if isAprilFoolsDay() {
-				if resignColor == chess.White {
-					resignColor = chess.Black
-				} else {
-					resignColor = chess.White
-				}
-			}
-			room.chessGame.Resign(resignColor)
-			chessString := getChessString(room)
-			eloString := ""
-			if len(room.chessGame.Moves()) > 4 {
-				dbService := service.NewDBService()
-				if err := dbService.CreatePGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-					log.Errorln("[chess]", "Fail to create PGN.", err)
-				}
-				whiteScore, blackScore := 1.0, 1.0
-				if resignColor == chess.White {
-					whiteScore = 0.0
-				} else {
-					blackScore = 0.0
-				}
-				elo, err := getELOString(room, whiteScore, blackScore)
-				if err != nil {
-					log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
-				}
-				eloString = elo
-			}
-			replyMsg := textWithAt(senderUin, "认输，游戏结束。\n"+eloString+chessString)
-			if isAprilFoolsDay() {
-				replyMsg = textWithAt(senderUin, "对手认输，游戏结束，你胜利了。\n"+eloString+chessString)
-			}
-			if err := cleanTempFiles(groupCode); err != nil {
-				log.Errorln("[chess]", "Fail to clean temp files", err)
-			}
-			delete(instance.gameRooms, groupCode)
-			return replyMsg
-		}
+// resign 认输
+func resign(groupCode, senderUin int64) message.Message {
+	// 检查对局是否存在
+	room, ok := instance.gameRooms[groupCode]
+	if !ok {
+		return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
+	}
+	// 检查是否是当前游戏玩家
+	if senderUin != room.whitePlayer && senderUin != room.blackPlayer {
 		return textWithAt(senderUin, "不是对局中的玩家，无法认输。")
 	}
-	return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
-}
-
-// Play 走棋
-func Play(senderUin int64, groupCode int64, moveStr string) message.Message {
-	if room, ok := instance.gameRooms[groupCode]; ok {
-		// 不是对局中的玩家，忽略消息
-		if (senderUin != room.whitePlayer) && (senderUin != room.blackPlayer) && !isAprilFoolsDay() {
-			return nil
-		}
-		// 对局未建立
-		if (room.whitePlayer == 0) || (room.blackPlayer == 0) {
-			return textWithAt(senderUin, "请等候其他玩家加入游戏。")
-		}
-		// 需要对手走棋
-		if ((senderUin == room.whitePlayer) && (room.chessGame.Position().Turn() != chess.White)) || ((senderUin == room.blackPlayer) && (room.chessGame.Position().Turn() != chess.Black)) {
-			return textWithAt(senderUin, "请等待对手走棋。")
-		}
-		room.lastMoveTime = time.Now().Unix()
-		// 走棋
-		if err := room.chessGame.MoveStr(moveStr); err != nil {
-			// 指令错误时检查
-			if !room.isBlindfold {
-				// 未开启盲棋，提示指令错误
-				return simpleText(fmt.Sprintf("移动「%s」违规，请检查，格式请参考「代数记谱法」(Algebraic notation)。", moveStr))
-			}
-			// 开启盲棋，判断违例情况
-			var currentPlayerColor chess.Color
-			if senderUin == room.whitePlayer {
-				currentPlayerColor = chess.White
-			} else {
-				currentPlayerColor = chess.Black
-			}
-			// 第一次违例，提示
-			_flag := false
-			if (currentPlayerColor == chess.White) && !room.whiteErr {
-				room.whiteErr = true
-				instance.gameRooms[groupCode] = room
-				_flag = true
-			}
-			if (currentPlayerColor == chess.Black) && !room.blackErr {
-				room.blackErr = true
-				instance.gameRooms[groupCode] = room
-				_flag = true
-			}
-			if _flag {
-				return simpleText(fmt.Sprintf("移动「%s」违例，再次违例会立即判负。", moveStr))
-			}
-			// 出现多次违例，判负
-			room.chessGame.Resign(currentPlayerColor)
-			chessString := getChessString(room)
-			replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
-			if err := cleanTempFiles(groupCode); err != nil {
-				log.Errorln("[chess]", "Fail to clean temp files", err)
-			}
-			delete(instance.gameRooms, groupCode)
-			return replyMsg
-		}
-		// 走子之后，视为拒绝和棋
-		if room.drawPlayer != 0 {
-			room.drawPlayer = 0
-			instance.gameRooms[groupCode] = room
-		}
-		// 生成棋盘图片
-		var boardImgEle message.MessageSegment
-		if !room.isBlindfold {
-			boardImgB64, ok, errMsg := getBoardElement(groupCode)
-			boardImgEle = message.Image("base64://" + boardImgB64)
-			if !ok {
-				return errorText(errMsg)
-			}
-		}
-		// 检查游戏是否结束
-		if room.chessGame.Method() != chess.NoMethod {
-			whiteScore, blackScore := 0.5, 0.5
-			var msgBuilder strings.Builder
-			msgBuilder.WriteString("游戏结束，")
-			switch room.chessGame.Method() {
-			case chess.FivefoldRepetition:
-				msgBuilder.WriteString("和棋，因为五次重复走子。\n")
-			case chess.SeventyFiveMoveRule:
-				msgBuilder.WriteString("和棋，因为七十五步规则。\n")
-			case chess.InsufficientMaterial:
-				msgBuilder.WriteString("和棋，因为不可能将死。\n")
-			case chess.Stalemate:
-				msgBuilder.WriteString("和棋，因为逼和（无子可动和棋）。\n")
-			case chess.Checkmate:
-				var winner string
-				if room.chessGame.Position().Turn() == chess.White {
-					whiteScore = 0.0
-					blackScore = 1.0
-					winner = "黑方"
-				} else {
-					whiteScore = 1.0
-					blackScore = 0.0
-					winner = "白方"
-				}
-				msgBuilder.WriteString(winner)
-				msgBuilder.WriteString("胜利，因为将杀。\n")
-			case chess.NoMethod:
-			case chess.Resignation:
-			case chess.DrawOffer:
-			case chess.ThreefoldRepetition:
-			case chess.FiftyMoveRule:
-			default:
-			}
-			chessString := getChessString(room)
-			eloString := ""
-			// 若走子次数超过 4 认为是有效对局，存入数据库
-			if len(room.chessGame.Moves()) > 4 {
-				dbService := service.NewDBService()
-				if err := dbService.CreatePGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-					log.Errorln("[chess]", "Fail to create PGN.", err)
-				}
-				// 仅有效对局才会计算等级分
-				elo, err := getELOString(room, whiteScore, blackScore)
-				if err != nil {
-					log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
-				}
-				eloString = elo
-			}
-			msgBuilder.WriteString(eloString)
-			msgBuilder.WriteString(chessString)
-			replyMsg := simpleText(msgBuilder.String())
-			if !room.isBlindfold {
-				replyMsg = append(replyMsg, boardImgEle)
-			}
-			if err := cleanTempFiles(groupCode); err != nil {
-				log.Errorln("[chess]", "Fail to clean temp files", err)
-			}
-			delete(instance.gameRooms, groupCode)
-			return replyMsg
-		}
-		// 提示玩家继续游戏
-		var currentPlayer int64
-		if room.chessGame.Position().Turn() == chess.White {
-			currentPlayer = room.whitePlayer
-		} else {
-			currentPlayer = room.blackPlayer
-		}
-		return append(textWithAt(currentPlayer, "对手已走子，游戏继续。"), boardImgEle)
+	// 如果对局未建立，中断对局
+	if room.whitePlayer == 0 || room.blackPlayer == 0 {
+		delete(instance.gameRooms, groupCode)
+		return simpleText("对局已释放。")
 	}
-	return textWithAt(senderUin, "对局不存在，发送「下棋」或「chess」可创建对局。")
+	// 计算认输方
+	var resignColor chess.Color
+	if senderUin == room.whitePlayer {
+		resignColor = chess.White
+	} else {
+		resignColor = chess.Black
+	}
+	if isAprilFoolsDay() {
+		if resignColor == chess.White {
+			resignColor = chess.Black
+		} else {
+			resignColor = chess.White
+		}
+	}
+	room.chessGame.Resign(resignColor)
+	chessString := getChessString(room)
+	eloString := ""
+	if len(room.chessGame.Moves()) > 4 {
+		// 若走子次数超过 4 认为是有效对局，存入数据库
+		dbService := newDBService()
+		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+			log.Errorln("[chess]", "Fail to create PGN.", err)
+		}
+		whiteScore, blackScore := 1.0, 1.0
+		if resignColor == chess.White {
+			whiteScore = 0.0
+		} else {
+			blackScore = 0.0
+		}
+		elo, err := getELOString(room, whiteScore, blackScore)
+		if err != nil {
+			log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
+		}
+		eloString = elo
+	}
+	replyMsg := textWithAt(senderUin, "认输，游戏结束。\n"+eloString+chessString)
+	if isAprilFoolsDay() {
+		replyMsg = textWithAt(senderUin, "对手认输，游戏结束，你胜利了。\n"+eloString+chessString)
+	}
+	// 删除临时文件
+	if err := cleanTempFiles(groupCode); err != nil {
+		log.Errorln("[chess]", "Fail to clean temp files", err)
+	}
+	delete(instance.gameRooms, groupCode)
+	return replyMsg
 }
 
-// Ranking 排行榜
-func Ranking() message.Message {
+// play 走棋
+func play(senderUin int64, groupCode int64, moveStr string) message.Message {
+	// 检查对局是否存在
+	room, ok := instance.gameRooms[groupCode]
+	if !ok {
+		return nil
+	}
+	// 不是对局中的玩家，忽略消息
+	if (senderUin != room.whitePlayer) && (senderUin != room.blackPlayer) && !isAprilFoolsDay() {
+		return nil
+	}
+	// 对局未建立
+	if (room.whitePlayer == 0) || (room.blackPlayer == 0) {
+		return textWithAt(senderUin, "请等候其他玩家加入游戏。")
+	}
+	// 需要对手走棋
+	if ((senderUin == room.whitePlayer) && (room.chessGame.Position().Turn() != chess.White)) || ((senderUin == room.blackPlayer) && (room.chessGame.Position().Turn() != chess.Black)) {
+		return textWithAt(senderUin, "请等待对手走棋。")
+	}
+	room.lastMoveTime = time.Now().Unix()
+	// 走棋
+	if err := room.chessGame.MoveStr(moveStr); err != nil {
+		// 指令错误时检查
+		if !room.isBlindfold {
+			// 未开启盲棋，提示指令错误
+			return simpleText(fmt.Sprintf("移动「%s」违规，请检查，格式请参考「代数记谱法」(Algebraic notation)。", moveStr))
+		}
+		// 开启盲棋，判断违例情况
+		var currentPlayerColor chess.Color
+		if senderUin == room.whitePlayer {
+			currentPlayerColor = chess.White
+		} else {
+			currentPlayerColor = chess.Black
+		}
+		// 第一次违例，提示
+		_flag := false
+		if (currentPlayerColor == chess.White) && !room.whiteErr {
+			room.whiteErr = true
+			instance.gameRooms[groupCode] = room
+			_flag = true
+		}
+		if (currentPlayerColor == chess.Black) && !room.blackErr {
+			room.blackErr = true
+			instance.gameRooms[groupCode] = room
+			_flag = true
+		}
+		if _flag {
+			return simpleText(fmt.Sprintf("移动「%s」违例，再次违例会立即判负。", moveStr))
+		}
+		// 出现多次违例，判负
+		room.chessGame.Resign(currentPlayerColor)
+		chessString := getChessString(room)
+		replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
+		// 删除临时文件
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Errorln("[chess]", "Fail to clean temp files", err)
+		}
+		delete(instance.gameRooms, groupCode)
+		return replyMsg
+	}
+	// 走子之后，视为拒绝和棋
+	if room.drawPlayer != 0 {
+		room.drawPlayer = 0
+		instance.gameRooms[groupCode] = room
+	}
+	// 生成棋盘图片
+	var boardImgEle message.MessageSegment
+	if !room.isBlindfold {
+		boardMsg, ok, errMsg := getBoardElement(groupCode)
+		boardImgEle = *boardMsg
+		if !ok {
+			return errorText(errMsg)
+		}
+	}
+	// 检查游戏是否结束
+	if room.chessGame.Method() != chess.NoMethod {
+		whiteScore, blackScore := 0.5, 0.5
+		var msgBuilder strings.Builder
+		msgBuilder.WriteString("游戏结束，")
+		switch room.chessGame.Method() {
+		case chess.FivefoldRepetition:
+			msgBuilder.WriteString("和棋，因为五次重复走子。\n")
+		case chess.SeventyFiveMoveRule:
+			msgBuilder.WriteString("和棋，因为七十五步规则。\n")
+		case chess.InsufficientMaterial:
+			msgBuilder.WriteString("和棋，因为不可能将死。\n")
+		case chess.Stalemate:
+			msgBuilder.WriteString("和棋，因为逼和（无子可动和棋）。\n")
+		case chess.Checkmate:
+			var winner string
+			if room.chessGame.Position().Turn() == chess.White {
+				whiteScore = 0.0
+				blackScore = 1.0
+				winner = "黑方"
+			} else {
+				whiteScore = 1.0
+				blackScore = 0.0
+				winner = "白方"
+			}
+			msgBuilder.WriteString(winner)
+			msgBuilder.WriteString("胜利，因为将杀。\n")
+		case chess.NoMethod:
+		case chess.Resignation:
+		case chess.DrawOffer:
+		case chess.ThreefoldRepetition:
+		case chess.FiftyMoveRule:
+		default:
+		}
+		chessString := getChessString(room)
+		eloString := ""
+		if len(room.chessGame.Moves()) > 4 {
+			// 若走子次数超过 4 认为是有效对局，存入数据库
+			dbService := newDBService()
+			if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+				log.Errorln("[chess]", "Fail to create PGN.", err)
+			}
+			// 仅有效对局才会计算等级分
+			elo, err := getELOString(room, whiteScore, blackScore)
+			if err != nil {
+				log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
+			}
+			eloString = elo
+		}
+		msgBuilder.WriteString(eloString)
+		msgBuilder.WriteString(chessString)
+		replyMsg := simpleText(msgBuilder.String())
+		if !room.isBlindfold {
+			replyMsg = append(replyMsg, boardImgEle)
+		}
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Errorln("[chess]", "Fail to clean temp files", err)
+		}
+		delete(instance.gameRooms, groupCode)
+		return replyMsg
+	}
+	// 提示玩家继续游戏
+	var currentPlayer int64
+	if room.chessGame.Position().Turn() == chess.White {
+		currentPlayer = room.whitePlayer
+	} else {
+		currentPlayer = room.blackPlayer
+	}
+	return append(textWithAt(currentPlayer, "对手已走子，游戏继续。"), boardImgEle)
+}
+
+// ranking 排行榜
+func ranking() message.Message {
 	ranking, err := getRankingString()
 	if err != nil {
 		log.Errorln("[chess]", "Fail to get player ranking.", err)
-		return simpleText("服务器错误，无法获取排行榜信息。请联系开发者修 bug。")
+		return simpleText(fmt.Sprintln("服务器错误，无法获取排行榜信息。请联系开发者修 bug。", err))
 	}
 	return simpleText(ranking)
 }
 
-// Rate 获取等级分
-func Rate(senderUin int64, senderName string) message.Message {
-	dbService := service.NewDBService()
-	rate, err := dbService.GetELORateByUin(senderUin)
+// rate 获取等级分
+func rate(senderUin int64, senderName string) message.Message {
+	dbService := newDBService()
+	rate, err := dbService.getELORateByUin(senderUin)
 	if err == gorm.ErrRecordNotFound {
 		return simpleText("没有查找到等级分信息。请至少进行一局对局。")
 	}
 	if err != nil {
 		log.Errorln("[chess]", "Fail to get player rank.", err)
-		return simpleText("服务器错误，无法获取等级分信息。请联系开发者修 bug。")
+		return simpleText(fmt.Sprintln("服务器错误，无法获取等级分信息。请联系开发者修 bug。", err))
 	}
 	return simpleText(fmt.Sprintf("玩家「%s」目前的等级分：%d", senderName, rate))
 }
 
-// CleanUserRate 清空用户等级分
-func CleanUserRate(senderUin int64) message.Message {
-	dbService := service.NewDBService()
-	err := dbService.CleanELOByUin(senderUin)
+// cleanUserRate 清空用户等级分
+func cleanUserRate(senderUin int64) message.Message {
+	dbService := newDBService()
+	err := dbService.cleanELOByUin(senderUin)
 	if err == gorm.ErrRecordNotFound {
 		return simpleText("没有查找到等级分信息。请检查用户 uid 是否正确。")
 	}
 	if err != nil {
 		log.Errorln("[chess]", "Fail to clean player rank.", err)
-		return simpleText("服务器错误，无法清空等级分。请联系开发者修 bug。")
+		return simpleText(fmt.Sprintln("服务器错误，无法清空等级分。请联系开发者修 bug。", err))
 	}
 	return simpleText(fmt.Sprintf("已清空用户「%d」的等级分。", senderUin))
 }
@@ -384,11 +393,11 @@ func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName s
 		instance.gameRooms[groupCode] = room
 		var boardImgEle message.MessageSegment
 		if !room.isBlindfold {
-			boardImgB64, ok, errMsg := getBoardElement(groupCode)
+			boardMsg, ok, errMsg := getBoardElement(groupCode)
 			if !ok {
 				return errorText(errMsg)
 			}
-			boardImgEle = message.Image("base64://" + boardImgB64)
+			boardImgEle = *boardMsg
 		}
 		if isBlindfold {
 			return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer))
@@ -419,12 +428,12 @@ func abortGame(groupCode int64, hint string) message.Message {
 	err := room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
 		log.Errorln("[chess]", "Fail to draw a game.", err)
-		return simpleText("程序发生了错误，和棋失败，请反馈开发者修复 bug。")
+		return simpleText(fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。", err))
 	}
 	chessString := getChessString(room)
 	if len(room.chessGame.Moves()) > 4 {
-		dbService := service.NewDBService()
-		if err := dbService.CreatePGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+		dbService := newDBService()
+		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
 			log.Errorln("[chess]", "Fail to create PGN.", err)
 		}
 	}
@@ -444,51 +453,52 @@ func abortGame(groupCode int64, hint string) message.Message {
 }
 
 // getBoardElement 获取棋盘图片的消息内容
-func getBoardElement(groupCode int64) (string, bool, string) {
-	if room, ok := instance.gameRooms[groupCode]; ok {
-		// 获取高亮方块
-		highlightSquare := make([]chess.Square, 0, 2)
-		moves := room.chessGame.Moves()
-		if len(moves) != 0 {
-			lastMove := moves[len(moves)-1]
-			highlightSquare = append(highlightSquare, lastMove.S1())
-			highlightSquare = append(highlightSquare, lastMove.S2())
-		}
-		// 生成棋盘 svg 文件
-		svgFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.svg", groupCode))
-		fenStr := room.chessGame.FEN()
-		gameTurn := room.chessGame.Position().Turn()
-		if err := generateBoardSVG(svgFilePath, fenStr, gameTurn, highlightSquare...); err != nil {
-			log.Errorln("[chess]", "Unable to generate svg file.", err)
-			return "", false, "无法生成 svg 图片，请检查后台日志。"
-		}
-		// 将 svg 图片转化为 png 图片
-		pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
-		if commandExists("inkscape") {
-			// 如果安装有 inkscape，调用 inkscape 将 svg 图片转化为 png 图片
-			if err := exec.Command("inkscape", "-w", "720", "-h", "720", svgFilePath, "-o", pngFilePath).Run(); err != nil {
-				log.Errorln("[chess]", "Unable to convert to png.", err)
-				return "", false, "无法生成 png 图片，请检查 inkscape 安装情况及其依赖 libfuse。"
-			}
-		} else {
-			// 未安装 inkscape 使用 go 的库生成
-			if err := service.SVG2PNG(svgFilePath, pngFilePath); err != nil {
-				log.Errorln("[chess]", "Unable to convert to png.", err)
-				return "", false, "无法生成 png 图片，请检查后台日志。"
-			}
-		}
-		// 尝试读取 png 图片
-		imgData, err := os.ReadFile(pngFilePath)
-		if err != nil {
-			log.Errorln("[chess]", fmt.Sprintf("Unable to read image file in %s.", pngFilePath), err)
-			return "", false, "无法读取 png 图片"
-		}
-		imgB64 := base64.StdEncoding.EncodeToString(imgData)
-		return imgB64, true, ""
+func getBoardElement(groupCode int64) (*message.MessageSegment, bool, string) {
+	room, ok := instance.gameRooms[groupCode]
+	if !ok {
+		log.Debugln(fmt.Sprintf("No room for groupCode %d.", groupCode))
+		return nil, false, "对局不存在"
 	}
-
-	log.Debugln(fmt.Sprintf("No room for groupCode %d.", groupCode))
-	return "", false, "对局不存在"
+	// 未安装 inkscape 直接返回对局字符串
+	// TODO: 使用原生 go 库渲染 svg
+	if !commandExists("inkscape") {
+		boardString := room.chessGame.Position().Board().Draw()
+		if len(room.chessGame.Moves()) == 0 {
+			boardString += "\n安装 inkscape 后可以生成图片。"
+		}
+		replyMsg := message.Text(boardString)
+		return &replyMsg, true, ""
+	}
+	// 获取高亮方块
+	highlightSquare := make([]chess.Square, 0, 2)
+	moves := room.chessGame.Moves()
+	if len(moves) != 0 {
+		lastMove := moves[len(moves)-1]
+		highlightSquare = append(highlightSquare, lastMove.S1())
+		highlightSquare = append(highlightSquare, lastMove.S2())
+	}
+	// 生成棋盘 svg 文件
+	svgFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.svg", groupCode))
+	fenStr := room.chessGame.FEN()
+	gameTurn := room.chessGame.Position().Turn()
+	if err := generateBoardSVG(svgFilePath, fenStr, gameTurn, highlightSquare...); err != nil {
+		log.Errorln("[chess]", "Unable to generate svg file.", err)
+		return nil, false, "无法生成 svg 图片，请检查后台日志。"
+	}
+	// 调用 inkscape 将 svg 图片转化为 png 图片
+	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
+	if err := exec.Command("inkscape", "-w", "720", "-h", "720", svgFilePath, "-o", pngFilePath).Run(); err != nil {
+		log.Errorln("[chess]", "Unable to convert to png.", err)
+		return nil, false, "无法生成 png 图片，请检查 inkscape 安装情况及其依赖 libfuse。"
+	}
+	// 尝试读取 png 图片
+	imgData, err := os.ReadFile(pngFilePath)
+	if err != nil {
+		log.Errorln("[chess]", fmt.Sprintf("Unable to read image file in %s.", pngFilePath), err)
+		return nil, false, "无法读取 png 图片"
+	}
+	imgMsg := message.Image("base64://" + base64.StdEncoding.EncodeToString(imgData))
+	return &imgMsg, true, ""
 }
 
 // getELOString 获得玩家等级分的文本内容
@@ -498,14 +508,16 @@ func getELOString(room chessRoom, whiteScore, blackScore float64) (string, error
 	}
 	var msgBuilder strings.Builder
 	msgBuilder.WriteString("玩家等级分：\n")
-	dbService := service.NewDBService()
+	dbService := newDBService()
 	if err := updateELORate(room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName, whiteScore, blackScore, dbService); err != nil {
 		msgBuilder.WriteString("发生错误，无法更新等级分。")
+		msgBuilder.WriteString(err.Error())
 		return msgBuilder.String(), err
 	}
 	whiteRate, blackRate, err := getELORate(room.whitePlayer, room.blackPlayer, dbService)
 	if err != nil {
 		msgBuilder.WriteString("发生错误，无法获取等级分。")
+		msgBuilder.WriteString(err.Error())
 		return msgBuilder.String(), err
 	}
 	msgBuilder.WriteString(fmt.Sprintf("%s：%d\n%s：%d\n\n", room.whiteName, whiteRate, room.blackName, blackRate))
@@ -514,8 +526,8 @@ func getELOString(room chessRoom, whiteScore, blackScore float64) (string, error
 
 // getRankingString 获取等级分排行榜的文本内容
 func getRankingString() (string, error) {
-	dbService := service.NewDBService()
-	eloList, err := dbService.GetHighestRateList()
+	dbService := newDBService()
+	eloList, err := dbService.getHighestRateList()
 	if err != nil {
 		return "", err
 	}
@@ -544,36 +556,36 @@ func errorText(errMsg string) message.Message {
 
 // updateELORate 更新 elo 等级分
 // 当数据库中没有玩家的等级分信息时，自动新建一条记录
-func updateELORate(whiteUin, blackUin int64, whiteName, blackName string, whiteScore, blackScore float64, dbService *service.DBService) error {
-	whiteRate, err := dbService.GetELORateByUin(whiteUin)
+func updateELORate(whiteUin, blackUin int64, whiteName, blackName string, whiteScore, blackScore float64, dbService *chessDBService) error {
+	whiteRate, err := dbService.getELORateByUin(whiteUin)
 	if err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return err
 		}
 		// create white elo
-		if err := dbService.CreateELO(whiteUin, whiteName, eloDefault); err != nil {
+		if err := dbService.createELO(whiteUin, whiteName, eloDefault); err != nil {
 			return err
 		}
 		whiteRate = eloDefault
 	}
-	blackRate, err := dbService.GetELORateByUin(blackUin)
+	blackRate, err := dbService.getELORateByUin(blackUin)
 	if err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return err
 		}
 		// create black elo
-		if err := dbService.CreateELO(blackUin, blackName, eloDefault); err != nil {
+		if err := dbService.createELO(blackUin, blackName, eloDefault); err != nil {
 			return err
 		}
 		blackRate = eloDefault
 	}
-	whiteRate, blackRate = elo.CalculateNewRate(whiteRate, blackRate, whiteScore, blackScore)
+	whiteRate, blackRate = calculateNewRate(whiteRate, blackRate, whiteScore, blackScore)
 	// 更新白棋玩家的 ELO 等级分
-	if err := dbService.UpdateELOByUin(whiteUin, whiteName, whiteRate); err != nil {
+	if err := dbService.updateELOByUin(whiteUin, whiteName, whiteRate); err != nil {
 		return err
 	}
 	// 更新黑棋玩家的 ELO 等级分
-	return dbService.UpdateELOByUin(blackUin, blackName, blackRate)
+	return dbService.updateELOByUin(blackUin, blackName, blackRate)
 }
 
 // cleanTempFiles 清理临时文件
@@ -618,12 +630,12 @@ func getChessString(room chessRoom) string {
 }
 
 // getELORate 获取玩家的 ELO 等级分
-func getELORate(whiteUin, blackUin int64, dbService *service.DBService) (whiteRate int, blackRate int, err error) {
-	whiteRate, err = dbService.GetELORateByUin(whiteUin)
+func getELORate(whiteUin, blackUin int64, dbService *chessDBService) (whiteRate int, blackRate int, err error) {
+	whiteRate, err = dbService.getELORateByUin(whiteUin)
 	if err != nil {
 		return
 	}
-	blackRate, err = dbService.GetELORateByUin(blackUin)
+	blackRate, err = dbService.getELORateByUin(blackUin)
 	if err != nil {
 		return
 	}

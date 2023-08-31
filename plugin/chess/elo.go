@@ -1,12 +1,11 @@
-// Package elo ELO 等级分计算
-package elo
+package chess
 
 import (
 	"math"
 )
 
-// CalculateNewRate calculate new rate of the player
-func CalculateNewRate(whiteRate, blackRate int, whiteScore, blackScore float64) (int, int) {
+// calculateNewRate calculate new rate of the player
+func calculateNewRate(whiteRate, blackRate int, whiteScore, blackScore float64) (int, int) {
 	k := getKFactor(whiteRate, blackRate)
 	exceptionWhite := calculateException(whiteRate, blackRate)
 	exceptionBlack := calculateException(blackRate, whiteRate)
