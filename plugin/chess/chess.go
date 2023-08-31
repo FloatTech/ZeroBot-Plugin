@@ -7,9 +7,11 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
@@ -24,13 +26,14 @@ const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
 - 清空等级分：「清空等级分 QQ号」(.clean.rate) （仅超管有效）`
 
 var (
+	limit       = ctxext.NewLimiterManager(time.Second*3, 1)
 	tempFileDir string
 	engine      = control.Register("chess", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "国际象棋",
 		Help:              helpString,
 		PrivateDataFolder: "chess",
-	})
+	}).ApplySingle(ctxext.DefaultSingle)
 )
 
 func init() {
@@ -46,6 +49,7 @@ func init() {
 	// 注册指令
 	engine.OnFullMatchGroup([]string{"下棋", "chess"}, zero.OnlyGroup).
 		SetBlock(true).
+		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
@@ -56,6 +60,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"认输", "resign"}, zero.OnlyGroup).
 		SetBlock(true).
+		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
@@ -65,6 +70,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"和棋", "draw"}, zero.OnlyGroup).
 		SetBlock(true).
+		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
@@ -74,6 +80,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"中断", "abort"}, zero.OnlyGroup, zero.AdminPermission).
 		SetBlock(true).
+		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			groupCode := ctx.Event.GroupID
 			if replyMessage := abort(groupCode); len(replyMessage) >= 1 {
@@ -82,6 +89,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"盲棋", "blind"}, zero.OnlyGroup).
 		SetBlock(true).
+		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
@@ -92,6 +100,7 @@ func init() {
 		})
 	engine.OnRegex("^[!|！]([0-8]|[R|N|B|Q|K|O|a-h|x]|[-|=|+])+$", zero.OnlyGroup).
 		SetBlock(true).
+		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
@@ -103,6 +112,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"排行榜", "ranking"}).
 		SetBlock(true).
+		Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			if replyMessage := ranking(); len(replyMessage) >= 1 {
 				ctx.Send(replyMessage)
@@ -110,6 +120,7 @@ func init() {
 		})
 	engine.OnFullMatchGroup([]string{"等级分", "rate"}).
 		SetBlock(true).
+		Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
@@ -119,6 +130,7 @@ func init() {
 		})
 	engine.OnPrefixGroup([]string{"清空等级分", ".clean.rate"}, zero.SuperUserPermission).
 		SetBlock(true).
+		Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["args"].(string)
 			playerUin, err := strconv.ParseInt(strings.TrimSpace(args), 10, 64)
