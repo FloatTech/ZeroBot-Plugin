@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/gg"
+	"github.com/RomiChan/syncx"
 	"github.com/jinzhu/gorm"
 	"github.com/notnil/chess"
 	"github.com/notnil/chess/image"
@@ -20,13 +21,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var instance *chessService
-
 const eloDefault = 500
 
-type chessService struct {
-	gameRooms map[int64]chessRoom
-}
+var chessRoomMap syncx.Map[int64, chessRoom]
 
 type chessRoom struct {
 	chessGame    *chess.Game
@@ -41,12 +38,6 @@ type chessRoom struct {
 	blackErr     bool
 }
 
-func init() {
-	instance = &chessService{
-		gameRooms: make(map[int64]chessRoom, 1),
-	}
-}
-
 // game 下棋
 func game(groupCode, senderUin int64, senderName string) message.Message {
 	return createGame(false, groupCode, senderUin, senderName)
@@ -59,8 +50,8 @@ func blindfold(groupCode, senderUin int64, senderName string) message.Message {
 
 // abort 中断对局
 func abort(groupCode int64) message.Message {
-	if _, ok := instance.gameRooms[groupCode]; ok {
-		return abortGame(groupCode, "对局已被管理员中断，游戏结束。")
+	if room, ok := chessRoomMap.Load(groupCode); ok {
+		return abortGame(room, groupCode, "对局已被管理员中断，游戏结束。")
 	}
 	return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
 }
@@ -68,7 +59,7 @@ func abort(groupCode int64) message.Message {
 // draw 和棋
 func draw(groupCode, senderUin int64) message.Message {
 	// 检查对局是否存在
-	room, ok := instance.gameRooms[groupCode]
+	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
 	}
@@ -80,7 +71,7 @@ func draw(groupCode, senderUin int64) message.Message {
 	room.lastMoveTime = time.Now().Unix()
 	if room.drawPlayer == 0 {
 		room.drawPlayer = senderUin
-		instance.gameRooms[groupCode] = room
+		chessRoomMap.Store(groupCode, room)
 		return textWithAt(senderUin, "请求和棋，发送「和棋」或「draw」接受和棋。走棋视为拒绝和棋。")
 	}
 	if room.drawPlayer == senderUin {
@@ -110,14 +101,14 @@ func draw(groupCode, senderUin int64) message.Message {
 	if err := cleanTempFiles(groupCode); err != nil {
 		log.Errorln("[chess]", "Fail to clean temp files", err)
 	}
-	delete(instance.gameRooms, groupCode)
+	chessRoomMap.Delete(groupCode)
 	return replyMsg
 }
 
 // resign 认输
 func resign(groupCode, senderUin int64) message.Message {
 	// 检查对局是否存在
-	room, ok := instance.gameRooms[groupCode]
+	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
 	}
@@ -127,7 +118,7 @@ func resign(groupCode, senderUin int64) message.Message {
 	}
 	// 如果对局未建立，中断对局
 	if room.whitePlayer == 0 || room.blackPlayer == 0 {
-		delete(instance.gameRooms, groupCode)
+		chessRoomMap.Delete(groupCode)
 		return simpleText("对局已释放。")
 	}
 	// 计算认输方
@@ -173,14 +164,14 @@ func resign(groupCode, senderUin int64) message.Message {
 	if err := cleanTempFiles(groupCode); err != nil {
 		log.Errorln("[chess]", "Fail to clean temp files", err)
 	}
-	delete(instance.gameRooms, groupCode)
+	chessRoomMap.Delete(groupCode)
 	return replyMsg
 }
 
 // play 走棋
 func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 	// 检查对局是否存在
-	room, ok := instance.gameRooms[groupCode]
+	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		return nil
 	}
@@ -215,12 +206,12 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		_flag := false
 		if (currentPlayerColor == chess.White) && !room.whiteErr {
 			room.whiteErr = true
-			instance.gameRooms[groupCode] = room
+			chessRoomMap.Store(groupCode, room)
 			_flag = true
 		}
 		if (currentPlayerColor == chess.Black) && !room.blackErr {
 			room.blackErr = true
-			instance.gameRooms[groupCode] = room
+			chessRoomMap.Store(groupCode, room)
 			_flag = true
 		}
 		if _flag {
@@ -234,13 +225,13 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		if err := cleanTempFiles(groupCode); err != nil {
 			log.Errorln("[chess]", "Fail to clean temp files", err)
 		}
-		delete(instance.gameRooms, groupCode)
+		chessRoomMap.Delete(groupCode)
 		return replyMsg
 	}
 	// 走子之后，视为拒绝和棋
 	if room.drawPlayer != 0 {
 		room.drawPlayer = 0
-		instance.gameRooms[groupCode] = room
+		chessRoomMap.Store(groupCode, room)
 	}
 	// 生成棋盘图片
 	var boardImgEle message.MessageSegment
@@ -309,7 +300,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		if err := cleanTempFiles(groupCode); err != nil {
 			log.Errorln("[chess]", "Fail to clean temp files", err)
 		}
-		delete(instance.gameRooms, groupCode)
+		chessRoomMap.Delete(groupCode)
 		return replyMsg
 	}
 	// 提示玩家继续游戏
@@ -362,72 +353,72 @@ func cleanUserRate(senderUin int64) message.Message {
 
 // createGame 创建游戏
 func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName string) message.Message {
-	if room, ok := instance.gameRooms[groupCode]; ok {
-		if room.blackPlayer != 0 {
-			// 检测对局是否已存在超过 6 小时
-			if (time.Now().Unix() - room.lastMoveTime) > 21600 {
-				autoAbortMsg := abortGame(groupCode, "对局已存在超过 6 小时，游戏结束。")
-				autoAbortMsg = append(autoAbortMsg, message.Text("\n\n已有对局已被中断，如需创建新对局请重新发送指令。"))
-				autoAbortMsg = append(autoAbortMsg, message.At(senderUin))
-				return autoAbortMsg
-			}
-			// 对局在进行
-			msg := textWithAt(senderUin, "对局已在进行中，无法创建或加入对局，当前对局玩家为：")
-			if room.whitePlayer != 0 {
-				msg = append(msg, message.At(room.whitePlayer))
-			}
-			if room.blackPlayer != 0 {
-				msg = append(msg, message.At(room.blackPlayer))
-			}
-			msg = append(msg, message.Text("，群主或管理员发送「中断」或「abort」可中断对局（自动判和）。"))
-			return msg
-		}
-		if senderUin == room.whitePlayer {
-			return textWithAt(senderUin, "请等候其他玩家加入游戏。")
-		}
-		if room.isBlindfold && !isBlindfold {
-			return simpleText("已创建盲棋对局，请加入或等待盲棋对局结束之后创建普通对局。")
-		}
-		if !room.isBlindfold && isBlindfold {
-			return simpleText("已创建普通对局，请加入或等待普通对局结束之后创建盲棋对局。")
-		}
-		room.blackPlayer = senderUin
-		room.blackName = senderName
-		instance.gameRooms[groupCode] = room
-		var boardImgEle message.MessageSegment
-		if !room.isBlindfold {
-			boardMsg, ok, errMsg := getBoardElement(groupCode)
-			if !ok {
-				return errorText(errMsg)
-			}
-			boardImgEle = *boardMsg
-		}
+	room, ok := chessRoomMap.Load(groupCode)
+	if !ok {
+		chessRoomMap.Store(groupCode, chessRoom{
+			chessGame:    chess.NewGame(),
+			whitePlayer:  senderUin,
+			whiteName:    senderName,
+			blackPlayer:  0,
+			blackName:    "",
+			drawPlayer:   0,
+			lastMoveTime: time.Now().Unix(),
+			isBlindfold:  isBlindfold,
+			whiteErr:     false,
+			blackErr:     false,
+		})
 		if isBlindfold {
-			return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer))
+			return simpleText("已创建新的盲棋对局，发送「盲棋」或「blind」可加入对局。")
 		}
-		return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer), boardImgEle)
+		return simpleText("已创建新的对局，发送「下棋」或「chess」可加入对局。")
 	}
-	instance.gameRooms[groupCode] = chessRoom{
-		chessGame:    chess.NewGame(),
-		whitePlayer:  senderUin,
-		whiteName:    senderName,
-		blackPlayer:  0,
-		blackName:    "",
-		drawPlayer:   0,
-		lastMoveTime: time.Now().Unix(),
-		isBlindfold:  isBlindfold,
-		whiteErr:     false,
-		blackErr:     false,
+	if room.blackPlayer != 0 {
+		// 检测对局是否已存在超过 6 小时
+		if (time.Now().Unix() - room.lastMoveTime) > 21600 {
+			autoAbortMsg := abortGame(room, groupCode, "对局已存在超过 6 小时，游戏结束。")
+			autoAbortMsg = append(autoAbortMsg, message.Text("\n\n已有对局已被中断，如需创建新对局请重新发送指令。"))
+			autoAbortMsg = append(autoAbortMsg, message.At(senderUin))
+			return autoAbortMsg
+		}
+		// 对局在进行
+		msg := textWithAt(senderUin, "对局已在进行中，无法创建或加入对局，当前对局玩家为：")
+		if room.whitePlayer != 0 {
+			msg = append(msg, message.At(room.whitePlayer))
+		}
+		if room.blackPlayer != 0 {
+			msg = append(msg, message.At(room.blackPlayer))
+		}
+		msg = append(msg, message.Text("，群主或管理员发送「中断」或「abort」可中断对局（自动判和）。"))
+		return msg
+	}
+	if senderUin == room.whitePlayer {
+		return textWithAt(senderUin, "请等候其他玩家加入游戏。")
+	}
+	if room.isBlindfold && !isBlindfold {
+		return simpleText("已创建盲棋对局，请加入或等待盲棋对局结束之后创建普通对局。")
+	}
+	if !room.isBlindfold && isBlindfold {
+		return simpleText("已创建普通对局，请加入或等待普通对局结束之后创建盲棋对局。")
+	}
+	room.blackPlayer = senderUin
+	room.blackName = senderName
+	chessRoomMap.Store(groupCode, room)
+	var boardImgEle message.MessageSegment
+	if !room.isBlindfold {
+		boardMsg, ok, errMsg := getBoardElement(groupCode)
+		if !ok {
+			return errorText(errMsg)
+		}
+		boardImgEle = *boardMsg
 	}
 	if isBlindfold {
-		return simpleText("已创建新的盲棋对局，发送「盲棋」或「blind」可加入对局。")
+		return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer))
 	}
-	return simpleText("已创建新的对局，发送「下棋」或「chess」可加入对局。")
+	return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer), boardImgEle)
 }
 
 // abortGame 中断游戏
-func abortGame(groupCode int64, hint string) message.Message {
-	room := instance.gameRooms[groupCode]
+func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
 	err := room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
 		log.Errorln("[chess]", "Fail to draw a game.", err)
@@ -443,7 +434,7 @@ func abortGame(groupCode int64, hint string) message.Message {
 	if err := cleanTempFiles(groupCode); err != nil {
 		log.Errorln("[chess]", "Fail to clean temp files", err)
 	}
-	delete(instance.gameRooms, groupCode)
+	chessRoomMap.Delete(groupCode)
 	msg := simpleText(hint)
 	if room.whitePlayer != 0 {
 		msg = append(msg, message.At(room.whitePlayer))
@@ -457,7 +448,7 @@ func abortGame(groupCode int64, hint string) message.Message {
 
 // getBoardElement 获取棋盘图片的消息内容
 func getBoardElement(groupCode int64) (*message.MessageSegment, bool, string) {
-	room, ok := instance.gameRooms[groupCode]
+	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		log.Debugln(fmt.Sprintf("No room for groupCode %d.", groupCode))
 		return nil, false, "对局不存在"
