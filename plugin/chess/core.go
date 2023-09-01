@@ -82,8 +82,8 @@ func draw(groupCode, senderUin int64) message.Message {
 	}
 	err := room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
-		log.Errorln("[chess]", "Fail to draw a game.", err)
-		return textWithAt(senderUin, fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。", err))
+		log.Debugln("[chess]", "Fail to draw a game.", err)
+		return textWithAt(senderUin, fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。\nERROR:", err))
 	}
 	chessString := getChessString(*room)
 	eloString := ""
@@ -91,18 +91,21 @@ func draw(groupCode, senderUin int64) message.Message {
 		// 若走子次数超过 4 认为是有效对局，存入数据库
 		dbService := newDBService()
 		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-			log.Errorln("[chess]", "Fail to create PGN.", err)
+			log.Debugln("[chess]", "Fail to create PGN.", err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 		whiteScore, blackScore := 0.5, 0.5
 		elo, err := getELOString(*room, whiteScore, blackScore)
 		if err != nil {
-			log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
+			log.Debugln("[chess]", "Fail to get eloString.", eloString, err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 		eloString = elo
 	}
 	replyMsg := textWithAt(senderUin, "接受和棋，游戏结束。\n"+eloString+chessString)
 	if err := cleanTempFiles(groupCode); err != nil {
-		log.Errorln("[chess]", "Fail to clean temp files", err)
+		log.Debugln("[chess]", "Fail to clean temp files", err)
+		return message.Message{message.Text("ERROR: ", err)}
 	}
 	chessRoomMap.Delete(groupCode)
 	return replyMsg
@@ -145,7 +148,8 @@ func resign(groupCode, senderUin int64) message.Message {
 		// 若走子次数超过 4 认为是有效对局，存入数据库
 		dbService := newDBService()
 		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-			log.Errorln("[chess]", "Fail to create PGN.", err)
+			log.Debugln("[chess]", "Fail to create PGN.", err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 		whiteScore, blackScore := 1.0, 1.0
 		if resignColor == chess.White {
@@ -155,7 +159,8 @@ func resign(groupCode, senderUin int64) message.Message {
 		}
 		elo, err := getELOString(*room, whiteScore, blackScore)
 		if err != nil {
-			log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
+			log.Debugln("[chess]", "Fail to get eloString.", eloString, err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 		eloString = elo
 	}
@@ -165,7 +170,8 @@ func resign(groupCode, senderUin int64) message.Message {
 	}
 	// 删除临时文件
 	if err := cleanTempFiles(groupCode); err != nil {
-		log.Errorln("[chess]", "Fail to clean temp files", err)
+		log.Debugln("[chess]", "Fail to clean temp files", err)
+		return message.Message{message.Text("ERROR: ", err)}
 	}
 	chessRoomMap.Delete(groupCode)
 	return replyMsg
@@ -226,7 +232,8 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
 		// 删除临时文件
 		if err := cleanTempFiles(groupCode); err != nil {
-			log.Errorln("[chess]", "Fail to clean temp files", err)
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 		chessRoomMap.Delete(groupCode)
 		return replyMsg
@@ -285,12 +292,14 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 			// 若走子次数超过 4 认为是有效对局，存入数据库
 			dbService := newDBService()
 			if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-				log.Errorln("[chess]", "Fail to create PGN.", err)
+				log.Debugln("[chess]", "Fail to create PGN.", err)
+				return message.Message{message.Text("ERROR: ", err)}
 			}
 			// 仅有效对局才会计算等级分
 			elo, err := getELOString(*room, whiteScore, blackScore)
 			if err != nil {
-				log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
+				log.Debugln("[chess]", "Fail to get eloString.", eloString, err)
+				return message.Message{message.Text("ERROR: ", err)}
 			}
 			eloString = elo
 		}
@@ -301,7 +310,8 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 			replyMsg = append(replyMsg, boardImgEle)
 		}
 		if err := cleanTempFiles(groupCode); err != nil {
-			log.Errorln("[chess]", "Fail to clean temp files", err)
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 		chessRoomMap.Delete(groupCode)
 		return replyMsg
@@ -320,7 +330,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 func ranking() message.Message {
 	ranking, err := getRankingString()
 	if err != nil {
-		log.Errorln("[chess]", "Fail to get player ranking.", err)
+		log.Debugln("[chess]", "Fail to get player ranking.", err)
 		return simpleText(fmt.Sprintln("服务器错误，无法获取排行榜信息。请联系开发者修 bug。", err))
 	}
 	return simpleText(ranking)
@@ -334,7 +344,7 @@ func rate(senderUin int64, senderName string) message.Message {
 		return simpleText("没有查找到等级分信息。请至少进行一局对局。")
 	}
 	if err != nil {
-		log.Errorln("[chess]", "Fail to get player rank.", err)
+		log.Debugln("[chess]", "Fail to get player rank.", err)
 		return simpleText(fmt.Sprintln("服务器错误，无法获取等级分信息。请联系开发者修 bug。", err))
 	}
 	return simpleText(fmt.Sprintf("玩家「%s」目前的等级分：%d", senderName, rate))
@@ -348,7 +358,7 @@ func cleanUserRate(senderUin int64) message.Message {
 		return simpleText("没有查找到等级分信息。请检查用户 uid 是否正确。")
 	}
 	if err != nil {
-		log.Errorln("[chess]", "Fail to clean player rank.", err)
+		log.Debugln("[chess]", "Fail to clean player rank.", err)
 		return simpleText(fmt.Sprintln("服务器错误，无法清空等级分。请联系开发者修 bug。", err))
 	}
 	return simpleText(fmt.Sprintf("已清空用户「%d」的等级分。", senderUin))
@@ -424,18 +434,20 @@ func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName s
 func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
 	err := room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
-		log.Errorln("[chess]", "Fail to draw a game.", err)
+		log.Debugln("[chess]", "Fail to draw a game.", err)
 		return simpleText(fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。", err))
 	}
 	chessString := getChessString(room)
 	if len(room.chessGame.Moves()) > 4 {
 		dbService := newDBService()
 		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-			log.Errorln("[chess]", "Fail to create PGN.", err)
+			log.Debugln("[chess]", "Fail to create PGN.", err)
+			return message.Message{message.Text("ERROR: ", err)}
 		}
 	}
 	if err := cleanTempFiles(groupCode); err != nil {
-		log.Errorln("[chess]", "Fail to clean temp files", err)
+		log.Debugln("[chess]", "Fail to clean temp files", err)
+		return message.Message{message.Text("ERROR: ", err)}
 	}
 	chessRoomMap.Delete(groupCode)
 	msg := simpleText(hint)
@@ -480,19 +492,19 @@ func getBoardElement(groupCode int64) (message.MessageSegment, bool, string) {
 	fenStr := room.chessGame.FEN()
 	gameTurn := room.chessGame.Position().Turn()
 	if err := generateBoardSVG(svgFilePath, fenStr, gameTurn, highlightSquare...); err != nil {
-		log.Errorln("[chess]", "Unable to generate svg file.", err)
+		log.Debugln("[chess]", "Unable to generate svg file.", err)
 		return message.MessageSegment{}, false, "无法生成 svg 图片，请检查后台日志。"
 	}
 	// 调用 inkscape 将 svg 图片转化为 png 图片
 	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
 	if err := exec.Command("inkscape", "-w", "720", "-h", "720", svgFilePath, "-o", pngFilePath).Run(); err != nil {
-		log.Errorln("[chess]", "Unable to convert to png.", err)
+		log.Debugln("[chess]", "Unable to convert to png.", err)
 		return message.MessageSegment{}, false, "无法生成 png 图片，请检查 inkscape 安装情况及其依赖 libfuse。"
 	}
 	// 尝试读取 png 图片
 	imgData, err := os.ReadFile(pngFilePath)
 	if err != nil {
-		log.Errorln("[chess]", fmt.Sprintf("Unable to read image file in %s.", pngFilePath), err)
+		log.Debugln("[chess]", fmt.Sprintf("Unable to read image file in %s.", pngFilePath), err)
 		return message.MessageSegment{}, false, "无法读取 png 图片"
 	}
 	imgMsg := message.Image("base64://" + base64.StdEncoding.EncodeToString(imgData))
