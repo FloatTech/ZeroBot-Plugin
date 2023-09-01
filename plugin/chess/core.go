@@ -12,8 +12,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/floatbox/binary"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/zbputils/img/text"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/RomiChan/syncx"
 	"github.com/jinzhu/gorm"
 	"github.com/notnil/chess"
@@ -24,7 +26,7 @@ import (
 
 const eloDefault = 500
 
-var chessRoomMap syncx.Map[int64, chessRoom]
+var chessRoomMap syncx.Map[int64, *chessRoom]
 
 type chessRoom struct {
 	chessGame    *chess.Game
@@ -52,7 +54,7 @@ func blindfold(groupCode, senderUin int64, senderName string) message.Message {
 // abort 中断对局
 func abort(groupCode int64) message.Message {
 	if room, ok := chessRoomMap.Load(groupCode); ok {
-		return abortGame(room, groupCode, "对局已被管理员中断，游戏结束。")
+		return abortGame(*room, groupCode, "对局已被管理员中断，游戏结束。")
 	}
 	return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
 }
@@ -83,7 +85,7 @@ func draw(groupCode, senderUin int64) message.Message {
 		log.Errorln("[chess]", "Fail to draw a game.", err)
 		return textWithAt(senderUin, fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。", err))
 	}
-	chessString := getChessString(room)
+	chessString := getChessString(*room)
 	eloString := ""
 	if len(room.chessGame.Moves()) > 4 {
 		// 若走子次数超过 4 认为是有效对局，存入数据库
@@ -92,7 +94,7 @@ func draw(groupCode, senderUin int64) message.Message {
 			log.Errorln("[chess]", "Fail to create PGN.", err)
 		}
 		whiteScore, blackScore := 0.5, 0.5
-		elo, err := getELOString(room, whiteScore, blackScore)
+		elo, err := getELOString(*room, whiteScore, blackScore)
 		if err != nil {
 			log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
 		}
@@ -137,7 +139,7 @@ func resign(groupCode, senderUin int64) message.Message {
 		}
 	}
 	room.chessGame.Resign(resignColor)
-	chessString := getChessString(room)
+	chessString := getChessString(*room)
 	eloString := ""
 	if len(room.chessGame.Moves()) > 4 {
 		// 若走子次数超过 4 认为是有效对局，存入数据库
@@ -151,7 +153,7 @@ func resign(groupCode, senderUin int64) message.Message {
 		} else {
 			blackScore = 0.0
 		}
-		elo, err := getELOString(room, whiteScore, blackScore)
+		elo, err := getELOString(*room, whiteScore, blackScore)
 		if err != nil {
 			log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
 		}
@@ -220,7 +222,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		}
 		// 出现多次违例，判负
 		room.chessGame.Resign(currentPlayerColor)
-		chessString := getChessString(room)
+		chessString := getChessString(*room)
 		replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
 		// 删除临时文件
 		if err := cleanTempFiles(groupCode); err != nil {
@@ -238,7 +240,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 	var boardImgEle message.MessageSegment
 	if !room.isBlindfold {
 		boardMsg, ok, errMsg := getBoardElement(groupCode)
-		boardImgEle = *boardMsg
+		boardImgEle = boardMsg
 		if !ok {
 			return errorText(errMsg)
 		}
@@ -277,7 +279,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		case chess.FiftyMoveRule:
 		default:
 		}
-		chessString := getChessString(room)
+		chessString := getChessString(*room)
 		eloString := ""
 		if len(room.chessGame.Moves()) > 4 {
 			// 若走子次数超过 4 认为是有效对局，存入数据库
@@ -286,7 +288,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 				log.Errorln("[chess]", "Fail to create PGN.", err)
 			}
 			// 仅有效对局才会计算等级分
-			elo, err := getELOString(room, whiteScore, blackScore)
+			elo, err := getELOString(*room, whiteScore, blackScore)
 			if err != nil {
 				log.Errorln("[chess]", "Fail to get eloString.", eloString, err)
 			}
@@ -356,7 +358,7 @@ func cleanUserRate(senderUin int64) message.Message {
 func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName string) message.Message {
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
-		chessRoomMap.Store(groupCode, chessRoom{
+		chessRoomMap.Store(groupCode, &chessRoom{
 			chessGame:    chess.NewGame(),
 			whitePlayer:  senderUin,
 			whiteName:    senderName,
@@ -376,7 +378,7 @@ func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName s
 	if room.blackPlayer != 0 {
 		// 检测对局是否已存在超过 6 小时
 		if (time.Now().Unix() - room.lastMoveTime) > 21600 {
-			autoAbortMsg := abortGame(room, groupCode, "对局已存在超过 6 小时，游戏结束。")
+			autoAbortMsg := abortGame(*room, groupCode, "对局已存在超过 6 小时，游戏结束。")
 			autoAbortMsg = append(autoAbortMsg, message.Text("\n\n已有对局已被中断，如需创建新对局请重新发送指令。"))
 			autoAbortMsg = append(autoAbortMsg, message.At(senderUin))
 			return autoAbortMsg
@@ -410,7 +412,7 @@ func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName s
 		if !ok {
 			return errorText(errMsg)
 		}
-		boardImgEle = *boardMsg
+		boardImgEle = boardMsg
 	}
 	if isBlindfold {
 		return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer))
@@ -448,11 +450,11 @@ func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
 }
 
 // getBoardElement 获取棋盘图片的消息内容
-func getBoardElement(groupCode int64) (*message.MessageSegment, bool, string) {
+func getBoardElement(groupCode int64) (message.MessageSegment, bool, string) {
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		log.Debugln(fmt.Sprintf("No room for groupCode %d.", groupCode))
-		return nil, false, "对局不存在"
+		return message.MessageSegment{}, false, "对局不存在"
 	}
 	// 未安装 inkscape 直接返回对局字符串
 	// TODO: 使用原生 go 库渲染 svg
@@ -460,10 +462,10 @@ func getBoardElement(groupCode int64) (*message.MessageSegment, bool, string) {
 		boardString := room.chessGame.Position().Board().Draw()
 		boardImageB64, err := generateCharBoardImage(boardString)
 		if err != nil {
-			return nil, false, "生成棋盘图片时发生错误"
+			return message.MessageSegment{}, false, "生成棋盘图片时发生错误"
 		}
 		replyMsg := message.Image("base64://" + boardImageB64)
-		return &replyMsg, true, ""
+		return replyMsg, true, ""
 	}
 	// 获取高亮方块
 	highlightSquare := make([]chess.Square, 0, 2)
@@ -479,22 +481,22 @@ func getBoardElement(groupCode int64) (*message.MessageSegment, bool, string) {
 	gameTurn := room.chessGame.Position().Turn()
 	if err := generateBoardSVG(svgFilePath, fenStr, gameTurn, highlightSquare...); err != nil {
 		log.Errorln("[chess]", "Unable to generate svg file.", err)
-		return nil, false, "无法生成 svg 图片，请检查后台日志。"
+		return message.MessageSegment{}, false, "无法生成 svg 图片，请检查后台日志。"
 	}
 	// 调用 inkscape 将 svg 图片转化为 png 图片
 	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
 	if err := exec.Command("inkscape", "-w", "720", "-h", "720", svgFilePath, "-o", pngFilePath).Run(); err != nil {
 		log.Errorln("[chess]", "Unable to convert to png.", err)
-		return nil, false, "无法生成 png 图片，请检查 inkscape 安装情况及其依赖 libfuse。"
+		return message.MessageSegment{}, false, "无法生成 png 图片，请检查 inkscape 安装情况及其依赖 libfuse。"
 	}
 	// 尝试读取 png 图片
 	imgData, err := os.ReadFile(pngFilePath)
 	if err != nil {
 		log.Errorln("[chess]", fmt.Sprintf("Unable to read image file in %s.", pngFilePath), err)
-		return nil, false, "无法读取 png 图片"
+		return message.MessageSegment{}, false, "无法读取 png 图片"
 	}
 	imgMsg := message.Image("base64://" + base64.StdEncoding.EncodeToString(imgData))
-	return &imgMsg, true, ""
+	return imgMsg, true, ""
 }
 
 // getELOString 获得玩家等级分的文本内容
@@ -596,8 +598,7 @@ func cleanTempFiles(groupCode int64) error {
 
 // generateCharBoardImage 生成文字版的棋盘
 func generateCharBoardImage(boardString string) (string, error) {
-	boardString = strings.TrimPrefix(boardString, "\n")
-	boardString = strings.TrimSuffix(boardString, "\n")
+	boardString = strings.Trim(boardString, "\n")
 	const FontSize = 72
 	h := FontSize*8 + 36
 	w := FontSize*9 + 24
@@ -605,8 +606,13 @@ func generateCharBoardImage(boardString string) (string, error) {
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
-	fnt := text.GNUUnifontFontFile
-	if err := dc.LoadFontFace(fnt, FontSize); err != nil {
+	// fnt := text.GNUUnifontFontFile
+	fontdata, err := file.GetLazyData("text.GNUUnifontFontFile", control.Md5File, true)
+	if err != nil {
+		// TODO: err solve
+		panic(err)
+	}
+	if err := dc.ParseFontFace(fontdata, FontSize); err != nil {
 		return "", err
 	}
 	lines := strings.Split(boardString, "\n")
@@ -642,7 +648,7 @@ func generateBoardSVG(svgFilePath, fenStr string, gameTurn chess.Color, sqs ...c
 	defer f.Close()
 
 	pos := &chess.Position{}
-	if err := pos.UnmarshalText([]byte(fenStr)); err != nil {
+	if err := pos.UnmarshalText(binary.StringToBytes(fenStr)); err != nil {
 		return err
 	}
 	yellow := color.RGBA{255, 255, 0, 1}

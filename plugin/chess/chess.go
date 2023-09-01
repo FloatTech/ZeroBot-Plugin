@@ -62,6 +62,9 @@ func init() {
 		SetBlock(true).
 		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.Sender == nil {
+				return
+			}
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			groupCode := ctx.Event.GroupID
@@ -102,6 +105,9 @@ func init() {
 		SetBlock(true).
 		Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.Sender == nil {
+				return
+			}
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			groupCode := ctx.Event.GroupID
@@ -133,6 +139,9 @@ func init() {
 		SetBlock(true).
 		Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
+			if ctx.Event.Sender == nil {
+				return
+			}
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			if replyMessage := rate(userUin, userName); len(replyMessage) >= 1 {
