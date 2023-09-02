@@ -61,7 +61,7 @@ func init() {
 		}
 		ctx.SendChain(message.ImageBytes(pic))
 	})
-	engine.OnRegex(`^出售(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾|唱片|美西螈)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^出售(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾|唱片|美西螈|三叉戟)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		thingName := ctx.State["regex_matched"].([]string)[1]
 		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
@@ -269,7 +269,7 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice*number)))
 	})
-	engine.OnRegex(`^购买(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾|唱片|美西螈)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^购买(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾|唱片|美西螈|三叉戟)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		thingName := ctx.State["regex_matched"].([]string)[1]
 		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
