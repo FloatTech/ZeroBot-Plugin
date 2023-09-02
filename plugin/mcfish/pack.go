@@ -345,7 +345,7 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 	textDy += textH * 2
 	for i, info := range articles {
 		name := info.Name
-		if info.Other != "" {
+		if info.Other != "" && info.Name != "美西螈" {
 			numberOfEquip++
 			name += "(" + info.Other + ")"
 		} else if strings.Contains(name, "鱼") {

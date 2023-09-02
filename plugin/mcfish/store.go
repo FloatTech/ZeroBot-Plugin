@@ -83,7 +83,7 @@ func init() {
 			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("找到以下物品:\n"))
 			for i, info := range articles {
-				if info.Other != "" {
+				if info.Other != "" && info.Name != "美西螈" {
 					msg = append(msg, message.Text("[", i, "] ", info.Name, "(", info.Other, ")\n"))
 				} else {
 					msg = append(msg, message.Text(
@@ -136,7 +136,7 @@ func init() {
 		}
 
 		var pice int
-		if strings.Contains(thingName, "竿") {
+		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 			poleInfo := strings.Split(articles[index].Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
 			maintenance, _ := strconv.Atoi(poleInfo[1])
@@ -219,7 +219,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.6]:", err))
 			return
 		}
-		if strings.Contains(thingName, "竿") {
+		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 			if pice >= thingPice[thingName]*3/4 { // 不值钱的删了
 				newCommodity := store{
 					Duration: time.Now().Unix(),
@@ -250,6 +250,8 @@ func init() {
 				})
 				if thingName == "海之眷顾" || thingName == "诱钓" || thingName == "唱片" {
 					things[0].Type = "article"
+				} else if thingName == "美西螈" {
+					things[0].Type = "pole"
 				} else {
 					things[0].Type = "fish"
 				}
@@ -288,7 +290,7 @@ func init() {
 		index := 0
 		pice := make([]int, 0, len(thingInfos))
 		for _, info := range thingInfos {
-			if strings.Contains(thingName, "竿") {
+			if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 				poleInfo := strings.Split(info.Other, "/")
 				durable, _ := strconv.Atoi(poleInfo[0])
 				maintenance, _ := strconv.Atoi(poleInfo[1])
@@ -306,7 +308,7 @@ func init() {
 			msg := make(message.Message, 0, 3+len(thingInfos))
 			msg = append(msg, message.Text("找到以下物品:\n"))
 			for i, info := range thingInfos {
-				if strings.Contains(thingName, "竿") {
+				if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 					msg = append(msg, message.Text(
 						"[", i, "]", info.Name, "(", info.Other, ") 价格:", pice[i], "\n"))
 				} else {
@@ -399,7 +401,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.13]:", err))
 			return
 		}
-		if strings.Contains(thingName, "竿") {
+		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 			newCommodity := article{
 				Duration: time.Now().Unix(),
 				Type:     "pole",
@@ -410,6 +412,19 @@ func init() {
 			err = dbdata.updateUserThingInfo(uid, newCommodity)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR at store.go.14]:", err))
+				return
+			}
+		} else if thingName == "美西螈" {
+			newCommodity := article{
+				Duration: time.Now().Unix(),
+				Type:     "pole",
+				Name:     thingName,
+				Number:   1,
+				Other:    "999/0/0/0",
+			}
+			err = dbdata.updateUserThingInfo(uid, newCommodity)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at store.go.14.1]:", err))
 				return
 			}
 		} else {
@@ -569,7 +584,7 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	for _, info := range stroeInfo {
 		textDy += textH * 2
 		name := info.Name
-		if info.Other != "" {
+		if info.Other != "" && info.Name != "美西螈" {
 			name += "(" + info.Other + ")"
 		}
 		numberStr := strconv.Itoa(info.Number)
