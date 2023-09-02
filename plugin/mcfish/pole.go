@@ -275,7 +275,7 @@ func init() {
 			),
 		)
 	})
-	engine.OnPrefix("附魔", getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^附魔(诱钓|海之眷顾)$`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		equipInfo, err := dbdata.getUserEquip(uid)
 		if err != nil {
@@ -286,7 +286,7 @@ func init() {
 			ctx.SendChain(message.Text("仅可对装备中的进行附魔"))
 			return
 		}
-		book := strings.TrimSpace(ctx.State["args"].(string))
+		book := ctx.State["regex_matched"].([]string)[1]
 		books, err := dbdata.getUserThingInfo(uid, book)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at pole.go.8]:", err))
