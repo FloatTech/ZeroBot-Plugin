@@ -16,6 +16,7 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/RomiChan/syncx"
 	"github.com/jinzhu/gorm"
 	"github.com/notnil/chess"
@@ -103,9 +104,11 @@ func draw(groupCode, senderUin int64) message.Message {
 		eloString = elo
 	}
 	replyMsg := textWithAt(senderUin, "接受和棋，游戏结束。\n"+eloString+chessString)
-	if err := cleanTempFiles(groupCode); err != nil {
-		log.Debugln("[chess]", "Fail to clean temp files", err)
-		return message.Message{message.Text("ERROR: ", err)}
+	if inkscapeExists() {
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
+		}
 	}
 	chessRoomMap.Delete(groupCode)
 	return replyMsg
@@ -169,9 +172,11 @@ func resign(groupCode, senderUin int64) message.Message {
 		replyMsg = textWithAt(senderUin, "对手认输，游戏结束，你胜利了。\n"+eloString+chessString)
 	}
 	// 删除临时文件
-	if err := cleanTempFiles(groupCode); err != nil {
-		log.Debugln("[chess]", "Fail to clean temp files", err)
-		return message.Message{message.Text("ERROR: ", err)}
+	if inkscapeExists() {
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
+		}
 	}
 	chessRoomMap.Delete(groupCode)
 	return replyMsg
@@ -231,9 +236,11 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		chessString := getChessString(*room)
 		replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
 		// 删除临时文件
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
+		if inkscapeExists() {
+			if err := cleanTempFiles(groupCode); err != nil {
+				log.Debugln("[chess]", "Fail to clean temp files", err)
+				return message.Message{message.Text("ERROR: ", err)}
+			}
 		}
 		chessRoomMap.Delete(groupCode)
 		return replyMsg
@@ -309,9 +316,11 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		if !room.isBlindfold {
 			replyMsg = append(replyMsg, boardImgEle)
 		}
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
+		if inkscapeExists() {
+			if err := cleanTempFiles(groupCode); err != nil {
+				log.Debugln("[chess]", "Fail to clean temp files", err)
+				return message.Message{message.Text("ERROR: ", err)}
+			}
 		}
 		chessRoomMap.Delete(groupCode)
 		return replyMsg
@@ -445,9 +454,11 @@ func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
 			return message.Message{message.Text("ERROR: ", err)}
 		}
 	}
-	if err := cleanTempFiles(groupCode); err != nil {
-		log.Debugln("[chess]", "Fail to clean temp files", err)
-		return message.Message{message.Text("ERROR: ", err)}
+	if inkscapeExists() {
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
+		}
 	}
 	chessRoomMap.Delete(groupCode)
 	msg := simpleText(hint)
@@ -470,7 +481,7 @@ func getBoardElement(groupCode int64) (message.MessageSegment, bool, string) {
 	}
 	// 未安装 inkscape 直接返回对局字符串
 	// TODO: 使用原生 go 库渲染 svg
-	if !commandExists("inkscape") {
+	if !inkscapeExists() {
 		boardString := room.chessGame.Position().Board().Draw()
 		boardImageB64, err := generateCharBoardImage(boardString)
 		if err != nil {
@@ -618,8 +629,7 @@ func generateCharBoardImage(boardString string) (string, error) {
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
-	// fnt := text.GNUUnifontFontFile
-	fontdata, err := file.GetLazyData("text.GNUUnifontFontFile", control.Md5File, true)
+	fontdata, err := file.GetLazyData(text.GNUUnifontFontFile, control.Md5File, true)
 	if err != nil {
 		// TODO: err solve
 		panic(err)
@@ -694,9 +704,9 @@ func getELORate(whiteUin, blackUin int64, dbService *chessDBService) (whiteRate 
 	return
 }
 
-// commandExists 判断 指令是否存在
-func commandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
+// inkscapeExists 判断 inkscape 是否存在
+func inkscapeExists() bool {
+	_, err := exec.LookPath("inkscape")
 	return err == nil
 }
 
