@@ -113,12 +113,12 @@ func init() {
 				msg = "(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
 			}
 		} else {
-			fishNmae, err := dbdata.pickFishFor(uid)
+			fishNmaes, err := dbdata.pickFishFor(uid, fishNumber)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
 				return
 			}
-			if fishNmae == "" {
+			if len(fishNmaes) == 0 {
 				equipInfo.Durable = 0
 				err = dbdata.updateUserEquip(equipInfo)
 				if err != nil {
@@ -127,7 +127,13 @@ func init() {
 				ctx.SendChain(message.Text("美西螈因为没吃到鱼,钓鱼时一直没回来,你失去了美西螈"))
 				return
 			}
-			msg = "(美西螈吃掉了一条" + fishNmae + ")"
+			msg = "(美西螈吃掉了"
+			fishNumber = 0
+			for name, number := range fishNmaes {
+				fishNumber += number
+				msg += strconv.Itoa(number) + name + "、"
+			}
+			msg += ")"
 		}
 		waitTime := 120 / (equipInfo.Induce + 1)
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你开始去钓鱼了,请耐心等待鱼上钩(预计要", time.Second*time.Duration(waitTime), ")"))

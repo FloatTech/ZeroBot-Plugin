@@ -470,7 +470,8 @@ func (sql *fishdb) setEquipFor(uid int64) (err error) {
 	return sql.db.Insert("fishState", &userInfo)
 }
 
-func (sql *fishdb) pickFishFor(uid int64) (fishName string, err error) {
+func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int, err error) {
+	fishNames = make(map[string]int, 6)
 	name := strconv.FormatInt(uid, 10) + "Pack"
 	sql.Lock()
 	defer sql.Unlock()
@@ -501,7 +502,21 @@ func (sql *fishdb) pickFishFor(uid int64) (fishName string, err error) {
 	if len(fishTypes) == 0 {
 		return
 	}
-	randNumber := rand.Intn(len(fishTypes))
-	fishTypes[randNumber].Number--
-	return fishTypes[randNumber].Name, sql.db.Insert(name, &fishTypes[randNumber])
+	max := 0
+	for _, info := range fishTypes {
+		max += info.Number
+	}
+	if max < number {
+		number = max
+	}
+	for i := number; i > 0; i-- {
+		randNumber := rand.Intn(len(fishTypes))
+		fishTypes[randNumber].Number--
+		err = sql.db.Insert(name, &fishTypes[randNumber])
+		if err != nil {
+			return
+		}
+		fishNames[fishTypes[randNumber].Name]++
+	}
+	return
 }
