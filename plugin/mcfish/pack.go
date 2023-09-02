@@ -267,7 +267,7 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 		return nil, err
 	}
 	titleW, titleH := canvas.MeasureString("背包信息")
-	front := 50.0
+	front := 45.0
 	err = canvas.ParseFontFace(fontdata, front)
 	if err != nil {
 		return nil, err
