@@ -254,7 +254,7 @@ func init() {
 				}
 				picName = thingName
 			default:
-				thingNameList["空气"] += 1
+				thingNameList["赛博空气"]++
 			}
 			if thingName != "" {
 				newThing := article{}
