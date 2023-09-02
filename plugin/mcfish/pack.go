@@ -42,6 +42,71 @@ func init() {
 		}
 		ctx.SendChain(message.ImageBytes(pic))
 	})
+	engine.OnFullMatch("当前装备概率明细", getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		uid := ctx.Event.UserID
+		equipInfo, err := dbdata.getUserEquip(uid)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at pack.go.1]:", err))
+			return
+		}
+		number, err := dbdata.getNumberFor(uid, "鱼")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
+			return
+		}
+		msg := make(message.Message, 0, 20+len(thingList))
+		msg = append(msg, message.At(uid), message.Text("\n大类概率:\n"))
+		probableList := make([]int, 4)
+		for _, info := range articlesInfo.ZoneInfo {
+			switch info.Name {
+			case "treasure":
+				probableList[0] = info.Probability
+			case "pole":
+				probableList[1] = info.Probability
+			case "fish":
+				probableList[2] = info.Probability
+			case "waste":
+				probableList[3] = info.Probability
+			}
+		}
+		if number > 100 || equipInfo.Equip == "美西螈" { //放大概率
+			probableList = []int{2, 8, 35, 45}
+		}
+		if equipInfo.Favor > 0 {
+			probableList[0] += equipInfo.Favor / 3
+			probableList[1] += equipInfo.Favor / 2
+			probableList[2] += equipInfo.Favor
+		}
+		probable := probableList[0]
+		msg = append(msg, message.Text("宝藏 : ", probableList[0], "%\n"))
+		probable += probableList[1]
+		msg = append(msg, message.Text("鱼竿 : ", probableList[1], "%\n"))
+		probable += probableList[2]
+		msg = append(msg, message.Text("鱼类 : ", probableList[2], "%\n"))
+		probable += probableList[3]
+		msg = append(msg, message.Text("垃圾 : ", probableList[3], "%\n"))
+		msg = append(msg, message.Text("合计 : ", probable, "%\n"))
+		msg = append(msg, message.Text("-----------\n宝藏概率:\n"))
+		for _, name := range treasureList {
+			msg = append(msg, message.Text(name, " : ",
+				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+				"%\n"))
+		}
+		msg = append(msg, message.Text("-----------\n鱼竿概率:\n"))
+		for _, name := range poleList {
+			msg = append(msg, message.Text(name, " : ",
+				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+				"%\n"))
+		}
+		msg = append(msg, message.Text("-----------\n鱼类概率:\n"))
+		for _, name := range fishList {
+			msg = append(msg, message.Text(name, " : ",
+				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+				"%\n"))
+		}
+		msg = append(msg, message.Text("-----------"))
+		ctx.Send(msg)
+	})
 }
 
 func drawPackImage(uid int64, equipInfo equip, articles []article) (imagePicByte []byte, err error) {
@@ -205,7 +270,7 @@ func drawEquipInfoBlock(equipInfo equip, fontdata []byte) (image.Image, error) {
 	canvas.SetRGB255(150, 150, 150)
 	canvas.Fill()
 	canvas.SetRGB255(0, 0, 0)
-	durableW := barW * float64(equipInfo.Durable) / float64(equipAttribute[equipInfo.Equip])
+	durableW := barW * float64(equipInfo.Durable) / float64(durationList[equipInfo.Equip])
 	canvas.DrawRectangle(textDx+textW+5, textDy, durableW, textH*1.2)
 	canvas.SetRGB255(102, 102, 102)
 	canvas.Fill()
@@ -345,8 +410,8 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 	textDy += textH * 2
 	for i, info := range articles {
 		name := info.Name
-		if info.Other != "" && info.Name != "美西螈" {
-			if info.Name != "三叉戟" {
+		if info.Other != "" {
+			if strings.Contains(info.Name, "竿") {
 				numberOfEquip++
 			}
 			name += "(" + info.Other + ")"
