@@ -350,7 +350,7 @@ func init() {
 			return
 		}
 		max := len(articles)
-		if max == 0 {
+		if max < 3 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你的合成材料不足"))
 			return
 		}
