@@ -219,20 +219,16 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.6]:", err))
 			return
 		}
+		newCommodity := store{}
 		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 			if pice >= thingPice[thingName]*3/4 { // 不值钱的删了
-				newCommodity := store{
+				newCommodity = store{
 					Duration: time.Now().Unix(),
 					Type:     "pole",
 					Name:     thingName,
 					Number:   1,
 					Price:    pice,
 					Other:    thing.Other,
-				}
-				err = dbdata.updateStoreInfo(newCommodity)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR at store.go.7]:", err))
-					return
 				}
 			}
 		} else {
@@ -248,20 +244,22 @@ func init() {
 					Number:   0,
 					Price:    pice,
 				})
-				if thingName == "海之眷顾" || thingName == "诱钓" || thingName == "唱片" {
+				switch {
+				case thingName == "海之眷顾" || thingName == "诱钓" || thingName == "唱片":
 					things[0].Type = "article"
-				} else if thingName == "美西螈" {
+				case thingName == "美西螈":
 					things[0].Type = "pole"
-				} else {
+				default:
 					things[0].Type = "fish"
 				}
 			}
-			things[0].Number += number
-			err = dbdata.updateStoreInfo(things[0])
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR at store.go.9]:", err))
-				return
-			}
+			newCommodity = things[0]
+			newCommodity.Number += number
+		}
+		err = dbdata.updateStoreInfo(newCommodity)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.9]:", err))
+			return
 		}
 		pice = pice * 8 / 10
 		err = wallet.InsertWalletOf(uid, pice*number)
@@ -401,33 +399,25 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.13]:", err))
 			return
 		}
-		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
-			newCommodity := article{
+		newCommodity := article{}
+		switch {
+		case strings.Contains(thingName, "竿") || thingName == "三叉戟":
+			newCommodity = article{
 				Duration: time.Now().Unix(),
 				Type:     "pole",
 				Name:     thingName,
 				Number:   1,
 				Other:    thing.Other,
 			}
-			err = dbdata.updateUserThingInfo(uid, newCommodity)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR at store.go.14]:", err))
-				return
-			}
-		} else if thingName == "美西螈" {
-			newCommodity := article{
+		case thingName == "美西螈":
+			newCommodity = article{
 				Duration: time.Now().Unix(),
 				Type:     "pole",
 				Name:     thingName,
 				Number:   1,
 				Other:    "999/0/0/0",
 			}
-			err = dbdata.updateUserThingInfo(uid, newCommodity)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR at store.go.14.1]:", err))
-				return
-			}
-		} else {
+		default:
 			things, err1 := dbdata.getUserThingInfo(uid, thingName)
 			if err1 != nil {
 				ctx.SendChain(message.Text("[ERROR at store.go.15]:", err1))
@@ -445,12 +435,13 @@ func init() {
 					things[0].Type = "fish"
 				}
 			}
-			things[0].Number += number
-			err = dbdata.updateUserThingInfo(uid, things[0])
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR at store.go.16]:", err))
-				return
-			}
+			newCommodity = things[0]
+			newCommodity.Number += number
+		}
+		err = dbdata.updateUserThingInfo(uid, newCommodity)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.14]:", err))
+			return
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("购买成功")))
 	})
