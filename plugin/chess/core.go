@@ -103,9 +103,11 @@ func draw(groupCode, senderUin int64) message.Message {
 		eloString = elo
 	}
 	replyMsg := textWithAt(senderUin, "接受和棋，游戏结束。\n"+eloString+chessString)
-	if err := cleanTempFiles(groupCode); err != nil {
-		log.Debugln("[chess]", "Fail to clean temp files", err)
-		return message.Message{message.Text("ERROR: ", err)}
+	if commandExists("inkscape") {
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
+		}
 	}
 	chessRoomMap.Delete(groupCode)
 	return replyMsg
@@ -169,9 +171,11 @@ func resign(groupCode, senderUin int64) message.Message {
 		replyMsg = textWithAt(senderUin, "对手认输，游戏结束，你胜利了。\n"+eloString+chessString)
 	}
 	// 删除临时文件
-	if err := cleanTempFiles(groupCode); err != nil {
-		log.Debugln("[chess]", "Fail to clean temp files", err)
-		return message.Message{message.Text("ERROR: ", err)}
+	if commandExists("inkscape") {
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
+		}
 	}
 	chessRoomMap.Delete(groupCode)
 	return replyMsg
@@ -231,9 +235,11 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		chessString := getChessString(*room)
 		replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
 		// 删除临时文件
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
+		if commandExists("inkscape") {
+			if err := cleanTempFiles(groupCode); err != nil {
+				log.Debugln("[chess]", "Fail to clean temp files", err)
+				return message.Message{message.Text("ERROR: ", err)}
+			}
 		}
 		chessRoomMap.Delete(groupCode)
 		return replyMsg
@@ -309,9 +315,11 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		if !room.isBlindfold {
 			replyMsg = append(replyMsg, boardImgEle)
 		}
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
+		if commandExists("inkscape") {
+			if err := cleanTempFiles(groupCode); err != nil {
+				log.Debugln("[chess]", "Fail to clean temp files", err)
+				return message.Message{message.Text("ERROR: ", err)}
+			}
 		}
 		chessRoomMap.Delete(groupCode)
 		return replyMsg
@@ -445,9 +453,11 @@ func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
 			return message.Message{message.Text("ERROR: ", err)}
 		}
 	}
-	if err := cleanTempFiles(groupCode); err != nil {
-		log.Debugln("[chess]", "Fail to clean temp files", err)
-		return message.Message{message.Text("ERROR: ", err)}
+	if commandExists("inkscape") {
+		if err := cleanTempFiles(groupCode); err != nil {
+			log.Debugln("[chess]", "Fail to clean temp files", err)
+			return message.Message{message.Text("ERROR: ", err)}
+		}
 	}
 	chessRoomMap.Delete(groupCode)
 	msg := simpleText(hint)
