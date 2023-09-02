@@ -23,8 +23,6 @@ type fishdb struct {
 
 /*
 type userInfo struct {
-	UserID int64 // QQ
-	Bait   int   // 鱼饵
 	// 鱼竿 10% 装备/耐久/维修次数/诱钓/眷顾
 	WoodenPole  string // 木竿属性 70%
 	IronPole    string // 铁竿属性 20%
