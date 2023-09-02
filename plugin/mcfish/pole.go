@@ -448,7 +448,7 @@ func init() {
 			favorLevel += poles[index].Favor
 			induceLevel += poles[index].Induce
 		}
-		if rand.Intn(10) > 6 {
+		if rand.Intn(100) >= 90 {
 			ctx.Send(
 				message.ReplyWithMessage(ctx.Event.MessageID,
 					message.Text("合成失败,材料已销毁"),
