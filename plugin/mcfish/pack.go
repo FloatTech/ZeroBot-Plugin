@@ -267,27 +267,48 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 		return nil, err
 	}
 	titleW, titleH := canvas.MeasureString("背包信息")
-	err = canvas.ParseFontFace(fontdata, 35)
+	front := 50.0
+	err = canvas.ParseFontFace(fontdata, front)
 	if err != nil {
 		return nil, err
 	}
 	_, textH := canvas.MeasureString("高度")
 
-	nameW := 0.0
-	for _, info := range articles {
+	nameWOfFiest := 0.0
+	nameWOfSecond := 0.0
+	for i, info := range articles {
 		textW, _ := canvas.MeasureString(info.Name + "(" + info.Other + ")")
-		if textW > nameW {
-			nameW = textW
+		if i%2 == 0 && textW > nameWOfFiest {
+			nameWOfFiest = textW
+		} else if textW > nameWOfSecond {
+			nameWOfSecond = textW
 		}
 	}
 	valueW, _ := canvas.MeasureString("10000")
 
-	bolckW := int(10 + nameW + 20 + valueW + 10)
-	backY := 10 + int(titleH*1.6) + 10 + int(textH*2)*(len(articles)+1)
-	if bolckW*2 < 1000 {
-		backY = 10 + int(titleH*1.6) + 10 + int(textH*2)*(math.Ceil(len(articles), 2)+1)
+	if (10+nameWOfFiest+10+valueW+10)+(10+nameWOfSecond+10+valueW+10) > 980 {
+		front = 32.0
+		err = canvas.ParseFontFace(fontdata, front)
+		if err != nil {
+			return nil, err
+		}
+		_, textH = canvas.MeasureString("高度")
+
+		nameWOfFiest = 0
+		nameWOfSecond = 0
+		for i, info := range articles {
+			textW, _ := canvas.MeasureString(info.Name + "(" + info.Other + ")")
+			if i%2 == 0 && textW > nameWOfFiest {
+				nameWOfFiest = textW
+			} else if textW > nameWOfSecond {
+				nameWOfSecond = textW
+			}
+		}
+		valueW, _ = canvas.MeasureString("10000")
 	}
-	canvas = gg.NewContext(1000, math.Max(backY, 300))
+	wallW := (980 - (10 + nameWOfFiest + 10 + valueW + 10) - (10 + nameWOfSecond + 10 + valueW + 10)) / 2
+	backY := math.Max(10+int(titleH*1.6)+10+int(textH*2)*(math.Ceil(len(articles), 2)+1), 500)
+	canvas = gg.NewContext(1000, backY)
 	// 画底色
 	canvas.DrawRectangle(0, 0, 1000, float64(backY))
 	canvas.SetRGBA255(255, 255, 255, 150)
@@ -311,56 +332,38 @@ func drawArticleInfoBlock(uid int64, articles []article, fontdata []byte) (image
 	canvas.Stroke()
 
 	textDy := 10 + titleH*1.7
-	if err = canvas.ParseFontFace(fontdata, 35); err != nil {
+	if err = canvas.ParseFontFace(fontdata, front); err != nil {
 		return nil, err
 	}
 	canvas.SetColor(color.Black)
 	numberOfFish := 0
 	numberOfEquip := 0
-	if bolckW*2 < 1000 {
-		wall := float64(1000-bolckW*2) / 2
-		canvas.DrawStringAnchored("名称", wall+10+nameW/2, textDy+textH/2, 0.5, 0.5)
-		canvas.DrawStringAnchored("数量", wall+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-		canvas.DrawStringAnchored("名称", wall+float64(bolckW)+10+nameW/2, textDy+textH/2, 0.5, 0.5)
-		canvas.DrawStringAnchored("数量", wall+float64(bolckW)+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-		textDy += textH * 2
-		cell := 0
-		for _, info := range articles {
-			name := info.Name
-			if info.Other != "" {
-				numberOfEquip++
-				name += "(" + info.Other + ")"
-			} else if strings.Contains(name, "鱼") {
-				numberOfFish += info.Number
-			}
-			valueStr := strconv.Itoa(info.Number)
-			if cell == 2 {
-				cell = 0
+	canvas.DrawStringAnchored("名称", wallW+20+nameWOfFiest/2, textDy+textH/2, 0.5, 0.5)
+	canvas.DrawStringAnchored("数量", wallW+20+nameWOfFiest+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+	canvas.DrawStringAnchored("名称", wallW+20+nameWOfFiest+10+valueW+10+10+nameWOfSecond/2, textDy+textH/2, 0.5, 0.5)
+	canvas.DrawStringAnchored("数量", wallW+20+nameWOfFiest+10+valueW+10+10+nameWOfSecond+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+	textDy += textH * 2
+	for i, info := range articles {
+		name := info.Name
+		if info.Other != "" {
+			numberOfEquip++
+			name += "(" + info.Other + ")"
+		} else if strings.Contains(name, "鱼") {
+			numberOfFish += info.Number
+		}
+		valueStr := strconv.Itoa(info.Number)
+		if i%2 == 0 {
+			if i != 0 {
 				textDy += textH * 2
 			}
-			canvas.DrawStringAnchored(name, wall+float64((10+bolckW)*cell)+10+nameW/2, textDy+textH/2, 0.5, 0.5)
-			canvas.DrawStringAnchored(valueStr, wall+float64((10+bolckW)*cell)+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-			cell++
+			canvas.DrawStringAnchored(name, wallW+20+nameWOfFiest/2, textDy+textH/2, 0.5, 0.5)
+			canvas.DrawStringAnchored(valueStr, wallW+20+nameWOfFiest+10+valueW/2, textDy+textH/2, 0.5, 0.5)
+		} else {
+			canvas.DrawStringAnchored(name, wallW+20+nameWOfFiest+10+valueW+10+10+nameWOfSecond/2, textDy+textH/2, 0.5, 0.5)
+			canvas.DrawStringAnchored(valueStr, wallW+20+nameWOfFiest+10+valueW+10+10+nameWOfSecond+10+valueW/2, textDy+textH/2, 0.5, 0.5)
 		}
-	} else {
-		canvas.DrawStringAnchored("名称", 10+nameW/2, textDy+textH/2, 0.5, 0.5)
-		canvas.DrawStringAnchored("数量", float64(1000-bolckW)/2+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-		for _, info := range articles {
-			name := info.Name
-			if info.Other != "" {
-				numberOfEquip++
-				name += "(" + info.Other + ")"
-			} else if strings.Contains(name, "鱼") {
-				numberOfFish += info.Number
-			}
-			valueStr := strconv.Itoa(info.Number)
-			textDy += textH * 2
-			canvas.DrawStringAnchored(name, 10+nameW/2, textDy+textH/2, 0.5, 0.5)
-			canvas.DrawStringAnchored(valueStr, float64(1000-bolckW)/2+10+nameW+10+valueW/2, textDy+textH/2, 0.5, 0.5)
-		}
-
 	}
-	if err = canvas.ParseFontFace(fontdata, 35); err != nil {
+	if err = canvas.ParseFontFace(fontdata, 30); err != nil {
 		return nil, err
 	}
 	textDy = 10

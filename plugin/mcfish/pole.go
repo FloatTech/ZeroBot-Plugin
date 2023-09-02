@@ -30,21 +30,21 @@ func init() {
 			ctx.SendChain(message.Text("你的背包不存在该物品"))
 			return
 		}
-		poles := make(map[int]equip, len(articles))
-		for i, info := range articles {
+		poles := make([]equip, 0, len(articles))
+		for _, info := range articles {
 			poleInfo := strings.Split(info.Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			poles[i] = equip{
+			poles = append(poles, equip{
 				ID:          uid,
 				Equip:       info.Name,
 				Durable:     durable,
 				Maintenance: maintenance,
 				Induce:      induceLevel,
 				Favor:       favorLevel,
-			}
+			})
 		}
 		check := false
 		index := 0
@@ -167,21 +167,21 @@ func init() {
 			ctx.SendChain(message.Text("你的背包不存在相同鱼竿进行修复"))
 			return
 		}
-		poles := make(map[int]equip, len(articles))
-		for i, info := range articles {
+		poles := make([]equip, 0, len(articles))
+		for _, info := range articles {
 			poleInfo := strings.Split(info.Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			poles[i] = equip{
+			poles = append(poles, equip{
 				ID:          uid,
 				Equip:       info.Name,
 				Durable:     durable,
 				Maintenance: maintenance,
 				Induce:      induceLevel,
 				Favor:       favorLevel,
-			}
+			})
 		}
 		index := 0
 		check := false
@@ -243,17 +243,20 @@ func init() {
 		if equipInfo.Durable > equipAttribute[equipInfo.Equip] {
 			equipInfo.Durable = equipAttribute[equipInfo.Equip]
 		}
-		if rand.Intn(100) < 50 {
+		msg := ""
+		if newEquipInfo.Induce != 0 && rand.Intn(100) < 50 {
 			equipInfo.Induce += newEquipInfo.Induce
 			if equipInfo.Induce > 3 {
 				equipInfo.Induce = 3
 			}
+			msg += ",诱钓等级提升至" + enchantLevel[equipInfo.Induce]
 		}
-		if rand.Intn(100) < 50 {
+		if newEquipInfo.Favor != 0 && rand.Intn(100) < 50 {
 			equipInfo.Favor += newEquipInfo.Favor
 			if equipInfo.Favor > 3 {
 				equipInfo.Favor = 3
 			}
+			msg += ",海之眷顾等级提升至" + enchantLevel[equipInfo.Favor]
 		}
 		thingInfo := articles[index]
 		thingInfo.Number = 0
@@ -268,7 +271,7 @@ func init() {
 		}
 		ctx.Send(
 			message.ReplyWithMessage(ctx.Event.MessageID,
-				message.Text("鱼竿修复成功,耐久提高至", equipInfo.Durable),
+				message.Text("鱼竿修复成功,耐久提高至", equipInfo.Durable, msg),
 			),
 		)
 	})
@@ -351,21 +354,21 @@ func init() {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你的合成材料不足"))
 			return
 		}
-		poles := make(map[int]equip, max)
-		for i, info := range articles {
+		poles := make([]equip, 0, max)
+		for _, info := range articles {
 			poleInfo := strings.Split(info.Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			poles[i] = equip{
+			poles = append(poles, equip{
 				ID:          uid,
 				Equip:       info.Name,
 				Durable:     durable,
 				Maintenance: maintenance,
 				Induce:      induceLevel,
 				Favor:       favorLevel,
-			}
+			})
 		}
 		list := []int{0, 1, 2}
 		check := false
@@ -375,7 +378,6 @@ func init() {
 			for i, info := range poles {
 				msg = append(msg, message.Text("[", i, "] ", info.Equip, " : 耐", info.Durable, "/修", info.Maintenance,
 					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor], "\n"))
-				time.Sleep(time.Microsecond * 500)
 			}
 			msg = append(msg, message.Text("————————\n输入3个序号进行合成(用空格分割),或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
@@ -454,12 +456,13 @@ func init() {
 			)
 			return
 		}
+		attribute := strconv.Itoa(equipAttribute[thingName]) + "/0/" + strconv.Itoa(induceLevel/3) + "/" + strconv.Itoa(favorLevel/3)
 		newthing := article{
 			Duration: time.Now().Unix(),
 			Type:     "pole",
 			Name:     thingName,
 			Number:   1,
-			Other:    strconv.Itoa(equipAttribute[thingName]) + "/0/" + strconv.Itoa(induceLevel/3) + "/" + strconv.Itoa(favorLevel/3),
+			Other:    attribute,
 		}
 		err = dbdata.updateUserThingInfo(uid, newthing)
 		if err != nil {
@@ -468,7 +471,7 @@ func init() {
 		}
 		ctx.Send(
 			message.ReplyWithMessage(ctx.Event.MessageID,
-				message.Text(thingName, "合成成功"),
+				message.Text(thingName, "合成成功\n属性: ", attribute),
 			),
 		)
 	})

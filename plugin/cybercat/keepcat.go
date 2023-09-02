@@ -48,7 +48,7 @@ func init() {
 		}
 		now := time.Now().Hour()
 		if !cmd && ((now < 6 || (now > 8 && now < 11) || (now > 14 && now < 17) || now > 21) && (userInfo.Satiety > 50 || rand.Intn(3) == 1)) {
-			if userInfo.Satiety > 50 {
+			if userInfo.Satiety > 90 {
 				ctx.SendChain(message.Text("猫猫拍了拍饱饱的肚子表示并不饿呢"))
 				return
 			}

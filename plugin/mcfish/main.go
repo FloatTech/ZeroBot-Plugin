@@ -121,15 +121,15 @@ var (
 		Help: "一款钓鱼模拟器\n----------指令----------\n" +
 			"- 钓鱼看板/钓鱼商店\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n" +
 			"- 钓鱼背包\n- 装备[xx竿|三叉戟|美西螈]\n- 附魔[诱钓|海之眷顾]\n- 修复鱼竿\n- 合成[xx竿|三叉戟]\n" +
-			"- 进行钓鱼\n" +
+			"- 进行钓鱼\n- 进行n次钓鱼\n" +
 			"规则:\n1.每日的商店价格是波动的!!如何最大化收益自己考虑一下喔\n" +
 			"2.装备信息:\n-> 木竿 : 耐久上限:30 均价:100 上钩概率:7%\n-> 铁竿 : 耐久上限:50 均价:300 上钩概率:2%\n-> 金竿 : 耐久上限:70 均价700 上钩概率:0.6%\n" +
 			"-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.3%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.1%\n-> 三叉戟 : 可使钓的鱼类物品数量变成3 耐久上限:300 均价4000 只能合成和交易\n" +
 			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间. 均价:1000, 上钩概率:0.59%\n-> 海之眷顾 : 增加宝藏上钩概率. 均价:2500, 上钩概率:0.39%\n" +
-			"4.稀有物品:\n-> 唱片 : 出售物品时使用该物品使价格翻倍. 均价:3000, 上钩概率:0.01%\n-> 美西螈 : 可装备,获得隐形[钓鱼佬]buff,并让钓到除鱼竿和美西螈外的物品数量变成3,无耐久上限.不可修复/附魔,每次钓鱼消耗任意一条鱼. 均价:3000, 上钩概率:0.01%\n" +
+			"4.稀有物品:\n-> 唱片 : 出售物品时使用该物品使价格翻倍. 均价:3000, 上钩概率:0.01%\n-> 美西螈 : 可装备,获得隐形[钓鱼佬]buff,并让钓到除鱼竿和美西螈外的物品数量变成3,无耐久上限.不可修复/附魔,每次钓鱼消耗任意一鱼类物品. 均价:3000, 上钩概率:0.01%\n" +
 			"5.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:20.7%\n-> 鲑鱼 : 均价:50 上钩概率:6%\n-> 热带鱼 : 均价:100 上钩概率:1.8%\n-> 河豚 : 均价:300 上钩概率:0.9%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.3%\n-> 墨鱼 : 均价:500 上钩概率:0.3%\n" +
 			"6.物品BUFF:\n-> 钓鱼佬 : 当背包名字含有'鱼'的物品数量超过100时激活,钓到物品概率提高至90%\n-> 修复大师 : 当背包鱼竿数量超过10时激活,修复物品时耐久百分百继承\n" +
-			"7.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率70%,继承附魔等级合/3的取整等级\n" +
+			"7.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率70%,继承附魔等级合/3的等级\n" +
 			"8.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为56%\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
@@ -197,7 +197,7 @@ func (sql *fishdb) getUserPack(uid int64) (thingInfos []article, err error) {
 	if count == 0 {
 		return
 	}
-	err = sql.db.FindFor(strconv.FormatInt(uid, 10)+"Pack", &userInfo, "ORDER by Type, Name ASC", func() error {
+	err = sql.db.FindFor(strconv.FormatInt(uid, 10)+"Pack", &userInfo, "ORDER by Type, Name, Other ASC", func() error {
 		thingInfos = append(thingInfos, userInfo)
 		return nil
 	})
@@ -262,7 +262,7 @@ func (sql *fishdb) getStoreInfo() (thingInfos []store, err error) {
 	if count == 0 {
 		return
 	}
-	err = sql.db.FindFor("store", &thingInfo, "ORDER by Type, Name ASC", func() error {
+	err = sql.db.FindFor("store", &thingInfo, "ORDER by Type, Name, Price ASC", func() error {
 		thingInfos = append(thingInfos, thingInfo)
 		return nil
 	})
@@ -310,24 +310,30 @@ func (sql *fishdb) updateStoreInfo(thingInfo store) (err error) {
 }
 
 // 更新上限信息
-func (sql *fishdb) updateFishInfo(uid int64) (ok bool, err error) {
+func (sql *fishdb) updateFishInfo(uid int64, number int) (residue int, err error) {
 	sql.Lock()
 	defer sql.Unlock()
 	userInfo := fishState{ID: uid}
 	err = sql.db.Create("fishState", &userInfo)
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 	_ = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
 	if time.Unix(userInfo.Duration, 0).Day() != time.Now().Day() {
 		userInfo.Fish = 0
 		userInfo.Duration = time.Now().Unix()
 	}
-	if userInfo.Fish > fishLimit {
-		return false, nil
+	if userInfo.Fish >= fishLimit {
+		return 0, nil
 	}
-	userInfo.Fish++
-	return true, sql.db.Insert("fishState", &userInfo)
+	residue = number
+	if userInfo.Fish+number > fishLimit {
+		residue = fishLimit - userInfo.Fish
+		number = residue
+	}
+	userInfo.Fish += number
+	err = sql.db.Insert("fishState", &userInfo)
+	return
 }
 
 // 更新上限信息
