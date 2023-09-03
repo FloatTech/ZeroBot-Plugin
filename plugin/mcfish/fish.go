@@ -311,13 +311,13 @@ func init() {
 				pic, err := engine.GetLazyData(picName+".png", false)
 				if err != nil {
 					logrus.Warnln("[mcfish]error:", err)
-					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", numberOfFish,thingName, "\n", msg))
+					ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", numberOfFish, thingName, "\n", msg))
 					return
 				}
-				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了",numberOfFish, thingName, "\n", msg), message.ImageBytes(pic))
+				ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", numberOfFish, thingName, "\n", msg), message.ImageBytes(pic))
 				return
 			}
-			ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了",numberOfFish, thingName, "\n", msg))
+			ctx.SendChain(message.At(uid), message.Text("恭喜你钓到了", numberOfFish, thingName, "\n", msg))
 			return
 		}
 		msgInfo := make(message.Message, 0, 3+len(thingNameList))
