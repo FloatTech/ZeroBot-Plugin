@@ -32,11 +32,11 @@ type jsonInfo struct {
 	ArticleInfo []articleInfo `json:"物品"` // 物品信息
 }
 type zoneInfo struct {
-	Name        string `json:"类型"`        //类型
+	Name        string `json:"类型"`        // 类型
 	Probability int    `json:"概率[0-100)"` // 概率
 }
 type articleInfo struct {
-	Name        string `json:"名称"`                  //名称
+	Name        string `json:"名称"`                  // 名称
 	Type        string `json:"类型"`                  // 类型
 	Probability int    `json:"概率[0-100),omitempty"` // 概率
 	Durable     int    `json:"耐久上限,omitempty"`      // 耐久
@@ -135,7 +135,7 @@ var (
 )
 
 func init() {
-	//go func() {
+	// go func() {
 	_, err := engine.GetLazyData("articlesInfo.json", false)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func init() {
 		}
 		min[info.Type] += info.Probability
 	}
-	//}()
+	// }()
 }
 
 // 更新上限信息
