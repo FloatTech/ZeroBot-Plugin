@@ -127,7 +127,7 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	en.OnRegex(`^支付(\s*\[CQ:at,qq=)?(\d+).*([1-9]\d*)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^支付\s*(\[CQ:at,qq=)?(\d+).*([1-9]\d*)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
 		transform, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
