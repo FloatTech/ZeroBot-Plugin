@@ -104,7 +104,7 @@ var (
 )
 
 var (
-	engine = control.Register("mcfish", &ctrl.Options[*zero.Ctx]{
+	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "钓鱼",
 		Help: "一款钓鱼模拟器\n----------指令----------\n" +
