@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	en := control.Register("inject", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "注入指令",
 		Help:             "- run[CQ码]",

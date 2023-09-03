@@ -32,7 +32,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("wordcount", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "聊天热词",
 		Help:             "- 热词 [群号] [消息数目]|热词 123456 1000",

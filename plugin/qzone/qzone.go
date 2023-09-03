@@ -36,7 +36,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("qzone", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "QQ空间表白墙",
 		Help: "- 登录QQ空间 (Cookie过期很快, 要经常登录)\n" +

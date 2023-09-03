@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("shindan", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "shindan测定",
 		Help: "- 今天是什么少女[@xxx]\n" +

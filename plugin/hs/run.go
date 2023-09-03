@@ -41,7 +41,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("hs", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "炉石搜卡",
 		Help: "- 搜卡[xxxx]\n" +

@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	control.Register("nbnhhsh", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "拼音首字母释义工具",
 		Help:             "- ?? [缩写]",

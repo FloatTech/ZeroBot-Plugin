@@ -16,7 +16,7 @@ const throttle = 3 // 不可超过 9
 var sm syncx.Map[int64, string]
 
 func init() {
-	engine := control.Register("breakrepeat", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "打断复读",
 		Help:             "- 打断" + strconv.Itoa(throttle) + "次以上复读\n",

@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("ymgal", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "月慕galgame相关",
 		Help:             "- 随机galCG\n- 随机gal表情包\n- galCG[xxx]\n- gal表情包[xxx]\n- 更新gal",

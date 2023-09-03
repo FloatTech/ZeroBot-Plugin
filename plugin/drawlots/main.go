@@ -40,7 +40,7 @@ var (
 		}
 		return lotsList
 	}()
-	en = control.Register("drawlots", &ctrl.Options[*zero.Ctx]{
+	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "多功能抽签",
 		Help: "支持图包文件夹和gif抽签\n" +

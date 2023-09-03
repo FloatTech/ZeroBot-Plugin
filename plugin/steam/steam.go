@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	engine = control.Register("steam", &ctrl.Options[*zero.Ctx]{
+	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Extra:            control.ExtraFromString("steam"),
 		Brief:            "steam相关插件",

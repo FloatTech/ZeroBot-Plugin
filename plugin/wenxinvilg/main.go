@@ -67,7 +67,7 @@ func init() { // 插件主体
 		defer process.GlobalInitMutex.Unlock()
 		name = zero.BotConfig.NickName[0]
 	}()
-	engine := control.Register("wenxinvilg", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "文心AI画图",
 		Help: "基于百度文心的免费AI画图插件,\n因为是免费的,图片质量你懂的。\n" +

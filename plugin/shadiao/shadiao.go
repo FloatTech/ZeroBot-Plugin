@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	engine = control.Register("shadiao", &ctrl.Options[*zero.Ctx]{
+	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "沙雕app", // 也许可以更好
 		Help:             "- 哄我\n- 渣我\n- 来碗绿茶\n- 发个朋友圈\n- 来碗毒鸡汤\n- 讲个段子\n- 马丁路德骂我\n",

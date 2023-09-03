@@ -60,7 +60,7 @@ type Quotes struct {
 }
 
 func init() {
-	engine := control.Register("wantquotes", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Extra:            control.ExtraFromString("wantquotes"),
 		Brief:            "据意查句",

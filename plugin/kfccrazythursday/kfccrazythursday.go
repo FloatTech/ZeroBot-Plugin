@@ -15,7 +15,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("kfccrazythursday", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "疯狂星期四",
 		Help:             "疯狂星期四\n",

@@ -48,7 +48,7 @@ var (
 
 // 查成分的
 func init() {
-	engine := control.Register("bilibili", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "b站查成分查弹幕",
 		Help: "- >vup info [xxx]\n" +

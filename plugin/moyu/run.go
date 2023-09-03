@@ -18,7 +18,7 @@ var (
 )
 
 func init() { // 插件主体
-	control.Register("moyu", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "摸鱼提醒",
 		Help: "- /启用 moyu\n" +

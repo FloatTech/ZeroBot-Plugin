@@ -31,7 +31,7 @@ var speakers = map[string]uint{
 var 原 = newapikeystore("./data/tts/o.txt")
 
 func init() {
-	en := control.Register("moegoe", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "日韩中 VITS 模型拟声",
 		Help: "- 让[宁宁|爱瑠|芳乃|茉子|丛雨|小春|七海]说(日语)\n" +

@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("choose", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "选择困难症帮手",
 		Help: "例: 选择可口可乐还是百事可乐\n" +

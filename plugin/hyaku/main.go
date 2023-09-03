@@ -51,7 +51,7 @@ func (l *line) String() string {
 var lines [100]*line
 
 func init() {
-	engine := control.Register("hyaku", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "百人一首",
 		Help: "- 百人一首(随机发一首)\n" +

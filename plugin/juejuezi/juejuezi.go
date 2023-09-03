@@ -23,7 +23,7 @@ const (
 )
 
 func init() {
-	control.Register("juejuezi", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "绝绝子生成器",
 		Help:             "例: 喝奶茶绝绝子\n绝绝子吃饭",

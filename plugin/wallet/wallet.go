@@ -20,7 +20,7 @@ import (
 )
 
 func init() {
-	en := control.Register("wallet", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "钱包",
 		Help:              "- 查看我的钱包\n- 查看钱包排名",

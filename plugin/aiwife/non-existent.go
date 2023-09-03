@@ -17,7 +17,7 @@ const (
 )
 
 func init() { // 插件主体
-	control.Register("aiwife", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "ai随机生成老婆",
 		Help:             "- waifu | 随机waifu",

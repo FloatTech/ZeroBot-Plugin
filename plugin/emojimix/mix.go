@@ -17,7 +17,7 @@ import (
 const bed = "https://www.gstatic.com/android/keyboard/emojikitchen/%d/u%x/u%x_u%x.png"
 
 func init() {
-	control.Register("emojimix", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "合成emoji",
 		Help:             "- [emoji][emoji]",

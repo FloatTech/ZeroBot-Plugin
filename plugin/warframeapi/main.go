@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	eng := control.Register("warframeapi", &ctrl.Options[*zero.Ctx]{
+	eng := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "星际战甲",
 		Help: "- wf时间同步\n" +

@@ -51,7 +51,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("tarot", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "塔罗牌",
 		Help: "- 抽[塔罗牌|大阿卡纳|小阿卡纳]\n" +

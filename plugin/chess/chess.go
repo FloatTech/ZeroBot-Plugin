@@ -30,7 +30,7 @@ const helpString = `- 参与/创建一盘游戏：「下棋」(chess)
 var (
 	limit       = ctxext.NewLimiterManager(time.Microsecond*2500, 1)
 	tempFileDir string
-	engine      = control.Register("chess", &ctrl.Options[*zero.Ctx]{
+	engine      = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "国际象棋",
 		Help:              helpString,

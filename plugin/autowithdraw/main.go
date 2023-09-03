@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	control.Register("autowithdraw", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "触发者撤回时也自动撤回",
 		Help:             "- 撤回一条消息\n",

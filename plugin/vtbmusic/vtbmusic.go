@@ -95,7 +95,7 @@ type musicList struct {
 }
 
 func init() { // 插件主体
-	engine := control.Register("vtbmusic", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "vtbmusic.com点歌",
 		Help: "- vtb点歌\n" +

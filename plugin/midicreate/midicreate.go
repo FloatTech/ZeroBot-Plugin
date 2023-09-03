@@ -28,7 +28,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("midicreate", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "midi音乐制作",
 		Help: "- midi制作 CCGGAAGR FFEEDDCR GGFFEEDR GGFFEEDR CCGGAAGR FFEEDDCR\n" +

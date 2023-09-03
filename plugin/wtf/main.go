@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	en := control.Register("wtf", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "鬼东西",
 		Help:             "- 鬼东西列表\n- 查询鬼东西[序号][@xxx]",

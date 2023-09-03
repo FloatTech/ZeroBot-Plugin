@@ -48,7 +48,7 @@ func isAtriSleeping(*zero.Ctx) bool {
 }
 
 func init() { // 插件主体
-	engine := control.Register("atri", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "atri人格文本回复",
 		Help: "本插件基于 ATRI ，为 Golang 移植版\n" +

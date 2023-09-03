@@ -12,7 +12,7 @@ import (
 
 func init() {
 	// 初始化engine
-	engine := control.Register("chrev", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "英文字符翻转",
 		Help:             "例: 翻转 I love you",

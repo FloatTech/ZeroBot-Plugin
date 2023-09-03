@@ -66,7 +66,7 @@ func init() { // 插件主体
 		panic(err)
 	}
 
-	engine := control.Register("heisi", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "黑丝",
 		Help:             "- 来点黑丝\n- 来点白丝\n- 来点jk\n- 来点巨乳\n- 来点足控\n- 来点网红",

@@ -48,7 +48,7 @@ var (
 
 func init() {
 	// 插件主体
-	en := control.Register("fortune", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "每日运势",
 		Help: "- 运势 | 抽签\n" +

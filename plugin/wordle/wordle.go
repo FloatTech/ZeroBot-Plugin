@@ -61,7 +61,7 @@ type dictionary map[int]struct {
 var words = make(dictionary)
 
 func init() {
-	en := control.Register("wordle", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "猜单词",
 		Help: "- 个人猜单词\n" +

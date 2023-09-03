@@ -62,7 +62,7 @@ type resultjson struct {
 var hrefre = regexp.MustCompile(`<a href=".*">`)
 
 func init() {
-	control.Register("imgfinder", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "关键字搜图",
 		Help:             "- 来张 [xxx]",

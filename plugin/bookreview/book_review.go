@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("bookreview", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "哀伤雪刃推书书评",
 		Help:             "- 书评[xxx]\n- 随机书评",
