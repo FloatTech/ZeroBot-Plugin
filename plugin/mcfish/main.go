@@ -343,6 +343,10 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 	}
 	for i := number; i > 0; i-- {
 		randNumber := rand.Intn(len(fishTypes))
+		if fishTypes[randNumber].Number <= 0 {
+			i++
+			continue
+		}
 		fishTypes[randNumber].Number--
 		err = sql.db.Insert(name, &fishTypes[randNumber])
 		if err != nil {
