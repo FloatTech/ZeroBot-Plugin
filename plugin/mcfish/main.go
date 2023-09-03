@@ -182,7 +182,7 @@ func init() {
 	min := make(map[string]int, 4)
 	for _, info := range articlesInfo.ArticleInfo {
 		switch {
-		case info.Type == "pole":
+		case info.Type == "pole" || info.Name == "美西螈":
 			poleList = append(poleList, info.Name)
 		case info.Type == "fish":
 			fishList = append(fishList, info.Name)
