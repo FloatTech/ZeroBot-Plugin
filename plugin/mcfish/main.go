@@ -182,7 +182,7 @@ func init() {
 	min := make(map[string]int, 4)
 	for _, info := range articlesInfo.ArticleInfo {
 		switch {
-		case info.Type == "pole":
+		case info.Type == "pole" || info.Name == "美西螈":
 			poleList = append(poleList, info.Name)
 		case info.Type == "fish":
 			fishList = append(fishList, info.Name)
@@ -343,6 +343,10 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 	}
 	for i := number; i > 0; i-- {
 		randNumber := rand.Intn(len(fishTypes))
+		if fishTypes[randNumber].Number <= 0 {
+			i++
+			continue
+		}
 		fishTypes[randNumber].Number--
 		err = sql.db.Insert(name, &fishTypes[randNumber])
 		if err != nil {
