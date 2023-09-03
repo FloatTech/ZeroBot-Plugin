@@ -111,7 +111,7 @@ func init() {
 				ctx.SendChain(message.Text("[ERROR at fish.go.5]:", err))
 				return
 			}
-			if equipInfo.Durable < 10 || equipInfo.Durable > 0 {
+			if equipInfo.Durable < 10 && equipInfo.Durable > 0 {
 				msg = "(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
 			} else if equipInfo.Durable <= 0 {
 				msg = "(你的鱼竿耐已销毁)"
