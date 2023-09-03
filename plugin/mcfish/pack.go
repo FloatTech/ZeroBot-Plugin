@@ -96,13 +96,13 @@ func init() {
 		msg = append(msg, message.Text("-----------\n鱼竿概率:\n"))
 		for _, name := range poleList {
 			msg = append(msg, message.Text(name, " : ",
-				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[1])/100, 'f', 2, 64),
 				"%\n"))
 		}
 		msg = append(msg, message.Text("-----------\n鱼类概率:\n"))
 		for _, name := range fishList {
 			msg = append(msg, message.Text(name, " : ",
-				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[2])/100, 'f', 2, 64),
 				"%\n"))
 		}
 		msg = append(msg, message.Text("-----------"))
