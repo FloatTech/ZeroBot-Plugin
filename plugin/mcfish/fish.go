@@ -262,7 +262,7 @@ func init() {
 			if thingName != "" {
 				newThing := article{}
 				if strings.Contains(thingName, "竿") {
-					info := strconv.Itoa(rand.Intn(discountList[thingName])+1) +
+					info := strconv.Itoa(rand.Intn(durationList[thingName])+1) +
 						"/" + strconv.Itoa(rand.Intn(10)) + "/" +
 						strconv.Itoa(rand.Intn(3)) + "/" + strconv.Itoa(rand.Intn(2))
 					newThing = article{
