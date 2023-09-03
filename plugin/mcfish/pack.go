@@ -73,9 +73,10 @@ func init() {
 			probableList = []int{2, 8, 35, 45}
 		}
 		if equipInfo.Favor > 0 {
-			probableList[0] += equipInfo.Favor / 3
-			probableList[1] += equipInfo.Favor / 2
+			probableList[0] += equipInfo.Favor
+			probableList[1] += equipInfo.Favor
 			probableList[2] += equipInfo.Favor
+			probableList[3] -= equipInfo.Favor * 3
 		}
 		probable := probableList[0]
 		msg = append(msg, message.Text("宝藏 : ", probableList[0], "%\n"))

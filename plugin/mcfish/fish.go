@@ -171,18 +171,18 @@ func init() {
 		for name, info := range probabilities {
 			switch name {
 			case "treasure":
-				info.Max += equipInfo.Favor / 3
-				probabilities[name] = info
-			case "pole":
-				info.Min += equipInfo.Favor / 3
-				info.Max += equipInfo.Favor / 2
-				probabilities[name] = info
-			case "fish":
-				info.Min += equipInfo.Favor / 2
 				info.Max += equipInfo.Favor
 				probabilities[name] = info
-			case "waste":
+			case "pole":
 				info.Min += equipInfo.Favor
+				info.Max += equipInfo.Favor * 2
+				probabilities[name] = info
+			case "fish":
+				info.Min += equipInfo.Favor * 2
+				info.Max += equipInfo.Favor * 3
+				probabilities[name] = info
+			case "waste":
+				info.Min += equipInfo.Favor * 3
 				probabilities[name] = info
 			}
 		}
