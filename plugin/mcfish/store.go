@@ -61,10 +61,10 @@ func init() {
 		}
 		ctx.SendChain(message.ImageBytes(pic))
 	})
-	engine.OnRegex(`^出售(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾|唱片|美西螈|三叉戟)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^出售(`+strings.Join(thingList, "|")+`)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		thingName := ctx.State["regex_matched"].([]string)[1]
-		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
+		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		if number == 0 {
 			number = 1
 		}
@@ -142,9 +142,9 @@ func init() {
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			pice = (thingPice[thingName] - (equipAttribute[thingName] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discount[thingName] / 100
+			pice = (priceList[thingName] - (durationList[thingName] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discountList[thingName] / 100
 		} else {
-			pice = thingPice[thingName] * discount[thingName] / 100
+			pice = priceList[thingName] * discountList[thingName] / 100
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice*number*8/10, "收购", number, "个", thingName, "?\n回答\"是\"或\"否\"")))
 		// 等待用户下一步选择
@@ -221,7 +221,7 @@ func init() {
 		}
 		newCommodity := store{}
 		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
-			if pice >= thingPice[thingName]*3/4 { // 不值钱的删了
+			if pice >= priceList[thingName]*4/5 { // 不值钱的删了
 				newCommodity = store{
 					Duration: time.Now().Unix(),
 					Type:     "pole",
@@ -269,10 +269,10 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice*number)))
 	})
-	engine.OnRegex(`^购买(.+(竿|鱼)|河豚|鹦鹉螺|诱钓|海之眷顾|唱片|美西螈|三叉戟)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^购买(`+strings.Join(thingList, "|")+`)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		thingName := ctx.State["regex_matched"].([]string)[1]
-		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[3])
+		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		if number == 0 {
 			number = 1
 		}
@@ -294,10 +294,10 @@ func init() {
 				maintenance, _ := strconv.Atoi(poleInfo[1])
 				induceLevel, _ := strconv.Atoi(poleInfo[2])
 				favorLevel, _ := strconv.Atoi(poleInfo[3])
-				thingPice := (thingPice[info.Name] - (equipAttribute[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discount[info.Name] / 100
+				thingPice := (priceList[info.Name] - (durationList[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discountList[info.Name] / 100
 				pice = append(pice, thingPice)
 			} else {
-				thingPice := thingPice[info.Name] * discount[info.Name] / 100
+				thingPice := priceList[info.Name] * discountList[info.Name] / 100
 				pice = append(pice, thingPice)
 			}
 
@@ -400,8 +400,7 @@ func init() {
 			return
 		}
 		newCommodity := article{}
-		switch {
-		case strings.Contains(thingName, "竿") || thingName == "三叉戟":
+		if strings.Contains(thingName, "竿") || thingName == "三叉戟" {
 			newCommodity = article{
 				Duration: time.Now().Unix(),
 				Type:     "pole",
@@ -409,15 +408,7 @@ func init() {
 				Number:   1,
 				Other:    thing.Other,
 			}
-		case thingName == "美西螈":
-			newCommodity = article{
-				Duration: time.Now().Unix(),
-				Type:     "pole",
-				Name:     thingName,
-				Number:   1,
-				Other:    "999/0/0/0",
-			}
-		default:
+		} else {
 			things, err1 := dbdata.getUserThingInfo(uid, thingName)
 			if err1 != nil {
 				ctx.SendChain(message.Text("[ERROR at store.go.15]:", err1))
@@ -429,9 +420,12 @@ func init() {
 					Name:     thingName,
 					Number:   0,
 				})
-				if thingName == "海之眷顾" || thingName == "诱钓" || thingName == "唱片" {
+				switch {
+				case thingName == "海之眷顾" || thingName == "诱钓" || thingName == "唱片":
 					things[0].Type = "article"
-				} else {
+				case thingName == "美西螈":
+					things[0].Type = "pole"
+				default:
 					things[0].Type = "fish"
 				}
 			}
@@ -503,7 +497,7 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	priceW, _ := canvas.MeasureString("10000")
 
 	bolckW := int(10 + nameW + 50 + numberW + 50 + priceW + 10)
-	backY := 10 + int(titleH*2+10)*2 + 10 + (len(stroeInfo)+len(discount)/2+2)*int(textH*2) + 10
+	backY := 10 + int(titleH*2+10)*2 + 10 + (len(stroeInfo)+len(discountList)/2+2)*int(textH*2) + 10
 	canvas = gg.NewContext(bolckW, math.Max(backY, 500))
 	// 画底色
 	canvas.DrawRectangle(0, 0, float64(bolckW), float64(backY))
@@ -529,8 +523,8 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	textDx, textDh := canvas.MeasureString("下界合金竿(均价1000)")
 	valueDx, _ := canvas.MeasureString("+100%")
 	i := 0
-	for name, info := range discount {
-		text := name + "(均价" + strconv.Itoa(thingPice[name]) + ") "
+	for name, info := range discountList {
+		text := name + "(均价" + strconv.Itoa(priceList[name]) + ") "
 
 		if i == 2 {
 			i = 0
@@ -586,9 +580,9 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 			maintenance, _ := strconv.Atoi(poleInfo[1])
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
-			pice = (thingPice[info.Name] - (equipAttribute[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discount[info.Name] / 100
+			pice = (priceList[info.Name] - (durationList[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discountList[info.Name] / 100
 		} else {
-			pice = thingPice[info.Name] * discount[info.Name] / 100
+			pice = priceList[info.Name] * discountList[info.Name] / 100
 		}
 
 		canvas.DrawStringAnchored(name, 10+nameW/2, textDy+textH/2, 0.5, 0.5)

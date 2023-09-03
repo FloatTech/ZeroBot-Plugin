@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	engine.OnRegex("^装备(.+竿|美西螈|三叉戟)$", getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^装备(`+strings.Join(poleList, "|")+`)$`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		equipInfo, err := dbdata.getUserEquip(uid)
 		if err != nil {
@@ -31,24 +31,32 @@ func init() {
 			return
 		}
 		poles := make([]equip, 0, len(articles))
-		for _, info := range articles {
-			poleInfo := strings.Split(info.Other, "/")
-			durable, _ := strconv.Atoi(poleInfo[0])
-			maintenance, _ := strconv.Atoi(poleInfo[1])
-			induceLevel, _ := strconv.Atoi(poleInfo[2])
-			favorLevel, _ := strconv.Atoi(poleInfo[3])
+		if thingName != "美西螈" {
+			for _, info := range articles {
+				poleInfo := strings.Split(info.Other, "/")
+				durable, _ := strconv.Atoi(poleInfo[0])
+				maintenance, _ := strconv.Atoi(poleInfo[1])
+				induceLevel, _ := strconv.Atoi(poleInfo[2])
+				favorLevel, _ := strconv.Atoi(poleInfo[3])
+				poles = append(poles, equip{
+					ID:          uid,
+					Equip:       info.Name,
+					Durable:     durable,
+					Maintenance: maintenance,
+					Induce:      induceLevel,
+					Favor:       favorLevel,
+				})
+			}
+		} else {
 			poles = append(poles, equip{
-				ID:          uid,
-				Equip:       info.Name,
-				Durable:     durable,
-				Maintenance: maintenance,
-				Induce:      induceLevel,
-				Favor:       favorLevel,
+				ID:      uid,
+				Equip:   thingName,
+				Durable: 999,
 			})
 		}
 		check := false
 		index := 0
-		if thingName != "美西螈" && len(poles) > 1 {
+		if len(poles) > 1 {
 			msg := make(message.Message, 0, 3+len(articles))
 			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("找到以下鱼竿:\n"))
 			for i, info := range poles {
@@ -125,7 +133,6 @@ func init() {
 					Type:     "pole",
 					Name:     equipInfo.Equip,
 					Number:   1,
-					Other:    strconv.Itoa(equipInfo.Durable) + "/" + strconv.Itoa(equipInfo.Maintenance) + "/" + strconv.Itoa(equipInfo.Induce) + "/" + strconv.Itoa(equipInfo.Favor),
 				}
 			} else {
 				oldthing = articles[0]
@@ -240,8 +247,8 @@ func init() {
 			number = 10
 		}
 		equipInfo.Durable += newEquipInfo.Durable * number / 10
-		if equipInfo.Durable > equipAttribute[equipInfo.Equip] {
-			equipInfo.Durable = equipAttribute[equipInfo.Equip]
+		if equipInfo.Durable > durationList[equipInfo.Equip] {
+			equipInfo.Durable = durationList[equipInfo.Equip]
 		}
 		msg := ""
 		if newEquipInfo.Induce != 0 && rand.Intn(100) < 50 {
@@ -456,7 +463,7 @@ func init() {
 			)
 			return
 		}
-		attribute := strconv.Itoa(equipAttribute[thingName]) + "/0/" + strconv.Itoa(induceLevel/3) + "/" + strconv.Itoa(favorLevel/3)
+		attribute := strconv.Itoa(durationList[thingName]) + "/0/" + strconv.Itoa(induceLevel/3) + "/" + strconv.Itoa(favorLevel/3)
 		newthing := article{
 			Duration: time.Now().Unix(),
 			Type:     "pole",
