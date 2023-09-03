@@ -30,7 +30,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("cangtoushi", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "藏头诗, 藏尾诗",
 		Help:             "- 藏头诗[xxx]\n- 藏尾诗[xxx]",

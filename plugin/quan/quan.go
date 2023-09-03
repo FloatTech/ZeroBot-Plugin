@@ -24,7 +24,7 @@ type result struct {
 }
 
 func init() { // 主函数
-	en := control.Register("quan", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "QQ权重查询",
 		Help: "权重查询方式\n" +

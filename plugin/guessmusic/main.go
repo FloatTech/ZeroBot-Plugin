@@ -31,7 +31,7 @@ var (
 	// 用户数据
 	cfg config
 	// 插件主体
-	engine = control.Register("guessmusic", &ctrl.Options[*zero.Ctx]{
+	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "猜歌插件",
 		Help: "------bot主人指令------\n" +

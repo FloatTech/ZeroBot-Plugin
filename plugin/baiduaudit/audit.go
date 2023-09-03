@@ -34,7 +34,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("baiduaudit", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "百度内容审核",
 		Help: "##该功能来自百度内容审核, 需购买相关服务, 并创建app##\n" +

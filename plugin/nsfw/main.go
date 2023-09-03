@@ -14,7 +14,7 @@ import (
 const hso = "https://gchat.qpic.cn/gchatpic_new//--4234EDEC5F147A4C319A41149D7E0EA9/0"
 
 func init() {
-	engine := control.Register("nsfw", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "nsfw图片识别",
 		Help:             "- nsfw打分[图片]",
@@ -33,7 +33,7 @@ func init() {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))
 			}
 		})
-	control.Register("nsfwauto", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "nsfw图片自动识别",
 		Help:             "- 当图片属于非 neutral 类别时自动发送评价",

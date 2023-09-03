@@ -18,7 +18,7 @@ const (
 )
 
 func init() {
-	control.Register("wangyiyun", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "网易云热评",
 		Help:             "- 来份网易云热评",

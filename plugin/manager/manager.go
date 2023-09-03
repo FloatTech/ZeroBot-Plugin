@@ -64,7 +64,7 @@ var (
 )
 
 func init() { // 插件主体
-	engine := control.Register("manager", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "群管插件",
 		Help:              hint,

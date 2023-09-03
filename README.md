@@ -961,6 +961,23 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>钓鱼模拟器</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcfish"`
+
+  - [x] 钓鱼商店
+  - [x] 购买xxx [数量]
+  - [x] 出售xxx [数量]
+  - [x] 钓鱼背包
+  - [x] 装备[xx竿|三叉戟|美西螈]
+  - [x] 附魔[诱钓|海之眷顾]
+  - [x] 修复鱼竿
+  - [x] 合成[xx竿|三叉戟]
+  - [x] 进行钓鱼
+  - [x] 进行n次钓鱼
+
+</details>
+<details>
   <summary>简易midi音乐制作</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"`

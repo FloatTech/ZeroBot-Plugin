@@ -31,7 +31,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("scale", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "二次元图片放大",
 		Help:              "- 放大图片[图片]",

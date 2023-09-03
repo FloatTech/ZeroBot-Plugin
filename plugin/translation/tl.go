@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	control.Register("translation", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "单词翻译",
 		Help:             ">TL [好|good]",

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	control.Register("moyucalendar", &ctrl.Options[*zero.Ctx]{
+	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "摸鱼人日历",
 		Help: "- /启用 moyucalendar\n" +

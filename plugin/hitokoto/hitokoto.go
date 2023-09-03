@@ -18,7 +18,7 @@ import (
 )
 
 func init() { // 插件主体
-	engine := control.Register("hitokoto", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "一言",
 		Help: "- 一言[xxx]\n" +

@@ -23,7 +23,7 @@ const (
 )
 
 func init() { // 插件主体
-	engine := control.Register("magicprompt", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "MagicPrompt-Stable-Diffusion吟唱提示",
 		Help:              "- 吟唱提示 xxx",

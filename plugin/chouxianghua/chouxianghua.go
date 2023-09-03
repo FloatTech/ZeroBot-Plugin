@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	en := control.Register("chouxianghua", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "翻译为抽象话",
 		Help:             "- 抽象翻译xxx",

@@ -46,7 +46,7 @@ func (r *result) String() string {
 }
 
 func init() { // 插件主体
-	engine := control.Register("aipaint", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "ai绘图",
 		Help: "- [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx\n" +

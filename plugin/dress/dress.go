@@ -18,7 +18,7 @@ import (
 )
 
 func init() { // 插件主体
-	engine := control.Register("dress", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "女装",
 		Help: "女装\n" +

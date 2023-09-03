@@ -24,13 +24,13 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtb_quotation/model"
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/vtbquotation/model"
 )
 
 var reg = regexp.MustCompile(".*/(.*)")
 
 func init() {
-	engine := control.Register("vtbquotation", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "vtb语录",
 		Help:             "- vtb语录\n- 随机vtb\n- 更新vtb\n来源: vtbkeyboard.moe",

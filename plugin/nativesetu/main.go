@@ -24,7 +24,7 @@ var (
 )
 
 func init() {
-	engine := control.Register("nativesetu", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "本地涩图",
 		Help: "- 本地[xxx]\n" +
@@ -56,7 +56,7 @@ func init() {
 			if ctx.State["regex_matched"].([]string)[2] != "" {
 				pickMax, _ = strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 			}
-			if pickMax < 40 {
+			if pickMax > 40 {
 				pickMax = 40
 				ctx.SendChain(message.Text("你好贪心, 最多40张哟, 少女折寿中..."))
 			}

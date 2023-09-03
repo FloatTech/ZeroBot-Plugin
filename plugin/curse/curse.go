@@ -21,7 +21,7 @@ const (
 )
 
 func init() {
-	engine := control.Register("curse", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "骂人反击",
 		Help:             "- 骂我\n- 大力骂我",
