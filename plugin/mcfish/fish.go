@@ -27,16 +27,6 @@ func init() {
 			}
 			fishNumber = number
 		}
-		residue, err := dbdata.updateFishInfo(uid, fishNumber)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at fish.go.1]:", err))
-			return
-		}
-		if residue == 0 {
-			ctx.SendChain(message.Text("今天你已经进行", FishLimit, "次钓鱼了.\n游戏虽好,但请不要沉迷。"))
-			return
-		}
-		fishNumber = residue
 		equipInfo, err := dbdata.getUserEquip(uid)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at fish.go.2]:", err))
@@ -99,9 +89,20 @@ func init() {
 					break
 				}
 			}
-		} else if equipInfo.Durable < fishNumber {
+		}
+		if equipInfo.Durable < fishNumber {
 			fishNumber = equipInfo.Durable
 		}
+		residue, err := dbdata.updateFishInfo(uid, fishNumber)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.1]:", err))
+			return
+		}
+		if residue == 0 {
+			ctx.SendChain(message.Text("今天你已经进行", FishLimit, "次钓鱼了.\n游戏虽好,但请不要沉迷。"))
+			return
+		}
+		fishNumber = residue
 		msg := ""
 		if equipInfo.Equip != "美西螈" {
 			equipInfo.Durable -= fishNumber
@@ -110,8 +111,10 @@ func init() {
 				ctx.SendChain(message.Text("[ERROR at fish.go.5]:", err))
 				return
 			}
-			if equipInfo.Durable < 10 {
+			if equipInfo.Durable < 10 || equipInfo.Durable > 0 {
 				msg = "(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
+			} else if equipInfo.Durable <= 0 {
+				msg = "(你的鱼竿耐已销毁)"
 			}
 		} else {
 			fishNmaes, err := dbdata.pickFishFor(uid, fishNumber)
