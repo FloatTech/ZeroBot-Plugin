@@ -303,7 +303,7 @@ func init() {
 		if len(thingNameList) == 1 {
 			thingName := ""
 			numberOfFish := 0
-			for name := range thingNameList {
+			for name, number := range thingNameList {
 				thingName = name
 				numberOfFish = number
 			}
