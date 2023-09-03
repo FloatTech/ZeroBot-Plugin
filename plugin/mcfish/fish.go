@@ -198,22 +198,22 @@ func init() {
 			number := 1
 			dice := rand.Intn(100)
 			switch {
-			case dice <= probabilities["waste"].Min && dice < probabilities["waste"].Max: // 垃圾
+			case dice >= probabilities["waste"].Min && dice < probabilities["waste"].Max: // 垃圾
 				typeOfThing = "waste"
 				thingName = wasteList[rand.Intn(len(wasteList))]
 				picName = thingName
-			case dice <= probabilities["treasure"].Min && dice < probabilities["treasure"].Max: // 宝藏
+			case dice >= probabilities["treasure"].Min && dice < probabilities["treasure"].Max: // 宝藏
 				dice = rand.Intn(100)
 				switch {
-				case dice <= probabilities["美西螈"].Min && dice < probabilities["美西螈"].Max:
+				case dice >= probabilities["美西螈"].Min && dice < probabilities["美西螈"].Max:
 					typeOfThing = "pole"
 					picName = "美西螈"
 					thingName = "美西螈"
-				case dice <= probabilities["唱片"].Min && dice < probabilities["唱片"].Max:
+				case dice >= probabilities["唱片"].Min && dice < probabilities["唱片"].Max:
 					typeOfThing = "article"
 					picName = "唱片"
 					thingName = "唱片"
-				case dice <= probabilities["海之眷顾"].Min && dice < probabilities["海之眷顾"].Max:
+				case dice >= probabilities["海之眷顾"].Min && dice < probabilities["海之眷顾"].Max:
 					typeOfThing = "article"
 					picName = "book"
 					thingName = "海之眷顾"
@@ -222,35 +222,35 @@ func init() {
 					picName = "book"
 					thingName = "诱钓"
 				}
-			case dice <= probabilities["pole"].Min && dice < probabilities["pole"].Max: // 宝藏
+			case dice >= probabilities["pole"].Min && dice < probabilities["pole"].Max: // 宝藏
 				typeOfThing = "pole"
 				dice := rand.Intn(100)
 				switch {
-				case dice <= probabilities["铁竿"].Min && dice < probabilities["铁竿"].Max:
+				case dice >= probabilities["铁竿"].Min && dice < probabilities["铁竿"].Max:
 					thingName = "铁竿"
-				case dice <= probabilities["金竿"].Min && dice < probabilities["金竿"].Max:
+				case dice >= probabilities["金竿"].Min && dice < probabilities["金竿"].Max:
 					thingName = "金竿"
-				case dice <= probabilities["钻石竿"].Min && dice < probabilities["钻石竿"].Max:
+				case dice >= probabilities["钻石竿"].Min && dice < probabilities["钻石竿"].Max:
 					thingName = "钻石竿"
-				case dice <= probabilities["下界合金竿竿竿"].Min && dice < probabilities["下界合金竿竿竿"].Max:
+				case dice >= probabilities["下界合金竿竿竿"].Min && dice < probabilities["下界合金竿竿竿"].Max:
 					thingName = "下界合金竿竿竿"
 				default:
 					thingName = "木竿"
 				}
 				picName = thingName
-			case dice <= probabilities["fish"].Min && dice < probabilities["fish"].Max:
+			case dice >= probabilities["fish"].Min && dice < probabilities["fish"].Max:
 				typeOfThing = "fish"
 				dice = rand.Intn(100)
 				switch {
-				case dice <= probabilities["墨鱼"].Min && dice < probabilities["墨鱼"].Max:
+				case dice >= probabilities["墨鱼"].Min && dice < probabilities["墨鱼"].Max:
 					thingName = "墨鱼"
-				case dice <= probabilities["鳕鱼"].Min && dice < probabilities["鳕鱼"].Max:
+				case dice >= probabilities["鳕鱼"].Min && dice < probabilities["鳕鱼"].Max:
 					thingName = "鳕鱼"
-				case dice <= probabilities["鲑鱼"].Min && dice < probabilities["鲑鱼"].Max:
+				case dice >= probabilities["鲑鱼"].Min && dice < probabilities["鲑鱼"].Max:
 					thingName = "鲑鱼"
-				case dice <= probabilities["热带鱼"].Min && dice < probabilities["热带鱼"].Max:
+				case dice >= probabilities["热带鱼"].Min && dice < probabilities["热带鱼"].Max:
 					thingName = "热带鱼"
-				case dice <= probabilities["河豚"].Min && dice < probabilities["河豚"].Max:
+				case dice >= probabilities["河豚"].Min && dice < probabilities["河豚"].Max:
 					thingName = "河豚"
 				default:
 					thingName = "鹦鹉螺"
