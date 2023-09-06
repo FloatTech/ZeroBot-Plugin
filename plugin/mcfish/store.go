@@ -391,7 +391,7 @@ func init() {
 			return
 		}
 		if !ok {
-			ctx.SendChain(message.Text("你慢了一步,物品被别人买走了"))
+			ctx.SendChain(message.Reply(ctx.Event.MessageID),message.Text("你慢了一步,物品被别人买走了"))
 			return
 		}
 		thing.Number -= number
