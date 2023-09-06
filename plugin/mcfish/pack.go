@@ -69,7 +69,7 @@ func init() {
 				probableList[3] = info.Probability
 			}
 		}
-		if number > 100 || equipInfo.Equip == "美西螈" { //放大概率
+		if number > 100 || equipInfo.Equip == "美西螈" { // 放大概率
 			probableList = []int{2, 8, 35, 45}
 		}
 		if equipInfo.Favor > 0 {
