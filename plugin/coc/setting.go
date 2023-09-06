@@ -113,7 +113,6 @@ func init() {
 				return
 			}
 			cocInfo.Other[site-1] = settingMsg[2]
-
 		}
 		err = savePanel(cocInfo, gid, uid)
 		if err != nil {
@@ -247,7 +246,6 @@ func init() {
 			}
 		}
 		ctx.Send(msg)
-
 	})
 	engine.OnRegex(`^(\.|。)(setpc|SETPC)(\[CQ:at,qq=)?(\d+)(\])?`, getsetting, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
