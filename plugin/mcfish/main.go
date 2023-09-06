@@ -135,7 +135,7 @@ var (
 )
 
 func init() {
-	// go func() {
+	//go func() {
 	_, err := engine.GetLazyData("articlesInfo.json", false)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func init() {
 		}
 		min[info.Type] += info.Probability
 	}
-	// }()
+	//}()
 }
 
 // 更新上限信息
@@ -341,18 +341,22 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 	if max < number {
 		number = max
 	}
-	for i := number; i > 0; i-- {
+	for i := number; i > 0; {
 		randNumber := rand.Intn(len(fishTypes))
 		if fishTypes[randNumber].Number <= 0 {
-			i++
 			continue
 		}
 		fishTypes[randNumber].Number--
-		err = sql.db.Insert(name, &fishTypes[randNumber])
+		if fishTypes[randNumber].Number <= 0 {
+			err = sql.db.Del(name, "where Duration = "+strconv.FormatInt(fishTypes[randNumber].Duration, 10))
+		} else {
+			err = sql.db.Insert(name, &fishTypes[randNumber])
+		}
 		if err != nil {
 			return
 		}
 		fishNames[fishTypes[randNumber].Name]++
+		i--
 	}
 	return
 }
@@ -481,7 +485,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		}
 		refresh = true
 	}
-	for name := range priceList {
+	for _, name := range thingList {
 		thing := storeDiscount{}
 		switch refresh {
 		case true:
@@ -573,6 +577,34 @@ func (sql *fishdb) getStoreThingInfo(thing string) (thingInfos []store, err erro
 		return nil
 	})
 	return
+}
+
+// 获取商店物品信息
+func (sql *fishdb) checkStoreFor(thing store, number int) (ok bool, err error) {
+	sql.Lock()
+	defer sql.Unlock()
+	err = sql.db.Create("store", &thing)
+	if err != nil {
+		return
+	}
+	count, err := sql.db.Count("store")
+	if err != nil {
+		return
+	}
+	if count == 0 {
+		return false, nil
+	}
+	if !sql.db.CanFind("store", "where Duration = "+strconv.FormatInt(thing.Duration, 10)) {
+		return false, nil
+	}
+	err = sql.db.Find("store", &thing, "where Duration = "+strconv.FormatInt(thing.Duration, 10))
+	if err != nil {
+		return
+	}
+	if thing.Number < number {
+		return false, nil
+	}
+	return true, nil
 }
 
 // 更新商店信息
