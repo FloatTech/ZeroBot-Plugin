@@ -89,6 +89,7 @@ func init() {
 					msg = append(msg, message.Text(
 						"[", i, "]", info.Name, "  数量: ", info.Number, "\n"))
 				}
+
 			}
 			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(msg)
@@ -299,6 +300,7 @@ func init() {
 				thingPice := priceList[info.Name] * discountList[info.Name] / 100
 				pice = append(pice, thingPice)
 			}
+
 		}
 		if len(thingInfos) > 1 {
 			msg := make(message.Message, 0, 3+len(thingInfos))
@@ -311,6 +313,7 @@ func init() {
 					msg = append(msg, message.Text(
 						"[", i, "]", info.Name, "  数量:", info.Number, "  价格:", pice[i], "\n"))
 				}
+
 			}
 			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
@@ -385,6 +388,15 @@ func init() {
 			}
 		}
 
+		ok, err := dbdata.checkStoreFor(thing, number)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.11]:", err))
+			return
+		}
+		if !ok {
+			ctx.SendChain(message.Text("你慢了一步,物品被别人买走了"))
+			return
+		}
 		thing.Number -= number
 		err = dbdata.updateStoreInfo(thing)
 		if err != nil {
@@ -520,7 +532,7 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	textDx, textDh := canvas.MeasureString("下界合金竿(均价1000)")
 	valueDx, _ := canvas.MeasureString("+100%")
 	i := 0
-	for name, info := range discountList {
+	for _, name := range thingList {
 		text := name + "(均价" + strconv.Itoa(priceList[name]) + ") "
 
 		if i == 2 {
@@ -529,12 +541,12 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 		}
 		canvas.SetColor(color.Black)
 		canvas.DrawStringAnchored(text, 20+(textDx+valueDx+10)*float64(i)+10, textDy+textDh/2, 0, 0.5)
-		if info-100 > 0 {
+		if discountList[name]-100 > 0 {
 			canvas.SetRGBA255(200, 50, 50, 255)
-			text = "+" + strconv.Itoa(info-100) + "%"
+			text = "+" + strconv.Itoa(discountList[name]-100) + "%"
 		} else {
 			canvas.SetRGBA255(63, 133, 55, 255)
-			text = strconv.Itoa(info-100) + "%"
+			text = strconv.Itoa(discountList[name]-100) + "%"
 		}
 		canvas.DrawStringAnchored(text, 20+(textDx+valueDx+10)*float64(i)+10+textDx+10, textDy+textDh/2, 0, 0.5)
 		i++
