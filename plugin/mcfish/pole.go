@@ -157,7 +157,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at pole.go.5]:", err))
 			return
 		}
-		if equipInfo.Equip == "" || equipInfo.Equip == "美西螈" || equipInfo.Equip == "三叉戟" {
+		if equipInfo.Equip == "" || equipInfo.Equip == "美西螈" {
 			ctx.SendChain(message.Text("仅能修复装备中的鱼竿"))
 			return
 		}
@@ -247,7 +247,7 @@ func init() {
 			number = 10
 		}
 		equipInfo.Durable += newEquipInfo.Durable * number / 10
-		if equipInfo.Durable > durationList[equipInfo.Equip] {
+		if equipInfo.Durable > durationList[equipInfo.Equip] || equipInfo.Equip == "三叉戟" {
 			equipInfo.Durable = durationList[equipInfo.Equip]
 		}
 		msg := ""
