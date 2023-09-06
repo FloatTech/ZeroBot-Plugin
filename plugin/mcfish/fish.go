@@ -153,7 +153,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
 			return
 		}
-		if number > 100 || equipInfo.Equip == "美西螈" { //放大概率
+		if number > 100 || equipInfo.Equip == "美西螈" { // 放大概率
 			probabilities["treasure"] = probabilityLimit{
 				Min: 0,
 				Max: 2,
