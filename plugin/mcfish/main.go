@@ -109,7 +109,7 @@ var (
 		Brief:            "钓鱼",
 		Help: "一款钓鱼模拟器\n----------指令----------\n" +
 			"- 钓鱼看板/钓鱼商店\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n" +
-			"- 钓鱼背包\n- 装备[xx竿|三叉戟|美西螈]\n- 附魔[诱钓|海之眷顾]\n- 修复鱼竿\n- 合成[xx竿|三叉戟]\n" +
+			"- 钓鱼背包\n- 清钓鱼垃圾\n- 装备[xx竿|三叉戟|美西螈]\n- 附魔[诱钓|海之眷顾]\n- 修复鱼竿\n- 合成[xx竿|三叉戟]\n" +
 			"- 进行钓鱼\n- 进行n次钓鱼\n- 当前装备概率明细\n" +
 			"规则:\n1.每日的商店价格是波动的!!如何最大化收益自己考虑一下喔\n" +
 			"2.装备信息:\n-> 木竿 : 耐久上限:30 均价:100 上钩概率:0.7%\n-> 铁竿 : 耐久上限:50 均价:300 上钩概率:0.2%\n-> 金竿 : 耐久上限:70 均价700 上钩概率:0.06%\n" +
@@ -341,18 +341,22 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 	if max < number {
 		number = max
 	}
-	for i := number; i > 0; i-- {
+	for i := number; i > 0; {
 		randNumber := rand.Intn(len(fishTypes))
 		if fishTypes[randNumber].Number <= 0 {
-			i++
 			continue
 		}
 		fishTypes[randNumber].Number--
-		err = sql.db.Insert(name, &fishTypes[randNumber])
+		if fishTypes[randNumber].Number <= 0 {
+			err = sql.db.Del(name, "where Duration = "+strconv.FormatInt(fishTypes[randNumber].Duration, 10))
+		} else {
+			err = sql.db.Insert(name, &fishTypes[randNumber])
+		}
 		if err != nil {
 			return
 		}
 		fishNames[fishTypes[randNumber].Name]++
+		i--
 	}
 	return
 }
@@ -481,7 +485,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		}
 		refresh = true
 	}
-	for name := range priceList {
+	for _, name := range thingList {
 		thing := storeDiscount{}
 		switch refresh {
 		case true:
@@ -573,6 +577,34 @@ func (sql *fishdb) getStoreThingInfo(thing string) (thingInfos []store, err erro
 		return nil
 	})
 	return
+}
+
+// 获取商店物品信息
+func (sql *fishdb) checkStoreFor(thing store, number int) (ok bool, err error) {
+	sql.Lock()
+	defer sql.Unlock()
+	err = sql.db.Create("store", &thing)
+	if err != nil {
+		return
+	}
+	count, err := sql.db.Count("store")
+	if err != nil {
+		return
+	}
+	if count == 0 {
+		return false, nil
+	}
+	if !sql.db.CanFind("store", "where Duration = "+strconv.FormatInt(thing.Duration, 10)) {
+		return false, nil
+	}
+	err = sql.db.Find("store", &thing, "where Duration = "+strconv.FormatInt(thing.Duration, 10))
+	if err != nil {
+		return
+	}
+	if thing.Number < number {
+		return false, nil
+	}
+	return true, nil
 }
 
 // 更新商店信息

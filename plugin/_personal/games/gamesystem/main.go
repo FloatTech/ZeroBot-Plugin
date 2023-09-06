@@ -14,6 +14,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension"
@@ -82,12 +83,19 @@ func init() {
 	gamesystem.OnFullMatch("游戏列表").SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
+			fontData, err := gamesystem.GetLazyData(text.FontFile, false)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR0]:", err))
+				return
+			}
 			i := 0
 			var imgs []image.Image
 			var yOfLine1 int // 第一列最大高度
 			var yOfLine2 int // 第二列最大高度
 			for gameName, info := range gamelist {
 				img, err := (&rendercard.Card{
+					TitleFontData: fontData,
+					TextFontData:  fontData,
 					Title:         gameName,
 					CanTitleShown: true,
 					TitleAlign:    rendercard.AlignCenter,
