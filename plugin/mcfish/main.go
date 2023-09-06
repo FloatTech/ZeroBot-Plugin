@@ -135,7 +135,7 @@ var (
 )
 
 func init() {
-	//go func() {
+	// go func() {
 	_, err := engine.GetLazyData("articlesInfo.json", false)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func init() {
 		}
 		min[info.Type] += info.Probability
 	}
-	//}()
+	// }()
 }
 
 // 更新上限信息
