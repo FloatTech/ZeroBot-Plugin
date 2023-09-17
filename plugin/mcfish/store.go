@@ -293,8 +293,8 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.9.3]:", err))
 			return
 		}
-		if numberOfPole > 70 {
-			ctx.SendChain(message.Text("你有", numberOfPole, "支鱼竿,大于70支的玩家不允许购买东西"))
+		if numberOfPole > 50 {
+			ctx.SendChain(message.Text("你有", numberOfPole, "支鱼竿,大于50支的玩家不允许购买东西"))
 			return
 		}
 		thingName := ctx.State["regex_matched"].([]string)[1]
