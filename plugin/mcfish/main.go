@@ -569,7 +569,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		return nil
 	})
 	for _, info := range oldThing {
-		sql.db.Del("stroeDiscount", "where Duration = "+strconv.FormatInt(info.Duration, 10))
+		_ = sql.db.Del("stroeDiscount", "where Duration = "+strconv.FormatInt(info.Duration, 10))
 	}
 	if refresh {
 		err = sql.db.Create("store", &store{})
