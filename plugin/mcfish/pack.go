@@ -42,6 +42,57 @@ func init() {
 		}
 		ctx.SendChain(message.ImageBytes(pic))
 	})
+	engine.OnRegex(`^消除绑定诅咒(\d*)$`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		uid := ctx.Event.UserID
+		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
+		if number == 0 {
+			number = 1
+		}
+		number1, err := dbdata.getNumberFor(uid, "宝藏诅咒")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.3.1]:", err))
+			return
+		}
+		if number1 == 0 {
+			ctx.SendChain(message.Text("你没有绑定任何诅咒"))
+			return
+		}
+		if number1 < number {
+			number = number1
+		}
+		number2, err := dbdata.getNumberFor(uid, "净化书")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.3.2]:", err))
+			return
+		}
+		if number2 < number {
+			ctx.SendChain(message.Text("你没有足够的解除诅咒的道具"))
+			return
+		}
+		articles, err := dbdata.getUserThingInfo(uid, "净化书")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.3.3]:", err))
+			return
+		}
+		articles[0].Number -= number
+		err = dbdata.updateUserThingInfo(uid, articles[0])
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.3.4]:", err))
+			return
+		}
+		articles, err = dbdata.getUserThingInfo(uid, "宝藏诅咒")
+		if err != nil {
+			ctx.SendChain(message.Text("消除失败,净化书销毁了\n[ERROR at store.go.3.5]:", err))
+			return
+		}
+		articles[0].Number -= number
+		err = dbdata.updateUserThingInfo(uid, articles[0])
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.3.5]:", err))
+			return
+		}
+		ctx.SendChain(message.Text("消除成功"))
+	})
 	engine.OnFullMatch("当前装备概率明细", getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		equipInfo, err := dbdata.getUserEquip(uid)
@@ -95,15 +146,27 @@ func init() {
 		}
 		msg = append(msg, message.Text("-----------\n鱼竿概率:\n"))
 		for _, name := range poleList {
-			msg = append(msg, message.Text(name, " : ",
-				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[1])/100, 'f', 2, 64),
-				"%\n"))
+			if name != "美西螈" {
+				msg = append(msg, message.Text(name, " : ",
+					strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[1])/100, 'f', 2, 64),
+					"%\n"))
+			} else if name == "美西螈" {
+				msg = append(msg, message.Text(name, " : ",
+					strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+					"%\n"))
+			}
 		}
 		msg = append(msg, message.Text("-----------\n鱼类概率:\n"))
 		for _, name := range fishList {
-			msg = append(msg, message.Text(name, " : ",
-				strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[2])/100, 'f', 2, 64),
-				"%\n"))
+			if name != "海豚" {
+				msg = append(msg, message.Text(name, " : ",
+					strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[2])/100, 'f', 2, 64),
+					"%\n"))
+			} else if name == "海豚" {
+				msg = append(msg, message.Text(name, " : ",
+					strconv.FormatFloat(float64(probabilities[name].Max-probabilities[name].Min)*float64(probableList[0])/100, 'f', 2, 64),
+					"%\n"))
+			}
 		}
 		msg = append(msg, message.Text("-----------"))
 		ctx.Send(msg)
