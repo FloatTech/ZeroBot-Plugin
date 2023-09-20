@@ -14,7 +14,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           message: "This PR was automatically closed because it is invalid."
-          exclude-regex: ".*Update main\.go.*"
+          exclude-regex: '.*Update main\.go.*'
 
   golangci:
     name: lint
