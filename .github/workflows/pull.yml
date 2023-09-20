@@ -10,24 +10,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout PR
-        run: |
-          gh version
-          gh repo clone ${{ github.event.repository.html_url }} zbp
-          cd zbp
-          gh pr checkout ${{ github.event.pull_request.number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Close PR if commit message is "Update main.go"
         if: github.event.pull_request.title == 'Update main.go'
-        run: |
-          echo "Closing this PR because commit message is 'Update main.go'"
-          cd zbp
-          gh pr close ${{ github.event.pull_request.number }} --delete-branch
+        uses: superbrothers/close-pull-request@v3
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   golangci:
     name: lint
