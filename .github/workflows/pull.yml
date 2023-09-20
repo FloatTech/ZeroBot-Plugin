@@ -12,7 +12,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout PR
+        run: gh pr checkout ${{ github.event.pull_request.number }}
 
       - name: Close PR if commit message is "Update main.go"
         if: github.event.pull_request.title == 'Update main.go'
