@@ -14,7 +14,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout PR
-        run: gh pr checkout ${{ github.event.pull_request.number }}
+        run: |
+          gh version
+          gh repo clone ${{ github.event.repository.html_url }} zbp
+          cd zbp
+          gh pr checkout ${{ github.event.pull_request.number }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -22,6 +26,7 @@ jobs:
         if: github.event.pull_request.title == 'Update main.go'
         run: |
           echo "Closing this PR because commit message is 'Update main.go'"
+          cd zbp
           gh pr close ${{ github.event.pull_request.number }} --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
