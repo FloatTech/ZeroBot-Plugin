@@ -19,7 +19,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Close PR if commit message is "Update main.go"
-        if: $GITHUB_OUTPUT == 'Update main.go'
+        if: steps.pr.outputs.message == 'Update main.go'
         run: |
           echo "Closing this PR because commit message is 'Update main.go'"
           gh pr close ${{ github.event.pull_request.number }} --delete-branch
