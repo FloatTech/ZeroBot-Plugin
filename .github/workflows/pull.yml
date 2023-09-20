@@ -9,25 +9,12 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Setup GitHub CLI
-        uses: cli/cli@latest
+      - name: Autoclose issues that did not follow issue template
+        uses: roots/issue-closer@v1.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Runs a single command using the runners shell
-      - name: Get PR commit message
-        id: pr
-        run: echo "::set-output name=message::$(git log --format=%B -n 1)"
-
-      # Runs a set of commands using the runners shell
-      - name: Close PR if commit message is "Update main.go"
-        if: steps.pr.outputs.message == 'Update main.go'
-        run: |
-          echo "Closing this PR because commit message is 'Update main.go'"
-          gh pr close ${{ github.event.pull_request.number }} --delete-branch
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-close-message: "This PR was automatically closed."
+          pr-pattern: "^(?!Update main.go).*$"
 
   golangci:
     name: lint
