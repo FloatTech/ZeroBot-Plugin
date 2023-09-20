@@ -1,5 +1,5 @@
 name: PullLint
-on: [ pull_request ]
+on: [ pull_request_target ]
 jobs:
   # This workflow closes invalid PR
   close-pr:
