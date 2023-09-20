@@ -15,8 +15,6 @@ jobs:
       - name: Close PR if commit message is "Update main.go"
         if: github.event.pull_request.title == 'Update main.go'
         uses: superbrothers/close-pull-request@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   golangci:
     name: lint
