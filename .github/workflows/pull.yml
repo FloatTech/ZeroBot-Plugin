@@ -9,7 +9,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Runs a set of commands using the runners shell
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
       - name: Close PR if commit message is "Update main.go"
         if: github.event.pull_request.title == 'Update main.go'
         run: |
