@@ -23,6 +23,8 @@ jobs:
         run: |
           echo "Closing this PR because commit message is 'Update main.go'"
           gh pr close ${{ github.event.pull_request.number }} --delete-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   golangci:
     name: lint
