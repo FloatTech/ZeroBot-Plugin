@@ -15,6 +15,9 @@ jobs:
       - name: Close PR if commit message is "Update main.go"
         if: github.event.pull_request.title == 'Update main.go'
         uses: superbrothers/close-pull-request@v3
+        with:
+          # Optional. Post a issue comment just before closing a pull request.
+          comment: "Invalid PR."
 
   golangci:
     name: lint
