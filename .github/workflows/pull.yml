@@ -9,12 +9,20 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Autoclose PR that matched exclude-regex
-        uses: aws-actions/pr-regex-exclude@main
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          message: "This PR was automatically closed because it is invalid."
-          exclude-regex: '.*Update main\.go.*'
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Get PR commit message
+        id: pr
+        run: echo "::set-output name=message::$(git log --format=%B -n 1)"
+
+      # Runs a set of commands using the runners shell
+      - name: Close PR if commit message is "Update main.go"
+        if: steps.pr.outputs.message == 'Update main.go'
+        run: |
+          echo "Closing this PR because commit message is 'Update main.go'"
+          gh pr close ${{ github.event.pull_request.number }} --delete-branch
 
   golangci:
     name: lint
