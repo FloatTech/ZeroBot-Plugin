@@ -15,11 +15,11 @@ jobs:
       # Runs a single command using the runners shell
       - name: Get PR commit message
         id: pr
-        run: echo "::set-output name=message::$(git log --format=%B -n 1)"
+        run: echo "message=$(git log --format=%B -n 1)" > $GITHUB_OUTPUT
 
       # Runs a set of commands using the runners shell
       - name: Close PR if commit message is "Update main.go"
-        if: steps.pr.outputs.message == 'Update main.go'
+        if: $GITHUB_OUTPUT == 'Update main.go'
         run: |
           echo "Closing this PR because commit message is 'Update main.go'"
           gh pr close ${{ github.event.pull_request.number }} --delete-branch
