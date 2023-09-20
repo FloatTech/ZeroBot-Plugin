@@ -10,11 +10,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Autoclose PR that did not follow PR template
-        uses: roots/issue-closer@v1.1
+        uses: aws-actions/pr-regex-exclude@main
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          pr-close-message: "This PR was automatically closed."
-          pr-pattern: "^(?!Update main.go).*$"
+          message: "This PR was automatically closed because it is invalid."
+          exclude-regex: ".*Update main.go.*"
 
   golangci:
     name: lint
