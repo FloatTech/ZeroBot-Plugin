@@ -9,7 +9,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Autoclose issues that did not follow issue template
+      - name: Autoclose PR that did not follow PR template
         uses: roots/issue-closer@v1.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
