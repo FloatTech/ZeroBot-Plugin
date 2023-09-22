@@ -64,6 +64,7 @@ func init() {
 			"- 取消b站动态订阅[uid|name]\n" +
 			"- 取消b站直播订阅[uid|name]\n" +
 			"- b站推送列表\n" +
+			"- [开启|关闭]艾特全体\n" +
 			"Tips: 需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
 			"记录在\"@every 5m\"触发的指令)\n" +
 			"拉取b站推送",
@@ -74,6 +75,29 @@ func init() {
 	dbpath := en.DataFolder()
 	dbfile := dbpath + "push.db"
 	bdb = initializePush(dbfile)
+	en.OnRegex(`^开启艾特全体$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			ctx.SendChain(message.Text("ERROR: NOT A GROUP"))
+		}
+		if err := openAtAll(gid); err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("已开启艾特全体Oo"))
+	})
+
+	en.OnRegex(`^关闭艾特全体$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			ctx.SendChain(message.Text("ERROR: NOT A GROUP"))
+		}
+		if err := closeAtAll(gid); err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("已关闭艾特全体Oo"))
+	})
 
 	en.OnRegex(`^添加[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
@@ -92,6 +116,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 	})
+
 	en.OnRegex(`^取消[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid)
@@ -143,6 +168,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的直播订阅"))
 	})
+
 	en.OnRegex(`^[B|b]站推送列表$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
@@ -187,6 +213,22 @@ func init() {
 			ctx.SendPrivateMessage(ctx.Event.UserID, message.Text("Error: bilibilipush,", err))
 		}
 	})
+}
+
+func openAtAll(groupId int64) (err error) {
+	bpMap := map[string]any{
+		"group_id": groupId,
+		"at_all":   1,
+	}
+	return bdb.updateAtAll(bpMap)
+}
+
+func closeAtAll(groupId int64) (err error) {
+	bpMap := map[string]any{
+		"group_id": groupId,
+		"at_all":   0,
+	}
+	return bdb.updateAtAll(bpMap)
 }
 
 // 取得uid的名字
@@ -466,6 +508,9 @@ func sendLive(ctx *zero.Ctx) error {
 						time.Sleep(time.Millisecond * 100)
 						switch {
 						case gid > 0:
+							if res := bdb.getAtAll(gid); res == 1 {
+								msg = append([]message.MessageSegment{message.AtAll()}, msg...)
+							}
 							ctx.SendGroupMessage(gid, msg)
 						case gid < 0:
 							ctx.SendPrivateMessage(-gid, msg)
