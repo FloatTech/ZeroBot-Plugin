@@ -280,9 +280,11 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.10]:", err))
 			return
 		}
-		err = dbdata.updateCurseFor(uid, "sell", 1)
-		if err != nil {
-			logrus.Warnln(err)
+		if strings.Contains(thingName, "竿") {
+			err = dbdata.updateCurseFor(uid, "sell", 1)
+			if err != nil {
+				logrus.Warnln(err)
+			}
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice*number, msg)))
 	})
@@ -497,9 +499,11 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at store.go.14]:", err))
 			return
 		}
-		err = dbdata.updateCurseFor(uid, "buy", 1)
-		if err != nil {
-			logrus.Warnln(err)
+		if strings.Contains(thingName, "竿") {
+			err = dbdata.updateCurseFor(uid, "buy", 1)
+			if err != nil {
+				logrus.Warnln(err)
+			}
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("购买成功")))
 	})
