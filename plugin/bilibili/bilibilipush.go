@@ -75,24 +75,18 @@ func init() {
 	dbpath := en.DataFolder()
 	dbfile := dbpath + "push.db"
 	bdb = initializePush(dbfile)
-	en.OnRegex(`^开启艾特全体$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch(`开启艾特全体`, zero.UserOrGrpAdmin, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		if gid == 0 {
-			ctx.SendChain(message.Text("ERROR: NOT A GROUP"))
-		}
-		if err := openAtAll(gid); err != nil {
+		if err := changeAtAll(gid, 1); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text("已开启艾特全体Oo"))
 	})
 
-	en.OnRegex(`^关闭艾特全体$`, zero.UserOrGrpAdmin).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch(`关闭艾特全体`, zero.UserOrGrpAdmin, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		if gid == 0 {
-			ctx.SendChain(message.Text("ERROR: NOT A GROUP"))
-		}
-		if err := closeAtAll(gid); err != nil {
+		if err := changeAtAll(gid, 0); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -215,18 +209,10 @@ func init() {
 	})
 }
 
-func openAtAll(groupId int64) (err error) {
+func changeAtAll(groupId int64, b int) (err error) {
 	bpMap := map[string]any{
 		"group_id": groupId,
-		"at_all":   1,
-	}
-	return bdb.updateAtAll(bpMap)
-}
-
-func closeAtAll(groupId int64) (err error) {
-	bpMap := map[string]any{
-		"group_id": groupId,
-		"at_all":   0,
+		"at_all":   b,
 	}
 	return bdb.updateAtAll(bpMap)
 }
