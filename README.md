@@ -598,6 +598,27 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>coc简易的跑团辅助器</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/coc" `
+
+  - [x] .loadcoc
+  - [x] .coc
+  - [x] .r
+  - [x] .set
+  - [x] .sst
+  - [x] .sa
+  - [x] .pc
+  - [x] .dice
+  - [x] .rule
+  - [x] .show
+  - [x] .pcset
+  - [x] .kill
+        
+    具体用法请使用/用法指令
+
+</details>
+<details>
   <summary>coser</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser" `
