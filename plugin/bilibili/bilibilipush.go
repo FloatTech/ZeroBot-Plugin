@@ -209,9 +209,9 @@ func init() {
 	})
 }
 
-func changeAtAll(groupId int64, b int) (err error) {
+func changeAtAll(gid int64, b int) (err error) {
 	bpMap := map[string]any{
-		"group_id": groupId,
+		"group_id": gid,
 		"at_all":   b,
 	}
 	return bdb.updateAtAll(bpMap)

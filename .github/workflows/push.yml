@@ -13,9 +13,8 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@master
 
-      - name: golangci-lint
+      - name: Run Lint
         uses: golangci/golangci-lint-action@master
-        continue-on-error: true
         with:
           version: latest
 
