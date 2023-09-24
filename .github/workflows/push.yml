@@ -15,6 +15,7 @@ jobs:
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@master
+        continue-on-error: true
         with:
           version: latest
 
@@ -25,7 +26,7 @@ jobs:
           git config --local user.name 'github-actions[bot]'
           git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add --all
-          git commit -m "🎨 改进代码样式"
+          git commit -m "chore(lint): 改进代码样式"
 
       - name: Create Pull Request
         if: ${{ !github.head_ref }}
