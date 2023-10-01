@@ -220,7 +220,7 @@ func init() {
 				if use {
 					pice *= 2
 					if thingName == "唱片" {
-						thing.Number -= 1
+						thing.Number--
 					}
 					recordInfo.Number--
 					err = dbdata.updateUserThingInfo(uid, recordInfo)
