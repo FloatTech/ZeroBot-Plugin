@@ -33,7 +33,7 @@ func init() {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(judge(p))))
 			}
 		})
-	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
+	control.Register("nsfwauto", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "nsfw图片自动识别",
 		Help:             "- 当图片属于非 neutral 类别时自动发送评价",
