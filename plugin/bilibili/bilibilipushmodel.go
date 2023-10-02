@@ -33,6 +33,15 @@ func (bilibiliup) TableName() string {
 	return "bilibili_up"
 }
 
+type bilibiliAt struct {
+	GroupID int64 `gorm:"column:group_id;primary_key" json:"group_id"`
+	AtAll   int64 `gorm:"column:at_all;default:0" json:"at_all"`
+}
+
+func (bilibiliAt) TableName() string {
+	return "bilibili_at"
+}
+
 // initializePush 初始化bilibilipushdb数据库
 func initializePush(dbpath string) *bilibilipushdb {
 	var err error
@@ -48,7 +57,7 @@ func initializePush(dbpath string) *bilibilipushdb {
 	if err != nil {
 		panic(err)
 	}
-	gdb.AutoMigrate(&bilibilipush{}).AutoMigrate(&bilibiliup{})
+	gdb.AutoMigrate(&bilibilipush{}).AutoMigrate(&bilibiliup{}).AutoMigrate(&bilibiliAt{})
 	return (*bilibilipushdb)(gdb)
 }
 
@@ -127,6 +136,35 @@ func (bdb *bilibilipushdb) getAllGroupByBuidAndDynamic(buid int64) (groupList []
 func (bdb *bilibilipushdb) getAllPushByGroup(groupID int64) (bpl []bilibilipush) {
 	db := (*gorm.DB)(bdb)
 	db.Model(&bilibilipush{}).Find(&bpl, "group_id = ? and (live_disable = 0 or dynamic_disable = 0)", groupID)
+	return
+}
+
+func (bdb *bilibilipushdb) getAtAll(groupID int64) (res int64) {
+	db := (*gorm.DB)(bdb)
+	var bpl bilibiliAt
+	db.Model(&bilibilipush{}).Find(&bpl, "group_id = ?", groupID)
+	res = bpl.AtAll
+	return
+}
+
+func (bdb *bilibilipushdb) updateAtAll(bpMap map[string]any) (err error) {
+	db := (*gorm.DB)(bdb)
+	bp := bilibiliAt{}
+	data, err := json.Marshal(&bpMap)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(data, &bp)
+	if err != nil {
+		return
+	}
+	if err = db.Model(&bilibiliAt{}).First(&bp, "group_id = ?", bp.GroupID).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = db.Model(&bilibiliAt{}).Create(&bp).Error
+		}
+	} else {
+		err = db.Model(&bilibiliAt{}).Where("group_id = ?", bp.GroupID).Update(bpMap).Error
+	}
 	return
 }
 

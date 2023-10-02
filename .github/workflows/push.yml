@@ -13,7 +13,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@master
 
-      - name: golangci-lint
+      - name: Run Lint
         uses: golangci/golangci-lint-action@master
         with:
           version: latest
@@ -25,7 +25,7 @@ jobs:
           git config --local user.name 'github-actions[bot]'
           git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add --all
-          git commit -m "🎨 改进代码样式"
+          git commit -m "chore(lint): 改进代码样式"
 
       - name: Create Pull Request
         if: ${{ !github.head_ref }}
