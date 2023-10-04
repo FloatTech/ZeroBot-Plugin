@@ -1,6 +1,24 @@
 name: PullLint
-on: [ pull_request ]
+on:
+  pull_request_target:
+    types: [assigned, opened, synchronize, reopened]
 jobs:
+  # This workflow closes invalid PR
+  close-pr:
+    name: closepr
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Close PR if commit message contains "Update"
+        if: contains(github.event.pull_request.title, 'Update')
+        uses: superbrothers/close-pull-request@v3
+        with:
+          # Optional. Post a issue comment just before closing a pull request.
+          comment: "非法PR. 请`fork`后修改自己的仓库, 而不是向主仓库提交更改. 如果您确信您的PR是为了给主仓库新增功能或修复bug, 请更改默认PR标题."
+
   golangci:
     name: lint
     runs-on: ubuntu-latest

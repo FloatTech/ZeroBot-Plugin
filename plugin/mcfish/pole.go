@@ -157,7 +157,7 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at pole.go.5]:", err))
 			return
 		}
-		if equipInfo.Equip == "" || equipInfo.Equip == "美西螈" || equipInfo.Equip == "三叉戟" {
+		if equipInfo.Equip == "" || equipInfo.Equip == "美西螈" {
 			ctx.SendChain(message.Text("仅能修复装备中的鱼竿"))
 			return
 		}
@@ -247,7 +247,7 @@ func init() {
 			number = 10
 		}
 		equipInfo.Durable += newEquipInfo.Durable * number / 10
-		if equipInfo.Durable > durationList[equipInfo.Equip] {
+		if equipInfo.Durable > durationList[equipInfo.Equip] || equipInfo.Equip == "三叉戟" {
 			equipInfo.Durable = durationList[equipInfo.Equip]
 		}
 		msg := ""
@@ -411,10 +411,6 @@ func init() {
 						return
 					}
 					chooseList := strings.Split(nextcmd, " ")
-					if list[0] == list[1] || list[0] == list[2] || list[1] == list[2] {
-						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[0]请输入正确的序号\n", list))
-						continue
-					}
 					first, err := strconv.Atoi(chooseList[0])
 					if err != nil {
 						ctx.SendChain(message.Text("[ERROR at pole.go.11.1]:", err))
@@ -430,11 +426,15 @@ func init() {
 						ctx.SendChain(message.Text("[ERROR at pole.go.11.3]:", err))
 						return
 					}
+					list = []int{first, second, third}
+					if first == second || first == third || second == third {
+						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[0]请输入正确的序号\n", list))
+						continue
+					}
 					if first > max || second > max || third > max {
 						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", max, "]请输入正确的序号\n", list))
 						continue
 					}
-					list = []int{first, second, third}
 					check = true
 				}
 				if check {
@@ -478,7 +478,7 @@ func init() {
 		}
 		ctx.Send(
 			message.ReplyWithMessage(ctx.Event.MessageID,
-				message.Text(thingName, "合成成功\n属性: ", attribute),
+				message.Text(thingName, "合成成功", list, "\n属性: ", attribute),
 			),
 		)
 	})

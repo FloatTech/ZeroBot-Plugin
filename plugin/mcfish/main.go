@@ -10,6 +10,7 @@ import (
 	"time"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	"github.com/FloatTech/floatbox/math"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -25,6 +26,9 @@ type fishdb struct {
 
 // FishLimit 钓鱼次数上限
 const FishLimit = 50
+
+// version 规则版本号
+const version = "5.4.2"
 
 // 各物品信息
 type jsonInfo struct {
@@ -79,11 +83,30 @@ type fishState struct {
 	Duration int64
 	Fish     int
 	Equip    int
+	Curse    int // 功德--(x)
+	Bless    int // 功德++(x)
 }
 
 type storeDiscount struct {
 	Name     string
 	Discount int
+}
+
+// buff状态记录
+// buff0: 优惠卷
+type buffInfo struct {
+	ID        int64
+	Duration  int64
+	BuyTimes  int `db:"Buff0"` // 购买次数
+	Coupon    int `db:"Buff1"` // 优惠卷
+	SalesPole int `db:"Buff2"` // 卖鱼竿上限
+	BuyTing   int `db:"Buff3"` // 购买上限
+	Buff4     int `db:"Buff4"` // 暂定
+	Buff5     int `db:"Buff5"` // 暂定
+	Buff6     int `db:"Buff6"` // 暂定
+	Buff7     int `db:"Buff7"` // 暂定
+	Buff8     int `db:"Buff8"` // 暂定
+	Buff9     int `db:"Buff9"` // 暂定
 }
 
 var (
@@ -109,18 +132,24 @@ var (
 		Brief:            "钓鱼",
 		Help: "一款钓鱼模拟器\n----------指令----------\n" +
 			"- 钓鱼看板/钓鱼商店\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n" +
-			"- 钓鱼背包\n- 装备[xx竿|三叉戟|美西螈]\n- 附魔[诱钓|海之眷顾]\n- 修复鱼竿\n- 合成[xx竿|三叉戟]\n" +
+			"- 钓鱼背包\n- 装备[xx竿|三叉戟|美西螈]\n- 附魔[诱钓|海之眷顾]\n- 修复鱼竿\n- 合成[xx竿|三叉戟]\n- 消除[绑定|宝藏]诅咒\n- 消除[绑定|宝藏]诅咒 [数量]\n" +
 			"- 进行钓鱼\n- 进行n次钓鱼\n- 当前装备概率明细\n" +
-			"规则:\n1.每日的商店价格是波动的!!如何最大化收益自己考虑一下喔\n" +
+			"规则V" + version + ":\n" +
+			"1.每日的商店价格是波动的!!如何最大化收益自己考虑一下喔\n" +
 			"2.装备信息:\n-> 木竿 : 耐久上限:30 均价:100 上钩概率:0.7%\n-> 铁竿 : 耐久上限:50 均价:300 上钩概率:0.2%\n-> 金竿 : 耐久上限:70 均价700 上钩概率:0.06%\n" +
-			"-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.03%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.01%\n-> 三叉戟 : 可使钓的鱼类物品数量变成3 耐久上限:300 均价4000 只能合成和交易\n" +
-			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间. 均价:1000, 上钩概率:0.59%\n-> 海之眷顾 : 增加宝藏上钩概率. 均价:2500, 上钩概率:0.39%\n" +
-			"4.稀有物品:\n-> 唱片 : 出售物品时使用该物品使价格翻倍. 均价:3000, 上钩概率:0.01%\n-> 美西螈 : 可装备,获得隐形[钓鱼佬]buff,并让钓到除鱼竿和美西螈外的物品数量变成3,无耐久上限.不可修复/附魔,每次钓鱼消耗任意一鱼类物品. 均价:3000, 上钩概率:0.01%\n" +
+			"-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.03%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.01%\n-> 三叉戟 : 可使1次钓鱼视为3次钓鱼. 耐久上限:300 均价4000 只能合成、修复和交易\n" +
+			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间. 均价:1000, 上钩概率:0.25%\n-> 海之眷顾 : 增加宝藏上钩概率. 均价:2500, 上钩概率:0.10%\n" +
+			"4.稀有物品:\n-> 唱片 : 出售物品时使用该物品使价格翻倍. 均价:3000, 上钩概率:0.01%\n" +
+			"-> 美西螈 : 可装备,获得隐形[钓鱼佬]buff,并让钓到除鱼竿和美西螈外的物品数量变成3,无耐久上限.不可修复/附魔,每次钓鱼消耗两任意鱼类物品. 均价:3000, 上钩概率:0.01%\n" +
+			"-> 海豚 : 使空竿概率变成垃圾概率. 均价:1000, 上钩概率:0.19%\n" +
+			"-> 宝藏诅咒 : 无法交易,每一层就会增加购买时10%价格和减少出售时10%价格(超过10层会变为倒贴钱). 上钩概率:0.25%\n-> 净化书 : 用于消除宝藏诅咒. 均价:5000, 上钩概率:0.19%\n" +
 			"5.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:0.69%\n-> 鲑鱼 : 均价:50 上钩概率:0.2%\n-> 热带鱼 : 均价:100 上钩概率:0.06%\n-> 河豚 : 均价:300 上钩概率:0.03%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.01%\n-> 墨鱼 : 均价:500 上钩概率:0.01%\n" +
 			"6.垃圾:\n-> 均价:10 上钩概率:30%\n" +
 			"7.物品BUFF:\n-> 钓鱼佬 : 当背包名字含有'鱼'的物品数量超过100时激活,钓到物品概率提高至90%\n-> 修复大师 : 当背包鱼竿数量超过10时激活,修复物品时耐久百分百继承\n" +
 			"8.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率90%,继承附魔等级合/3的等级\n" +
-			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿",
+			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿,修复时可直接满耐久\n" +
+			"-> 鱼竿数量大于50的不能买东西;\n     鱼竿数量大于30的不能钓鱼;\n     每购/售10次鱼竿获得1层宝藏诅咒;\n     每购买20次物品将获得3次价格减半福利;\n     每钓鱼75次获得1本净化书;\n" +
+			"     每天最多只可出售5个鱼竿和购买15次物品;",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -184,15 +213,17 @@ func init() {
 		switch {
 		case info.Type == "pole" || info.Name == "美西螈":
 			poleList = append(poleList, info.Name)
-		case info.Type == "fish":
+		case info.Type == "fish" || info.Name == "海豚":
 			fishList = append(fishList, info.Name)
 		case info.Type == "waste":
 			wasteList = append(wasteList, info.Name)
 		case info.Type == "treasure":
 			treasureList = append(treasureList, info.Name)
 		}
-		thingList = append(thingList, info.Name)
-		priceList[info.Name] = info.Price
+		if info.Name != "宝藏诅咒" {
+			thingList = append(thingList, info.Name)
+			priceList[info.Name] = info.Price
+		}
 		if info.Durable != 0 {
 			durationList[info.Name] = info.Durable
 		}
@@ -229,6 +260,56 @@ func (sql *fishdb) updateFishInfo(uid int64, number int) (residue int, err error
 	}
 	userInfo.Fish += number
 	err = sql.db.Insert("fishState", &userInfo)
+	return
+}
+
+// 更新诅咒
+func (sql *fishdb) updateCurseFor(uid int64, info string, number int) (err error) {
+	if number < 1 {
+		return
+	}
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := fishState{ID: uid}
+	err = sql.db.Create("fishState", &userInfo)
+	if err != nil {
+		return err
+	}
+	changeCheck := false
+	add := 0
+	buffName := "宝藏诅咒"
+	_ = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	if info == "fish" {
+		userInfo.Bless += number
+		for userInfo.Bless >= 75 {
+			add++
+			changeCheck = true
+			buffName = "净化书"
+			userInfo.Bless -= 75
+		}
+	} else {
+		userInfo.Curse += number
+		for userInfo.Curse >= 10 {
+			add++
+			changeCheck = true
+			userInfo.Curse -= 10
+		}
+	}
+	err = sql.db.Insert("fishState", &userInfo)
+	if err != nil {
+		return err
+	}
+	if changeCheck {
+		table := strconv.FormatInt(uid, 10) + "Pack"
+		thing := article{
+			Duration: time.Now().Unix(),
+			Name:     buffName,
+			Type:     "treasure",
+		}
+		_ = sql.db.Find(table, &thing, "where Name = '"+buffName+"'")
+		thing.Number += add
+		return sql.db.Insert(table, &thing)
+	}
 	return
 }
 
@@ -322,37 +403,32 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 	if !sql.db.CanFind(name, "where Type is 'fish'") {
 		return
 	}
-	fishTypes := make([]article, 0, count)
 	fishInfo := article{}
-	err = sql.db.FindFor(name, &fishInfo, "where Type is 'fish'", func() error {
-		fishTypes = append(fishTypes, fishInfo)
-		return nil
-	})
-	if err != nil {
-		return
-	}
-	if len(fishTypes) == 0 {
-		return
-	}
-	max := 0
-	for _, info := range fishTypes {
-		max += info.Number
-	}
-	if max < number {
-		number = max
-	}
-	for i := number; i > 0; i-- {
-		randNumber := rand.Intn(len(fishTypes))
-		if fishTypes[randNumber].Number <= 0 {
-			i++
+	k := 0
+	for i := number * 2; i > 0 && k < len(fishList); {
+		_ = sql.db.Find(name, &fishInfo, "where Name is '"+fishList[k]+"'")
+		if fishInfo.Number <= 0 {
+			k++
 			continue
 		}
-		fishTypes[randNumber].Number--
-		err = sql.db.Insert(name, &fishTypes[randNumber])
+		if fishInfo.Number < i {
+			k++
+			fishInfo.Number = 0
+			i -= fishInfo.Number
+			fishNames[fishInfo.Name] += fishInfo.Number
+		} else {
+			fishNames[fishInfo.Name] += i
+			fishInfo.Number -= i
+			i = 0
+		}
+		if fishInfo.Number <= 0 {
+			err = sql.db.Del(name, "where Duration = "+strconv.FormatInt(fishInfo.Duration, 10))
+		} else {
+			err = sql.db.Insert(name, &fishInfo)
+		}
 		if err != nil {
 			return
 		}
-		fishNames[fishTypes[randNumber].Name]++
 	}
 	return
 }
@@ -481,7 +557,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		}
 		refresh = true
 	}
-	for name := range priceList {
+	for _, name := range thingList {
 		thing := storeDiscount{}
 		switch refresh {
 		case true:
@@ -503,24 +579,45 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			discountList[name] = 100
 		}
 	}
-	if refresh { // 每天调控1种鱼
-		thingInfo := store{}
-		err = sql.db.Create("store", &thingInfo)
+	thing := store{}
+	oldThing := []store{}
+	_ = sql.db.FindFor("stroeDiscount", &thing, "where type = 'pole'", func() error {
+		if time.Since(time.Unix(thing.Duration, 0)) > 24 {
+			oldThing = append(oldThing, thing)
+		}
+		return nil
+	})
+	for _, info := range oldThing {
+		_ = sql.db.Del("stroeDiscount", "where Duration = "+strconv.FormatInt(info.Duration, 10))
+	}
+	if refresh {
+		err = sql.db.Create("store", &store{})
 		if err != nil {
 			return
 		}
+		// 每天调控1种鱼
 		fish := fishList[rand.Intn(len(fishList))]
-		_ = sql.db.Find("store", &thingInfo, "where Name = '"+fish+"'")
-		if thingInfo == (store{}) {
-			thingInfo.Duration = time.Now().Unix()
-			thingInfo.Type = "fish"
-			thingInfo.Name = fish
-			thingInfo.Price = priceList[fish] * discountList[fish] / 100
+		thingInfo := store{
+			Duration: time.Now().Unix(),
+			Name:     fish,
+			Type:     "fish",
+			Price:    priceList[fish] * discountList[fish] / 100,
 		}
+		_ = sql.db.Find("store", &thingInfo, "where Name = '"+fish+"'")
 		thingInfo.Number += (100 - discountList[fish])
 		if thingInfo.Number < 1 {
-			thingInfo.Number = 1
+			thingInfo.Number = 100
 		}
+		_ = sql.db.Insert("store", &thingInfo)
+		// 每天上架20本净化书
+		thingInfo = store{
+			Duration: time.Now().Unix(),
+			Name:     "净化书",
+			Type:     "article",
+			Price:    priceList["净化书"] * discountList["净化书"] / 100,
+		}
+		_ = sql.db.Find("store", &thingInfo, "where Name = '净化书'")
+		thingInfo.Number = 20
 		_ = sql.db.Insert("store", &thingInfo)
 	}
 	return true, nil
@@ -575,6 +672,34 @@ func (sql *fishdb) getStoreThingInfo(thing string) (thingInfos []store, err erro
 	return
 }
 
+// 获取商店物品信息
+func (sql *fishdb) checkStoreFor(thing store, number int) (ok bool, err error) {
+	sql.Lock()
+	defer sql.Unlock()
+	err = sql.db.Create("store", &thing)
+	if err != nil {
+		return
+	}
+	count, err := sql.db.Count("store")
+	if err != nil {
+		return
+	}
+	if count == 0 {
+		return false, nil
+	}
+	if !sql.db.CanFind("store", "where Duration = "+strconv.FormatInt(thing.Duration, 10)) {
+		return false, nil
+	}
+	err = sql.db.Find("store", &thing, "where Duration = "+strconv.FormatInt(thing.Duration, 10))
+	if err != nil {
+		return
+	}
+	if thing.Number < number {
+		return false, nil
+	}
+	return true, nil
+}
+
 // 更新商店信息
 func (sql *fishdb) updateStoreInfo(thingInfo store) (err error) {
 	sql.Lock()
@@ -587,4 +712,65 @@ func (sql *fishdb) updateStoreInfo(thingInfo store) (err error) {
 		return sql.db.Del("store", "where Duration = "+strconv.FormatInt(thingInfo.Duration, 10))
 	}
 	return sql.db.Insert("store", &thingInfo)
+}
+
+// 更新购买次数
+func (sql *fishdb) updateBuyTimeFor(uid int64, add int) (err error) {
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := buffInfo{ID: uid}
+	err = sql.db.Create("buff", &userInfo)
+	if err != nil {
+		return err
+	}
+	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	userInfo.BuyTimes += add
+	if userInfo.BuyTimes > 20 {
+		userInfo.BuyTimes -= 20
+		userInfo.Coupon = 3
+	}
+	return sql.db.Insert("buff", &userInfo)
+}
+
+// 使用优惠卷
+func (sql *fishdb) useCouponAt(uid int64, times int) (int, error) {
+	useTimes := -1
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := buffInfo{ID: uid}
+	err := sql.db.Create("buff", &userInfo)
+	if err != nil {
+		return useTimes, err
+	}
+	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	if userInfo.Coupon > 0 {
+		useTimes = math.Min(userInfo.Coupon, times)
+		userInfo.Coupon -= useTimes
+	}
+	return useTimes, sql.db.Insert("buff", &userInfo)
+}
+
+// 检测上限
+func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
+	residue := 0
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := buffInfo{ID: uid}
+	err := sql.db.Create("buff", &userInfo)
+	if err != nil {
+		return residue, err
+	}
+	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
+		userInfo.SalesPole = 0
+		userInfo.BuyTing = 0
+	}
+	if sales && userInfo.SalesPole < 5 {
+		residue = 5 - userInfo.SalesPole
+		userInfo.SalesPole++
+	} else if userInfo.BuyTing < 15 {
+		residue = 15 - userInfo.SalesPole
+		userInfo.SalesPole++
+	}
+	return residue, sql.db.Insert("buff", &userInfo)
 }

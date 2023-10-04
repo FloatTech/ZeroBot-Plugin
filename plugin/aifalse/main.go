@@ -50,8 +50,8 @@ var (
 	bgdata     *[]byte
 	bgcount    uintptr
 	isday      bool
-	lightcolor = [3][4]int{{255, 70, 0, 255}, {255, 165, 0, 255}, {145, 240, 145, 255}}
-	darkcolor  = [3][4]int{{215, 50, 0, 255}, {205, 135, 0, 255}, {115, 200, 115, 255}}
+	lightcolor = [3][4]uint8{{255, 70, 0, 255}, {255, 165, 0, 255}, {145, 240, 145, 255}}
+	darkcolor  = [3][4]uint8{{215, 50, 0, 255}, {205, 135, 0, 255}, {115, 200, 115, 255}}
 )
 
 func init() { // 插件主体
@@ -76,7 +76,24 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			now := time.Now().Hour()
 			isday = now > 7 && now < 19
-			img, err := drawstatus(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.Event.SelfID, zero.BotConfig.NickName[0])
+
+			botrunstatus := ctx.CallAction("get_status", zero.Params{}).Data
+			botverisoninfo := ctx.GetVersionInfo()
+			sb := &strings.Builder{}
+			sb.WriteString("在线(")
+			sb.WriteString(botverisoninfo.Get("app_name").String())
+			sb.WriteString("-")
+			sb.WriteString(botverisoninfo.Get("app_version").String())
+			sb.WriteString(") | 收")
+			sb.WriteString(botrunstatus.Get("stat").Get("message_received").String())
+			sb.WriteString(" | 发")
+			sb.WriteString(botrunstatus.Get("stat").Get("message_sent").String())
+			sb.WriteString(" | 群")
+			sb.WriteString(strconv.Itoa(len(ctx.GetGroupList().Array())))
+			sb.WriteString(" | 好友")
+			sb.WriteString(strconv.Itoa(len(ctx.GetFriendList().Array())))
+
+			img, err := drawstatus(ctx.State["manager"].(*ctrl.Control[*zero.Ctx]), ctx.Event.SelfID, zero.BotConfig.NickName[0], sb.String())
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -128,7 +145,7 @@ func init() { // 插件主体
 		})
 }
 
-func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg image.Image, err error) {
+func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunstatus string) (sendimg image.Image, err error) {
 	diskstate, err := diskstate()
 	if err != nil {
 		return
@@ -252,13 +269,17 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		titlecard.LineTo(float64(titlecard.W()-titlecardh), float64(titlecardh)/2)
 		titlecard.Stroke()
 
+		fw, _ = titlecard.MeasureString(botrunstatus)
+
+		titlecard.DrawStringAnchored(botrunstatus, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.25/2), 0.5, 0.5)
+
 		brt, err := botruntime()
 		if err != nil {
 			return
 		}
 		fw, _ = titlecard.MeasureString(brt)
 
-		titlecard.DrawStringAnchored(brt, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.25/2), 0.5, 0.5)
+		titlecard.DrawStringAnchored(brt, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.5/2), 0.5, 0.5)
 
 		bs, err := botstatus()
 		if err != nil {
@@ -266,7 +287,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 		}
 		fw, _ = titlecard.MeasureString(bs)
 
-		titlecard.DrawStringAnchored(bs, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.5/2), 0.5, 0.5)
+		titlecard.DrawStringAnchored(bs, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.75/2), 0.5, 0.5)
 		titleimg = rendercard.Fillet(titlecard.Image(), 16)
 	}()
 	go func() {
@@ -300,11 +321,11 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 			switch {
 			case v.precent > 90:
-				basiccard.SetRGBA255(slice2color(colors[0]))
+				basiccard.SetColor(slice2color(colors[0]))
 			case v.precent > 70:
-				basiccard.SetRGBA255(slice2color(colors[1]))
+				basiccard.SetColor(slice2color(colors[1]))
 			default:
-				basiccard.SetRGBA255(slice2color(colors[2]))
+				basiccard.SetColor(slice2color(colors[2]))
 			}
 
 			basiccard.NewSubPath()
@@ -377,11 +398,11 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 			switch {
 			case diskstate[0].precent > 90:
-				diskcard.SetRGBA255(slice2color(colors[0]))
+				diskcard.SetColor(slice2color(colors[0]))
 			case diskstate[0].precent > 70:
-				diskcard.SetRGBA255(slice2color(colors[1]))
+				diskcard.SetColor(slice2color(colors[1]))
 			default:
-				diskcard.SetRGBA255(slice2color(colors[2]))
+				diskcard.SetColor(slice2color(colors[2]))
 			}
 
 			diskcard.DrawRoundedRectangle(40, 40, (float64(diskcard.W())-40-100)*diskstate[0].precent*0.01, 50, 12)
@@ -415,11 +436,11 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string) (sendimg 
 
 				switch {
 				case v.precent > 90:
-					diskcard.SetRGBA255(slice2color(colors[0]))
+					diskcard.SetColor(slice2color(colors[0]))
 				case v.precent > 70:
-					diskcard.SetRGBA255(slice2color(colors[1]))
+					diskcard.SetColor(slice2color(colors[1]))
 				default:
-					diskcard.SetRGBA255(slice2color(colors[2]))
+					diskcard.SetColor(slice2color(colors[2]))
 				}
 
 				diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-40-100)*v.precent*0.01, 50, 12)
@@ -683,6 +704,6 @@ func fontcolorswitch() color.Color {
 	return color.NRGBA{235, 235, 235, 255}
 }
 
-func slice2color(c [4]int) (r, g, b, a int) {
-	return c[0], c[1], c[2], c[3]
+func slice2color(c [4]uint8) color.Color {
+	return color.NRGBA{c[0], c[1], c[2], c[3]}
 }

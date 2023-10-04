@@ -17,6 +17,15 @@ import (
 func init() {
 	engine.OnRegex(`^进行(([1-5]\d|[1-9])次)?钓鱼$`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
+		numberOfPole, err := dbdata.getNumberFor(uid, "竿")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.9.3]:", err))
+			return
+		}
+		if numberOfPole > 30 {
+			ctx.SendChain(message.Text("你有", numberOfPole, "支鱼竿,大于30支的玩家不允许钓鱼"))
+			return
+		}
 		fishNumber := 1
 		info := ctx.State["regex_matched"].([]string)[2]
 		if info != "" {
@@ -114,7 +123,10 @@ func init() {
 			if equipInfo.Durable < 10 && equipInfo.Durable > 0 {
 				msg = "(你的鱼竿耐久仅剩" + strconv.Itoa(equipInfo.Durable) + ")"
 			} else if equipInfo.Durable <= 0 {
-				msg = "(你的鱼竿耐已销毁)"
+				msg = "(你的鱼竿已销毁)"
+			}
+			if equipInfo.Equip == "三叉戟" {
+				fishNumber *= 3
 			}
 		} else {
 			fishNmaes, err := dbdata.pickFishFor(uid, fishNumber)
@@ -138,6 +150,7 @@ func init() {
 				msg += strconv.Itoa(number) + name + "、"
 			}
 			msg += ")"
+			fishNumber /= 2
 		}
 		waitTime := 120 / (equipInfo.Induce + 1)
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你开始去钓鱼了,请耐心等待鱼上钩(预计要", time.Second*time.Duration(waitTime), ")"))
@@ -149,6 +162,11 @@ func init() {
 		}
 		// 钓到鱼的范围
 		number, err := dbdata.getNumberFor(uid, "鱼")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
+			return
+		}
+		number2, err := dbdata.getNumberFor(uid, "海豚")
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at fish.go.5.1]:", err))
 			return
@@ -170,6 +188,11 @@ func init() {
 				Min: 45,
 				Max: 90,
 			}
+		}
+		if number2 != 0 {
+			info := probabilities["waste"]
+			info.Max = 100
+			probabilities["waste"] = info
 		}
 		for name, info := range probabilities {
 			switch name {
@@ -217,6 +240,18 @@ func init() {
 					typeOfThing = "article"
 					picName = "book"
 					thingName = "海之眷顾"
+				case dice >= probabilities["净化书"].Min && dice < probabilities["净化书"].Max:
+					typeOfThing = "article"
+					picName = "book"
+					thingName = "净化书"
+				case dice >= probabilities["宝藏诅咒"].Min && dice < probabilities["宝藏诅咒"].Max:
+					typeOfThing = "article"
+					picName = "book"
+					thingName = "宝藏诅咒"
+				case dice >= probabilities["海豚"].Min && dice < probabilities["海豚"].Max:
+					typeOfThing = "fish"
+					picName = "海豚"
+					thingName = "海豚"
 				default:
 					typeOfThing = "article"
 					picName = "book"
@@ -299,6 +334,10 @@ func init() {
 				}
 				thingNameList[thingName] += number
 			}
+		}
+		err = dbdata.updateCurseFor(uid, "fish", fishNumber)
+		if err != nil {
+			logrus.Warnln(err)
 		}
 		if len(thingNameList) == 1 {
 			thingName := ""

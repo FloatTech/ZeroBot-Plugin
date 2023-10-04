@@ -24,7 +24,7 @@ import (
 
 type scoredrawer func(a *scdata) (image.Image, error)
 
-func drawScore16(a *scdata) (image.Image, error) {
+func floatstyle(a *scdata) (image.Image, error) {
 	// 绘图
 	getAvatar, err := initPic(a.picfile, a.uid)
 	if err != nil {
@@ -126,7 +126,7 @@ func drawScore16(a *scdata) (image.Image, error) {
 	return canvas.Image(), nil
 }
 
-func drawScore15(a *scdata) (image.Image, error) {
+func defaultstyle(a *scdata) (image.Image, error) {
 	// 绘图
 	_, err := initPic(a.picfile, a.uid)
 	if err != nil {
@@ -181,7 +181,7 @@ func drawScore15(a *scdata) (image.Image, error) {
 	return canvas.Image(), nil
 }
 
-func drawScore17(a *scdata) (image.Image, error) {
+func aerostyle(a *scdata) (image.Image, error) {
 	getAvatar, err := initPic(a.picfile, a.uid)
 	if err != nil {
 		return nil, err
@@ -275,7 +275,7 @@ func drawScore17(a *scdata) (image.Image, error) {
 	return canvas.Image(), nil
 }
 
-func drawScore17b2(a *scdata) (img image.Image, err error) {
+func floatnewstyle(a *scdata) (img image.Image, err error) {
 	fontdata, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, false)
 	if err != nil {
 		return
@@ -295,26 +295,31 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 
 	sc := 1280 / bx
 
+	colors := gg.TakeColor(back, 3)
+
 	canvas := gg.NewContext(1280, 1280*int(by)/int(bx))
 
 	cw, ch := float64(canvas.W()), float64(canvas.H())
 
 	sch := ch * 6 / 10
-	scback := gg.NewContext(canvas.W(), canvas.H())
-	scback.ScaleAbout(sc, sc, cw/2, ch/2)
-	scback.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
-	scback.Identity()
-	scbackimg := rendercard.Fillet(scback.Image(), 12)
 
-	colors := gg.TakeColor(scback.Image(), 3)
-
-	var blurback, backshadowimg, avatarimg, avatarbackimg, avatarshadowimg, whitetext, blacktext image.Image
+	var blurback, scbackimg, backshadowimg, avatarimg, avatarbackimg, avatarshadowimg, whitetext, blacktext image.Image
 	var wg sync.WaitGroup
-	wg.Add(7)
+	wg.Add(8)
 
 	go func() {
 		defer wg.Done()
-		blurback = imaging.Blur(scback.Image(), 20)
+		scback := gg.NewContext(canvas.W(), canvas.H())
+		scback.ScaleAbout(sc, sc, cw/2, ch/2)
+		scback.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
+		scback.Identity()
+
+		go func() {
+			defer wg.Done()
+			blurback = imaging.Blur(scback.Image(), 20)
+		}()
+
+		scbackimg = rendercard.Fillet(scback.Image(), 12)
 	}()
 
 	go func() {
@@ -384,7 +389,7 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 	}()
 
 	wg.Wait()
-	if backshadowimg == nil || avatarimg == nil || avatarbackimg == nil || avatarshadowimg == nil || whitetext == nil || blacktext == nil {
+	if scbackimg == nil || backshadowimg == nil || avatarimg == nil || avatarbackimg == nil || avatarshadowimg == nil || whitetext == nil || blacktext == nil {
 		err = errors.New("图片渲染失败")
 		return
 	}
