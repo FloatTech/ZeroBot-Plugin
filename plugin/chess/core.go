@@ -478,6 +478,7 @@ func getBoardElement(groupCode int64) (imgMsg message.MessageSegment, err error)
 		return
 	}
 	defer worker.Close()
+
 	tree, err := worker.NewTreeFromData(buf.Bytes(), &resvg.Options{
 		Dpi:        96,
 		FontFamily: "Unifont",
@@ -487,6 +488,7 @@ func getBoardElement(groupCode int64) (imgMsg message.MessageSegment, err error)
 		return
 	}
 	defer tree.Close()
+
 	fontdb, err := worker.NewFontDBDefault()
 	if err != nil {
 		return
@@ -497,13 +499,23 @@ func getBoardElement(groupCode int64) (imgMsg message.MessageSegment, err error)
 	if err != nil {
 		return
 	}
-	tree.ConvertText(fontdb)
+
+	err = tree.ConvertText(fontdb)
+	if err != nil {
+		return
+	}
+
 	pixmap, err := worker.NewPixmap(720, 720)
 	if err != nil {
 		return
 	}
 	defer pixmap.Close()
-	tree.Render(resvg.TransformFromScale(2, 2), pixmap)
+
+	err = tree.Render(resvg.TransformFromScale(2, 2), pixmap)
+	if err != nil {
+		return
+	}
+
 	out, err := pixmap.EncodePNG()
 	if err != nil {
 		return
