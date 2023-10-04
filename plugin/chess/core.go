@@ -471,7 +471,10 @@ func getBoardElement(groupCode int64) (imgMsg message.MessageSegment, err error)
 	mark := cimage.MarkSquares(yellow, highlightSquare...)
 	board := pos.Board()
 	fromBlack := cimage.Perspective(gameTurn)
-	cimage.SVG(buf, board, fromBlack, mark)
+	err = cimage.SVG(buf, board, fromBlack, mark)
+	if err != nil {
+		return
+	}
 
 	worker, err := resvg.NewDefaultWorker(context.Background())
 	if err != nil {
