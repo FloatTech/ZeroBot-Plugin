@@ -273,11 +273,11 @@ func init() {
 	}
 
 	// 通过代码写死的方式添加主人账号
-	// sus = append(sus, 12345678)
+	 sus = append(sus, 1063191418)
 	// sus = append(sus, 87654321)
 
-	// 启用 webui
-	// go webctrl.RunGui(*g)
+	 启用 webui
+	 go webctrl.RunGui(*g)
 
 	if *runcfg != "" {
 		f, err := os.Open(*runcfg)
