@@ -541,7 +541,6 @@ func getELOString(room chessRoom, whiteScore, blackScore float64) (string, error
 	}
 	whiteRate, blackRate, err := getELORate(room.whitePlayer, room.blackPlayer, dbService)
 	if err != nil {
-
 		return "", err
 	}
 	msgBuilder.WriteString(room.whiteName)
