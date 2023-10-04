@@ -58,9 +58,7 @@ func init() {
 	dbFilePath := engine.DataFolder() + "chess.db"
 	initDatabase(dbFilePath)
 	// 注册指令
-	engine.OnFullMatchGroup([]string{"下棋", "chess"}, zero.OnlyGroup).
-		SetBlock(true).
-		Limit(limit.LimitByGroup).
+	engine.OnFullMatchGroup([]string{"下棋", "chess"}, zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.Sender == nil {
 				return
@@ -68,42 +66,50 @@ func init() {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			groupCode := ctx.Event.GroupID
-			if replyMessage := game(groupCode, userUin, userName); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := game(groupCode, userUin, userName)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnFullMatchGroup([]string{"认输", "resign"}, zero.OnlyGroup).
-		SetBlock(true).
-		Limit(limit.LimitByGroup).
+
+	engine.OnFullMatchGroup([]string{"认输", "resign"}, zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
-			if replyMessage := resign(groupCode, userUin); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := resign(groupCode, userUin)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnFullMatchGroup([]string{"和棋", "draw"}, zero.OnlyGroup).
-		SetBlock(true).
-		Limit(limit.LimitByGroup).
+
+	engine.OnFullMatchGroup([]string{"和棋", "draw"}, zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
-			if replyMessage := draw(groupCode, userUin); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := draw(groupCode, userUin)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnFullMatchGroup([]string{"中断", "abort"}, zero.OnlyGroup, zero.AdminPermission).
-		SetBlock(true).
-		Limit(limit.LimitByGroup).
+
+	engine.OnFullMatchGroup([]string{"中断", "abort"}, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			groupCode := ctx.Event.GroupID
-			if replyMessage := abort(groupCode); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := abort(groupCode)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnFullMatchGroup([]string{"盲棋", "blind"}, zero.OnlyGroup).
-		SetBlock(true).
-		Limit(limit.LimitByGroup).
+
+	engine.OnFullMatchGroup([]string{"盲棋", "blind"}, zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.Sender == nil {
 				return
@@ -111,45 +117,54 @@ func init() {
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
 			groupCode := ctx.Event.GroupID
-			if replyMessage := blindfold(groupCode, userUin, userName); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := blindfold(groupCode, userUin, userName)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnRegex("^[!|！]([0-8]|[R|N|B|Q|K|O|a-h|x]|[-|=|+])+$", zero.OnlyGroup).
-		SetBlock(true).
-		Limit(limit.LimitByGroup).
+
+	engine.OnRegex("^[!|！]([0-8]|[R|N|B|Q|K|O|a-h|x]|[-|=|+])+$", zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			userUin := ctx.Event.UserID
 			groupCode := ctx.Event.GroupID
 			userMsgStr := ctx.State["regex_matched"].([]string)[0]
 			moveStr := strings.TrimPrefix(strings.TrimPrefix(userMsgStr, "！"), "!")
-			if replyMessage := play(userUin, groupCode, moveStr); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := play(groupCode, userUin, moveStr)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnFullMatchGroup([]string{"排行榜", "ranking"}).
-		SetBlock(true).
-		Limit(limit.LimitByUser).
+
+	engine.OnFullMatchGroup([]string{"排行榜", "ranking"}).SetBlock(true).Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			if replyMessage := ranking(); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := getRanking()
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnFullMatchGroup([]string{"等级分", "rate"}).
-		SetBlock(true).
-		Limit(limit.LimitByUser).
+
+	engine.OnFullMatchGroup([]string{"等级分", "rate"}).SetBlock(true).Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.Sender == nil {
 				return
 			}
 			userUin := ctx.Event.UserID
 			userName := ctx.Event.Sender.NickName
-			if replyMessage := rate(userUin, userName); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := rate(userUin, userName)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
-	engine.OnPrefixGroup([]string{"清空等级分", ".clean.rate"}, zero.SuperUserPermission).
-		SetBlock(true).
+
+	engine.OnPrefixGroup([]string{"清空等级分", ".clean.rate"}, zero.SuperUserPermission).SetBlock(true).
 		Limit(limit.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			args := ctx.State["args"].(string)
@@ -158,8 +173,11 @@ func init() {
 				ctx.Send(fmt.Sprintf("解析失败「%s」不是正确的 QQ 号。", args))
 				return
 			}
-			if replyMessage := cleanUserRate(playerUin); len(replyMessage) >= 1 {
-				ctx.Send(replyMessage)
+			replyMessage, err := cleanUserRate(playerUin)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
+			ctx.Send(replyMessage)
 		})
 }

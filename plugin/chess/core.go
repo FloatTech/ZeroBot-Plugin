@@ -2,32 +2,33 @@ package chess
 
 import (
 	"bytes"
-	"encoding/base64"
+	"context"
+	"errors"
 	"fmt"
 	"image/color"
-	"io"
-	"os"
-	"os/exec"
-	"path"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/gg"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
+
 	"github.com/RomiChan/syncx"
 	"github.com/jinzhu/gorm"
+	resvg "github.com/kanrichan/resvg-go"
 	"github.com/notnil/chess"
-	"github.com/notnil/chess/image"
-	log "github.com/sirupsen/logrus"
+	cimage "github.com/notnil/chess/image"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 const eloDefault = 500
 
-var chessRoomMap syncx.Map[int64, *chessRoom]
+var (
+	chessRoomMap syncx.Map[int64, *chessRoom]
+	errNotExist  = errors.New("对局不存在, 发送「下棋」或「chess」可创建对局。")
+)
 
 type chessRoom struct {
 	chessGame    *chess.Game
@@ -43,92 +44,86 @@ type chessRoom struct {
 }
 
 // game 下棋
-func game(groupCode, senderUin int64, senderName string) message.Message {
+func game(groupCode, senderUin int64, senderName string) (message.Message, error) {
 	return createGame(false, groupCode, senderUin, senderName)
 }
 
 // blindfold 盲棋
-func blindfold(groupCode, senderUin int64, senderName string) message.Message {
+func blindfold(groupCode, senderUin int64, senderName string) (message.Message, error) {
 	return createGame(true, groupCode, senderUin, senderName)
 }
 
 // abort 中断对局
-func abort(groupCode int64) message.Message {
+func abort(groupCode int64) (message.Message, error) {
 	if room, ok := chessRoomMap.Load(groupCode); ok {
-		return abortGame(*room, groupCode, "对局已被管理员中断，游戏结束。")
+		return abortGame(*room, groupCode, "对局已被管理员中断, 游戏结束。")
 	}
-	return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
+	return nil, errNotExist
 }
 
 // draw 和棋
-func draw(groupCode, senderUin int64) message.Message {
+func draw(groupCode, senderUin int64) (msg message.Message, err error) {
+	msg = message.Message{message.At(senderUin)}
 	// 检查对局是否存在
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
-		return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
+		return nil, errNotExist
 	}
 	// 检查消息发送者是否为对局中的玩家
 	if senderUin != room.whitePlayer && senderUin != room.blackPlayer {
-		return textWithAt(senderUin, "您不是对局中的玩家，无法请求和棋。")
+		return
 	}
 	// 处理和棋逻辑
 	room.lastMoveTime = time.Now().Unix()
 	if room.drawPlayer == 0 {
 		room.drawPlayer = senderUin
 		chessRoomMap.Store(groupCode, room)
-		return textWithAt(senderUin, "请求和棋，发送「和棋」或「draw」接受和棋。走棋视为拒绝和棋。")
+		msg = append(msg, message.Text("请求和棋, 发送「和棋」或「draw」接受和棋。走棋视为拒绝和棋。"))
+		return
 	}
 	if room.drawPlayer == senderUin {
-		return textWithAt(senderUin, "已发起和棋请求，请勿重复发送。")
+		return
 	}
-	err := room.chessGame.Draw(chess.DrawOffer)
+	err = room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
-		log.Debugln("[chess]", "Fail to draw a game.", err)
-		return textWithAt(senderUin, fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。\nERROR:", err))
+		return
 	}
 	chessString := getChessString(*room)
 	eloString := ""
 	if len(room.chessGame.Moves()) > 4 {
-		// 若走子次数超过 4 认为是有效对局，存入数据库
+		// 若走子次数超过 4 认为是有效对局, 存入数据库
 		dbService := newDBService()
-		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-			log.Debugln("[chess]", "Fail to create PGN.", err)
-			return message.Message{message.Text("ERROR: ", err)}
+		if err = dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+			return
 		}
 		whiteScore, blackScore := 0.5, 0.5
-		elo, err := getELOString(*room, whiteScore, blackScore)
+		eloString, err = getELOString(*room, whiteScore, blackScore)
 		if err != nil {
-			log.Debugln("[chess]", "Fail to get eloString.", eloString, err)
-			return message.Message{message.Text("ERROR: ", err)}
-		}
-		eloString = elo
-	}
-	replyMsg := textWithAt(senderUin, "接受和棋，游戏结束。\n"+eloString+chessString)
-	if inkscapeExists() {
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
+			return
 		}
 	}
+	msg = append(msg, message.Text("接受和棋, 游戏结束。\n", eloString, chessString))
 	chessRoomMap.Delete(groupCode)
-	return replyMsg
+	return
 }
 
 // resign 认输
-func resign(groupCode, senderUin int64) message.Message {
+func resign(groupCode, senderUin int64) (msg message.Message, err error) {
+	msg = message.Message{message.At(senderUin)}
 	// 检查对局是否存在
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
-		return simpleText("对局不存在，发送「下棋」或「chess」可创建对局。")
+		return nil, errNotExist
 	}
 	// 检查是否是当前游戏玩家
 	if senderUin != room.whitePlayer && senderUin != room.blackPlayer {
-		return textWithAt(senderUin, "不是对局中的玩家，无法认输。")
+		return
 	}
-	// 如果对局未建立，中断对局
+	// 如果对局未建立, 中断对局
 	if room.whitePlayer == 0 || room.blackPlayer == 0 {
 		chessRoomMap.Delete(groupCode)
-		return simpleText("对局已释放。")
+		msg = append(msg, message.Text("对局结束"))
+		return
 	}
 	// 计算认输方
 	var resignColor chess.Color
@@ -148,11 +143,10 @@ func resign(groupCode, senderUin int64) message.Message {
 	chessString := getChessString(*room)
 	eloString := ""
 	if len(room.chessGame.Moves()) > 4 {
-		// 若走子次数超过 4 认为是有效对局，存入数据库
+		// 若走子次数超过 4 认为是有效对局, 存入数据库
 		dbService := newDBService()
-		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-			log.Debugln("[chess]", "Fail to create PGN.", err)
-			return message.Message{message.Text("ERROR: ", err)}
+		if err = dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+			return
 		}
 		whiteScore, blackScore := 1.0, 1.0
 		if resignColor == chess.White {
@@ -160,63 +154,58 @@ func resign(groupCode, senderUin int64) message.Message {
 		} else {
 			blackScore = 0.0
 		}
-		elo, err := getELOString(*room, whiteScore, blackScore)
+		eloString, err = getELOString(*room, whiteScore, blackScore)
 		if err != nil {
-			log.Debugln("[chess]", "Fail to get eloString.", eloString, err)
-			return message.Message{message.Text("ERROR: ", err)}
+			return
 		}
-		eloString = elo
 	}
-	replyMsg := textWithAt(senderUin, "认输，游戏结束。\n"+eloString+chessString)
+	msg = append(msg, message.Text("认输, 游戏结束。\n", eloString, chessString))
 	if isAprilFoolsDay() {
-		replyMsg = textWithAt(senderUin, "对手认输，游戏结束，你胜利了。\n"+eloString+chessString)
-	}
-	// 删除临时文件
-	if inkscapeExists() {
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
-		}
+		msg = append(msg, message.Text("对手认输, 游戏结束, 你胜利了。\n", eloString, chessString))
 	}
 	chessRoomMap.Delete(groupCode)
-	return replyMsg
+	return
 }
 
 // play 走棋
-func play(senderUin int64, groupCode int64, moveStr string) message.Message {
+func play(senderUin int64, groupCode int64, moveStr string) (msg message.Message, err error) {
+	msg = message.Message{message.At(senderUin)}
 	// 检查对局是否存在
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
-		return nil
+		return nil, errNotExist
 	}
-	// 不是对局中的玩家，忽略消息
+	// 不是对局中的玩家, 忽略消息
 	if (senderUin != room.whitePlayer) && (senderUin != room.blackPlayer) && !isAprilFoolsDay() {
-		return nil
+		return
 	}
 	// 对局未建立
 	if (room.whitePlayer == 0) || (room.blackPlayer == 0) {
-		return textWithAt(senderUin, "请等候其他玩家加入游戏。")
+		msg = append(msg, message.Text("请等候其他玩家加入游戏。"))
+		return
 	}
 	// 需要对手走棋
 	if ((senderUin == room.whitePlayer) && (room.chessGame.Position().Turn() != chess.White)) || ((senderUin == room.blackPlayer) && (room.chessGame.Position().Turn() != chess.Black)) {
-		return textWithAt(senderUin, "请等待对手走棋。")
+		msg = append(msg, message.Text("请等待对手走棋。"))
+		return
 	}
 	room.lastMoveTime = time.Now().Unix()
 	// 走棋
-	if err := room.chessGame.MoveStr(moveStr); err != nil {
+	if err = room.chessGame.MoveStr(moveStr); err != nil {
 		// 指令错误时检查
 		if !room.isBlindfold {
-			// 未开启盲棋，提示指令错误
-			return simpleText(fmt.Sprintf("移动「%s」违规，请检查，格式请参考「代数记谱法」(Algebraic notation)。", moveStr))
+			// 未开启盲棋, 提示指令错误
+			msg = append(msg, message.Text("移动「", moveStr, "」违规, 请检查, 格式请参考「代数记谱法」(Algebraic notation)。"))
+			return
 		}
-		// 开启盲棋，判断违例情况
+		// 开启盲棋, 判断违例情况
 		var currentPlayerColor chess.Color
 		if senderUin == room.whitePlayer {
 			currentPlayerColor = chess.White
 		} else {
 			currentPlayerColor = chess.Black
 		}
-		// 第一次违例，提示
+		// 第一次违例, 提示
 		_flag := false
 		if (currentPlayerColor == chess.White) && !room.whiteErr {
 			room.whiteErr = true
@@ -229,23 +218,18 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 			_flag = true
 		}
 		if _flag {
-			return simpleText(fmt.Sprintf("移动「%s」违例，再次违例会立即判负。", moveStr))
+			msg = append(msg, message.Text("移动「", moveStr, "」违规, 再次违规会立即判负。"))
+			return
 		}
-		// 出现多次违例，判负
+		// 出现多次违例, 判负
 		room.chessGame.Resign(currentPlayerColor)
 		chessString := getChessString(*room)
-		replyMsg := textWithAt(senderUin, "违例两次，游戏结束。\n"+chessString)
-		// 删除临时文件
-		if inkscapeExists() {
-			if err := cleanTempFiles(groupCode); err != nil {
-				log.Debugln("[chess]", "Fail to clean temp files", err)
-				return message.Message{message.Text("ERROR: ", err)}
-			}
-		}
+		msg = append(msg, message.Text("违规两次,游戏结束。\n", chessString))
+
 		chessRoomMap.Delete(groupCode)
-		return replyMsg
+		return
 	}
-	// 走子之后，视为拒绝和棋
+	// 走子之后, 视为拒绝和棋
 	if room.drawPlayer != 0 {
 		room.drawPlayer = 0
 		chessRoomMap.Store(groupCode, room)
@@ -253,26 +237,25 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 	// 生成棋盘图片
 	var boardImgEle message.MessageSegment
 	if !room.isBlindfold {
-		boardMsg, ok, errMsg := getBoardElement(groupCode)
-		boardImgEle = boardMsg
-		if !ok {
-			return errorText(errMsg)
+		boardImgEle, err = getBoardElement(groupCode)
+		if err != nil {
+			return
 		}
 	}
 	// 检查游戏是否结束
 	if room.chessGame.Method() != chess.NoMethod {
 		whiteScore, blackScore := 0.5, 0.5
 		var msgBuilder strings.Builder
-		msgBuilder.WriteString("游戏结束，")
+		msgBuilder.WriteString("游戏结束, ")
 		switch room.chessGame.Method() {
 		case chess.FivefoldRepetition:
-			msgBuilder.WriteString("和棋，因为五次重复走子。\n")
+			msgBuilder.WriteString("和棋, 因为五次重复走子。\n")
 		case chess.SeventyFiveMoveRule:
-			msgBuilder.WriteString("和棋，因为七十五步规则。\n")
+			msgBuilder.WriteString("和棋, 因为七十五步规则。\n")
 		case chess.InsufficientMaterial:
-			msgBuilder.WriteString("和棋，因为不可能将死。\n")
+			msgBuilder.WriteString("和棋, 因为不可能将死。\n")
 		case chess.Stalemate:
-			msgBuilder.WriteString("和棋，因为逼和（无子可动和棋）。\n")
+			msgBuilder.WriteString("和棋, 因为逼和（无子可动和棋）。\n")
 		case chess.Checkmate:
 			var winner string
 			if room.chessGame.Position().Turn() == chess.White {
@@ -285,7 +268,7 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 				winner = "白方"
 			}
 			msgBuilder.WriteString(winner)
-			msgBuilder.WriteString("胜利，因为将杀。\n")
+			msgBuilder.WriteString("胜利, 因为将杀。\n")
 		case chess.NoMethod:
 		case chess.Resignation:
 		case chess.DrawOffer:
@@ -296,34 +279,26 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 		chessString := getChessString(*room)
 		eloString := ""
 		if len(room.chessGame.Moves()) > 4 {
-			// 若走子次数超过 4 认为是有效对局，存入数据库
+			// 若走子次数超过 4 认为是有效对局, 存入数据库
 			dbService := newDBService()
-			if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-				log.Debugln("[chess]", "Fail to create PGN.", err)
-				return message.Message{message.Text("ERROR: ", err)}
+			if err = dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
+				return
 			}
 			// 仅有效对局才会计算等级分
-			elo, err := getELOString(*room, whiteScore, blackScore)
+			eloString, err = getELOString(*room, whiteScore, blackScore)
 			if err != nil {
-				log.Debugln("[chess]", "Fail to get eloString.", eloString, err)
-				return message.Message{message.Text("ERROR: ", err)}
+				return
 			}
-			eloString = elo
 		}
 		msgBuilder.WriteString(eloString)
 		msgBuilder.WriteString(chessString)
-		replyMsg := simpleText(msgBuilder.String())
+		msg = append(msg, message.Text(msgBuilder.String()))
 		if !room.isBlindfold {
-			replyMsg = append(replyMsg, boardImgEle)
+			msg = append(msg, boardImgEle)
 		}
-		if inkscapeExists() {
-			if err := cleanTempFiles(groupCode); err != nil {
-				log.Debugln("[chess]", "Fail to clean temp files", err)
-				return message.Message{message.Text("ERROR: ", err)}
-			}
-		}
+
 		chessRoomMap.Delete(groupCode)
-		return replyMsg
+		return
 	}
 	// 提示玩家继续游戏
 	var currentPlayer int64
@@ -332,49 +307,43 @@ func play(senderUin int64, groupCode int64, moveStr string) message.Message {
 	} else {
 		currentPlayer = room.blackPlayer
 	}
-	return append(textWithAt(currentPlayer, "对手已走子，游戏继续。"), boardImgEle)
-}
-
-// ranking 排行榜
-func ranking() message.Message {
-	ranking, err := getRankingString()
-	if err != nil {
-		log.Debugln("[chess]", "Fail to get player ranking.", err)
-		return simpleText(fmt.Sprintln("服务器错误，无法获取排行榜信息。请联系开发者修 bug。", err))
-	}
-	return simpleText(ranking)
+	msg = message.Message{message.At(currentPlayer), message.Text("对手已走子, 游戏继续。"), boardImgEle}
+	return
 }
 
 // rate 获取等级分
-func rate(senderUin int64, senderName string) message.Message {
+func rate(senderUin int64, senderName string) (msg message.Message, err error) {
+	rate := 0
 	dbService := newDBService()
-	rate, err := dbService.getELORateByUin(senderUin)
-	if err == gorm.ErrRecordNotFound {
-		return simpleText("没有查找到等级分信息。请至少进行一局对局。")
-	}
+	rate, err = dbService.getELORateByUin(senderUin)
 	if err != nil {
-		log.Debugln("[chess]", "Fail to get player rank.", err)
-		return simpleText(fmt.Sprintln("服务器错误，无法获取等级分信息。请联系开发者修 bug。", err))
+		if err != gorm.ErrRecordNotFound {
+			err = errors.New("无法获取等级分信息。")
+			return
+		}
+		err = errors.New("没有查找到等级分信息, 请至少进行一局对局。")
 	}
-	return simpleText(fmt.Sprintf("玩家「%s」目前的等级分：%d", senderName, rate))
+	msg = append(msg, message.Text("玩家「", senderName, "」目前的等级分: ", rate))
+	return
 }
 
 // cleanUserRate 清空用户等级分
-func cleanUserRate(senderUin int64) message.Message {
+func cleanUserRate(senderUin int64) (msg message.Message, err error) {
 	dbService := newDBService()
-	err := dbService.cleanELOByUin(senderUin)
-	if err == gorm.ErrRecordNotFound {
-		return simpleText("没有查找到等级分信息。请检查用户 uid 是否正确。")
-	}
+	err = dbService.cleanELOByUin(senderUin)
 	if err != nil {
-		log.Debugln("[chess]", "Fail to clean player rank.", err)
-		return simpleText(fmt.Sprintln("服务器错误，无法清空等级分。请联系开发者修 bug。", err))
+		if err != gorm.ErrRecordNotFound {
+			err = errors.New("无法清空等级分。")
+			return
+		}
+		err = errors.New("没有查找到等级分信息, 请检查用户 uid 是否正确。")
 	}
-	return simpleText(fmt.Sprintf("已清空用户「%d」的等级分。", senderUin))
+	msg = append(msg, message.Text("已清空用户「", senderUin, "」的等级分。"))
+	return
 }
 
 // createGame 创建游戏
-func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName string) message.Message {
+func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName string) (msg message.Message, err error) {
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		chessRoomMap.Store(groupCode, &chessRoom{
@@ -389,79 +358,79 @@ func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName s
 			whiteErr:     false,
 			blackErr:     false,
 		})
+		text := "已创建新的对局, 发送「下棋」或「chess」可加入对局。"
 		if isBlindfold {
-			return simpleText("已创建新的盲棋对局，发送「盲棋」或「blind」可加入对局。")
+			text = "已创建新的盲棋对局, 发送「盲棋」或「blind」可加入对局。"
 		}
-		return simpleText("已创建新的对局，发送「下棋」或「chess」可加入对局。")
+		msg = append(msg, message.Text(text))
+		return
 	}
+	msg = message.Message{message.At(senderUin)}
 	if room.blackPlayer != 0 {
 		// 检测对局是否已存在超过 6 小时
 		if (time.Now().Unix() - room.lastMoveTime) > 21600 {
-			autoAbortMsg := abortGame(*room, groupCode, "对局已存在超过 6 小时，游戏结束。")
-			autoAbortMsg = append(autoAbortMsg, message.Text("\n\n已有对局已被中断，如需创建新对局请重新发送指令。"))
-			autoAbortMsg = append(autoAbortMsg, message.At(senderUin))
-			return autoAbortMsg
+			msg, err = abortGame(*room, groupCode, "对局已存在超过 6 小时, 游戏结束。")
+			msg = append(msg, message.Text("\n\n已有对局已被中断, 如需创建新对局请重新发送指令。"))
+			msg = append(msg, message.At(senderUin))
+			return
 		}
 		// 对局在进行
-		msg := textWithAt(senderUin, "对局已在进行中，无法创建或加入对局，当前对局玩家为：")
+		msg = append(msg, message.Text("对局已在进行中, 无法创建或加入对局, 当前对局玩家为: "))
 		if room.whitePlayer != 0 {
 			msg = append(msg, message.At(room.whitePlayer))
 		}
 		if room.blackPlayer != 0 {
 			msg = append(msg, message.At(room.blackPlayer))
 		}
-		msg = append(msg, message.Text("，群主或管理员发送「中断」或「abort」可中断对局（自动判和）。"))
-		return msg
+		msg = append(msg, message.Text(", 群主或管理员发送「中断」或「abort」可中断对局(自动判和)。"))
+		return
 	}
 	if senderUin == room.whitePlayer {
-		return textWithAt(senderUin, "请等候其他玩家加入游戏。")
+		msg = append(msg, message.Text("请等候其他玩家加入游戏。"))
+		return
 	}
 	if room.isBlindfold && !isBlindfold {
-		return simpleText("已创建盲棋对局，请加入或等待盲棋对局结束之后创建普通对局。")
+		msg = append(msg, message.Text("已创建盲棋对局, 请加入或等待盲棋对局结束之后创建普通对局。"))
+		return
 	}
 	if !room.isBlindfold && isBlindfold {
-		return simpleText("已创建普通对局，请加入或等待普通对局结束之后创建盲棋对局。")
+		msg = append(msg, message.Text("已创建普通对局, 请加入或等待普通对局结束之后创建盲棋对局。"))
+		return
 	}
 	room.blackPlayer = senderUin
 	room.blackName = senderName
 	chessRoomMap.Store(groupCode, room)
 	var boardImgEle message.MessageSegment
 	if !room.isBlindfold {
-		boardMsg, ok, errMsg := getBoardElement(groupCode)
-		if !ok {
-			return errorText(errMsg)
+		boardImgEle, err = getBoardElement(groupCode)
+		if err != nil {
+			return
 		}
-		boardImgEle = boardMsg
 	}
-	if isBlindfold {
-		return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer))
+	msg = append(msg, message.Text("黑棋已加入对局, 请白方下棋。"), message.At(room.whitePlayer))
+	if !isBlindfold {
+		msg = append(msg, boardImgEle)
 	}
-	return append(simpleText("黑棋已加入对局，请白方下棋。"), message.At(room.whitePlayer), boardImgEle)
+	return
 }
 
 // abortGame 中断游戏
-func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
+func abortGame(room chessRoom, groupCode int64, hint string) (message.Message, error) {
+	var msg message.Message
 	err := room.chessGame.Draw(chess.DrawOffer)
 	if err != nil {
-		log.Debugln("[chess]", "Fail to draw a game.", err)
-		return simpleText(fmt.Sprintln("程序发生了错误，和棋失败，请反馈开发者修复 bug。", err))
+		return nil, err
 	}
 	chessString := getChessString(room)
 	if len(room.chessGame.Moves()) > 4 {
 		dbService := newDBService()
 		if err := dbService.createPGN(chessString, room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName); err != nil {
-			log.Debugln("[chess]", "Fail to create PGN.", err)
-			return message.Message{message.Text("ERROR: ", err)}
+			return nil, err
 		}
 	}
-	if inkscapeExists() {
-		if err := cleanTempFiles(groupCode); err != nil {
-			log.Debugln("[chess]", "Fail to clean temp files", err)
-			return message.Message{message.Text("ERROR: ", err)}
-		}
-	}
+
 	chessRoomMap.Delete(groupCode)
-	msg := simpleText(hint)
+	msg = append(msg, message.Text(hint))
 	if room.whitePlayer != 0 {
 		msg = append(msg, message.At(room.whitePlayer))
 	}
@@ -469,26 +438,18 @@ func abortGame(room chessRoom, groupCode int64, hint string) message.Message {
 		msg = append(msg, message.At(room.blackPlayer))
 	}
 	msg = append(msg, message.Text("\n\n"+chessString))
-	return msg
+	return msg, nil
 }
 
 // getBoardElement 获取棋盘图片的消息内容
-func getBoardElement(groupCode int64) (message.MessageSegment, bool, string) {
+func getBoardElement(groupCode int64) (imgMsg message.MessageSegment, err error) {
+	fontdata, err := file.GetLazyData(text.GNUUnifontFontFile, control.Md5File, true)
+	if err != nil {
+		return
+	}
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
-		log.Debugln(fmt.Sprintf("No room for groupCode %d.", groupCode))
-		return message.MessageSegment{}, false, "对局不存在"
-	}
-	// 未安装 inkscape 直接返回对局字符串
-	// TODO: 使用原生 go 库渲染 svg
-	if !inkscapeExists() {
-		boardString := room.chessGame.Position().Board().Draw()
-		boardImageB64, err := generateCharBoardImage(boardString)
-		if err != nil {
-			return message.MessageSegment{}, false, "生成棋盘图片时发生错误"
-		}
-		replyMsg := message.Image("base64://" + boardImageB64)
-		return replyMsg, true, ""
+		return imgMsg, errNotExist
 	}
 	// 获取高亮方块
 	highlightSquare := make([]chess.Square, 0, 2)
@@ -499,27 +460,72 @@ func getBoardElement(groupCode int64) (message.MessageSegment, bool, string) {
 		highlightSquare = append(highlightSquare, lastMove.S2())
 	}
 	// 生成棋盘 svg 文件
-	svgFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.svg", groupCode))
+	buf := bytes.NewBuffer([]byte{})
 	fenStr := room.chessGame.FEN()
 	gameTurn := room.chessGame.Position().Turn()
-	if err := generateBoardSVG(svgFilePath, fenStr, gameTurn, highlightSquare...); err != nil {
-		log.Debugln("[chess]", "Unable to generate svg file.", err)
-		return message.MessageSegment{}, false, "无法生成 svg 图片，请检查后台日志。"
+	pos := &chess.Position{}
+	if err = pos.UnmarshalText(binary.StringToBytes(fenStr)); err != nil {
+		return
 	}
-	// 调用 inkscape 将 svg 图片转化为 png 图片
-	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
-	if err := exec.Command("inkscape", "-w", "720", "-h", "720", svgFilePath, "-o", pngFilePath).Run(); err != nil {
-		log.Debugln("[chess]", "Unable to convert to png.", err)
-		return message.MessageSegment{}, false, "无法生成 png 图片，请检查 inkscape 安装情况及其依赖 libfuse。"
-	}
-	// 尝试读取 png 图片
-	imgData, err := os.ReadFile(pngFilePath)
+	yellow := color.RGBA{255, 255, 0, 1}
+	mark := cimage.MarkSquares(yellow, highlightSquare...)
+	board := pos.Board()
+	fromBlack := cimage.Perspective(gameTurn)
+	err = cimage.SVG(buf, board, fromBlack, mark)
 	if err != nil {
-		log.Debugln("[chess]", fmt.Sprintf("Unable to read image file in %s.", pngFilePath), err)
-		return message.MessageSegment{}, false, "无法读取 png 图片"
+		return
 	}
-	imgMsg := message.Image("base64://" + base64.StdEncoding.EncodeToString(imgData))
-	return imgMsg, true, ""
+
+	worker, err := resvg.NewDefaultWorker(context.Background())
+	if err != nil {
+		return
+	}
+	defer worker.Close()
+
+	tree, err := worker.NewTreeFromData(buf.Bytes(), &resvg.Options{
+		Dpi:        96,
+		FontFamily: "Unifont",
+		FontSize:   24.0,
+	})
+	if err != nil {
+		return
+	}
+	defer tree.Close()
+
+	fontdb, err := worker.NewFontDBDefault()
+	if err != nil {
+		return
+	}
+	defer fontdb.Close()
+
+	err = fontdb.LoadFontData(fontdata)
+	if err != nil {
+		return
+	}
+
+	err = tree.ConvertText(fontdb)
+	if err != nil {
+		return
+	}
+
+	pixmap, err := worker.NewPixmap(720, 720)
+	if err != nil {
+		return
+	}
+	defer pixmap.Close()
+
+	err = tree.Render(resvg.TransformFromScale(2, 2), pixmap)
+	if err != nil {
+		return
+	}
+
+	out, err := pixmap.EncodePNG()
+	if err != nil {
+		return
+	}
+
+	imgMsg = message.ImageBytes(out)
+	return imgMsg, nil
 }
 
 // getELOString 获得玩家等级分的文本内容
@@ -528,55 +534,46 @@ func getELOString(room chessRoom, whiteScore, blackScore float64) (string, error
 		return "", nil
 	}
 	var msgBuilder strings.Builder
-	msgBuilder.WriteString("玩家等级分：\n")
+	msgBuilder.WriteString("玩家等级分: \n")
 	dbService := newDBService()
 	if err := updateELORate(room.whitePlayer, room.blackPlayer, room.whiteName, room.blackName, whiteScore, blackScore, dbService); err != nil {
-		msgBuilder.WriteString("发生错误，无法更新等级分。")
-		msgBuilder.WriteString(err.Error())
-		return msgBuilder.String(), err
+		return "", err
 	}
 	whiteRate, blackRate, err := getELORate(room.whitePlayer, room.blackPlayer, dbService)
 	if err != nil {
-		msgBuilder.WriteString("发生错误，无法获取等级分。")
-		msgBuilder.WriteString(err.Error())
-		return msgBuilder.String(), err
+		return "", err
 	}
-	msgBuilder.WriteString(fmt.Sprintf("%s：%d\n%s：%d\n\n", room.whiteName, whiteRate, room.blackName, blackRate))
+	msgBuilder.WriteString(room.whiteName)
+	msgBuilder.WriteString(": ")
+	msgBuilder.WriteString(strconv.Itoa(whiteRate))
+	msgBuilder.WriteString("\n")
+	msgBuilder.WriteString(room.blackName)
+	msgBuilder.WriteString(": ")
+	msgBuilder.WriteString(strconv.Itoa(blackRate))
+	msgBuilder.WriteString("\n\n")
 	return msgBuilder.String(), nil
 }
 
 // getRankingString 获取等级分排行榜的文本内容
-func getRankingString() (string, error) {
+func getRanking() (message.Message, error) {
 	dbService := newDBService()
 	eloList, err := dbService.getHighestRateList()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	var msgBuilder strings.Builder
-	msgBuilder.WriteString("当前等级分排行榜：\n\n")
+	msgBuilder.WriteString("当前等级分排行榜: \n\n")
 	for _, elo := range eloList {
-		msgBuilder.WriteString(fmt.Sprintf("%s: %d\n", elo.Name, elo.Rate))
+		msgBuilder.WriteString(elo.Name)
+		msgBuilder.WriteString(": ")
+		msgBuilder.WriteString(strconv.Itoa(elo.Rate))
+		msgBuilder.WriteString("\n")
 	}
-	return msgBuilder.String(), nil
-}
-
-func simpleText(msg string) message.Message {
-	return []message.MessageSegment{message.Text(msg)}
-}
-
-func textWithAt(target int64, msg string) message.Message {
-	if target == 0 {
-		return simpleText("@全体成员 " + msg)
-	}
-	return []message.MessageSegment{message.At(target), message.Text(msg)}
-}
-
-func errorText(errMsg string) message.Message {
-	return simpleText("发生错误，请联系开发者修 bug。\n错误信息：" + errMsg)
+	return message.Message{message.Text(msgBuilder.String())}, nil
 }
 
 // updateELORate 更新 elo 等级分
-// 当数据库中没有玩家的等级分信息时，自动新建一条记录
+// 当数据库中没有玩家的等级分信息时, 自动新建一条记录
 func updateELORate(whiteUin, blackUin int64, whiteName, blackName string, whiteScore, blackScore float64, dbService *chessDBService) error {
 	whiteRate, err := dbService.getELORateByUin(whiteUin)
 	if err != nil {
@@ -609,77 +606,6 @@ func updateELORate(whiteUin, blackUin int64, whiteName, blackName string, whiteS
 	return dbService.updateELOByUin(blackUin, blackName, blackRate)
 }
 
-// cleanTempFiles 清理临时文件
-func cleanTempFiles(groupCode int64) error {
-	svgFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.svg", groupCode))
-	if err := os.Remove(svgFilePath); err != nil {
-		return err
-	}
-	pngFilePath := path.Join(tempFileDir, fmt.Sprintf("%d.png", groupCode))
-	return os.Remove(pngFilePath)
-}
-
-// generateCharBoardImage 生成文字版的棋盘
-func generateCharBoardImage(boardString string) (string, error) {
-	boardString = strings.Trim(boardString, "\n")
-	const FontSize = 72
-	h := FontSize*8 + 36
-	w := FontSize*9 + 24
-	dc := gg.NewContext(h, w)
-	dc.SetRGB(1, 1, 1)
-	dc.Clear()
-	dc.SetRGB(0, 0, 0)
-	fontdata, err := file.GetLazyData(text.GNUUnifontFontFile, control.Md5File, true)
-	if err != nil {
-		// TODO: err solve
-		panic(err)
-	}
-	if err := dc.ParseFontFace(fontdata, FontSize); err != nil {
-		return "", err
-	}
-	lines := strings.Split(boardString, "\n")
-	if len(lines) != 9 {
-		lines = make([]string, 9)
-		lines[0] = "ERROR [500]"
-		lines[1] = "程序内部错误"
-		lines[2] = "棋盘字符串不合法"
-		lines[3] = "请反馈开发者修复"
-	}
-	for i := 0; i < 9; i++ {
-		dc.DrawString(lines[i], 18, float64(FontSize*(i+1)))
-	}
-	imgBuffer := bytes.NewBuffer([]byte{})
-	if err := dc.EncodePNG(imgBuffer); err != nil {
-		return "", err
-	}
-	imgData, err := io.ReadAll(imgBuffer)
-	if err != nil {
-		return "", err
-	}
-	imgB64 := base64.StdEncoding.EncodeToString(imgData)
-	return imgB64, nil
-}
-
-// generateBoardSVG 生成棋盘 SVG 图片
-func generateBoardSVG(svgFilePath, fenStr string, gameTurn chess.Color, sqs ...chess.Square) error {
-	os.Remove(svgFilePath)
-	f, err := os.Create(svgFilePath)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	pos := &chess.Position{}
-	if err := pos.UnmarshalText(binary.StringToBytes(fenStr)); err != nil {
-		return err
-	}
-	yellow := color.RGBA{255, 255, 0, 1}
-	mark := image.MarkSquares(yellow, sqs...)
-	board := pos.Board()
-	fromBlack := image.Perspective(gameTurn)
-	return image.SVG(f, board, fromBlack, mark)
-}
-
 // getChessString 获取 PGN 字符串
 func getChessString(room chessRoom) string {
 	game := room.chessGame
@@ -702,12 +628,6 @@ func getELORate(whiteUin, blackUin int64, dbService *chessDBService) (whiteRate 
 		return
 	}
 	return
-}
-
-// inkscapeExists 判断 inkscape 是否存在
-func inkscapeExists() bool {
-	_, err := exec.LookPath("inkscape")
-	return err == nil
 }
 
 // isAprilFoolsDay 判断当前时间是否为愚人节期间
