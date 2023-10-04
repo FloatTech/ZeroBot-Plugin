@@ -1,6 +1,5 @@
 // Package main ZeroBot-Plugin main file
 package main
-
 import (
 	"encoding/json"
 	"flag"
@@ -13,53 +12,20 @@ import (
 	"time"
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/console" // 更改控制台属性
-
 	"github.com/FloatTech/ZeroBot-Plugin/kanban" // 打印 banner
-
 	// ---------以下插件均可通过前面加 // 注释，注释后停用并不加载插件--------- //
 	// ----------------------插件优先级按顺序从高到低---------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// ----------------------------高优先级区---------------------------- //
-	// vvvvvvvvvvvvvvvvvvvvvvvvvvvv高优先级区vvvvvvvvvvvvvvvvvvvvvvvvvvvv //
-	//               vvvvvvvvvvvvvv高优先级区vvvvvvvvvvvvvv               //
-	//                      vvvvvvv高优先级区vvvvvvv                      //
-	//                          vvvvvvvvvvvvvv                          //
-	//                               vvvv                               //
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleepmanage" // 统计睡眠时间
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
-
 	_ "github.com/FloatTech/zbputils/job" // 定时指令触发器
-
 	//                               ^^^^                               //
-	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^高优先级区^^^^^^^                      //
 	//               ^^^^^^^^^^^^^^高优先级区^^^^^^^^^^^^^^               //
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^高优先级区^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //
 	// ----------------------------高优先级区---------------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// ----------------------------中优先级区---------------------------- //
-	// vvvvvvvvvvvvvvvvvvvvvvvvvvvv中优先级区vvvvvvvvvvvvvvvvvvvvvvvvvvvv //
-	//               vvvvvvvvvvvvvv中优先级区vvvvvvvvvvvvvv               //
-	//                      vvvvvvv中优先级区vvvvvvv                      //
-	//                          vvvvvvvvvvvvvv                          //
-	//                               vvvv                               //
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"            // ahsai tts
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aifalse"          // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"          // ai绘图
@@ -153,55 +119,29 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"           // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"              // 游戏王相关插件
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"            // 月幕galgame
-
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"           // 鬼东西
 
 	//                               ^^^^                               //
-	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^中优先级区^^^^^^^                      //
 	//               ^^^^^^^^^^^^^^中优先级区^^^^^^^^^^^^^^               //
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^中优先级区^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //
 	// ----------------------------中优先级区---------------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// ----------------------------低优先级区---------------------------- //
-	// vvvvvvvvvvvvvvvvvvvvvvvvvvvv低优先级区vvvvvvvvvvvvvvvvvvvvvvvvvvvv //
-	//               vvvvvvvvvvvvvv低优先级区vvvvvvvvvvvvvv               //
-	//                      vvvvvvv低优先级区vvvvvvv                      //
-	//                          vvvvvvvvvvvvvv                          //
-	//                               vvvv                               //
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse" // 骂人
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply" // 人工智能回复
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
-
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat" // 打断复读
-
 	//                               ^^^^                               //
-	//                          ^^^^^^^^^^^^^^                          //
 	//                      ^^^^^^^低优先级区^^^^^^^                      //
 	//               ^^^^^^^^^^^^^^低优先级区^^^^^^^^^^^^^^               //
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^低优先级区^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //
 	// ----------------------------低优先级区---------------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
 	// -----------------------以下为内置依赖，勿动------------------------ //
 	"github.com/FloatTech/floatbox/process"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
-	"github.com/wdvxdr1123/ZeroBot/message"
-
+" github . com/wdvxdr 1123/zero bot/message "
 	// webctrl "github.com/FloatTech/zbputils/control/web"
-
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 	// -----------------------以上为内置依赖，勿动------------------------ //
 )
@@ -226,7 +166,7 @@ func init() {
 	// 直接写死 URL 时，请更改下面第二个参数
 	url := flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
 	// 默认昵称
-	adana := flag.String("n", "椛椛", "Set default nickname.")
+	adana := flag.String("n", "Muja", "Set default nickname.")
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
@@ -237,93 +177,93 @@ func init() {
 
 	flag.Parse()
 
-	if *h {
-		fmt.Println("Usage:")
-		flag.PrintDefaults()
-		os.Exit(0)
+	如果*h {
+fmt.Println("用法:")
+旗.打印默认值()
+操作系统（Operating System）.退出(0)
 	}
-	if *d && !*w {
-		logrus.SetLevel(logrus.DebugLevel)
+	如果*d &&！*w {
+logrus.SetLevel(logrus.调试级别)
 	}
-	if *w {
-		logrus.SetLevel(logrus.WarnLevel)
+	如果*w {
+logrus.SetLevel(logrus.警告级别)
 	}
 
-	for _, s := range flag.Args() {
-		i, err := strconv.ParseInt(s, 10, 64)
-		if err != nil {
-			continue
+	为_，s :=范围旗.Args() {
+我，err := strconv.ParseInt(s，10, 64)
+		如果呃！=无 {
+			继续
 		}
-		sus = append(sus, i)
+sus =附加(sus，I)
 	}
 
 	// 通过代码写死的方式添加主人账号
-	// sus = append(sus, 12345678)
-	// sus = append(sus, 87654321)
+	// sus = append(sus，2523203097)
+	// sus = append(sus，1431368468)
 
-	// 启用 webui
-	// go webctrl.RunGui(*g)
+	// 启用webui
+	// go webctrl。润桂(*g)
 
-	if *runcfg != "" {
-		f, err := os.Open(*runcfg)
-		if err != nil {
-			panic(err)
+	如果*runcfg！="" {
+f，err := os.打开(*runcfg)
+		如果呃！=无 {
+			恐慌(呃)
 		}
-		config.W = make([]*driver.WSClient, 0, 2)
-		err = json.NewDecoder(f).Decode(&config)
-		f.Close()
-		if err != nil {
-			panic(err)
+配置.W =制造([]*驱动程序.WSClient，0, 2)
+err = json.新解码器(f).解码(&配置)
+		f.关闭()
+		如果呃！=无 {
+			恐慌(呃)
 		}
-		config.Z.Driver = make([]zero.Driver, len(config.W)+len(config.S))
-		for i, w := range config.W {
-			config.Z.Driver[i] = w
+配置.Z.驱动因素=制造([]零.司机，低输入联网（low-entry networking的缩写）(配置.W)+低输入联网（low-entry networking的缩写）(配置.s))
+		为我，w :=范围配置.W {
+配置.Z.驱动程序[i] = w
 		}
-		for i, s := range config.S {
-			config.Z.Driver[i+len(config.W)] = s
+		为我，s :=范围配置.S {
+配置.Z.驱动程序[i+低输入联网（low-entry networking的缩写）(配置.W)] = s
 		}
-		logrus.Infoln("[main] 从", *runcfg, "读取配置文件")
-		return
+logrus.Infoln("[主要]从"，*runcfg，"读取配置文件")
+		返回
 	}
-	config.W = []*driver.WSClient{driver.NewWebSocketClient(*url, *token)}
-	config.Z = zero.Config{
-		NickName:       append([]string{*adana}, "ATRI", "atri", "亚托莉", "アトリ"),
-		CommandPrefix:  *prefix,
-		SuperUsers:     sus,
-		RingLen:        *rsz,
-		Latency:        time.Duration(*late) * time.Millisecond,
-		MaxProcessTime: time.Duration(*maxpt) * time.Minute,
-		MarkMessage:    !*markmsg,
-		Driver:         []zero.Driver{config.W[0]},
+配置.w =[]*驱动程序.WSClient {驱动程序.NewWebSocketClient(*url，*token)}
+配置.Z =零.配置{
+昵称:附加([]线{ *阿达纳}，《ATRI》, “心房”, "亚托莉", "アトリ"),
+command prefix:*前缀，
+超级用户:su，
+RingLen: *rsz，
+延迟:时间.持续时间(*延迟)*时间.毫秒，
+MaxProcessTime:时间.持续时间(*maxpt) *时间.分钟，
+MarkMessage:！*markmsg，
+司机:[]零.驱动程序{配置.W[0]},
 	}
 
-	if *save != "" {
-		f, err := os.Create(*save)
-		if err != nil {
-			panic(err)
+	如果*保存！="" {
+f，err := os.创建(*保存)
+		如果呃！=无 {
+			恐慌(呃)
 		}
-		err = json.NewEncoder(f).Encode(&config)
-		f.Close()
-		if err != nil {
-			panic(err)
+err = json.新编码器(f).编码(&配置)
+		f.关闭()
+		如果呃！=无 {
+			恐慌(呃)
 		}
-		logrus.Infoln("[main] 配置文件已保存到", *save)
-		os.Exit(0)
+logrus.Infoln("[主要]配置文件已保存到"，*保存)
+操作系统（Operating System）.退出(0)
 	}
 }
 
-func main() {
-	if !strings.Contains(runtime.Version(), "go1.2") { // go1.20之前版本需要全局 seed，其他插件无需再 seed
-		rand.Seed(time.Now().UnixNano()) //nolint: staticcheck
+功能main() {
+	如果！用线串.包含(运行时.版本()，" go1.2 ") { // go1.20之前版本需要全局种子，其他插件无需再种子
+边缘.种子(时间.现在().UnixNano())//nolint: staticcheck
 	}
 	// 帮助
-	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(banner.Banner, "\n管理发送\"/服务列表\"查看 bot 功能\n发送\"/用法name\"查看功能用法"))
+零.OnFullMatchGroup([]线{“救命”, "/帮助", ".救命”, "菜单"}，零.OnlyToMe).设置块(真实的).
+手柄(功能(ctx *零.Ctx) {
+ctx.发送链(消息.文本(横幅.横幅，" \n管理发送\"/服务列表\"查看马胃蝇蛆功能\n发送\"/用法名称\ "查看功能用法"))
 		})
-	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(strings.ReplaceAll(kanban.Kanban(), "\t", "")))
+零.OnFullMatch("查看zbp公告"，零.只有我，零.AdminPermission).设置块(真实的).
+手柄(功能(ctx *零.Ctx) {
+ctx.发送链(消息.文本(字符串.全部替换(看板.看板()，" \t ", "")))
 		})
-	zero.RunAndBlock(&config.Z, process.GlobalInitMutex.Unlock)
+零.RunAndBlock(&配置.z，流程.全局初始化互斥体.解锁)
 }
