@@ -323,7 +323,7 @@ func videoCard2msg(card bz.Card) (msg []message.MessageSegment, err error) {
 	msg = append(msg, message.Image(card.Pic))
 	msg = append(msg, message.Text("\n点赞: ", bz.HumanNum(card.Stat.Like), " 投币: ", bz.HumanNum(card.Stat.Coin), "\n",
 		"收藏: ", bz.HumanNum(card.Stat.Favorite), " 分享: ", bz.HumanNum(card.Stat.Share), "\n",
-		bz.VURL, card.BvID))
+		bz.VURL, card.BvID, "\n"))
 	return
 }
 
