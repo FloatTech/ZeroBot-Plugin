@@ -76,11 +76,17 @@ func handleVideo(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
+	summaryMsg, err := getVideoSummary(card)
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR: ", err))
+		return
+	}
+	msg = append(msg, summaryMsg...)
 	ctx.SendChain(msg...)
 }
 
 func handleDynamic(ctx *zero.Ctx) {
-	msg, err := dynamicDetail(ctx.State["regex_matched"].([]string)[2])
+	msg, err := dynamicDetail(cfg, ctx.State["regex_matched"].([]string)[2])
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
