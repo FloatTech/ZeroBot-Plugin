@@ -25,7 +25,7 @@
   
   [![license](https://img.shields.io/github/license/FloatTech/ZeroBot-Plugin.svg?style=flat-square&logo=gnu)](https://raw.githubusercontent.com/FloatTech/ZeroBot-Plugin/master/LICENSE)
   [![tencent-qq](https://img.shields.io/badge/%E7%BE%A4-1048452984-red?style=flat-square&logo=tencent-qq)](https://jq.qq.com/?_wv=1027&k=QMb7x1mM)
-  [![tencent-guild](https://img.shields.io/badge/%E9%A2%91%E9%81%93-%E3%82%BC%E3%83%ADBotPlugin-yellow?style=flat-square&logo=tencent-qq)](https://pd.qq.com/s/fjkx81mnr)
+  [![tencent-guild](https://img.shields.io/badge/%E9%A2%91%E9%81%93-Zer0BotPlugin-yellow?style=flat-square&logo=tencent-qq)](https://pd.qq.com/s/fjkx81mnr)
   [![telegram](https://img.shields.io/badge/Telegram-click%20me-informational?style=flat-square&logo=telegram)](https://t.me/zerobotplugin)
 
   本项目符合 [OneBot](https://github.com/howmanybots/onebot) 标准，可基于以下项目与机器人框架/平台进行交互
