@@ -39,6 +39,8 @@
 
 </div>
 
+> 专为[后 go-cqhttp 时代](https://github.com/Mrs4s/go-cqhttp/issues/2471)开发迁移的`类zbp`新机器人现已出炉，基于官方api，稳定不风控: [NanoBot-Plugin](https://github.com/FloatTech/NanoBot-Plugin)
+
 > 如果您不知道什么是 [OneBot](https://github.com/howmanybots/onebot) 或不希望运行多个程序，还可以直接前往 [gocqzbp](https://github.com/FloatTech/gocqzbp) 的 [Release](https://github.com/FloatTech/gocqzbp/releases) 页面下载单一可执行文件或前往 [Packages](https://github.com/FloatTech/gocqzbp/pkgs/container/gocqzbp) 页面使用`docker`，运行后按提示登录即可。
 
 > 如果您对开发插件感兴趣，欢迎加入[ZeroBot-Plugin-Playground](https://github.com/FloatTech/ZeroBot-Plugin-Playground)

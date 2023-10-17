@@ -4,15 +4,15 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.6.1-0.20231012150753-6cf9415a5645
-	github.com/FloatTech/floatbox v0.0.0-20230827160415-f0865337a824
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20231017135344-aefd1d56e900
+	github.com/FloatTech/floatbox v0.0.0-20231017134949-ae5059ebace7
 	github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
-	github.com/FloatTech/sqlite v1.6.2
+	github.com/FloatTech/sqlite v1.6.3
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
-	github.com/FloatTech/zbpctrl v1.5.3-0.20230514154630-b74e6fcca380
-	github.com/FloatTech/zbputils v1.6.2-0.20230903052647-820a67856603
+	github.com/FloatTech/zbpctrl v1.6.0
+	github.com/FloatTech/zbputils v1.7.1-0.20231017135158-7e6c839764eb
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -36,10 +36,10 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.38.1
 	github.com/shirou/gopsutil/v3 v3.23.1
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.7.4
+	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20231009162356-57f71b9f5258
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.3.0
 	golang.org/x/sys v0.8.0
