@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/console" // 更改控制台属性
+	_ "github.com/FloatTech/ZeroBot-Plugin/console"  更改控制台属性
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban" // 打印 banner
 
