@@ -12,8 +12,8 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Close PR if commit message contains "main.go"
-        if: contains(github.event.pull_request.title, 'main.go')
+      - name: Close PR if commit message contains ".go"
+        if: contains(github.event.pull_request.title, '.go')
         uses: superbrothers/close-pull-request@v3
         with:
           # Optional. Post a issue comment just before closing a pull request.
