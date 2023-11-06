@@ -224,7 +224,7 @@ func init() {
 	// 直接写死 AccessToken 时，请更改下面第二个参数
 	token := flag.String("t", "114514", "Set AccessToken of WSClient.")
 	// 直接写死 URL 时，请更改下面第二个参数
-	url := flag.String("u", "ws://172.18.0.1:8082", "Set Url of WSClient.")
+	url := flag.String("u", "ws://172.18.0.2:8082", "Set Url of WSClient.")
 	// 默认昵称
 	adana := flag.String("n", "Niko", "Set default nickname.")
 	prefix := flag.String("p", "/", "Set command prefix.")
