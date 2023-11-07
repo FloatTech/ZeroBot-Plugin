@@ -4,8 +4,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/FloatTech/AnimeAPI v1.7.1-0.20231017135344-aefd1d56e900 h1:UPXoj+lMHFBulp/m+F7uHju0MXslFKQqEplDDz/nOiU=
 github.com/FloatTech/AnimeAPI v1.7.1-0.20231017135344-aefd1d56e900/go.mod h1:7Olb5U9q1oeayRZQTNBhXQNMf8QT4T9hccsn38IEt/U=
-github.com/FloatTech/floatbox v0.0.0-20231017134949-ae5059ebace7 h1:5GQYI8JfYhbwpZCs/r700w8ch5IFB44ebDb4FR2A2+g=
-github.com/FloatTech/floatbox v0.0.0-20231017134949-ae5059ebace7/go.mod h1:TeTlp+hTxpJti4JSdmUqzxGEr4wUBOVct9YWBepilpc=
+github.com/FloatTech/floatbox v0.0.0-20231107124407-e38535efa2a2 h1:O4kptIzgYzNwZlBARZFv8EkA40yB6M5LGxxIF7NKLR8=
+github.com/FloatTech/floatbox v0.0.0-20231107124407-e38535efa2a2/go.mod h1:TeTlp+hTxpJti4JSdmUqzxGEr4wUBOVct9YWBepilpc=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
 github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef h1:CJbK/2FRwPuZpeb6M4sWK2d7oXDnBEGhpkQuQrgc91A=
@@ -18,8 +18,8 @@ github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b h1:tvciXWq2nuvTbFeJG
 github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.6.0 h1:BWg9aRR4bUCmNNKj6GPH0TmzFRWYImIi6rQcQTTYRs4=
 github.com/FloatTech/zbpctrl v1.6.0/go.mod h1:i3GGM5K4HiDsXzvmXQSYoH1QT3tsSaAHjRzHwKGsHG0=
-github.com/FloatTech/zbputils v1.7.1-0.20231017135158-7e6c839764eb h1:a2JVRNoleD7Ut8KJEh/5ZF7Lo/G54vcQIvn9Xczcf64=
-github.com/FloatTech/zbputils v1.7.1-0.20231017135158-7e6c839764eb/go.mod h1:cB09XWmHUgS5N7mmypi9Yys1+VEaXNFJJJhxEytu3e8=
+github.com/FloatTech/zbputils v1.7.1-0.20231107124514-083e678fbfe6 h1:EMdvLnt6i5dSFloLD1klOM8bdoFZqTtILcMCciOpcMo=
+github.com/FloatTech/zbputils v1.7.1-0.20231107124514-083e678fbfe6/go.mod h1:4oXgjQ6bGosAF4GbuL/keAhTrGWOV369X5X0ISFebmw=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e h1:wR3MXQ3VbUlPKOOUwLOYgh/QaJThBTYtsl673O3lqSA=
 github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=

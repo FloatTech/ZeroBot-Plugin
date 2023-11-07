@@ -27,7 +27,7 @@ var Banner = "* OneBot + ZeroBot + Golang\n" +
 	"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
 `
 
-const timeformat = `2006-01-02 15:04:05 +0800 CST`
+const timeformat = `2006-01-02 15:04:05 +0900 JST`
 
 func main() {
 	f, err := os.Create("banner/banner.go")
