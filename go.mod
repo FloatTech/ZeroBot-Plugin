@@ -5,14 +5,14 @@ go 1.20
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/FloatTech/AnimeAPI v1.7.1-0.20231017135344-aefd1d56e900
-	github.com/FloatTech/floatbox v0.0.0-20231017134949-ae5059ebace7
+	github.com/FloatTech/floatbox v0.0.0-20231107124407-e38535efa2a2
 	github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
 	github.com/FloatTech/sqlite v1.6.3
 	github.com/FloatTech/ttl v0.0.0-20220715042055-15612be72f5b
 	github.com/FloatTech/zbpctrl v1.6.0
-	github.com/FloatTech/zbputils v1.7.1-0.20231017135158-7e6c839764eb
+	github.com/FloatTech/zbputils v1.7.1-0.20231107124514-083e678fbfe6
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
