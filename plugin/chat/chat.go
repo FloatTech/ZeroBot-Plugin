@@ -46,14 +46,10 @@ func init() { // 插件主体
 				// 5分钟共8块命令牌 一次消耗3块命令牌
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(message.Text("请不要戳", nickname, " >_<"))
-			case poke.Load(ctx.Event.GroupID).AcquireM(3):
-				// 5分钟共8块命令牌 一次消耗3块命令牌
-				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Text("你戳你妈呢😅"))
-			case poke.Load(ctx.Event.GroupID).Acquire(1):
+			case poke.Load(ctx.Event.GroupID).Acquire():
 				// 5分钟共8块命令牌 一次消耗1块命令牌
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Text("你妈死了捏😋"))
+				ctx.SendChain(message.Text("你戳你妈呢😅"))
 			default:
 				// 频繁触发，不回复
 			}
