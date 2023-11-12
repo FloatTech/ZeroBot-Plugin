@@ -46,8 +46,9 @@ func init() {
 			"- 取消b站直播订阅[uid|name]\n" +
 			"- b站推送列表\n" +
 			"- [开启|关闭]艾特全体\n" +
-			"Tips: 需要配合job一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
-			"记录在\"@every 5m\"触发的指令)\n" +
+			"Tips: 需要先在 bilibili 插件中设置cookie\n" +
+			"需要配合 job 插件一起使用, 全局只需要设置一个, 无视响应状态推送, 下为例子\n" +
+			"记录在\"@every 5m\"触发的指令\n" +
 			"拉取b站推送",
 		PrivateDataFolder: "bilibilipush",
 	})
