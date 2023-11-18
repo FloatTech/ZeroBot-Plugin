@@ -52,6 +52,7 @@ var (
 func init() {
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
+		sdb = initialize(engine.DataFolder() + "score.db")
 		ok := file.IsExist(cachePath)
 		if !ok {
 			err := os.MkdirAll(cachePath, 0777)
@@ -68,7 +69,6 @@ func init() {
 				}
 			}
 		}
-		sdb = initialize(engine.DataFolder() + "score.db")
 	}()
 	engine.OnRegex(`^签到\s?(\d*)$`).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		// 选择key

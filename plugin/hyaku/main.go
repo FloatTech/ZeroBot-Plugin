@@ -19,7 +19,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const bed = "https://gitcode.net/u011570312/OguraHyakuninIsshu/-/raw/master/"
+const bed = "https://gitea.seku.su/fumiama/OguraHyakuninIsshu/raw/branch/master/"
 
 type line struct {
 	番号, 歌人, 上の句, 下の句, 上の句ひらがな, 下の句ひらがな string

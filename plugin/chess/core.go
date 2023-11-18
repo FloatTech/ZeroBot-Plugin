@@ -168,7 +168,7 @@ func resign(groupCode, senderUin int64) (msg message.Message, err error) {
 }
 
 // play 走棋
-func play(senderUin int64, groupCode int64, moveStr string) (msg message.Message, err error) {
+func play(groupCode, senderUin int64, moveStr string) (msg message.Message, err error) {
 	msg = message.Message{message.At(senderUin)}
 	// 检查对局是否存在
 	room, ok := chessRoomMap.Load(groupCode)
@@ -343,7 +343,7 @@ func cleanUserRate(senderUin int64) (msg message.Message, err error) {
 }
 
 // createGame 创建游戏
-func createGame(isBlindfold bool, groupCode int64, senderUin int64, senderName string) (msg message.Message, err error) {
+func createGame(isBlindfold bool, groupCode, senderUin int64, senderName string) (msg message.Message, err error) {
 	room, ok := chessRoomMap.Load(groupCode)
 	if !ok {
 		chessRoomMap.Store(groupCode, &chessRoom{
