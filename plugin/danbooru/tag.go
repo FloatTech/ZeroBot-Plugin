@@ -3,6 +3,7 @@ package deepdanbooru
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"net/url"
@@ -59,8 +60,12 @@ func tagurl(name, u string) (im image.Image, st *sorttags, err error) {
 	if err != nil {
 		return
 	}
+	if len(data) < 4 {
+		err = errors.New("data too short")
+		return
+	}
 	tags := make(map[string]float64)
-	err = json.Unmarshal(data, &tags)
+	err = json.Unmarshal(data[1:len(data)-1], &tags)
 	if err != nil {
 		return
 	}
