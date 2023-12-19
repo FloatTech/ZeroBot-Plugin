@@ -152,7 +152,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordcount"        // 聊天热词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"           // 猜单词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"              // 游戏王相关插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"            // 月幕galgame
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"            // 月幕galgame
 
 	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"           // 鬼东西
 
@@ -227,7 +227,7 @@ func init() {
 	url := flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
 	// 默认昵称
 	adana := flag.String("n", "椛椛", "Set default nickname.")
-	prefix := flag.String("p", ".", "Set command prefix.")
+	prefix := flag.String("p", "", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
 	late := flag.Uint("l", 233, "Response latency (ms).")
@@ -259,7 +259,7 @@ func init() {
 
 	// 通过代码写死的方式添加主人账号
 	   sus = append(sus, 1055411737)
-	   sus = append(sus, 3236800016)
+	// sus = append(sus, 3236800016)
 
 	// 启用 webui
 	// go webctrl.RunGui(*g)
