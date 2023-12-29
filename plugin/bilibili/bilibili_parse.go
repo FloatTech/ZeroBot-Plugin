@@ -55,6 +55,35 @@ func init() {
 				handleLive(ctx)
 			}
 		})
+	en.OnRegex(`^(.*)视频总结$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			if gid <= 0 {
+				// 个人用户设为负数
+				gid = -ctx.Event.UserID
+			}
+			option := ctx.State["regex_matched"].([]string)[1]
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if ok {
+				data := c.GetData(ctx.Event.GroupID)
+				switch option {
+				case "开启", "打开", "启用":
+					data |= 0x10
+				case "关闭", "关掉", "禁用":
+					data &= 0x7fffffff_fffffffd
+				default:
+					return
+				}
+				err := c.SetData(gid, data)
+				if err == nil {
+					ctx.SendChain(message.Text("已", option))
+					return
+				}
+				ctx.SendChain(message.Text("出错啦: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("找不到服务!"))
+		})
 	en.OnRegex(searchVideo).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleVideo)
 	en.OnRegex(searchDynamic).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleDynamic)
 	en.OnRegex(searchArticle).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleArticle)
@@ -76,12 +105,15 @@ func handleVideo(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
-	summaryMsg, err := getVideoSummary(card)
-	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
-		return
+	c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 {
+		summaryMsg, err := getVideoSummary(card)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		msg = append(msg, summaryMsg...)
 	}
-	msg = append(msg, summaryMsg...)
 	ctx.SendChain(msg...)
 }
 
