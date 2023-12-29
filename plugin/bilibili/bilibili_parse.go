@@ -55,7 +55,7 @@ func init() {
 				handleLive(ctx)
 			}
 		})
-	en.OnRegex(`^(.*)视频总结$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	en.OnRegex(`^(.*)视频总结$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			if gid <= 0 {

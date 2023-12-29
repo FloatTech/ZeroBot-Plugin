@@ -224,7 +224,7 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text("成功!"))
 		})
-	engine.OnRegex(`^(.*)搜图显示图片$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^(.*)搜图显示图片$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			if gid <= 0 {
