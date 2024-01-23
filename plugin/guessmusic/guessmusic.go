@@ -2,7 +2,6 @@ package guessmusic
 
 import (
 	"bytes"
-	log "github.com/sirupsen/logrus"
 	"io/fs"
 	"math/rand"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -25,7 +26,7 @@ var cuttime = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时
 var t2s *gocc.OpenCC
 
 func init() {
-	//初始化简繁体转换变量
+	// 初始化简繁体转换变量
 	var err1 error
 	t2s, err1 = gocc.New("t2s")
 	if err1 != nil {
@@ -294,7 +295,7 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 // 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
 func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tickTimes int) (message.MessageSegment, int, int, bool) {
 	answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
-	//大小写，简繁体转换
+	// 大小写，简繁体转换
 	answer = ConvertText(answer)
 	for i, element := range musicInfo {
 		musicInfo[i] = ConvertText(element)
