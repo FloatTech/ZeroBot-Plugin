@@ -2,6 +2,8 @@
 package score
 
 import (
+	"encoding/base64"
+	"io"
 	"math"
 	"math/rand"
 	"os"
@@ -106,7 +108,7 @@ func init() {
 			// 如果签到时间是今天
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
 			if file.IsExist(drawedFile) {
-				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+				trySendImage(drawedFile, ctx)
 			}
 			return
 		case siUpdateTimeStr != today:
@@ -176,7 +178,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+		trySendImage(drawedFile, ctx)
 	})
 
 	engine.OnPrefix("获得签到背景", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
@@ -193,16 +195,14 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请先签到！"))
 				return
 			}
-			if id := ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + picFile)); id.ID() == 0 {
-				ctx.SendChain(message.Text("ERROR: 消息发送失败, 账号可能被风控"))
-			}
+			trySendImage(picFile, ctx)
 		})
 	engine.OnFullMatch("查看等级排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			today := time.Now().Format("20060102")
 			drawedFile := cachePath + today + "scoreRank.png"
 			if file.IsExist(drawedFile) {
-				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+				trySendImage(drawedFile, ctx)
 				return
 			}
 			st, err := sdb.GetScoreRankByTopN(10)
@@ -267,7 +267,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+			trySendImage(drawedFile, ctx)
 		})
 	engine.OnRegex(`^设置签到预设\s*(\d+)$`, zero.SuperUserPermission).Limit(ctxext.LimitByUser).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		key := ctx.State["regex_matched"].([]string)[1]
@@ -341,4 +341,33 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		return
 	}
 	return avatar, os.WriteFile(picFile, data, 0644)
+}
+
+// 使用"file:"发送图片失败后，改用base64发送
+func trySendImage(filePath string, ctx *zero.Ctx) {
+	filePath = file.BOTPATH + "/" + filePath
+	if id := ctx.SendChain(message.Image("file:///" + filePath)); id.ID() != 0 {
+		return
+	}
+	imgFile, err := os.Open(filePath)
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR: 无法打开文件", err))
+		return
+	}
+	defer imgFile.Close()
+	// 使用 base64.NewEncoder 将文件内容编码为 base64 字符串
+	var encodedFileData strings.Builder
+	encodedFileData.WriteString("base64://")
+	encoder := base64.NewEncoder(base64.StdEncoding, &encodedFileData)
+	_, err = io.Copy(encoder, imgFile)
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR: 无法编码文件内容", err))
+		return
+	}
+	encoder.Close()
+	drawedFileBase64 := encodedFileData.String()
+	if id := ctx.SendChain(message.Image(drawedFileBase64)); id.ID() == 0 {
+		ctx.SendChain(message.Text("ERROR: 无法读取图片文件", err))
+		return
+	}
 }
