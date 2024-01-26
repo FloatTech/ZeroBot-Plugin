@@ -8,3 +8,4 @@ nohup.out
 zerobot
 ZeroBot-Plugin*
 *.syso
+/.direnv
