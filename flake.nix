@@ -1,5 +1,5 @@
 {
-  description = "A basic gomod2nix flake";
+  description = "基于 ZeroBot 的 OneBot 插件";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
