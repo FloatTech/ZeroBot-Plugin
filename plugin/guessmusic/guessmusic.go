@@ -11,16 +11,28 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/liuzl/gocc"
 )
 
 var cuttime = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点,可自行调节时间（时：分：秒）
+var t2s *gocc.OpenCC
 
 func init() {
+	// 初始化简繁体转换变量
+	var err1 error
+	t2s, err1 = gocc.New("t2s")
+	if err1 != nil {
+		log.Infof("[guessmusic]:%s", err1)
+	}
+
 	engine.OnRegex(`^(个人|团队)猜歌(-(.*))?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			mode := ctx.State["regex_matched"].([]string)[3]
@@ -283,6 +295,11 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 // 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
 func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tickTimes int) (message.MessageSegment, int, int, bool) {
 	answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
+	// 大小写，简繁体转换
+	answer = ConvertText(answer)
+	for i, element := range musicInfo {
+		musicInfo[i] = ConvertText(element)
+	}
 	switch {
 	case answer == "取消":
 		if c.Event.UserID == beginner {
@@ -313,4 +330,16 @@ func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tic
 			return message.Text("答案不对,再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
 		}
 	}
+}
+
+// ConvertText 将传入字符串中的英文转为小写，繁体中文转为简体中文
+func ConvertText(input string) string {
+	// 将字符串中的英文转为小写
+	toLower := strings.ToLower(input)
+	toLower, err := t2s.Convert(toLower)
+	if err != nil {
+		message.Text("简繁转换失败")
+		return toLower
+	}
+	return toLower
 }
