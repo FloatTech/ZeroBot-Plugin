@@ -75,7 +75,7 @@ func updateVup() error {
 		if err != nil {
 			return err
 		}
-		gjson.Get(binary.BytesToString(data), "@this").ForEach(func(key, value gjson.Result) bool {
+		gjson.Get(binary.BytesToString(data), "@this").ForEach(func(_, value gjson.Result) bool {
 			mid := value.Get("mid").Int()
 			uname := value.Get("uname").String()
 			roomid := value.Get("roomid").Int()

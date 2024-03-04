@@ -155,7 +155,7 @@ func (t *Timer) judgeHM() {
 			if t.SelfID != 0 {
 				t.sendmsg(t.GrpID, zero.GetBot(t.SelfID))
 			} else {
-				zero.RangeBot(func(id int64, ctx *zero.Ctx) (_ bool) {
+				zero.RangeBot(func(_ int64, ctx *zero.Ctx) (_ bool) {
 					t.sendmsg(t.GrpID, ctx)
 					return
 				})

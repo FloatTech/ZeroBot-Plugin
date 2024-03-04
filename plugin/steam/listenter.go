@@ -57,14 +57,14 @@ func init() {
 			return
 		}
 		// 收集这波用户的streamId，然后查当前的状态，并建立信息映射表
-		streamIds := make([]string, len(infos))
+		streamIDs := make([]string, len(infos))
 		localPlayerMap := make(map[int64]*player)
 		for i := 0; i < len(infos); i++ {
-			streamIds[i] = strconv.FormatInt(infos[i].SteamID, 10)
+			streamIDs[i] = strconv.FormatInt(infos[i].SteamID, 10)
 			localPlayerMap[infos[i].SteamID] = infos[i]
 		}
 		// 将所有用户状态查一遍
-		playerStatus, err := getPlayerStatus(streamIds...)
+		playerStatus, err := getPlayerStatus(streamIDs...)
 		if err != nil {
 			// 出错就发消息
 			ctx.SendPrivateMessage(su, message.Text("[steam] ERROR: ", err))
@@ -117,11 +117,11 @@ func init() {
 }
 
 // getPlayerStatus 获取用户状态
-func getPlayerStatus(streamIds ...string) ([]*player, error) {
+func getPlayerStatus(streamIDs ...string) ([]*player, error) {
 	players := make([]*player, 0)
 	// 拼接请求地址
 	apiKeyMu.Lock()
-	url := fmt.Sprintf(apiurl+statusurl, apiKey, strings.Join(streamIds, ","))
+	url := fmt.Sprintf(apiurl+statusurl, apiKey, strings.Join(streamIDs, ","))
 	apiKeyMu.Unlock()
 	// 拉取并解析数据
 	data, err := web.GetData(url)

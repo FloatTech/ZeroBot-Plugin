@@ -178,7 +178,7 @@ func init() {
 		engine.OnMessage(canmatch(tKAWA), match(chatListK, seg)).
 			SetBlock(false).
 			Handle(randreply(sm.K))
-		engine.OnMessage(canmatch(tALPACA), func(ctx *zero.Ctx) bool {
+		engine.OnMessage(canmatch(tALPACA), func(_ *zero.Ctx) bool {
 			return alpacapiurl != "" && alpacatoken != ""
 		}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 			msg := ctx.ExtractPlainText()
