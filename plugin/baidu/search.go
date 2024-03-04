@@ -4,6 +4,7 @@ package baidu
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -37,9 +38,9 @@ func init() { // 主函数
 		var err error
 		switch ctx.State["regex_matched"].([]string)[1] {
 		case "百度", "百科":
-			es, err = web.GetData(fmt.Sprintf(duURL, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
+			es, err = web.GetData(fmt.Sprintf(duURL, key, url.QueryEscape(ctx.State["regex_matched"].([]string)[2]))) // 将网站返回结果赋值
 		case "wiki", "维基":
-			es, err = web.GetData(fmt.Sprintf(wikiURL, key, ctx.State["regex_matched"].([]string)[2])) // 将网站返回结果赋值
+			es, err = web.GetData(fmt.Sprintf(wikiURL, key, url.QueryEscape(ctx.State["regex_matched"].([]string)[2]))) // 将网站返回结果赋值
 		}
 		if err != nil {
 			ctx.SendChain(message.Text("出现错误捏：", err))
