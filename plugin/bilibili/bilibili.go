@@ -337,12 +337,12 @@ func init() {
 		faceH := float64(510)
 
 		totalDanmuku := 0
-		for i := 0; i < len(danmaku.Data.Data); i++ {
-			totalDanmuku += len(danmaku.Data.Data[i].Danmakus) + 1
+		for i := 0; i < len(danmaku.Data.Data.Records); i++ {
+			totalDanmuku += len(danmaku.Data.Data.Records[i].Danmakus) + 1
 		}
 		cw := 3000
 		mcw := float64(2000)
-		ch := 550 + len(danmaku.Data.Data)*int(faceH) + totalDanmuku*int(danmuH)
+		ch := 550 + len(danmaku.Data.Data.Records)*int(faceH) + totalDanmuku*int(danmuH)
 		canvas = gg.NewContext(cw, ch)
 		canvas.SetColor(color.White)
 		canvas.Clear()
@@ -372,8 +372,8 @@ func init() {
 		canvas.DrawString("网页链接: "+fmt.Sprintf(bz.DanmakuURL, u.Mid), startWidth, 422.5)
 		var channelStart float64
 		channelStart = float64(550)
-		for i := 0; i < len(danmaku.Data.Data); i++ {
-			item := danmaku.Data.Data[i]
+		for i := 0; i < len(danmaku.Data.Data.Records); i++ {
+			item := danmaku.Data.Data.Records[i]
 			facePath = cachePath + strconv.Itoa(int(item.Channel.UID)) + "vupFace" + path.Ext(item.Channel.FaceURL)
 			if path.Ext(item.Channel.FaceURL) != ".webp" {
 				err = initFacePic(facePath, item.Channel.FaceURL)
@@ -393,7 +393,7 @@ func init() {
 			}
 			canvas.SetRGB255(24, 144, 255)
 			canvas.DrawString("标题: "+item.Live.Title, startWidth, channelStart+fontH)
-			canvas.DrawString("主播: "+item.Channel.Name, startWidth, channelStart+fontH*2)
+			canvas.DrawString("主播: "+item.Channel.UName, startWidth, channelStart+fontH*2)
 			canvas.SetColor(color.Black)
 			canvas.DrawString("开始时间: "+time.UnixMilli(item.Live.StartDate).Format("2006-01-02 15:04:05"), startWidth, channelStart+fontH*3)
 			if item.Live.IsFinish {
@@ -434,7 +434,7 @@ func init() {
 				canvas.DrawString(t, moveW, danmuNow)
 				moveW += l + dz
 
-				t = danItem.Name
+				t = danItem.UName
 				l, _ = canvas.MeasureString(t)
 				canvas.SetRGB255(24, 144, 255)
 				canvas.DrawString(t, moveW, danmuNow)
