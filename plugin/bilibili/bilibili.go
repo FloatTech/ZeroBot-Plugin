@@ -411,8 +411,8 @@ func init() {
 
 				canvas.DrawString("直播时长: "+strconv.FormatFloat(float64(time.Now().UnixMilli()-item.Live.StartDate)/3600000.0, 'f', 1, 64)+"小时", startWidth, channelStart+fontH*5)
 			}
-			canvas.DrawString("弹幕数量: "+strconv.Itoa(int(item.Live.DanmakusCount)), startWidth, channelStart+fontH*6)
-			canvas.DrawString("观看次数: "+strconv.Itoa(int(item.Live.WatchCount)), startWidth, channelStart+fontH*7)
+			canvas.DrawString("弹幕数量: "+strconv.Itoa(item.Live.DanmakusCount), startWidth, channelStart+fontH*6)
+			canvas.DrawString("观看次数: "+strconv.Itoa(item.Live.WatchCount), startWidth, channelStart+fontH*7)
 
 			t := "收益:"
 			l, _ := canvas.MeasureString(t)
