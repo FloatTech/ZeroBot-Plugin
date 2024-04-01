@@ -374,7 +374,7 @@ func init() {
 		channelStart = float64(550)
 		for i := 0; i < len(danmaku.Data.Data.Records); i++ {
 			item := danmaku.Data.Data.Records[i]
-			facePath = cachePath + strconv.Itoa(int(item.Channel.UID)) + "vupFace" + path.Ext(item.Channel.FaceURL)
+			facePath = cachePath + strconv.Itoa(item.Channel.UID) + "vupFace" + path.Ext(item.Channel.FaceURL)
 			if path.Ext(item.Channel.FaceURL) != ".webp" {
 				err = initFacePic(facePath, item.Channel.FaceURL)
 				if err != nil {
