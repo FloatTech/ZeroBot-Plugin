@@ -24,7 +24,7 @@ import (
 const (
 	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
 	referer = "https://space.bilibili.com/%v"
-	infoURL = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%v&token=&platform=web&web_location=1550101"
+	infoURL = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%v"
 )
 
 // bdb bilibili推送数据库
