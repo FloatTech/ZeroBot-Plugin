@@ -203,7 +203,7 @@ func changeAtAll(gid int64, b int) (err error) {
 func getName(buid int64) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
-		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), bz.SignURL(fmt.Sprintf(infoURL, buid)), "GET", func(r *http.Request) error {
+		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), bz.SignURL(bz.SignURL(fmt.Sprintf(infoURL, buid))), "GET", func(r *http.Request) error {
 			r.Header.Set("User-Agent", ua)
 			return nil
 		}, nil)
@@ -271,8 +271,8 @@ func getUserDynamicCard(buid int64, cookiecfg *bz.CookieConfig) (cardList []gjso
 				return err
 			}
 			req.Header.Add("Cookie", cookie)
-			req.Header.Add("User-Agent", ua)
 		}
+		req.Header.Add("User-Agent", ua)
 		return nil
 	}, nil)
 	if err != nil {
