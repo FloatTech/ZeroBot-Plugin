@@ -262,8 +262,19 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 	return bdb.insertOrUpdateLiveAndDynamic(bpMap)
 }
 
-func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", referer, ua, nil)
+func getUserDynamicCard(buid int64, cookiecfg *bz.CookieConfig) (cardList []gjson.Result, err error) {
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", func(req *http.Request) error {
+		if cookiecfg != nil {
+			cookie := ""
+			cookie, err = cookiecfg.Load()
+			if err != nil {
+				return err
+			}
+			req.Header.Add("Cookie", cookie)
+			req.Header.Add("User-Agent", ua)
+		}
+		return nil
+	}, nil)
 	if err != nil {
 		return
 	}
@@ -289,7 +300,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 	uids := bdb.getAllBuidByDynamic()
 	for _, buid := range uids {
 		time.Sleep(2 * time.Second)
-		cardList, err := getUserDynamicCard(buid)
+		cardList, err := getUserDynamicCard(buid, cfg)
 		if err != nil {
 			return err
 		}
