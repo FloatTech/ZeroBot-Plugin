@@ -64,96 +64,92 @@ var (
 )
 
 func init() {
-	engine.OnFullMatchGroup([]string{"小姐姐视频"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(zzxjjURL))
-	})
-	engine.OnFullMatchGroup([]string{"小姐姐视频2"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(xjjURL))
-	})
-	engine.OnFullMatch("黑丝视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(heisisURL))
-	})
-	engine.OnFullMatch("白丝视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(baisisURL))
-	})
-	engine.OnFullMatch("欲梦视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(ndymURL))
-	})
-	engine.OnFullMatch("甜妹视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(tianmeiURL))
-	})
-	engine.OnFullMatch("双倍快乐").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(sbklURL))
-	})
-	engine.OnFullMatch("纯情女高").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(nvgaoURL))
-	})
-	engine.OnFullMatch("萝莉视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(luoliURL))
-	})
-	engine.OnFullMatch("玉足视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(yuzuURL))
-	})
-	engine.OnFullMatch("帅哥视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(xggURL))
-	})
-	engine.OnFullMatch("热舞视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(rewuURL))
-	})
-	engine.OnFullMatch("吊带视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(diaodaiURL))
-	})
-	engine.OnFullMatch("汉服视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(hanfuURL))
-	})
-	engine.OnFullMatch("极品狱卒").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(jpyzURL))
-	})
-	engine.OnFullMatch("清纯视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(qingchunURL))
-	})
-	engine.OnFullMatch("快手变装").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(ksbianzhuang))
-	})
-	engine.OnFullMatch("抖音变装").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(dybianzhuang))
-	})
-	engine.OnFullMatch("萌娃视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(mengwaURL))
-	})
-	engine.OnFullMatch("穿搭视频").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(chuandaURL))
-	})
-	engine.OnFullMatch("完美身材").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Video(wmscURL))
-	})
-	engine.OnFullMatch("御姐撒娇").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Record(yujieURL))
-	})
-	engine.OnFullMatch("绿茶语音").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Record(luchaURL))
-	})
-	engine.OnFullMatch("怼人语音").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		ctx.SendChain(message.Record(duirenURL))
-	})
-	engine.OnFullMatch("随机骚话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		data, err := web.GetData(saohuaURL)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
+	// 这里是您的处理逻辑的switch case重构版本
+	engine.OnFullMatchGroup([]string{"小姐姐视频", "小姐姐视频2", "黑丝视频", "白丝视频", "欲梦视频", "甜妹视频", "双倍快乐", "纯情女高", "萝莉视频", "玉足视频", "帅哥视频", "热舞视频", "吊带视频", "汉服视频", "极品狱卒", "清纯视频", "快手变装", "抖音变装", "萌娃视频", "穿搭视频", "完美身材"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		videoType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
+		var videoURL string
+		switch videoType {
+		case "小姐姐视频":
+			videoURL = zzxjjURL
+		case "小姐姐视频2":
+			videoURL = xjjURL
+		case "黑丝视频":
+			videoURL = heisisURL
+		case "白丝视频":
+			videoURL = baisisURL
+		case "欲梦视频":
+			videoURL = ndymURL
+		case "甜妹视频":
+			videoURL = tianmeiURL
+		case "双倍快乐":
+			videoURL = sbklURL
+		case "纯情女高":
+			videoURL = nvgaoURL
+		case "萝莉视频":
+			videoURL = luoliURL
+		case "玉足视频":
+			videoURL = yuzuURL
+		case "帅哥视频":
+			videoURL = xggURL
+		case "热舞视频":
+			videoURL = rewuURL
+		case "吊带视频":
+			videoURL = diaodaiURL
+		case "汉服视频":
+			videoURL = hanfuURL
+		case "极品狱卒":
+			videoURL = jpyzURL
+		case "清纯视频":
+			videoURL = qingchunURL
+		case "快手变装":
+			videoURL = ksbianzhuang
+		case "抖音变装":
+			videoURL = dybianzhuang
+		case "萌娃视频":
+			videoURL = mengwaURL
+		case "穿搭视频":
+			videoURL = chuandaURL
+		case "完美身材":
+			videoURL = wmscURL
+		default:
+			// 如果没有匹配的情况，可以选择发送默认响应或者不做任何处理
 		}
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(binary.BytesToString(data)))
-	})
-	engine.OnFullMatch("土味情话").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		data, err := web.GetData(qinghuaURL)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
+
+		if videoURL != "" {
+			ctx.SendChain(message.Video(videoURL))
 		}
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(binary.BytesToString(data)))
 	})
-	engine.OnFullMatch("随机污句子").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		data, err := web.GetData(wuURL)
+	engine.OnFullMatchGroup([]string{"御姐撒娇", "绿茶语音", "怼人语音"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		recordType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
+		var recordURL string
+		switch recordType {
+		case "御姐撒娇":
+			recordURL = yujieURL
+		case "绿茶语音":
+			recordURL = luchaURL
+		case "怼人语音":
+			recordURL = duirenURL
+		default:
+			// 如果没有匹配的情况，可以选择发送默认响应或者不做任何处理
+		}
+		if recordURL != "" {
+			ctx.SendChain(message.Record(recordURL))
+		}
+	})
+	engine.OnFullMatchGroup([]string{"随机骚话", "土味情话", "随机污句子"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+		textType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
+		var textURL string
+		switch textType {
+		case "随机骚话":
+			textURL = saohuaURL
+		case "土味情话":
+			textURL = qinghuaURL
+		case "随机污句子":
+			textURL = wuURL
+		default:
+			// 如果没有匹配的情况，可以选择发送默认响应或者不做任何处理
+		}
+		data, err := web.GetData(textURL)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

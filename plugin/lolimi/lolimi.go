@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
@@ -81,19 +82,22 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: 请输入正确的图片"))
 					return
 				}
-				text := "评价: "
-				text += assessment
+				var text strings.Builder // 创建一个strings.Builder实例
+				text.WriteString("评价: ")
+				text.WriteString(assessment) // 添加评估信息
+
 				for i := 0; i <= 2; i++ {
 					key := gjson.Get(binary.BytesToString(data), "data.grade.key"+strconv.Itoa(i)).String()
 					score := gjson.Get(binary.BytesToString(data), "data.grade.score"+strconv.Itoa(i)).String()
 					if key != "" {
-						text += "\n"
-						text += key
-						text += ": "
-						text += score
+						text.WriteString("\n")
+						text.WriteString(key)
+						text.WriteString(": ")
+						text.WriteString(score)
 					}
 				}
-				ctx.SendChain(message.Text(text))
+
+				ctx.SendChain(message.Text(text.String())) // 发送构建好的字符串
 			}
 		})
 	engine.OnRegex("^让(塔菲|嘉然|东雪莲)说([\\s\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FF\\w\\p{P}\u3000-\u303F\uFF00-\uFFEF]+)$").Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {

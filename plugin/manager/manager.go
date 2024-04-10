@@ -393,6 +393,7 @@ func init() { // 插件主体
 			for _, v := range list {
 				if ctx.Event.UserID == v.Get("user_id").Int() {
 					flag = true
+					break
 				}
 			}
 			if !flag {
