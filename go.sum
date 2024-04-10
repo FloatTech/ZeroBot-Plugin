@@ -216,8 +216,8 @@ github.com/tklauser/numcpus v0.6.0 h1:kebhY2Qt+3U6RNK7UqpYNA+tJ23IBEGKkB7JQBfDYm
 github.com/tklauser/numcpus v0.6.0/go.mod h1:FEZLMke0lhOUG6w2JadTzp0a+Nl8PF/GFkQ5UVIcaL4=
 github.com/wcharczuk/go-chart/v2 v2.1.0 h1:tY2slqVQ6bN+yHSnDYwZebLQFkphK4WNrVwnt7CJZ2I=
 github.com/wcharczuk/go-chart/v2 v2.1.0/go.mod h1:yx7MvAVNcP/kN9lKXM/NTce4au4DFN99j6i1OwDclNA=
-github.com/wdvxdr1123/ZeroBot v1.7.5-0.20231009162356-57f71b9f5258 h1:Q0dKoj9SHrR8WjjlcX+eyYBjQKqBn/x1pdJJO1IIOxQ=
-github.com/wdvxdr1123/ZeroBot v1.7.5-0.20231009162356-57f71b9f5258/go.mod h1:y29UIOy0RD3P+0meDNIWRhcJF3jtWPN9xP9hgt/AJAU=
+github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240410141841-6970df23ca54 h1:s7k0Pf4RoeCUHe9rlVsg0mqAH3WO7xLMhe9qih/CxnE=
+github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240410141841-6970df23ca54/go.mod h1:y29UIOy0RD3P+0meDNIWRhcJF3jtWPN9xP9hgt/AJAU=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
