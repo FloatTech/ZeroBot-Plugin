@@ -105,8 +105,14 @@ func init() {
 		msg := ctx.State["regex_matched"].([]string)[2]
 		recordURL := ""
 		switch name {
-		case "塔菲":
-			data, err := web.GetData(fmt.Sprintf(tafeiURL, url.QueryEscape(msg)))
+		case "塔菲", "东雪莲":
+			ttsURL := ""
+			if name == "塔菲" {
+				ttsURL = tafeiURL
+			} else {
+				ttsURL = dxlURL
+			}
+			data, err := web.GetData(fmt.Sprintf(ttsURL, url.QueryEscape(msg)))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -114,13 +120,6 @@ func init() {
 			recordURL = gjson.Get(binary.BytesToString(data), "music").String()
 		case "嘉然":
 			recordURL = fmt.Sprintf(jiaranURL, url.QueryEscape(msg))
-		case "东雪莲":
-			data, err := web.GetData(fmt.Sprintf(dxlURL, url.QueryEscape(msg)))
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			recordURL = gjson.Get(binary.BytesToString(data), "music").String()
 		default:
 			recordURL = fmt.Sprintf(jiaranURL, url.QueryEscape(msg))
 		}
