@@ -1252,14 +1252,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>叔叔的AI二次元图片放大</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/scale"`
-
-  - [x] 放大图片[图片]
-
-</details>
-<details>
   <summary>签到得分</summary>
 
 `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"` 
