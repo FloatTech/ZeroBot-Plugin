@@ -61,94 +61,56 @@ var (
 			"- 完美身材\n- 御姐撒娇\n- 绿茶语音\n- 怼人语音\n" +
 			"- 随机骚话\n- 随机污句子\n- 随机美句\n- 土味情话\n- 让[丁真|陈泽|梅西|孙笑川|科比|懒羊羊|胡桃|雫るる]说我测尼玛",
 	})
+	urlMap = map[string]string{
+		"小姐姐视频":  zzxjjURL,
+		"小姐姐视频2": xjjURL,
+		"黑丝视频":   heisisURL,
+		"白丝视频":   baisisURL,
+		"欲梦视频":   ndymURL,
+		"甜妹视频":   tianmeiURL,
+		"双倍快乐":   sbklURL,
+		"纯情女高":   nvgaoURL,
+		"萝莉视频":   luoliURL,
+		"玉足视频":   yuzuURL,
+		"帅哥视频":   xggURL,
+		"热舞视频":   rewuURL,
+		"吊带视频":   diaodaiURL,
+		"汉服视频":   hanfuURL,
+		"极品狱卒":   jpyzURL,
+		"清纯视频":   qingchunURL,
+		"快手变装":   ksbianzhuang,
+		"抖音变装":   dybianzhuang,
+		"萌娃视频":   mengwaURL,
+		"穿搭视频":   chuandaURL,
+		"完美身材":   wmscURL,
+		"御姐撒娇":   yujieURL,
+		"绿茶语音":   luchaURL,
+		"怼人语音":   duirenURL,
+		"随机骚话":   saohuaURL,
+		"土味情话":   qinghuaURL,
+		"随机污句子":  wuURL,
+	}
 )
 
 func init() {
 	// 这里是您的处理逻辑的switch case重构版本
 	engine.OnFullMatchGroup([]string{"小姐姐视频", "小姐姐视频2", "黑丝视频", "白丝视频", "欲梦视频", "甜妹视频", "双倍快乐", "纯情女高", "萝莉视频", "玉足视频", "帅哥视频", "热舞视频", "吊带视频", "汉服视频", "极品狱卒", "清纯视频", "快手变装", "抖音变装", "萌娃视频", "穿搭视频", "完美身材"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		videoType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
-		var videoURL string
-		switch videoType {
-		case "小姐姐视频":
-			videoURL = zzxjjURL
-		case "小姐姐视频2":
-			videoURL = xjjURL
-		case "黑丝视频":
-			videoURL = heisisURL
-		case "白丝视频":
-			videoURL = baisisURL
-		case "欲梦视频":
-			videoURL = ndymURL
-		case "甜妹视频":
-			videoURL = tianmeiURL
-		case "双倍快乐":
-			videoURL = sbklURL
-		case "纯情女高":
-			videoURL = nvgaoURL
-		case "萝莉视频":
-			videoURL = luoliURL
-		case "玉足视频":
-			videoURL = yuzuURL
-		case "帅哥视频":
-			videoURL = xggURL
-		case "热舞视频":
-			videoURL = rewuURL
-		case "吊带视频":
-			videoURL = diaodaiURL
-		case "汉服视频":
-			videoURL = hanfuURL
-		case "极品狱卒":
-			videoURL = jpyzURL
-		case "清纯视频":
-			videoURL = qingchunURL
-		case "快手变装":
-			videoURL = ksbianzhuang
-		case "抖音变装":
-			videoURL = dybianzhuang
-		case "萌娃视频":
-			videoURL = mengwaURL
-		case "穿搭视频":
-			videoURL = chuandaURL
-		case "完美身材":
-			videoURL = wmscURL
-		default:
-			// 如果没有匹配的情况，可以选择发送默认响应或者不做任何处理
-		}
-
+		videoURL := urlMap[videoType]
 		if videoURL != "" {
 			ctx.SendChain(message.Video(videoURL))
 		}
 	})
 	engine.OnFullMatchGroup([]string{"御姐撒娇", "绿茶语音", "怼人语音"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		recordType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
-		var recordURL string
-		switch recordType {
-		case "御姐撒娇":
-			recordURL = yujieURL
-		case "绿茶语音":
-			recordURL = luchaURL
-		case "怼人语音":
-			recordURL = duirenURL
-		default:
-			// 如果没有匹配的情况，可以选择发送默认响应或者不做任何处理
-		}
+		recordURL := urlMap[recordType]
 		if recordURL != "" {
 			ctx.SendChain(message.Record(recordURL))
 		}
 	})
 	engine.OnFullMatchGroup([]string{"随机骚话", "土味情话", "随机污句子"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		textType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
-		var textURL string
-		switch textType {
-		case "随机骚话":
-			textURL = saohuaURL
-		case "土味情话":
-			textURL = qinghuaURL
-		case "随机污句子":
-			textURL = wuURL
-		default:
-			// 如果没有匹配的情况，可以选择发送默认响应或者不做任何处理
-		}
+		textURL := urlMap[textType]
 		data, err := web.GetData(textURL)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
