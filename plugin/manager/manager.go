@@ -47,6 +47,7 @@ const (
 		"- 取消在\"cron\"的提醒\n" +
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
+		"- 赞我\n" +
 		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{uid}] [{gid}] [{groupname}]\n" +
 		"- 测试欢迎语\n" +
 		"- 设置告别辞 参数同设置欢迎语\n" +
@@ -383,6 +384,24 @@ func init() { // 插件主体
 					" 就是你啦！",
 				),
 			)
+		})
+	// 给好友点赞
+	engine.OnFullMatch("赞我").SetBlock(true).Limit(ctxext.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			list := ctx.GetFriendList().Array()
+			flag := false
+			for _, v := range list {
+				if ctx.Event.UserID == v.Get("user_id").Int() {
+					flag = true
+					break
+				}
+			}
+			if !flag {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("不加好友不给赞!"))
+				return
+			}
+			ctx.SendLike(ctx.Event.UserID, 10)
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("给你赞了10下哦，记得回我~"))
 		})
 	// 入群欢迎
 	engine.OnNotice().SetBlock(false).

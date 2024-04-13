@@ -242,6 +242,8 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
   - [x] 列出所有提醒
 
   - [x] 翻牌
+  
+  - [x] 赞我
 
   - [x] [开启 | 关闭]入群验证
 
@@ -961,6 +963,24 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>桑帛云 API</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolimi"`
+
+  - [x] 随机妹子
+
+  - [x] 随机绕口令
+
+  - [x] 颜值鉴定[图片]
+  
+  - [x] 随机情话
+
+  - [x] 发病 嘉然
+
+  - [x] 让[塔菲|嘉然|东雪莲]说我测尼玛
+
+</details>
+<details>
   <summary>MagicPrompt-Stable-Diffusion吟唱提示</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/magicprompt"`
@@ -1511,6 +1531,18 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>鬼东西</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
+
+  - [x] 鬼东西列表
+
+  - [x] 查询鬼东西[序号][@xxx]
+
+  - 注：由于需要科学，默认注释。
+
+</details>
+<details>
   <summary>一些游戏王插件</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
@@ -1550,15 +1582,39 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>鬼东西</summary>
+  <summary>遇见API</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"`
-
-  - [x] 鬼东西列表
-
-  - [x] 查询鬼东西[序号][@xxx]
-
-  - 注：由于需要科学，默认注释。
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/yujn"`
+  
+  - [x] 小姐姐视频
+  - [x] 小姐姐视频2
+  - [x] 黑丝视频
+  - [x] 白丝视频
+  - [x] 欲梦视频
+  - [x] 甜妹视频
+  - [x] 双倍快乐
+  - [x] 纯情女高
+  - [x] 萝莉视频
+  - [x] 玉足视频
+  - [x] 帅哥视频
+  - [x] 热舞视频
+  - [x] 吊带视频
+  - [x] 汉服视频
+  - [x] 极品狱卒
+  - [x] 清纯视频
+  - [x] 快手变装
+  - [x] 抖音变装
+  - [x] 萌娃视频
+  - [x] 穿搭视频
+  - [x] 完美身材
+  - [x] 御姐撒娇
+  - [x] 绿茶语音
+  - [x] 怼人语音
+  - [x] 随机骚话
+  - [x] 随机污句子
+  - [x] 随机美句
+  - [x] 土味情话   
+  - [x] 让[丁真|陈泽|梅西|孙笑川|科比|懒羊羊|胡桃|雫るる]说我测尼玛
 
 </details>
 
