@@ -103,7 +103,6 @@ func init() {
 		recordType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
 		recordURL := urlMap[recordType]
 		ctx.SendChain(message.Record(recordURL))
-
 	})
 	engine.OnFullMatchGroup([]string{"随机骚话", "土味情话", "随机污句子"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		textType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式
