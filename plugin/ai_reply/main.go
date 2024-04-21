@@ -25,8 +25,8 @@ func init() { // 插件主体
 		DisableOnDefault: true,
 		Brief:            "人工智能语音回复",
 		Help: "- @Bot 任意文本(任意一句话回复)\n" +
-			"- 设置语音模式[原神人物/百度/TTSCN] 数字(百度/TTSCN说话人)\n" +
-			"- 设置默认语音模式[原神人物/百度/TTSCN] 数字(百度/TTSCN说话人)\n" +
+			"- 设置语音模式[原神人物/百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
+			"- 设置默认语音模式[原神人物/百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
 			"- 恢复成默认语音模式\n" +
 			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"- 设置百度语音 api id xxxxxx secret xxxxxx (请自行获得)\n" +
@@ -124,8 +124,8 @@ func init() { // 插件主体
 			}
 		}
 		// 保存设置
-		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, n, ")")
-		err = ttsmd.setSoundMode(ctx, param, n, n)
+		logrus.Debugln("[tts] t.setSoundMode( ctx", param, n, ")")
+		err = ttsmd.setSoundMode(ctx, param, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -153,7 +153,7 @@ func init() { // 插件主体
 			return
 		}
 		time.Sleep(time.Second * 2)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功"))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
 	})
 
 	ent.OnRegex(`^设置默认语音模式\s*([\S\D]*)\s+(\d*)$`, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -169,7 +169,7 @@ func init() { // 插件主体
 			}
 		}
 		// 保存设置
-		err = ttsmd.setDefaultSoundMode(param, n, n)
+		err = ttsmd.setDefaultSoundMode(param, n)
 		if err != nil {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
@@ -189,7 +189,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，为", speaker))
 	})
 
 	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
