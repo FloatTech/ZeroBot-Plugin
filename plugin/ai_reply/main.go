@@ -189,7 +189,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，为", speaker))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("设置成功，当前为", speaker))
 	})
 
 	ent.OnRegex(`^设置原神语音\s*api\s*key\s*([0-9a-zA-Z-_]{54}==)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
