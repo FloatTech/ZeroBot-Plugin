@@ -85,7 +85,7 @@ func (r replymode) setReplyMode(ctx *zero.Ctx, name string) error {
 	if !ok {
 		return errors.New("no such plugin")
 	}
-	return m.SetData(gid, (m.GetData(index)&^0xff)|(index&0xff))
+	return m.SetData(gid, (m.GetData(gid)&^0xff)|(index&0xff))
 }
 
 func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
@@ -97,18 +97,22 @@ func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	if ok {
 		switch m.GetData(gid) & 0xff {
 		case 0:
-			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
 		case 1:
-			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
+			return aireply.NewLolimiAi(aireply.MomoURL, aireply.MomoBotName)
 		case 2:
+			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+		case 3:
+			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
+		case 4:
 			k := ཆཏ.k
 			if k != "" {
 				return aireply.NewChatGPT(aireply.ChatGPTURL, k)
 			}
-			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
 		}
 	}
-	return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+	return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
 }
 
 var ttsins = func() map[string]tts.TTS {

@@ -16,7 +16,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var replmd = replymode([]string{"青云客", "小爱", "ChatGPT"})
+var replmd = replymode([]string{"婧枫", "沫沫", "青云客", "小爱", "ChatGPT"})
 
 var ttsmd = newttsmode()
 
@@ -28,6 +28,7 @@ func init() { // 插件主体
 			"- 设置语音模式[原神人物/百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
 			"- 设置默认语音模式[原神人物/百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
 			"- 恢复成默认语音模式\n" +
+			"- 设置语音回复模式[沫沫|婧枫|青云客|小爱|ChatGPT]\n" +
 			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"- 设置百度语音 api id xxxxxx secret xxxxxx (请自行获得)\n" +
 			"当前适用的原神人物含有以下: \n" + list(genshin.SoundList[:], 5) +
@@ -38,7 +39,7 @@ func init() { // 插件主体
 	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "人工智能回复",
-		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置回复模式[青云客|小爱|ChatGPT]\n- 设置 ChatGPT api key xxx",
+		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置文字回复模式[婧枫|沫沫|青云客|小爱|ChatGPT]\n- 设置 ChatGPT api key xxx",
 		PrivateDataFolder: "aireply",
 	})
 
@@ -55,8 +56,7 @@ func init() { // 插件主体
 			}
 			ctx.Send(reply)
 		})
-
-	enr.OnPrefix("设置回复模式", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	setReplyMode := func(ctx *zero.Ctx) {
 		param := ctx.State["args"].(string)
 		err := replmd.setReplyMode(ctx, param)
 		if err != nil {
@@ -64,8 +64,8 @@ func init() { // 插件主体
 			return
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("成功"))
-	})
-
+	}
+	enr.OnPrefix("设置文字回复模式", zero.AdminPermission).SetBlock(true).Handle(setReplyMode)
 	enr.OnRegex(`^设置\s*ChatGPT\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		err := ཆཏ.set(ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
@@ -110,7 +110,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(reply))
 			}
 		})
-
+	ent.OnPrefix("设置语音回复模式", zero.AdminPermission).SetBlock(true).Handle(setReplyMode)
 	ent.OnRegex(`^设置语音模式\s*([\S\D]*)\s+(\d*)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
 		num := ctx.State["regex_matched"].([]string)[2]

@@ -20,9 +20,6 @@ import (
 
 const (
 	lolimiURL = "https://api.lolimi.cn"
-	jiaranURL = lolimiURL + "/API/yyhc/jr.php?msg=%v&type=2"
-	tafeiURL  = lolimiURL + "/API/yyhc/taf.php?msg=%v&type=2"
-	dxlURL    = lolimiURL + "/API/yyhc/dxl.php?msg=%v&type=2"
 	raoURL    = lolimiURL + "/API/rao/api.php"
 	yanURL    = lolimiURL + "/API/yan/?url=%v"
 	xjjURL    = lolimiURL + "/API/tup/xjj.php"
