@@ -125,7 +125,7 @@ func init() {
 		text = strings.ReplaceAll(text, "</p>", "")
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(text))
 	})
-	engine.OnRegex("^让(丁真|陈泽|梅西|孙笑川|科比|懒羊羊|胡桃|雫るる)说([\\s\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FF\\w\\p{P}\u3000-\u303F\uFF00-\uFFEF]+)$").Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex("^让(lulu)说([\\s\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FF\\w\\p{P}\u3000-\u303F\uFF00-\uFFEF]+)$").Limit(ctxext.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		name := ctx.State["regex_matched"].([]string)[1]
 		msg := ctx.State["regex_matched"].([]string)[2]
 		data, err := web.GetData(fmt.Sprintf(yuyinURL, url.QueryEscape(name), url.QueryEscape(msg)))
