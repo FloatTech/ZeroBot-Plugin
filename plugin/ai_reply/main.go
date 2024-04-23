@@ -111,6 +111,11 @@ func init() { // 插件主体
 				}
 				return plainReply
 			})
+			// 发送前面的图片
+			if len(filterMsg) != 0 {
+				filterMsg = append(filterMsg, message.Reply(ctx.Event.MessageID))
+				ctx.Send(filterMsg)
+			}
 			if err != nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(plainReply))
 				return
@@ -118,11 +123,6 @@ func init() { // 插件主体
 			// 发送语音
 			if id := ctx.SendChain(message.Record(rec)); id.ID() == 0 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(plainReply))
-			}
-			// 发送前面的图片
-			if len(filterMsg) != 0 {
-				filterMsg = append(filterMsg, message.Reply(ctx.Event.MessageID))
-				ctx.Send(filterMsg)
 			}
 		})
 	ent.OnPrefix("设置语音回复模式", zero.AdminPermission).SetBlock(true).Handle(setReplyMode)
