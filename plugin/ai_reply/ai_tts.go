@@ -187,7 +187,7 @@ func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, character int) error 
 		}
 	}
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	//按原来的逻辑map存的是前16位
+	// 按原来的逻辑map存的是前16位
 	storeIndex := (m.GetData(gid) &^ 0xffff00) | ((index << 8) & 0xff00) | ((int64(character) << 16) & 0xff0000)
 	(*syncx.Map[int64, int64])(t).Store(gid, (storeIndex>>8)&0xffff)
 	return m.SetData(gid, storeIndex)
