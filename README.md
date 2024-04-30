@@ -763,14 +763,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>黑丝</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/heisi"`
-
-  - [x] 来点黑丝/白丝/jk/巨乳/足控/网红
-
-</details>
-<details>
   <summary>一言</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hitokoto"`
