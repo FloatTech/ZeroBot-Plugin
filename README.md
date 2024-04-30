@@ -1327,20 +1327,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 警报
   
   - [x] 每日特惠
-  </details>
-<details>
-  <summary>天气/拼音查询-名言</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenben"`
-
-  - [x] xx天气
-
-  - [x] xx拼音
-
-  - [x] 每日情话/一言/鸡汤
-
-  - [x] 绕口令
-
 </details>
 <details>
   <summary>百度文心AI</summary>
