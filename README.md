@@ -821,14 +821,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>小鸡词典</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jikipedia"`
-
-  - [x] [查梗|小鸡词典][梗]
-
-</details>
-<details>
   <summary>日语听力学习材料</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"`
@@ -840,14 +832,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 日语听力 xxx
   
   - [x] 日语歌曲 xxx
-
-</details>
-<details>
-  <summary>绝绝子</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/juejuezi"`
-
-  - [x] 喝奶茶绝绝子 | 绝绝子吃饭
 
 </details>
 <details>
