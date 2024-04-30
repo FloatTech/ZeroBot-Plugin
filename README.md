@@ -413,14 +413,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>百科</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baidu"`
-
-  - [x] 百度/百科/维基/wiki[xxx]
-
-</details>
-<details>
   <summary>百度内容审核</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/baiduaudit"`
