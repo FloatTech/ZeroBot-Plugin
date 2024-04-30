@@ -542,16 +542,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>藏头诗</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/cangtoushi"`
-
-  - [x] 藏头诗[xxx]
-
-  - [x] 藏尾诗[xxx]
-
-</details>
-<details>
   <summary>选择困难症帮手</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"`
