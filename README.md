@@ -1108,18 +1108,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>权重查询</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/quan"`
-
-  - 来看看大家的账号分吧~据说越高越不容易封号哦
-
-  - [x] 权重查询+@xxx
-
-  - [x] 权重查询+QQ号(为空时匹配触发者QQ)
-
-</details>
-<details>
   <summary>qq空间表白墙</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qzone"`
