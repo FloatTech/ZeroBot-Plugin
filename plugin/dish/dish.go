@@ -90,7 +90,7 @@ func init() {
 		))
 	})
 
-	en.OnPrefixGroup([]string{"随机菜谱", "随便做点菜"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatchGroup([]string{"随机菜谱", "随便做点菜"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		if !initialized {
 			ctx.SendChain(message.Text("客官，本店暂未开业"))
 			return
