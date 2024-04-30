@@ -375,30 +375,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>ai绘图</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aipaint"`
-
-  - [x] [ ai绘图 | 生成色图 | 生成涩图 | ai画图 ] xxx
-
-  - [x] [ ai高级绘图 | 高级生成色图 | 高级生成涩图 | ai高级画图 ] xxx
-
-  - [x] [ 以图绘图 | 以图生图 | 以图画图 ] xxx [图片]|@xxx|[qq号]
-  
-  - [x] 设置ai绘图配置 [server] [token]
-  
-  - [x] 设置ai绘图撤回时间90s
-  
-  - [x] 查看ai绘图配置
-  
-  例: 设置ai绘图配置 http://91.216.169.75:5010 abc
-
-  参考服务器 http://91.217.139.190:5010, http://91.216.169.75:5010, http://185.80.202.180:5010
-
-  通过 http://91.217.139.190:5010/token 获取token
-
-</details>
-<details>
   <summary>AIWife</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
