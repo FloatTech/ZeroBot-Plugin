@@ -1302,14 +1302,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>网易云音乐热评</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wangyiyun"`
-
-  - [x] 来份网易云热评
-
-</details>
-<details>
   <summary>据意查句</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"`
