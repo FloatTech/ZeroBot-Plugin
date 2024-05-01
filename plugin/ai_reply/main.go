@@ -37,7 +37,7 @@ func init() { // 插件主体
 		PrivateDataFolder: "tts",
 	})
 
-	enr := control.Register("aireply", &ctrl.Options[*zero.Ctx]{
+	enr := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "人工智能回复",
 		Help:              "- @Bot 任意文本(任意一句话回复)\n- 设置文字回复模式[婧枫|沫沫|青云客|小爱|ChatGPT]\n- 设置 ChatGPT api key xxx",
@@ -126,7 +126,7 @@ func init() { // 插件主体
 			}
 		})
 	ent.OnPrefix("设置语音回复模式", zero.AdminPermission).SetBlock(true).Handle(setReplyMode)
-	ent.OnRegex(`^设置语音模式\s*([\S\D]*)\s+(\d*)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	ent.OnRegex(`^设置语音模式\s*([\S\D]*)\s*(\d*)$`, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		param := ctx.State["regex_matched"].([]string)[1]
 		num := ctx.State["regex_matched"].([]string)[2]
 		n := 0
