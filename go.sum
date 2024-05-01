@@ -2,10 +2,10 @@ github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhv
 github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.7.1-0.20240501150035-92e6d3ba7651 h1:OBGXmmQy4B8cbK5cdTnJJ1j+gK2CuzJqxzQeyg28zT0=
-github.com/FloatTech/AnimeAPI v1.7.1-0.20240501150035-92e6d3ba7651/go.mod h1:Al9+goDpIJhQC4145gpbcQ3WfxjMOvnWYbUDZVI61IY=
-github.com/FloatTech/floatbox v0.0.0-20240501145840-4b5a3b2a6806 h1:f7Vm90VJkXnrWZ4Nv54UpFRklhtvlVJFogBG/HT+MTw=
-github.com/FloatTech/floatbox v0.0.0-20240501145840-4b5a3b2a6806/go.mod h1:9wyOtOuLrFjLOMIvkUtpJ33w9zmjTRJYMt/Vs19B9E0=
+github.com/FloatTech/AnimeAPI v1.7.1-0.20240501154103-e0c65f029442 h1:DuBWS+Fl19VrzmHULlyIYuAnbOWP74xqg6hViPNPx10=
+github.com/FloatTech/AnimeAPI v1.7.1-0.20240501154103-e0c65f029442/go.mod h1:9JtigJrjc2+zDmFbFK/5yHIUKbCi8kYNhOWKCDItWOg=
+github.com/FloatTech/floatbox v0.0.0-20240501153733-21c4fd53fcba h1:/SIcu9Tieu0zVDCiYZdFvv3cvIuCb8xw3iopPwSmi8s=
+github.com/FloatTech/floatbox v0.0.0-20240501153733-21c4fd53fcba/go.mod h1:9OEo51D9YCG8I3F0frlFo57tUO8+v2o7rFZbf8BtmGo=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
 github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef h1:CJbK/2FRwPuZpeb6M4sWK2d7oXDnBEGhpkQuQrgc91A=
@@ -78,8 +78,8 @@ github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565 h1:sQuR2+N5HurnvsZhi
 github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565/go.mod h1:UUEvyLTJ7yoOA/viKG4wEis4ERydM7+Ny6gZUWgkS80=
 github.com/fumiama/sqlite3 v1.20.0-with-win386 h1:ZR1AXGBEtkfq9GAXehOVcwn+aaCG8itrkgEsz4ggx5k=
 github.com/fumiama/sqlite3 v1.20.0-with-win386/go.mod h1:Os58MHwYCcYZCy2PGChBrQtBAw5/LS1ZZOkfc+C/I7s=
-github.com/fumiama/terasu v0.0.0-20240501145420-db464c711441 h1:q0vDKe85kWh+ag9+RD1z7VAJNy4/NA+4SbY2jpWwAzQ=
-github.com/fumiama/terasu v0.0.0-20240501145420-db464c711441/go.mod h1:UVx8YP1jKKL1Cj+uy+OnQRM2Ih6U36Mqy9GSf7jabsI=
+github.com/fumiama/terasu v0.0.0-20240501153608-871703d64492 h1:9eEnzcb0OummVCAcYQPZKiWkrfElubbGqxxBhbiHXac=
+github.com/fumiama/terasu v0.0.0-20240501153608-871703d64492/go.mod h1:UVx8YP1jKKL1Cj+uy+OnQRM2Ih6U36Mqy9GSf7jabsI=
 github.com/fumiama/unibase2n v0.0.0-20221020155353-02876e777430 h1:XL4SnagpaVHYybnnj6whQxmt8Ps9/kaG6sCNn4X1GGA=
 github.com/fumiama/unibase2n v0.0.0-20221020155353-02876e777430/go.mod h1:lEaZsT4FRSqcjnQ5q8y+mkenkzR/r1D3BJmfdp0vqDg=
 github.com/gabriel-vasile/mimetype v1.0.4 h1:uBejfH8l3/2f+5vjl1e4xIaSyNEhRBZ5N/ij7ohpNd8=

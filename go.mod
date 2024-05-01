@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20240501150035-92e6d3ba7651
-	github.com/FloatTech/floatbox v0.0.0-20240501145840-4b5a3b2a6806
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20240501154103-e0c65f029442
+	github.com/FloatTech/floatbox v0.0.0-20240501153733-21c4fd53fcba
 	github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
@@ -57,7 +57,7 @@ require (
 	github.com/fumiama/go-simple-protobuf v0.1.0 // indirect
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
 	github.com/fumiama/imgsz v0.0.2 // indirect
-	github.com/fumiama/terasu v0.0.0-20240501145420-db464c711441 // indirect
+	github.com/fumiama/terasu v0.0.0-20240501153608-871703d64492 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
