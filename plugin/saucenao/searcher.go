@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/fumiama/terasu/http2"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -134,7 +135,7 @@ func init() { // 插件主体
 									}
 								}
 							})
-							resp, err := http.Head(result.Header.Thumbnail)
+							resp, err := http2.Head(result.Header.Thumbnail)
 							msg := make(message.Message, 0, 3)
 							if s > 80.0 {
 								msg = append(msg, message.Text("我有把握是这个!"))
