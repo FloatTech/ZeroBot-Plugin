@@ -63,7 +63,7 @@ func init() { // 插件主体
 			}
 			if illust.Pid > 0 {
 				name := strconv.FormatInt(illust.Pid, 10)
-				var imgs message.Message = message.Message{
+				var imgs = message.Message{
 					message.Text(
 						"标题: ", illust.Title, "\n",
 						"插画ID: ", illust.Pid, "\n",
