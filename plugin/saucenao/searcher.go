@@ -63,7 +63,15 @@ func init() { // 插件主体
 			}
 			if illust.Pid > 0 {
 				name := strconv.FormatInt(illust.Pid, 10)
-				var imgs message.Message
+				var imgs message.Message = message.Message{
+					message.Text(
+						"标题: ", illust.Title, "\n",
+						"插画ID: ", illust.Pid, "\n",
+						"画师: ", illust.UserName, "\n",
+						"画师ID: ", illust.UserID, "\n",
+						"直链: ", "https://pixivel.moe/detail?id=", illust.Pid,
+					),
+				}
 				for i := range illust.ImageUrls {
 					f := file.BOTPATH + "/" + illust.Path(i)
 					n := name + "_p" + strconv.Itoa(i)
@@ -87,19 +95,11 @@ func init() { // 插件主体
 					}
 					imgs = append(imgs, message.Image("file:///"+f))
 				}
-				txt := message.Text(
-					"标题: ", illust.Title, "\n",
-					"插画ID: ", illust.Pid, "\n",
-					"画师: ", illust.UserName, "\n",
-					"画师ID: ", illust.UserID, "\n",
-					"直链: ", "https://pixivel.moe/detail?id=", illust.Pid,
-				)
 				if imgs != nil {
-					ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, txt),
-						ctxext.FakeSenderForwardNode(ctx, imgs...)})
+					ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, imgs...)})
 				} else {
-					// 图片下载失败，仅发送文字结果
-					ctx.SendChain(txt)
+					// 图片下载失败，直接发送文字结果
+					ctx.SendChain(imgs...)
 				}
 			} else {
 				ctx.SendChain(message.Text("图片不存在!"))
