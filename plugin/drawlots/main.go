@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/imgfactory"
@@ -90,7 +91,7 @@ func init() {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("file:///"+picPath))
 			return
 		}
-		lotsImg, err := randGif(lotsType + "." + fileInfo.lotsType)
+		lotsImg, err := randGif(lotsType+"."+fileInfo.lotsType, ctx.Event.UserID)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -229,7 +230,7 @@ func randFile(path string, indexMax int) (string, error) {
 	return "", errors.New("图包[" + path + "]不存在签内容！")
 }
 
-func randGif(gifName string) (image.Image, error) {
+func randGif(gifName string, uid int64) (image.Image, error) {
 	name := datapath + gifName
 	file, err := os.Open(name)
 	if err != nil {
@@ -264,13 +265,13 @@ func randGif(gifName string) (image.Image, error) {
 		rect.Max = max
 	}
 	img := image.NewRGBA(rect)
-	b := rand.Intn(len(im.Image)) + 1
+	b := fcext.RandSenderPerDayN(uid, len(im.Image)) + 1
 	a := 0
 	if b > 8 {
 		a = b - 8
 	}
 	for _, srcimg := range im.Image[a:b] {
-		draw.Draw(img, srcimg.Bounds(), srcimg, srcimg.Rect.Min, draw.Src)
+		draw.Draw(img, srcimg.Bounds(), srcimg, srcimg.Rect.Min, draw.Over)
 	}
 	return img, err
 }

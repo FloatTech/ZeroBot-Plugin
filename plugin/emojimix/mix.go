@@ -41,6 +41,7 @@ func init() {
 				enc := base64.NewEncoder(base64.StdEncoding, buf)
 				_, err := io.Copy(enc, resp.Body)
 				if err != nil {
+					logrus.Warnln("[emojimix] copy err:", err)
 					return
 				}
 				_ = enc.Close()
@@ -52,7 +53,7 @@ func init() {
 				_ = resp.Body.Close()
 				return
 			}
-			resp, err = http2.Head(u2)
+			resp, err = http2.Get(u2)
 			if err == nil {
 				send(resp)
 				_ = resp.Body.Close()
