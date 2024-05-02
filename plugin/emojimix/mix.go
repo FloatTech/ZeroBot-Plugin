@@ -35,28 +35,27 @@ func init() {
 			u2 := fmt.Sprintf(bed, emojis[r2], r2, r2, r1)
 			logrus.Debugln("[emojimix] u1:", u1)
 			logrus.Debugln("[emojimix] u2:", u2)
-			buf := bytes.NewBuffer(make([]byte, 0, 65536))
-			buf.WriteString("base64://")
-			resp, err := http2.Get(u1)
-			sendandclose := func(resp *http.Response) {
+			send := func(resp *http.Response) {
+				buf := bytes.NewBuffer(make([]byte, 0, 65536))
+				buf.WriteString("base64://")
 				enc := base64.NewEncoder(base64.StdEncoding, buf)
-				_, err = io.Copy(enc, resp.Body)
+				_, err := io.Copy(enc, resp.Body)
 				if err != nil {
 					return
 				}
 				_ = enc.Close()
-				_ = resp.Body.Close()
 				ctx.SendChain(message.Image(binary.BytesToString(buf.Bytes())))
 			}
+			resp, err := http2.Get(u1)
 			if err == nil {
-				sendandclose(resp)
+				send(resp)
+				_ = resp.Body.Close()
 				return
 			}
-			buf.Reset()
-			buf.WriteString("base64://")
 			resp, err = http2.Head(u2)
 			if err == nil {
-				sendandclose(resp)
+				send(resp)
+				_ = resp.Body.Close()
 				return
 			}
 		})
