@@ -44,8 +44,12 @@ func init() {
 					logrus.Warnln("[emojimix] copy err:", err)
 					return
 				}
-				_ = enc.Close()
-				ctx.SendChain(message.Image(binary.BytesToString(buf.Bytes())))
+				err = enc.Close()
+				if err != nil {
+					logrus.Warnln("[emojimix] close enc err:", err)
+					return
+				}
+				ctx.SendChain(message.Image(binary.BytesToString(buf.Bytes()), ctx.Event.Message.String()))
 			}
 			resp, err := http2.Get(u1)
 			if err == nil {
@@ -53,12 +57,14 @@ func init() {
 				_ = resp.Body.Close()
 				return
 			}
+			logrus.Warnln("[emojimix] http get u1 err:", err)
 			resp, err = http2.Get(u2)
 			if err == nil {
 				send(resp)
 				_ = resp.Body.Close()
 				return
 			}
+			logrus.Warnln("[emojimix] http get u2 err:", err)
 		})
 }
 
