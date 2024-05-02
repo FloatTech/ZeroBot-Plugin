@@ -2,10 +2,14 @@
 package emojimix
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -31,21 +35,29 @@ func init() {
 			u2 := fmt.Sprintf(bed, emojis[r2], r2, r2, r1)
 			logrus.Debugln("[emojimix] u1:", u1)
 			logrus.Debugln("[emojimix] u2:", u2)
-			resp1, err := http2.Head(u1)
-			if err == nil {
-				resp1.Body.Close()
-				if resp1.StatusCode == http.StatusOK {
-					ctx.SendChain(message.Image(u1))
+			buf := bytes.NewBuffer(make([]byte, 0, 65536))
+			buf.WriteString("base64://")
+			resp, err := http2.Get(u1)
+			sendandclose := func(resp *http.Response) {
+				enc := base64.NewEncoder(base64.StdEncoding, buf)
+				_, err = io.Copy(enc, resp.Body)
+				if err != nil {
 					return
 				}
+				_ = enc.Close()
+				_ = resp.Body.Close()
+				ctx.SendChain(message.Image(binary.BytesToString(buf.Bytes())))
 			}
-			resp2, err := http2.Head(u2)
 			if err == nil {
-				resp2.Body.Close()
-				if resp2.StatusCode == http.StatusOK {
-					ctx.SendChain(message.Image(u2))
-					return
-				}
+				sendandclose(resp)
+				return
+			}
+			buf.Reset()
+			buf.WriteString("base64://")
+			resp, err = http2.Head(u2)
+			if err == nil {
+				sendandclose(resp)
+				return
 			}
 		})
 }
