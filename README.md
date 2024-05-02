@@ -795,14 +795,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>关键字搜图</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/image_finder"`
-
-  - [x] 来张 [xxx]
-
-</details>
-<details>
   <summary>注入指令</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"`

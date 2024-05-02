@@ -9,6 +9,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/fumiama/terasu/http2"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -30,7 +31,7 @@ func init() {
 			u2 := fmt.Sprintf(bed, emojis[r2], r2, r2, r1)
 			logrus.Debugln("[emojimix] u1:", u1)
 			logrus.Debugln("[emojimix] u2:", u2)
-			resp1, err := http.Head(u1)
+			resp1, err := http2.Head(u1)
 			if err == nil {
 				resp1.Body.Close()
 				if resp1.StatusCode == http.StatusOK {
@@ -38,7 +39,7 @@ func init() {
 					return
 				}
 			}
-			resp2, err := http.Head(u2)
+			resp2, err := http2.Head(u2)
 			if err == nil {
 				resp2.Body.Close()
 				if resp2.StatusCode == http.StatusOK {
