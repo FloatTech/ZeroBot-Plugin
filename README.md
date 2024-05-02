@@ -1274,16 +1274,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>vtb点歌</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vtbmusic"`
-
-  - [x] vtb点歌
-
-  - [x] vtb随机点歌
-
-</details>
-<details>
   <summary>钱包</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"`
