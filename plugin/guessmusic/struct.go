@@ -241,9 +241,9 @@ type listInfoOfAPI struct {
 			PublishTime          int64         `json:"publishTime"`
 			Tns                  []string      `json:"tns,omitempty"`
 		} `json:"tracks"`
-		VideoIds interface{} `json:"videoIds"`
+		VideoIDs interface{} `json:"videoIds"`
 		Videos   interface{} `json:"videos"`
-		TrackIds []struct {
+		TrackIDs []struct {
 			ID         int         `json:"id"`
 			V          int         `json:"v"`
 			T          int         `json:"t"`

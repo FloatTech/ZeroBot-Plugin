@@ -24,7 +24,7 @@ import (
 const (
 	ua      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
 	referer = "https://space.bilibili.com/%v"
-	infoURL = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%v&token=&platform=web&web_location=1550101"
+	infoURL = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%v"
 )
 
 // bdb bilibili推送数据库
@@ -77,7 +77,7 @@ func init() {
 
 	en.OnRegex(`^添加[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
-		name, err := getName(buid)
+		name, err := getName(buid, cfg)
 		if err != nil || name == "" {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -95,7 +95,7 @@ func init() {
 
 	en.OnRegex(`^取消[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
-		name, err := getName(buid)
+		name, err := getName(buid, cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -112,7 +112,7 @@ func init() {
 	})
 	en.OnRegex(`^取消[B|b]站动态订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
-		name, err := getName(buid)
+		name, err := getName(buid, cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -133,7 +133,7 @@ func init() {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		name, err := getName(buid)
+		name, err := getName(buid, cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -200,10 +200,18 @@ func changeAtAll(gid int64, b int) (err error) {
 }
 
 // 取得uid的名字
-func getName(buid int64) (name string, err error) {
+func getName(buid int64, cookiecfg *bz.CookieConfig) (name string, err error) {
 	var ok bool
 	if name, ok = upMap[buid]; !ok {
 		data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), bz.SignURL(fmt.Sprintf(infoURL, buid)), "GET", func(r *http.Request) error {
+			if cookiecfg != nil {
+				cookie := ""
+				cookie, err = cookiecfg.Load()
+				if err != nil {
+					return err
+				}
+				r.Header.Add("Cookie", cookie)
+			}
 			r.Header.Set("User-Agent", ua)
 			return nil
 		}, nil)
@@ -262,8 +270,19 @@ func unsubscribeLive(buid, groupid int64) (err error) {
 	return bdb.insertOrUpdateLiveAndDynamic(bpMap)
 }
 
-func getUserDynamicCard(buid int64) (cardList []gjson.Result, err error) {
-	data, err := web.RequestDataWith(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", referer, ua, nil)
+func getUserDynamicCard(buid int64, cookiecfg *bz.CookieConfig) (cardList []gjson.Result, err error) {
+	data, err := web.RequestDataWithHeaders(web.NewDefaultClient(), fmt.Sprintf(bz.SpaceHistoryURL, buid, 0), "GET", func(req *http.Request) error {
+		if cookiecfg != nil {
+			cookie := ""
+			cookie, err = cookiecfg.Load()
+			if err != nil {
+				return err
+			}
+			req.Header.Add("Cookie", cookie)
+		}
+		req.Header.Add("User-Agent", ua)
+		return nil
+	}, nil)
 	if err != nil {
 		return
 	}
@@ -289,7 +308,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 	uids := bdb.getAllBuidByDynamic()
 	for _, buid := range uids {
 		time.Sleep(2 * time.Second)
-		cardList, err := getUserDynamicCard(buid)
+		cardList, err := getUserDynamicCard(buid, cfg)
 		if err != nil {
 			return err
 		}

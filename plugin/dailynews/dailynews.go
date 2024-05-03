@@ -25,13 +25,10 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			data, err := web.GetData(api)
 			if err != nil {
-				return
-			}
-			picURL := gjson.Get(binary.BytesToString(data), "imageUrl").String()
-			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
+			picURL := gjson.Get(binary.BytesToString(data), "imageUrl").String()
 			ctx.SendChain(message.Image(picURL))
 		})
 }

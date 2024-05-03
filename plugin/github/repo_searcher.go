@@ -2,15 +2,14 @@
 package github
 
 import (
-	"errors"
-	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
+	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/fumiama/terasu/http2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -26,14 +25,14 @@ func init() { // 插件主体
 	}).OnRegex(`^>github\s(-.{1,10}? )?(.*)$`).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 发送请求
-			header := http.Header{
-				"User-Agent": []string{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"},
-			}
 			api, _ := url.Parse("https://api.github.com/search/repositories")
 			api.RawQuery = url.Values{
 				"q": []string{ctx.State["regex_matched"].([]string)[2]},
 			}.Encode()
-			body, err := netGet(api.String(), header)
+			body, err := web.RequestDataWithHeaders(&http2.DefaultClient, api.String(), "GET", func(r *http.Request) error {
+				r.Header.Set("User-Agent", web.RandUA())
+				return nil
+			}, nil)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			}
@@ -96,36 +95,9 @@ func init() { // 插件主体
 }
 
 // notnull 如果传入文本为空，则返回默认值
-
 func notnull(text string) string {
 	if text == "" {
 		return "None"
 	}
 	return text
-}
-
-// netGet 返回请求结果
-func netGet(dest string, header http.Header) ([]byte, error) {
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", dest, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = header
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if code := resp.StatusCode; code != 200 {
-		// 如果返回不是200则立刻抛出错误
-		errmsg := fmt.Sprintf("code %d", code)
-		return nil, errors.New(errmsg)
-	}
-	return body, nil
 }

@@ -2,13 +2,18 @@
 package emojimix
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/FloatTech/floatbox/binary"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/fumiama/terasu/http2"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -30,22 +35,36 @@ func init() {
 			u2 := fmt.Sprintf(bed, emojis[r2], r2, r2, r1)
 			logrus.Debugln("[emojimix] u1:", u1)
 			logrus.Debugln("[emojimix] u2:", u2)
-			resp1, err := http.Head(u1)
-			if err == nil {
-				resp1.Body.Close()
-				if resp1.StatusCode == http.StatusOK {
-					ctx.SendChain(message.Image(u1))
+			send := func(resp *http.Response) {
+				buf := bytes.NewBuffer(make([]byte, 0, 65536))
+				buf.WriteString("base64://")
+				enc := base64.NewEncoder(base64.StdEncoding, buf)
+				_, err := io.Copy(enc, resp.Body)
+				if err != nil {
+					logrus.Warnln("[emojimix] copy err:", err)
 					return
 				}
-			}
-			resp2, err := http.Head(u2)
-			if err == nil {
-				resp2.Body.Close()
-				if resp2.StatusCode == http.StatusOK {
-					ctx.SendChain(message.Image(u2))
+				err = enc.Close()
+				if err != nil {
+					logrus.Warnln("[emojimix] close enc err:", err)
 					return
 				}
+				ctx.SendChain(message.Image(binary.BytesToString(buf.Bytes()), ctx.Event.Message.String()))
 			}
+			resp, err := http2.Get(u1)
+			if err == nil {
+				send(resp)
+				_ = resp.Body.Close()
+				return
+			}
+			logrus.Warnln("[emojimix] http get u1 err:", err)
+			resp, err = http2.Get(u2)
+			if err == nil {
+				send(resp)
+				_ = resp.Body.Close()
+				return
+			}
+			logrus.Warnln("[emojimix] http get u2 err:", err)
 		})
 }
 

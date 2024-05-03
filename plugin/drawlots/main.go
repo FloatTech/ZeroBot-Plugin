@@ -5,13 +5,15 @@ import (
 	"bytes"
 	"errors"
 	"image"
-	"image/color"
+	"image/draw"
 	"image/gif"
+	"io"
 	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/imgfactory"
@@ -89,7 +91,7 @@ func init() {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Image("file:///"+picPath))
 			return
 		}
-		lotsImg, err := randGif(lotsType + "." + fileInfo.lotsType)
+		lotsImg, err := randGif(lotsType+"."+fileInfo.lotsType, ctx.Event.UserID)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -228,27 +230,48 @@ func randFile(path string, indexMax int) (string, error) {
 	return "", errors.New("图包[" + path + "]不存在签内容！")
 }
 
-func randGif(gifName string) (image.Image, error) {
+func randGif(gifName string, uid int64) (image.Image, error) {
 	name := datapath + gifName
 	file, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
 	im, err := gif.DecodeAll(file)
-	_ = file.Close()
 	if err != nil {
 		return nil, err
 	}
-	/*
-		firstImg, err := imgfactory.Load(name)
-		if err != nil {
-			return nil, err
+	_, err = file.Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, err
+	}
+	config, err := gif.DecodeConfig(file)
+	if err != nil {
+		return nil, err
+	}
+	_ = file.Close()
+	// https://zhuanlan.zhihu.com/p/27718135
+	rect := image.Rect(0, 0, config.Width, config.Height)
+	if rect.Min == rect.Max {
+		var max image.Point
+		for _, frame := range im.Image {
+			maxF := frame.Bounds().Max
+			if max.X < maxF.X {
+				max.X = maxF.X
+			}
+			if max.Y < maxF.Y {
+				max.Y = maxF.Y
+			}
 		}
-		v := im.Image[rand.Intn(len(im.Image))]
-		return imgfactory.Size(firstImg, firstImg.Bounds().Dx(), firstImg.Bounds().Dy()).InsertUpC(v, 0, 0, firstImg.Bounds().Dx()/2, firstImg.Bounds().Dy()/2).Clone().Image(),err
-	/*/
-	// 如果gif图片出现信息缺失请使用上面注释掉的代码，把下面注释了(上面代码部分图存在bug)
-	v := im.Image[rand.Intn(len(im.Image))]
-	return imgfactory.NewFactoryBG(v.Rect.Dx(), v.Rect.Dy(), color.NRGBA{0, 0, 0, 255}).InsertUp(v, 0, 0, 0, 0).Clone().Image(), err
-	// */
+		rect.Max = max
+	}
+	img := image.NewRGBA(rect)
+	b := fcext.RandSenderPerDayN(uid, len(im.Image)) + 1
+	a := 0
+	if b > 8 {
+		a = b - 8
+	}
+	for _, srcimg := range im.Image[a:b] {
+		draw.Draw(img, srcimg.Bounds(), srcimg, srcimg.Rect.Min, draw.Over)
+	}
+	return img, err
 }

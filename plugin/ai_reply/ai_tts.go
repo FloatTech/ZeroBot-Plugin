@@ -11,28 +11,29 @@ import (
 	"github.com/FloatTech/AnimeAPI/tts"
 	"github.com/FloatTech/AnimeAPI/tts/baidutts"
 	"github.com/FloatTech/AnimeAPI/tts/genshin"
+	"github.com/FloatTech/AnimeAPI/tts/lolimi"
 	"github.com/FloatTech/AnimeAPI/tts/ttscn"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
 
-// 数据结构: [4 bits] [4 bits] [8 bits] [8 bits]
-// 			[ttscn模式] [百度模式] [tts模式] [回复模式]
+// 数据结构: [8 bits] [8 bits] [8 bits]
+// 			[具体人物] [tts模式] [回复模式]
 
 // defaultttsindexkey
-// 数据结构: [4 bits] [4 bits] [8 bits]
-// 			[ttscn模式] [百度模式] [tts模式]
+// 数据结构: [8 bits] [8 bits]
+// 			[具体人物] [tts模式]
 
-// [tts模式]: 0~200 genshin 201 baidu 202 ttscn
+// [tts模式]: 0~200 genshin 201 baidu 202 ttscn 203 lolimi
 
 const (
-	lastgsttsindex = 200 + iota
-	baiduttsindex
+	baiduttsindex = 201 + iota
 	ttscnttsindex
+	lolimittsindex
 )
 
 // extrattsname is the tts other than genshin vits
-var extrattsname = []string{"百度", "TTSCN"}
+var extrattsname = []string{"百度", "TTSCN", "桑帛云"}
 
 var ttscnspeakers = [...]string{
 	"晓晓（女 - 年轻人）",
@@ -84,7 +85,7 @@ func (r replymode) setReplyMode(ctx *zero.Ctx, name string) error {
 	if !ok {
 		return errors.New("no such plugin")
 	}
-	return m.SetData(gid, (m.GetData(index)&^0xff)|(index&0xff))
+	return m.SetData(gid, (m.GetData(gid)&^0xff)|(index&0xff))
 }
 
 func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
@@ -96,18 +97,22 @@ func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	if ok {
 		switch m.GetData(gid) & 0xff {
 		case 0:
-			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
 		case 1:
-			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
+			return aireply.NewLolimiAi(aireply.MomoURL, aireply.MomoBotName)
 		case 2:
+			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+		case 3:
+			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
+		case 4:
 			k := ཆཏ.k
 			if k != "" {
 				return aireply.NewChatGPT(aireply.ChatGPTURL, k)
 			}
-			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
 		}
 	}
-	return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
+	return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
 }
 
 var ttsins = func() map[string]tts.TTS {
@@ -119,8 +124,8 @@ var ttsins = func() map[string]tts.TTS {
 }()
 
 var ttsModes = func() []string {
-	s := append(genshin.SoundList[:], make([]string, lastgsttsindex-len(genshin.SoundList))...) // 0-200
-	s = append(s, extrattsname...)                                                              // 201 202 ...
+	s := append(genshin.SoundList[:], make([]string, baiduttsindex-len(genshin.SoundList))...) // 0-200
+	s = append(s, extrattsname...)                                                             // 201 202 ...
 	return s
 }()
 
@@ -146,14 +151,14 @@ func newttsmode() *ttsmode {
 	if ok {
 		index := m.GetData(defaultttsindexkey)
 		msk := index & 0xff
-		if msk >= 0 && (msk < int64(len(genshin.SoundList)) || msk == baiduttsindex || msk == ttscnttsindex) {
+		if msk >= 0 && (msk < int64(len(ttsModes))) {
 			(*syncx.Map[int64, int64])(t).Store(defaultttsindexkey, index)
 		}
 	}
 	return t
 }
 
-func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt int) error {
+func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, character int) error {
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
@@ -165,7 +170,7 @@ func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt
 	var index = int64(-1)
 	for i, s := range genshin.SoundList {
 		if s == name {
-			index = int64(i)
+			index = int64(i + 1)
 			break
 		}
 	}
@@ -175,13 +180,17 @@ func (t *ttsmode) setSoundMode(ctx *zero.Ctx, name string, baiduper, mockingsynt
 			index = baiduttsindex
 		case extrattsname[1]:
 			index = ttscnttsindex
+		case extrattsname[2]:
+			index = lolimittsindex
 		default:
 			return errors.New("语音人物" + name + "未注册index")
 		}
 	}
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	(*syncx.Map[int64, int64])(t).Store(gid, index)
-	return m.SetData(gid, (m.GetData(gid)&^0xffff00)|((index<<8)&0xff00)|((int64(baiduper)<<16)&0x0f0000)|((int64(mockingsynt)<<20)&0xf00000))
+	// 按原来的逻辑map存的是前16位
+	storeIndex := (m.GetData(gid) &^ 0xffff00) | ((index << 8) & 0xff00) | ((int64(character) << 16) & 0xff0000)
+	(*syncx.Map[int64, int64])(t).Store(gid, (storeIndex>>8)&0xffff)
+	return m.SetData(gid, storeIndex)
 }
 
 func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
@@ -195,8 +204,12 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 		i = m.GetData(gid) >> 8
 	}
 	m := i & 0xff
-	if m < 0 || (m >= int64(len(genshin.SoundList)) && m != baiduttsindex && m != ttscnttsindex) {
+	if m <= 0 || (m >= int64(len(ttsModes))) {
 		i, _ = (*syncx.Map[int64, int64])(t).Load(defaultttsindexkey)
+		if i == 0 {
+			i = ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).GetData(defaultttsindexkey)
+			(*syncx.Map[int64, int64])(t).Store(defaultttsindexkey, i)
+		}
 		m = i & 0xff
 	}
 	mode := ttsModes[m]
@@ -205,20 +218,22 @@ func (t *ttsmode) getSoundMode(ctx *zero.Ctx) (tts.TTS, error) {
 		switch mode {
 		case extrattsname[0]:
 			id, sec, _ := strings.Cut(百.k, ",")
-			ins = baidutts.NewBaiduTTS(int(i&0x0f00)>>8, id, sec)
+			ins = baidutts.NewBaiduTTS(int(i&0xff00)>>8, id, sec)
 		case extrattsname[1]:
 			var err error
-			ins, err = ttscn.NewTTSCN("中文（普通话，简体）", ttscnspeakers[int(i&0xf000)>>12], ttscn.KBRates[0])
+			ins, err = ttscn.NewTTSCN("中文（普通话，简体）", ttscnspeakers[int(i&0xff00)>>8], ttscn.KBRates[0])
 			if err != nil {
 				return nil, err
 			}
+		case extrattsname[2]:
+			ins = lolimi.NewLolimi(int(i&0xff00) >> 8)
 		default: // 原神
 			k := 原.k
 			if k != "" {
-				ins = genshin.NewGenshin(int(m), 原.k)
+				ins = genshin.NewGenshin(int(m-1), 原.k)
 				ttsins[mode] = ins
 			} else {
-				return nil, errors.New("no valid speaker")
+				ins = lolimi.NewLolimi(int(i&0xff00) >> 8)
 			}
 		}
 	}
@@ -231,11 +246,12 @@ func (t *ttsmode) resetSoundMode(ctx *zero.Ctx) error {
 		gid = -ctx.Event.UserID
 	}
 	m := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	index := m.GetData(defaultttsindexkey)
-	return m.SetData(gid, (m.GetData(gid)&0xff)|((index&^0xff)<<8)) // 重置数据
+	// 只保留后面8位
+	(*syncx.Map[int64, int64])(t).Delete(gid)
+	return m.SetData(gid, (m.GetData(gid) & 0xff)) // 重置数据
 }
 
-func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) error {
+func (t *ttsmode) setDefaultSoundMode(name string, character int) error {
 	_, ok := ttsins[name]
 	if !ok {
 		return errors.New("不支持设置语音人物" + name)
@@ -243,7 +259,7 @@ func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) er
 	index := int64(-1)
 	for i, s := range genshin.SoundList {
 		if s == name {
-			index = int64(i)
+			index = int64(i + 1)
 			break
 		}
 	}
@@ -253,6 +269,8 @@ func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) er
 			index = baiduttsindex
 		case extrattsname[1]:
 			index = ttscnttsindex
+		case extrattsname[2]:
+			index = lolimittsindex
 		default:
 			return errors.New("语音人物" + name + "未注册index")
 		}
@@ -261,6 +279,7 @@ func (t *ttsmode) setDefaultSoundMode(name string, baiduper, mockingsynt int) er
 	if !ok {
 		return errors.New("[tts] service not found")
 	}
-	(*syncx.Map[int64, int64])(t).Store(defaultttsindexkey, index)
-	return m.SetData(defaultttsindexkey, (index&0xff)|((int64(baiduper)<<8)&0x0f00)|((int64(mockingsynt)<<12)&0xf000))
+	storeIndex := (index & 0xff) | ((int64(character) << 8) & 0xff00)
+	(*syncx.Map[int64, int64])(t).Store(defaultttsindexkey, storeIndex)
+	return m.SetData(defaultttsindexkey, storeIndex)
 }
