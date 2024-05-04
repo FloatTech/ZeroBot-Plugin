@@ -2,8 +2,8 @@ github.com/Baidu-AIP/golang-sdk v1.1.1 h1:RQsAmgDSAkiq22I6n7XJ2t3afgzFeqjY46FGhv
 github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spItONK1RQBQj1Y=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/FloatTech/AnimeAPI v1.7.1-0.20240502092440-2cf39e6d08c1 h1:jCHd5jhWyycMoCKh4Sjx4oyoRv99uB7ZuRrjeA3ZErk=
-github.com/FloatTech/AnimeAPI v1.7.1-0.20240502092440-2cf39e6d08c1/go.mod h1:Ru6q5pZUnfMg1iu0M1Hp73q9N3LNIbDr16kjkzyG6Xk=
+github.com/FloatTech/AnimeAPI v1.7.1-0.20240504155718-e1a4844e94a5 h1:0Xgngi3sWMnnvdl5PZapu4sWP5fp7ftmYMy5eIGKMdM=
+github.com/FloatTech/AnimeAPI v1.7.1-0.20240504155718-e1a4844e94a5/go.mod h1:Ru6q5pZUnfMg1iu0M1Hp73q9N3LNIbDr16kjkzyG6Xk=
 github.com/FloatTech/floatbox v0.0.0-20240504085530-b2994112ec50 h1:1D9BS5nI8UFQ8dg3QJicntfGbtL5WdZsKm/OMyBd/lM=
 github.com/FloatTech/floatbox v0.0.0-20240504085530-b2994112ec50/go.mod h1:OzGLhvmtz1TKIdGaJDd8pQumvD36UqK+dWsiCISmzQQ=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
