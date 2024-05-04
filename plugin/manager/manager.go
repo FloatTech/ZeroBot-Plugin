@@ -431,7 +431,7 @@ func init() { // 插件主体
 				}
 				id = x[0]
 			}
-			err := ctx.SetMessageEmojiLike(msgid, rune(id))
+			err := ctx.SetMessageEmojiLike(msgid, id)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
