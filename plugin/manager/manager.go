@@ -396,14 +396,14 @@ func init() { // 插件主体
 				}
 			}
 			if !flag {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("不加好友不给赞!"))
+				// ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("不加好友不给赞!"))
 				return
 			}
 			ctx.SendLike(ctx.Event.UserID, 10)
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("给你赞了10下哦，记得回我~"))
 		})
 	// 给消息回应表情
-	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*回应表情\s*(.*)\s*`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*回应表情\s*(.+)\s*$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			msgid := ctx.State["regex_matched"].([]string)[1]
 			face := ctx.State["regex_matched"].([]string)[2]

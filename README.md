@@ -1,5 +1,6 @@
 <div align="center">
-  <img src=".github/hua_nobg_512.gif" alt="椛" width = "400">
+  <img src=".github/hua_nobg_512.gif" alt="椛" width = "256">
+  <img src="https://github.com/FloatTech/ZeroBot-Plugin/assets/41315874/93fb795d-e519-45a6-a654-076fd6ac54ae" alt="zbp-uwu" width = "400">
   <br>
 
   <h1>ZeroBot-Plugin</h1>
