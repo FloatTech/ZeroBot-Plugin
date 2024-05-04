@@ -4,8 +4,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/FloatTech/AnimeAPI v1.7.1-0.20240502092440-2cf39e6d08c1 h1:jCHd5jhWyycMoCKh4Sjx4oyoRv99uB7ZuRrjeA3ZErk=
 github.com/FloatTech/AnimeAPI v1.7.1-0.20240502092440-2cf39e6d08c1/go.mod h1:Ru6q5pZUnfMg1iu0M1Hp73q9N3LNIbDr16kjkzyG6Xk=
-github.com/FloatTech/floatbox v0.0.0-20240502092157-9deaab837c04 h1:qTlD6NN7+NMuxr4p2C4E0VUITh+ikIwLx7Z0nKCF3Kc=
-github.com/FloatTech/floatbox v0.0.0-20240502092157-9deaab837c04/go.mod h1:OzGLhvmtz1TKIdGaJDd8pQumvD36UqK+dWsiCISmzQQ=
+github.com/FloatTech/floatbox v0.0.0-20240504085530-b2994112ec50 h1:1D9BS5nI8UFQ8dg3QJicntfGbtL5WdZsKm/OMyBd/lM=
+github.com/FloatTech/floatbox v0.0.0-20240504085530-b2994112ec50/go.mod h1:OzGLhvmtz1TKIdGaJDd8pQumvD36UqK+dWsiCISmzQQ=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08 h1:dPLeoiTVSBlgls+66EB/UJ2e38BaASmBN5nANaycSBU=
 github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08/go.mod h1:uzPzAeT35egARdRuu+1oyjU3CmTwCceoq3Vvje7LpcI=
 github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef h1:CJbK/2FRwPuZpeb6M4sWK2d7oXDnBEGhpkQuQrgc91A=
