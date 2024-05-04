@@ -51,7 +51,7 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [qq1 qq2 qq3 ...] [&]
+zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [-mirror] [qq1 qq2 qq3 ...] [&]
 ```
 - **-h**: 显示帮助
 - **-m**: 不自动标记消息为已读
@@ -66,6 +66,7 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
 - **-l latency**: 全局处理延时 (ms)
 - **-r ringlen**: 接收消息环缓冲区大小，`0`为不设缓冲，并发处理
 - **-x max process time**: 最大处理时间 (min)
+- **-mirror**: 直接使用镜像懒加载数据站而不尝试访问源站
 - **qqs**: superusers 的 qq 号
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 

@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/FloatTech/AnimeAPI v1.7.1-0.20240504155718-e1a4844e94a5
-	github.com/FloatTech/floatbox v0.0.0-20240504085530-b2994112ec50
+	github.com/FloatTech/floatbox v0.0.0-20240504180219-62f0fa53644e
 	github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
