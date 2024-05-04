@@ -414,10 +414,10 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: 表情长度为 0"))
 				return
 			}
-			ids := facere.FindStringSubmatch(face)[1]
+			ids := facere.FindStringSubmatch(face)
 			id := rune(0)
-			if len(ids) > 0 {
-				idi, err := strconv.Atoi(ids)
+			if len(ids) == 2 && len(ids[1]) > 0 {
+				idi, err := strconv.Atoi(ids[1])
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
