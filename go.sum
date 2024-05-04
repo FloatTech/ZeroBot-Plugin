@@ -16,10 +16,10 @@ github.com/FloatTech/sqlite v1.6.3 h1:MQkqBNlkPuCoKQQgoNLuTL/2Ci3tBTFAnVYBdD0Wy4
 github.com/FloatTech/sqlite v1.6.3/go.mod h1:zFbHzRfB+CJ+VidfjuVbrcin3DAz283F7hF1hIeHzpY=
 github.com/FloatTech/ttl v0.0.0-20230307105452-d6f7b2b647d1 h1:g4pTnDJUW4VbJ9NvoRfUvdjDrHz/6QhfN/LoIIpICbo=
 github.com/FloatTech/ttl v0.0.0-20230307105452-d6f7b2b647d1/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
-github.com/FloatTech/zbpctrl v1.6.1-0.20240501122621-27fbe564d42a h1:9HPKT4WuO5nYVxVRie7OTn2kV9cwaktulkZbBbCqXkg=
-github.com/FloatTech/zbpctrl v1.6.1-0.20240501122621-27fbe564d42a/go.mod h1:RxqNENMwHUUZz5IazDxhnmyejGV0xQthYpScMU9cWbw=
-github.com/FloatTech/zbputils v1.7.1-0.20240504124534-d8208d13abea h1:rJvWRrdgk1+QUy8UxHSSMY21r3U6jxQhTW/AWIGiIaY=
-github.com/FloatTech/zbputils v1.7.1-0.20240504124534-d8208d13abea/go.mod h1:caNGFADPaEkZvuaECwGA1I7t6nJuK+TcxNaTjLa4OYs=
+github.com/FloatTech/zbpctrl v1.6.1 h1:SilK5R2poO8iUT6JPzpgr/BSzxYAaybBYNZkMyZ8STw=
+github.com/FloatTech/zbpctrl v1.6.1/go.mod h1:I+MetM++1sJhNPg3zww1aw04BicYsNohvHC4Jh52XSo=
+github.com/FloatTech/zbputils v1.7.1-0.20240504134720-ce2b1be4b85a h1:tjpvpv8Elnj2w+MSE9lu1qrghfpVU1zNw8ngKZS1H4A=
+github.com/FloatTech/zbputils v1.7.1-0.20240504134720-ce2b1be4b85a/go.mod h1:drCjiDLLtRIfN9sRJKJneReZmn/LsBGB8TWYgEoWrA0=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7 h1:S/ferNiehVjNaBMNNBxUjLtVmP/YWD6Yh79RfPv4ehU=
 github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7/go.mod h1:vD7Ra3Q9onRtojoY5sMCLQ7JBgjUsrXDnDKyFxqpf9w=
@@ -196,8 +196,8 @@ github.com/tklauser/numcpus v0.6.0 h1:kebhY2Qt+3U6RNK7UqpYNA+tJ23IBEGKkB7JQBfDYm
 github.com/tklauser/numcpus v0.6.0/go.mod h1:FEZLMke0lhOUG6w2JadTzp0a+Nl8PF/GFkQ5UVIcaL4=
 github.com/wcharczuk/go-chart/v2 v2.1.0 h1:tY2slqVQ6bN+yHSnDYwZebLQFkphK4WNrVwnt7CJZ2I=
 github.com/wcharczuk/go-chart/v2 v2.1.0/go.mod h1:yx7MvAVNcP/kN9lKXM/NTce4au4DFN99j6i1OwDclNA=
-github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240501144516-eb574bbdad32 h1:GuVwh4uGtDegpKNgSkcqpbISLAn5nCpqoGxXmiEv4iI=
-github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240501144516-eb574bbdad32/go.mod h1:J6uHaXS/Am2VsLxF9TcU6il19PbOeC4SvgxHJ1E2jaE=
+github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240504144809-0d0388f8f575 h1:98GpzXVAgqNCLF4B7MwmVLW08MDhfyx62Fz6aqCwO3M=
+github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240504144809-0d0388f8f575/go.mod h1:J6uHaXS/Am2VsLxF9TcU6il19PbOeC4SvgxHJ1E2jaE=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=

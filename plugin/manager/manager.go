@@ -407,8 +407,19 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			msgid := ctx.State["regex_matched"].([]string)[1]
 			face := ctx.State["regex_matched"].([]string)[2]
-			if len(face) > 0 {
-				_ = ctx.SetMessageEmojiLike(msgid, face)
+			if len(face) == 0 {
+				ctx.SendChain(message.Text("ERROR: 表情长度为 0"))
+				return
+			}
+			x := []rune(face)
+			if len(x) == 0 {
+				ctx.SendChain(message.Text("ERROR: 解析后表情长度为 0"))
+				return
+			}
+			err := ctx.SetMessageEmojiLike(msgid, x[0])
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
 			}
 		})
 	// 入群欢迎
