@@ -31,8 +31,6 @@ func (bdres *baiduRes) audit(ctx *zero.Ctx, configpath string) {
 	if bdres.ConclusionType != 2 {
 		return
 	}
-	// 创建消息ID
-	mid := message.NewMessageIDFromInteger(ctx.Event.MessageID.(int64))
 	// 获取群配置
 	group := config.groupof(ctx.Event.GroupID)
 	// 检测群配置里的不检测类型白名单, 忽略掉不检测的违规类型
@@ -44,7 +42,7 @@ func (bdres *baiduRes) audit(ctx *zero.Ctx, configpath string) {
 	// 生成回复文本
 	res := group.reply(bdres)
 	// 撤回消息
-	ctx.DeleteMessage(mid)
+	ctx.DeleteMessage(ctx.Event.MessageID)
 	// 查看是否启用撤回后禁言
 	if group.DMBAN {
 		// 从历史违规记录中获取指定用户

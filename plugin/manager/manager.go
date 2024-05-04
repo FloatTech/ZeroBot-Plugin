@@ -35,6 +35,7 @@ const (
 		"- 修改名片@QQ XXX\n" +
 		"- 修改头衔@QQ XXX\n" +
 		"- 申请头衔 XXX\n" +
+		"- 对信息回复: 撤回\n" +
 		"- 踢出群聊@QQ\n" +
 		"- 退出群聊 1234@bot\n" +
 		"- 群聊转发 1234 XXX\n" +
@@ -261,7 +262,7 @@ func init() { // 插件主体
 	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*撤回$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			// 删除需要撤回的消息ID
-			ctx.DeleteMessage(message.NewMessageIDFromString(ctx.State["regex_matched"].([]string)[1]))
+			ctx.DeleteMessage(ctx.State["regex_matched"].([]string)[1])
 		})
 	// 群聊转发
 	engine.OnRegex(`^群聊转发.*?(\d+)\s(.*)`, zero.SuperUserPermission).SetBlock(true).
@@ -658,7 +659,7 @@ func init() { // 插件主体
 					time.Unix(info.Get("operator_time").Int(), 0).Format("2006/01/02 15:04:05"),
 				))),
 			)
-			msgData := ctx.GetMessage(message.NewMessageIDFromInteger(info.Get("message_id").Int())).Elements
+			msgData := ctx.GetMessage(info.Get("message_id").Int()).Elements
 			if msgData != nil {
 				msg = append(msg,
 					message.CustomNode(info.Get("sender_nick").String(), info.Get("sender_id").Int(), msgData),
