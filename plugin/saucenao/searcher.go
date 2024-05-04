@@ -25,6 +25,11 @@ import (
 	"github.com/FloatTech/zbputils/img/pool"
 )
 
+const (
+	enableHex = 0x10
+	unableHex = 0x7fffffff_fffffffd
+)
+
 var (
 	saucenaocli *gophersauce.Client
 )
@@ -111,9 +116,14 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			// 开始搜索图片
 			pics, ok := ctx.State["image_url"].([]string)
+			showPic := false
 			if !ok {
 				ctx.SendChain(message.Text("ERROR: 未获取到图片链接"))
 				return
+			}
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if ok && c.GetData(ctx.Event.GroupID)&enableHex == enableHex {
+				showPic = true
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))
 			for _, pic := range pics {
@@ -142,15 +152,17 @@ func init() { // 插件主体
 							} else {
 								msg = append(msg, message.Text("也许是这个?"))
 							}
-							if err == nil {
-								_ = resp.Body.Close()
-								if resp.StatusCode == http.StatusOK {
-									msg = append(msg, message.Image(result.Header.Thumbnail))
+							if showPic {
+								if err == nil {
+									_ = resp.Body.Close()
+									if resp.StatusCode == http.StatusOK {
+										msg = append(msg, message.Image(result.Header.Thumbnail))
+									} else {
+										msg = append(msg, message.Image(pic))
+									}
 								} else {
 									msg = append(msg, message.Image(pic))
 								}
-							} else {
-								msg = append(msg, message.Image(pic))
 							}
 							msg = append(msg, message.Text("\n图源: ", result.Header.IndexName, binary.BytesToString(b)))
 							ctx.Send(message.Message{ctxext.FakeSenderForwardNode(ctx, msg...)})
@@ -170,17 +182,19 @@ func init() { // 插件主体
 				}
 				msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
 				for i := 0; i < len(result) && i < 5; i++ {
-					msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
-						message.Image(result[i].Thumb),
-						message.Text(fmt.Sprintf(
-							"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
-							result[i].Name,
-							result[i].Type,
-							result[i].AuthNm,
-							result[i].Author,
-							result[i].Link,
-						))),
-					)
+					var resultMsgs message.Message
+					if showPic {
+						resultMsgs = append(resultMsgs, message.Image(result[i].Thumb))
+					}
+					resultMsgs = append(resultMsgs, message.Text(fmt.Sprintf(
+						"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
+						result[i].Name,
+						result[i].Type,
+						result[i].AuthNm,
+						result[i].Author,
+						result[i].Link,
+					)))
+					msg = append(msg, ctxext.FakeSenderForwardNode(ctx, resultMsgs...))
 				}
 				if id := ctx.Send(msg).ID(); id == 0 {
 					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
@@ -204,5 +218,34 @@ func init() { // 插件主体
 				return
 			}
 			ctx.SendChain(message.Text("成功!"))
+		})
+	engine.OnRegex(`^(开启|打开|启用|关闭|关掉|禁用)搜图显示图片$`, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			if gid <= 0 {
+				// 个人用户设为负数
+				gid = -ctx.Event.UserID
+			}
+			option := ctx.State["regex_matched"].([]string)[1]
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				ctx.SendChain(message.Text("找不到服务!"))
+				return
+			}
+			data := c.GetData(ctx.Event.GroupID)
+			switch option {
+			case "开启", "打开", "启用":
+				data |= enableHex
+			case "关闭", "关掉", "禁用":
+				data &= unableHex
+			default:
+				return
+			}
+			err := c.SetData(gid, data)
+			if err != nil {
+				ctx.SendChain(message.Text("出错啦: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("已", option, "搜图显示图片"))
 		})
 }

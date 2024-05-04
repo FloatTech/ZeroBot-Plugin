@@ -18,6 +18,11 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+const (
+	enableHex = 0x10
+	unableHex = 0x7fffffff_fffffffd
+)
+
 var (
 	limit            = ctxext.NewLimiterManager(time.Second*10, 1)
 	searchVideo      = `bilibili.com\\?/video\\?/(?:av(\d+)|([bB][vV][0-9a-zA-Z]+))`
@@ -61,6 +66,35 @@ func init() {
 				handleLive(ctx)
 			}
 		})
+	en.OnRegex(`^(开启|打开|启用|关闭|关掉|禁用)视频总结$`, zero.AdminPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			gid := ctx.Event.GroupID
+			if gid <= 0 {
+				// 个人用户设为负数
+				gid = -ctx.Event.UserID
+			}
+			option := ctx.State["regex_matched"].([]string)[1]
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				ctx.SendChain(message.Text("找不到服务!"))
+				return
+			}
+			data := c.GetData(ctx.Event.GroupID)
+			switch option {
+			case "开启", "打开", "启用":
+				data |= enableHex
+			case "关闭", "关掉", "禁用":
+				data &= unableHex
+			default:
+				return
+			}
+			err := c.SetData(gid, data)
+			if err != nil {
+				ctx.SendChain(message.Text("出错啦: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("已", option, "视频总结"))
+		})
 	en.OnRegex(searchVideo).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleVideo)
 	en.OnRegex(searchDynamic).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleDynamic)
 	en.OnRegex(searchArticle).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleArticle)
@@ -82,13 +116,15 @@ func handleVideo(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
 	}
-	summaryMsg, err := getVideoSummary(cfg, card)
-	if err != nil {
-		ctx.SendChain(message.Text("ERROR: ", err))
-		ctx.SendChain(msg...)
-		return
+	c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+	if ok && c.GetData(ctx.Event.GroupID)&enableHex == enableHex {
+		summaryMsg, err := getVideoSummary(card)
+		if err != nil {
+			msg = append(msg, message.Text("ERROR: ", err))
+    } else {
+        msg = append(msg, summaryMsg...)
+    }
 	}
-	msg = append(msg, summaryMsg...)
 	ctx.SendChain(msg...)
 }
 
