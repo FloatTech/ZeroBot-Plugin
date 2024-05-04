@@ -4,6 +4,7 @@ package manager
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -403,6 +404,7 @@ func init() { // 插件主体
 			ctx.SendLike(ctx.Event.UserID, 10)
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("给你赞了10下哦，记得回我~"))
 		})
+	facere := regexp.MustCompile(`\[CQ:face,id=(\d+)\]`)
 	// 给消息回应表情
 	engine.OnRegex(`^\[CQ:reply,id=(-?\d+)\].*回应表情\s*(.+)\s*$`, zero.AdminPermission, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -412,12 +414,24 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: 表情长度为 0"))
 				return
 			}
-			x := []rune(face)
-			if len(x) == 0 {
-				ctx.SendChain(message.Text("ERROR: 解析后表情长度为 0"))
-				return
+			ids := facere.FindStringSubmatch(face)[1]
+			id := rune(0)
+			if len(ids) > 0 {
+				idi, err := strconv.Atoi(ids)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+				id = rune(idi)
+			} else {
+				x := []rune(face)
+				if len(x) == 0 {
+					ctx.SendChain(message.Text("ERROR: 解析后表情长度为 0"))
+					return
+				}
+				id = x[0]
 			}
-			err := ctx.SetMessageEmojiLike(msgid, x[0])
+			err := ctx.SetMessageEmojiLike(msgid, rune(id))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
