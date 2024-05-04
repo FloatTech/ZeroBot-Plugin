@@ -46,14 +46,6 @@ func TestVideoInfo(t *testing.T) {
 	t.Log(videoCard2msg(card))
 }
 
-func TestGetVideoSummary(t *testing.T) {
-	card, err := bz.GetVideoInfo("BV1mF411j7iU")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(getVideoSummary(card))
-}
-
 func TestLiveRoomInfo(t *testing.T) {
 	card, err := bz.GetLiveRoomInfo("83171")
 	if err != nil {

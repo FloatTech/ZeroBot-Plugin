@@ -113,7 +113,7 @@ func face2emoji(face message.MessageSegment) rune {
 	if err != nil {
 		return 0
 	}
-	if r, ok := qqface[id]; ok {
+	if r, ok := message.Emoji[id]; ok {
 		return r
 	}
 	return 0

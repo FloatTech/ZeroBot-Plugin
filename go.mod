@@ -4,15 +4,15 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20240502092440-2cf39e6d08c1
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20240504155718-e1a4844e94a5
 	github.com/FloatTech/floatbox v0.0.0-20240504085530-b2994112ec50
 	github.com/FloatTech/gg v1.1.3-0.20230226151425-6ea91286ba08
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.0.10-0.20230223064326-45d29fa4ede9
 	github.com/FloatTech/sqlite v1.6.3
 	github.com/FloatTech/ttl v0.0.0-20230307105452-d6f7b2b647d1
-	github.com/FloatTech/zbpctrl v1.6.1-0.20240501122621-27fbe564d42a
-	github.com/FloatTech/zbputils v1.7.1-0.20240504124534-d8208d13abea
+	github.com/FloatTech/zbpctrl v1.6.1
+	github.com/FloatTech/zbputils v1.7.1-0.20240504134720-ce2b1be4b85a
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -40,7 +40,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240501144516-eb574bbdad32
+	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240504144809-0d0388f8f575
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.3.0
 	golang.org/x/sys v0.19.0
