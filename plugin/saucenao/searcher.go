@@ -25,6 +25,11 @@ import (
 	"github.com/FloatTech/zbputils/img/pool"
 )
 
+const (
+	enableHex = 0x10
+	unableHex = 0x7fffffff_fffffffd
+)
+
 var (
 	saucenaocli *gophersauce.Client
 )
@@ -177,30 +182,19 @@ func init() { // 插件主体
 				}
 				msg := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text("ascii2d搜图结果"))}
 				for i := 0; i < len(result) && i < 5; i++ {
+					var resultMsgs message.Message
 					if showPic {
-						msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
-							message.Image(result[i].Thumb),
-							message.Text(fmt.Sprintf(
-								"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
-								result[i].Name,
-								result[i].Type,
-								result[i].AuthNm,
-								result[i].Author,
-								result[i].Link,
-							))),
-						)
-					} else {
-						msg = append(msg, ctxext.FakeSenderForwardNode(ctx,
-							message.Text(fmt.Sprintf(
-								"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
-								result[i].Name,
-								result[i].Type,
-								result[i].AuthNm,
-								result[i].Author,
-								result[i].Link,
-							))),
-						)
+						resultMsgs = append(resultMsgs, message.Image(result[i].Thumb))
 					}
+					resultMsgs = append(resultMsgs, message.Text(fmt.Sprintf(
+						"标题: %s\n图源: %s\n画师: %s\n画师链接: %s\n图片链接: %s",
+						result[i].Name,
+						result[i].Type,
+						result[i].AuthNm,
+						result[i].Author,
+						result[i].Link,
+					)))
+					msg = append(msg, ctxext.FakeSenderForwardNode(ctx, resultMsgs...))
 				}
 				if id := ctx.Send(msg).ID(); id == 0 {
 					ctx.SendChain(message.Text("ERROR: 可能被风控了"))
@@ -225,7 +219,7 @@ func init() { // 插件主体
 			}
 			ctx.SendChain(message.Text("成功!"))
 		})
-	engine.OnRegex(`^(.*)搜图显示图片$`, zero.AdminPermission).SetBlock(true).
+	engine.OnRegex(`^(开启|打开|启用|关闭|关掉|禁用)搜图显示图片$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			if gid <= 0 {
@@ -234,24 +228,24 @@ func init() { // 插件主体
 			}
 			option := ctx.State["regex_matched"].([]string)[1]
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if ok {
-				data := c.GetData(ctx.Event.GroupID)
-				switch option {
-				case "开启", "打开", "启用":
-					data |= 0x10
-				case "关闭", "关掉", "禁用":
-					data &= 0x7fffffff_fffffffd
-				default:
-					return
-				}
-				err := c.SetData(gid, data)
-				if err == nil {
-					ctx.SendChain(message.Text("已", option))
-					return
-				}
+			if !ok {
+				ctx.SendChain(message.Text("找不到服务!"))
+				return
+			}
+			data := c.GetData(ctx.Event.GroupID)
+			switch option {
+			case "开启", "打开", "启用":
+				data |= enableHex
+			case "关闭", "关掉", "禁用":
+				data &= unableHex
+			default:
+				return
+			}
+			err := c.SetData(gid, data)
+			if err != nil {
 				ctx.SendChain(message.Text("出错啦: ", err))
 				return
 			}
-			ctx.SendChain(message.Text("找不到服务!"))
+			ctx.SendChain(message.Text("已", option, "搜图显示图片"))
 		})
 }
