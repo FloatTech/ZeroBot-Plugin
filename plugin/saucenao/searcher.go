@@ -85,7 +85,7 @@ func init() { // 插件主体
 						err1 := illust.DownloadToCache(i)
 						if err1 == nil {
 							m.SetFile(f)
-							_ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+							_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						}
 						if err1 != nil {
 							logrus.Debugln("[saucenao]下载err:", err1)

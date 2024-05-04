@@ -348,7 +348,7 @@ func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageS
 		}
 	}
 	m.SetFile(aimgfile)
-	_ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+	_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 	msg = message.Image("file:///" + aimgfile)
 	return
 }

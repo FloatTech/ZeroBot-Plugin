@@ -172,7 +172,7 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 			}
 		}
 		m.SetFile(f)
-		_ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 		msg = message.Image("file:///" + f)
 	} else {
 		msg = message.Image(m.String())

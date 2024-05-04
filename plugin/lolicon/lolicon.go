@@ -72,7 +72,7 @@ func init() {
 					m, err := imagepool.GetImage(name)
 					if err != nil {
 						m.SetFile(imageurl)
-						_ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
+						_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 						process.SleepAbout1sTo2s()
 					}
 					if err == nil {
