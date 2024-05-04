@@ -122,7 +122,7 @@ func init() { // 插件主体
 				return
 			}
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 {
+			if ok && c.GetData(ctx.Event.GroupID)&enableHex == enableHex {
 				showPic = true
 			}
 			ctx.SendChain(message.Text("少女祈祷中..."))

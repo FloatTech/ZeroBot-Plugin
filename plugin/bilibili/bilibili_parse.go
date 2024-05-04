@@ -111,7 +111,7 @@ func handleVideo(ctx *zero.Ctx) {
 		return
 	}
 	c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-	if ok && c.GetData(ctx.Event.GroupID)&0x10 == 0x10 {
+	if ok && c.GetData(ctx.Event.GroupID)&enableHex == enableHex {
 		summaryMsg, err := getVideoSummary(card)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
