@@ -2,12 +2,10 @@ package bilibili
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	bz "github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/floatbox/binary"
-	"github.com/FloatTech/floatbox/web"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -324,29 +322,5 @@ func videoCard2msg(card bz.Card) (msg []message.MessageSegment, err error) {
 	msg = append(msg, message.Text("\n点赞: ", bz.HumanNum(card.Stat.Like), " 投币: ", bz.HumanNum(card.Stat.Coin), "\n",
 		"收藏: ", bz.HumanNum(card.Stat.Favorite), " 分享: ", bz.HumanNum(card.Stat.Share), "\n",
 		bz.VURL, card.BvID, "\n\n"))
-	return
-}
-
-// getVideoSummary AI视频总结
-func getVideoSummary(card bz.Card) (msg []message.MessageSegment, err error) {
-	var (
-		data         []byte
-		videoSummary bz.VideoSummary
-	)
-	data, err = web.GetData(bz.SignURL(fmt.Sprintf(bz.VideoSummaryURL, card.BvID, card.CID)))
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal(data, &videoSummary)
-	msg = make([]message.MessageSegment, 0, 16)
-	msg = append(msg, message.Text("已为你生成视频总结\n\n"))
-	msg = append(msg, message.Text(videoSummary.Data.ModelResult.Summary, "\n\n"))
-	for _, v := range videoSummary.Data.ModelResult.Outline {
-		msg = append(msg, message.Text("● ", v.Title, "\n"))
-		for _, p := range v.PartOutline {
-			msg = append(msg, message.Text(fmt.Sprintf("%d:%d %s\n", p.Timestamp/60, p.Timestamp%60, p.Content)))
-		}
-		msg = append(msg, message.Text("\n"))
-	}
 	return
 }
