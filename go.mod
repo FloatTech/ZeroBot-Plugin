@@ -12,7 +12,7 @@ require (
 	github.com/FloatTech/sqlite v1.6.3
 	github.com/FloatTech/ttl v0.0.0-20230307105452-d6f7b2b647d1
 	github.com/FloatTech/zbpctrl v1.6.1
-	github.com/FloatTech/zbputils v1.7.1-0.20240504190435-b7df3713001f
+	github.com/FloatTech/zbputils v1.7.1-0.20240505071233-66b27298bd13
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.2.5
@@ -40,7 +40,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.14.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240504170749-c9c0e1fe4915
+	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240505070304-562ffeb33dcd
 	gitlab.com/gomidi/midi/v2 v2.0.25
 	golang.org/x/image v0.3.0
 	golang.org/x/sys v0.19.0
