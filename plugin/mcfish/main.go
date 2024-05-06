@@ -131,7 +131,7 @@ var (
 		DisableOnDefault: false,
 		Brief:            "钓鱼",
 		Help: "一款钓鱼模拟器\n----------指令----------\n" +
-			"- 钓鱼看板/钓鱼商店\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n" +
+			"- 钓鱼看板/钓鱼商店\n- 购买xxx\n- 购买xxx [数量]\n- 出售xxx\n- 出售xxx [数量]\n- 出售所有垃圾\n" +
 			"- 钓鱼背包\n- 装备[xx竿|三叉戟|美西螈]\n- 附魔[诱钓|海之眷顾]\n- 修复鱼竿\n- 合成[xx竿|三叉戟]\n- 消除[绑定|宝藏]诅咒\n- 消除[绑定|宝藏]诅咒 [数量]\n" +
 			"- 进行钓鱼\n- 进行n次钓鱼\n- 当前装备概率明细\n" +
 			"规则V" + version + ":\n" +
@@ -525,6 +525,26 @@ func (sql *fishdb) getNumberFor(uid int64, thing string) (number int, err error)
 	info := article{}
 	err = sql.db.FindFor(name, &info, "where Name glob '*"+thing+"*'", func() error {
 		number += info.Number
+		return nil
+	})
+	return
+}
+
+// 获取用户的某类物品信息
+func (sql *fishdb) getUserTypeInfo(uid int64, thingType string) (thingInfos []article, err error) {
+	name := strconv.FormatInt(uid, 10) + "Pack"
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := article{}
+	err = sql.db.Create(name, &userInfo)
+	if err != nil {
+		return
+	}
+	if !sql.db.CanFind(name, "where Type = '"+thingType+"'") {
+		return
+	}
+	err = sql.db.FindFor(name, &userInfo, "where Type = '"+thingType+"'", func() error {
+		thingInfos = append(thingInfos, userInfo)
 		return nil
 	})
 	return

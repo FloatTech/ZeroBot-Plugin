@@ -306,6 +306,77 @@ func init() {
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice*number, msg)))
 	})
+	engine.OnRegex(`^出售所有垃圾`, getdb, refreshFish).SetBlock(true).Limit(limitSet).Handle(func(ctx *zero.Ctx) {
+		uid := ctx.Event.UserID
+
+		articles, err := dbdata.getUserTypeInfo(uid, "waste")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR]:获取背包信息错误", err))
+			return
+		}
+		if len(articles) == 0 {
+			ctx.SendChain(message.Text("你的背包不存在该物品"))
+			return
+		}
+		if len(articles) > 1 {
+			msg := make(message.Message, 0, 3+len(articles))
+			msg = append(msg, message.Reply(ctx.Event.MessageID), message.Text("找到以下物品:\n"))
+			for i, info := range articles {
+				msg = append(msg, message.Text(
+					"[", i, "]", info.Name, "  数量: ", info.Number, "\n"))
+			}
+			ctx.Send(msg)
+		}
+
+		pice := 0
+		for _, info := range articles {
+			pice += (priceList[info.Name] * discountList[info.Name] / 100) * info.Number * 8 / 10
+		}
+
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice, "收购全部垃圾", "?\n回答\"是\"或\"否\"")))
+		// 等待用户下一步选择
+		recv, cancel1 := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
+		defer cancel1()
+		buy := false
+		for {
+			select {
+			case <-time.After(time.Second * 60):
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消钓鱼")))
+				return
+			case e := <-recv:
+				nextcmd := e.Event.Message.String()
+				if nextcmd == "否" {
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("已取消出售")))
+					return
+				}
+				buy = true
+			}
+			if buy {
+				break
+			}
+		}
+
+		msg := ""
+		curse, err := dbdata.getNumberFor(uid, "宝藏诅咒")
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR at store.go.9.3]:", err))
+			return
+		}
+		if curse != 0 {
+			msg = "\n(你身上绑定了" + strconv.Itoa(curse) + "层诅咒)"
+			pice = pice * (100 - 10*curse) / 100
+		}
+
+		for _, info := range articles {
+			info.Number = 0
+			err = dbdata.updateUserThingInfo(uid, info)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at store.go.6]:", err))
+				return
+			}
+		}
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice, msg)))
+	})
 	engine.OnRegex(`^购买(`+strings.Join(thingList, "|")+`)\s*(\d*)$`, getdb, refreshFish).SetBlock(true).Limit(limitSet).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		numberOfPole, err := dbdata.getNumberFor(uid, "竿")
