@@ -1137,6 +1137,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>打劫</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/robbery"`
+
+- [x] 打劫[对方Q号|@对方QQ]
+
+</details>
+<details>
   <summary>在线代码运行</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
