@@ -311,7 +311,7 @@ func init() {
 
 		articles, err := dbdata.getUserTypeInfo(uid, "waste")
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at store.go.5]:", err))
+			ctx.SendChain(message.Text("[ERROR]:获取背包信息错误", err))
 			return
 		}
 		if len(articles) == 0 {

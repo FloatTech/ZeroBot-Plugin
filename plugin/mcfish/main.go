@@ -540,13 +540,6 @@ func (sql *fishdb) getUserTypeInfo(uid int64, thingType string) (thingInfos []ar
 	if err != nil {
 		return
 	}
-	count, err := sql.db.Count(name)
-	if err != nil {
-		return
-	}
-	if count == 0 {
-		return
-	}
 	if !sql.db.CanFind(name, "where Type = '"+thingType+"'") {
 		return
 	}
