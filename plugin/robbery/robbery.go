@@ -2,15 +2,16 @@
 package robbery
 
 import (
+	"math/rand"
+	"strconv"
+	"sync"
+	"time"
+
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
-	"math/rand"
-	"strconv"
-	"sync"
-	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/math"
