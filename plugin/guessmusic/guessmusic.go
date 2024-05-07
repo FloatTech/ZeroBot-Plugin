@@ -109,6 +109,12 @@ func init() {
 				ctx.SendChain(message.Text(err))
 				return
 			}
+			// 猜歌环节-提供猜歌选项
+			files, err := os.ReadDir(pathOfMusic)
+			if err != nil {
+				return
+			}
+			getMusicSelect(ctx, files, musicName)
 			// 进行猜歌环节
 			ctx.SendChain(message.Record("file:///" + file.BOTPATH + "/" + outputPath + "0.wav"))
 			var next *zero.FutureEvent
@@ -221,26 +227,8 @@ func musicLottery(musicPath, listName string) (pathOfMusic, musicName string, er
 		}
 		return
 	}
-	// 进行随机抽取
-	if playlistID == 0 || !cfg.API {
-		musicName = getLocalMusic(files, 10)
-	} else {
-		switch rand.Intn(3) { // 三分二概率抽取API的
-		case 1:
-			musicName = getLocalMusic(files, 10)
-		default:
-			if cfg.APIURL == "" {
-				// 如果没有配置过API地址,尝试连接独角兽
-				musicName, err = downloadByOvooa(playlistID, pathOfMusic)
-			} else {
-				// 从API中抽取歌曲
-				musicName, err = drawByAPI(playlistID, pathOfMusic)
-			}
-			if err != nil {
-				musicName = getLocalMusic(files, 10)
-			}
-		}
-	}
+	// 只猜本地已经下好的歌曲
+	musicName = getLocalMusic(files, 10)
 	if musicName == "" {
 		err = errors.New("抽取歌曲轮空了,请重试")
 	}
@@ -295,15 +283,13 @@ func cutMusic(musicName, pathOfMusic, outputPath string) (err error) {
 // 数据匹配（结果信息，答题次数，提示次数，是否结束游戏）
 func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tickTimes int) (message.MessageSegment, int, int, bool) {
 	answer := strings.Replace(c.Event.Message.String(), "-", "", 1)
-	// 大小写，简繁体转换
+	// 回答内容转小写，比对时再把标准答案转小写
 	answer = ConvertText(answer)
-	for i, element := range musicInfo {
-		musicInfo[i] = ConvertText(element)
-	}
+
 	switch {
 	case answer == "取消":
 		if c.Event.UserID == beginner {
-			return message.Text("游戏已取消,猜歌答案是\n", musicInfo[len(musicInfo)-1], "\n\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
+			return message.Text("游戏已取消,猜歌答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
 		}
 		return message.Text("你无权限取消"), answerTimes, tickTimes, false
 	case answer == "提示":
@@ -312,11 +298,11 @@ func gameMatch(c *zero.Ctx, beginner int64, musicInfo []string, answerTimes, tic
 			return message.Text("已经没有提示了哦"), answerTimes, tickTimes, false
 		}
 		return message.Text("再听这段音频,要仔细听哦"), answerTimes, tickTimes, false
-	case strings.Contains(musicInfo[0], answer) || strings.EqualFold(musicInfo[0], answer):
+	case strings.Contains(ConvertText(musicInfo[0]), answer) || strings.EqualFold(ConvertText(musicInfo[0]), answer):
 		return message.Text("太棒了,你猜对歌曲名了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
-	case strings.Contains(musicInfo[1], answer) || strings.EqualFold(musicInfo[1], answer):
+	case strings.Contains(ConvertText(musicInfo[1]), answer) || strings.EqualFold(ConvertText(musicInfo[1]), answer):
 		return message.Text("太棒了,你猜对歌手名了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
-	case len(musicInfo) == 4 && (strings.Contains(musicInfo[2], answer) || strings.EqualFold(musicInfo[2], answer)):
+	case len(musicInfo) == 4 && (strings.Contains(ConvertText(musicInfo[2]), answer) || strings.EqualFold(ConvertText(musicInfo[2]), answer)):
 		return message.Text("太棒了,你猜对相关信息了！答案是\n", musicInfo[len(musicInfo)-1], "\n\n下面欣赏猜歌的歌曲"), answerTimes, tickTimes, true
 	default:
 		answerTimes++
@@ -342,4 +328,40 @@ func ConvertText(input string) string {
 		return toLower
 	}
 	return toLower
+}
+
+func getMusicSelect(ctx *zero.Ctx, files []fs.DirEntry, musicName string) {
+	// 生成音乐选项
+	var musicInfo []string
+	musicInfo = append(musicInfo, musicName)
+	for i := 1; i < 4; i++ {
+		musicInfo = append(musicInfo, getLocalMusic(files, 10))
+		for musicInfo[0] == musicInfo[i] {
+			musicInfo[i] = getLocalMusic(files, 10)
+		}
+	}
+	// 对调正确答案
+	j := rand.Intn(len(musicInfo))
+	musicInfo[0], musicInfo[j] = musicInfo[j], musicInfo[0]
+
+	musicNameSelect := "请选出正确歌曲：\n"
+	for i := 0; i < len(musicInfo); i++ {
+		// 解析歌曲信息
+		music := strings.Split(musicInfo[i], ".")
+		// 获取音乐后缀
+		musicType := music[len(music)-1]
+		if !strings.Contains(musictypelist, musicType) {
+			ctx.SendChain(message.Text("抽取到了歌曲：\n",
+				musicInfo[i], "\n该歌曲不是音乐后缀,请联系bot主人修改"))
+		}
+		// 获取音乐信息
+		musicInfo := strings.Split(strings.ReplaceAll(musicInfo[i], "."+musicType, ""), " - ")
+		infoNum := len(musicInfo)
+		if infoNum == 1 {
+			ctx.SendChain(message.Text("抽取到了歌曲：\n",
+				musicInfo[i], "\n该歌曲命名不符合命名规则,请联系bot主人修改"))
+		}
+		musicNameSelect += musicInfo[0] + "  歌手:" + musicInfo[1] + "\n"
+	}
+	ctx.SendChain(message.Text(musicNameSelect))
 }

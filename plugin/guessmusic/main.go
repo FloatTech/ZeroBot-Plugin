@@ -32,7 +32,7 @@ var (
 	cfg config
 	// 插件主体
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
+		DisableOnDefault: true,
 		Brief:            "猜歌插件",
 		Help: "------bot主人指令------\n" +
 			"- 设置猜歌歌库路径 [绝对路径]\n" +
