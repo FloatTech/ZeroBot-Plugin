@@ -87,13 +87,13 @@ func dlrange(prefix string, end int, wg *sync.WaitGroup, exit func(error)) []str
 }
 
 // 新的上下文
-func newContext(user int64) *context {
+func newContext(user int64, atUser int64) *context {
 	c := new(context)
-	c.usrdir = datapath + "users/" + strconv.FormatInt(user, 10) + `/`
+	c.usrdir = datapath + "users/" + strconv.FormatInt(atUser, 10) + `/`
 	_ = os.MkdirAll(c.usrdir, 0755)
 	c.headimgsdir = make([]string, 2)
-	c.headimgsdir[0] = c.usrdir + "0.gif"
-	c.headimgsdir[1] = c.usrdir + "1.gif"
+	c.headimgsdir[0] = datapath + "users/" + strconv.FormatInt(atUser, 10) + ".gif"
+	c.headimgsdir[1] = datapath + "users/" + strconv.FormatInt(user, 10) + ".gif"
 	return c
 }
 
