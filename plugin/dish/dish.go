@@ -96,7 +96,7 @@ func init() {
 			return
 		}
 
-		name := ctx.NickName()
+		name := ctx.CardOrNickName(ctx.Event.UserID)
 		var d dish
 		if err := db.Pick("dish", &d); err != nil {
 			ctx.SendChain(message.Text("小店好像出错了，暂时端不出菜来惹"))
