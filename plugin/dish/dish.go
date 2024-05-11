@@ -77,7 +77,7 @@ func init() {
 		}
 
 		var d dish
-		if err := db.Find("dish", &d, fmt.Sprintf("WHERE name like %%%s%%", dishName)); err != nil {
+		if err := db.Find("dish", &d, fmt.Sprintf("WHERE name like '%%%s%%'", dishName)); err != nil {
 			return
 		}
 
@@ -86,7 +86,7 @@ func init() {
 				"原材料：%s\n"+
 				"步骤：\n"+
 				"%s",
-			name, dishName, d.Materials, d.Steps),
+			name, d.Name, d.Materials, d.Steps),
 		))
 	})
 
