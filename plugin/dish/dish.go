@@ -78,6 +78,7 @@ func init() {
 
 		var d dish
 		if err := db.Find("dish", &d, fmt.Sprintf("WHERE name like '%%%s%%'", dishName)); err != nil {
+			ctx.SendChain(message.Text("客官，本店没有" + dishName))
 			return
 		}
 
