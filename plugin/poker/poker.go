@@ -1,10 +1,10 @@
 package poker
 
 import (
+	"encoding/json"
 	"math/rand"
-	"os"
-	"path"
 
+	fcext "github.com/FloatTech/floatbox/ctxext"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -24,31 +24,29 @@ func init() {
 		PublicDataFolder: "Poker",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	// 初始化扑克牌图片文件路径
-	entries, _ := os.ReadDir(engine.DataFolder())
-	for _, entry := range entries {
-		imgPath := path.Join(engine.DataFolder(), entry.Name())
-		cardImgPathList = append(cardImgPathList, imgPath)
-	}
+	getImg := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+		data, err := engine.GetLazyData("imgdata.json", true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		err = json.Unmarshal(data, &cardImgPathList)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return false
+		}
+		return true
+	})
 
-	engine.OnFullMatchGroup([]string{"抽扑克", "poker"}).SetBlock(true).
+	engine.OnFullMatchGroup([]string{"抽扑克", "poker"}, getImg).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			imgMsg, err := drawPoker()
+			randomIndex := rand.Intn(len(cardImgPathList))
+			randomImgPath := cardImgPathList[randomIndex]
+			imgData, err := engine.GetLazyData(randomImgPath, true)
 			if err != nil {
 				ctx.Send("[poker]读取扑克图片失败")
 				return
 			}
-			ctx.Send(imgMsg)
+			ctx.Send(message.ImageBytes(imgData))
 		})
-}
-
-func drawPoker() (msg message.MessageSegment, err error) {
-	randomIndex := rand.Intn(len(cardImgPathList))
-	randomImgPath := cardImgPathList[randomIndex]
-	imgData, err := os.ReadFile(randomImgPath)
-	if err != nil {
-		return
-	}
-	msg = message.ImageBytes(imgData)
-	return msg, nil
 }
