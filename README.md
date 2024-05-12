@@ -1411,7 +1411,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   <summary>一些游戏王插件</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
-
+  
   ##### 白鸽API卡查
 	    
   ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb.go"`
