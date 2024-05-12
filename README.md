@@ -1483,6 +1483,15 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 
+<details>
+  <summary>抽扑克</summary>
+  
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/yujn"`
+
+  - [x] 抽扑克牌
+
+</details>
+
 ### *低优先级*
 
 <details>
