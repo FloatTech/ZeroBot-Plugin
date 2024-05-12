@@ -1486,7 +1486,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>抽扑克</summary>
   
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/yujn"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/poker"`
 
   - [x] 抽扑克牌
 
