@@ -1,3 +1,4 @@
+// Package poker 抽扑克牌
 package poker
 
 import (
