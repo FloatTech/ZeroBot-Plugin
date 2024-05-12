@@ -1411,7 +1411,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   <summary>一些游戏王插件</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
-  
+
   ##### 白鸽API卡查
 	    
   ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb.go"`
@@ -1480,6 +1480,15 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 随机美句
   - [x] 土味情话   
   - [x] 让[lulu]说我测尼玛
+
+</details>
+
+<details>
+  <summary>抽扑克</summary>
+  
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/yujn"`
+
+  - [x] 抽扑克牌
 
 </details>
 
