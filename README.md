@@ -1071,6 +1071,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>抽扑克</summary>
+  
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/poker"`
+
+  - [x] 抽扑克牌
+
+</details>
+<details>
   <summary>一群一天一夫一妻制群老婆</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
