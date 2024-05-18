@@ -37,6 +37,7 @@
           tag = "latest";
           contents = [
             self.packages.${system}.ZeroBot-Plugin
+            pkgs.cacert
           ];
         };
 
