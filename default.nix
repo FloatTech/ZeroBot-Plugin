@@ -14,7 +14,7 @@
 }:
 buildGoApplication {
   pname = "ZeroBot-Plugin";
-  version = "1.7.6";
+  version = "1.8.0";
   pwd = ./.;
   src = ./.;
   # spec go version manually bcs
