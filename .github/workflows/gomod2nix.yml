@@ -1,0 +1,40 @@
+name: gomod2nix auto update
+on:
+  push:
+    paths:
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/gomod2nix.yml'
+jobs:
+  gomod2nix:
+    name: gomod2nix update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Set up Go
+        uses: actions/setup-go@master
+        with:
+          go-version: "1.20"
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@master
+
+      - name: gomod2nix update
+        run: |
+          nix run github:nix-community/gomod2nix
+      - name: Commit back
+        if: ${{ !github.head_ref }}
+        continue-on-error: true
+        run: |
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          git commit -m "chore: bump deps"
+      - name: Create Pull Request
+        if: ${{ !github.head_ref }}
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@v4
