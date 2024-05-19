@@ -1506,7 +1506,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>人工智能回复</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ai_reply"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aireply"`
 
   - [x] @Bot 任意文本(任意一句话回复)
 
