@@ -178,6 +178,16 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
 
 </details>
 <details>
+  <summary>聊天时长统计</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/chatcount"`
+
+  - [x] 查询水群@xxx
+
+  - [x] 查看水群排名
+
+</details>
+<details>
   <summary>睡眠管理</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleep_manage"`
