@@ -102,16 +102,23 @@ func init() {
 				return
 			}
 
-			// 判断打劫是否成功
-			if rand.Intn(100) > 60 {
-				ctx.SendChain(message.Text("打劫失败,罚款1000"))
-				err := wallet.InsertWalletOf(uid, -1000)
-				if err != nil {
-					ctx.SendChain(message.Text("[ERROR]:罚款失败，钱包坏掉力:\n", err))
-					return
-				}
-				return
-			}
+                       // 判断打劫是否成功
+                       if rand.Intn(100) > 60 {
+	                 // 获取打劫者的钱包余额
+	                 robberWallet := wallet.GetWalletOf(uid)
+	                 // 判断打劫者的钱包余额是否足够1000
+	                 if robberWallet < 1000 {
+	                   ctx.SendChain(message.Text("打劫失败，钱包余额不足，不进行扣款"))
+                         } else {
+			   ctx.SendChain(message.Text("打劫失败,罚款 1000"))
+			   err := wallet.InsertWalletOf(uid, -1000)
+	                   if err != nil {
+		             ctx.SendChain(message.Text("[ERROR]: 罚款失败，钱包坏掉力:\n", err))
+			     return
+			   }
+	                 }
+	                 return
+                        }
 			userIncrMonry := math.Min(rand.Intn(victimWallet/20)+500, 10000)
 			victimDecrMonry := userIncrMonry / (rand.Intn(4) + 1)
 
