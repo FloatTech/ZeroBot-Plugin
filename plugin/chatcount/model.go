@@ -2,6 +2,7 @@ package chatcount
 
 import (
 	"os"
+	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -14,8 +15,10 @@ const (
 var (
 	// ctdb 聊天时长数据库全局变量
 	ctdb *chattimedb
-	// 水群提醒时间提醒段，单位分钟
+	// levelArray 水群提醒时间提醒段，单位分钟
 	levelArray = [...]int{15, 30, 60, 120, 240}
+	// chatmu 读写添加锁
+	chatmu sync.Mutex
 )
 
 // chattimedb 聊天时长数据库结构体
@@ -61,8 +64,10 @@ func (ChatTime) TableName() string {
 	return "chat_time"
 }
 
-// sleep 更新发言时间,todayTime的单位是分钟
+// updateChatTime 更新发言时间,todayTime的单位是分钟
 func (ctdb *chattimedb) updateChatTime(gid, uid int64) (todayTime int64, remindFlag bool) {
+	chatmu.Lock()
+	defer chatmu.Unlock()
 	db := (*gorm.DB)(ctdb)
 	now := time.Now()
 	st := ChatTime{
@@ -108,6 +113,8 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (todayTime int64, remindF
 
 // getChatTime 获得用户聊天时长,todayTime,totalTime的单位是分钟
 func (ctdb *chattimedb) getChatTime(gid, uid int64) (todayTime int64, totalTime int64) {
+	chatmu.Lock()
+	defer chatmu.Unlock()
 	db := (*gorm.DB)(ctdb)
 	st := ChatTime{}
 	db.Model(&ChatTime{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st)
@@ -118,6 +125,8 @@ func (ctdb *chattimedb) getChatTime(gid, uid int64) (todayTime int64, totalTime 
 
 // getChatRank 获得水群排名
 func (ctdb *chattimedb) getChatRank(gid int64) (chatTimeList []ChatTime) {
+	chatmu.Lock()
+	defer chatmu.Unlock()
 	db := (*gorm.DB)(ctdb)
 	db.Model(&ChatTime{}).Where("group_id = ?", gid).Order("today_time DESC").Find(&chatTimeList)
 	return
