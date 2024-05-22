@@ -50,7 +50,7 @@ func init() {
 				text.WriteString("第")
 				text.WriteString(strconv.Itoa(i + 1))
 				text.WriteString("名:")
-				text.WriteString(ctx.GetGroupMemberInfo(ctx.Event.GroupID, chatTimeList[i].UserID, false).Get("nickname").Str)
+				text.WriteString(ctx.CardOrNickName(chatTimeList[i].UserID))
 				text.WriteString(" - ")
 				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayTime/60, 10))
 				text.WriteString("分钟\n")

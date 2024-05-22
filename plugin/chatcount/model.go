@@ -105,7 +105,7 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (todayTime int64, remindF
 func (ctdb *chattimedb) getChatTime(gid, uid int64) (todayTime int64, totalTime int64) {
 	db := (*gorm.DB)(ctdb)
 	st := ChatTime{}
-	_ = db.Model(&ChatTime{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st)
+	db.Model(&ChatTime{}).Where("group_id = ? and user_id = ?", gid, uid).First(&st)
 	todayTime = st.TodayTime / 60
 	totalTime = st.TotalTime / 60
 	return
@@ -114,7 +114,7 @@ func (ctdb *chattimedb) getChatTime(gid, uid int64) (todayTime int64, totalTime 
 // getChatRank 获得水群排名
 func (ctdb *chattimedb) getChatRank(gid int64) (chatTimeList []ChatTime) {
 	db := (*gorm.DB)(ctdb)
-	_ = db.Model(&ChatTime{}).Where("group_id = ?", gid).Order("today_time DESC").Find(&chatTimeList)
+	db.Model(&ChatTime{}).Where("group_id = ?", gid).Order("today_time DESC").Find(&chatTimeList)
 	return
 }
 
