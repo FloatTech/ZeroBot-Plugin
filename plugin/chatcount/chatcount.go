@@ -32,7 +32,7 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			todayTime, remindFlag := ctdb.updateChatTime(ctx.Event.GroupID, ctx.Event.UserID)
 			if remindFlag {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("BOT提醒：你今天已经水群%d分钟了！", todayTime)))
+				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("BOT提醒：你今天已经水群%d分钟了！", todayTime)))
 			}
 		})
 
