@@ -94,6 +94,11 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (todayTime int64, remindF
 					})
 				todayTime = (st.TodayTime + userChatTime) / 60
 				remindFlag = getLevel(int(st.TodayTime+userChatTime)/60) > getLevel(int(st.TodayTime/60))
+			}else{
+				db.Model(&ChatTime{}).Where("group_id = ? and user_id = ?", gid, uid).Update(
+					map[string]any{
+						"last_time":  now,
+					})
 			}
 
 		}
