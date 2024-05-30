@@ -22,6 +22,8 @@ jobs:
             goarch: arm
           - goos: windows
             goarch: arm64
+          - goos: windows
+            goarch: 386
       fail-fast: true
     steps:
       - uses: actions/checkout@master
@@ -31,6 +33,7 @@ jobs:
           go-version: '1.20'
       - name: Cache downloaded module
         uses: actions/cache@master
+        continue-on-error: true
         with:
           path: |
             ~/.cache/go-build

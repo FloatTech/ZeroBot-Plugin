@@ -33,7 +33,6 @@ builds:
     goos:
       - windows
     goarch:
-      - 386
       - amd64
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
