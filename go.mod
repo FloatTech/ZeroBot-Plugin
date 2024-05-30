@@ -95,4 +95,4 @@ require (
 	modernc.org/sqlite v1.29.10 // indirect
 )
 
-replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.20.0-with-win386
+replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.29.10-simp
