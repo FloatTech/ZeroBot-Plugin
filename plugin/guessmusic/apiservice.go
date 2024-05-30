@@ -18,7 +18,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-func init() {
+func Initialize() {
 	// API配置
 	engine.OnPrefix("设置猜歌API", zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

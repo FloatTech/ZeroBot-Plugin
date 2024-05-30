@@ -20,7 +20,7 @@ const (
 	maxLevel = "max"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "骂人反击",

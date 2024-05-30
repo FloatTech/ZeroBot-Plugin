@@ -1,5 +1,5 @@
 // Package wenxin 百度文心AI
-package wenxin
+package wenxinvilg
 
 import (
 	"errors"
@@ -61,7 +61,7 @@ var (
 	}
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	go func() {
 		process.GlobalInitMutex.Lock()
 		defer process.GlobalInitMutex.Unlock()

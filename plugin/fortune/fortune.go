@@ -46,7 +46,7 @@ var (
 	fontdata []byte
 )
 
-func init() {
+func Initialize() {
 	// 插件主体
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
@@ -87,7 +87,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("没有这个底图哦～"))
 		})
-	en.OnFullMatchGroup([]string{"运势", "抽签"}, fcext.DoOnceOnSuccess(
+	en.OnFullMatchGroup([]string{"运势", "抽签", "每日运势"}, fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			data, err := file.GetLazyData(omikujson, control.Md5File, false)
 			if err != nil {

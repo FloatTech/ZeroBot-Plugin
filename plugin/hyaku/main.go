@@ -50,7 +50,7 @@ func (l *line) String() string {
 
 var lines [100]*line
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "百人一首",

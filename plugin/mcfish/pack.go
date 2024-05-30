@@ -22,7 +22,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-func init() {
+func Initialize_2() {
 	engine.OnFullMatch("钓鱼背包", getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		equipInfo, err := dbdata.getUserEquip(uid)

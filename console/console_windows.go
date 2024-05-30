@@ -37,7 +37,7 @@ func setConsoleTitle(title string) (err error) {
 	return
 }
 
-func init() {
+func Initialize() {
 	stdin := windows.Handle(os.Stdin.Fd())
 
 	var mode uint32

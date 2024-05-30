@@ -21,7 +21,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-func init() {
+func Initialize() {
 	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "渲染任意文字到图片",

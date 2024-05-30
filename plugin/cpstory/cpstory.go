@@ -15,7 +15,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "cp短打", // 这里也许有更好的名字

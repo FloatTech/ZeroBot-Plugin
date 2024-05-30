@@ -1,5 +1,5 @@
-// Package deepdanbooru 二次元图片标签识别
-package deepdanbooru
+// Package danbooru 二次元图片标签识别
+package danbooru
 
 import (
 	"crypto/md5"
@@ -16,7 +16,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "二次元图片标签识别",

@@ -17,7 +17,7 @@ var (
 	lastupdate time.Time
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "摸鱼提醒",

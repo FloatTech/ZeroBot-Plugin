@@ -1,4 +1,4 @@
-package deepdanbooru
+package danbooru
 
 import (
 	"bytes"

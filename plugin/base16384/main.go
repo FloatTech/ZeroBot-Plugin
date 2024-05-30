@@ -1,5 +1,5 @@
 // Package b14coder base16384 与 tea 加解密
-package b14coder
+package base16384
 
 import (
 	"github.com/FloatTech/floatbox/crypto"
@@ -11,7 +11,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "base16384加解密",

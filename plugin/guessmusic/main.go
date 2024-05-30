@@ -84,7 +84,7 @@ var (
 	musictypelist = "mp3;MP3;wav;WAV;amr;AMR;3gp;3GP;3gpp;3GPP;acc;ACC"
 )
 
-func init() {
+func Initialize_2() {
 	// 新建缓存文件夹
 	err := os.MkdirAll(cachePath, 0755)
 	if err != nil {

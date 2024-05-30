@@ -7,7 +7,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-func init() {
+func Initialize() {
 	engine.OnFullMatch("马丁路德骂我").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		doc, err := htmlquery.LoadURL(ergofabulousURL)
 		if err != nil {

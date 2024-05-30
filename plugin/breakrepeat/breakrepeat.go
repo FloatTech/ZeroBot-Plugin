@@ -15,7 +15,7 @@ const throttle = 3 // 不可超过 9
 
 var sm syncx.Map[int64, string]
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "打断复读",

@@ -34,7 +34,7 @@ var (
 	namereg                = regexp.MustCompile(`_(.*)\.png`)
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "原神模拟抽卡",

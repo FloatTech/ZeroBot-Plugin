@@ -26,7 +26,7 @@ var (
 	apiKeyMu sync.Mutex
 )
 
-func init() {
+func Initialize() {
 	engine.OnRegex(`^steam绑定\s*api\s*key\s*(.*)$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		apiKeyMu.Lock()
 		defer apiKeyMu.Unlock()

@@ -36,7 +36,7 @@ var (
 	})
 )
 
-func init() {
+func Initialize() {
 	engine.OnFullMatch("随机妹子").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Image(xjjURL))
 	})

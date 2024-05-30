@@ -27,7 +27,7 @@ import (
 	"gitlab.com/gomidi/midi/v2/smf"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "midi音乐制作",

@@ -36,7 +36,7 @@ var (
 )
 
 // 插件主体
-func init() {
+func Initialize() {
 	en := control.Register("bilibiliparse", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "b站链接解析",

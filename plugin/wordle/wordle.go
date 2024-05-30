@@ -60,7 +60,7 @@ type dictionary map[int]struct {
 
 var words = make(dictionary)
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "猜单词",

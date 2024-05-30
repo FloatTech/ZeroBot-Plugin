@@ -35,7 +35,7 @@ const (
 	anonymousURL = "https://gitcode.net/anto_july/avatar/-/raw/master/%v.png"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "QQ空间表白墙",

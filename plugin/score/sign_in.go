@@ -51,7 +51,7 @@ var (
 	}
 )
 
-func init() {
+func Initialize() {
 	cachePath := engine.DataFolder() + "cache/"
 	go func() {
 		sdb = initialize(engine.DataFolder() + "score.db")

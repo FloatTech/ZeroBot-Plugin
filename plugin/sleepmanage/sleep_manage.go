@@ -13,7 +13,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "睡眠小助手",

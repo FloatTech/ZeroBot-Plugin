@@ -42,7 +42,7 @@ var sendtext = [...][]string{
 	},
 }
 
-func init() {
+func Initialize_2() {
 	engine.OnRegex(`^设置CD为(\d+)小时`, zero.OnlyGroup, zero.AdminPermission, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			cdTime, err := strconv.ParseFloat(ctx.State["regex_matched"].([]string)[1], 64)

@@ -40,7 +40,7 @@ const (
 		"deckmode=normal"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "炉石搜卡",

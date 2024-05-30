@@ -21,7 +21,7 @@ type tiangou struct {
 
 var db = &sql.Sqlite{}
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "舔狗日记",

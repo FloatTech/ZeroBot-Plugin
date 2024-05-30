@@ -33,7 +33,7 @@ var (
 	config = newconfig() // 插件配置
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "百度内容审核",

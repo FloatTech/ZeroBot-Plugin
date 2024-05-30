@@ -25,7 +25,7 @@ import (
 var cuttime = [...]string{"00:00:05", "00:00:30", "00:01:00"} // 音乐切割时间点,可自行调节时间（时：分：秒）
 var t2s *gocc.OpenCC
 
-func init() {
+func Initialize_1() {
 	// 初始化简繁体转换变量
 	var err1 error
 	t2s, err1 = gocc.New("t2s")

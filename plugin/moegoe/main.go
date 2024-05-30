@@ -20,7 +20,7 @@ import (
 
 var 原 = newapikeystore("./data/tts/o.txt")
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "日韩中 VITS 模型拟声",

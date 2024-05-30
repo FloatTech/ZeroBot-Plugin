@@ -45,7 +45,7 @@ type tradeInfo struct {
 	CardVersionImage string `json:"card_version_image"`
 }
 
-func init() {
+func Initialize_1() {
 	engine := control.Register("ygotrade", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王卡价查询", // 本插件基于集换社API

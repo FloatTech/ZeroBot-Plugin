@@ -19,7 +19,7 @@ import (
 
 const bed = "https://gitea.seku.su/fumiama/senso-ji-omikuji/raw/branch/main/"
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "浅草寺求签",

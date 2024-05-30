@@ -13,7 +13,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 )
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "翻译为抽象话",

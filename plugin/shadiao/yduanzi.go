@@ -12,7 +12,7 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
-func init() {
+func Initialize_3() {
 	engine.OnFullMatch("讲个段子").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		data, err := web.RequestDataWith(web.NewDefaultClient(), yduanziURL, "POST", yduanziReferer, ua, nil)
 		if err != nil {

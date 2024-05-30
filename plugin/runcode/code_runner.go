@@ -14,7 +14,7 @@ import (
 
 var ro = runoob.NewRunOOB("066417defb80d038228de76ec581a50a")
 
-func init() {
+func Initialize() {
 	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "在线代码运行",

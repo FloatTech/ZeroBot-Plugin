@@ -21,7 +21,7 @@ var engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 	PublicDataFolder: "Diana",
 })
 
-func init() {
+func Initialize() {
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		err := data.LoadText(engine.DataFolder() + "text.db")
 		if err != nil {

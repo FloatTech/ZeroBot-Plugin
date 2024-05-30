@@ -22,7 +22,7 @@ var (
 	setupath = "/tmp" // 绝对路径，图片根目录
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "本地涩图",

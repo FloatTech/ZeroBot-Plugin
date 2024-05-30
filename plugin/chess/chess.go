@@ -47,7 +47,7 @@ var (
 	))
 )
 
-func init() {
+func Initialize() {
 	// 初始化临时文件夹
 	tempFileDir = path.Join(engine.DataFolder(), "temp")
 	err := os.MkdirAll(tempFileDir, 0750)

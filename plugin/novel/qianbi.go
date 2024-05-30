@@ -47,7 +47,7 @@ var (
 	apikeymu sync.Mutex
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Extra:            control.ExtraFromString("novel"),

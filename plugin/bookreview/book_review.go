@@ -15,7 +15,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "哀伤雪刃推书书评",

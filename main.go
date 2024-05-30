@@ -16,174 +16,37 @@ import (
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban" // 打印 banner
 
-	// ---------以下插件均可通过前面加 // 注释，注释后停用并不加载插件--------- //
-	// ----------------------插件优先级按顺序从高到低---------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// ----------------------------高优先级区---------------------------- //
-	// vvvvvvvvvvvvvvvvvvvvvvvvvvvv高优先级区vvvvvvvvvvvvvvvvvvvvvvvvvvvv //
-	//               vvvvvvvvvvvvvv高优先级区vvvvvvvvvvvvvv               //
-	//                      vvvvvvv高优先级区vvvvvvv                      //
-	//                          vvvvvvvvvvvvvv                          //
-	//                               vvvv                               //
+	// 支付宝到账语音
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse" // 违禁词
+	//"github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse"    // 违禁词
+	// 触发者撤回时也自动撤回
+	// 百度内容审核
+	// base16384加解密
+	// base64卦加解密
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
+	// DeepDanbooru二次元图标签识别
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleepmanage" // 统计睡眠时间
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"
+	// 本地老婆
+	// 百度文心AI画图
+	//"github.com/FloatTech/ZeroBot-Plugin/plugin/chat" // 基础词库
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
+	//"github.com/FloatTech/ZeroBot-Plugin/plugin/sleepmanage" // 统计睡眠时间
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
+	//"github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
+
+	//"github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
 
 	_ "github.com/FloatTech/zbputils/job" // 定时指令触发器
 
-	//                               ^^^^                               //
-	//                          ^^^^^^^^^^^^^^                          //
-	//                      ^^^^^^^高优先级区^^^^^^^                      //
-	//               ^^^^^^^^^^^^^^高优先级区^^^^^^^^^^^^^^               //
-	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^高优先级区^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //
-	// ----------------------------高优先级区---------------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// ----------------------------中优先级区---------------------------- //
-	// vvvvvvvvvvvvvvvvvvvvvvvvvvvv中优先级区vvvvvvvvvvvvvvvvvvvvvvvvvvvv //
-	//               vvvvvvvvvvvvvv中优先级区vvvvvvvvvvvvvv               //
-	//                      vvvvvvv中优先级区vvvvvvv                      //
-	//                          vvvvvvvvvvvvvv                          //
-	//                               vvvv                               //
+	// 骂人
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"            // ahsai tts
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aifalse"          // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"           // 随机老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"      // 支付宝到账语音
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/autowithdraw"     // 触发者撤回时也自动撤回
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baiduaudit"       // 百度内容审核
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/base16384"        // base16384加解密
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/base64gua"        // base64卦加解密
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/baseamasiro"      // base天城文加解密
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"         // b站相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/bookreview"       // 哀伤雪刃吧推书记录
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chess"            // 国际象棋
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/choose"           // 选择困难症帮手
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chouxianghua"     // 说抽象话
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chrev"            // 英文字符翻转
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser"            // 三次元小姐姐
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"          // cp短打
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"        // 今日早报
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"         // DeepDanbooru二次元图标签识别
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"            // 嘉心糖发病
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dish"             // 程序员做饭指南
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"         // 多功能抽签
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/driftbottle"      // 漂流瓶
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"         // 合成emoji
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"            // 好友申请群聊邀请事件处理
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"             // 渲染任意文字到图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"          // 运势
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/funny"            // 笑话
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/genshin"          // 原神抽卡
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"              // 制图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"           // 搜索GitHub仓库
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"       // 猜歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hitokoto"         // 一言
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"               // 炉石
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"            // 百人一首
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/inject"           // 注入指令
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"           // 煎蛋网无聊图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"       // 日语听力学习材料
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/kfccrazythursday" // 疯狂星期四
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"          // lolicon 随机图片
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolimi"           // 桑帛云 API
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/magicprompt"      // magicprompt吟唱提示
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcfish"           // 钓鱼模拟器
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/midicreate"       // 简易midi音乐制作
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moegoe"           // 日韩 VITS 模型拟声
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"             // 摸鱼
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyucalendar"     // 摸鱼人日历
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/music"            // 点歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativesetu"       // 本地涩图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"          // 拼音首字母缩写释义工具
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nihongo"          // 日语语法学习
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel"            // 铅笔小说网搜索
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nsfw"             // nsfw图片识别
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/nwife"            // 本地老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/omikuji"          // 浅草寺求签
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/poker"            // 抽扑克
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"           // 一群一天一夫一妻制群老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/qzone"            // qq空间表白墙
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/realcugan"        // realcugan清晰术
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"           // 投胎
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/robbery"          // 打劫群友的ATRI币
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"          // 在线运行代码
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"         // 以图搜图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"            // 分数
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/setutime"         // 来份涩图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shadiao"          // 沙雕app
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/shindan"          // 测定
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/steam"            // steam相关
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tarot"            // 抽塔罗牌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"          // 舔狗日记
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"         // 搜番
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"      // 翻译
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vitsnyaru"        // vits猫雷
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"           // 钱包
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"       // 据意查句
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"      // warframeAPI插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinvilg"       // 百度文心AI画图
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"             // 抽老婆
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordcount"        // 聊天热词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"           // 猜单词
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"              // 游戏王相关插件
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"            // 月幕galgame
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/yujn"             // 遇见API
+	// 人工智能回复
 
-	// _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wtf"           // 鬼东西
+	// 词典匹配回复
 
-	//                               ^^^^                               //
-	//                          ^^^^^^^^^^^^^^                          //
-	//                      ^^^^^^^中优先级区^^^^^^^                      //
-	//               ^^^^^^^^^^^^^^中优先级区^^^^^^^^^^^^^^               //
-	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^中优先级区^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //
-	// ----------------------------中优先级区---------------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// ----------------------------低优先级区---------------------------- //
-	// vvvvvvvvvvvvvvvvvvvvvvvvvvvv低优先级区vvvvvvvvvvvvvvvvvvvvvvvvvvvv //
-	//               vvvvvvvvvvvvvv低优先级区vvvvvvvvvvvvvv               //
-	//                      vvvvvvv低优先级区vvvvvvv                      //
-	//                          vvvvvvvvvvvvvv                          //
-	//                               vvvv                               //
+	// 打断复读
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/curse" // 骂人
-
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aireply" // 人工智能回复
-
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus" // 词典匹配回复
-
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/breakrepeat" // 打断复读
-
-	//                               ^^^^                               //
-	//                          ^^^^^^^^^^^^^^                          //
-	//                      ^^^^^^^低优先级区^^^^^^^                      //
-	//               ^^^^^^^^^^^^^^低优先级区^^^^^^^^^^^^^^               //
-	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^低优先级区^^^^^^^^^^^^^^^^^^^^^^^^^^^^ //
-	// ----------------------------低优先级区---------------------------- //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	//                                                                  //
-	// -----------------------以下为内置依赖，勿动------------------------ //
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
 	"github.com/sirupsen/logrus"
@@ -308,14 +171,159 @@ func main() {
 	if !strings.Contains(runtime.Version(), "go1.2") { // go1.20之前版本需要全局 seed，其他插件无需再 seed
 		rand.Seed(time.Now().UnixNano()) //nolint: staticcheck
 	}
+
+	// 初始化插件
+	initializePlugins()
+
 	// 帮助
 	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(banner.Banner, "\n管理发送\"/服务列表\"查看 bot 功能\n发送\"/用法name\"查看功能用法"))
 		})
+
 	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(strings.ReplaceAll(kanban.Kanban(), "\t", "")))
 		})
+
 	zero.RunAndBlock(&config.Z, process.GlobalInitMutex.Unlock)
+}
+
+// initializeHighPriorityPlugins 初始化所有高优先级插件
+func initializeHighPriorityPlugins() {
+	// 注意：这里的函数名和实际插件可能不同，需要你根据实际情况调整
+	// manager.Initialize()     // 群管
+	// antiabuse.Initialize()   // 违禁词
+	// chat.Initialize()        // 基础词库
+	// sleepmanage.Initialize() // 统计睡眠时间
+	// atri.Initialize()        // ATRI词库
+	// 继续添加其他高优先级插件
+}
+
+// initializeMediumPriorityPlugins 初始化所有中优先级插件
+func initializeMediumPriorityPlugins() {
+	// 以下是插件初始化调用，确保每个插件都实现了initialize方法
+	// ahsai.Initialize()            // ahsai tts
+	// aifalse.Initialize()          // 服务器监控
+	// aiwife.Initialize()           // 随机老婆
+	// alipayvoice.Initialize()      // 支付宝到账语音
+	// autowithdraw.Initialize()     // 触发者撤回时也自动撤回
+	// baiduaudit.Initialize()       // 百度内容审核
+	// base16384.Initialize()        // base16384加解密
+	// base64gua.Initialize()        // base64卦加解密
+	// baseamasiro.Initialize()      // base天城文加解密
+	// bilibili.Initialize()         // b站相关
+	// bilibili.Initialize_1()       // b站相关
+	// bilibili.Initialize_2()       // b站相关
+	// bookreview.Initialize()       // 哀伤雪刃吧推书记录
+	// chess.Initialize()            // 国际象棋
+	// choose.Initialize()           // 选择困难症帮手
+	// chouxianghua.Initialize()     // 说抽象话
+	// chrev.Initialize()            // 英文字符翻转
+	// chrev.Initialize_2()          // 英文字符翻转
+	// coser.Initialize()            // 三次元小姐姐
+	// cpstory.Initialize()          // cp短打
+	// dailynews.Initialize()        // 今日早报
+	// danbooru.Initialize()         // DeepDanbooru二次元图标签识别
+	// diana.Initialize()            // 嘉心糖发病
+	// dish.Initialize()             // 程序员做饭指南
+	// drawlots.Initialize()         // 多功能抽签
+	// driftbottle.Initialize()      // 漂流瓶
+	// emojimix.Initialize()         // 合成emoji
+	// event.Initialize()            // 好友申请群聊邀请事件处理
+	// font.Initialize()             // 渲染任意文字到图片
+	fortune.Initialize() // 运势
+	// funny.Initialize()            // 笑话
+	// genshin.Initialize()          // 原神抽卡
+	// gif.Initialize()              // 制图
+	// github.Initialize()           // 搜索GitHub仓库
+	// guessmusic.Initialize()       // 猜歌
+	// guessmusic.Initialize_1()     // 猜歌
+	// guessmusic.Initialize_2()     // 猜歌
+	// hitokoto.Initialize()         // 一言
+	// hs.Initialize()               // 炉石
+	// hyaku.Initialize()            // 百人一首
+	// inject.Initialize()           // 注入指令
+	// jandan.Initialize()           // 煎蛋网无聊图
+	// jptingroom.Initialize()       // 日语听力学习材料
+	// kfccrazythursday.Initialize() // 疯狂星期四
+	// lolicon.Initialize()          // lolicon 随机图片
+	// lolimi.Initialize()           // 桑帛云 API
+	// magicprompt.Initialize()      // magicprompt吟唱提示
+	// mcfish.Initialize()           // 钓鱼模拟器
+	// mcfish.Initialize_1()         // 钓鱼模拟器
+	// mcfish.Initialize_2()         // 钓鱼模拟器
+	// mcfish.Initialize_3()         // 钓鱼模拟器
+	// mcfish.Initialize_4()         // 钓鱼模拟器
+	// midicreate.Initialize()       // 简易midi音乐制作
+	// moegoe.Initialize()           // 日韩 VITS 模型拟声
+	// moyu.Initialize()             // 摸鱼
+	// moyucalendar.Initialize()     // 摸鱼人日历
+	// music.Initialize()            // 点歌
+	// nativesetu.Initialize()       // 本地涩图
+	// nbnhhsh.Initialize()          // 拼音首字母缩写释义工具
+	// nihongo.Initialize()          // 日语语法学习
+	// novel.Initialize()            // 铅笔小说网搜索
+	// nsfw.Initialize()             // nsfw图片识别
+	// nwife.Initialize()            // 本地老婆
+	// omikuji.Initialize()          // 浅草寺求签
+	// poker.Initialize()            // 抽扑克
+	// qqwife.Initialize()           // 一群一天一夫一妻制群老婆
+	// qqwife.Initialize_1()         // 一群一天一夫一妻制群老婆
+	// qqwife.Initialize_2()         // 一群一天一夫一妻制群老婆
+	// qzone.Initialize()            // qq空间表白墙
+	// realcugan.Initialize()        // realcugan清晰术
+	// reborn.Initialize()           // 投胎
+	// robbery.Initialize()          // 打劫群友的ATRI币
+	// runcode.Initialize()          // 在线运行代码
+	// saucenao.Initialize()         // 以图搜图
+	// score.Initialize()            // 分数
+	// setutime.Initialize()         // 来份涩图
+	// shadiao.Initialize()          // 沙雕app
+	// shadiao.Initialize_1()        // 沙雕app
+	// shadiao.Initialize_2()        // 沙雕app
+	// shadiao.Initialize_3()        // 沙雕app
+	// shindan.Initialize()          // 测定
+	// steam.Initialize()            // steam相关
+	// steam.Initialize_2()          // steam相关
+	// tarot.Initialize()            // 抽塔罗牌
+	// tiangou.Initialize()          // 舔狗日记
+	// tracemoe.Initialize()         // 搜番
+	// translation.Initialize()      // 翻译
+	// vitsnyaru.Initialize()        // vits猫雷
+	// wallet.Initialize()           // 钱包
+	// wantquotes.Initialize()       // 据意查句
+	// warframeapi.Initialize()      // warframeAPI插件
+	// wenxinvilg.Initialize()       // 百度文心AI画图
+	// wife.Initialize()             // 抽老婆
+	// wordcount.Initialize()        // 聊天热词
+	// wordle.Initialize()           // 猜单词
+	// ygo.Initialize()              // 游戏王相关插件
+	// ygo.Initialize_1()            // 游戏王相关插件
+	// ymgal.Initialize()            // 月幕galgame
+	// yujn.Initialize()             // 遇见API
+}
+
+// initializeLowPriorityPlugins 初始化所有低优先级插件
+func initializeLowPriorityPLugins() {
+	// curse.Initialize()       // 骂人
+	// aireply.Initialize()     // 人工智能回复
+	// thesaurus.Initialize()   // 词典匹配回复
+	// breakrepeat.Initialize() // 打断复读
+	// 继续添加其他低优先级插件
+}
+
+// initializePlugins 按优先级初始化所有插件
+func initializePlugins() {
+	fmt.Println("Initializing high priority plugins...")
+	initializeHighPriorityPlugins()
+	fmt.Println("High priority plugins initialized.")
+
+	fmt.Println("Initializing medium priority plugins...")
+	initializeMediumPriorityPlugins()
+	fmt.Println("Medium priority plugins initialized.")
+
+	fmt.Println("Initializing low priority plugins...")
+	initializeLowPriorityPLugins()
+	fmt.Println("Low priority plugins initialized.")
 }

@@ -48,6 +48,12 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
+replace github.com/wdvxdr1123/ZeroBot => ./ZeroBot
+
+replace github.com/FloatTech/zbpctrl => ./zbpctrl
+
+replace github.com/FloatTech/zbputils => ./zbputils
+
 require (
 	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca // indirect

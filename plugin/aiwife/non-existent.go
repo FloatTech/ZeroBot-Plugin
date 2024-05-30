@@ -16,7 +16,7 @@ const (
 	bed = "https://www.thiswaifudoesnotexist.net/example-%d.jpg"
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "ai随机生成老婆",

@@ -13,7 +13,7 @@ import (
 
 const api = "http://dwz.2xb.cn/zaob"
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "今日早报",

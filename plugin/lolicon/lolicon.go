@@ -31,7 +31,7 @@ var (
 	customapi = ""
 )
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "随机图片",

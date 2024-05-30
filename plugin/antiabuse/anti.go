@@ -37,7 +37,7 @@ func onDel(uid int64, _ struct{}) {
 	}
 }
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "违禁词检测",

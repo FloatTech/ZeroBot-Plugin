@@ -54,7 +54,7 @@ var (
 	darkcolor  = [3][4]uint8{{215, 50, 0, 255}, {205, 135, 0, 255}, {115, 200, 115, 255}}
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "自检, 全局限速",

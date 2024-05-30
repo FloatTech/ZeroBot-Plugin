@@ -10,7 +10,7 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 )
 
-func init() {
+func Initialize_2() {
 	engine.OnFullMatch("来碗绿茶").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		data, err := web.RequestDataWith(web.NewDefaultClient(), chayiURL, "GET", loveliveReferer, ua, nil)
 		if err != nil {

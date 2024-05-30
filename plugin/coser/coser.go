@@ -26,7 +26,7 @@ var (
 	coserURL = "https://picture.yinux.workers.dev"
 )
 
-func init() {
+func Initialize() {
 	p, err := setu.NewPool(setu.DefaultPoolDir,
 		func(s string) (string, error) {
 			if s != "coser" {

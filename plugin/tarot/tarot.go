@@ -50,7 +50,7 @@ var (
 	formationName   = make([]string, 0, 10)
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "塔罗牌",

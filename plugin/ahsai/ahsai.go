@@ -26,7 +26,7 @@ var (
 	}()
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "フリーテキスト音声合成",

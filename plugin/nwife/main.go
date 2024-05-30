@@ -1,5 +1,5 @@
 // Package nativewife 本地老婆
-package nativewife
+package nwife
 
 import (
 	"crypto/md5"
@@ -22,7 +22,7 @@ import (
 	"github.com/FloatTech/zbputils/control"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "本地老婆",

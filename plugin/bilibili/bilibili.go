@@ -47,7 +47,7 @@ var (
 )
 
 // 查成分的
-func init() {
+func Initialize_1() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "b站查成分查弹幕",

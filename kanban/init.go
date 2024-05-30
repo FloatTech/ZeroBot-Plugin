@@ -12,7 +12,7 @@ import (
 
 //go:generate go run github.com/FloatTech/ZeroBot-Plugin/kanban/gen
 
-func init() {
+func Initialize() {
 	PrintBanner()
 }
 

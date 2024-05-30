@@ -59,7 +59,7 @@ type Quotes struct {
 	ID         int    `json:"id"`
 }
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Extra:            control.ExtraFromString("wantquotes"),

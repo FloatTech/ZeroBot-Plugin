@@ -36,7 +36,7 @@ var (
 	upMap      = map[int64]string{}
 )
 
-func init() {
+func Initialize_2() {
 	en := control.Register("bilibilipush", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "b站推送",

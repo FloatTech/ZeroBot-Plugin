@@ -9,6 +9,6 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
 
-func init() {
+func Initialize() {
 	fmt.Print("\033]0;ZeroBot-Blugin " + banner.Version + " " + banner.Copyright + "\007")
 }

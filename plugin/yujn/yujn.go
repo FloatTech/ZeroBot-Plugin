@@ -92,7 +92,7 @@ var (
 	}
 )
 
-func init() {
+func Initialize() {
 	// 这里是您的处理逻辑的switch case重构版本
 	engine.OnFullMatchGroup([]string{"小姐姐视频", "小姐姐视频2", "黑丝视频", "白丝视频", "欲梦视频", "甜妹视频", "双倍快乐", "纯情女高", "萝莉视频", "玉足视频", "帅哥视频", "热舞视频", "吊带视频", "汉服视频", "极品狱卒", "清纯视频", "快手变装", "抖音变装", "萌娃视频", "穿搭视频", "完美身材"}).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		videoType := ctx.State["matched"].(string) // 假设这是获取消息文本的方式

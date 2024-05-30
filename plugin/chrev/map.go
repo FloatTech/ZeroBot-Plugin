@@ -2,7 +2,7 @@ package chrev
 
 var charMap [256]rune
 
-func init() {
+func Initialize() {
 	charMap[' '] = ' '
 	charMap['a'] = 'ɐ'
 	charMap['b'] = 'q'

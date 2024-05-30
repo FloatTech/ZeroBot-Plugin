@@ -29,7 +29,7 @@ var (
 	initialized = false
 )
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "程序员做饭指南",

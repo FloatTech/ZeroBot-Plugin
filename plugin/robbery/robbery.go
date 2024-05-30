@@ -31,7 +31,7 @@ type robberyRecord struct {
 	Time     string `db:"time"`      // 时间
 }
 
-func init() {
+func Initialize() {
 	police := &robberyRepo{
 		db: &sql.Sqlite{},
 	}

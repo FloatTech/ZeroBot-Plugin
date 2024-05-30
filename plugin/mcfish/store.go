@@ -43,7 +43,7 @@ func limitSet(ctx *zero.Ctx) *rate.Limiter {
 	return storeLimiter.Load(ctx.Event.UserID)
 }
 
-func init() {
+func Initialize_3() {
 	engine.OnFullMatchGroup([]string{"钓鱼看板", "钓鱼商店"}, getdb, refreshFish).SetBlock(true).Limit(limitSet).Handle(func(ctx *zero.Ctx) {
 		infos, err := dbdata.getStoreInfo()
 		if err != nil {

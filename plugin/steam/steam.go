@@ -37,7 +37,7 @@ var (
 	}).ApplySingle(ctxext.DefaultSingle)
 )
 
-func init() {
+func Initialize_2() {
 	// 创建绑定流程
 	engine.OnRegex(`^steam添加订阅\s*(\d+)$`, zero.OnlyGroup, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		steamidstr := ctx.State["regex_matched"].([]string)[1]

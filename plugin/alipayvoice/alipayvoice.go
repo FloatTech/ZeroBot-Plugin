@@ -15,7 +15,7 @@ const (
 	alipayvoiceURL = "https://mm.cqu.cc/share/zhifubaodaozhang/mp3/%v.mp3"
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "支付宝到账语音",

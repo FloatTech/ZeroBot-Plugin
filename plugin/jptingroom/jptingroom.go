@@ -14,7 +14,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "日语听力学习材料",

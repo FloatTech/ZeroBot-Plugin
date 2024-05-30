@@ -122,7 +122,7 @@ var (
 	}
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	for k := range cmdMap {
 		cmd = append(cmd, k)
 	}

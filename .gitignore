@@ -5,8 +5,8 @@ plugins/*.dll
 .vscode
 go-zero*
 nohup.out
-zerobot
 ZeroBot-Plugin*
 *.syso
+*.exe
 /.direnv
 /result

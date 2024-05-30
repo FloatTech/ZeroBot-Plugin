@@ -29,7 +29,7 @@ type favorability struct {
 	Favor    int    // 好感度
 }
 
-func init() {
+func Initialize_1() {
 	// 好感度系统
 	engine.OnRegex(`^查好感度\s*(\[CQ:at,qq=)?(\d+)`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {

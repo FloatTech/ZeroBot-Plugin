@@ -32,7 +32,7 @@ var seaLocker sync.RWMutex
 
 // We need a container to inject what we need :(
 
-func init() {
+func Initialize() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "漂流瓶",

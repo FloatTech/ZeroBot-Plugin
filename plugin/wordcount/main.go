@@ -31,7 +31,7 @@ var (
 	stopwords []string
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "聊天热词",

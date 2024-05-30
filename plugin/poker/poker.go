@@ -17,7 +17,7 @@ import (
 
 var cardImgPathList []string
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "抽扑克牌",

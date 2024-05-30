@@ -163,7 +163,7 @@ var (
 	})
 )
 
-func init() {
+func Initialize_1() {
 	// go func() {
 	_, err := engine.GetLazyData("articlesInfo.json", false)
 	if err != nil {

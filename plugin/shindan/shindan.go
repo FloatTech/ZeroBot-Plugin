@@ -13,7 +13,7 @@ import (
 	"github.com/FloatTech/zbputils/img/text"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "shindan测定",

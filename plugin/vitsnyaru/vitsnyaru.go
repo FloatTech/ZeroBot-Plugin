@@ -20,7 +20,7 @@ const (
 	vitsnyaruRepo = "innnky/vits-nyaru"
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "vits猫雷",

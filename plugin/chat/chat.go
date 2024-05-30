@@ -22,7 +22,7 @@ var (
 	})
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	// 被喊名字
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {

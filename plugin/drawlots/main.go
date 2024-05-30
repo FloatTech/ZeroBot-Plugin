@@ -53,7 +53,7 @@ var (
 	datapath = file.BOTPATH + "/" + en.DataFolder()
 )
 
-func init() {
+func Initialize() {
 	en.OnFullMatchGroup([]string{"抽签列表", "刷新抽签列表"}).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		var err error
 		lotsList, err = getList() // 刷新列表

@@ -21,7 +21,7 @@ var replmd = replymode([]string{"婧枫", "沫沫", "青云客", "小爱", "Chat
 
 var ttsmd = newttsmode()
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	ent := control.Register("tts", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: true,
 		Brief:            "人工智能语音回复",

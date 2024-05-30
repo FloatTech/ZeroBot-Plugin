@@ -23,7 +23,7 @@ const (
 	realcuganRepo = "shichen1231/Real-CUGAN"
 )
 
-func init() { // 插件主体
+func Initialize() { // 插件主体
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "Real-CUGAN清晰术",

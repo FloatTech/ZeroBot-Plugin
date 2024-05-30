@@ -22,7 +22,7 @@ const (
 	api = "http://jandan.net/pic"
 )
 
-func init() {
+func Initialize() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "煎蛋网无聊图",
