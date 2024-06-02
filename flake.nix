@@ -12,8 +12,10 @@
     nixpkgs,
     flake-utils,
     gomod2nix,
-  }: (
-    flake-utils.lib.eachDefaultSystem
+  }: let
+    allSystems = flake-utils.lib.allSystems;
+  in (
+    flake-utils.lib.eachSystem allSystems
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
 
