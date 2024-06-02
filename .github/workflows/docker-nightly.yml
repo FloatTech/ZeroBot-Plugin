@@ -1,4 +1,4 @@
-name: 最新版docker打包
+name: 最新版docker image打包
 
 on: [push, pull_request]
 jobs:
