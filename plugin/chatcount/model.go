@@ -209,12 +209,12 @@ func (a ByTotalTimeDescMessageDesc) Len() int {
 	return len(a)
 }
 
-// Less 实现 sort.Interface，按 TotalTime 降序，TotalMessage 降序
+// Less 实现 sort.Interface，按 TodayTime 降序，TodayMessage 降序
 func (a ByTotalTimeDescMessageDesc) Less(i, j int) bool {
-	if a[i].TotalTime == a[j].TotalTime {
-		return a[i].TotalMessage > a[j].TotalMessage
+	if a[i].TodayTime == a[j].TodayTime {
+		return a[i].TodayMessage > a[j].TodayMessage
 	}
-	return a[i].TotalTime > a[j].TotalTime
+	return a[i].TodayTime > a[j].TodayTime
 }
 
 // Swap 实现 sort.Interface
