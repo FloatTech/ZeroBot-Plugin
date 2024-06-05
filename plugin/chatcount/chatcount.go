@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	rankSize = 15
+	rankSize = 10
 )
 
 func init() {
@@ -30,16 +30,16 @@ func init() {
 	}()
 	engine.OnMessage(zero.OnlyGroup).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			todayTime, remindFlag := ctdb.updateChatTime(ctx.Event.GroupID, ctx.Event.UserID)
+			remindTime, remindFlag := ctdb.updateChatTime(ctx.Event.GroupID, ctx.Event.UserID)
 			if remindFlag {
-				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("BOT提醒：你今天已经水群%d分钟了！", todayTime)))
+				ctx.SendChain(message.At(ctx.Event.UserID), message.Text(fmt.Sprintf("BOT提醒：你今天已经水群%d分钟了！", remindTime)))
 			}
 		})
 
 	engine.OnPrefix(`查询水群`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		name := ctx.NickName()
-		todayTime, totalTime := ctdb.getChatTime(ctx.Event.GroupID, ctx.Event.UserID)
-		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("%s今天水了%d分钟，总计%d分钟。", name, todayTime, totalTime)))
+		todayTime, todayMessage, totalTime, totalMessage := ctdb.getChatTime(ctx.Event.GroupID, ctx.Event.UserID)
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(fmt.Sprintf("%s今天水了%d分%d秒，发了%d条消息；总计水了%d分%d秒，发了%d条消息。", name, todayTime/60, todayTime%60, todayMessage, totalTime/60, totalTime%60, totalMessage)))
 	})
 	engine.OnFullMatch("查看水群排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
@@ -52,8 +52,12 @@ func init() {
 				text.WriteString("名:")
 				text.WriteString(ctx.CardOrNickName(chatTimeList[i].UserID))
 				text.WriteString(" - ")
+				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayMessage, 10))
+				text.WriteString("条，共")
 				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayTime/60, 10))
-				text.WriteString("分钟\n")
+				text.WriteString("分")
+				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayTime%60, 10))
+				text.WriteString("秒\n")
 			}
 			ctx.SendChain(message.Text(text.String()))
 		})
