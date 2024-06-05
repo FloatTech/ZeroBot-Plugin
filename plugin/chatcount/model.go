@@ -62,7 +62,7 @@ func initialize(dbpath string) *chattimedb {
 
 // Close 关闭
 func (ctdb *chattimedb) Close() error {
-	db := (*gorm.DB)(ctdb.db)
+	db := ctdb.db
 	return db.Close()
 }
 
@@ -86,7 +86,7 @@ func (chatTime) TableName() string {
 func (ctdb *chattimedb) updateChatTime(gid, uid int64) (remindTime int64, remindFlag bool) {
 	ctdb.chatmu.Lock()
 	defer ctdb.chatmu.Unlock()
-	db := (*gorm.DB)(ctdb.db)
+	db := ctdb.db
 	now := time.Now()
 	keyword := fmt.Sprintf("%v_%v", gid, uid)
 	ts, ok := ctdb.userTimestampMap.Load(keyword)
@@ -139,7 +139,7 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (remindTime int64, remind
 func (ctdb *chattimedb) getChatTime(gid, uid int64) (todayTime, todayMessage, totalTime, totalMessage int64) {
 	ctdb.chatmu.Lock()
 	defer ctdb.chatmu.Unlock()
-	db := (*gorm.DB)(ctdb.db)
+	db := ctdb.db
 	st := chatTime{}
 	db.Model(&st).Where("group_id = ? and user_id = ?", gid, uid).First(&st)
 	keyword := fmt.Sprintf("%v_%v", gid, uid)
@@ -201,6 +201,7 @@ func (l *Leveler) Level(t int) int {
 	return 0
 }
 
+// ByTotalTimeDescMessageDesc chatTime排序数组
 type ByTotalTimeDescMessageDesc []chatTime
 
 // Len 实现 sort.Interface
