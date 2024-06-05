@@ -41,7 +41,7 @@ func init() {
 		Help: "- 打劫[对方Q号|@对方QQ]\n" +
 			"1. 受害者钱包少于1000不能被打劫\n" +
 			"2. 打劫成功率 40%\n" +
-			"4. 打劫失败罚款1000（钱不够不罚钱）\n" +
+			"4. 打劫失败罚款1000（钱不够，钱包归零）\n" +
 			"5. 保险赔付0-80%\n" +
 			"6. 打劫成功获得对方0-5%+500的财产（最高1W）\n" +
 			"7. 每日可打劫或被打劫一次\n" +
@@ -104,8 +104,12 @@ func init() {
 
 			// 判断打劫是否成功
 			if rand.Intn(100) > 60 {
+				updateMoney := wallet.GetWalletOf(uid)
+				if updateMoney >= 1000 {
+					updateMoney = 1000
+				}
 				ctx.SendChain(message.Text("打劫失败,罚款1000"))
-				err := wallet.InsertWalletOf(uid, -1000)
+				err := wallet.InsertWalletOf(uid, -updateMoney)
 				if err != nil {
 					ctx.SendChain(message.Text("[ERROR]:罚款失败，钱包坏掉力:\n", err))
 					return
