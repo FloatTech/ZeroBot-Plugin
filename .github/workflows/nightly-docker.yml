@@ -1,6 +1,6 @@
-name: 最新版docker image打包
+name: 打包最新版为 Docker Image 
 
-on: [push, pull_request]
+on: [push]
 jobs:
   docker-builder:
     name: build docker
