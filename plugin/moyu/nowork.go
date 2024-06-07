@@ -32,7 +32,10 @@ func GetHoliday(name string) *Holiday {
 	if err != nil {
 		return NewHoliday(name+err.Error(), 0, 0, 0, 0)
 	}
-	fmt.Sscanf(ret, "%d_%d_%d_%d", &dur, &year, &month, &day)
+	_, err = fmt.Sscanf(ret, "%d_%d_%d_%d", &dur, &year, &month, &day)
+	if err != nil {
+		return NewHoliday(name+err.Error(), 0, 0, 0, 0)
+	}
 	logrus.Debugln("[moyu]获取节日:", name, dur, year, month, day)
 	return NewHoliday(name, dur, year, month, day)
 }

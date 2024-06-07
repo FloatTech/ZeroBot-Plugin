@@ -1,6 +1,5 @@
 linters-settings:
   errcheck:
-    ignore: fmt:.*
     ignoretests: true
 
   goimports:
