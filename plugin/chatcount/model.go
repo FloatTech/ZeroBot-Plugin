@@ -21,8 +21,8 @@ const (
 var (
 	// ctdb 聊天时长数据库全局变量
 	ctdb *chattimedb
-	// leveler 水群提醒时间提醒段，单位分钟
-	leveler = NewLeveler([]int{60, 120, 180, 240, 300})
+	// l 水群提醒时间提醒段，单位分钟
+	l = newLeveler(60, 120, 180, 240, 300)
 )
 
 // chattimedb 聊天时长数据库结构体
@@ -92,11 +92,14 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (remindTime int64, remind
 	ts, ok := ctdb.userTimestampMap.Load(keyword)
 	if !ok {
 		ctdb.userTimestampMap.Store(keyword, now.Unix())
+		ctdb.userTodayMessageMap.Store(keyword, 1)
 		return
 	}
 	lastTime := time.Unix(ts, 0)
 	todayTime, _ := ctdb.userTodayTimeMap.Load(keyword)
 	totayMessage, _ := ctdb.userTodayMessageMap.Load(keyword)
+	//这个消息数是必须统计的
+	ctdb.userTodayMessageMap.Store(keyword, totayMessage+1)
 	st := chatTime{
 		GroupID:      gid,
 		UserID:       uid,
@@ -127,9 +130,8 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (remindTime int64, remind
 	// 当聊天时间在一定范围内的话，则计入时长
 	if userChatTime < chatInterval {
 		ctdb.userTodayTimeMap.Store(keyword, todayTime+userChatTime)
-		ctdb.userTodayMessageMap.Store(keyword, totayMessage+1)
 		remindTime = (todayTime + userChatTime) / 60
-		remindFlag = leveler.Level(int((todayTime+userChatTime)/60)) > leveler.Level(int(todayTime/60))
+		remindFlag = l.level(int((todayTime+userChatTime)/60)) > l.level(int(todayTime/60))
 	}
 	ctdb.userTimestampMap.Store(keyword, now.Unix())
 	return
@@ -175,24 +177,24 @@ func (ctdb *chattimedb) getChatRank(gid int64) (chatTimeList []chatTime) {
 			TodayMessage: todayMessage,
 		})
 	}
-	sort.Sort(ByTotalTimeDescMessageDesc(chatTimeList))
+	sort.Sort(sortChatTime(chatTimeList))
 	return
 }
 
-// Leveler 结构体，包含一个 levelArray 字段
-type Leveler struct {
+// leveler 结构体，包含一个 levelArray 字段
+type leveler struct {
 	levelArray []int
 }
 
-// NewLeveler 构造函数，用于创建 Leveler 实例
-func NewLeveler(levels []int) *Leveler {
-	return &Leveler{
+// newLeveler 构造函数，用于创建 Leveler 实例
+func newLeveler(levels ...int) *leveler {
+	return &leveler{
 		levelArray: levels,
 	}
 }
 
-// Level 方法，封装了 getLevel 函数的逻辑
-func (l *Leveler) Level(t int) int {
+// level 方法，封装了 getLevel 函数的逻辑
+func (l *leveler) level(t int) int {
 	for i := len(l.levelArray) - 1; i >= 0; i-- {
 		if t >= l.levelArray[i] {
 			return i + 1
@@ -201,16 +203,16 @@ func (l *Leveler) Level(t int) int {
 	return 0
 }
 
-// ByTotalTimeDescMessageDesc chatTime排序数组
-type ByTotalTimeDescMessageDesc []chatTime
+// sortChatTime chatTime排序数组
+type sortChatTime []chatTime
 
 // Len 实现 sort.Interface
-func (a ByTotalTimeDescMessageDesc) Len() int {
+func (a sortChatTime) Len() int {
 	return len(a)
 }
 
 // Less 实现 sort.Interface，按 TodayTime 降序，TodayMessage 降序
-func (a ByTotalTimeDescMessageDesc) Less(i, j int) bool {
+func (a sortChatTime) Less(i, j int) bool {
 	if a[i].TodayTime == a[j].TodayTime {
 		return a[i].TodayMessage > a[j].TodayMessage
 	}
@@ -218,6 +220,6 @@ func (a ByTotalTimeDescMessageDesc) Less(i, j int) bool {
 }
 
 // Swap 实现 sort.Interface
-func (a ByTotalTimeDescMessageDesc) Swap(i, j int) {
+func (a sortChatTime) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
