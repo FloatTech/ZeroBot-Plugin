@@ -98,7 +98,7 @@ func (ctdb *chattimedb) updateChatTime(gid, uid int64) (remindTime int64, remind
 	lastTime := time.Unix(ts, 0)
 	todayTime, _ := ctdb.userTodayTimeMap.Load(keyword)
 	totayMessage, _ := ctdb.userTodayMessageMap.Load(keyword)
-	//这个消息数是必须统计的
+	// 这个消息数是必须统计的
 	ctdb.userTodayMessageMap.Store(keyword, totayMessage+1)
 	st := chatTime{
 		GroupID:      gid,
