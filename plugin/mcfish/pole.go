@@ -431,7 +431,7 @@ func init() {
 						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[0]请输入正确的序号\n", list))
 						continue
 					}
-					if first > max || second > max || third > max {
+					if first >= max || second >= max || third >= max {
 						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", max, "]请输入正确的序号\n", list))
 						continue
 					}
