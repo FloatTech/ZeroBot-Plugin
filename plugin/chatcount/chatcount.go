@@ -61,5 +61,4 @@ func init() {
 			}
 			ctx.SendChain(message.Text(text.String()))
 		})
-
 }
