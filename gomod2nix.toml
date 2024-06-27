@@ -221,8 +221,8 @@ schema = 3
     version = "v2.1.1"
     hash = "sha256-emvjt/ze8skM+MBflwV0EgS/svpaEGU/mn27Ie4VTXs="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.7.5-0.20240505070304-562ffeb33dcd"
-    hash = "sha256-2VKVJJ9jqbWjEPrvqLaMEK+Qpl4HiB4nJX7ebHcbDYA="
+    version = "v1.7.5-0.20240627150749-3ff3d73940da"
+    hash = "sha256-kpseKieBzE3xYHvB+18J5L6croCCqoQ9KPHvP318Uus="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
