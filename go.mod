@@ -40,7 +40,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.17.1
 	github.com/wcharczuk/go-chart/v2 v2.1.1
-	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240505070304-562ffeb33dcd
+	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240627150749-3ff3d73940da
 	gitlab.com/gomidi/midi/v2 v2.1.7
 	golang.org/x/image v0.16.0
 	golang.org/x/sys v0.20.0
