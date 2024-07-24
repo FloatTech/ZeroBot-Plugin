@@ -182,7 +182,6 @@ func (sql *robberyRepo) getRecord(victimID, uid int64) (ok int, err error) {
 		return nil
 	})
 	return ok, err
-
 }
 
 func (sql *robberyRepo) insertRecord(vid int64, uid int64) error {
