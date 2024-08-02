@@ -63,7 +63,10 @@ func init() {
 				msg = append(msg, message.Text("[", i, "] ", info.Equip, " : 耐", info.Durable, "/修", info.Maintenance,
 					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor], "\n"))
 			}
-			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n"))
+			msg = append(msg, message.Text("- 输入对应序号进行装备\n"))
+			msg = append(msg, message.Text("- 输入“取消”终止本次操作\n"))
+			msg = append(msg, message.Text("- 鱼竿数量请使用钓鱼背包查看"))
 			ctx.Send(msg)
 			// 等待用户下一步选择
 			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
@@ -316,13 +319,15 @@ func init() {
 			case "诱钓":
 				equipInfo.Induce++
 				if equipInfo.Induce > 3 {
-					equipInfo.Induce = 3
+					ctx.SendChain(message.Text("诱钓等级已达到上限，你浪费了一本附魔书"))
+					return
 				}
 				number = equipInfo.Induce
 			case "海之眷顾":
 				equipInfo.Favor++
 				if equipInfo.Favor > 3 {
-					equipInfo.Favor = 3
+					ctx.SendChain(message.Text("海之眷顾等级已达到上限，你浪费了一本附魔书"))
+					return
 				}
 				number = equipInfo.Favor
 			default:
@@ -378,6 +383,8 @@ func init() {
 			})
 		}
 		list := []int{0, 1, 2}
+		// 可以用于合成的鱼竿数量(取3的倍数)
+		upgradeNum := (len(articles) / 3) * 3
 		check := false
 		if len(articles) > 3 {
 			msg := make(message.Message, 0, 3+len(articles))
@@ -386,10 +393,13 @@ func init() {
 				msg = append(msg, message.Text("[", i, "] ", info.Equip, " : 耐", info.Durable, "/修", info.Maintenance,
 					"/诱", enchantLevel[info.Induce], "/眷顾", enchantLevel[info.Favor], "\n"))
 			}
-			msg = append(msg, message.Text("————————\n输入3个序号进行合成(用空格分割),或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n"))
+			msg = append(msg, message.Text("- 输入3个序号进行合成(用空格分割)\n"))
+			msg = append(msg, message.Text("- 输入“取消”，终止本次合成\n"))
+			msg = append(msg, message.Text("- 输入“梭哈“，合成所有鱼竿"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
 			// 等待用户下一步选择
-			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(取消|\d+ \d+ \d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
+			recv, cancel := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(梭哈|取消|\d+ \d+ \d+)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 			defer cancel()
 			for {
 				select {
@@ -409,6 +419,13 @@ func init() {
 							),
 						)
 						return
+					}
+					if nextcmd == "梭哈" {
+						for i := 3; i < upgradeNum; i++ {
+							list = append(list, i)
+						}
+						check = true
+						break
 					}
 					chooseList := strings.Split(nextcmd, " ")
 					first, err := strconv.Atoi(chooseList[0])
@@ -463,12 +480,12 @@ func init() {
 			)
 			return
 		}
-		attribute := strconv.Itoa(durationList[thingName]) + "/0/" + strconv.Itoa(induceLevel/3) + "/" + strconv.Itoa(favorLevel/3)
+		attribute := strconv.Itoa(durationList[thingName]) + "/0/" + strconv.Itoa(induceLevel/upgradeNum) + "/" + strconv.Itoa(favorLevel/upgradeNum)
 		newthing := article{
 			Duration: time.Now().Unix(),
 			Type:     "pole",
 			Name:     thingName,
-			Number:   1,
+			Number:   upgradeNum / 3,
 			Other:    attribute,
 		}
 		err = dbdata.updateUserThingInfo(uid, newthing)
@@ -478,7 +495,7 @@ func init() {
 		}
 		ctx.Send(
 			message.ReplyWithMessage(ctx.Event.MessageID,
-				message.Text(thingName, "合成成功", list, "\n属性: ", attribute),
+				message.Text(thingName, "合成成功：", upgradeNum/3, "个铁竿\n属性: ", attribute),
 			),
 		)
 	})
