@@ -46,7 +46,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var m []UserInfo
+		var m []userInfo
 		for _, info := range niuniuList {
 			if info.Long > 0 {
 				m = append(m, info)
@@ -57,8 +57,8 @@ func init() {
 		}
 		var messages string
 		userInfos := sortUsersByNegativeLong(m)
-		for i, userInfo := range userInfos {
-			messages += fmt.Sprintf("第%d名  长度:%.2f\n", i+1, userInfo.Long)
+		for i, user := range userInfos {
+			messages += fmt.Sprintf("第%d名 id:%s 长度:%.2fcom\n", i+1, ctx.CardOrNickName(user.Uid), user.Long)
 		}
 		ctx.SendChain(message.Text(messages))
 	})
@@ -69,7 +69,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var m []UserInfo
+		var m []userInfo
 		for _, info := range niuniuList {
 			if info.Long <= 0 {
 				m = append(m, info)
@@ -80,15 +80,15 @@ func init() {
 		}
 		var messages string
 		userInfos := sortUsersByNegativeLong(m)
-		for i, userInfo := range userInfos {
-			messages += fmt.Sprintf("第%d名  长度:%.2f\n", i+1, userInfo.Long)
+		for i, user := range userInfos {
+			messages += fmt.Sprintf("第%d名 id:%s 长度:%.2fcom\n", i+1, ctx.CardOrNickName(user.Uid), user.Long)
 		}
 		ctx.SendChain(message.Text(messages))
 	})
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		niuniu, err := db.Findniuniu(gid, uid)
+		niuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("ta还没有牛牛呢不能查看!"))
 			return
@@ -160,7 +160,7 @@ func init() {
 		// 获取群号和用户ID
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		niuniu, err := db.Findniuniu(gid, uid)
+		niuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("请先注册牛牛！"))
 			return
@@ -219,12 +219,12 @@ func init() {
 				}[rand.Intn(3)]))
 			}
 		}
-		u := UserInfo{
+		u := userInfo{
 			Uid:  uid,
 			Long: niuniu,
 			Id:   1,
 		}
-		if err = db.Insertniuniu(u, gid); err != nil {
+		if err = db.insertniuniu(u, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
@@ -237,27 +237,26 @@ func init() {
 	en.OnFullMatch("注册牛牛", zero.OnlyGroup, getdb).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		if _, err := db.Findniuniu(gid, uid); err == nil {
+		if _, err := db.findniuniu(gid, uid); err == nil {
 			ctx.SendChain(message.Text("你已经注册过了"))
 			return
 		}
 		//获取初始长度
 		long, _ := randomLong().Float64()
-		u := UserInfo{
+		u := userInfo{
 			Uid:  uid,
 			Long: long,
 			Id:   1,
 		}
 		//添加数据进入表
-		err := db.Insertniuniu(u, gid)
+		err := db.insertniuniu(u, gid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			err = db.CreateGidTable(gid)
+			err = db.createGidTable(gid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			err = db.Insertniuniu(u, gid)
+			err = db.insertniuniu(u, gid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -274,12 +273,12 @@ func init() {
 		}
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		myniuniu, err := db.Findniuniu(gid, uid)
+		myniuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("你还没有牛牛快去注册一个吧!"))
 			return
 		}
-		adduserniuniu, err := db.Findniuniu(gid, adduser)
+		adduserniuniu, err := db.findniuniu(gid, adduser)
 		if err != nil {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
 			return
@@ -313,12 +312,12 @@ func init() {
 			return
 		}
 		fencingResult, f := fencing(myniuniu, adduserniuniu)
-		err = db.Insertniuniu(UserInfo{Uid: uid, Long: f}, gid)
+		err = db.insertniuniu(userInfo{Uid: uid, Long: f}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		err = db.Insertniuniu(UserInfo{Uid: adduser, Long: -f}, gid)
+		err = db.insertniuniu(userInfo{Uid: adduser, Long: -f}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -335,12 +334,12 @@ func init() {
 	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		_, err := db.Findniuniu(gid, uid)
+		_, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("你还没有牛牛呢，不能注销"))
 			return
 		}
-		err = db.Deleteniuniu(gid, uid)
+		err = db.deleteniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("注销失败"))
 			return
@@ -354,7 +353,7 @@ func RandomChoice(options []string) string {
 }
 
 // sortUsersByNegativeLong 接收一个UserInfo切片，并按Long字段负数越大（绝对值越小）排序后返回
-func sortUsersByNegativeLong(users []UserInfo) []UserInfo {
+func sortUsersByNegativeLong(users []userInfo) []userInfo {
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].Long > users[j].Long
 	})
