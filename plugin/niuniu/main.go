@@ -21,9 +21,9 @@ var (
 		Brief:            "牛牛大作战",
 		Help: "- 打胶" +
 			"- 查看我的牛牛" +
-			"jj@xxx" +
-			"牛子长度排行" +
-			"牛子深度排行",
+			"- jj@xxx" +
+			"- 牛子长度排行" +
+			"- 牛子深度排行",
 		PrivateDataFolder: "niuniu",
 	})
 )
