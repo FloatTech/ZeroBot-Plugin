@@ -8,7 +8,7 @@ import (
 )
 
 // fencing 击剑对决逻辑，返回对决结果和myLength的变化值
-func fencing(myLength, oppoLength float64) (string, float64) {
+func fencing(myLength, oppoLength float64) (string, float64, float64) {
 	lossLimit := 0.25
 	devourLimit := 0.27
 
@@ -19,25 +19,24 @@ func fencing(myLength, oppoLength float64) (string, float64) {
 		oppoLength *= 0.85
 		change := -math.Min(math.Abs(lossLimit*myLength), math.Abs(1.5*myLength))
 		myLength += change
-		return fmt.Sprintf("对方身为魅魔诱惑了你，你同化成魅魔！当前长度%.2fcm！", myLength), change
-
+		return fmt.Sprintf("对方身为魅魔诱惑了你，你同化成魅魔！当前长度%.2fcm！", myLength), myLength, oppoLength
 	case oppoLength >= 100 && myLength > 0 && 10 < probability && probability <= 20:
 		oppoLength *= 0.85
 		change := -math.Min(math.Abs(devourLimit*myLength), math.Abs(1.5*myLength))
 		myLength += change
-		return fmt.Sprintf("对方以牛头人的荣誉摧毁了你的牛牛！当前长度%.2fcm！", myLength), change
+		return fmt.Sprintf("对方以牛头人的荣誉摧毁了你的牛牛！当前长度%.2fcm！", myLength), myLength, oppoLength
 
 	case myLength <= -100 && oppoLength > 0 && 10 < probability && probability <= 20:
 		myLength *= 0.85
 		change := math.Min(math.Abs(lossLimit*oppoLength), math.Abs(1.5*oppoLength))
 		oppoLength -= change
-		return fmt.Sprintf("你身为魅魔诱惑了对方，吞噬了对方部分长度！当前长度%.2fcm！", myLength), change
+		return fmt.Sprintf("你身为魅魔诱惑了对方，吞噬了对方部分长度！当前长度%.2fcm！", myLength), myLength, oppoLength
 
 	case myLength >= 100 && oppoLength > 0 && 10 < probability && probability <= 20:
 		myLength *= 0.85
 		change := math.Min(math.Abs(devourLimit*oppoLength), math.Abs(1.5*oppoLength))
-		oppoLength -= change
-		return fmt.Sprintf("你以牛头人的荣誉摧毁了对方的牛牛！当前长度%.2fcm！", myLength), change
+		oppoLength += change
+		return fmt.Sprintf("你以牛头人的荣誉摧毁了对方的牛牛！当前长度%.2fcm！", myLength), myLength, oppoLength
 
 	default:
 		return determineResultBySkill(myLength, oppoLength)
@@ -45,7 +44,7 @@ func fencing(myLength, oppoLength float64) (string, float64) {
 }
 
 // determineResultBySkill 根据击剑技巧决定结果
-func determineResultBySkill(myLength, oppoLength float64) (string, float64) {
+func determineResultBySkill(myLength, oppoLength float64) (string, float64, float64) {
 	probability := rand.Intn(100) + 1
 	winProbability := calculateWinProbability(myLength, oppoLength) * 100
 
@@ -67,34 +66,30 @@ func calculateWinProbability(heightA, heightB float64) float64 {
 }
 
 // applySkill 应用击剑技巧并生成结果
-func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64) {
-	reduce := fence(oppoLength)
-	var change float64
+func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64, float64) {
+	reduce := fence()
 
 	if increaseLength1 {
 		myLength += reduce
 		oppoLength -= 0.8 * reduce
-		change = reduce
 
 		if myLength < 0 {
-			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), change
+			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), myLength, oppoLength
 		}
-		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), change
+		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
 
 	} else {
 		myLength -= reduce
 		oppoLength += 0.8 * reduce
-		change = -reduce
-
 		if myLength < 0 {
-			return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), change
+			return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), myLength, oppoLength
 		}
-		return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), change
+		return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
 	}
 }
 
 // fence 简单模拟击剑技巧效果
-func fence(oppoLength float64) float64 {
+func fence() float64 {
 	return float64(rand.Intn(5)+1) + rand.Float64()
 }
 
