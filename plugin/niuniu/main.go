@@ -348,7 +348,7 @@ func init() {
 	})
 }
 
-func RandomChoice(options []string) string {
+func randomChoice(options []string) string {
 	return options[rand.Intn(len(options))]
 }
 
