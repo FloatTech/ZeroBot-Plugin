@@ -20,6 +20,8 @@ var (
 		DisableOnDefault: false,
 		Brief:            "牛牛大作战",
 		Help: "- 打胶\n" +
+			"- 注册牛牛\n" +
+			"- 注销牛牛\n" +
 			"- 查看我的牛牛\n" +
 			"- jj@xxx\n" +
 			"- 牛子长度排行\n" +
@@ -107,44 +109,44 @@ func init() {
 		case niuniu <= -50:
 			result += "嗯....好像已经穿过了身体吧..从另一面来看也可以算是凸出来的吧?"
 		case niuniu <= -25:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"这名女生，你的身体很健康哦！",
 				"WOW,真的凹进去了好多呢！",
 				"你已经是我们女孩子的一员啦！",
 			})
 		case niuniu <= -10:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"你已经是一名女生了呢，",
 				"从女生的角度来说，你发育良好(,",
 				"你醒啦？你已经是一名女孩子啦！",
 				"唔...可以放进去一根手指了都...",
 			})
 		case niuniu <= 0:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"安了安了，不要伤心嘛，做女生有什么不好的啊。",
 				"不哭不哭，摸摸头，虽然很难再长出来，但是请不要伤心啦啊！",
 				"加油加油！我看好你哦！",
 				"你醒啦？你现在已经是一名女孩子啦！",
 			})
 		case niuniu <= 10:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"你行不行啊？细狗！",
 				"虽然短，但是小小的也很可爱呢。",
 				"像一只蚕宝宝。",
 				"长大了。",
 			})
 		case niuniu <= 25:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"唔...没话说",
 				"已经很长了呢！",
 			})
 		case niuniu <= 50:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"话说这种真的有可能吗？",
 				"厚礼谢！",
 			})
 		case niuniu <= 100:
-			result += RandomChoice([]string{
+			result += randomChoice([]string{
 				"已经突破天际了嘛...",
 				"唔...这玩意应该不会变得比我高吧？",
 				"你这个长度会死人的...！",
@@ -311,13 +313,13 @@ func init() {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
 			return
 		}
-		fencingResult, f := fencing(myniuniu, adduserniuniu)
+		fencingResult, f, f1 := fencing(myniuniu, adduserniuniu)
 		err = db.insertniuniu(userInfo{Uid: uid, Long: f}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		err = db.insertniuniu(userInfo{Uid: adduser, Long: -f}, gid)
+		err = db.insertniuniu(userInfo{Uid: adduser, Long: f1}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -336,7 +338,7 @@ func init() {
 		gid := ctx.Event.GroupID
 		_, err := db.findniuniu(gid, uid)
 		if err != nil {
-			ctx.SendChain(message.Text("你还没有牛牛呢，不能注销"))
+			ctx.SendChain(message.Text("你还没有牛牛呢，咋的你想凭空造一个啊"))
 			return
 		}
 		err = db.deleteniuniu(gid, uid)
@@ -344,7 +346,7 @@ func init() {
 			ctx.SendChain(message.Text("注销失败"))
 			return
 		}
-		ctx.SendChain(message.Text("注销成功"))
+		ctx.SendChain(message.Text("注销成功,你已经没有牛牛了"))
 	})
 }
 
