@@ -19,11 +19,11 @@ var (
 	en = control.Register("niuniu", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "牛牛大作战",
-		Help: "- 打胶" +
-			"- 查看我的牛牛" +
-			"- jj@xxx" +
-			"- 牛子长度排行" +
-			"- 牛子深度排行",
+		Help: "- 打胶\n" +
+			"- 查看我的牛牛\n" +
+			"- jj@xxx\n" +
+			"- 牛子长度排行\n" +
+			"- 牛子深度排行\n",
 		PrivateDataFolder: "niuniu",
 	})
 )
