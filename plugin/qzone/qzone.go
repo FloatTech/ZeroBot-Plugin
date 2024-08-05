@@ -31,7 +31,7 @@ const (
 	agreeStatus
 	disagreeStatus
 	loveTag      = "表白"
-	faceURL      = "http://q4.qlogo.cn/g?b=qq&nk=%v&s=640"
+	faceURL      = "https://q4.qlogo.cn/g?b=qq&nk=%v&s=640"
 	anonymousURL = "https://gitcode.net/anto_july/avatar/-/raw/master/%v.png"
 )
 

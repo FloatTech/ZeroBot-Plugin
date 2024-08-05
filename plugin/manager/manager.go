@@ -705,12 +705,12 @@ func init() { // 插件主体
 
 // 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
 func welcometocq(ctx *zero.Ctx, welcome string) string {
-	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                  // 用户id
-	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                // 用户昵称
-	at := "[CQ:at,qq=" + uid + "]"                                                  // at用户
-	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640]" // 用户头像
-	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                 // 群id
-	groupname := ctx.GetThisGroupInfo(true).Name                                    // 群名
+	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                   // 用户id
+	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                 // 用户昵称
+	at := "[CQ:at,qq=" + uid + "]"                                                   // at用户
+	avatar := "[CQ:image,file=" + "https://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640]" // 用户头像
+	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                  // 群id
+	groupname := ctx.GetThisGroupInfo(true).Name                                     // 群名
 	cqstring := strings.ReplaceAll(welcome, "{at}", at)
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
