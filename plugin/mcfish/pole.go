@@ -495,7 +495,7 @@ func init() {
 		}
 		ctx.Send(
 			message.ReplyWithMessage(ctx.Event.MessageID,
-				message.Text(thingName, "合成成功：", upgradeNum/3, "个铁竿\n属性: ", attribute),
+				message.Text("成功合成", upgradeNum/3, "个", thingName, "\n属性: ", attribute),
 			),
 		)
 	})
