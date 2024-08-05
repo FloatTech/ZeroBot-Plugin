@@ -33,6 +33,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Tidy Modules
+        run: go mod tidy
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@master
         with:
