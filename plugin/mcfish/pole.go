@@ -383,7 +383,7 @@ func init() {
 			})
 		}
 		list := []int{0, 1, 2}
-		// 可以用于合成的鱼竿数量(取3的倍数)
+		// 可以用于合成的鱼竿数量(取3的倍数)，note：此处未对article.Number>1的情况做处理
 		upgradeNum := (len(articles) / 3) * 3
 		check := false
 		if len(articles) > 3 {
@@ -485,17 +485,22 @@ func init() {
 			Duration: time.Now().Unix(),
 			Type:     "pole",
 			Name:     thingName,
-			Number:   upgradeNum / 3,
+			Number:   1,
 			Other:    attribute,
 		}
-		err = dbdata.updateUserThingInfo(uid, newthing)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at pole.go.12]:", err))
-			return
+		// 代码未对article.Number>1的情况做处理，直接生成多个Number=1的鱼竿
+		for i := 0; i < upgradeNum/3; i++ {
+			// 使用时间戳作为主键，增加固定值避免主键冲突
+			newthing.Duration += int64(i * 10)
+			err = dbdata.updateUserThingInfo(uid, newthing)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR at pole.go.12]:", err))
+				return
+			}
 		}
 		ctx.Send(
 			message.ReplyWithMessage(ctx.Event.MessageID,
-				message.Text("成功合成", upgradeNum/3, "个", thingName, "\n属性: ", attribute),
+				message.Text("成功合成：", upgradeNum/3, "个", thingName, "\n属性: ", attribute),
 			),
 		)
 	})
