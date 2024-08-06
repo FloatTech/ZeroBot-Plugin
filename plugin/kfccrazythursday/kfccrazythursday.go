@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	crazyURL = "https://api.jixs.cc/api/wenan-fkxqs/index.php"
+	crazyURL = "http://api.jixs.cc/api/wenan-fkxqs/index.php"
 )
 
 func init() {
