@@ -37,7 +37,7 @@ func init() {
 	}
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:            "打劫别人的ATRI币",
+		Brief:            "打劫别人的钱包",
 		Help: "- 打劫[对方Q号|@对方QQ]\n" +
 			"1. 受害者钱包少于1000不能被打劫\n" +
 			"2. 打劫成功率 40%\n" +
@@ -142,8 +142,8 @@ func init() {
 				ctx.SendChain(message.At(uid), message.Text("[ERROR]:犯罪记录写入失败\n", err))
 			}
 
-			ctx.SendChain(message.At(uid), message.Text("打劫成功，钱包增加：", userIncrMoney, "ATRI币"))
-			ctx.SendChain(message.At(victimID), message.Text("保险公司对您进行了赔付，您实际损失：", victimDecrMoney, "ATRI币"))
+			ctx.SendChain(message.At(uid), message.Text("打劫成功，钱包增加：", userIncrMoney, wallet.GetWalletName()))
+			ctx.SendChain(message.At(victimID), message.Text("保险公司对您进行了赔付，您实际损失：", victimDecrMoney, wallet.GetWalletName()))
 		})
 }
 

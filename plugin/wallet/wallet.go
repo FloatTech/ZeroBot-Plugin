@@ -37,7 +37,7 @@ func init() {
 	en.OnFullMatch("查看我的钱包").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		money := wallet.GetWalletOf(uid)
-		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, "ATRI币"))
+		ctx.SendChain(message.At(uid), message.Text("你的钱包当前有", money, wallet.GetWalletName()))
 	})
 
 	en.OnFullMatch("查看钱包排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
@@ -62,7 +62,7 @@ func init() {
 				return
 			}
 			if len(st) == 0 {
-				ctx.SendChain(message.Text("ERROR: 当前没人获取过ATRI币"))
+				ctx.SendChain(message.Text("ERROR: 当前没人获取过", wallet.GetWalletName()))
 				return
 			} else if len(st) > 10 {
 				st = st[:10]
@@ -98,7 +98,7 @@ func init() {
 			}
 			err = chart.BarChart{
 				Font:  font,
-				Title: "ATRI币排名(1天只刷新1次)",
+				Title: wallet.GetWalletName() + "排名(1天只刷新1次)",
 				Background: chart.Style{
 					Padding: chart.Box{
 						Top: 40,
