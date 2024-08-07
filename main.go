@@ -186,6 +186,7 @@ import (
 	//                                                                  //
 	//                                                                  //
 	// -----------------------以下为内置依赖，勿动------------------------ //
+	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
 	"github.com/sirupsen/logrus"
@@ -220,6 +221,9 @@ func init() {
 	url := flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
 	// 默认昵称
 	adana := flag.String("n", "椛椛", "Set default nickname.")
+	// 默认 ATRI 币名称
+	// TODO 将其添加到 ZeroBot 配置文件中
+	atri := flag.String("o", "ATRI币", "Set default coin name.")
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
@@ -250,6 +254,11 @@ func init() {
 		}
 		sus = append(sus, i)
 	}
+
+	// 更改 ATRI 币名称
+	// TODO 改为在 main 函数调用
+	// wallet.SetWalletName(config.CoinName)
+	wallet.SetWalletName(*atri)
 
 	// 通过代码写死的方式添加主人账号
 	// sus = append(sus, 12345678)
