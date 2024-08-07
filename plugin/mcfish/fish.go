@@ -59,7 +59,7 @@ func init() {
 			for {
 				select {
 				case <-time.After(time.Second * 120):
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消钓鱼")))
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消购买")))
 					return
 				case e := <-recv:
 					nextcmd := e.Event.Message.String()

@@ -383,8 +383,6 @@ func init() {
 			})
 		}
 		list := []int{0, 1, 2}
-		// 可以用于合成的鱼竿数量(取3的倍数)，note：此处未对article.Number>1的情况做处理
-		upgradeNum := (len(articles) / 3) * 3
 		check := false
 		if len(articles) > 3 {
 			msg := make(message.Message, 0, 3+len(articles))
@@ -421,7 +419,8 @@ func init() {
 						return
 					}
 					if nextcmd == "梭哈" {
-						for i := 3; i < upgradeNum; i++ {
+						// len(list)取3的倍数，表示能够用于合成鱼竿的最大数量，note：此处未对article.Number>1的情况做处理
+						for i := 3; i < (len(articles)/3)*3; i++ {
 							list = append(list, i)
 						}
 						check = true
@@ -459,6 +458,7 @@ func init() {
 				}
 			}
 		}
+		upgradeNum := len(list)
 		favorLevel := 0
 		induceLevel := 0
 		for _, index := range list {
