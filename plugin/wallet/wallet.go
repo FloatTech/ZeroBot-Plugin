@@ -5,9 +5,11 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
+	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -41,7 +43,7 @@ func init() {
 			if err != nil {
 				panic(err)
 			}
-			coinName = string(content)
+			coinName = binary.BytesToString(content)
 		} else {
 			// 旧版本数据
 			coinName = "ATRI币"
@@ -136,10 +138,10 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-	en.OnRegex(`^设置硬币名称\s*(.*)$`, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
+	en.OnPrefix("设置硬币名称", zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			coinName := ctx.State["regex_matched"].([]string)[1]
-			err := os.WriteFile(coinNameFile, []byte(coinName), 0644)
+			coinName := strings.TrimSpace(ctx.State["args"].(string))
+			err := os.WriteFile(coinNameFile, binary.StringToBytes(coinName), 0644)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
