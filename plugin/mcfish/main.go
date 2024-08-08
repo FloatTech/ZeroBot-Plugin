@@ -413,9 +413,9 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 		}
 		if fishInfo.Number < i {
 			k++
-			fishInfo.Number = 0
 			i -= fishInfo.Number
 			fishNames[fishInfo.Name] += fishInfo.Number
+			fishInfo.Number = 0
 		} else {
 			fishNames[fishInfo.Name] += i
 			fishInfo.Number -= i
