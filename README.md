@@ -50,12 +50,11 @@
 ## 命令行参数
 > `[]`代表是可选参数
 ```bash
-zerobot [-h] [-m] [-n nickname] [-o coinname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [-mirror] [qq1 qq2 qq3 ...] [&]
+zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] [-c|s config.json] [-l latency] [-r ringlen] [-x max process time] [-mirror] [qq1 qq2 qq3 ...] [&]
 ```
 - **-h**: 显示帮助
 - **-m**: 不自动标记消息为已读
 - **-n nickname**: 设置默认昵称，默认为`椛椛`
-- **-o coinname**: 设置默认硬币名称，默认为`ATRI币`
 - **-t token**: 设置`AccessToken`，默认为空
 - **-u url**: 设置`Url`，默认为`ws://127.0.0.1:6700`
 - ~~**-g url**~~(默认禁用): 设置`webui url`，默认为`127.0.0.1:3000`
@@ -71,7 +70,6 @@ zerobot [-h] [-m] [-n nickname] [-o coinname] [-t token] [-u url] [-g url] [-p p
 - **&**: 驻留在后台，必须放在最后，仅`Linux`下有效
 
 默认配置文件格式如下。当选择从配置文件加载时，将忽略相应命令行参数。
-<!-- TODO 添加有关自定义硬币名称的配置 -->
 ```json
 {
   "zero": {
