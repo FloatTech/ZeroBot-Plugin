@@ -1309,6 +1309,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 查看钱包排名
 
+  - [x] 设置硬币名称[ATRI币]
+
 </details>
 <details>
   <summary>据意查句</summary>

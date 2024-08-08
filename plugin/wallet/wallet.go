@@ -23,16 +23,30 @@ func init() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "钱包",
-		Help:              "- 查看我的钱包\n- 查看钱包排名",
+		Help:              "- 查看我的钱包\n- 查看钱包排名\n- 设置硬币名称XXX",
 		PrivateDataFolder: "wallet",
 	})
 	cachePath := en.DataFolder() + "cache/"
+	coinNameFile := en.DataFolder() + "coin_name.txt"
 	go func() {
 		_ = os.RemoveAll(cachePath)
 		err := os.MkdirAll(cachePath, 0755)
 		if err != nil {
 			panic(err)
 		}
+		// 更改硬币名称
+		var coinName string
+		if file.IsExist(coinNameFile) {
+			content, err := os.ReadFile(coinNameFile)
+			if err != nil {
+				panic(err)
+			}
+			coinName = string(content)
+		} else {
+			// 旧版本数据
+			coinName = "ATRI币"
+		}
+		wallet.SetWalletName(coinName)
 	}()
 	en.OnFullMatch("查看我的钱包").SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
@@ -121,5 +135,16 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+		})
+	en.OnRegex(`^设置硬币名称\s*(.*)$`, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			coinName := ctx.State["regex_matched"].([]string)[1]
+			err := os.WriteFile(coinNameFile, []byte(coinName), 0644)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			wallet.SetWalletName(coinName)
+			ctx.SendChain(message.Text("记住啦~"))
 		})
 }
