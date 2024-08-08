@@ -69,7 +69,7 @@ func init() {
 					}
 					money := wallet.GetWalletOf(uid)
 					if money < 100 {
-						ctx.SendChain(message.Text("你钱包当前只有", money, "ATRI币,无法完成支付"))
+						ctx.SendChain(message.Text("你钱包当前只有", money, wallet.GetWalletName(), ",无法完成支付"))
 						return
 					}
 					err = wallet.InsertWalletOf(uid, -100)
