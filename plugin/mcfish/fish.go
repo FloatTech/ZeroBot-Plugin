@@ -147,7 +147,7 @@ func init() {
 			fishNumber = 0
 			for name, number := range fishNmaes {
 				fishNumber += number
-				msg += strconv.Itoa(number) + name + "、"
+				msg += strconv.Itoa(number) + name + " "
 			}
 			msg += ")"
 			fishNumber /= 2
