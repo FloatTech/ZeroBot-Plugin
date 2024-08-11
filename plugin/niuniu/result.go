@@ -5,6 +5,7 @@ import (
 	"github.com/shopspring/decimal"
 	"math"
 	"math/rand"
+	"time"
 )
 
 // fencing 击剑对决逻辑，返回对决结果和myLength的变化值
@@ -57,6 +58,7 @@ func determineResultBySkill(myLength, oppoLength float64) (string, float64, floa
 
 // calculateWinProbability 计算胜率
 func calculateWinProbability(heightA, heightB float64) float64 {
+	//第一个接收参数初始概率
 	pA := 0.9
 	heightRatio := math.Max(heightA, heightB) / math.Min(heightA, heightB)
 	reductionRate := 0.1 * (heightRatio - 1)
@@ -67,8 +69,7 @@ func calculateWinProbability(heightA, heightB float64) float64 {
 
 // applySkill 应用击剑技巧并生成结果
 func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64, float64) {
-	reduce := fence()
-
+	reduce := fence(oppoLength)
 	if increaseLength1 {
 		myLength += reduce
 		oppoLength -= 0.8 * reduce
@@ -89,13 +90,12 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 }
 
 // fence 简单模拟击剑技巧效果
-func fence() float64 {
-	return float64(rand.Intn(5)+1) + rand.Float64()
-}
-
-// randomLong 生成一个随机的数值
-func randomLong() decimal.Decimal {
-	return decimal.NewFromFloat(float64(rand.Intn(9)+1) + float64(rand.Intn(100))/100)
+func fence(rd float64) float64 {
+	rd -= float64(time.Now().UnixNano() % 10)
+	if rd > 1000000 {
+		return rd - rand.Float64()*rd
+	}
+	return float64(int(rd * rand.Float64()))
 }
 
 // hitGlue 调整传入的值
