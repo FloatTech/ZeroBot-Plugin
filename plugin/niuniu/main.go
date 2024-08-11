@@ -66,7 +66,7 @@ func init() {
 			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
 				ctx.CardOrNickName(user.Uid), user.Length))
 		}
-		ctx.SendChain(message.Text(messages))
+		ctx.SendChain(message.Text(messages.String()))
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -92,7 +92,7 @@ func init() {
 			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
 				ctx.CardOrNickName(user.Uid), user.Length))
 		}
-		ctx.SendChain(message.Text(messages))
+		ctx.SendChain(message.Text(messages.String()))
 	})
 
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
