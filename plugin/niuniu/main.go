@@ -61,7 +61,7 @@ func init() {
 		}
 		var messages strings.Builder
 		messages.WriteString("牛子长度排行\n")
-		userInfos := sortUsersByNegativeLong(m)
+		userInfos := sortUsersByLength(m)
 		for i, user := range userInfos {
 			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
 				ctx.CardOrNickName(user.Uid), user.Length))
@@ -86,7 +86,7 @@ func init() {
 			return
 		}
 		var messages strings.Builder
-		userInfos := sortUsersByNegativeLong(m)
+		userInfos := sortUsersByNegativeLength(m)
 		messages.WriteString("牛牛深度排行榜\n")
 		for i, user := range userInfos {
 			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
@@ -368,9 +368,16 @@ func randomChoice(options []string) string {
 }
 
 // sortUsersByNegativeLong 接收一个UserInfo切片，并按Long字段负数越大（绝对值越小）排序后返回
-func sortUsersByNegativeLong(users []userInfo) []userInfo {
+func sortUsersByNegativeLength(users []userInfo) []userInfo {
 	sort.Slice(users, func(i, j int) bool {
-		return int(math.Abs(users[i].Length)) > int(math.Abs(users[j].Length))
+		return math.Abs(users[i].Length) > math.Abs(users[j].Length)
+	})
+	return users
+}
+
+func sortUsersByLength(users []userInfo) []userInfo {
+	sort.Slice(users, func(i, j int) bool {
+		return users[i].Length > users[j].Length
 	})
 	return users
 }
