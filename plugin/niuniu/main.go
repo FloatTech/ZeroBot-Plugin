@@ -11,12 +11,13 @@ import (
 	"math"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
 
 var (
-	en = control.Register("niuniu", &ctrl.Options[*zero.Ctx]{
+	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "牛牛大作战",
 		Help: "- 打胶\n" +
@@ -41,7 +42,7 @@ var lock sync.RWMutex
 var jjLimitMap = make(map[userLimit]*time.Time)
 
 func init() {
-	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		niuniuList, err := db.readAllTable(gid)
 		if err != nil {
@@ -50,21 +51,24 @@ func init() {
 		}
 		var m []userInfo
 		for _, info := range niuniuList {
-			if info.Long > 0 {
-				m = append(m, info)
+			if info.Length > 0 {
+				m = append(m, *info)
 			}
 		}
 		if m == nil {
 			ctx.SendChain(message.Text("暂时没有男孩子哦"))
+			return
 		}
-		var messages string
+		var messages strings.Builder
+		messages.WriteString("牛子长度排行\n")
 		userInfos := sortUsersByNegativeLong(m)
 		for i, user := range userInfos {
-			messages += fmt.Sprintf("第%d名 id:%s 长度:%.2fcom\n", i+1, ctx.CardOrNickName(user.Uid), user.Long)
+			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
+				ctx.CardOrNickName(user.Uid), user.Length))
 		}
 		ctx.SendChain(message.Text(messages))
 	})
-	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		niuniuList, err := db.readAllTable(gid)
 		if err != nil {
@@ -73,26 +77,30 @@ func init() {
 		}
 		var m []userInfo
 		for _, info := range niuniuList {
-			if info.Long <= 0 {
-				m = append(m, info)
+			if info.Length <= 0 {
+				m = append(m, *info)
 			}
 		}
 		if m == nil {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
+			return
 		}
-		var messages string
+		var messages strings.Builder
 		userInfos := sortUsersByNegativeLong(m)
+		messages.WriteString("牛牛深度排行榜\n")
 		for i, user := range userInfos {
-			messages += fmt.Sprintf("第%d名 id:%s 长度:%.2fcom\n", i+1, ctx.CardOrNickName(user.Uid), user.Long)
+			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
+				ctx.CardOrNickName(user.Uid), user.Length))
 		}
 		ctx.SendChain(message.Text(messages))
 	})
-	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+
+	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		niuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
-			ctx.SendChain(message.Text("ta还没有牛牛呢不能查看!"))
+			ctx.SendChain(message.Text("你还没有牛牛呢不能查看!"))
 			return
 		}
 		var result string
@@ -158,7 +166,7 @@ func init() {
 		}
 		ctx.SendChain(message.At(uid), message.Text(result))
 	})
-	en.OnFullMatchGroup([]string{"打胶"}, zero.OnlyGroup, getdb).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		// 获取群号和用户ID
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
@@ -175,12 +183,14 @@ func init() {
 			if t, ok := dajiaoLimitMap[userLimit{gid: gid, uid: uid}]; ok {
 				timePass = int64(time.Since(t.Local()).Seconds())
 				if timePass < 90 {
-					ctx.SendChain(message.Text([]string{
+					r := rand.Intn(4)
+					messages1 := []string{
 						fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
 						fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
 						fmt.Sprintf("休息一下吧，会炸膛的！%ds后再来吧", 90-timePass),
 						fmt.Sprintf("打咩哟，你的牛牛会爆炸的，休息%ds再来吧", 90-timePass),
-					}[rand.Intn(4)]))
+					}
+					ctx.SendChain(message.Text(messages1[r]))
 					lock.RUnlock()
 					return
 				} else {
@@ -196,47 +206,49 @@ func init() {
 		switch {
 		case probability <= 40:
 			niuniu += reduce
+			r := rand.Intn(2)
 			ctx.SendChain(message.Text([]string{
 				fmt.Sprintf("你嘿咻嘿咻一下，促进了牛牛发育，牛牛增加%.2fcm了呢！", reduce),
 				fmt.Sprintf("你打了个舒服痛快的🦶呐，牛牛增加了%.2fcm呢！", reduce),
-			}[rand.Intn(2)]))
+			}[r]))
 		case probability <= 60:
+			r := rand.Intn(2)
 			ctx.SendChain(message.Text([]string{
 				"你打了个🦶，但是什么变化也没有，好奇怪捏~",
 				"你的牛牛刚开始变长了，可过了一会又回来了，什么变化也没有，好奇怪捏~",
-			}[rand.Intn(2)]))
+			}[r]))
 		default:
 			niuniu -= reduce
+			r := rand.Intn(3)
 			if niuniu < 0 {
 				ctx.SendChain(message.Text([]string{
 					fmt.Sprintf("哦吼！？看来你的牛牛凹进去了%.2fcm呢！", reduce),
 					fmt.Sprintf("你突发恶疾！你的牛牛凹进去了%.2fcm！", reduce),
 					fmt.Sprintf("笑死，你因为打🦶过度导致牛牛凹进去了%.2fcm！🤣🤣🤣", reduce),
-				}[rand.Intn(3)]))
+				}[r]))
 			} else {
 				ctx.SendChain(message.Text([]string{
 					fmt.Sprintf("阿哦，你过度打🦶，牛牛缩短%.2fcm了呢！", reduce),
 					fmt.Sprintf("你的牛牛变长了很多，你很激动地继续打🦶，然后牛牛缩短了%.2fcm呢！", reduce),
 					fmt.Sprintf("小打怡情，大打伤身，强打灰飞烟灭！你过度打🦶，牛牛缩短了%.2fcm捏！", reduce),
-				}[rand.Intn(3)]))
+				}[r]))
 			}
 		}
 		u := userInfo{
-			Uid:  uid,
-			Long: niuniu,
-			Id:   1,
+			Uid:    uid,
+			Length: niuniu,
+			Id:     1,
 		}
 		if err = db.insertniuniu(u, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		t := time.Now()
-		dajiaoLimitMap[userLimit{
-			gid: gid,
-			uid: uid,
-		}] = &t
+		timer := time.Now()
+		lock.Lock()
+		dajiaoLimitMap[userLimit{gid: gid, uid: uid}] = &timer
+		lock.Unlock()
 	})
-	en.OnFullMatch("注册牛牛", zero.OnlyGroup, getdb).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("注册牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
 		if _, err := db.findniuniu(gid, uid); err == nil {
@@ -244,11 +256,11 @@ func init() {
 			return
 		}
 		//获取初始长度
-		long, _ := randomLong().Float64()
+		long := db.randomLong().InexactFloat64()
 		u := userInfo{
-			Uid:  uid,
-			Long: long,
-			Id:   1,
+			Uid:    uid,
+			Length: long,
+			Id:     1,
 		}
 		//添加数据进入表
 		err := db.insertniuniu(u, gid)
@@ -265,9 +277,9 @@ func init() {
 			}
 		}
 		ctx.SendChain(message.Reply(ctx.Event.GroupID),
-			message.Text("注册成功,你的牛牛现在有", u.Long, "cm"))
+			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
-	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		adduser, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -288,15 +300,16 @@ func init() {
 		var timePass int64
 		lock.RLock()
 		if len(jjLimitMap) > 0 {
-			if t, ok := dajiaoLimitMap[userLimit{gid: gid, uid: uid}]; ok {
+			if t, ok := jjLimitMap[userLimit{gid: gid, uid: uid}]; ok {
 				timePass = int64(time.Since(t.Local()).Seconds())
 				if timePass < 150 {
+					r := rand.Intn(4)
 					ctx.SendChain(message.Text([]string{
 						fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
 						fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 150-timePass),
 						fmt.Sprintf("你这种男同就应该被送去集中营！等待%ds再来吧", 150-timePass),
 						fmt.Sprintf("打咩哟！你的牛牛会炸的，休息%ds再来吧", 150-timePass),
-					}[rand.Intn(4)]))
+					}[r]))
 					lock.RUnlock()
 					return
 				} else {
@@ -314,12 +327,12 @@ func init() {
 			return
 		}
 		fencingResult, f, f1 := fencing(myniuniu, adduserniuniu)
-		err = db.insertniuniu(userInfo{Uid: uid, Long: f}, gid)
+		err = db.insertniuniu(userInfo{Uid: uid, Length: f}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		err = db.insertniuniu(userInfo{Uid: adduser, Long: f1}, gid)
+		err = db.insertniuniu(userInfo{Uid: adduser, Length: f1}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -333,7 +346,7 @@ func init() {
 		}] = &t
 		lock.Unlock()
 	})
-	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		_, err := db.findniuniu(gid, uid)
@@ -357,7 +370,7 @@ func randomChoice(options []string) string {
 // sortUsersByNegativeLong 接收一个UserInfo切片，并按Long字段负数越大（绝对值越小）排序后返回
 func sortUsersByNegativeLong(users []userInfo) []userInfo {
 	sort.Slice(users, func(i, j int) bool {
-		return users[i].Long > users[j].Long
+		return int(math.Abs(users[i].Length)) > int(math.Abs(users[j].Length))
 	})
 	return users
 }
