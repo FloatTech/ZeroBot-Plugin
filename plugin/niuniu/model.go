@@ -1,3 +1,4 @@
+// Package niuniu 牛牛大作战
 package niuniu
 
 import (
@@ -18,9 +19,9 @@ type model struct {
 }
 
 type userInfo struct {
-	Uid    int64
+	UID    int64
 	Length float64
-	Id     int
+	ID     int
 }
 
 var (
@@ -40,7 +41,7 @@ func (db *model) randomLong() decimal.Decimal {
 	return decimal.NewFromFloat(float64(rand.Intn(9)+1) + float64(rand.Intn(100))/100)
 }
 
-func (db *model) createGidTable(gid int64) error {
+func (db *model) createGIDTable(gid int64) error {
 	db.Lock()
 	defer db.Unlock()
 	return db.sql.Create(strconv.FormatInt(gid, 10), &userInfo{})
