@@ -1,3 +1,4 @@
+// Package niuniu 牛牛大作战
 package niuniu
 
 import (
@@ -48,12 +49,10 @@ func fencing(myLength, oppoLength float64) (string, float64, float64) {
 func determineResultBySkill(myLength, oppoLength float64) (string, float64, float64) {
 	probability := rand.Intn(100) + 1
 	winProbability := calculateWinProbability(myLength, oppoLength) * 100
-
 	if 0 < probability && float64(probability) <= winProbability {
 		return applySkill(myLength, oppoLength, true)
-	} else {
-		return applySkill(myLength, oppoLength, false)
 	}
+	return applySkill(myLength, oppoLength, false)
 }
 
 // calculateWinProbability 计算胜率
@@ -79,14 +78,14 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 		}
 		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
 
-	} else {
-		myLength -= reduce
-		oppoLength += 0.8 * reduce
-		if myLength < 0 {
-			return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), myLength, oppoLength
-		}
-		return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
 	}
+	myLength -= reduce
+	oppoLength += 0.8 * reduce
+	if myLength < 0 {
+		return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), myLength, oppoLength
+	}
+	return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
+
 }
 
 // fence 简单模拟击剑技巧效果
