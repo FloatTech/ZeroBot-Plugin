@@ -1,3 +1,4 @@
+// Package niuniu 牛牛大作战
 package niuniu
 
 import (
@@ -63,8 +64,8 @@ func init() {
 		messages.WriteString("牛子长度排行\n")
 		userInfos := sortUsersByLength(m)
 		for i, user := range userInfos {
-			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
-				ctx.CardOrNickName(user.Uid), user.Length))
+			messages.WriteString(fmt.Sprintf("第%d名    id:%s    长度:%.2fcm\n", i+1,
+				ctx.CardOrNickName(user.UID), user.Length))
 		}
 		ctx.SendChain(message.Text(messages.String()))
 	})
@@ -89,8 +90,8 @@ func init() {
 		userInfos := sortUsersByNegativeLength(m)
 		messages.WriteString("牛牛深度排行榜\n")
 		for i, user := range userInfos {
-			messages.WriteString(fmt.Sprintf("第%d名      id:%s    长度:%.2fcom\n", i+1,
-				ctx.CardOrNickName(user.Uid), user.Length))
+			messages.WriteString(fmt.Sprintf("第%d名    id:%s    长度:%.2fcm\n", i+1,
+				ctx.CardOrNickName(user.UID), user.Length))
 		}
 		ctx.SendChain(message.Text(messages.String()))
 	})
@@ -103,68 +104,70 @@ func init() {
 			ctx.SendChain(message.Text("你还没有牛牛呢不能查看!"))
 			return
 		}
-		var result string
+		var result strings.Builder
 		sexLong := "长"
 		sex := "♂️"
 		if niuniu < 0 {
 			sexLong = "深"
 			sex = "♀️"
 		}
-		result = fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕ ", ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10), sex, sexLong, niuniu)
+		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕ ",
+			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
+			sex, sexLong, niuniu))
 		switch {
 		case niuniu <= -100:
-			result += "wtf？你已经进化成魅魔了！魅魔在击剑时有20%的几率消耗自身长度吞噬对方牛牛呢。"
+			result.WriteString("wtf？你已经进化成魅魔了！魅魔在击剑时有20%的几率消耗自身长度吞噬对方牛牛呢。")
 		case niuniu <= -50:
-			result += "嗯....好像已经穿过了身体吧..从另一面来看也可以算是凸出来的吧?"
+			result.WriteString("嗯....好像已经穿过了身体吧..从另一面来看也可以算是凸出来的吧?")
 		case niuniu <= -25:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"这名女生，你的身体很健康哦！",
 				"WOW,真的凹进去了好多呢！",
 				"你已经是我们女孩子的一员啦！",
-			})
+			}))
 		case niuniu <= -10:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"你已经是一名女生了呢，",
 				"从女生的角度来说，你发育良好(,",
 				"你醒啦？你已经是一名女孩子啦！",
 				"唔...可以放进去一根手指了都...",
-			})
+			}))
 		case niuniu <= 0:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"安了安了，不要伤心嘛，做女生有什么不好的啊。",
 				"不哭不哭，摸摸头，虽然很难再长出来，但是请不要伤心啦啊！",
 				"加油加油！我看好你哦！",
 				"你醒啦？你现在已经是一名女孩子啦！",
-			})
+			}))
 		case niuniu <= 10:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"你行不行啊？细狗！",
 				"虽然短，但是小小的也很可爱呢。",
 				"像一只蚕宝宝。",
 				"长大了。",
-			})
+			}))
 		case niuniu <= 25:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"唔...没话说",
 				"已经很长了呢！",
-			})
+			}))
 		case niuniu <= 50:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"话说这种真的有可能吗？",
 				"厚礼谢！",
-			})
+			}))
 		case niuniu <= 100:
-			result += randomChoice([]string{
+			result.WriteString(randomChoice([]string{
 				"已经突破天际了嘛...",
 				"唔...这玩意应该不会变得比我高吧？",
 				"你这个长度会死人的...！",
 				"你马上要进化成牛头人了！！",
 				"你是什么怪物，不要过来啊！！",
-			})
+			}))
 		case niuniu > 100:
-			result += "惊世骇俗！你已经进化成牛头人了！牛头人在击剑时有20%的几率消耗自身长度吞噬对方牛牛呢。"
+			result.WriteString("惊世骇俗！你已经进化成牛头人了！牛头人在击剑时有20%的几率消耗自身长度吞噬对方牛牛呢。")
 		}
-		ctx.SendChain(message.At(uid), message.Text(result))
+		ctx.SendChain(message.At(uid), message.Text(result.String()))
 	})
 	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		// 获取群号和用户ID
@@ -193,13 +196,13 @@ func init() {
 					ctx.SendChain(message.Text(messages1[r]))
 					lock.RUnlock()
 					return
-				} else {
-					lock.RUnlock()
-					lock.Lock()
-					delete(dajiaoLimitMap, userLimit{gid: gid, uid: uid})
-					lock.Unlock()
-					lock.RLock()
 				}
+				lock.RUnlock()
+				lock.Lock()
+				delete(dajiaoLimitMap, userLimit{gid: gid, uid: uid})
+				lock.Unlock()
+				lock.RLock()
+
 			}
 		}
 		lock.RUnlock()
@@ -235,9 +238,9 @@ func init() {
 			}
 		}
 		u := userInfo{
-			Uid:    uid,
+			UID:    uid,
 			Length: niuniu,
-			Id:     1,
+			ID:     1,
 		}
 		if err = db.insertniuniu(u, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -258,14 +261,14 @@ func init() {
 		//获取初始长度
 		long := db.randomLong().InexactFloat64()
 		u := userInfo{
-			Uid:    uid,
+			UID:    uid,
 			Length: long,
-			Id:     1,
+			ID:     1,
 		}
 		//添加数据进入表
 		err := db.insertniuniu(u, gid)
 		if err != nil {
-			err = db.createGidTable(gid)
+			err = db.createGIDTable(gid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -327,12 +330,12 @@ func init() {
 			return
 		}
 		fencingResult, f, f1 := fencing(myniuniu, adduserniuniu)
-		err = db.insertniuniu(userInfo{Uid: uid, Length: f}, gid)
+		err = db.insertniuniu(userInfo{UID: uid, Length: f}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		err = db.insertniuniu(userInfo{Uid: adduser, Length: f1}, gid)
+		err = db.insertniuniu(userInfo{UID: adduser, Length: f1}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -367,7 +370,7 @@ func randomChoice(options []string) string {
 	return options[rand.Intn(len(options))]
 }
 
-// sortUsersByNegativeLong 接收一个UserInfo切片，并按Long字段负数越大（绝对值越小）排序后返回
+// 牛子深度
 func sortUsersByNegativeLength(users []userInfo) []userInfo {
 	sort.Slice(users, func(i, j int) bool {
 		return math.Abs(users[i].Length) > math.Abs(users[j].Length)
@@ -375,6 +378,7 @@ func sortUsersByNegativeLength(users []userInfo) []userInfo {
 	return users
 }
 
+// 牛子长度
 func sortUsersByLength(users []userInfo) []userInfo {
 	sort.Slice(users, func(i, j int) bool {
 		return users[i].Length > users[j].Length
