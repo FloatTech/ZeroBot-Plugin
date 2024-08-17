@@ -7,13 +7,13 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/shopspring/decimal"
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"golang.org/x/exp/rand"
 	"math"
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -30,17 +30,9 @@ var (
 			"- 牛子深度排行\n",
 		PrivateDataFolder: "niuniu",
 	})
+	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
+	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
 )
-
-// 设置超时
-type userLimit struct {
-	gid int64
-	uid int64
-}
-
-var dajiaoLimitMap = make(map[userLimit]*time.Time)
-var lock sync.RWMutex
-var jjLimitMap = make(map[userLimit]*time.Time)
 
 func init() {
 	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -169,7 +161,23 @@ func init() {
 		}
 		ctx.SendChain(message.At(uid), message.Text(result.String()))
 	})
-	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup,
+		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
+		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
+			strconv.FormatInt(ctx.Event.UserID, 10)))
+		return lt
+	}, func(ctx *zero.Ctx) {
+		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
+			strconv.FormatInt(ctx.Event.UserID, 10)))
+		timePass := lt.AcquireTime().Second()
+		messages1 := []string{
+			fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
+			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
+			fmt.Sprintf("休息一下吧，会炸膛的！%ds后再来吧", 90-timePass),
+			fmt.Sprintf("打咩哟，你的牛牛会爆炸的，休息%ds再来吧", 90-timePass),
+		}
+		ctx.SendChain(message.Text(randomChoice(messages1)))
+	}).Handle(func(ctx *zero.Ctx) {
 		// 获取群号和用户ID
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
@@ -180,32 +188,6 @@ func init() {
 		}
 		probability := rand.Intn(100 + 1)
 		reduce := math.Abs(hitGlue(decimal.NewFromFloat(niuniu)))
-		var timePass int64
-		lock.RLock()
-		if len(dajiaoLimitMap) > 0 {
-			if t, ok := dajiaoLimitMap[userLimit{gid: gid, uid: uid}]; ok {
-				timePass = int64(time.Since(t.Local()).Seconds())
-				if timePass < 90 {
-					r := rand.Intn(4)
-					messages1 := []string{
-						fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
-						fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
-						fmt.Sprintf("休息一下吧，会炸膛的！%ds后再来吧", 90-timePass),
-						fmt.Sprintf("打咩哟，你的牛牛会爆炸的，休息%ds再来吧", 90-timePass),
-					}
-					ctx.SendChain(message.Text(messages1[r]))
-					lock.RUnlock()
-					return
-				}
-				lock.RUnlock()
-				lock.Lock()
-				delete(dajiaoLimitMap, userLimit{gid: gid, uid: uid})
-				lock.Unlock()
-				lock.RLock()
-
-			}
-		}
-		lock.RUnlock()
 		switch {
 		case probability <= 40:
 			niuniu += reduce
@@ -246,10 +228,6 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		timer := time.Now()
-		lock.Lock()
-		dajiaoLimitMap[userLimit{gid: gid, uid: uid}] = &timer
-		lock.Unlock()
 	})
 	en.OnFullMatch("注册牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -282,7 +260,25 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.GroupID),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
-	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb,
+		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
+		lt := jjLimiter.Load(fmt.Sprintf("jj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
+			strconv.FormatInt(ctx.Event.UserID, 10)))
+		return lt
+	}, func(ctx *zero.Ctx) {
+		lt := jjLimiter.Load(fmt.Sprintf("jj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
+			strconv.FormatInt(ctx.Event.UserID, 10)))
+		timePass := lt.AcquireTime().Second()
+		if lt.Acquire() {
+			ctx.SendChain(message.Text(randomChoice([]string{
+				fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
+				fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 150-timePass),
+				fmt.Sprintf("你这种男同就应该被送去集中营！等待%ds再来吧", 150-timePass),
+				fmt.Sprintf("打咩哟！你的牛牛会炸的，休息%ds再来吧", 150-timePass),
+			})))
+		}
+	},
+	).Handle(func(ctx *zero.Ctx) {
 		adduser, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -300,31 +296,6 @@ func init() {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
 			return
 		}
-		var timePass int64
-		lock.RLock()
-		if len(jjLimitMap) > 0 {
-			if t, ok := jjLimitMap[userLimit{gid: gid, uid: uid}]; ok {
-				timePass = int64(time.Since(t.Local()).Seconds())
-				if timePass < 150 {
-					r := rand.Intn(4)
-					ctx.SendChain(message.Text([]string{
-						fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
-						fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 150-timePass),
-						fmt.Sprintf("你这种男同就应该被送去集中营！等待%ds再来吧", 150-timePass),
-						fmt.Sprintf("打咩哟！你的牛牛会炸的，休息%ds再来吧", 150-timePass),
-					}[r]))
-					lock.RUnlock()
-					return
-				} else {
-					lock.RUnlock()
-					lock.Lock()
-					delete(jjLimitMap, userLimit{gid: gid, uid: uid})
-					lock.Unlock()
-					lock.RLock()
-				}
-			}
-		}
-		lock.RUnlock()
 		if myniuniu == adduserniuniu {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
 			return
@@ -341,15 +312,8 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.At(uid), message.Text(fencingResult))
-		t := time.Now()
-		lock.Lock()
-		jjLimitMap[userLimit{
-			gid: gid,
-			uid: uid,
-		}] = &t
-		lock.Unlock()
 	})
-	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		_, err := db.findniuniu(gid, uid)
