@@ -73,7 +73,7 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 		myLength += reduce
 		oppoLength -= 0.8 * reduce
 
-		if myLength > 0 {
+		if myLength < 0 {
 			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), myLength, oppoLength
 		}
 		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
