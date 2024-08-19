@@ -187,7 +187,6 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("钱包余额修改成功，已修改用户:", uidStr, "的钱包，修改金额为：", amount))
-
 		})
 
 	// 保留用户习惯,兼容旧语法“查看我的钱包”
@@ -211,7 +210,6 @@ func init() {
 
 	en.OnPrefix(`钱包转账`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-
 			param := strings.TrimSpace(ctx.State["args"].(string))
 
 			// 捕获修改的金额
@@ -255,7 +253,5 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("转账成功:成功给"), message.At(uidInt), message.Text(",转账:", amount, wallet.GetWalletName()))
-
 		})
-
 }
