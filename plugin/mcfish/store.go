@@ -107,7 +107,7 @@ func init() {
 						"[", i, "]", info.Name, "  数量: ", info.Number, "\n"))
 				}
 			}
-			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n输入对应序号进行出售,或回复“取消”取消"))
 			ctx.Send(msg)
 			// 等待用户下一步选择
 			sell := false
@@ -169,7 +169,7 @@ func init() {
 		for {
 			select {
 			case <-time.After(time.Second * 60):
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消钓鱼")))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消出售")))
 				return
 			case e := <-recv:
 				nextcmd := e.Event.Message.String()
@@ -333,7 +333,7 @@ func init() {
 			pice += (priceList[info.Name] * discountList[info.Name] / 100) * info.Number * 8 / 10
 		}
 
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice, "收购全部垃圾", "?\n回答\"是\"或\"否\"")))
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受回收站将以", pice, "收购全部垃圾", "?\n回答\"是\"或\"否\"")))
 		// 等待用户下一步选择
 		recv, cancel1 := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 		defer cancel1()
@@ -341,7 +341,7 @@ func init() {
 		for {
 			select {
 			case <-time.After(time.Second * 60):
-				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消钓鱼")))
+				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消出售垃圾")))
 				return
 			case e := <-recv:
 				nextcmd := e.Event.Message.String()
@@ -374,6 +374,11 @@ func init() {
 				ctx.SendChain(message.Text("[ERROR at store.go.6]:", err))
 				return
 			}
+		}
+		err = wallet.InsertWalletOf(uid, pice)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR，出售垃圾失败，回收站卷款跑路了]:", err))
+			return
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice, msg)))
 	})
@@ -462,7 +467,7 @@ func init() {
 						"[", i, "]", info.Name, "  数量:", info.Number, "  价格:", pice[i], "\n"))
 				}
 			}
-			msg = append(msg, message.Text("————————\n输入对应序号进行装备,或回复“取消”取消"))
+			msg = append(msg, message.Text("————————\n输入对应序号进行购买,或回复“取消”取消"))
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, msg...))
 			// 等待用户下一步选择
 			sell := false

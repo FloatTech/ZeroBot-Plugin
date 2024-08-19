@@ -184,7 +184,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 		return
 	}
 
-	data, err = web.GetData("http://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
+	data, err = web.GetData("https://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(uid, 10) + "&s=640")
 	if err != nil {
 		return
 	}

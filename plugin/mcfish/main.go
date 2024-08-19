@@ -208,7 +208,7 @@ func init() {
 		Min: probableList[2],
 		Max: probableList[3],
 	}
-	min := make(map[string]int, 4)
+	minMap := make(map[string]int, 4)
 	for _, info := range articlesInfo.ArticleInfo {
 		switch {
 		case info.Type == "pole" || info.Name == "美西螈":
@@ -228,10 +228,10 @@ func init() {
 			durationList[info.Name] = info.Durable
 		}
 		probabilities[info.Name] = probabilityLimit{
-			Min: min[info.Type],
-			Max: min[info.Type] + info.Probability,
+			Min: minMap[info.Type],
+			Max: minMap[info.Type] + info.Probability,
 		}
-		min[info.Type] += info.Probability
+		minMap[info.Type] += info.Probability
 	}
 	// }()
 }
@@ -413,9 +413,9 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 		}
 		if fishInfo.Number < i {
 			k++
-			fishInfo.Number = 0
 			i -= fishInfo.Number
 			fishNames[fishInfo.Name] += fishInfo.Number
+			fishInfo.Number = 0
 		} else {
 			fishNames[fishInfo.Name] += i
 			fishInfo.Number -= i

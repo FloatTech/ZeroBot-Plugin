@@ -128,7 +128,7 @@ func init() {
 				ctx.SendChain(
 					message.At(uid),
 					message.Text("\n今天你在", userInfo.Updatetime, "娶了群友"),
-					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(userInfo.Target, 10)+"&s=640").Add("cache", 0),
+					message.Image("https://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(userInfo.Target, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
 						"[", userInfo.Targetname, "]",
@@ -140,7 +140,7 @@ func init() {
 				ctx.SendChain(
 					message.At(uid),
 					message.Text("\n今天你在", userInfo.Updatetime, "被群友"),
-					message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(userInfo.User, 10)+"&s=640").Add("cache", 0),
+					message.Image("https://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(userInfo.User, 10)+"&s=640").Add("cache", 0),
 					message.Text(
 						"\n",
 						"[", userInfo.Username, "]",
@@ -200,7 +200,7 @@ func init() {
 			ctx.SendChain(
 				message.At(uid),
 				message.Text("今天你的群老婆是"),
-				message.Image("http://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
+				message.Image("https://q4.qlogo.cn/g?b=qq&nk="+strconv.FormatInt(fiancee, 10)+"&s=640").Add("cache", 0),
 				message.Text(
 					"\n",
 					"[", ctx.CardOrNickName(fiancee), "]",

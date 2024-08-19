@@ -59,7 +59,7 @@ func init() {
 			for {
 				select {
 				case <-time.After(time.Second * 120):
-					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消钓鱼")))
+					ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("等待超时,取消购买")))
 					return
 				case e := <-recv:
 					nextcmd := e.Event.Message.String()
@@ -69,7 +69,7 @@ func init() {
 					}
 					money := wallet.GetWalletOf(uid)
 					if money < 100 {
-						ctx.SendChain(message.Text("你钱包当前只有", money, "ATRI币,无法完成支付"))
+						ctx.SendChain(message.Text("你钱包当前只有", money, wallet.GetWalletName(), ",无法完成支付"))
 						return
 					}
 					err = wallet.InsertWalletOf(uid, -100)
@@ -147,7 +147,7 @@ func init() {
 			fishNumber = 0
 			for name, number := range fishNmaes {
 				fishNumber += number
-				msg += strconv.Itoa(number) + name + "、"
+				msg += strconv.Itoa(number) + name + " "
 			}
 			msg += ")"
 			fishNumber /= 2
