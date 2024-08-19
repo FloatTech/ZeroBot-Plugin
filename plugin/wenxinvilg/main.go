@@ -415,14 +415,14 @@ func init() { // 插件主体
 			minlen := 1
 			maxlen := 128
 			if mun != "" {
-				max, err := strconv.Atoi(mun)
+				maxNum, err := strconv.Atoi(mun)
 				if err != nil {
 					ctx.SendChain(message.Text(modelErr, err))
 					return
 				}
-				minlen = max
-				if max > 128 {
-					maxlen = max
+				minlen = maxNum
+				if maxNum > 128 {
+					maxlen = maxNum
 				}
 			}
 			keyword := ctx.State["regex_matched"].([]string)[4]

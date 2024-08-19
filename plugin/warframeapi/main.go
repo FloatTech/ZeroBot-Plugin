@@ -321,9 +321,9 @@ func init() {
 			}
 
 			ismod := iteminfo.ModMaxRank != 0
-			max := 5
-			if len(sells) < max {
-				max = len(sells)
+			maxCount := 5
+			if len(sells) < maxCount {
+				maxCount = len(sells)
 			}
 			sb := strings.Builder{}
 			if ismod {
@@ -332,13 +332,13 @@ func init() {
 				} else {
 					msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx, message.Text("请输入编号选择(30s内)\n输入c直接结束会话")))
 				}
-				for i := 0; i < max; i++ {
+				for i := 0; i < maxCount; i++ {
 					// msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
 					//	message.Text(fmt.Sprintf("[%d] (Rank:%d/%d)  %dP - %s\n", i, sells[i].ModRank, iteminfo.ModMaxRank, sells[i].Platinum, sells[i].User.IngameName))))
 					sb.WriteString(fmt.Sprintf("[%d] (Rank:%d/%d)  %dP - %s\n", i, sells[i].ModRank, iteminfo.ModMaxRank, sells[i].Platinum, sells[i].User.IngameName))
 				}
 			} else {
-				for i := 0; i < max; i++ {
+				for i := 0; i < maxCount; i++ {
 					// msgs = append(msgs, ctxext.FakeSenderForwardNode(ctx,
 					//	message.Text(fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))))
 					sb.WriteString(fmt.Sprintf("[%d] %dP -%s\n", i, sells[i].Platinum, sells[i].User.IngameName))

@@ -361,12 +361,12 @@ func init() {
 			ctx.SendChain(message.Text("[ERROR at pole.go.10]:", err))
 			return
 		}
-		max := len(articles)
-		if max < 3 {
+		maxCount := len(articles)
+		if maxCount < 3 {
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你的合成材料不足"))
 			return
 		}
-		poles := make([]equip, 0, max)
+		poles := make([]equip, 0, maxCount)
 		for _, info := range articles {
 			poleInfo := strings.Split(info.Other, "/")
 			durable, _ := strconv.Atoi(poleInfo[0])
@@ -447,8 +447,8 @@ func init() {
 						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[0]请输入正确的序号\n", list))
 						continue
 					}
-					if first >= max || second >= max || third >= max {
-						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", max, "]请输入正确的序号\n", list))
+					if first >= maxCount || second >= maxCount || third >= maxCount {
+						ctx.SendChain(message.At(ctx.Event.UserID), message.Text("[", maxCount, "]请输入正确的序号\n", list))
 						continue
 					}
 					check = true

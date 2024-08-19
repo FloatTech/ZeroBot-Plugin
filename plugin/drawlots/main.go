@@ -252,17 +252,17 @@ func randGif(gifName string, uid int64) (image.Image, error) {
 	// https://zhuanlan.zhihu.com/p/27718135
 	rect := image.Rect(0, 0, config.Width, config.Height)
 	if rect.Min == rect.Max {
-		var max image.Point
+		var maxP image.Point
 		for _, frame := range im.Image {
 			maxF := frame.Bounds().Max
-			if max.X < maxF.X {
-				max.X = maxF.X
+			if maxP.X < maxF.X {
+				maxP.X = maxF.X
 			}
-			if max.Y < maxF.Y {
-				max.Y = maxF.Y
+			if maxP.Y < maxF.Y {
+				maxP.Y = maxF.Y
 			}
 		}
-		rect.Max = max
+		rect.Max = maxP
 	}
 	img := image.NewRGBA(rect)
 	b := fcext.RandSenderPerDayN(uid, len(im.Image)) + 1
