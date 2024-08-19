@@ -163,13 +163,10 @@ func init() {
 	})
 	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup,
 		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
-		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
-			strconv.FormatInt(ctx.Event.UserID, 10)))
-		return lt
+		return dajiaoLimiter.Load(fmt.Sprintf("dj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
 	}, func(ctx *zero.Ctx) {
-		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
-			strconv.FormatInt(ctx.Event.UserID, 10)))
-		timePass := lt.AcquireTime().Second()
+		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
+		timePass := lt.LastTouch()
 		messages1 := []string{
 			fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
 			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
@@ -262,13 +259,10 @@ func init() {
 	})
 	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb,
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
-		lt := jjLimiter.Load(fmt.Sprintf("jj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
-			strconv.FormatInt(ctx.Event.UserID, 10)))
-		return lt
+		return jjLimiter.Load(fmt.Sprintf("jj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
 	}, func(ctx *zero.Ctx) {
-		lt := jjLimiter.Load(fmt.Sprintf("jj%s%s", strconv.FormatInt(ctx.Event.GroupID, 10),
-			strconv.FormatInt(ctx.Event.UserID, 10)))
-		timePass := lt.AcquireTime().Second()
+		lt := jjLimiter.Load(fmt.Sprintf("jj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
+		timePass := lt.LastTouch()
 		if lt.Acquire() {
 			ctx.SendChain(message.Text(randomChoice([]string{
 				fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
