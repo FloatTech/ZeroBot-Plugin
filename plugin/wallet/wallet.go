@@ -29,7 +29,7 @@ func init() {
 		Help: "- 查看钱包排名\n" +
 			"- 设置硬币名称XX\n" +
 			"- 管理钱包余额[+金额|-金额][@xxx]\n" +
-			"- 查看我的钱包|查询钱包余额[@xxx]\n" +
+			"- 查看我的钱包|查看钱包余额[@xxx]\n" +
 			"- 钱包转账[金额][@xxx]\n" +
 			"注：仅超级用户能“管理钱包余额”\n",
 		PrivateDataFolder: "wallet",
@@ -177,8 +177,8 @@ func init() {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("QQ号处理失败"))
 				return
 			}
-			if amount < wallet.GetWalletOf(uidInt) {
-				ctx.SendChain(message.Text("管理失败:对方钱包余额不足，扣款失败:"))
+			if amount+wallet.GetWalletOf(uidInt) < 0 {
+				ctx.SendChain(message.Text("管理失败:对方钱包余额不足，扣款失败"))
 				return
 			}
 			err = wallet.InsertWalletOf(uidInt, amount)
@@ -190,7 +190,7 @@ func init() {
 		})
 
 	// 保留用户习惯,兼容旧语法“查看我的钱包”
-	en.OnPrefixGroup([]string{`查询钱包余额`, `查看我的钱包`}).SetBlock(true).Limit(ctxext.LimitByGroup).
+	en.OnPrefixGroup([]string{`查看钱包余额`, `查看我的钱包`}).SetBlock(true).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			param := ctx.State["args"].(string)
 			var uidStr string
@@ -212,8 +212,8 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			param := strings.TrimSpace(ctx.State["args"].(string))
 
-			// 捕获修改的金额
-			re := regexp.MustCompile(`^[+-]?\d+$`)
+			// 捕获修改的金额,amount扣款金额恒正（要注意符号）
+			re := regexp.MustCompile(`^[+]?\d+$`)
 			amount, err := strconv.Atoi(re.FindString(param))
 			if err != nil || amount <= 0 {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("输入额异常，请检查金额或at是否正常"))
