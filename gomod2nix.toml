@@ -26,8 +26,8 @@ schema = 3
     version = "v0.0.0-20230307105452-d6f7b2b647d1"
     hash = "sha256-BQzWUzoIOLwfZa7WElqaa3EYrcz1Ql6JApgxZIQHBro="
   [mod."github.com/FloatTech/zbpctrl"]
-    version = "v1.6.1"
-    hash = "sha256-S5KSLZSUt6s7i6ZfKovlJawXF5NYkenPSNVWk+xtO8o="
+    version = "v1.6.2-0.20240819160950-8c602be65fc6"
+    hash = "sha256-Yvbi12yoX4KPSN7YIdQDvvC8327TwxUaLoWoKNf9UWI="
   [mod."github.com/FloatTech/zbputils"]
     version = "v1.7.2-0.20240530064059-af6f6773ba94"
     hash = "sha256-cpanspZVMKWAXUtXUFKmIiCS+Xmzr6JNNYc6xxRSMb0="
@@ -221,8 +221,8 @@ schema = 3
     version = "v2.1.1"
     hash = "sha256-emvjt/ze8skM+MBflwV0EgS/svpaEGU/mn27Ie4VTXs="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.7.5-0.20240627150749-3ff3d73940da"
-    hash = "sha256-kpseKieBzE3xYHvB+18J5L6croCCqoQ9KPHvP318Uus="
+    version = "v1.7.5-0.20240819160523-35d33e774a2d"
+    hash = "sha256-5I+24K6xt9p5Cd/ZXWZ7MTVq+sbHqGdD2P6uMtSZ5YU="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
