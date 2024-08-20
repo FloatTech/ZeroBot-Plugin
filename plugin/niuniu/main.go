@@ -59,12 +59,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var m []userInfo
-		for _, info := range niuniuList {
-			if info.Length <= 0 {
-				m = append(m, *info)
-			}
-		}
+		m := niuniuList.newNegative()
 		if m == nil {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
 			return
