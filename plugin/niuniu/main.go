@@ -5,13 +5,10 @@ import (
 	"fmt"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/shopspring/decimal"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"golang.org/x/exp/rand"
-	"math"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -42,21 +39,15 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var m []userInfo
-		for _, info := range niuniuList {
-			if info.Length > 0 {
-				m = append(m, *info)
-			}
-		}
+		m := niuniuList.newPositive()
 		if m == nil {
 			ctx.SendChain(message.Text("暂时没有男孩子哦"))
 			return
 		}
 		var messages strings.Builder
 		messages.WriteString("牛子长度排行\n")
-		userInfos := sortUsersByLength(m)
-		for i, user := range userInfos {
-			messages.WriteString(fmt.Sprintf("第%d名    id:%s    长度:%.2fcm\n", i+1,
+		for i, user := range niuniuList.sortUsersByLength() {
+			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
 		ctx.SendChain(message.Text(messages.String()))
@@ -79,13 +70,13 @@ func init() {
 			return
 		}
 		var messages strings.Builder
-		userInfos := sortUsersByNegativeLength(m)
 		messages.WriteString("牛牛深度排行榜\n")
-		for i, user := range userInfos {
-			messages.WriteString(fmt.Sprintf("第%d名    id:%s    长度:%.2fcm\n", i+1,
+		for i, user := range niuniuList.sortUsersByNegativeLength() {
+			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
-		ctx.SendChain(message.Text(messages.String()))
+
+		ctx.SendChain(message.Text(&messages))
 	})
 
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -103,77 +94,45 @@ func init() {
 			sexLong = "深"
 			sex = "♀️"
 		}
-		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕ ",
-			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
-			sex, sexLong, niuniu))
-		switch {
-		case niuniu <= -100:
-			result.WriteString("wtf？你已经进化成魅魔了！魅魔在击剑时有20%的几率消耗自身长度吞噬对方牛牛呢。")
-		case niuniu <= -50:
-			result.WriteString("嗯....好像已经穿过了身体吧..从另一面来看也可以算是凸出来的吧?")
-		case niuniu <= -25:
-			result.WriteString(randomChoice([]string{
-				"这名女生，你的身体很健康哦！",
-				"WOW,真的凹进去了好多呢！",
-				"你已经是我们女孩子的一员啦！",
-			}))
-		case niuniu <= -10:
-			result.WriteString(randomChoice([]string{
-				"你已经是一名女生了呢，",
-				"从女生的角度来说，你发育良好(,",
-				"你醒啦？你已经是一名女孩子啦！",
-				"唔...可以放进去一根手指了都...",
-			}))
-		case niuniu <= 0:
-			result.WriteString(randomChoice([]string{
-				"安了安了，不要伤心嘛，做女生有什么不好的啊。",
-				"不哭不哭，摸摸头，虽然很难再长出来，但是请不要伤心啦啊！",
-				"加油加油！我看好你哦！",
-				"你醒啦？你现在已经是一名女孩子啦！",
-			}))
-		case niuniu <= 10:
-			result.WriteString(randomChoice([]string{
-				"你行不行啊？细狗！",
-				"虽然短，但是小小的也很可爱呢。",
-				"像一只蚕宝宝。",
-				"长大了。",
-			}))
-		case niuniu <= 25:
-			result.WriteString(randomChoice([]string{
-				"唔...没话说",
-				"已经很长了呢！",
-			}))
-		case niuniu <= 50:
-			result.WriteString(randomChoice([]string{
-				"话说这种真的有可能吗？",
-				"厚礼谢！",
-			}))
-		case niuniu <= 100:
-			result.WriteString(randomChoice([]string{
-				"已经突破天际了嘛...",
-				"唔...这玩意应该不会变得比我高吧？",
-				"你这个长度会死人的...！",
-				"你马上要进化成牛头人了！！",
-				"你是什么怪物，不要过来啊！！",
-			}))
-		case niuniu > 100:
-			result.WriteString("惊世骇俗！你已经进化成牛头人了！牛头人在击剑时有20%的几率消耗自身长度吞噬对方牛牛呢。")
+		niuniuList, err := db.readAllTable(gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
-		ctx.SendChain(message.At(uid), message.Text(result.String()))
+		var ranking int
+		switch {
+		case niuniu > 0:
+			for i, info := range niuniuList.sortUsersByLength() {
+				if info.UID == uid {
+					ranking = i + 1
+					break
+				}
+			}
+		case niuniu <= 0:
+			for i, info := range niuniuList.sortUsersByNegativeLength() {
+				if info.UID == uid {
+					ranking = i + 1
+					break
+				}
+			}
+		}
+		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
+			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
+			sex, sexLong, niuniu, ranking, generateRandomString(niuniu)))
+		ctx.SendChain(message.At(uid), message.Text(&result))
 	})
 	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup,
 		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
-		return dajiaoLimiter.Load(fmt.Sprintf("dj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
+		return dajiaoLimiter.Load(fmt.Sprintf("dj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 	}, func(ctx *zero.Ctx) {
-		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
+		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		timePass := lt.LastTouch()
-		messages1 := []string{
+		ctx.SendChain(message.Text(randomChoice([]string{
 			fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
 			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
 			fmt.Sprintf("休息一下吧，会炸膛的！%ds后再来吧", 90-timePass),
 			fmt.Sprintf("打咩哟，你的牛牛会爆炸的，休息%ds再来吧", 90-timePass),
-		}
-		ctx.SendChain(message.Text(randomChoice(messages1)))
+		})))
 	}).Handle(func(ctx *zero.Ctx) {
 		// 获取群号和用户ID
 		gid := ctx.Event.GroupID
@@ -183,44 +142,12 @@ func init() {
 			ctx.SendChain(message.Text("请先注册牛牛！"))
 			return
 		}
-		probability := rand.Intn(100 + 1)
-		reduce := math.Abs(hitGlue(decimal.NewFromFloat(niuniu)))
-		switch {
-		case probability <= 40:
-			niuniu += reduce
-			r := rand.Intn(2)
-			ctx.SendChain(message.Text([]string{
-				fmt.Sprintf("你嘿咻嘿咻一下，促进了牛牛发育，牛牛增加%.2fcm了呢！", reduce),
-				fmt.Sprintf("你打了个舒服痛快的🦶呐，牛牛增加了%.2fcm呢！", reduce),
-			}[r]))
-		case probability <= 60:
-			r := rand.Intn(2)
-			ctx.SendChain(message.Text([]string{
-				"你打了个🦶，但是什么变化也没有，好奇怪捏~",
-				"你的牛牛刚开始变长了，可过了一会又回来了，什么变化也没有，好奇怪捏~",
-			}[r]))
-		default:
-			niuniu -= reduce
-			r := rand.Intn(3)
-			if niuniu < 0 {
-				ctx.SendChain(message.Text([]string{
-					fmt.Sprintf("哦吼！？看来你的牛牛凹进去了%.2fcm呢！", reduce),
-					fmt.Sprintf("你突发恶疾！你的牛牛凹进去了%.2fcm！", reduce),
-					fmt.Sprintf("笑死，你因为打🦶过度导致牛牛凹进去了%.2fcm！🤣🤣🤣", reduce),
-				}[r]))
-			} else {
-				ctx.SendChain(message.Text([]string{
-					fmt.Sprintf("阿哦，你过度打🦶，牛牛缩短%.2fcm了呢！", reduce),
-					fmt.Sprintf("你的牛牛变长了很多，你很激动地继续打🦶，然后牛牛缩短了%.2fcm呢！", reduce),
-					fmt.Sprintf("小打怡情，大打伤身，强打灰飞烟灭！你过度打🦶，牛牛缩短了%.2fcm捏！", reduce),
-				}[r]))
-			}
-		}
+		messages, f := generateRandomStingTwo(niuniu)
 		u := userInfo{
 			UID:    uid,
-			Length: niuniu,
-			ID:     1,
+			Length: f,
 		}
+		ctx.SendChain(message.Text(messages))
 		if err = db.insertniuniu(u, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -234,11 +161,11 @@ func init() {
 			return
 		}
 		//获取初始长度
-		long := db.randomLong().InexactFloat64()
+		long := db.randLength().InexactFloat64()
 		u := userInfo{
-			UID:    uid,
-			Length: long,
-			ID:     1,
+			UID:       uid,
+			Length:    long,
+			UserCount: 1,
 		}
 		//添加数据进入表
 		err := db.insertniuniu(u, gid)
@@ -259,9 +186,9 @@ func init() {
 	})
 	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb,
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
-		return jjLimiter.Load(fmt.Sprintf("jj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
+		return jjLimiter.Load(fmt.Sprintf("jj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 	}, func(ctx *zero.Ctx) {
-		lt := jjLimiter.Load(fmt.Sprintf("jj%d%d", ctx.Event.GroupID, ctx.Event.UserID))
+		lt := jjLimiter.Load(fmt.Sprintf("jj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		timePass := lt.LastTouch()
 		if lt.Acquire() {
 			ctx.SendChain(message.Text(randomChoice([]string{
@@ -307,7 +234,7 @@ func init() {
 		}
 		ctx.SendChain(message.At(uid), message.Text(fencingResult))
 	})
-	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		_, err := db.findniuniu(gid, uid)
@@ -326,20 +253,4 @@ func init() {
 
 func randomChoice(options []string) string {
 	return options[rand.Intn(len(options))]
-}
-
-// 牛子深度
-func sortUsersByNegativeLength(users []userInfo) []userInfo {
-	sort.Slice(users, func(i, j int) bool {
-		return math.Abs(users[i].Length) > math.Abs(users[j].Length)
-	})
-	return users
-}
-
-// 牛子长度
-func sortUsersByLength(users []userInfo) []userInfo {
-	sort.Slice(users, func(i, j int) bool {
-		return users[i].Length > users[j].Length
-	})
-	return users
 }
