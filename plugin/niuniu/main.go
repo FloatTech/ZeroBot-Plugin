@@ -212,7 +212,7 @@ func init() {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
 			return
 		}
-		if myniuniu == adduserniuniu {
+		if uid == adduser {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
 			return
 		}
