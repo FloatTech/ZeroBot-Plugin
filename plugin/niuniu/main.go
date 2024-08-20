@@ -50,7 +50,7 @@ func init() {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
-		ctx.SendChain(message.Text(messages.String()))
+		ctx.SendChain(message.Text(&messages))
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
