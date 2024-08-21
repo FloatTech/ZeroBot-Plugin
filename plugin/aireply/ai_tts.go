@@ -60,6 +60,7 @@ var (
 	原  = newapikeystore("./data/tts/o.txt")
 	ཆཏ = newapikeystore("./data/tts/c.txt")
 	百  = newapikeystore("./data/tts/b.txt")
+	桑  = newapikeystore("./data/tts/s.txt")
 )
 
 type replymode []string
@@ -89,6 +90,7 @@ func (r replymode) setReplyMode(ctx *zero.Ctx, name string) error {
 }
 
 func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
+	k := 桑.k
 	gid := ctx.Event.GroupID
 	if gid == 0 {
 		gid = -ctx.Event.UserID
@@ -97,22 +99,21 @@ func (r replymode) getReplyMode(ctx *zero.Ctx) aireply.AIReply {
 	if ok {
 		switch m.GetData(gid) & 0xff {
 		case 0:
-			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
+			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName, k, false, 0)
 		case 1:
-			return aireply.NewLolimiAi(aireply.MomoURL, aireply.MomoBotName)
+			return aireply.NewLolimiAi(aireply.MomoURL, aireply.MomoBotName, k, false, 0)
 		case 2:
 			return aireply.NewQYK(aireply.QYKURL, aireply.QYKBotName)
 		case 3:
 			return aireply.NewXiaoAi(aireply.XiaoAiURL, aireply.XiaoAiBotName)
 		case 4:
-			k := ཆཏ.k
-			if k != "" {
-				return aireply.NewChatGPT(aireply.ChatGPTURL, k)
+			if ཆཏ.k != "" {
+				return aireply.NewChatGPT(aireply.ChatGPTURL, ཆཏ.k)
 			}
-			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
+			return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName, k, false, 0)
 		}
 	}
-	return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName)
+	return aireply.NewLolimiAi(aireply.JingfengURL, aireply.JingfengBotName, k, false, 0)
 }
 
 var ttsins = func() map[string]tts.TTS {
