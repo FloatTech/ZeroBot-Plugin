@@ -1305,11 +1305,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"`
 
-  - [x] 查看我的钱包
-
   - [x] 查看钱包排名
 
   - [x] 设置硬币名称[ATRI币]
+
+  - [x] 管理钱包余额[+金额|-金额][@xxx]
+
+  - [x] 查看我的钱包|查看钱包余额[@xxx]
+
+  - [x] 钱包转账[金额][@xxx]
+
+  - 注：仅超级用户能"管理钱包余额",
 
 </details>
 <details>

@@ -4,7 +4,7 @@ on: [push]
 jobs:
   docker-builder:
     name: build docker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-23.04
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@master

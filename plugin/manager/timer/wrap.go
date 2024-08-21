@@ -44,10 +44,10 @@ func (t *Timer) Hour() (h int) {
 }
 
 // Minute 6bits
-func (t *Timer) Minute() (min int) {
-	min = int(t.En1Month4Day5Week3Hour5Min6 & 0x00003f)
-	if min == 0b111111 {
-		min = -1
+func (t *Timer) Minute() (m int) {
+	m = int(t.En1Month4Day5Week3Hour5Min6 & 0x00003f)
+	if m == 0b111111 {
+		m = -1
 	}
 	return
 }
@@ -82,6 +82,6 @@ func (t *Timer) SetHour(h int) {
 }
 
 // SetMinute ...
-func (t *Timer) SetMinute(min int) {
-	t.En1Month4Day5Week3Hour5Min6 = (int32(min) & 0x00003f) | (t.En1Month4Day5Week3Hour5Min6 & 0xffffc0)
+func (t *Timer) SetMinute(m int) {
+	t.En1Month4Day5Week3Hour5Min6 = (int32(m) & 0x00003f) | (t.En1Month4Day5Week3Hour5Min6 & 0xffffc0)
 }
