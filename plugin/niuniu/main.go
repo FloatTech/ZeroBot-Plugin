@@ -97,7 +97,7 @@ func init() {
 
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
 			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
-			sex, sexLong, niuniu, rankingResult(niuniu, niuniuList, uid), generateRandomString(niuniu)))
+			sex, sexLong, niuniu, niuniuList.ranking(niuniu, uid), generateRandomString(niuniu)))
 		ctx.SendChain(message.At(uid), message.Text(&result))
 	})
 	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup,
@@ -128,7 +128,7 @@ func init() {
 			Length: f,
 		}
 		ctx.SendChain(message.Text(messages))
-		if err = db.insertniuniu(u, gid); err != nil {
+		if err = db.insertniuniu(&u, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
@@ -148,14 +148,14 @@ func init() {
 			UserCount: 1,
 		}
 		//添加数据进入表
-		err := db.insertniuniu(u, gid)
+		err := db.insertniuniu(&u, gid)
 		if err != nil {
 			err = db.createGIDTable(gid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-			err = db.insertniuniu(u, gid)
+			err = db.insertniuniu(&u, gid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -164,7 +164,7 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.GroupID),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
-	en.OnRegex(`jj\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]`, getdb,
+	en.OnRegex(`jj\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))`, getdb,
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := jjLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["jj_last_touch"] = lt.LastTouch()
@@ -179,11 +179,8 @@ func init() {
 		})))
 	},
 	).Handle(func(ctx *zero.Ctx) {
-		adduser, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
+		fiancee := ctx.State["regex_matched"].([]string)
+		adduser, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		myniuniu, err := db.findniuniu(gid, uid)
@@ -196,17 +193,17 @@ func init() {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
 			return
 		}
-		if myniuniu == adduserniuniu {
+		if uid == adduser {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
 			return
 		}
 		fencingResult, f, f1 := fencing(myniuniu, adduserniuniu)
-		err = db.insertniuniu(userInfo{UID: uid, Length: f}, gid)
+		err = db.insertniuniu(&userInfo{UID: uid, Length: f}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		err = db.insertniuniu(userInfo{UID: adduser, Length: f1}, gid)
+		err = db.insertniuniu(&userInfo{UID: adduser, Length: f1}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
