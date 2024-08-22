@@ -74,7 +74,7 @@ func init() {
 	})
 
 	// 打劫功能
-	engine.OnRegex(`^打劫\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnRegex(`^打劫\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			uid := ctx.Event.UserID
 			fiancee := ctx.State["regex_matched"].([]string)
