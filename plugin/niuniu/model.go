@@ -39,9 +39,9 @@ var (
 	})
 )
 
-func (m *users) positive() []userInfo {
+func (m users) positive() []userInfo {
 	var m1 []userInfo
-	for _, i2 := range *m {
+	for _, i2 := range m {
 		if i2.Length > 0 {
 			m1 = append(m1, *i2)
 		}
@@ -49,9 +49,9 @@ func (m *users) positive() []userInfo {
 	return m1
 }
 
-func (m *users) negative() []userInfo {
+func (m users) negative() []userInfo {
 	var m1 []userInfo
-	for _, i2 := range *m {
+	for _, i2 := range m {
 		if i2.Length <= 0 {
 			m1 = append(m1, *i2)
 		}
@@ -59,15 +59,39 @@ func (m *users) negative() []userInfo {
 	return m1
 }
 
-func (m *users) sort(isDesc bool) users {
-	m1 := *m
-	sort.Slice(m1, func(i, j int) bool {
-		if isDesc {
-			return m1[i].Length > m1[j].Length
+func (m users) sort(isDesc bool) users {
+	var t func(i, j int) bool
+	if isDesc {
+		t = func(i, j int) bool {
+			return m[i].Length > m[j].Length
 		}
-		return m1[i].Length < m1[j].Length
-	})
-	return m1
+	} else {
+		t = func(i, j int) bool {
+			return m[i].Length < m[j].Length
+		}
+	}
+	sort.Slice(m, t)
+	return m
+}
+func (m users) ranking(niuniu float64, uid int64) int {
+	var ranking int
+	switch {
+	case niuniu > 0:
+		for i, info := range m.sort(true) {
+			if info.UID == uid {
+				ranking = i + 1
+				break
+			}
+		}
+	default:
+		for i, info := range m.sort(false) {
+			if info.UID == uid {
+				ranking = i + 1
+				break
+			}
+		}
+	}
+	return ranking
 }
 
 func (db *model) randLength() decimal.Decimal {
@@ -88,10 +112,10 @@ func (db *model) findniuniu(gid, uid int64) (float64, error) {
 	return u.Length, err
 }
 
-func (db *model) insertniuniu(u userInfo, gid int64) error {
+func (db *model) insertniuniu(u *userInfo, gid int64) error {
 	db.Lock()
 	defer db.Unlock()
-	return db.sql.Insert(strconv.FormatInt(gid, 10), &u)
+	return db.sql.Insert(strconv.FormatInt(gid, 10), u)
 }
 
 func (db *model) deleteniuniu(gid, uid int64) error {
