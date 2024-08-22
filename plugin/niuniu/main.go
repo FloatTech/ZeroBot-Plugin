@@ -39,14 +39,14 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m := niuniuList.newPositive()
+		m := niuniuList.positive()
 		if m == nil {
 			ctx.SendChain(message.Text("暂时没有男孩子哦"))
 			return
 		}
 		var messages strings.Builder
 		messages.WriteString("牛子长度排行\n")
-		for i, user := range niuniuList.sortUsersByLength() {
+		for i, user := range niuniuList.sort(true) {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
@@ -59,14 +59,14 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m := niuniuList.newNegative()
+		m := niuniuList.negative()
 		if m == nil {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
 			return
 		}
 		var messages strings.Builder
 		messages.WriteString("牛牛深度排行榜\n")
-		for i, user := range niuniuList.sortUsersByNegativeLength() {
+		for i, user := range niuniuList.sort(false) {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
@@ -94,34 +94,19 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		var ranking int
-		switch {
-		case niuniu > 0:
-			for i, info := range niuniuList.sortUsersByLength() {
-				if info.UID == uid {
-					ranking = i + 1
-					break
-				}
-			}
-		case niuniu <= 0:
-			for i, info := range niuniuList.sortUsersByNegativeLength() {
-				if info.UID == uid {
-					ranking = i + 1
-					break
-				}
-			}
-		}
+
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
 			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
-			sex, sexLong, niuniu, ranking, generateRandomString(niuniu)))
+			sex, sexLong, niuniu, rankingResult(niuniu, niuniuList, uid), generateRandomString(niuniu)))
 		ctx.SendChain(message.At(uid), message.Text(&result))
 	})
 	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup,
 		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
-		return dajiaoLimiter.Load(fmt.Sprintf("dj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
+		lt := dajiaoLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
+		ctx.State["dajiao_last_touch"] = lt.LastTouch()
+		return lt
 	}, func(ctx *zero.Ctx) {
-		lt := dajiaoLimiter.Load(fmt.Sprintf("dj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
-		timePass := lt.LastTouch()
+		timePass := ctx.State["dajiao_last_touch"].(int64)
 		ctx.SendChain(message.Text(randomChoice([]string{
 			fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
 			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
@@ -179,20 +164,19 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.GroupID),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
-	en.OnRegex(`jj\[CQ:at,qq=([0-9]+)\].*`, getdb,
+	en.OnRegex(`jj\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]`, getdb,
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
-		return jjLimiter.Load(fmt.Sprintf("jj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
+		lt := jjLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
+		ctx.State["jj_last_touch"] = lt.LastTouch()
+		return lt
 	}, func(ctx *zero.Ctx) {
-		lt := jjLimiter.Load(fmt.Sprintf("jj%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
-		timePass := lt.LastTouch()
-		if lt.Acquire() {
-			ctx.SendChain(message.Text(randomChoice([]string{
-				fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
-				fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 150-timePass),
-				fmt.Sprintf("你这种男同就应该被送去集中营！等待%ds再来吧", 150-timePass),
-				fmt.Sprintf("打咩哟！你的牛牛会炸的，休息%ds再来吧", 150-timePass),
-			})))
-		}
+		timePass := ctx.State["jj_last_touch"].(int64)
+		ctx.SendChain(message.Text(randomChoice([]string{
+			fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
+			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 150-timePass),
+			fmt.Sprintf("你这种男同就应该被送去集中营！等待%ds再来吧", 150-timePass),
+			fmt.Sprintf("打咩哟！你的牛牛会炸的，休息%ds再来吧", 150-timePass),
+		})))
 	},
 	).Handle(func(ctx *zero.Ctx) {
 		adduser, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
@@ -212,7 +196,7 @@ func init() {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
 			return
 		}
-		if uid == adduser {
+		if myniuniu == adduserniuniu {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
 			return
 		}
