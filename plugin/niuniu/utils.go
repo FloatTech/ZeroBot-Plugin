@@ -9,27 +9,6 @@ import (
 	"time"
 )
 
-func rankingResult(niuniu float64, niuniuList users, uid int64) int {
-	var ranking int
-	switch {
-	case niuniu > 0:
-		for i, info := range niuniuList.sort(true) {
-			if info.UID == uid {
-				ranking = i + 1
-				break
-			}
-		}
-	case niuniu <= 0:
-		for i, info := range niuniuList.sort(false) {
-			if info.UID == uid {
-				ranking = i + 1
-				break
-			}
-		}
-	}
-	return ranking
-}
-
 func generateRandomStingTwo(niuniu float64) (string, float64) {
 	probability := rand.Intn(100 + 1)
 	reduce := math.Abs(hitGlue(decimal.NewFromFloat(niuniu)))
@@ -212,6 +191,5 @@ func hitGlue(l decimal.Decimal) float64 {
 	l = l.Sub(decimal.NewFromInt(1))
 	randomFactor := decimal.NewFromFloat(rand.Float64())
 	adjustedValue := randomFactor.Mul(l).Div(decimal.NewFromInt(2))
-	f, _ := adjustedValue.Float64()
-	return f
+	return adjustedValue.InexactFloat64()
 }
