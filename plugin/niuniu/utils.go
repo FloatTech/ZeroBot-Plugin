@@ -138,10 +138,7 @@ func fencing(myLength, oppoLength float64) (string, float64, float64) {
 func determineResultBySkill(myLength, oppoLength float64) (string, float64, float64) {
 	probability := rand.Intn(100) + 1
 	winProbability := calculateWinProbability(myLength, oppoLength) * 100
-	if 0 < probability && float64(probability) <= winProbability {
-		return applySkill(myLength, oppoLength, true)
-	}
-	return applySkill(myLength, oppoLength, false)
+	return applySkill(myLength, oppoLength, 0 < probability && float64(probability) <= winProbability)
 }
 
 // calculateWinProbability 计算胜率
