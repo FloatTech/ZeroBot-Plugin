@@ -39,9 +39,9 @@ var (
 	})
 )
 
-func (m users) newPositive() []userInfo {
+func (m *users) positive() []userInfo {
 	var m1 []userInfo
-	for _, i2 := range m {
+	for _, i2 := range *m {
 		if i2.Length > 0 {
 			m1 = append(m1, *i2)
 		}
@@ -49,9 +49,9 @@ func (m users) newPositive() []userInfo {
 	return m1
 }
 
-func (m users) newNegative() []userInfo {
+func (m *users) negative() []userInfo {
 	var m1 []userInfo
-	for _, i2 := range m {
+	for _, i2 := range *m {
 		if i2.Length <= 0 {
 			m1 = append(m1, *i2)
 		}
@@ -59,24 +59,15 @@ func (m users) newNegative() []userInfo {
 	return m1
 }
 
-// 牛子深度
-func (m users) sortUsersByNegativeLength() users {
-	sort.Slice(m, func(i, j int) bool {
-		return m[i].Length > m[j].Length
+func (m *users) sort(isDesc bool) users {
+	m1 := *m
+	sort.Slice(m1, func(i, j int) bool {
+		if isDesc {
+			return m1[i].Length > m1[j].Length
+		}
+		return m1[i].Length < m1[j].Length
 	})
-	var newUsers []*userInfo
-	for i := len(m); i >= 0; i-- {
-		newUsers = append(newUsers, m[i])
-	}
-	return newUsers
-}
-
-// 牛子长度
-func (m users) sortUsersByLength() users {
-	sort.Slice(m, func(i, j int) bool {
-		return m[i].Length > m[j].Length
-	})
-	return m
+	return m1
 }
 
 func (db *model) randLength() decimal.Decimal {
