@@ -605,7 +605,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 - [x] 注销牛牛
 - [x] 牛子长度排行
 - [x] 牛子深度排行
-
+- [x] 查看我的牛牛
 </details>
 <details>
   <summary>今日早报</summary>
