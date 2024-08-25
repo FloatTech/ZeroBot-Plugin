@@ -106,7 +106,7 @@ func init() {
 		ctx.State["dajiao_last_touch"] = lt.LastTouch()
 		return lt
 	}, func(ctx *zero.Ctx) {
-		timePass := ctx.State["dajiao_last_touch"].(int64)
+		timePass := int(time.Since(time.Unix(ctx.State["dajiao_last_touch"].(int64), 0)).Seconds())
 		ctx.SendChain(message.Text(randomChoice([]string{
 			fmt.Sprintf("才过去了%ds时间,你就又要打🦶了，身体受得住吗", timePass),
 			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 90-timePass),
@@ -170,7 +170,7 @@ func init() {
 		ctx.State["jj_last_touch"] = lt.LastTouch()
 		return lt
 	}, func(ctx *zero.Ctx) {
-		timePass := ctx.State["jj_last_touch"].(int64)
+		timePass := int(time.Since(time.Unix(ctx.State["jj_last_touch"].(int64), 0)).Seconds())
 		ctx.SendChain(message.Text(randomChoice([]string{
 			fmt.Sprintf("才过去了%ds时间,你就又要击剑了，真是饥渴难耐啊", timePass),
 			fmt.Sprintf("不行不行，你的身体会受不了的，歇%ds再来吧", 150-timePass),
