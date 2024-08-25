@@ -5,6 +5,7 @@ import (
 	"fmt"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -70,10 +71,10 @@ func init() {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
-
-		ctx.SendChain(message.Text(&messages))
+		if id := ctx.Send(ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))).ID(); id == 0 {
+			ctx.Send(message.Text("发送排行失败"))
+		}
 	})
-
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
@@ -94,7 +95,6 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
 			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
 			sex, sexLong, niuniu, niuniuList.ranking(niuniu, uid), generateRandomString(niuniu)))
@@ -164,7 +164,7 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.GroupID),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
-	en.OnRegex(`jj\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+)`, getdb,
+	en.OnRegex(`jj\[CQ:at,qq=(\d+),name=[\s\S]*\]$`, getdb,
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := jjLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["jj_last_touch"] = lt.LastTouch()
@@ -179,8 +179,11 @@ func init() {
 		})))
 	},
 	).Handle(func(ctx *zero.Ctx) {
-		fiancee := ctx.State["regex_matched"].([]string)
-		adduser, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
+		adduser, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		myniuniu, err := db.findniuniu(gid, uid)
