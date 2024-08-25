@@ -147,7 +147,7 @@ func init() {
 		u := userInfo{
 			UID:       uid,
 			Length:    long,
-			UserCount: 1,
+			UserCount: 0,
 		}
 		//添加数据进入表
 		err := db.insertniuniu(&u, gid)
