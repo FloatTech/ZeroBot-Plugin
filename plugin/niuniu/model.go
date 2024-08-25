@@ -115,6 +115,6 @@ func (db *model) deleteniuniu(gid, uid int64) error {
 func (db *model) readAllTable(gid int64) (users, error) {
 	db.Lock()
 	defer db.Unlock()
-	a, err := sql.FindAll[userInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 1")
+	a, err := sql.FindAll[userInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 0")
 	return a, err
 }
