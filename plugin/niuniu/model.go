@@ -60,38 +60,26 @@ func (m users) negative() []userInfo {
 }
 
 func (m users) sort(isDesc bool) users {
-	var t func(i, j int) bool
+	t := func(i, j int) bool {
+		return m[i].UserCount < m[j].UserCount
+	}
 	if isDesc {
 		t = func(i, j int) bool {
 			return m[i].Length > m[j].Length
-		}
-	} else {
-		t = func(i, j int) bool {
-			return m[i].Length < m[j].Length
 		}
 	}
 	sort.Slice(m, t)
 	return m
 }
+
 func (m users) ranking(niuniu float64, uid int64) int {
-	var ranking int
-	switch {
-	case niuniu > 0:
-		for i, info := range m.sort(true) {
-			if info.UID == uid {
-				ranking = i + 1
-				break
-			}
-		}
-	default:
-		for i, info := range m.sort(false) {
-			if info.UID == uid {
-				ranking = i + 1
-				break
-			}
+	result := niuniu > 0
+	for i, user := range m.sort(result) {
+		if user.UID == uid {
+			return i + 1
 		}
 	}
-	return ranking
+	return -1
 }
 
 func (db *model) randLength() decimal.Decimal {
