@@ -51,7 +51,8 @@ func init() {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
-		if id := ctx.Send(ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))).ID(); id == 0 {
+		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
+		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
 			ctx.Send(message.Text("发送排行失败"))
 		}
 	})
@@ -73,7 +74,8 @@ func init() {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
-		if id := ctx.Send(ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))).ID(); id == 0 {
+		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
+		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
 			ctx.Send(message.Text("发送排行失败"))
 		}
 	})
