@@ -595,19 +595,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>牛牛大作战</summary>
-
-`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/niuniu" `
-
-- [x] 打胶
-- [x] jj[@xxx]
-- [x] 注册牛牛
-- [x] 注销牛牛
-- [x] 牛子长度排行
-- [x] 牛子深度排行
-- [x] 查看我的牛牛
-</details>
-<details>
   <summary>今日早报</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"`
@@ -1080,6 +1067,26 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] nsfw打分[图片]
 
   - [x] 当图片属于非 neutral 类别时自动发送评价(默认禁用，启用输入 /启用 nsfwauto)
+
+</details>
+<details>
+  <summary>牛牛大作战</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/niuniu" `
+
+- [x] 打胶
+
+- [x] jj[@xxx]
+
+- [x] 注册牛牛
+
+- [x] 注销牛牛
+
+- [x] 牛子长度排行
+
+- [x] 牛子深度排行
+
+- [x] 查看我的牛牛
 
 </details>
 <details>
