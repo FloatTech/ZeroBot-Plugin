@@ -783,7 +783,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 系列一言
 
 </details>
-
 <details>
   <summary>炉石</summary>
 
@@ -1012,22 +1011,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>抽wife</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nativewife"`
-
-  - [x] 抽wife[@xxx]
-
-  - [x] 添加wife[名字][图片]
-
-  - [x] 删除wife[名字]
-
-  - [x] [让 | 不让]所有人均可添加wife
-
-  - 注：不同群添加后不会重叠
-
-</details>
-<details>
   <summary>拼音首字母释义工具</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nbnhhsh"`
@@ -1067,6 +1050,22 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] nsfw打分[图片]
 
   - [x] 当图片属于非 neutral 类别时自动发送评价(默认禁用，启用输入 /启用 nsfwauto)
+
+</details>
+<details>
+  <summary>抽wife</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/nwife"`
+
+  - [x] 抽wife[@xxx]
+
+  - [x] 添加wife[名字][图片]
+
+  - [x] 删除wife[名字]
+
+  - [x] [让 | 不让]所有人均可添加wife
+
+  - 注：不同群添加后不会重叠
 
 </details>
 <details>
