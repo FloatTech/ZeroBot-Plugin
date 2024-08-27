@@ -110,10 +110,10 @@ func init() {
 			// 判断打劫是否成功
 			if rand.Intn(100) > 60 {
 				updateMoney := wallet.GetWalletOf(uid)
-				if updateMoney >= 1000 {
-					updateMoney = 1000
+				if updateMoney >= 50000 {
+					updateMoney = 50000
 				}
-				ctx.SendChain(message.Text("打劫失败,罚款1000"))
+				ctx.SendChain(message.Text("打劫失败,罚款50000"))
 				err := wallet.InsertWalletOf(uid, -updateMoney)
 				if err != nil {
 					ctx.SendChain(message.Text("[ERROR]:罚款失败，钱包坏掉力:\n", err))
@@ -121,7 +121,7 @@ func init() {
 				}
 				return
 			}
-			userIncrMoney := math.Min(rand.Intn(victimWallet/20)+500, 10000)
+			userIncrMoney := math.Min(rand.Intn(victimWallet/20)+500, 100000)
 			victimDecrMoney := userIncrMoney / (rand.Intn(4) + 1)
 
 			// 记录结果
