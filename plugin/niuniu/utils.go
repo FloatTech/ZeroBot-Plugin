@@ -3,7 +3,6 @@ package niuniu
 
 import (
 	"fmt"
-	"github.com/shopspring/decimal"
 	"math"
 	"math/rand"
 	"time"
@@ -11,7 +10,7 @@ import (
 
 func generateRandomStingTwo(niuniu float64) (string, float64) {
 	probability := rand.Intn(100 + 1)
-	reduce := math.Abs(hitGlue(decimal.NewFromFloat(niuniu)))
+	reduce := math.Abs(hitGlue(niuniu))
 	switch {
 	case probability <= 40:
 		niuniu += reduce
@@ -138,13 +137,18 @@ func fencing(myLength, oppoLength float64) (string, float64, float64) {
 func determineResultBySkill(myLength, oppoLength float64) (string, float64, float64) {
 	probability := rand.Intn(100) + 1
 	winProbability := calculateWinProbability(myLength, oppoLength) * 100
-	return applySkill(myLength, oppoLength, 0 < probability && float64(probability) <= winProbability)
+	return applySkill(myLength, oppoLength,
+		0 < probability && float64(probability) <= winProbability)
 }
 
 // calculateWinProbability 计算胜率
 func calculateWinProbability(heightA, heightB float64) float64 {
-	//第一个接收参数初始概率
-	pA := 0.9
+	var pA float64
+	if heightA > heightB {
+		pA = 0.7 + 0.2*(heightA-heightB)/heightA
+	} else {
+		pA = 0.6 - 0.2*(heightB-heightA)/heightB
+	}
 	heightRatio := math.Max(heightA, heightB) / math.Min(heightA, heightB)
 	reductionRate := 0.1 * (heightRatio - 1)
 	reduction := pA * reductionRate
@@ -158,7 +162,6 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 	if increaseLength1 {
 		myLength += reduce
 		oppoLength -= 0.8 * reduce
-
 		if myLength < 0 {
 			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), myLength, oppoLength
 		}
@@ -174,7 +177,7 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 
 }
 
-// fence 简单模拟击剑技巧效果
+// fence
 func fence(rd float64) float64 {
 	rd -= float64(time.Now().UnixNano() % 10)
 	if rd > 1000000 {
@@ -183,10 +186,7 @@ func fence(rd float64) float64 {
 	return float64(int(rd * rand.Float64()))
 }
 
-// hitGlue 调整传入的值
-func hitGlue(l decimal.Decimal) float64 {
-	l = l.Sub(decimal.NewFromInt(1))
-	randomFactor := decimal.NewFromFloat(rand.Float64())
-	adjustedValue := randomFactor.Mul(l).Div(decimal.NewFromInt(2))
-	return adjustedValue.InexactFloat64()
+func hitGlue(l float64) float64 {
+	return rand.Float64() * math.Log2(l) / 2
 }
+
