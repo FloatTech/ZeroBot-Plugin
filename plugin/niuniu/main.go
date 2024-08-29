@@ -9,7 +9,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"golang.org/x/exp/rand"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -146,7 +146,7 @@ func init() {
 			return
 		}
 		//获取初始长度
-		long := db.randLength().InexactFloat64()
+		long := db.randLength()
 		u := userInfo{
 			UID:       uid,
 			Length:    long,
@@ -241,3 +241,4 @@ func init() {
 func randomChoice(options []string) string {
 	return options[rand.Intn(len(options))]
 }
+
