@@ -194,18 +194,18 @@ func init() {
 		myniuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("你还没有牛牛快去注册一个吧!"))
-			jjLimiter.DeleteLimiter(fmt.Sprintf("%d_%d", gid, uid))
+			jjLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 		adduserniuniu, err := db.findniuniu(gid, adduser)
 		if err != nil {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
-			jjLimiter.DeleteLimiter(fmt.Sprintf("%d_%d", gid, uid))
+			jjLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 		if uid == adduser {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
-			jjLimiter.DeleteLimiter(fmt.Sprintf("%d_%d", gid, uid))
+			jjLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 		fencingResult, f, f1 := fencing(myniuniu, adduserniuniu)
