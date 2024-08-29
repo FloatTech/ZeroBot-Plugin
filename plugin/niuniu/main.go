@@ -124,7 +124,7 @@ func init() {
 		niuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("请先注册牛牛！"))
-			dajiaoLimiter.DeleteLimiter(fmt.Sprintf("%d_%d", gid, uid))
+			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 		messages, f := generateRandomStingTwo(niuniu)
