@@ -4,7 +4,6 @@ package niuniu
 import (
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	sql "github.com/FloatTech/sqlite"
-	"github.com/shopspring/decimal"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"math/rand"
@@ -82,8 +81,8 @@ func (m users) ranking(niuniu float64, uid int64) int {
 	return -1
 }
 
-func (db *model) randLength() decimal.Decimal {
-	return decimal.NewFromFloat(float64(rand.Intn(9)+1) + float64(rand.Intn(100))/100)
+func (db *model) randLength() float64 {
+	return float64(rand.Intn(9)+1) + (float64(rand.Intn(100)) / 100)
 }
 
 func (db *model) createGIDTable(gid int64) error {
