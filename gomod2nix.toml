@@ -23,8 +23,8 @@ schema = 3
     version = "v1.6.3"
     hash = "sha256-zWPByEMi89ms67ubPg0fAPIRxfpBC2IRKc0iNVLqkPU="
   [mod."github.com/FloatTech/ttl"]
-    version = "v0.0.0-20230307105452-d6f7b2b647d1"
-    hash = "sha256-BQzWUzoIOLwfZa7WElqaa3EYrcz1Ql6JApgxZIQHBro="
+    version = "v0.0.0-20240716161252-965925764562"
+    hash = "sha256-/XjfdVXEzYgeM+OYuyy76tf13lO91vCcwpjWgkRGteU="
   [mod."github.com/FloatTech/zbpctrl"]
     version = "v1.6.2-0.20240819160950-8c602be65fc6"
     hash = "sha256-Yvbi12yoX4KPSN7YIdQDvvC8327TwxUaLoWoKNf9UWI="
@@ -203,8 +203,8 @@ schema = 3
     version = "v1.5.0"
     hash = "sha256-fGdJM4LJrZA9jxHuYVo4EUQ3I1k0IVG3QQCBCgZkeZI="
   [mod."github.com/tidwall/gjson"]
-    version = "v1.17.1"
-    hash = "sha256-5R38cFZFaVbdem2B+9rsbr+0hRxbtDQ0i5PYWPT6kj0="
+    version = "v1.17.3"
+    hash = "sha256-zui8S4qlfFXNLartKynJbYqeM/MW3f3eDbojIvh/KS8="
   [mod."github.com/tidwall/match"]
     version = "v1.1.1"
     hash = "sha256-M2klhPId3Q3T3VGkSbOkYl/2nLHnsG+yMbXkPkyrRdg="
@@ -221,8 +221,8 @@ schema = 3
     version = "v2.1.1"
     hash = "sha256-emvjt/ze8skM+MBflwV0EgS/svpaEGU/mn27Ie4VTXs="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.7.5-0.20240819160523-35d33e774a2d"
-    hash = "sha256-5I+24K6xt9p5Cd/ZXWZ7MTVq+sbHqGdD2P6uMtSZ5YU="
+    version = "v1.7.5-0.20240829093431-bea5257d1a2b"
+    hash = "sha256-P8kexm2KOaXIk4Xnex5e02vv1ObTeWKhnWnxnDXrUDE="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
