@@ -1029,6 +1029,26 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>牛牛大作战</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/niuniu" `
+
+- [x] 打胶
+
+- [x] jj[@xxx]
+
+- [x] 注册牛牛
+
+- [x] 注销牛牛
+
+- [x] 牛子长度排行
+
+- [x] 牛子深度排行
+
+- [x] 查看我的牛牛
+
+</details>
+<details>
   <summary>小说</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/novel" `
@@ -1066,26 +1086,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] [让 | 不让]所有人均可添加wife
 
   - 注：不同群添加后不会重叠
-
-</details>
-<details>
-  <summary>牛牛大作战</summary>
-
-`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/niuniu" `
-
-- [x] 打胶
-
-- [x] jj[@xxx]
-
-- [x] 注册牛牛
-
-- [x] 注销牛牛
-
-- [x] 牛子长度排行
-
-- [x] 牛子深度排行
-
-- [x] 查看我的牛牛
 
 </details>
 <details>
