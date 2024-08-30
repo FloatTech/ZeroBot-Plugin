@@ -2,15 +2,16 @@
 package niuniu
 
 import (
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	sql "github.com/FloatTech/sqlite"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"math/rand"
 	"sort"
 	"strconv"
 	"sync"
 	"time"
+
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 type model struct {
