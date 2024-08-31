@@ -2,16 +2,15 @@
 package niuniu
 
 import (
+	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 	"math/rand"
 	"sort"
 	"strconv"
 	"sync"
 	"time"
-
-	fcext "github.com/FloatTech/floatbox/ctxext"
-	sql "github.com/FloatTech/sqlite"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 type model struct {
@@ -24,6 +23,7 @@ type userInfo struct {
 	Length    float64
 	UserCount int
 }
+
 type users []*userInfo
 
 var (
@@ -39,21 +39,21 @@ var (
 	})
 )
 
-func (m users) positive() []userInfo {
-	var m1 []userInfo
+func (m users) positive() users {
+	var m1 []*userInfo
 	for _, i2 := range m {
 		if i2.Length > 0 {
-			m1 = append(m1, *i2)
+			m1 = append(m1, i2)
 		}
 	}
 	return m1
 }
 
-func (m users) negative() []userInfo {
-	var m1 []userInfo
+func (m users) negative() users {
+	var m1 []*userInfo
 	for _, i2 := range m {
 		if i2.Length <= 0 {
-			m1 = append(m1, *i2)
+			m1 = append(m1, i2)
 		}
 	}
 	return m1
@@ -61,7 +61,7 @@ func (m users) negative() []userInfo {
 
 func (m users) sort(isDesc bool) users {
 	t := func(i, j int) bool {
-		return m[i].UserCount < m[j].UserCount
+		return m[i].Length < m[j].Length
 	}
 	if isDesc {
 		t = func(i, j int) bool {
