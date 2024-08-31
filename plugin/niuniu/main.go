@@ -3,18 +3,25 @@ package niuniu
 
 import (
 	"fmt"
-	"math/rand"
-	"strconv"
-	"strings"
-	"time"
-
+	"github.com/FloatTech/AnimeAPI/wallet"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"math/rand"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
+
+type lastLength struct {
+	TimeLimit time.Time
+	Count     int
+	Length    float64
+}
 
 var (
 	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
@@ -31,9 +38,52 @@ var (
 	})
 	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
 	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
+	jjCount       = make(map[string]lastLength)
+	lock          sync.RWMutex
 )
 
 func init() {
+	en.OnFullMatch("赎牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		last, ok := jjCount[fmt.Sprintf("%d_%d", gid, uid)]
+		if !ok {
+			ctx.SendChain(message.Text("你还没有被厥呢"))
+			return
+		}
+		if time.Now().Sub(last.TimeLimit) > time.Minute*30 {
+			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
+			lock.Lock()
+			delete(jjCount, fmt.Sprintf("%d_%d", gid, uid))
+			lock.Unlock()
+			return
+		}
+		if last.Count < 6 {
+			ctx.SendChain(message.Text("你还没有被厥够6次呢,不能赎牛牛"))
+			return
+		}
+		money := wallet.GetWalletOf(uid)
+		if money < 100 {
+			ctx.SendChain(message.Text("赎牛牛需要100ATRI币，快去赚钱吧"))
+			return
+		}
+		err := wallet.InsertWalletOf(uid, -100)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		u := &userInfo{
+			UID:       uid,
+			Length:    last.Length,
+			UserCount: 0,
+		}
+		err = db.insertniuniu(u, gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2f", last.Length)))
+	})
 	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		niuniuList, err := db.readAllTable(gid)
@@ -47,8 +97,8 @@ func init() {
 			return
 		}
 		var messages strings.Builder
-		messages.WriteString("牛子长度排行\n")
-		for i, user := range niuniuList.sort(true) {
+		messages.WriteString("牛子长度排行榜\n")
+		for i, user := range m.sort(true) {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
@@ -71,7 +121,7 @@ func init() {
 		}
 		var messages strings.Builder
 		messages.WriteString("牛牛深度排行榜\n")
-		for i, user := range niuniuList.sort(false) {
+		for i, user := range m.sort(false) {
 			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
 				ctx.CardOrNickName(user.UID), user.Length))
 		}
@@ -130,8 +180,9 @@ func init() {
 		}
 		messages, f := generateRandomStingTwo(niuniu)
 		u := userInfo{
-			UID:    uid,
-			Length: f,
+			UID:       uid,
+			Length:    f,
+			UserCount: 0,
 		}
 		ctx.SendChain(message.Text(messages))
 		if err = db.insertniuniu(&u, gid); err != nil {
@@ -146,14 +197,14 @@ func init() {
 			ctx.SendChain(message.Text("你已经注册过了"))
 			return
 		}
-		// 获取初始长度
+		//获取初始长度
 		long := db.randLength()
 		u := userInfo{
 			UID:       uid,
 			Length:    long,
 			UserCount: 0,
 		}
-		// 添加数据进入表
+		//添加数据进入表
 		err := db.insertniuniu(&u, gid)
 		if err != nil {
 			err = db.createGIDTable(gid)
@@ -210,17 +261,46 @@ func init() {
 			return
 		}
 		fencingResult, f, f1 := fencing(myniuniu, adduserniuniu)
-		err = db.insertniuniu(&userInfo{UID: uid, Length: f}, gid)
+		err = db.insertniuniu(&userInfo{UID: uid, Length: f, UserCount: 0}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		err = db.insertniuniu(&userInfo{UID: adduser, Length: f1}, gid)
+		err = db.insertniuniu(&userInfo{UID: adduser, Length: f1, UserCount: 0}, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		ctx.SendChain(message.At(uid), message.Text(fencingResult))
+		ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
+		lock.RLock()
+		count, ok := jjCount[fmt.Sprintf("%d_%d", gid, adduser)]
+		lock.RUnlock()
+		var c lastLength
+		if !ok {
+			c = lastLength{
+				TimeLimit: time.Now(),
+				Count:     1,
+				Length:    adduserniuniu,
+			}
+		} else {
+			c = lastLength{
+				TimeLimit: c.TimeLimit,
+				Count:     count.Count + 1,
+				Length:    count.Length,
+			}
+		}
+		lock.Lock()
+		jjCount[fmt.Sprintf("%d_%d", gid, adduser)] = c
+		lock.Unlock()
+		if c.Count > 5 {
+			ctx.SendChain(message.Text(fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count)))
+			id := ctx.SendPrivateMessage(adduser,
+				message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
+			if id == 0 {
+				ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
+			}
+		}
+
 	})
 	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
