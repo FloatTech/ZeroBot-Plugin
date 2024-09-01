@@ -4,17 +4,18 @@ package niuniu
 import (
 	"fmt"
 	"github.com/FloatTech/AnimeAPI/wallet"
+	"math/rand"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"math/rand"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 )
 
 type lastLength struct {
@@ -38,24 +39,22 @@ var (
 	})
 	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
 	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
-	jjCount       = make(map[string]lastLength)
-	lock          sync.RWMutex
+	jjCount       = sync.Map{}
 )
 
 func init() {
 	en.OnFullMatch("赎牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		last, ok := jjCount[fmt.Sprintf("%d_%d", gid, uid)]
+		l, ok := jjCount.Load(fmt.Sprintf("%d_%d", gid, uid))
+		last := l.(lastLength)
 		if !ok {
 			ctx.SendChain(message.Text("你还没有被厥呢"))
 			return
 		}
-		if time.Now().Sub(last.TimeLimit) > time.Minute*30 {
+		if time.Since(last.TimeLimit) > time.Minute*30 {
 			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
-			lock.Lock()
-			delete(jjCount, fmt.Sprintf("%d_%d", gid, uid))
-			lock.Unlock()
+			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 		if last.Count < 6 {
@@ -180,9 +179,8 @@ func init() {
 		}
 		messages, f := generateRandomStingTwo(niuniu)
 		u := userInfo{
-			UID:       uid,
-			Length:    f,
-			UserCount: 0,
+			UID:    uid,
+			Length: f,
 		}
 		ctx.SendChain(message.Text(messages))
 		if err = db.insertniuniu(&u, gid); err != nil {
@@ -197,14 +195,14 @@ func init() {
 			ctx.SendChain(message.Text("你已经注册过了"))
 			return
 		}
-		//获取初始长度
+		// 获取初始长度
 		long := db.randLength()
 		u := userInfo{
 			UID:       uid,
 			Length:    long,
 			UserCount: 0,
 		}
-		//添加数据进入表
+		// 添加数据进入表
 		err := db.insertniuniu(&u, gid)
 		if err != nil {
 			err = db.createGIDTable(gid)
@@ -272,9 +270,9 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
-		lock.RLock()
-		count, ok := jjCount[fmt.Sprintf("%d_%d", gid, adduser)]
-		lock.RUnlock()
+		j := fmt.Sprintf("%d_%d", gid, adduser)
+		cou, ok := jjCount.Load(j)
+		count := cou.(lastLength)
 		var c lastLength
 		if !ok {
 			c = lastLength{
@@ -289,9 +287,7 @@ func init() {
 				Length:    count.Length,
 			}
 		}
-		lock.Lock()
-		jjCount[fmt.Sprintf("%d_%d", gid, adduser)] = c
-		lock.Unlock()
+		jjCount.Store(j, c)
 		if c.Count > 5 {
 			ctx.SendChain(message.Text(fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count)))
 			id := ctx.SendPrivateMessage(adduser,
