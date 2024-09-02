@@ -3,16 +3,16 @@ package niuniu
 
 import (
 	"fmt"
-	"github.com/FloatTech/AnimeAPI/wallet"
 	"math/rand"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/wallet"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/RomiChan/syncx"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -39,15 +39,14 @@ var (
 	})
 	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
 	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
-	jjCount       = sync.Map{}
+	jjCount       = syncx.Map[string, *lastLength]{}
 )
 
 func init() {
 	en.OnFullMatch("赎牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		l, ok := jjCount.Load(fmt.Sprintf("%d_%d", gid, uid))
-		last := l.(lastLength)
+		last, ok := jjCount.Load(fmt.Sprintf("%d_%d", gid, uid))
 		if !ok {
 			ctx.SendChain(message.Text("你还没有被厥呢"))
 			return
@@ -272,8 +271,7 @@ func init() {
 		}
 		ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
 		j := fmt.Sprintf("%d_%d", gid, adduser)
-		cou, ok := jjCount.Load(j)
-		count := cou.(lastLength)
+		count, ok := jjCount.Load(j)
 		var c lastLength
 		if !ok {
 			c = lastLength{
@@ -288,19 +286,18 @@ func init() {
 				Length:    count.Length,
 			}
 		}
-		jjCount.Store(j, c)
+		jjCount.Store(j, &c)
 		if c.Count > 5 {
-			ctx.SendChain(message.Text(fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count)))
-			// 保证只发送一次
-			if c. Count < 7 {
+			ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
+				fmt.Sprintf("你们不要再找ta🤺啦！")})))
+			if c.Count < 7 {
 				id := ctx.SendPrivateMessage(adduser,
-				message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
+					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
 				if id == 0 {
-				ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
+					ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
 				}
 			}
 		}
-
 	})
 	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
