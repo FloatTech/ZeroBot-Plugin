@@ -1037,6 +1037,8 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 - [x] jj[@xxx]
 
+- [x] 赎牛牛
+
 - [x] 注册牛牛
 
 - [x] 注销牛牛
