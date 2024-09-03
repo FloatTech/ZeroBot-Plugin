@@ -29,6 +29,7 @@ var (
 		DisableOnDefault: false,
 		Brief:            "牛牛大作战",
 		Help: "- 打胶\n" +
+			"- 赎牛牛 （cd：30分钟）\n" +
 			"- 注册牛牛\n" +
 			"- 注销牛牛\n" +
 			"- 查看我的牛牛\n" +
