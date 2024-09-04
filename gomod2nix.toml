@@ -26,8 +26,8 @@ schema = 3
     version = "v0.0.0-20240716161252-965925764562"
     hash = "sha256-/XjfdVXEzYgeM+OYuyy76tf13lO91vCcwpjWgkRGteU="
   [mod."github.com/FloatTech/zbpctrl"]
-    version = "v1.6.2-0.20240819160950-8c602be65fc6"
-    hash = "sha256-Yvbi12yoX4KPSN7YIdQDvvC8327TwxUaLoWoKNf9UWI="
+    version = "v1.6.2-0.20240904160347-1317e11a15bb"
+    hash = "sha256-x0ZR2bnkboEIjjRFMtMAN0T34BP9BPs7r3AwT3BCyzo="
   [mod."github.com/FloatTech/zbputils"]
     version = "v1.7.2-0.20240822065525-5ea6811ed91c"
     hash = "sha256-ouAExps1iPCcD1AmOxyhRXMBGHBDXvUGkplcnQCf3Bg="
