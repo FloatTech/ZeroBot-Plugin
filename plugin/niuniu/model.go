@@ -23,6 +23,10 @@ type userInfo struct {
 	UID       int64
 	Length    float64
 	UserCount int
+	WeiGe     int // 伟哥
+	Philter   int // 媚药
+	Artifact  int // 击剑神器
+	ShenJi    int // 击剑神稽
 }
 
 type users []*userInfo
@@ -93,12 +97,12 @@ func (db *model) createGIDTable(gid int64) error {
 	return db.sql.Create(strconv.FormatInt(gid, 10), &userInfo{})
 }
 
-func (db *model) findniuniu(gid, uid int64) (float64, error) {
+func (db *model) findniuniu(gid, uid int64) (userInfo, error) {
 	db.RLock()
 	defer db.RUnlock()
 	u := userInfo{}
 	err := db.sql.Find(strconv.FormatInt(gid, 10), &u, "where UID = "+strconv.FormatInt(uid, 10))
-	return u.Length, err
+	return u, err
 }
 
 func (db *model) insertniuniu(u *userInfo, gid int64) error {
