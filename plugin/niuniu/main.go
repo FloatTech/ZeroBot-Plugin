@@ -50,6 +50,30 @@ var (
 	prop          = syncx.Map[string, *propsCount]{}
 )
 
+/*func 渡劫成功与否(u userInfo, product bool) {
+	daojieSuccessRates := map[int]float64{
+		1:  0.8,  //练气一层
+		2:  0.75, //练气二层
+		3:  0.7,  //练气三层
+		4:  0.65, //练气四层
+		5:  0.6,  //练气五层
+		6:  0.55, //练气六层
+		7:  0.5,  //练气七层
+		8:  0.45, //练气八层
+		9:  0.4,  //练气九层
+		10: 0.35, //金丹一层
+		11: 0.3,  //金丹二层
+		12: 0.25, //金丹三层
+		13: 0.2,  //金丹四层
+		14: 0.15, //金丹五层
+		15: 0.1,  //金丹六层
+		16: 0.08, //金丹七层
+		17: 0.06, //金丹八层
+		18: 0.04, //金丹九层
+	}
+
+}*/
+
 func init() {
 	en.OnFullMatch("牛牛商店", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -58,16 +82,16 @@ func init() {
 		messages = append(messages, message.Text("牛牛商店当前售卖的物品如下"))
 		messages = append(messages,
 			ctxext.FakeSenderForwardNode(ctx,
-				message.Text(fmt.Sprintf("商品1\n商品名:伟哥\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都增长，有效5次"))))
+				message.Text("商品1\n商品名:伟哥\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都增长，有效5次")))
 		messages = append(messages,
 			ctxext.FakeSenderForwardNode(ctx,
-				message.Text(fmt.Sprintf("商品2\n商品名:媚药\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都减少，有效5次"))))
+				message.Text("商品2\n商品名:媚药\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都减少，有效5次")))
 		messages = append(messages,
 			ctxext.FakeSenderForwardNode(ctx,
-				message.Text(fmt.Sprintf("商品3\n商品名:击剑神器\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都立于不败之地，有效2次"))))
+				message.Text("商品3\n商品名:击剑神器\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都立于不败之地，有效2次")))
 		messages = append(messages,
 			ctxext.FakeSenderForwardNode(ctx,
-				message.Text(fmt.Sprintf("商品4\n商品名:击剑神稽\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都失败，有效2次"))))
+				message.Text("商品4\n商品名:击剑神稽\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都失败，有效2次")))
 		if id := ctx.Send(messages).ID(); id == 0 {
 			ctx.Send(message.Text("发送商店失败"))
 		}
@@ -276,7 +300,7 @@ func init() {
 			f        float64
 			u        userInfo
 		)
-		load, ok := prop.Load(fmt.Sprintf(t))
+		load, ok := prop.Load(t)
 		if ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8 {
 			ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(load.TimeLimit), "再来吧"))
 			messages, f = generateRandomStingTwo(niuniu.Length)
@@ -376,18 +400,18 @@ func init() {
 		myniuniu, err := db.findniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("你还没有牛牛快去注册一个吧!"))
-			jjLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
+			jjLimiter.Delete(t)
 			return
 		}
 		adduserniuniu, err := db.findniuniu(gid, adduser)
 		if err != nil {
 			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
-			jjLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
+			jjLimiter.Delete(t)
 			return
 		}
 		if uid == adduser {
 			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
-			jjLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
+			jjLimiter.Delete(t)
 			return
 		}
 		var (
@@ -399,7 +423,11 @@ func init() {
 		v, ok := prop.Load(t)
 		if ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8 {
 			ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(v.TimeLimit), "再来吧"))
-			fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
+			_, f, _ = fencing(myniuniu.Length, adduserniuniu.Length)
+			u = userInfo{
+				UID:    uid,
+				Length: f,
+			}
 		} else {
 			switch {
 			case myniuniu.Artifact > 0:
@@ -420,52 +448,57 @@ func init() {
 				updateMap(t, true)
 			default:
 				fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
+				u = userInfo{
+					UID:    uid,
+					Length: f,
+				}
+
 			}
-		}
-		err = db.insertniuniu(&u, gid)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		err = db.insertniuniu(&userInfo{UID: adduser, Length: f1, UserCount: 0}, gid)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
-		j := fmt.Sprintf("%d_%d", gid, adduser)
-		count, ok := jjCount.Load(j)
-		var c lastLength
-		if !ok {
-			c = lastLength{
-				TimeLimit: time.Now(),
-				Count:     1,
-				Length:    adduserniuniu.Length,
+			err = db.insertniuniu(&u, gid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
-		} else {
-			c = lastLength{
-				TimeLimit: c.TimeLimit,
-				Count:     count.Count + 1,
-				Length:    count.Length,
+			err = db.insertniuniu(&userInfo{UID: adduser, Length: f1}, gid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
 			}
-			if time.Since(c.TimeLimit) > time.Minute*30 {
+			ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
+			j := fmt.Sprintf("%d_%d", gid, adduser)
+			count, ok := jjCount.Load(j)
+			var c lastLength
+			if !ok {
 				c = lastLength{
 					TimeLimit: time.Now(),
 					Count:     1,
 					Length:    adduserniuniu.Length,
 				}
+			} else {
+				c = lastLength{
+					TimeLimit: c.TimeLimit,
+					Count:     count.Count + 1,
+					Length:    count.Length,
+				}
+				if time.Since(c.TimeLimit) > time.Minute*30 {
+					c = lastLength{
+						TimeLimit: time.Now(),
+						Count:     1,
+						Length:    adduserniuniu.Length,
+					}
+				}
 			}
-		}
 
-		jjCount.Store(j, &c)
-		if c.Count > 5 {
-			ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
-				"你们不要再找ta🤺啦！"})))
-			if c.Count < 7 {
-				id := ctx.SendPrivateMessage(adduser,
-					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
-				if id == 0 {
-					ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
+			jjCount.Store(j, &c)
+			if c.Count > 5 {
+				ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
+					"你们不要再找ta🤺啦！"})))
+				if c.Count < 7 {
+					id := ctx.SendPrivateMessage(adduser,
+						message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
+					if id == 0 {
+						ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
+					}
 				}
 			}
 		}
