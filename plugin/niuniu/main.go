@@ -93,28 +93,11 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-				var (
-					money int
-					u     *userInfo
-				)
-				switch n {
-				case 1:
-					money = 300
-					u = &userInfo{UID: uid, WeiGe: info.WeiGe + 5}
-				case 2:
-					money = 300
-					u = &userInfo{UID: uid, Philter: info.Philter + 5}
-				case 3:
-					money = 500
-					u = &userInfo{UID: uid, Artifact: info.Artifact + 2}
-				case 4:
-					money = 500
-					u = &userInfo{UID: uid, ShenJi: info.ShenJi + 2}
-				default:
-					ctx.SendChain(message.Text("无效的选项"))
+				u, money, err := purchaseItem(n, info, uid)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-
 				if wallet.GetWalletOf(uid) < money {
 					ctx.SendChain(message.Text("你还没有足够的ATRI币呢,不能购买"))
 					return
@@ -124,7 +107,6 @@ func init() {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-
 				err = db.insertniuniu(u, gid)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
@@ -272,44 +254,7 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
-		var (
-			messages string
-			f        float64
-			u        userInfo
-		)
-		load, ok := prop.Load(t)
-		switch {
-		case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
-			ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(load.TimeLimit), "再来吧"))
-			messages, f = generateRandomStingTwo(niuniu.Length)
-			u = userInfo{
-				UID:    uid,
-				Length: f,
-			}
-		case niuniu.WeiGe > 0:
-			messages, f = useWeiGe(niuniu.Length)
-			u = userInfo{
-				UID:    uid,
-				Length: f,
-				WeiGe:  niuniu.WeiGe - 1,
-			}
-			updateMap(t, true)
-		case niuniu.Philter > 0:
-			messages, f = usePhilter(niuniu.Length)
-			u = userInfo{
-				UID:     uid,
-				Length:  f,
-				Philter: niuniu.Philter - 1,
-			}
-			updateMap(t, true)
-		default:
-			messages, f = generateRandomStingTwo(niuniu.Length)
-			u = userInfo{
-				UID:    uid,
-				Length: f,
-			}
-		}
-
+		messages, u := processNiuniuAction(t, &niuniu, ctx, uid)
 		ctx.SendChain(message.Text(messages))
 		if err = db.insertniuniu(&u, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -389,45 +334,7 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
-		var (
-			fencingResult string
-			f             float64
-			f1            float64
-			u             userInfo
-		)
-		v, ok := prop.Load(t)
-		switch {
-		case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
-			ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(v.TimeLimit), "再来吧"))
-			fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-			u = userInfo{
-				UID:    uid,
-				Length: f,
-			}
-		case myniuniu.Artifact > 0:
-			fencingResult, f, f1 = useArtifact(myniuniu.Length, adduserniuniu.Length)
-			u = userInfo{
-				UID:      uid,
-				Length:   f,
-				Artifact: myniuniu.Artifact - 1,
-			}
-			updateMap(t, true)
-		case myniuniu.ShenJi > 0:
-			fencingResult, f, f1 = useShenJi(myniuniu.Length, adduserniuniu.Length)
-			u = userInfo{
-				UID:      uid,
-				Length:   f,
-				Artifact: myniuniu.ShenJi - 1,
-			}
-			updateMap(t, true)
-		default:
-			fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-			u = userInfo{
-				UID:    uid,
-				Length: f,
-			}
-
-		}
+		fencingResult, f1, u := processJJuAction(&myniuniu, &adduserniuniu, t, ctx)
 		err = db.insertniuniu(&u, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -499,7 +406,6 @@ func randomChoice(options []string) string {
 }
 
 func updateMap(t string, d bool) {
-
 	value, ok := prop.Load(t)
 	if !d {
 		if time.Since(value.TimeLimit) > time.Minute*8 {
