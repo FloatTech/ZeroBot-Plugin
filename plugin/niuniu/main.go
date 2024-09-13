@@ -36,7 +36,7 @@ var (
 		Help: "- 打胶\n" +
 			"- jj@xxx\n" +
 			"- 注册牛牛\n" +
-			"- 赎牛牛(cd:30分钟)\n" +
+			"- 赎牛牛(cd:45分钟)\n" +
 			"- 牛牛商店\n" +
 			"- 注销牛牛\n" +
 			"- 查看我的牛牛\n" +
@@ -49,30 +49,6 @@ var (
 	jjCount       = syncx.Map[string, *lastLength]{}
 	prop          = syncx.Map[string, *propsCount]{}
 )
-
-/*func 渡劫成功与否(u userInfo, product bool) {
-	daojieSuccessRates := map[int]float64{
-		1:  0.8,  //练气一层
-		2:  0.75, //练气二层
-		3:  0.7,  //练气三层
-		4:  0.65, //练气四层
-		5:  0.6,  //练气五层
-		6:  0.55, //练气六层
-		7:  0.5,  //练气七层
-		8:  0.45, //练气八层
-		9:  0.4,  //练气九层
-		10: 0.35, //金丹一层
-		11: 0.3,  //金丹二层
-		12: 0.25, //金丹三层
-		13: 0.2,  //金丹四层
-		14: 0.15, //金丹五层
-		15: 0.1,  //金丹六层
-		16: 0.08, //金丹七层
-		17: 0.06, //金丹八层
-		18: 0.04, //金丹九层
-	}
-
-}*/
 
 func init() {
 	en.OnFullMatch("牛牛商店", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -99,6 +75,7 @@ func init() {
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`(/d+)`)).Repeat()
 		defer cancel()
 		timer := time.NewTimer(120 * time.Second)
+		defer timer.Stop()
 		for {
 			select {
 			case <-timer.C:
@@ -166,7 +143,7 @@ func init() {
 			ctx.SendChain(message.Text("你还没有被厥呢"))
 			return
 		}
-		if time.Since(last.TimeLimit) > time.Minute*30 {
+		if time.Since(last.TimeLimit) > time.Minute*45 {
 			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
 			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
@@ -176,7 +153,7 @@ func init() {
 			return
 		}
 		money := wallet.GetWalletOf(uid)
-		if money < 100 {
+		if money < 150 {
 			ctx.SendChain(message.Text("赎牛牛需要150ATRI币，快去赚钱吧"))
 			return
 		}
@@ -301,37 +278,35 @@ func init() {
 			u        userInfo
 		)
 		load, ok := prop.Load(t)
-		if ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8 {
+		switch {
+		case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
 			ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(load.TimeLimit), "再来吧"))
 			messages, f = generateRandomStingTwo(niuniu.Length)
 			u = userInfo{
 				UID:    uid,
 				Length: f,
 			}
-		} else {
-			switch {
-			case niuniu.WeiGe > 0:
-				messages, f = useWeiGe(niuniu.Length)
-				u = userInfo{
-					UID:    uid,
-					Length: f,
-					WeiGe:  niuniu.WeiGe - 1,
-				}
-				updateMap(t, true)
-			case niuniu.Philter > 0:
-				messages, f = usePhilter(niuniu.Length)
-				u = userInfo{
-					UID:     uid,
-					Length:  f,
-					Philter: niuniu.Philter - 1,
-				}
-				updateMap(t, true)
-			default:
-				messages, f = generateRandomStingTwo(niuniu.Length)
-				u = userInfo{
-					UID:    uid,
-					Length: f,
-				}
+		case niuniu.WeiGe > 0:
+			messages, f = useWeiGe(niuniu.Length)
+			u = userInfo{
+				UID:    uid,
+				Length: f,
+				WeiGe:  niuniu.WeiGe - 1,
+			}
+			updateMap(t, true)
+		case niuniu.Philter > 0:
+			messages, f = usePhilter(niuniu.Length)
+			u = userInfo{
+				UID:     uid,
+				Length:  f,
+				Philter: niuniu.Philter - 1,
+			}
+			updateMap(t, true)
+		default:
+			messages, f = generateRandomStingTwo(niuniu.Length)
+			u = userInfo{
+				UID:    uid,
+				Length: f,
 			}
 		}
 
@@ -421,87 +396,86 @@ func init() {
 			u             userInfo
 		)
 		v, ok := prop.Load(t)
-		if ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8 {
+		switch {
+		case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
 			ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(v.TimeLimit), "再来吧"))
-			_, f, _ = fencing(myniuniu.Length, adduserniuniu.Length)
+			fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
 			u = userInfo{
 				UID:    uid,
 				Length: f,
 			}
-		} else {
-			switch {
-			case myniuniu.Artifact > 0:
-				fencingResult, f, f1 = useArtifact(myniuniu.Length, adduserniuniu.Length)
-				u = userInfo{
-					UID:      uid,
-					Length:   f,
-					Artifact: myniuniu.Artifact - 1,
-				}
-				updateMap(t, true)
-			case myniuniu.ShenJi > 0:
-				fencingResult, f, f1 = useShenJi(myniuniu.Length, adduserniuniu.Length)
-				u = userInfo{
-					UID:      uid,
-					Length:   f,
-					Artifact: myniuniu.ShenJi - 1,
-				}
-				updateMap(t, true)
-			default:
-				fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-				u = userInfo{
-					UID:    uid,
-					Length: f,
-				}
+		case myniuniu.Artifact > 0:
+			fencingResult, f, f1 = useArtifact(myniuniu.Length, adduserniuniu.Length)
+			u = userInfo{
+				UID:      uid,
+				Length:   f,
+				Artifact: myniuniu.Artifact - 1,
+			}
+			updateMap(t, true)
+		case myniuniu.ShenJi > 0:
+			fencingResult, f, f1 = useShenJi(myniuniu.Length, adduserniuniu.Length)
+			u = userInfo{
+				UID:      uid,
+				Length:   f,
+				Artifact: myniuniu.ShenJi - 1,
+			}
+			updateMap(t, true)
+		default:
+			fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
+			u = userInfo{
+				UID:    uid,
+				Length: f,
+			}
 
+		}
+		err = db.insertniuniu(&u, gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		err = db.insertniuniu(&userInfo{UID: adduser, Length: f1}, gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
+		j := fmt.Sprintf("%d_%d", gid, adduser)
+		count, ok := jjCount.Load(j)
+		var c lastLength
+		if !ok {
+			c = lastLength{
+				TimeLimit: time.Now(),
+				Count:     1,
+				Length:    adduserniuniu.Length,
 			}
-			err = db.insertniuniu(&u, gid)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
+		} else {
+			c = lastLength{
+				TimeLimit: c.TimeLimit,
+				Count:     count.Count + 1,
+				Length:    count.Length,
 			}
-			err = db.insertniuniu(&userInfo{UID: adduser, Length: f1}, gid)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
-				return
-			}
-			ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
-			j := fmt.Sprintf("%d_%d", gid, adduser)
-			count, ok := jjCount.Load(j)
-			var c lastLength
-			if !ok {
+			if time.Since(c.TimeLimit) > time.Minute*45 {
 				c = lastLength{
 					TimeLimit: time.Now(),
 					Count:     1,
 					Length:    adduserniuniu.Length,
 				}
-			} else {
-				c = lastLength{
-					TimeLimit: c.TimeLimit,
-					Count:     count.Count + 1,
-					Length:    count.Length,
-				}
-				if time.Since(c.TimeLimit) > time.Minute*30 {
-					c = lastLength{
-						TimeLimit: time.Now(),
-						Count:     1,
-						Length:    adduserniuniu.Length,
-					}
-				}
 			}
+		}
 
-			jjCount.Store(j, &c)
-			if c.Count > 5 {
-				ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
-					"你们不要再找ta🤺啦！"})))
-				if c.Count < 7 {
-					id := ctx.SendPrivateMessage(adduser,
-						message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
-					if id == 0 {
-						ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
-					}
+		jjCount.Store(j, &c)
+		if c.Count > 5 {
+			ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
+				"你们不要再找ta🤺啦！"})))
+			if c.Count < 7 {
+				id := ctx.SendPrivateMessage(adduser,
+					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
+				if id == 0 {
+					ctx.SendChain(message.At(adduser), message.Text("快发送`赎牛牛`来赎回你原本的牛牛!"))
 				}
 			}
 		}
+
 	})
 	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID

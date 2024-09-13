@@ -262,13 +262,13 @@ func hitGlue(l float64) float64 {
 	l = math.Abs(l)
 	switch {
 	case l > 1 && l <= 10:
-		return rand.Float64() * math.Log2(l)
+		return rand.Float64() * math.Log2(l*2)
 	case 10 < l && l <= 100:
-		return rand.Float64() * math.Log2(l*1.5) / 2
+		return rand.Float64() * math.Log2(l*1.5)
 	case 100 < l && l <= 1000:
-		return rand.Float64() * math.Log10(l*1.5) / 2
+		return rand.Float64() * (math.Log10(l*1.5) * 2)
 	case l > 1000:
-		return rand.Float64() * math.Log10(l) / 2
+		return rand.Float64() * (math.Log10(l) * 2)
 	default:
 		return rand.Float64()
 	}
