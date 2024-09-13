@@ -2,10 +2,121 @@
 package niuniu
 
 import (
+	"errors"
 	"fmt"
+	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/message"
 	"math"
 	"math/rand"
+	"time"
 )
+
+func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, ctx *zero.Ctx) (string, float64, userInfo) {
+	var (
+		fencingResult string
+		f             float64
+		f1            float64
+		u             userInfo
+	)
+	v, ok := prop.Load(t)
+	switch {
+	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
+		ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(v.TimeLimit), "再来吧"))
+		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
+		u = userInfo{
+			UID:    myniuniu.UID,
+			Length: f,
+		}
+	case myniuniu.Artifact > 0:
+		fencingResult, f, f1 = useArtifact(myniuniu.Length, adduserniuniu.Length)
+		u = userInfo{
+			UID:      myniuniu.UID,
+			Length:   f,
+			Artifact: myniuniu.Artifact - 1,
+		}
+		updateMap(t, true)
+	case myniuniu.ShenJi > 0:
+		fencingResult, f, f1 = useShenJi(myniuniu.Length, adduserniuniu.Length)
+		u = userInfo{
+			UID:      myniuniu.UID,
+			Length:   f,
+			Artifact: myniuniu.ShenJi - 1,
+		}
+		updateMap(t, true)
+	default:
+		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
+		u = userInfo{
+			UID:    myniuniu.UID,
+			Length: f,
+		}
+	}
+	return fencingResult, f1, u
+}
+
+func processNiuniuAction(t string, niuniu *userInfo, ctx *zero.Ctx, uid int64) (string, userInfo) {
+	var (
+		messages string
+		f        float64
+		u        userInfo
+	)
+	load, ok := prop.Load(t)
+	switch {
+	case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
+		ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(load.TimeLimit), "再来吧"))
+		messages, f = generateRandomStingTwo(niuniu.Length)
+		u = userInfo{
+			UID:    uid,
+			Length: f,
+		}
+	case niuniu.WeiGe > 0:
+		messages, f = useWeiGe(niuniu.Length)
+		u = userInfo{
+			UID:    uid,
+			Length: f,
+			WeiGe:  niuniu.WeiGe - 1,
+		}
+		updateMap(t, true)
+	case niuniu.Philter > 0:
+		messages, f = usePhilter(niuniu.Length)
+		u = userInfo{
+			UID:     uid,
+			Length:  f,
+			Philter: niuniu.Philter - 1,
+		}
+		updateMap(t, true)
+	default:
+		messages, f = generateRandomStingTwo(niuniu.Length)
+		u = userInfo{
+			UID:    uid,
+			Length: f,
+		}
+	}
+	return messages, u
+}
+
+func purchaseItem(n int, info userInfo, uid int64) (*userInfo, int, error) {
+	var (
+		money int
+		u     *userInfo
+	)
+	switch n {
+	case 1:
+		money = 300
+		u = &userInfo{UID: uid, WeiGe: info.WeiGe + 5}
+	case 2:
+		money = 300
+		u = &userInfo{UID: uid, Philter: info.Philter + 5}
+	case 3:
+		money = 500
+		u = &userInfo{UID: uid, Artifact: info.Artifact + 2}
+	case 4:
+		money = 500
+		u = &userInfo{UID: uid, ShenJi: info.ShenJi + 2}
+	default:
+		return nil, 0, errors.New("无效的选项")
+	}
+	return u, money, nil
+}
 
 func useWeiGe(niuniu float64) (string, float64) {
 	reduce := math.Abs(hitGlue(niuniu))
