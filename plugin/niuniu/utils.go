@@ -4,29 +4,28 @@ package niuniu
 import (
 	"errors"
 	"fmt"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"math"
 	"math/rand"
 	"time"
 )
 
-func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, ctx *zero.Ctx) (string, float64, userInfo) {
+func processJJuAction(myniuniu, adduserniuniu *userInfo, t string) (string, float64, userInfo, error) {
 	var (
 		fencingResult string
 		f             float64
 		f1            float64
 		u             userInfo
+		err           error
 	)
 	v, ok := prop.Load(t)
 	switch {
 	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
-		ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(v.TimeLimit), "再来吧"))
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
 		u = userInfo{
 			UID:    myniuniu.UID,
 			Length: f,
 		}
+		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit)))
 	case myniuniu.Artifact > 0:
 		fencingResult, f, f1 = useArtifact(myniuniu.Length, adduserniuniu.Length)
 		u = userInfo{
@@ -50,28 +49,29 @@ func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, ctx *zero.Ctx
 			Length: f,
 		}
 	}
-	return fencingResult, f1, u
+	return fencingResult, f1, u, err
 }
 
-func processNiuniuAction(t string, niuniu *userInfo, ctx *zero.Ctx, uid int64) (string, userInfo) {
+func processNiuniuAction(t string, niuniu *userInfo) (string, userInfo, error) {
 	var (
 		messages string
 		f        float64
 		u        userInfo
+		err      error
 	)
 	load, ok := prop.Load(t)
 	switch {
 	case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
-		ctx.SendChain(message.Text("你使用道具次数太快了，此次道具不会生效，等待", time.Minute*8-time.Since(load.TimeLimit), "再来吧"))
 		messages, f = generateRandomStingTwo(niuniu.Length)
 		u = userInfo{
-			UID:    uid,
+			UID:    niuniu.UID,
 			Length: f,
 		}
+		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit)))
 	case niuniu.WeiGe > 0:
 		messages, f = useWeiGe(niuniu.Length)
 		u = userInfo{
-			UID:    uid,
+			UID:    niuniu.UID,
 			Length: f,
 			WeiGe:  niuniu.WeiGe - 1,
 		}
@@ -79,7 +79,7 @@ func processNiuniuAction(t string, niuniu *userInfo, ctx *zero.Ctx, uid int64) (
 	case niuniu.Philter > 0:
 		messages, f = usePhilter(niuniu.Length)
 		u = userInfo{
-			UID:     uid,
+			UID:     niuniu.UID,
 			Length:  f,
 			Philter: niuniu.Philter - 1,
 		}
@@ -87,11 +87,11 @@ func processNiuniuAction(t string, niuniu *userInfo, ctx *zero.Ctx, uid int64) (
 	default:
 		messages, f = generateRandomStingTwo(niuniu.Length)
 		u = userInfo{
-			UID:    uid,
+			UID:    niuniu.UID,
 			Length: f,
 		}
 	}
-	return messages, u
+	return messages, u, err
 }
 
 func purchaseItem(n int, info userInfo, uid int64) (*userInfo, int, error) {
