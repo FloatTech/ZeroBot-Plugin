@@ -118,6 +118,7 @@ func purchaseItem(n int, info userInfo, uid int64) (*userInfo, int, error) {
 	return u, money, nil
 }
 
+// useWeiGe 使用道具伟哥
 func useWeiGe(niuniu float64) (string, float64) {
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu += reduce
@@ -128,6 +129,7 @@ func useWeiGe(niuniu float64) (string, float64) {
 	}), niuniu
 }
 
+// usePhilter 使用道具媚药
 func usePhilter(niuniu float64) (string, float64) {
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu -= reduce
@@ -138,6 +140,7 @@ func usePhilter(niuniu float64) (string, float64) {
 	}), niuniu
 }
 
+// useArtifact 使用道具击剑神器
 func useArtifact(myLength, adduserniuniu float64) (string, float64, float64) {
 	difference := myLength - adduserniuniu
 	var (
@@ -158,6 +161,7 @@ func useArtifact(myLength, adduserniuniu float64) (string, float64, float64) {
 	}), myLength, adduserniuniu - change/1.3
 }
 
+// useShenJi 使用道具击剑神稽
 func useShenJi(myLength, adduserniuniu float64) (string, float64, float64) {
 	difference := myLength - adduserniuniu
 	var (

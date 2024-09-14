@@ -355,6 +355,7 @@ func init() {
 		j := fmt.Sprintf("%d_%d", gid, adduser)
 		count, ok := jjCount.Load(j)
 		var c lastLength
+		// 按照第一次jj时的时间计算，超过45分钟则重置
 		if !ok {
 			c = lastLength{
 				TimeLimit: time.Now(),
