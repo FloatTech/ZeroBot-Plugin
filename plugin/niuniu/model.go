@@ -30,14 +30,10 @@ type UserInfo struct {
 	UID       int64
 	Length    float64
 	UserCount int
-	Prop      *niuNiuProp
-}
-
-type niuNiuProp struct {
-	WeiGe    int // 伟哥
-	Philter  int // 媚药
-	Artifact int // 击剑神器
-	ShenJi   int // 击剑神稽
+	WeiGe     int // 伟哥
+	Philter   int // 媚药
+	Artifact  int // 击剑神器
+	ShenJi    int // 击剑神稽
 }
 
 type users []*UserInfo
@@ -56,7 +52,8 @@ var (
 )
 
 // useWeiGe 使用道具伟哥
-func (n *niuNiuProp) useWeiGe(niuniu float64) (string, float64) {
+func (u *UserInfo) useWeiGe() (string, float64) {
+	niuniu := u.Length
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu += reduce
 	return randomChoice([]string{
@@ -67,7 +64,8 @@ func (n *niuNiuProp) useWeiGe(niuniu float64) (string, float64) {
 }
 
 // usePhilter 使用道具媚药
-func (n *niuNiuProp) usePhilter(niuniu float64) (string, float64) {
+func (u *UserInfo) usePhilter() (string, float64) {
+	niuniu := u.Length
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu -= reduce
 	return randomChoice([]string{
@@ -78,7 +76,8 @@ func (n *niuNiuProp) usePhilter(niuniu float64) (string, float64) {
 }
 
 // useArtifact 使用道具击剑神器
-func (n *niuNiuProp) useArtifact(myLength, adduserniuniu float64) (string, float64, float64) {
+func (u *UserInfo) useArtifact(adduserniuniu float64) (string, float64, float64) {
+	myLength := u.Length
 	difference := myLength - adduserniuniu
 	var (
 		change float64
@@ -99,7 +98,8 @@ func (n *niuNiuProp) useArtifact(myLength, adduserniuniu float64) (string, float
 }
 
 // useShenJi 使用道具击剑神稽
-func (n *niuNiuProp) useShenJi(myLength, adduserniuniu float64) (string, float64, float64) {
+func (u *UserInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
+	myLength := u.Length
 	difference := myLength - adduserniuniu
 	var (
 		change float64

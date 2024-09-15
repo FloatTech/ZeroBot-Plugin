@@ -38,6 +38,7 @@ var (
 			"- 注册牛牛\n" +
 			"- 赎牛牛(cd:45分钟)\n" +
 			"- 牛牛商店\n" +
+			"- 牛牛背包\n" +
 			"- 注销牛牛\n" +
 			"- 查看我的牛牛\n" +
 			"- 牛子长度排行\n" +
@@ -51,6 +52,20 @@ var (
 )
 
 func init() {
+	en.OnFullMatch("牛牛背包", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		niu, err := db.FindNiuNiu(gid, uid)
+		if err != nil {
+			ctx.SendChain(message.Text("你还没有牛牛呢快去注册一个吧！"))
+			return
+		}
+		ctx.SendChain(message.Text(fmt.Sprintln("当前牛牛背包如下"),
+			fmt.Sprintf("伟哥:%d\n", niu.WeiGe),
+			fmt.Sprintf("媚药:%d\n", niu.Philter),
+			fmt.Sprintf("击剑神器:%d\n", niu.Artifact),
+			fmt.Sprintf("击剑神稽:%d\n", niu.ShenJi)))
+	})
 	en.OnFullMatch("牛牛商店", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.GroupID
@@ -414,6 +429,9 @@ func randomChoice(options []string) string {
 
 func updateMap(t string, d bool) {
 	value, ok := prop.Load(t)
+	if value == nil {
+		return
+	}
 	if !d {
 		if time.Since(value.TimeLimit) > time.Minute*8 {
 			prop.Delete(t)

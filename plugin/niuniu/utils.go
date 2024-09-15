@@ -26,20 +26,21 @@ func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string) (string, floa
 			Length: f,
 		}
 		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit)))
-	case myniuniu.Prop.Artifact > 0:
-		fencingResult, f, f1 = myniuniu.Prop.useArtifact(myniuniu.Length, adduserniuniu.Length)
+	case myniuniu.Artifact > 0:
+		fencingResult, f, f1 = myniuniu.useArtifact(adduserniuniu.Length)
 		u = UserInfo{
-			UID:    myniuniu.UID,
-			Length: f,
-			Prop:   &niuNiuProp{Artifact: myniuniu.Prop.Artifact - 1},
+			UID:      myniuniu.UID,
+			Length:   f,
+			Artifact: myniuniu.Artifact - 1,
 		}
 		updateMap(t, true)
-	case myniuniu.Prop.ShenJi > 0:
-		fencingResult, f, f1 = myniuniu.Prop.useShenJi(myniuniu.Length, adduserniuniu.Length)
+	case myniuniu.ShenJi > 0:
+		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
 		u = UserInfo{
-			UID:    myniuniu.UID,
-			Length: f,
-			Prop:   &niuNiuProp{ShenJi: myniuniu.Prop.ShenJi - 1},
+			UID:       0,
+			Length:    0,
+			UserCount: 0,
+			ShenJi:    myniuniu.ShenJi - 1,
 		}
 		updateMap(t, true)
 	default:
@@ -68,20 +69,20 @@ func processNiuniuAction(t string, niuniu *UserInfo) (string, UserInfo, error) {
 			Length: f,
 		}
 		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit)))
-	case niuniu.Prop.WeiGe > 0:
-		messages, f = niuniu.Prop.useWeiGe(niuniu.Length)
+	case niuniu.WeiGe > 0:
+		messages, f = niuniu.useWeiGe()
 		u = UserInfo{
 			UID:    niuniu.UID,
 			Length: f,
-			Prop:   &niuNiuProp{WeiGe: niuniu.Prop.WeiGe - 1},
+			WeiGe:  niuniu.WeiGe - 1,
 		}
 		updateMap(t, true)
-	case niuniu.Prop.Philter > 0:
-		messages, f = niuniu.Prop.usePhilter(niuniu.Length)
+	case niuniu.Philter > 0:
+		messages, f = niuniu.usePhilter()
 		u = UserInfo{
-			UID:    niuniu.UID,
-			Length: f,
-			Prop:   &niuNiuProp{Philter: niuniu.Prop.Philter - 1},
+			UID:     niuniu.UID,
+			Length:  f,
+			Philter: niuniu.Philter - 1,
 		}
 		updateMap(t, true)
 	default:
@@ -103,26 +104,26 @@ func purchaseItem(n int, info UserInfo, uid int64) (*UserInfo, int, error) {
 	case 1:
 		money = 300
 		u = &UserInfo{
-			UID:  uid,
-			Prop: &niuNiuProp{WeiGe: info.Prop.WeiGe + 5},
+			UID:   uid,
+			WeiGe: info.WeiGe + 5,
 		}
 	case 2:
 		money = 300
 		u = &UserInfo{
-			UID:  uid,
-			Prop: &niuNiuProp{Philter: info.Prop.Philter + 5},
+			UID:     uid,
+			Philter: info.Philter + 5,
 		}
 	case 3:
 		money = 500
 		u = &UserInfo{
-			UID:  uid,
-			Prop: &niuNiuProp{Artifact: info.Prop.Artifact + 2},
+			UID:      uid,
+			Artifact: info.Artifact + 2,
 		}
 	case 4:
 		money = 500
 		u = &UserInfo{
-			UID:  uid,
-			Prop: &niuNiuProp{ShenJi: info.Prop.ShenJi + 2},
+			UID:    uid,
+			ShenJi: info.ShenJi + 2,
 		}
 	default:
 		return nil, 0, errors.New("无效的选项")
