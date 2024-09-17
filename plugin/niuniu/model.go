@@ -21,11 +21,6 @@ type model struct {
 	sync.RWMutex
 }
 
-type NiuPlugin interface {
-	FindNiuNiu(gid, uid int64) (UserInfo, error)
-	InsertNiuNiu(u *UserInfo, gid int64) error
-}
-
 type UserInfo struct {
 	UID       int64
 	Length    float64

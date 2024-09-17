@@ -9,7 +9,59 @@ import (
 	"time"
 )
 
-func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string) (string, float64, UserInfo, error) {
+func createUserInfoByProps(props string, niuniu *UserInfo) (UserInfo, error) {
+	var (
+		u   UserInfo
+		err error
+	)
+	switch props {
+	case "伟哥":
+		if niuniu.WeiGe > 0 {
+			u = UserInfo{
+				UID:    niuniu.UID,
+				Length: niuniu.Length,
+				WeiGe:  niuniu.WeiGe - 1,
+			}
+		} else {
+			err = errors.New("你还没有伟哥呢,不能使用")
+		}
+	case "媚药":
+		if niuniu.Philter > 0 {
+			u = UserInfo{
+				UID:     niuniu.UID,
+				Length:  niuniu.Length,
+				Philter: niuniu.Philter - 1,
+			}
+		} else {
+			err = errors.New("你还没有媚药呢,不能使用")
+		}
+	case "击剑神器":
+		if niuniu.Artifact > 0 {
+			u = UserInfo{
+				UID:      niuniu.UID,
+				Length:   niuniu.Length,
+				Artifact: niuniu.Artifact - 1,
+			}
+		} else {
+			err = errors.New("你还没有击剑神器呢,不能使用")
+		}
+	case "击剑神稽":
+		if niuniu.ShenJi > 0 {
+			u = UserInfo{
+				UID:    niuniu.UID,
+				Length: niuniu.Length,
+				ShenJi: niuniu.ShenJi - 1,
+			}
+		} else {
+			err = errors.New("你还没有击剑神稽呢,不能使用")
+		}
+	default:
+		err = errors.New("道具不存在")
+	}
+	return u, err
+}
+
+func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string, props string) (string, float64, UserInfo, error) {
 	var (
 		fencingResult string
 		f             float64
@@ -18,6 +70,15 @@ func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string) (string, floa
 		err           error
 	)
 	v, ok := prop.Load(t)
+	if props != "" {
+		if props != "击剑神器" && props != "击剑神稽" {
+			return "", 0, UserInfo{}, errors.New("道具不存在")
+		}
+		u, err = createUserInfoByProps(props, myniuniu)
+		if err != nil {
+			return "", 0, UserInfo{}, err
+		}
+	}
 	switch {
 	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
@@ -26,21 +87,18 @@ func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string) (string, floa
 			Length: f,
 		}
 		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit)))
-	case myniuniu.Artifact > 0:
-		fencingResult, f, f1 = myniuniu.useArtifact(adduserniuniu.Length)
-		u = UserInfo{
-			UID:      myniuniu.UID,
-			Length:   f,
-			Artifact: myniuniu.Artifact - 1,
-		}
-		updateMap(t, true)
-	case myniuniu.ShenJi > 0:
+	case myniuniu.ShenJi-u.ShenJi != 0:
 		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
 		u = UserInfo{
-			UID:       0,
-			Length:    0,
-			UserCount: 0,
-			ShenJi:    myniuniu.ShenJi - 1,
+			UID:    myniuniu.UID,
+			Length: f,
+		}
+		updateMap(t, true)
+	case myniuniu.Artifact-u.Artifact != 0:
+		fencingResult, f, f1 = myniuniu.useArtifact(adduserniuniu.Length)
+		u = UserInfo{
+			UID:    myniuniu.UID,
+			Length: f,
 		}
 		updateMap(t, true)
 	default:
@@ -52,8 +110,7 @@ func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string) (string, floa
 	}
 	return fencingResult, f1, u, err
 }
-
-func processNiuniuAction(t string, niuniu *UserInfo) (string, UserInfo, error) {
+func processNiuniuAction(t string, niuniu *UserInfo, props string) (string, UserInfo, error) {
 	var (
 		messages string
 		f        float64
@@ -61,36 +118,33 @@ func processNiuniuAction(t string, niuniu *UserInfo) (string, UserInfo, error) {
 		err      error
 	)
 	load, ok := prop.Load(t)
+	if props != "" {
+		if props != "伟哥" && props != "媚药" {
+			return "", u, errors.New("道具不存在")
+		}
+		u, err = createUserInfoByProps(props, niuniu)
+		if err != nil {
+			return "", UserInfo{}, err
+		}
+	}
 	switch {
 	case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
 		messages, f = generateRandomStingTwo(niuniu.Length)
-		u = UserInfo{
-			UID:    niuniu.UID,
-			Length: f,
-		}
+		u.Length = f
+		u.UID = niuniu.UID
 		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit)))
-	case niuniu.WeiGe > 0:
+	case niuniu.WeiGe-u.WeiGe != 0:
 		messages, f = niuniu.useWeiGe()
-		u = UserInfo{
-			UID:    niuniu.UID,
-			Length: f,
-			WeiGe:  niuniu.WeiGe - 1,
-		}
+		u.Length = f
 		updateMap(t, true)
-	case niuniu.Philter > 0:
+	case niuniu.Philter-u.Philter != 0:
 		messages, f = niuniu.usePhilter()
-		u = UserInfo{
-			UID:     niuniu.UID,
-			Length:  f,
-			Philter: niuniu.Philter - 1,
-		}
+		u.Length = f
 		updateMap(t, true)
 	default:
 		messages, f = generateRandomStingTwo(niuniu.Length)
-		u = UserInfo{
-			UID:    niuniu.UID,
-			Length: f,
-		}
+		u.Length = f
+		u.UID = niuniu.UID
 	}
 	return messages, u, err
 }

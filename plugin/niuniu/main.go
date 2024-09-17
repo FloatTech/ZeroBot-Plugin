@@ -60,17 +60,17 @@ func init() {
 			ctx.SendChain(message.Text("你还没有牛牛呢快去注册一个吧！"))
 			return
 		}
-		ctx.SendChain(message.Text(fmt.Sprintln("当前牛牛背包如下"),
-			fmt.Sprintf("伟哥:%d\n", niu.WeiGe),
-			fmt.Sprintf("媚药:%d\n", niu.Philter),
-			fmt.Sprintf("击剑神器:%d\n", niu.Artifact),
-			fmt.Sprintf("击剑神稽:%d\n", niu.ShenJi)))
+		ctx.SendChain(message.Text("当前牛牛背包如下\n",
+			"伟哥:", niu.WeiGe,
+			"\n媚药:", niu.Philter,
+			"\n击剑神器:", niu.Artifact,
+			"\n击剑神稽:", niu.ShenJi))
 	})
 	en.OnFullMatch("牛牛商店", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.GroupID
 		var messages message.Message
-		messages = append(messages, message.Text("牛牛商店当前售卖的物品如下"))
+		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
 		messages = append(messages,
 			ctxext.FakeSenderForwardNode(ctx,
 				message.Text("商品1\n商品名:伟哥\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都增长，有效5次")))
@@ -85,11 +85,13 @@ func init() {
 				message.Text("商品4\n商品名:击剑神稽\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都失败，有效2次")))
 		if id := ctx.Send(messages).ID(); id == 0 {
 			ctx.Send(message.Text("发送商店失败"))
+			return
 		}
 		ctx.SendChain(message.Text("输入对应序号进行购买商品"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`(/d+)`)).Repeat()
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(\d+)$`)).Repeat()
 		defer cancel()
 		timer := time.NewTimer(120 * time.Second)
+		answer := ""
 		defer timer.Stop()
 		for {
 			select {
@@ -97,7 +99,7 @@ func init() {
 				ctx.SendChain(message.At(uid), message.Text("超时,已自动取消"))
 				return
 			case r := <-recv:
-				answer := r.Event.Message.String()
+				answer = r.Event.Message.String()
 				n, err := strconv.Atoi(answer)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
@@ -244,7 +246,7 @@ func init() {
 			sex, sexLong, niuniu, niuniuList.ranking(niuniu, uid), generateRandomString(niuniu)))
 		ctx.SendChain(message.At(uid), message.Text(&result))
 	})
-	en.OnFullMatchGroup([]string{"dj", "打胶"}, zero.OnlyGroup,
+	en.OnRegex(`^(?:.*使用(.*))??打胶$`, zero.OnlyGroup,
 		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := dajiaoLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["dajiao_last_touch"] = lt.LastTouch()
@@ -262,6 +264,7 @@ func init() {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
 		t := fmt.Sprintf("%d_%d", gid, uid)
+		fiancee := ctx.State["regex_matched"].([]string)
 		updateMap(t, false)
 		niuniu, err := db.FindNiuNiu(gid, uid)
 		if err != nil {
@@ -269,9 +272,10 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
-		messages, u, err := processNiuniuAction(t, &niuniu)
+		messages, u, err := processNiuniuAction(t, &niuniu, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
+			return
 		}
 		ctx.SendChain(message.Text(messages))
 		if err = db.InsertNiuNiu(&u, gid); err != nil {
@@ -310,7 +314,7 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.GroupID),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
-	en.OnRegex(`^jj\s?(\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))$`, getdb,
+	en.OnRegex(`^(?:.*使用(.*))??jj\s?(\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))$`, getdb,
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := jjLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["jj_last_touch"] = lt.LastTouch()
@@ -326,7 +330,7 @@ func init() {
 	},
 	).Handle(func(ctx *zero.Ctx) {
 		fiancee := ctx.State["regex_matched"].([]string)
-		adduser, err := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
+		adduser, err := strconv.ParseInt(fiancee[3]+fiancee[4], 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -352,9 +356,10 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
-		fencingResult, f1, u, err := processJJuAction(&myniuniu, &adduserniuniu, t)
+		fencingResult, f1, u, err := processJJuAction(&myniuniu, &adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
+			return
 		}
 		err = db.InsertNiuNiu(&u, gid)
 		if err != nil {
