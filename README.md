@@ -1035,7 +1035,11 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 - [x] 打胶
 
+- [x] 使用[道具名称]打胶
+
 - [x] jj[@xxx]
+
+- [x] 使用[道具名称]jj[@xxx]
 
 - [x] 赎牛牛
 

@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-func createUserInfoByProps(props string, niuniu *UserInfo) (UserInfo, error) {
+func createUserInfoByProps(props string, niuniu *userInfo) (userInfo, error) {
 	var (
-		u   UserInfo
+		u   userInfo
 		err error
 	)
 	switch props {
 	case "伟哥":
 		if niuniu.WeiGe > 0 {
-			u = UserInfo{
+			u = userInfo{
 				UID:    niuniu.UID,
 				Length: niuniu.Length,
 				WeiGe:  niuniu.WeiGe - 1,
@@ -27,7 +27,7 @@ func createUserInfoByProps(props string, niuniu *UserInfo) (UserInfo, error) {
 		}
 	case "媚药":
 		if niuniu.Philter > 0 {
-			u = UserInfo{
+			u = userInfo{
 				UID:     niuniu.UID,
 				Length:  niuniu.Length,
 				Philter: niuniu.Philter - 1,
@@ -37,7 +37,7 @@ func createUserInfoByProps(props string, niuniu *UserInfo) (UserInfo, error) {
 		}
 	case "击剑神器":
 		if niuniu.Artifact > 0 {
-			u = UserInfo{
+			u = userInfo{
 				UID:      niuniu.UID,
 				Length:   niuniu.Length,
 				Artifact: niuniu.Artifact - 1,
@@ -47,7 +47,7 @@ func createUserInfoByProps(props string, niuniu *UserInfo) (UserInfo, error) {
 		}
 	case "击剑神稽":
 		if niuniu.ShenJi > 0 {
-			u = UserInfo{
+			u = userInfo{
 				UID:    niuniu.UID,
 				Length: niuniu.Length,
 				ShenJi: niuniu.ShenJi - 1,
@@ -61,60 +61,60 @@ func createUserInfoByProps(props string, niuniu *UserInfo) (UserInfo, error) {
 	return u, err
 }
 
-func processJJuAction(myniuniu, adduserniuniu *UserInfo, t string, props string) (string, float64, UserInfo, error) {
+func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string) (string, float64, userInfo, error) {
 	var (
 		fencingResult string
 		f             float64
 		f1            float64
-		u             UserInfo
+		u             userInfo
 		err           error
 	)
 	v, ok := prop.Load(t)
 	if props != "" {
 		if props != "击剑神器" && props != "击剑神稽" {
-			return "", 0, UserInfo{}, errors.New("道具不存在")
+			return "", 0, userInfo{}, errors.New("道具不存在")
 		}
 		u, err = createUserInfoByProps(props, myniuniu)
 		if err != nil {
-			return "", 0, UserInfo{}, err
+			return "", 0, userInfo{}, err
 		}
 	}
 	switch {
 	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-		u = UserInfo{
+		u = userInfo{
 			UID:    myniuniu.UID,
 			Length: f,
 		}
 		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit)))
 	case myniuniu.ShenJi-u.ShenJi != 0:
 		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
-		u = UserInfo{
+		u = userInfo{
 			UID:    myniuniu.UID,
 			Length: f,
 		}
 		updateMap(t, true)
 	case myniuniu.Artifact-u.Artifact != 0:
 		fencingResult, f, f1 = myniuniu.useArtifact(adduserniuniu.Length)
-		u = UserInfo{
+		u = userInfo{
 			UID:    myniuniu.UID,
 			Length: f,
 		}
 		updateMap(t, true)
 	default:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-		u = UserInfo{
+		u = userInfo{
 			UID:    myniuniu.UID,
 			Length: f,
 		}
 	}
 	return fencingResult, f1, u, err
 }
-func processNiuniuAction(t string, niuniu *UserInfo, props string) (string, UserInfo, error) {
+func processNiuniuAction(t string, niuniu *userInfo, props string) (string, userInfo, error) {
 	var (
 		messages string
 		f        float64
-		u        UserInfo
+		u        userInfo
 		err      error
 	)
 	load, ok := prop.Load(t)
@@ -124,7 +124,7 @@ func processNiuniuAction(t string, niuniu *UserInfo, props string) (string, User
 		}
 		u, err = createUserInfoByProps(props, niuniu)
 		if err != nil {
-			return "", UserInfo{}, err
+			return "", userInfo{}, err
 		}
 	}
 	switch {
@@ -149,40 +149,41 @@ func processNiuniuAction(t string, niuniu *UserInfo, props string) (string, User
 	return messages, u, err
 }
 
-func purchaseItem(n int, info UserInfo, uid int64) (*UserInfo, int, error) {
+func purchaseItem(n int, info userInfo, uid int64) (*userInfo, int, error) {
 	var (
 		money int
-		u     *UserInfo
+		u     *userInfo
+		err   error
 	)
 	switch n {
 	case 1:
 		money = 300
-		u = &UserInfo{
+		u = &userInfo{
 			UID:   uid,
 			WeiGe: info.WeiGe + 5,
 		}
 	case 2:
 		money = 300
-		u = &UserInfo{
+		u = &userInfo{
 			UID:     uid,
 			Philter: info.Philter + 5,
 		}
 	case 3:
 		money = 500
-		u = &UserInfo{
+		u = &userInfo{
 			UID:      uid,
 			Artifact: info.Artifact + 2,
 		}
 	case 4:
 		money = 500
-		u = &UserInfo{
+		u = &userInfo{
 			UID:    uid,
 			ShenJi: info.ShenJi + 2,
 		}
 	default:
-		return nil, 0, errors.New("无效的选项")
+		err = errors.New("无效的选择")
 	}
-	return u, money, nil
+	return u, money, err
 }
 
 func generateRandomStingTwo(niuniu float64) (string, float64) {
@@ -208,13 +209,12 @@ func generateRandomStingTwo(niuniu float64) (string, float64) {
 				fmt.Sprintf("你突发恶疾！你的牛牛凹进去了%.2fcm！", reduce),
 				fmt.Sprintf("笑死，你因为打🦶过度导致牛牛凹进去了%.2fcm！🤣🤣🤣", reduce),
 			}), niuniu
-		} else {
-			return randomChoice([]string{
-				fmt.Sprintf("阿哦，你过度打🦶，牛牛缩短%.2fcm了呢！", reduce),
-				fmt.Sprintf("你的牛牛变长了很多，你很激动地继续打🦶，然后牛牛缩短了%.2fcm呢！", reduce),
-				fmt.Sprintf("小打怡情，大打伤身，强打灰飞烟灭！你过度打🦶，牛牛缩短了%.2fcm捏！", reduce),
-			}), niuniu
 		}
+		return randomChoice([]string{
+			fmt.Sprintf("阿哦，你过度打🦶，牛牛缩短%.2fcm了呢！", reduce),
+			fmt.Sprintf("你的牛牛变长了很多，你很激动地继续打🦶，然后牛牛缩短了%.2fcm呢！", reduce),
+			fmt.Sprintf("小打怡情，大打伤身，强打灰飞烟灭！你过度打🦶，牛牛缩短了%.2fcm捏！", reduce),
+		}), niuniu
 	}
 }
 

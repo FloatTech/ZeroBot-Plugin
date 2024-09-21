@@ -21,7 +21,7 @@ type model struct {
 	sync.RWMutex
 }
 
-type UserInfo struct {
+type userInfo struct {
 	UID       int64
 	Length    float64
 	UserCount int
@@ -31,7 +31,7 @@ type UserInfo struct {
 	ShenJi    int // 击剑神稽
 }
 
-type users []*UserInfo
+type users []*userInfo
 
 var (
 	db    = &model{}
@@ -47,7 +47,7 @@ var (
 )
 
 // useWeiGe 使用道具伟哥
-func (u *UserInfo) useWeiGe() (string, float64) {
+func (u *userInfo) useWeiGe() (string, float64) {
 	niuniu := u.Length
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu += reduce
@@ -59,7 +59,7 @@ func (u *UserInfo) useWeiGe() (string, float64) {
 }
 
 // usePhilter 使用道具媚药
-func (u *UserInfo) usePhilter() (string, float64) {
+func (u *userInfo) usePhilter() (string, float64) {
 	niuniu := u.Length
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu -= reduce
@@ -71,7 +71,7 @@ func (u *UserInfo) usePhilter() (string, float64) {
 }
 
 // useArtifact 使用道具击剑神器
-func (u *UserInfo) useArtifact(adduserniuniu float64) (string, float64, float64) {
+func (u *userInfo) useArtifact(adduserniuniu float64) (string, float64, float64) {
 	myLength := u.Length
 	difference := myLength - adduserniuniu
 	var (
@@ -93,7 +93,7 @@ func (u *UserInfo) useArtifact(adduserniuniu float64) (string, float64, float64)
 }
 
 // useShenJi 使用道具击剑神稽
-func (u *UserInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
+func (u *userInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
 	myLength := u.Length
 	difference := myLength - adduserniuniu
 	var (
@@ -125,7 +125,7 @@ func (u *UserInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
 }
 
 func (m users) positive() users {
-	var m1 []*UserInfo
+	var m1 []*userInfo
 	for _, i2 := range m {
 		if i2.Length > 0 {
 			m1 = append(m1, i2)
@@ -135,7 +135,7 @@ func (m users) positive() users {
 }
 
 func (m users) negative() users {
-	var m1 []*UserInfo
+	var m1 []*userInfo
 	for _, i2 := range m {
 		if i2.Length <= 0 {
 			m1 = append(m1, i2)
@@ -174,20 +174,20 @@ func (db *model) randLength() float64 {
 func (db *model) createGIDTable(gid int64) error {
 	db.Lock()
 	defer db.Unlock()
-	return db.sql.Create(strconv.FormatInt(gid, 10), &UserInfo{})
+	return db.sql.Create(strconv.FormatInt(gid, 10), &userInfo{})
 }
 
-// FindNiuNiu 返回一个用户的牛牛信息
-func (db *model) FindNiuNiu(gid, uid int64) (UserInfo, error) {
+// findNiuNiu 返回一个用户的牛牛信息
+func (db *model) findNiuNiu(gid, uid int64) (userInfo, error) {
 	db.RLock()
 	defer db.RUnlock()
-	u := UserInfo{}
+	u := userInfo{}
 	err := db.sql.Find(strconv.FormatInt(gid, 10), &u, "where UID = "+strconv.FormatInt(uid, 10))
 	return u, err
 }
 
-// InsertNiuNiu 更新一个用户的牛牛信息
-func (db *model) InsertNiuNiu(u *UserInfo, gid int64) error {
+// insertNiuNiu 更新一个用户的牛牛信息
+func (db *model) insertNiuNiu(u *userInfo, gid int64) error {
 	db.Lock()
 	defer db.Unlock()
 	return db.sql.Insert(strconv.FormatInt(gid, 10), u)
@@ -202,6 +202,6 @@ func (db *model) deleteniuniu(gid, uid int64) error {
 func (db *model) readAllTable(gid int64) (users, error) {
 	db.Lock()
 	defer db.Unlock()
-	a, err := sql.FindAll[UserInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 0")
+	a, err := sql.FindAll[userInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 0")
 	return a, err
 }
