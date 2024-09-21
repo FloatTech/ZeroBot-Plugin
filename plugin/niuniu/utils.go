@@ -86,7 +86,7 @@ func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string)
 			UID:    myniuniu.UID,
 			Length: f,
 		}
-		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit)))
+		err = fmt.Errorf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit))
 	case myniuniu.ShenJi-u.ShenJi != 0:
 		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
 		u = userInfo{
@@ -132,7 +132,7 @@ func processNiuniuAction(t string, niuniu *userInfo, props string) (string, user
 		messages, f = generateRandomStingTwo(niuniu.Length)
 		u.Length = f
 		u.UID = niuniu.UID
-		err = errors.New(fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit)))
+		err = fmt.Errorf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit))
 	case niuniu.WeiGe-u.WeiGe != 0:
 		messages, f = niuniu.useWeiGe()
 		u.Length = f
