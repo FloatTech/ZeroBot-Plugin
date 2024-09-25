@@ -11,56 +11,41 @@ import (
 
 func createUserInfoByProps(props string, niuniu *userInfo) (userInfo, error) {
 	var (
-		u   userInfo
 		err error
 	)
 	switch props {
 	case "伟哥":
 		if niuniu.WeiGe > 0 {
-			u = userInfo{
-				UID:    niuniu.UID,
-				Length: niuniu.Length,
-				WeiGe:  niuniu.WeiGe - 1,
-			}
+			niuniu.WeiGe = niuniu.WeiGe - 1
 		} else {
 			err = errors.New("你还没有伟哥呢,不能使用")
 		}
 	case "媚药":
 		if niuniu.Philter > 0 {
-			u = userInfo{
-				UID:     niuniu.UID,
-				Length:  niuniu.Length,
-				Philter: niuniu.Philter - 1,
-			}
+			niuniu.Philter = niuniu.Philter - 1
 		} else {
 			err = errors.New("你还没有媚药呢,不能使用")
 		}
 	case "击剑神器":
 		if niuniu.Artifact > 0 {
-			u = userInfo{
-				UID:      niuniu.UID,
-				Length:   niuniu.Length,
-				Artifact: niuniu.Artifact - 1,
-			}
+			niuniu.Artifact = niuniu.Artifact - 1
 		} else {
 			err = errors.New("你还没有击剑神器呢,不能使用")
 		}
 	case "击剑神稽":
 		if niuniu.ShenJi > 0 {
-			u = userInfo{
-				UID:    niuniu.UID,
-				Length: niuniu.Length,
-				ShenJi: niuniu.ShenJi - 1,
-			}
+			niuniu.ShenJi = niuniu.ShenJi - 1
 		} else {
 			err = errors.New("你还没有击剑神稽呢,不能使用")
 		}
 	default:
 		err = errors.New("道具不存在")
 	}
-	return u, err
+	return *niuniu, err
 }
 
+// 接收值依次是 自己和被jj用户的信息 一个包含gid和uid的字符串 道具名称
+// 返回值依次是 要发生的消息 被jj用户的niuniu 用户的信息 错误信息
 func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string) (string, float64, userInfo, error) {
 	var (
 		fencingResult string
@@ -82,31 +67,19 @@ func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string)
 	switch {
 	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-		u = userInfo{
-			UID:    myniuniu.UID,
-			Length: f,
-		}
+		u.Length = f
 		err = fmt.Errorf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit))
 	case myniuniu.ShenJi-u.ShenJi != 0:
 		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
-		u = userInfo{
-			UID:    myniuniu.UID,
-			Length: f,
-		}
+		u.Length = f
 		updateMap(t, true)
 	case myniuniu.Artifact-u.Artifact != 0:
 		fencingResult, f, f1 = myniuniu.useArtifact(adduserniuniu.Length)
-		u = userInfo{
-			UID:    myniuniu.UID,
-			Length: f,
-		}
+		u.Length = f
 		updateMap(t, true)
 	default:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-		u = userInfo{
-			UID:    myniuniu.UID,
-			Length: f,
-		}
+		u.Length = f
 	}
 	return fencingResult, f1, u, err
 }
@@ -149,41 +122,28 @@ func processNiuniuAction(t string, niuniu *userInfo, props string) (string, user
 	return messages, u, err
 }
 
-func purchaseItem(n int, info userInfo, uid int64) (*userInfo, int, error) {
+func purchaseItem(n int, info userInfo) (*userInfo, int, error) {
 	var (
 		money int
-		u     *userInfo
 		err   error
 	)
 	switch n {
 	case 1:
 		money = 300
-		u = &userInfo{
-			UID:   uid,
-			WeiGe: info.WeiGe + 5,
-		}
+		info.WeiGe = info.WeiGe + 5
 	case 2:
 		money = 300
-		u = &userInfo{
-			UID:     uid,
-			Philter: info.Philter + 5,
-		}
+		info.Philter = info.Philter + 5
 	case 3:
 		money = 500
-		u = &userInfo{
-			UID:      uid,
-			Artifact: info.Artifact + 2,
-		}
+		info.Artifact = info.Artifact + 2
 	case 4:
 		money = 500
-		u = &userInfo{
-			UID:    uid,
-			ShenJi: info.ShenJi + 2,
-		}
+		info.ShenJi = info.ShenJi + 2
 	default:
 		err = errors.New("无效的选择")
 	}
-	return u, money, err
+	return &info, money, err
 }
 
 func generateRandomStingTwo(niuniu float64) (string, float64) {
