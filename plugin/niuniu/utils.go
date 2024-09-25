@@ -16,25 +16,25 @@ func createUserInfoByProps(props string, niuniu *userInfo) (userInfo, error) {
 	switch props {
 	case "伟哥":
 		if niuniu.WeiGe > 0 {
-			niuniu.WeiGe = niuniu.WeiGe - 1
+			niuniu.WeiGe--
 		} else {
 			err = errors.New("你还没有伟哥呢,不能使用")
 		}
 	case "媚药":
 		if niuniu.Philter > 0 {
-			niuniu.Philter = niuniu.Philter - 1
+			niuniu.Philter--
 		} else {
 			err = errors.New("你还没有媚药呢,不能使用")
 		}
 	case "击剑神器":
 		if niuniu.Artifact > 0 {
-			niuniu.Artifact = niuniu.Artifact - 1
+			niuniu.Artifact--
 		} else {
 			err = errors.New("你还没有击剑神器呢,不能使用")
 		}
 	case "击剑神稽":
 		if niuniu.ShenJi > 0 {
-			niuniu.ShenJi = niuniu.ShenJi - 1
+			niuniu.ShenJi--
 		} else {
 			err = errors.New("你还没有击剑神稽呢,不能使用")
 		}
@@ -68,7 +68,8 @@ func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string)
 	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
 		u.Length = f
-		err = fmt.Errorf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit))
+		errMessage := fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit))
+		err = errors.New(errMessage)
 	case myniuniu.ShenJi-u.ShenJi != 0:
 		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
 		u.Length = f
@@ -105,7 +106,8 @@ func processNiuniuAction(t string, niuniu *userInfo, props string) (string, user
 		messages, f = generateRandomStingTwo(niuniu.Length)
 		u.Length = f
 		u.UID = niuniu.UID
-		err = fmt.Errorf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit))
+		errMessage := fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit))
+		err = errors.New(errMessage)
 	case niuniu.WeiGe-u.WeiGe != 0:
 		messages, f = niuniu.useWeiGe()
 		u.Length = f
@@ -130,16 +132,16 @@ func purchaseItem(n int, info userInfo) (*userInfo, int, error) {
 	switch n {
 	case 1:
 		money = 300
-		info.WeiGe = info.WeiGe + 5
+		info.WeiGe += 5
 	case 2:
 		money = 300
-		info.Philter = info.Philter + 5
+		info.Philter += 5
 	case 3:
 		money = 500
-		info.Artifact = info.Artifact + 2
+		info.Artifact += 2
 	case 4:
 		money = 500
-		info.ShenJi = info.ShenJi + 2
+		info.ShenJi += 2
 	default:
 		err = errors.New("无效的选择")
 	}
