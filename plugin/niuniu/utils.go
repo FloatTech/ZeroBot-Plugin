@@ -317,7 +317,7 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 
 }
 
-// fence
+// fence 根据长度计算减少的长度
 func fence(rd float64) float64 {
 	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(rd)
 	if rand.Intn(2) == 1 {
