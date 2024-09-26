@@ -45,7 +45,7 @@ func createUserInfoByProps(props string, niuniu userInfo) error {
 }
 
 // 接收值依次是 自己和被jj用户的信息 一个包含gid和uid的字符串 道具名称
-// 返回值依次是 要发生的消息 被jj用户的niuniu 错误信息
+// 返回值依次是 要发生的消息 错误信息
 func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) (string, float64, error) {
 	var (
 		fencingResult string

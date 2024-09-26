@@ -18,12 +18,14 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+// 赎牛牛
 type lastLength struct {
 	TimeLimit time.Time
 	Count     int
 	Length    float64
 }
 
+// 牛牛商店
 type propsCount struct {
 	Count     int
 	TimeLimit time.Time
