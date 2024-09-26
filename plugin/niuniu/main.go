@@ -332,7 +332,7 @@ func init() {
 			}
 
 		}
-		ctx.SendChain(message.Reply(ctx.Event.GroupID),
+		ctx.SendChain(message.At(uid),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
 	en.OnRegex(`^(?:.*使用(.*))??jj\s?(\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))$`, getdb,

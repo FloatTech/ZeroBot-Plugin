@@ -286,6 +286,7 @@ func determineResultBySkill(myLength, oppoLength float64) (string, float64, floa
 func calculateWinProbability(heightA, heightB float64) float64 {
 	// 选手 A 的初始胜率为 90%
 	pA := 0.9
+
 	heightRatio := math.Max(heightA, heightB) / math.Min(heightA, heightB)
 	reductionRate := 0.1 * (heightRatio - 1)
 	reduction := pA * reductionRate
