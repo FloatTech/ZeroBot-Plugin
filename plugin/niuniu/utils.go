@@ -305,7 +305,6 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), myLength, oppoLength
 		}
 		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
-
 	}
 	myLength -= reduce
 	oppoLength += 0.8 * reduce
@@ -313,7 +312,6 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 		return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), myLength, oppoLength
 	}
 	return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
-
 }
 
 // fence
