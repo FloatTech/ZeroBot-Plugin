@@ -461,6 +461,7 @@ func updateMap(t string, d bool) {
 	if value == nil {
 		return
 	}
+	// 检查一次是否已经过期
 	if !d {
 		if time.Since(value.TimeLimit) > time.Minute*8 {
 			prop.Delete(t)
