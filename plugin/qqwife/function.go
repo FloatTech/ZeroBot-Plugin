@@ -449,7 +449,7 @@ func checkSingleDog(ctx *zero.Ctx) bool {
 	// 获取用户信息
 	userInfo, _ := 民政局.查户口(gid, uid)
 	switch {
-	case userInfo != (userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
+	case userInfo != (Userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
 		return false
 	case userInfo.Target == fiancee || userInfo.User == fiancee:
@@ -464,7 +464,7 @@ func checkSingleDog(ctx *zero.Ctx) bool {
 	}
 	fianceeInfo, _ := 民政局.查户口(gid, fiancee)
 	switch {
-	case fianceeInfo != (userinfo{}) && (fianceeInfo.Target == 0 || fianceeInfo.User == 0): // 如果是单身贵族
+	case fianceeInfo != (Userinfo{}) && (fianceeInfo.Target == 0 || fianceeInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的ta是单身贵族噢"))
 		return false
 	case fianceeInfo.User == fiancee: // 如果如为攻
@@ -515,7 +515,7 @@ func checkMistress(ctx *zero.Ctx) bool {
 	// 获取用户信息
 	fianceeInfo, _ := 民政局.查户口(gid, fiancee)
 	switch {
-	case fianceeInfo == (userinfo{}): // 如果是空数据
+	case fianceeInfo == (Userinfo{}): // 如果是空数据
 		ctx.SendChain(message.Text("ta现在还是单身哦,快向ta表白吧!"))
 		return false
 	case fianceeInfo.Target == 0 || fianceeInfo.User == 0: // 如果是单身贵族
@@ -528,7 +528,7 @@ func checkMistress(ctx *zero.Ctx) bool {
 	// 获取用户信息
 	userInfo, _ := 民政局.查户口(gid, uid)
 	switch {
-	case userInfo != (userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
+	case userInfo != (Userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的你是单身贵族噢"))
 		return false
 	case userInfo.User == uid: // 如果如为攻
@@ -552,7 +552,7 @@ func checkDivorce(ctx *zero.Ctx) bool {
 	}
 	// 判断是否符合条件
 	userInfo, _ := 民政局.查户口(gid, uid)
-	if userInfo == (userinfo{}) { // 如果空数据
+	if userInfo == (Userinfo{}) { // 如果空数据
 		ctx.SendChain(message.Text("今天你还没结婚哦"))
 		return false
 	}
@@ -618,23 +618,23 @@ func checkMatchmaker(ctx *zero.Ctx) bool {
 	}
 	gayOneInfo, _ := 民政局.查户口(gid, gayOne)
 	switch {
-	case gayOneInfo != (userinfo{}) && (gayOneInfo.Target == 0 || gayOneInfo.User == 0): // 如果是单身贵族
+	case gayOneInfo != (Userinfo{}) && (gayOneInfo.Target == 0 || gayOneInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的攻方是单身贵族噢"))
 		return false
 	case gayOneInfo.Target == gayZero || gayOneInfo.User == gayZero:
 		ctx.SendChain(message.Text("笨蛋!ta们已经在一起了!"))
 		return false
-	case gayOneInfo != (userinfo{}): // 如果不是单身
+	case gayOneInfo != (Userinfo{}): // 如果不是单身
 		ctx.SendChain(message.Text("攻方不是单身,不允许给这种人做媒!"))
 		return false
 	}
 	// 获取用户信息
 	gayZeroInfo, _ := 民政局.查户口(gid, gayZero)
 	switch {
-	case gayOneInfo != (userinfo{}) && (gayZeroInfo.Target == 0 || gayZeroInfo.User == 0): // 如果是单身贵族
+	case gayOneInfo != (Userinfo{}) && (gayZeroInfo.Target == 0 || gayZeroInfo.User == 0): // 如果是单身贵族
 		ctx.SendChain(message.Text("今天的攻方是单身贵族噢"))
 		return false
-	case gayZeroInfo != (userinfo{}): // 如果不是单身
+	case gayZeroInfo != (Userinfo{}): // 如果不是单身
 		ctx.SendChain(message.Text("受方不是单身,不允许给这种人做媒!"))
 		return false
 	}
