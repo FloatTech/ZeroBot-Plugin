@@ -320,7 +320,6 @@ func init() {
 		}
 		// 添加数据进入表
 		if err := db.insertNiuNiu(&u, gid); err != nil {
-
 			if err = db.createGIDTable(gid); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -330,7 +329,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
-
 		}
 		ctx.SendChain(message.At(uid),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
@@ -433,7 +431,6 @@ func init() {
 				}
 			}
 		}
-
 	})
 	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
