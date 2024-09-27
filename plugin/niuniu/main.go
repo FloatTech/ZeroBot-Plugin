@@ -3,6 +3,7 @@ package niuniu
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -106,7 +107,7 @@ func init() {
 		for {
 			select {
 			case <-timer.C:
-				ctx.SendChain(message.At(uid), message.Text("超时,已自动取消"))
+				ctx.SendChain(message.At(uid), message.Text(" 超时,已自动取消"))
 				return
 			case r := <-recv:
 				answer = r.Event.Message.String()
@@ -266,7 +267,7 @@ func init() {
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
 			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
 			sex, sexLong, niuniu, niuniuList.ranking(niuniu, uid), generateRandomString(niuniu)))
-		ctx.SendChain(message.At(uid), message.Text(&result))
+		ctx.SendChain(message.Text(&result))
 	})
 	en.OnRegex(`^(?:.*使用(.*))??打胶$`, zero.OnlyGroup,
 		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
@@ -294,6 +295,7 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
+		log.Println(fiancee)
 		messages, err := processNiuniuAction(t, niuniu, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
@@ -377,6 +379,7 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
+
 		fencingResult, f1, err := processJJuAction(myniuniu, adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
