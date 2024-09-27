@@ -3,7 +3,6 @@ package niuniu
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -295,7 +294,6 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
-		log.Println(fiancee)
 		messages, err := processNiuniuAction(t, niuniu, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
