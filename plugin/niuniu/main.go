@@ -106,7 +106,7 @@ func init() {
 		for {
 			select {
 			case <-timer.C:
-				ctx.SendChain(message.At(uid), message.Text("超时,已自动取消"))
+				ctx.SendChain(message.At(uid), message.Text(" 超时,已自动取消"))
 				return
 			case r := <-recv:
 				answer = r.Event.Message.String()
@@ -266,7 +266,7 @@ func init() {
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
 			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
 			sex, sexLong, niuniu, niuniuList.ranking(niuniu, uid), generateRandomString(niuniu)))
-		ctx.SendChain(message.At(uid), message.Text(&result))
+		ctx.SendChain(message.Text(&result))
 	})
 	en.OnRegex(`^(?:.*使用(.*))??打胶$`, zero.OnlyGroup,
 		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
@@ -294,13 +294,13 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
-		messages, u, err := processNiuniuAction(t, &niuniu, fiancee[1])
+		messages, err := processNiuniuAction(t, niuniu, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			return
 		}
 		ctx.SendChain(message.Text(messages))
-		if err = db.insertNiuNiu(&u, gid); err != nil {
+		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
@@ -313,14 +313,14 @@ func init() {
 			return
 		}
 		// 获取初始长度
-		long := db.randLength()
+		length := db.randLength()
 		u := userInfo{
-			UID:       uid,
-			Length:    long,
-			UserCount: 0,
+			UID:    uid,
+			Length: length,
 		}
 		// 添加数据进入表
 		if err := db.insertNiuNiu(&u, gid); err != nil {
+
 			if err = db.createGIDTable(gid); err != nil {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
@@ -330,8 +330,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
+
 		}
-		ctx.SendChain(message.Reply(ctx.Event.GroupID),
+		ctx.SendChain(message.At(uid),
 			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
 	})
 	en.OnRegex(`^(?:.*使用(.*))??jj\s?(\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))$`, getdb,
@@ -376,18 +377,20 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
-		fencingResult, f1, u, err := processJJuAction(&myniuniu, &adduserniuniu, t, fiancee[1])
+
+		fencingResult, f1, err := processJJuAction(myniuniu, adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			return
 		}
 
-		if err = db.insertNiuNiu(&u, gid); err != nil {
+		if err = db.insertNiuNiu(&myniuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
+		adduserniuniu.Length = f1
 
-		if err = db.insertNiuNiu(&userInfo{UID: adduser, Length: f1}, gid); err != nil {
+		if err = db.insertNiuNiu(&adduserniuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
@@ -431,6 +434,7 @@ func init() {
 				}
 			}
 		}
+
 	})
 	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
@@ -458,6 +462,7 @@ func updateMap(t string, d bool) {
 	if value == nil {
 		return
 	}
+	// 检查一次是否已经过期
 	if !d {
 		if time.Since(value.TimeLimit) > time.Minute*8 {
 			prop.Delete(t)

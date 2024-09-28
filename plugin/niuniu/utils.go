@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func createUserInfoByProps(props string, niuniu *userInfo) (userInfo, error) {
+func createUserInfoByProps(props string, niuniu userInfo) error {
 	var (
 		err error
 	)
@@ -41,12 +41,12 @@ func createUserInfoByProps(props string, niuniu *userInfo) (userInfo, error) {
 	default:
 		err = errors.New("道具不存在")
 	}
-	return *niuniu, err
+	return err
 }
 
 // 接收值依次是 自己和被jj用户的信息 一个包含gid和uid的字符串 道具名称
-// 返回值依次是 要发生的消息 被jj用户的niuniu 用户的信息 错误信息
-func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string) (string, float64, userInfo, error) {
+// 返回值依次是 要发生的消息 错误信息
+func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) (string, float64, error) {
 	var (
 		fencingResult string
 		f             float64
@@ -55,36 +55,36 @@ func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string)
 		err           error
 	)
 	v, ok := prop.Load(t)
+	u = myniuniu
 	if props != "" {
 		if props != "击剑神器" && props != "击剑神稽" {
-			return "", 0, userInfo{}, errors.New("道具不存在")
+			return "", 0, errors.New("道具不存在")
 		}
-		u, err = createUserInfoByProps(props, myniuniu)
-		if err != nil {
-			return "", 0, userInfo{}, err
+		if err = createUserInfoByProps(props, myniuniu); err != nil {
+			return "", 0, err
 		}
 	}
 	switch {
 	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-		u.Length = f
+		myniuniu.Length = f
 		errMessage := fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit))
 		err = errors.New(errMessage)
 	case myniuniu.ShenJi-u.ShenJi != 0:
 		fencingResult, f, f1 = myniuniu.useShenJi(adduserniuniu.Length)
-		u.Length = f
+		myniuniu.Length = f
 		updateMap(t, true)
 	case myniuniu.Artifact-u.Artifact != 0:
 		fencingResult, f, f1 = myniuniu.useArtifact(adduserniuniu.Length)
-		u.Length = f
+		myniuniu.Length = f
 		updateMap(t, true)
 	default:
 		fencingResult, f, f1 = fencing(myniuniu.Length, adduserniuniu.Length)
-		u.Length = f
+		myniuniu.Length = f
 	}
-	return fencingResult, f1, u, err
+	return fencingResult, f1, err
 }
-func processNiuniuAction(t string, niuniu *userInfo, props string) (string, userInfo, error) {
+func processNiuniuAction(t string, niuniu userInfo, props string) (string, error) {
 	var (
 		messages string
 		f        float64
@@ -92,36 +92,41 @@ func processNiuniuAction(t string, niuniu *userInfo, props string) (string, user
 		err      error
 	)
 	load, ok := prop.Load(t)
+	u = niuniu
 	if props != "" {
+
 		if props != "伟哥" && props != "媚药" {
-			return "", u, errors.New("道具不存在")
+			return "", errors.New("道具不存在")
 		}
-		u, err = createUserInfoByProps(props, niuniu)
-		if err != nil {
-			return "", userInfo{}, err
+
+		if err = createUserInfoByProps(props, niuniu); err != nil {
+			return "", err
 		}
+
 	}
 	switch {
 	case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
 		messages, f = generateRandomStingTwo(niuniu.Length)
-		u.Length = f
-		u.UID = niuniu.UID
+		niuniu.Length = f
 		errMessage := fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit))
 		err = errors.New(errMessage)
+
 	case niuniu.WeiGe-u.WeiGe != 0:
 		messages, f = niuniu.useWeiGe()
-		u.Length = f
+		niuniu.Length = f
 		updateMap(t, true)
+
 	case niuniu.Philter-u.Philter != 0:
 		messages, f = niuniu.usePhilter()
-		u.Length = f
+		niuniu.Length = f
 		updateMap(t, true)
+
 	default:
 		messages, f = generateRandomStingTwo(niuniu.Length)
-		u.Length = f
-		u.UID = niuniu.UID
+		niuniu.Length = f
+
 	}
-	return messages, u, err
+	return messages, err
 }
 
 func purchaseItem(n int, info userInfo) (*userInfo, int, error) {
@@ -244,19 +249,16 @@ func fencing(myLength, oppoLength float64) (string, float64, float64) {
 
 	switch {
 	case oppoLength <= -100 && myLength > 0 && 10 < probability && probability <= 20:
-		oppoLength *= 0.85
 		change := hitGlue(oppoLength) + rand.Float64()*math.Log2(math.Abs(0.5*(myLength+oppoLength)))
-		myLength = change
+		myLength += change
 		return fmt.Sprintf("对方身为魅魔诱惑了你，你同化成魅魔！当前长度%.2fcm！", -myLength), -myLength, oppoLength
 
 	case oppoLength >= 100 && myLength > 0 && 10 < probability && probability <= 20:
-		oppoLength *= 0.85
 		change := math.Min(math.Abs(devourLimit*myLength), math.Abs(1.5*myLength))
 		myLength += change
 		return fmt.Sprintf("对方以牛头人的荣誉摧毁了你的牛牛！当前长度%.2fcm！", myLength), myLength, oppoLength
 
 	case myLength <= -100 && oppoLength > 0 && 10 < probability && probability <= 20:
-		myLength *= 0.85
 		change := hitGlue(myLength+oppoLength) + rand.Float64()*math.Log2(math.Abs(0.5*(myLength+oppoLength)))
 		oppoLength -= change
 		myLength -= change
@@ -277,20 +279,16 @@ func determineResultBySkill(myLength, oppoLength float64) (string, float64, floa
 	probability := rand.Intn(100) + 1
 	winProbability := calculateWinProbability(myLength, oppoLength) * 100
 	return applySkill(myLength, oppoLength,
-		0 < probability && float64(probability) <= winProbability)
+		float64(probability) <= winProbability)
 }
 
 // calculateWinProbability 计算胜率
 func calculateWinProbability(heightA, heightB float64) float64 {
-	var pA float64
-	if heightA > heightB {
-		pA = 0.7 + 0.2*(heightA-heightB)/heightA
-	} else {
-		pA = 0.7 - 0.2*(heightB-heightA)/heightB
-	}
+	pA := 0.9
 	heightRatio := math.Max(heightA, heightB) / math.Min(heightA, heightB)
 	reductionRate := 0.1 * (heightRatio - 1)
 	reduction := pA * reductionRate
+
 	adjustedPA := pA - reduction
 	return math.Max(adjustedPA, 0.01)
 }
@@ -298,6 +296,10 @@ func calculateWinProbability(heightA, heightB float64) float64 {
 // applySkill 应用击剑技巧并生成结果
 func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64, float64) {
 	reduce := fence(oppoLength)
+	// 兜底操作
+	if reduce == 0 {
+		reduce = rand.Float64() + float64(rand.Intn(3))
+	}
 	if increaseLength1 {
 		myLength += reduce
 		oppoLength -= 0.8 * reduce
@@ -305,6 +307,7 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), myLength, oppoLength
 		}
 		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
+
 	}
 	myLength -= reduce
 	oppoLength += 0.8 * reduce
@@ -312,14 +315,16 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 		return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), myLength, oppoLength
 	}
 	return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
+
 }
 
-// fence
+// fence 根据计算减少的长度
 func fence(rd float64) float64 {
-	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(rd)
-	if rand.Intn(2) == 1 {
-		return rd - rand.Float64()*r
+	if rd == 0 {
+		rd = 1
 	}
+	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(math.Abs(rd))
+
 	return float64(int(r * rand.Float64()))
 }
 
