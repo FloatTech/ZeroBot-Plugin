@@ -94,6 +94,7 @@ func processNiuniuAction(t string, niuniu userInfo, props string) (string, error
 	load, ok := prop.Load(t)
 	u = niuniu
 	if props != "" {
+
 		if props != "伟哥" && props != "媚药" {
 			return "", errors.New("道具不存在")
 		}
@@ -101,6 +102,7 @@ func processNiuniuAction(t string, niuniu userInfo, props string) (string, error
 		if err = createUserInfoByProps(props, niuniu); err != nil {
 			return "", err
 		}
+
 	}
 	switch {
 	case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
@@ -122,6 +124,7 @@ func processNiuniuAction(t string, niuniu userInfo, props string) (string, error
 	default:
 		messages, f = generateRandomStingTwo(niuniu.Length)
 		niuniu.Length = f
+
 	}
 	return messages, err
 }
@@ -293,6 +296,7 @@ func calculateWinProbability(heightA, heightB float64) float64 {
 // applySkill 应用击剑技巧并生成结果
 func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64, float64) {
 	reduce := fence(oppoLength)
+	// 兜底操作
 	if reduce == 0 {
 		reduce = rand.Float64() + float64(rand.Intn(3))
 	}
@@ -303,6 +307,7 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 			return fmt.Sprintf("哦吼！？你的牛牛在长大欸！长大了%.2fcm！", reduce), myLength, oppoLength
 		}
 		return fmt.Sprintf("你以绝对的长度让对方屈服了呢！你的长度增加%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
+
 	}
 	myLength -= reduce
 	oppoLength += 0.8 * reduce
@@ -310,14 +315,17 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 		return fmt.Sprintf("哦吼！？看来你的牛牛因为击剑而凹进去了呢🤣🤣🤣！凹进去了%.2fcm！", reduce), myLength, oppoLength
 	}
 	return fmt.Sprintf("对方以绝对的长度让你屈服了呢！你的长度减少%.2fcm，当前长度%.2fcm！", reduce, myLength), myLength, oppoLength
+
 }
 
-// fence 根据长度计算减少的长度
+// fence 根据计算减少的长度
 func fence(rd float64) float64 {
-	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(rd)
-	if rand.Intn(2) == 1 {
-		return rd - rand.Float64()*r
+	rd = math.Abs(rd)
+	if rd == 0 {
+		rd = 1
 	}
+	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(rd)
+
 	return float64(int(r * rand.Float64()))
 }
 
