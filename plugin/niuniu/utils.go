@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func createUserInfoByProps(props string, niuniu userInfo) error {
+func createUserInfoByProps(props string, niuniu *userInfo) error {
 	var (
 		err error
 	)
@@ -46,7 +46,7 @@ func createUserInfoByProps(props string, niuniu userInfo) error {
 
 // 接收值依次是 自己和被jj用户的信息 一个包含gid和uid的字符串 道具名称
 // 返回值依次是 要发生的消息 错误信息
-func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) (string, float64, error) {
+func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string) (string, float64, error) {
 	var (
 		fencingResult string
 		f             float64
@@ -55,7 +55,7 @@ func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) 
 		err           error
 	)
 	v, ok := prop.Load(t)
-	u = myniuniu
+	u = *myniuniu
 	if props != "" {
 		if props != "击剑神器" && props != "击剑神稽" {
 			return "", 0, errors.New("道具不存在")
@@ -84,15 +84,15 @@ func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) 
 	}
 	return fencingResult, f1, err
 }
-func processNiuniuAction(t string, niuniu userInfo, props string) (string, error) {
+func processNiuniuAction(t string, niuniu *userInfo, props string) (string, error) {
 	var (
 		messages string
-		f        float64
 		u        userInfo
 		err      error
+		f        float64
 	)
 	load, ok := prop.Load(t)
-	u = niuniu
+	u = *niuniu
 	if props != "" {
 		if props != "伟哥" && props != "媚药" {
 			return "", errors.New("道具不存在")

@@ -288,6 +288,7 @@ func init() {
 		t := fmt.Sprintf("%d_%d", gid, uid)
 		fiancee := ctx.State["regex_matched"].([]string)
 		updateMap(t, false)
+
 		niuniu, err := db.findNiuNiu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("请先注册牛牛！"))
@@ -295,12 +296,11 @@ func init() {
 			return
 		}
 
-		messages, err := processNiuniuAction(t, niuniu, fiancee[1])
+		messages, err := processNiuniuAction(t, &niuniu, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			return
 		}
-
 		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -378,7 +378,7 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
-		fencingResult, f1, err := processJJuAction(myniuniu, adduserniuniu, t, fiancee[1])
+		fencingResult, f1, err := processJJuAction(&myniuniu, &adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			return
