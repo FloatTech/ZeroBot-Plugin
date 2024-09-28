@@ -53,6 +53,7 @@ var (
 	prop          = syncx.Map[string, *propsCount]{}
 )
 
+
 func init() {
 	en.OnFullMatch("牛牛背包", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID

@@ -43,7 +43,7 @@ type updateinfo struct {
 }
 
 // 结婚证信息
-type userinfo struct {
+type Userinfo struct {
 	User       int64  // 用户身份证
 	Target     int64  // 对象身份证号
 	Username   string // 户主名称
@@ -121,7 +121,7 @@ func init() {
 			uid := ctx.Event.UserID
 			userInfo, _ := 民政局.查户口(gid, uid)
 			switch {
-			case userInfo != (userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
+			case userInfo != (Userinfo{}) && (userInfo.Target == 0 || userInfo.User == 0): // 如果是单身贵族
 				ctx.SendChain(message.Text("今天你是单身贵族噢"))
 				return
 			case userInfo.User == uid: // 娶过别人
@@ -160,7 +160,7 @@ func init() {
 			for k := 0; k < len(temp); k++ {
 				usr := temp[k].Get("user_id").Int()
 				usrInfo, _ := 民政局.查户口(gid, usr)
-				if usrInfo != (userinfo{}) {
+				if usrInfo != (Userinfo{}) {
 					continue
 				}
 				qqgrouplist = append(qqgrouplist, usr)
@@ -299,6 +299,11 @@ func init() {
 		})
 }
 
+// GetMarriage 获取婚姻信息
+func GetMarriage(gid, uid int64) (Userinfo, error) {
+	return 民政局.查户口(gid, uid)
+}
+
 func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
@@ -346,12 +351,12 @@ func (sql *婚姻登记) 开门时间(gid int64) error {
 	return nil
 }
 
-func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
+func (sql *婚姻登记) 查户口(gid, uid int64) (info Userinfo, err error) {
 	sql.Lock()
 	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
 	// 创建群表格
-	err = sql.db.Create(gidstr, &userinfo{})
+	err = sql.db.Create(gidstr, &Userinfo{})
 	if err != nil {
 		return
 	}
@@ -368,7 +373,7 @@ func (sql *婚姻登记) 登记(gid, uid, target int64, username, targetname str
 	sql.Lock()
 	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
-	uidinfo := userinfo{
+	uidinfo := Userinfo{
 		User:       uid,
 		Username:   username,
 		Target:     target,
@@ -386,7 +391,7 @@ func (sql *婚姻登记) 花名册(gid int64) (list [][4]string, err error) {
 	if number <= 0 {
 		return
 	}
-	var info userinfo
+	var info Userinfo
 	err = sql.db.FindFor(gidstr, &info, "GROUP BY user", func() error {
 		if info.Target == 0 {
 			return nil
