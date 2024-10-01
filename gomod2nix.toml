@@ -98,8 +98,8 @@ schema = 3
     version = "v0.0.0-20221203025406-36c17a10b565"
     hash = "sha256-DvDx1pdldkdaSszrbadM/VwqT9TTSmWl6G6a+ysXYEM="
   [mod."github.com/fumiama/slowdo"]
-    version = "v0.0.0-20241001071333-19864b14750a"
-    hash = "sha256-4Dakl5WLnbTPc9fxsMNgt66xL1GqwE2TIF1Mom4mylw="
+    version = "v0.0.0-20241001074058-27c4fe5259a4"
+    hash = "sha256-rsV3MKRCSOBMIgJXFCGbCHRY2aBAb32ftU49hT3GjqY="
   [mod."github.com/fumiama/terasu"]
     version = "v0.0.0-20240507144117-547a591149c0"
     hash = "sha256-ZZG5/Ckq4R0eojmiuli5ZRToDNQt4VeRwdy0jjVCvbg="
