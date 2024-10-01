@@ -25,7 +25,7 @@ func collectsend(ctx *zero.Ctx, msgs ...message.MessageSegment) {
 					m[i] = message.CustomNode(
 						zero.BotConfig.NickName[0],
 						ctx.Event.SelfID,
-						item)
+						message.Message{item})
 				}
 				ctx.SendGroupForwardMessage(id, m)
 			})
