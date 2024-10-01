@@ -29,6 +29,11 @@ type userInfo struct {
 	Philter   int // 媚药
 	Artifact  int // 击剑神器
 	ShenJi    int // 击剑神稽
+	Buff1     int // 暂定
+	Buff2     int // 暂定
+	Buff3     int // 暂定
+	Buff4     int // 暂定
+	Buff5     int // 暂定
 }
 
 type users []*userInfo

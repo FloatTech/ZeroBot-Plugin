@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func createUserInfoByProps(props string, niuniu userInfo) error {
+func createUserInfoByProps(props string, niuniu *userInfo) error {
 	var (
 		err error
 	)
@@ -46,7 +46,7 @@ func createUserInfoByProps(props string, niuniu userInfo) error {
 
 // 接收值依次是 自己和被jj用户的信息 一个包含gid和uid的字符串 道具名称
 // 返回值依次是 要发生的消息 错误信息
-func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) (string, float64, error) {
+func processJJuAction(myniuniu, adduserniuniu *userInfo, t string, props string) (string, float64, error) {
 	var (
 		fencingResult string
 		f             float64
@@ -55,7 +55,7 @@ func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) 
 		err           error
 	)
 	v, ok := prop.Load(t)
-	u = myniuniu
+	u = *myniuniu
 	if props != "" {
 		if props != "击剑神器" && props != "击剑神稽" {
 			return "", 0, errors.New("道具不存在")
@@ -84,15 +84,15 @@ func processJJuAction(myniuniu, adduserniuniu userInfo, t string, props string) 
 	}
 	return fencingResult, f1, err
 }
-func processNiuniuAction(t string, niuniu userInfo, props string) (string, error) {
+func processNiuniuAction(t string, niuniu *userInfo, props string) (string, error) {
 	var (
 		messages string
-		f        float64
 		u        userInfo
 		err      error
+		f        float64
 	)
 	load, ok := prop.Load(t)
-	u = niuniu
+	u = *niuniu
 	if props != "" {
 		if props != "伟哥" && props != "媚药" {
 			return "", errors.New("道具不存在")
@@ -126,7 +126,7 @@ func processNiuniuAction(t string, niuniu userInfo, props string) (string, error
 	return messages, err
 }
 
-func purchaseItem(n int, info userInfo) (*userInfo, int, error) {
+func purchaseItem(n int, info userInfo) (int, error) {
 	var (
 		money int
 		err   error
@@ -147,7 +147,7 @@ func purchaseItem(n int, info userInfo) (*userInfo, int, error) {
 	default:
 		err = errors.New("无效的选择")
 	}
-	return &info, money, err
+	return money, err
 }
 
 func generateRandomStingTwo(niuniu float64) (string, float64) {
@@ -293,6 +293,7 @@ func calculateWinProbability(heightA, heightB float64) float64 {
 // applySkill 应用击剑技巧并生成结果
 func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64, float64) {
 	reduce := fence(oppoLength)
+	//兜底操作
 	if reduce == 0 {
 		reduce = rand.Float64() + float64(rand.Intn(3))
 	}
@@ -314,10 +315,12 @@ func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, flo
 
 // fence 根据长度计算减少的长度
 func fence(rd float64) float64 {
-	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(rd)
-	if rand.Intn(2) == 1 {
-		return rd - rand.Float64()*r
+	rd = math.Abs(rd)
+	if rd == 0 {
+		rd = 1
 	}
+	r := hitGlue(rd)*2 + rand.Float64()*math.Log2(rd)
+
 	return float64(int(r * rand.Float64()))
 }
 
