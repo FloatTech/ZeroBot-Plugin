@@ -3,7 +3,6 @@ package manager
 import (
 	"time"
 
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/RomiChan/syncx"
 	"github.com/fumiama/slowdo"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -23,7 +22,10 @@ func collectsend(ctx *zero.Ctx, msgs ...message.MessageSegment) {
 			x, err := slowdo.NewJob(time.Second*5, ctx, func(ctx *zero.Ctx, msg []message.MessageSegment) {
 				m := make(message.Message, len(msg))
 				for i, item := range msg {
-					m[i] = ctxext.FakeSenderForwardNode(ctx, item)
+					m[i] = message.CustomNode(
+						zero.BotConfig.NickName[0],
+						ctx.Event.SelfID,
+						item)
 				}
 				ctx.SendGroupForwardMessage(id, m)
 			})
