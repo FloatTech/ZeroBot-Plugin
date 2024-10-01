@@ -496,10 +496,10 @@ func init() { // 插件主体
 				var w welcome
 				err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
 				if err == nil {
-					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
+					collectsend(ctx, message.ParseMessageFromString(welcometocq(ctx, w.Msg))...)
 				} else {
 					userid := ctx.Event.UserID
-					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+					collectsend(ctx, message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
 				}
 			}
 		})

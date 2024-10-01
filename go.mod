@@ -25,6 +25,7 @@ require (
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
+	github.com/fumiama/slowdo v0.0.0-20241001065001-bc474bd3fb21
 	github.com/fumiama/terasu v0.0.0-20240507144117-547a591149c0
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
