@@ -9,7 +9,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var slowsenders = syncx.Map[int64, *syncx.Lazy[*slowdo.Job[message.MessageSegment, *zero.Ctx]]]{}
+var slowsenders = syncx.Map[int64, *syncx.Lazy[*slowdo.Job[*zero.Ctx, message.MessageSegment]]]{}
 
 func collectsend(ctx *zero.Ctx, msgs ...message.MessageSegment) {
 	id := ctx.Event.GroupID
@@ -17,8 +17,8 @@ func collectsend(ctx *zero.Ctx, msgs ...message.MessageSegment) {
 		// only support group
 		return
 	}
-	lazy, _ := slowsenders.LoadOrStore(id, &syncx.Lazy[*slowdo.Job[message.MessageSegment, *zero.Ctx]]{
-		Init: func() *slowdo.Job[message.MessageSegment, *zero.Ctx] {
+	lazy, _ := slowsenders.LoadOrStore(id, &syncx.Lazy[*slowdo.Job[*zero.Ctx, message.MessageSegment]]{
+		Init: func() *slowdo.Job[*zero.Ctx, message.MessageSegment] {
 			x, err := slowdo.NewJob(time.Second*5, ctx, func(ctx *zero.Ctx, msg []message.MessageSegment) {
 				m := make(message.Message, len(msg))
 				for i, item := range msg {
