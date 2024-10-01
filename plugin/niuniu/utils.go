@@ -293,7 +293,7 @@ func calculateWinProbability(heightA, heightB float64) float64 {
 // applySkill 应用击剑技巧并生成结果
 func applySkill(myLength, oppoLength float64, increaseLength1 bool) (string, float64, float64) {
 	reduce := fence(oppoLength)
-	//兜底操作
+	// 兜底操作
 	if reduce == 0 {
 		reduce = rand.Float64() + float64(rand.Intn(3))
 	}
