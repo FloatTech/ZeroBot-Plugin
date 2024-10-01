@@ -76,8 +76,8 @@ github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565 h1:sQuR2+N5HurnvsZhi
 github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565/go.mod h1:UUEvyLTJ7yoOA/viKG4wEis4ERydM7+Ny6gZUWgkS80=
 github.com/fumiama/libc v0.0.0-20240530081950-6f6d8586b5c5 h1:jDxsIupsT84A6WHcs6kWbst+KqrRQ8/o0VyoFMnbBOA=
 github.com/fumiama/libc v0.0.0-20240530081950-6f6d8586b5c5/go.mod h1:15P6ublJ9FJR8YQCGy8DeQ2Uwur7iW9Hserr/T3OFZE=
-github.com/fumiama/slowdo v0.0.0-20241001065001-bc474bd3fb21 h1:sqg6DgXnL7PcArzLnKgaiQbs2nY6xdR21ChA+ciAjz0=
-github.com/fumiama/slowdo v0.0.0-20241001065001-bc474bd3fb21/go.mod h1:nFAMdYFZxaTG/HLmRO0mKmvaGJ/vKtgYj06x8q2LusY=
+github.com/fumiama/slowdo v0.0.0-20241001071333-19864b14750a h1:2yxgU8cN4qmziVLOktD4us5RdZxlYXRtCfigU0Xx9d4=
+github.com/fumiama/slowdo v0.0.0-20241001071333-19864b14750a/go.mod h1:iZf1H/Jcw5gjOOFb4C5nlweJtViWc7uwUxRCe14pbYk=
 github.com/fumiama/sqlite3 v1.29.10-simp h1:c5y3uKyU0q9t0/SyfynzYyuslQ5zP+5CD8e0yYY554A=
 github.com/fumiama/sqlite3 v1.29.10-simp/go.mod h1:ItX2a1OVGgNsFh6Dv60JQvGfJfTPHPVpV6DF59akYOA=
 github.com/fumiama/terasu v0.0.0-20240507144117-547a591149c0 h1:So/3Bg/m2ZcUvqCzzEjjkjHBjcvnV3AN5tCxwsdMwYU=
