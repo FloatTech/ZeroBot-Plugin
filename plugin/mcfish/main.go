@@ -562,6 +562,10 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 	if err != nil {
 		return false, err
 	}
+	err = sql.db.Create("store", &store{})
+	if err != nil {
+		return false, err
+	}
 	lastTime := storeDiscount{}
 	_ = sql.db.Find("stroeDiscount", &lastTime, "where Name = 'lastTime'")
 	refresh := false
@@ -585,6 +589,14 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			thing = storeDiscount{
 				Name:     name,
 				Discount: thingDiscount,
+			}
+			if checkIsFish(name) {
+				thingInfo := store{}
+				_ = sql.db.Find("store", &thingInfo, "where Name = '"+name+"'")
+				if thingInfo.Number > 150 {
+					// 通货膨胀
+					thing.Discount = (1000 - 5*(thingInfo.Number-150)) / 10
+				}
 			}
 			err = sql.db.Insert("stroeDiscount", &thing)
 			if err != nil {
@@ -611,28 +623,6 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		_ = sql.db.Del("stroeDiscount", "where Duration = "+strconv.FormatInt(info.Duration, 10))
 	}
 	if refresh {
-		err = sql.db.Create("store", &store{})
-		if err != nil {
-			return
-		}
-		for _, fish := range fishList {
-			thingInfo := store{
-				Duration: time.Now().Unix(),
-				Name:     fish,
-				Type:     "fish",
-				Price:    priceList[fish] * discountList[fish] / 100,
-			}
-			_ = sql.db.Find("store", &thingInfo, "where Name = '"+fish+"'")
-			thingInfo.Number += (100 - discountList[fish])
-			if thingInfo.Number < 1 {
-				thingInfo.Number = 100
-			} else if thingInfo.Number > 150 {
-				// 通货膨胀
-				discountList[fish] = (1000 - 5*(thingInfo.Number-150)) / 10
-				thingInfo.Price = priceList[fish] * discountList[fish] / 100
-			}
-			_ = sql.db.Insert("store", &thingInfo)
-		}
 		// 每天调控1种鱼
 		fish := fishList[rand.Intn(len(fishList))]
 		thingInfo := store{
