@@ -755,8 +755,7 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	}
 	canvas.SetColor(color.Black)
 	textDy += textDh * 2
-	canvas.DrawStringAnchored("注:出售商品 = 价格*60% * (1-20%)", 10, textDy+textDh/2, 0, 0.5)
-	canvas.DrawStringAnchored("    鱼竿价格 = 原价-耐久度-维修*2+诱钓*600+眷顾*1000", 10, textDy+20+textDh+10, 0, 0.5)
+	canvas.DrawStringAnchored("注:出售商品将会额外扣除20%的税收,附魔鱼竿请按实际价格", 10, textDy+10+textDh/2, 0, 0.5)
 
 	textDy += textH * 2
 	err = canvas.ParseFontFace(fontdata, 100)
