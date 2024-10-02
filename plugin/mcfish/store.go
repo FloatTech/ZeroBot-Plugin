@@ -85,6 +85,18 @@ func init() {
 		if number == 0 || strings.Contains(thingName, "竿") {
 			number = 1
 		}
+		if checkIsFish(thingName) {
+			residue, err := dbdata.checkCanSalesFishFor(uid, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			if residue <= 0 {
+				ctx.SendChain(message.Text("今天你已经超出了鱼交易数量上限，明天再来买鱼吧"))
+				return
+			}
+			number = residue
+		}
 		articles, err := dbdata.getUserThingInfo(uid, thingName)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.5]:", err))
@@ -161,7 +173,8 @@ func init() {
 		} else {
 			pice = priceList[thingName] * discountList[thingName] / 100
 		}
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice*number*8/10, "收购", number, "个", thingName, "?\n回答\"是\"或\"否\"")))
+		pice = pice * 6 * 8 / 100
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice*number, "收购", number, "个", thingName, "?\n回答\"是\"或\"否\"")))
 		// 等待用户下一步选择
 		recv, cancel1 := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 		defer cancel1()
@@ -399,13 +412,25 @@ func init() {
 			return
 		}
 		if buytimes <= 0 {
-			ctx.SendChain(message.Text("出售次数已达到上限,明天再来购买吧"))
+			ctx.SendChain(message.Text("购买次数已达到上限,明天再来购买吧"))
 			return
 		}
 		thingName := ctx.State["regex_matched"].([]string)[1]
 		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		if number == 0 {
 			number = 1
+		}
+		if checkIsFish(thingName) {
+			residue, err := dbdata.checkCanSalesFishFor(uid, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+				return
+			}
+			if residue <= 0 {
+				ctx.SendChain(message.Text("今天你已经超出了鱼交易数量上限，明天再来买鱼吧"))
+				return
+			}
+			number = residue
 		}
 		thingInfos, err := dbdata.getStoreThingInfo(thingName)
 		if err != nil {
@@ -448,7 +473,9 @@ func init() {
 				maintenance, _ := strconv.Atoi(poleInfo[1])
 				induceLevel, _ := strconv.Atoi(poleInfo[2])
 				favorLevel, _ := strconv.Atoi(poleInfo[3])
-				thingPice := (priceList[info.Name] - (durationList[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discountList[info.Name] / 100
+				thingPice := (priceList[info.Name] - (durationList[info.Name] - durable) - maintenance*2 +
+					induceLevel*600*discountList["诱钓"]/100 +
+					favorLevel*1800*discountList["海之眷顾"]/100) * discountList[info.Name] / 100
 				pice = append(pice, thingPice)
 			} else {
 				thingPice := priceList[info.Name] * discountList[info.Name] / 100
@@ -729,7 +756,8 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 	}
 	canvas.SetColor(color.Black)
 	textDy += textDh * 2
-	canvas.DrawStringAnchored("注:出售商品将会额外扣除20%的税收,附魔鱼竿请按实际价格", 10, textDy+10+textDh/2, 0, 0.5)
+	canvas.DrawStringAnchored("注:出售商品 = 价格*60% * (1-20%)", 10, textDy+textDh/2, 0, 0.5)
+	canvas.DrawStringAnchored("    鱼竿价格 = 原价-耐久度-维修*2+诱钓*600+眷顾*1000", 10, textDy+20+textDh+10, 0, 0.5)
 
 	textDy += textH * 2
 	err = canvas.ParseFontFace(fontdata, 100)
