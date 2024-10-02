@@ -173,7 +173,7 @@ func init() {
 		} else {
 			pice = priceList[thingName] * discountList[thingName] / 100
 		}
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice*number*8/100, "收购", number, "个", thingName, "?\n回答\"是\"或\"否\"")))
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("是否接受商店将以", pice*number*8/10, "收购", number, "个", thingName, "?\n回答\"是\"或\"否\"")))
 		// 等待用户下一步选择
 		recv, cancel1 := zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(是|否)$`), zero.CheckUser(ctx.Event.UserID)).Repeat()
 		defer cancel1()
