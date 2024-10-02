@@ -839,12 +839,12 @@ func (sql *fishdb) checkCanSalesFishFor(uid int64, sales int) (int, error) {
 		userInfo.Duration = time.Now().Unix()
 		userInfo.SalesFish = 0
 	}
-	max := 100 - userInfo.SalesFish
-	if max < 0 {
-		max = 0
+	maxSales := 100 - userInfo.SalesFish
+	if maxSales < 0 {
+		maxSales = 0
 	}
-	if sales > max {
-		sales = max
+	if sales > maxSales {
+		sales = maxSales
 	}
 	userInfo.SalesFish += sales
 	return sales, sql.db.Insert("buff", &userInfo)
