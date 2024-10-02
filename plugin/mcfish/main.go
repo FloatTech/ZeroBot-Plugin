@@ -590,13 +590,11 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 				Name:     name,
 				Discount: thingDiscount,
 			}
-			if checkIsFish(name) {
-				thingInfo := store{}
-				_ = sql.db.Find("store", &thingInfo, "where Name = '"+name+"'")
-				if thingInfo.Number > 150 {
-					// 通货膨胀
-					thing.Discount = (1000 - 5*(thingInfo.Number-150)) / 10
-				}
+			thingInfo := store{}
+			_ = sql.db.Find("store", &thingInfo, "where Name = '"+name+"'")
+			if thingInfo.Number > 150 {
+				// 通货膨胀
+				thing.Discount = (1000 - 5*(thingInfo.Number-150)) / 10
 			}
 			err = sql.db.Insert("stroeDiscount", &thing)
 			if err != nil {
