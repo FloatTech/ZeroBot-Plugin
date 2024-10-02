@@ -28,7 +28,7 @@ type fishdb struct {
 const FishLimit = 50
 
 // version 规则版本号
-const version = "5.5.1"
+const version = "5.5.7"
 
 // 各物品信息
 type jsonInfo struct {
@@ -640,7 +640,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			Duration: time.Now().Unix(),
 			Name:     "净化书",
 			Type:     "article",
-			Price:    priceList["净化书"] * (discountList["净化书"]) / 100,
+			Price:    priceList["净化书"] * discountList["净化书"] / 100,
 		}
 		_ = sql.db.Find("store", &thingInfo, "where Name = '净化书'")
 		thingInfo.Number = 20
