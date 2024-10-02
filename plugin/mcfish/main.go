@@ -28,7 +28,7 @@ type fishdb struct {
 const FishLimit = 50
 
 // version 规则版本号
-const version = "5.5.7"
+const version = "5.5.8"
 
 // 各物品信息
 type jsonInfo struct {
