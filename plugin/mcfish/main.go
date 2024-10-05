@@ -28,7 +28,7 @@ type fishdb struct {
 const FishLimit = 50
 
 // version 规则版本号
-const version = "5.4.2"
+const version = "5.5.8"
 
 // 各物品信息
 type jsonInfo struct {
@@ -101,7 +101,7 @@ type buffInfo struct {
 	Coupon    int `db:"Buff1"` // 优惠卷
 	SalesPole int `db:"Buff2"` // 卖鱼竿上限
 	BuyTing   int `db:"Buff3"` // 购买上限
-	Buff4     int `db:"Buff4"` // 暂定
+	SalesFish int `db:"Buff4"` // 卖鱼次数
 	Buff5     int `db:"Buff5"` // 暂定
 	Buff6     int `db:"Buff6"` // 暂定
 	Buff7     int `db:"Buff7"` // 暂定
@@ -149,7 +149,7 @@ var (
 			"8.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率90%(包括梭哈),合成鱼竿的附魔等级=（附魔等级合/合成鱼竿数量）\n" +
 			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿,修复时可直接满耐久\n" +
 			"-> 鱼竿数量大于50的不能买东西;\n     鱼竿数量大于30的不能钓鱼;\n     每购/售10次鱼竿获得1层宝藏诅咒;\n     每购买20次物品将获得3次价格减半福利;\n     每钓鱼75次获得1本净化书;\n" +
-			"     每天最多只可出售5个鱼竿和购买15次物品;",
+			"     每天最多只可出售5个鱼竿和购买15次物品;鱼类交易每天最多100条.",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -562,6 +562,10 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 	if err != nil {
 		return false, err
 	}
+	err = sql.db.Create("store", &store{})
+	if err != nil {
+		return false, err
+	}
 	lastTime := storeDiscount{}
 	_ = sql.db.Find("stroeDiscount", &lastTime, "where Name = 'lastTime'")
 	refresh := false
@@ -585,6 +589,12 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			thing = storeDiscount{
 				Name:     name,
 				Discount: thingDiscount,
+			}
+			thingInfo := store{}
+			_ = sql.db.Find("store", &thingInfo, "where Name = '"+name+"'")
+			if thingInfo.Number > 150 {
+				// 通货膨胀
+				thing.Discount = (1000 - 5*(thingInfo.Number-150)) / 10
 			}
 			err = sql.db.Insert("stroeDiscount", &thing)
 			if err != nil {
@@ -611,10 +621,6 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		_ = sql.db.Del("stroeDiscount", "where Duration = "+strconv.FormatInt(info.Duration, 10))
 	}
 	if refresh {
-		err = sql.db.Create("store", &store{})
-		if err != nil {
-			return
-		}
 		// 每天调控1种鱼
 		fish := fishList[rand.Intn(len(fishList))]
 		thingInfo := store{
@@ -770,7 +776,7 @@ func (sql *fishdb) useCouponAt(uid int64, times int) (int, error) {
 	return useTimes, sql.db.Insert("buff", &userInfo)
 }
 
-// 检测上限
+// 检测卖鱼竿上限
 func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 	residue := 0
 	sql.Lock()
@@ -782,6 +788,7 @@ func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 	}
 	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
+		userInfo.Duration = time.Now().Unix()
 		userInfo.SalesPole = 0
 		userInfo.BuyTing = 0
 	}
@@ -789,8 +796,44 @@ func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 		residue = 5 - userInfo.SalesPole
 		userInfo.SalesPole++
 	} else if userInfo.BuyTing < 15 {
-		residue = 15 - userInfo.SalesPole
-		userInfo.SalesPole++
+		residue = 15 - userInfo.BuyTing
+		userInfo.BuyTing++
 	}
 	return residue, sql.db.Insert("buff", &userInfo)
+}
+
+// 检测物品是否是鱼
+func checkIsFish(thing string) bool {
+	for _, v := range fishList {
+		if v == thing {
+			return true
+		}
+	}
+	return false
+}
+
+// 检测买卖鱼上限
+func (sql *fishdb) checkCanSalesFishFor(uid int64, sales int) (int, error) {
+	residue := 0
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := buffInfo{ID: uid}
+	err := sql.db.Create("buff", &userInfo)
+	if err != nil {
+		return residue, err
+	}
+	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
+		userInfo.Duration = time.Now().Unix()
+		userInfo.SalesFish = 0
+	}
+	maxSales := 100 - userInfo.SalesFish
+	if maxSales < 0 {
+		maxSales = 0
+	}
+	if sales > maxSales {
+		sales = maxSales
+	}
+	userInfo.SalesFish += sales
+	return sales, sql.db.Insert("buff", &userInfo)
 }
