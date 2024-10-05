@@ -20,7 +20,7 @@ func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 	defer wg.Done()
 	target := datapath + `materials/` + name
 	if file.IsNotExist(target) {
-		data, err := web.RequestDataWith(web.NewTLS12Client(), `https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, "GET", "gitcode.net", web.RandUA(), nil)
+		data, err := web.GetData(`https://gitea.seku.su/fumiama/ImageMaterials/raw/branch/main/` + name)
 		if err != nil {
 			_ = os.Remove(target)
 			exit(err)
@@ -48,7 +48,7 @@ func dlchan(name string, s *string, wg *sync.WaitGroup, exit func(error)) {
 func dlblock(name string) (string, error) {
 	target := datapath + `materials/` + name
 	if file.IsNotExist(target) {
-		data, err := web.RequestDataWith(web.NewTLS12Client(), `https://gitcode.net/m0_60838134/imagematerials/-/raw/main/`+name, "GET", "gitcode.net", web.RandUA(), nil)
+		data, err := web.GetData(`https://gitea.seku.su/fumiama/ImageMaterials/raw/branch/main/` + name)
 		if err != nil {
 			_ = os.Remove(target)
 			return "", err
