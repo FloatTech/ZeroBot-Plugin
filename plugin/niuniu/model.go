@@ -140,7 +140,7 @@ func (u *userInfo) processNiuNiuAction(t string, props string) (string, error) {
 	load, ok := prop.Load(t)
 	info = *u
 	if props != "" {
-		if !contains(t, jjProp) {
+		if !contains(t, dajiaoProp) {
 			return "", errors.New("道具不能混着用哦")
 		}
 		if err = u.createUserInfoByProps(props); err != nil {
