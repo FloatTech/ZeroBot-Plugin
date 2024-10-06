@@ -2,6 +2,7 @@
 package niuniu
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"math/rand"
@@ -127,6 +128,153 @@ func (u *userInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
 		})
 	}
 	return r, myLength, adduserniuniu + 0.7*change
+}
+
+func (u *userInfo) processNiuNiuAction(t string, props string) (string, error) {
+	var (
+		messages string
+		info     userInfo
+		err      error
+		f        float64
+	)
+	load, ok := prop.Load(t)
+	info = *u
+	if props != "" {
+		if contains(props, dajiaoProp) {
+			if err = u.createUserInfoByProps(props); err != nil {
+				return "", err
+			}
+		} else {
+			return "", errors.New("道具不能混着用哦")
+		}
+	}
+	switch {
+	case ok && load.Count > 1 && time.Since(load.TimeLimit) < time.Minute*8:
+		messages, f = generateRandomStingTwo(u.Length)
+		u.Length = f
+		errMessage := fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(load.TimeLimit))
+		err = errors.New(errMessage)
+
+	case u.WeiGe-info.WeiGe != 0:
+		messages, f = u.useWeiGe()
+		u.Length = f
+		updateMap(t, true)
+
+	case u.Philter-info.Philter != 0:
+		messages, f = u.usePhilter()
+		u.Length = f
+		updateMap(t, true)
+
+	default:
+		messages, f = generateRandomStingTwo(u.Length)
+		u.Length = f
+	}
+	return messages, err
+}
+
+func (u *userInfo) createUserInfoByProps(props string) error {
+	var (
+		err error
+	)
+	switch props {
+	case "伟哥":
+		if u.WeiGe > 0 {
+			u.WeiGe--
+		} else {
+			err = errors.New("你还没有伟哥呢,不能使用")
+		}
+	case "媚药":
+		if u.Philter > 0 {
+			u.Philter--
+		} else {
+			err = errors.New("你还没有媚药呢,不能使用")
+		}
+	case "击剑神器":
+		if u.Artifact > 0 {
+			u.Artifact--
+		} else {
+			err = errors.New("你还没有击剑神器呢,不能使用")
+		}
+	case "击剑神稽":
+		if u.ShenJi > 0 {
+			u.ShenJi--
+		} else {
+			err = errors.New("你还没有击剑神稽呢,不能使用")
+		}
+	default:
+		err = errors.New("道具不存在")
+	}
+	return err
+}
+
+// 接收值依次是 被jj用户的信息 记录gid和uid的字符串 道具名称
+// 返回值依次是 要发送的消息 错误信息
+func (u *userInfo) processJJuAction(adduserniuniu *userInfo, t string, props string) (string, error) {
+	var (
+		fencingResult string
+		f             float64
+		f1            float64
+		info          userInfo
+		err           error
+	)
+	v, ok := prop.Load(t)
+	info = *u
+	if props != "" {
+		if contains(t, jjProp) {
+			if err = u.createUserInfoByProps(props); err != nil {
+				return "", err
+			}
+		} else {
+			return "", errors.New("道具不能混着用哦")
+		}
+	}
+	switch {
+	case ok && v.Count > 1 && time.Since(v.TimeLimit) < time.Minute*8:
+		fencingResult, f, f1 = fencing(u.Length, adduserniuniu.Length)
+		u.Length = f
+		adduserniuniu.Length = f1
+		errMessage := fmt.Sprintf("你使用道具次数太快了，此次道具不会生效，等待%d再来吧", time.Minute*8-time.Since(v.TimeLimit))
+		err = errors.New(errMessage)
+	case u.ShenJi-info.ShenJi != 0:
+		fencingResult, f, f1 = u.useShenJi(adduserniuniu.Length)
+		u.Length = f
+		adduserniuniu.Length = f1
+		updateMap(t, true)
+	case u.Artifact-info.Artifact != 0:
+		fencingResult, f, f1 = u.useArtifact(adduserniuniu.Length)
+		u.Length = f
+		adduserniuniu.Length = f1
+		updateMap(t, true)
+	default:
+		fencingResult, f, f1 = fencing(u.Length, adduserniuniu.Length)
+		u.Length = f
+		adduserniuniu.Length = f1
+	}
+	return fencingResult, err
+}
+
+func (u *userInfo) purchaseItem(n int) (int, error) {
+	var (
+		money int
+		err   error
+	)
+	switch n {
+	case 1:
+		money = 300
+		u.WeiGe += 5
+	case 2:
+		money = 300
+		u.Philter += 5
+	case 3:
+		money = 500
+		u.Artifact += 2
+	case 4:
+		money = 500
+		u.ShenJi += 2
+	default:
+		err = errors.New("无效的选择")
+	}
+	return money, err
 }
 
 func (m users) positive() users {

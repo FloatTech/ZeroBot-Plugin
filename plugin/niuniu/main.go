@@ -122,7 +122,7 @@ func init() {
 					return
 				}
 
-				money, err := purchaseItem(n, info)
+				money, err := info.purchaseItem(n)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
@@ -296,7 +296,7 @@ func init() {
 			return
 		}
 
-		messages, err := processNiuniuAction(t, &niuniu, fiancee[1])
+		messages, err := niuniu.processNiuNiuAction(t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			return
@@ -378,7 +378,7 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
-		fencingResult, f1, err := processJJuAction(&myniuniu, &adduserniuniu, t, fiancee[1])
+		fencingResult, err := myniuniu.processJJuAction(&adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			return
@@ -388,7 +388,6 @@ func init() {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		adduserniuniu.Length = f1
 
 		if err = db.insertNiuNiu(&adduserniuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
@@ -425,7 +424,7 @@ func init() {
 		if c.Count > 5 {
 			ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
 				"你们不要再找ta🤺啦！"})))
-			// 保证只发生一次
+			// 保证只发送一次
 			if c.Count < 7 {
 				id := ctx.SendPrivateMessage(adduser,
 					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
