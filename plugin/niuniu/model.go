@@ -140,12 +140,11 @@ func (u *userInfo) processNiuNiuAction(t string, props string) (string, error) {
 	load, ok := prop.Load(t)
 	info = *u
 	if props != "" {
-		if contains(props, dajiaoProp) {
-			if err = u.createUserInfoByProps(props); err != nil {
-				return "", err
-			}
-		} else {
+		if !contains(t, jjProp) {
 			return "", errors.New("道具不能混着用哦")
+		}
+		if err = u.createUserInfoByProps(props); err != nil {
+			return "", err
 		}
 	}
 	switch {
@@ -220,12 +219,11 @@ func (u *userInfo) processJJuAction(adduserniuniu *userInfo, t string, props str
 	v, ok := prop.Load(t)
 	info = *u
 	if props != "" {
-		if contains(t, jjProp) {
-			if err = u.createUserInfoByProps(props); err != nil {
-				return "", err
-			}
-		} else {
+		if !contains(t, jjProp) {
 			return "", errors.New("道具不能混着用哦")
+		}
+		if err = u.createUserInfoByProps(props); err != nil {
+			return "", err
 		}
 	}
 	switch {
