@@ -812,15 +812,15 @@ func checkIsFish(thing string) bool {
 	return false
 }
 
-// 检测买卖鱼上限
-func (sql *fishdb) checkCanSalesFishFor(uid int64, sales int) (int, error) {
+// 查询能交易鱼类的数量
+func (sql *fishdb) selectCanSalesFishFor(uid int64, sales int) int {
 	residue := 0
 	sql.Lock()
 	defer sql.Unlock()
 	userInfo := buffInfo{ID: uid}
 	err := sql.db.Create("buff", &userInfo)
 	if err != nil {
-		return residue, err
+		return residue
 	}
 	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
@@ -834,6 +834,19 @@ func (sql *fishdb) checkCanSalesFishFor(uid int64, sales int) (int, error) {
 	if sales > maxSales {
 		sales = maxSales
 	}
+	return sales
+}
+
+// 更新买卖鱼上限，假定sales变量已经在 selectCanSalesFishFor 进行了防护
+func (sql *fishdb) updateCanSalesFishFor(uid int64, sales int) error {
+	sql.Lock()
+	defer sql.Unlock()
+	userInfo := buffInfo{ID: uid}
+	err := sql.db.Create("buff", &userInfo)
+	if err != nil {
+		return err
+	}
+	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
 	userInfo.SalesFish += sales
-	return sales, sql.db.Insert("buff", &userInfo)
+	return sql.db.Insert("buff", &userInfo)
 }
