@@ -86,13 +86,9 @@ func init() {
 			number = 1
 		}
 		if checkIsFish(thingName) {
-			residue, err := dbdata.checkCanSalesFishFor(uid, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
+			residue := dbdata.selectCanSalesFishFor(uid, number)
 			if residue <= 0 {
-				ctx.SendChain(message.Text("今天你已经超出了鱼交易数量上限，明天再来买鱼吧"))
+				ctx.SendChain(message.Text("一天只能交易100条鱼，明天再来卖鱼吧"))
 				return
 			}
 			number = residue
@@ -198,6 +194,13 @@ func init() {
 			}
 		}
 
+		// 更新交易鱼类数量
+		if checkIsFish(thingName) {
+			err := dbdata.updateCanSalesFishFor(uid, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
+			}
+		}
 		records, err := dbdata.getUserThingInfo(uid, "唱片")
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.9.1]:", err))
@@ -318,7 +321,7 @@ func init() {
 				logrus.Warnln(err)
 			}
 		}
-		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("出售成功,你赚到了", pice*number, msg)))
+		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("成功出售", thingName, "：", number, "个", ",你赚到了", pice*number, msg)))
 	})
 	engine.OnRegex(`^出售所有垃圾`, getdb, refreshFish).SetBlock(true).Limit(limitSet).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
@@ -422,13 +425,9 @@ func init() {
 			number = 1
 		}
 		if checkIsFish(thingName) {
-			residue, err := dbdata.checkCanSalesFishFor(uid, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR]:", err))
-				return
-			}
+			residue := dbdata.selectCanSalesFishFor(uid, number)
 			if residue <= 0 {
-				ctx.SendChain(message.Text("今天你已经超出了鱼交易数量上限，明天再来买鱼吧"))
+				ctx.SendChain(message.Text("一天只能交易100条鱼，明天再来买鱼吧"))
 				return
 			}
 			number = residue
@@ -533,6 +532,13 @@ func init() {
 			}
 		}
 
+		// 更新交易鱼类数量
+		if checkIsFish(thingName) {
+			err := dbdata.updateCanSalesFishFor(uid, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR,更新鱼类交易数量失败，此次交易不记录]:", err))
+			}
+		}
 		thing := thingInfos[index]
 		if thing.Number < number {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("商店数量不足")))

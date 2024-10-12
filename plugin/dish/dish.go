@@ -62,7 +62,7 @@ func init() {
 			return
 		}
 
-		name := ctx.NickName()
+		name := ctx.CardOrNickName(ctx.Event.UserID)
 		dishName := ctx.State["args"].(string)
 
 		if dishName == "" {
@@ -82,12 +82,10 @@ func init() {
 			return
 		}
 
-		ctx.SendChain(message.Text(fmt.Sprintf(
-			"已为客官%s找到%s的做法辣！\n"+
-				"原材料：%s\n"+
-				"步骤：\n"+
-				"%s",
-			name, d.Name, d.Materials, d.Steps),
+		ctx.SendChain(message.Text(
+			"已为客官", name, "找到", d.Name, "的做法辣！\n",
+			"原材料：", d.Materials, "\n",
+			"步骤：", d.Steps,
 		))
 	})
 
@@ -105,12 +103,10 @@ func init() {
 			return
 		}
 
-		ctx.SendChain(message.Text(fmt.Sprintf(
-			"已为客官%s送上%s的做法：\n"+
-				"原材料：%s\n"+
-				"步骤：\n"+
-				"%s",
-			name, d.Name, d.Materials, d.Steps),
+		ctx.SendChain(message.Text(
+			"已为客官", name, "送上", d.Name, "的做法：\n",
+			"原材料：", d.Materials, "\n",
+			"步骤：", d.Steps,
 		))
 	})
 }
