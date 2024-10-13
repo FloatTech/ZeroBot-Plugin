@@ -18,7 +18,6 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	imagepool "github.com/FloatTech/zbputils/img/pool"
 )
 
 const (
@@ -68,18 +67,7 @@ func init() {
 						ctx.SendChain(message.Text("ERROR: ", err))
 						continue
 					}
-					name := imageurl[strings.LastIndex(imageurl, "/")+1 : len(imageurl)-4]
-					m, err := imagepool.GetImage(name)
-					if err != nil {
-						m.SetFile(imageurl)
-						_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-						process.SleepAbout1sTo2s()
-					}
-					if err == nil {
-						queue <- m.String()
-					} else {
-						queue <- imageurl
-					}
+					queue <- imageurl
 				}
 			}()
 			select {

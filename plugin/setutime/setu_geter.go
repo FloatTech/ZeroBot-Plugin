@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -158,28 +157,16 @@ func (p *imgpool) push(ctx *zero.Ctx, imgtype string, illust *pixiv.Illust) {
 	if len(illust.ImageUrls) == 0 {
 		return
 	}
-	u := illust.ImageUrls[0]
-	n := u[strings.LastIndex(u, "/")+1 : len(u)-4]
-	m, err := imagepool.GetImage(n)
 	var msg message.MessageSegment
 	f := fileutil.BOTPATH + "/" + illust.Path(0)
-	if err != nil {
-		if fileutil.IsNotExist(f) {
-			// 下载图片
-			if err := illust.DownloadToCache(0); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		}
-		m.SetFile(f)
-		_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-		msg = message.Image("file:///" + f)
-	} else {
-		msg = message.Image(m.String())
-		if ctxext.SendToSelf(ctx)(msg) == 0 {
-			msg = msg.Add("cache", "0")
+	if fileutil.IsNotExist(f) {
+		// 下载图片
+		if err := illust.DownloadToCache(0); err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
 		}
 	}
+	msg = message.Image("file:///" + f)
 	p.poolmu.Lock()
 	p.pool[imgtype] = append(p.pool[imgtype], &msg)
 	p.poolmu.Unlock()
@@ -229,9 +216,9 @@ func (p *imgpool) add(ctx *zero.Ctx, imgtype string, id int64) error {
 	if len(illust.ImageUrls) == 0 {
 		return errors.New("nil image url")
 	}
-	err = imagepool.SendImageFromPool(strconv.FormatInt(illust.Pid, 10)+"_p0", illust.Path(0), func() error {
+	err = imagepool.SendImageFromPool(illust.Path(0), func(string) error {
 		return illust.DownloadToCache(0)
-	}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+	}, ctxext.Send(ctx))
 	if err != nil {
 		return err
 	}
