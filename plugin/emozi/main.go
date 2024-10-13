@@ -31,10 +31,10 @@ func init() {
 			usr = emozi.NewUser(arr[0], arr[1])
 			err = usr.Login()
 			if err != nil {
-				logrus.Infoln("[emozi]", "以", usr, "身份登录失败:", err)
+				logrus.Infoln("[emozi]", "以", arr[0], "身份登录失败:", err)
 				usr = emozi.Anonymous()
 			} else {
-				logrus.Infoln("[emozi]", "以", usr, "身份登录成功")
+				logrus.Infoln("[emozi]", "以", arr[0], "身份登录成功")
 				hasaccount = true
 			}
 		}
