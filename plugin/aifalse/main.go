@@ -20,7 +20,6 @@ import (
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/imgfactory"
-	"github.com/FloatTech/rendercard"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -237,14 +236,17 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 		defer wg.Done()
 		titlecard := gg.NewContext(cardw, titlecardh)
 		bwg.Wait()
-		titlecard.DrawImage(blurback, -70, -70)
 
 		titlecard.DrawRoundedRectangle(1, 1, float64(titlecard.W()-1*2), float64(titlecardh-1*2), 16)
+		titlecard.ClipPreserve()
+		titlecard.DrawImage(blurback, -70, -70)
+		titlecard.SetColor(colorswitch(140))
+		titlecard.FillPreserve()
+
 		titlecard.SetLineWidth(3)
 		titlecard.SetColor(colorswitch(100))
-		titlecard.StrokePreserve()
-		titlecard.SetColor(colorswitch(140))
-		titlecard.Fill()
+		titlecard.ResetClip()
+		titlecard.Stroke()
 
 		titlecard.DrawImage(avatarf.Circle(0).Image(), (titlecardh-avatarf.H())/2, (titlecardh-avatarf.H())/2)
 
@@ -288,20 +290,23 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 		fw, _ = titlecard.MeasureString(bs)
 
 		titlecard.DrawStringAnchored(bs, float64(titlecardh)+fw/2, float64(titlecardh)*(0.5+0.75/2), 0.5, 0.5)
-		titleimg = rendercard.Fillet(titlecard.Image(), 16)
+		titleimg = titlecard.Image()
 	}()
 	go func() {
 		defer wg.Done()
 		basiccard := gg.NewContext(cardw, basiccardh)
 		bwg.Wait()
-		basiccard.DrawImage(blurback, -70, -70-titlecardh-40)
 
 		basiccard.DrawRoundedRectangle(1, 1, float64(basiccard.W()-1*2), float64(basiccardh-1*2), 16)
+		basiccard.ClipPreserve()
+		basiccard.DrawImage(blurback, -70, -70-titlecardh-40)
+		basiccard.SetColor(colorswitch(140))
+		basiccard.FillPreserve()
+
 		basiccard.SetLineWidth(3)
 		basiccard.SetColor(colorswitch(100))
-		basiccard.StrokePreserve()
-		basiccard.SetColor(colorswitch(140))
-		basiccard.Fill()
+		basiccard.ResetClip()
+		basiccard.Stroke()
 
 		bslen := len(basicstate)
 		for i, v := range basicstate {
@@ -361,20 +366,23 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 				basiccard.DrawStringAnchored(s, (float64(basiccard.W())-200*float64(bslen))/float64(bslen+1)+200/2+offset, 20+200+15+fw+15+basiccard.FontHeight()/2+float64(k)*textoffsety, 0.5, 0.5)
 			}
 		}
-		basicimg = rendercard.Fillet(basiccard.Image(), 16)
+		basicimg = basiccard.Image()
 	}()
 	go func() {
 		defer wg.Done()
 		diskcard := gg.NewContext(cardw, diskcardh)
 		bwg.Wait()
-		diskcard.DrawImage(blurback, -70, -70-titlecardh-40-basiccardh-40)
 
 		diskcard.DrawRoundedRectangle(1, 1, float64(diskcard.W()-1*2), float64(diskcardh-1*2), 16)
+		diskcard.ClipPreserve()
+		diskcard.DrawImage(blurback, -70, -70-titlecardh-40-basiccardh-40)
+		diskcard.SetColor(colorswitch(140))
+		diskcard.FillPreserve()
+
 		diskcard.SetLineWidth(3)
 		diskcard.SetColor(colorswitch(100))
-		diskcard.StrokePreserve()
-		diskcard.SetColor(colorswitch(140))
-		diskcard.Fill()
+		diskcard.ResetClip()
+		diskcard.Stroke()
 
 		err = diskcard.ParseFontFace(fontbyte, 32)
 		if err != nil {
@@ -427,6 +435,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 				}
 
 				diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, float64(diskcard.W())-40-100, 50, 12)
+				diskcard.ClipPreserve()
 				diskcard.Fill()
 
 				colors := darkcolor
@@ -445,6 +454,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 
 				diskcard.DrawRoundedRectangle(40, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+offset, (float64(diskcard.W())-40-100)*v.precent*0.01, 50, 12)
 				diskcard.Fill()
+				diskcard.ResetClip()
 
 				diskcard.SetColor(fontcolorswitch())
 
@@ -456,20 +466,23 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 				diskcard.DrawStringAnchored(strconv.FormatFloat(v.precent, 'f', 0, 64)+"%", float64(diskcard.W())-100/2, 40+(float64(diskcardh-40*2)-50*float64(dslen))/float64(dslen-1)+50/2+offset, 0.5, 0.5)
 			}
 		}
-		diskimg = rendercard.Fillet(diskcard.Image(), 16)
+		diskimg = diskcard.Image()
 	}()
 	go func() {
 		defer wg.Done()
 		moreinfocard := gg.NewContext(cardw, moreinfocardh)
 		bwg.Wait()
-		moreinfocard.DrawImage(blurback, -70, -70-titlecardh-40-basiccardh-40-diskcardh-40)
 
 		moreinfocard.DrawRoundedRectangle(1, 1, float64(moreinfocard.W()-1*2), float64(moreinfocard.H()-1*2), 16)
+		moreinfocard.ClipPreserve()
+		moreinfocard.DrawImage(blurback, -70, -70-titlecardh-40-basiccardh-40-diskcardh-40)
+		moreinfocard.SetColor(colorswitch(140))
+		moreinfocard.FillPreserve()
+
 		moreinfocard.SetLineWidth(3)
 		moreinfocard.SetColor(colorswitch(100))
-		moreinfocard.StrokePreserve()
-		moreinfocard.SetColor(colorswitch(140))
-		moreinfocard.Fill()
+		moreinfocard.ResetClip()
+		moreinfocard.Stroke()
 
 		err = moreinfocard.ParseFontFace(fontbyte, 32)
 		if err != nil {
@@ -488,7 +501,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 			moreinfocard.DrawStringAnchored(v.name, 20+fw/2, 30+(float64(moreinfocardh-30*2)-moreinfocard.FontHeight()*float64(milen))/float64(milen-1)+moreinfocard.FontHeight()/2+offset, 0.5, 0.5)
 			moreinfocard.DrawStringAnchored(v.text[0], float64(moreinfocard.W())-20-fw1/2, 30+(float64(moreinfocardh-30*2)-moreinfocard.FontHeight()*float64(milen))/float64(milen-1)+moreinfocard.FontHeight()/2+offset, 0.5, 0.5)
 		}
-		moreinfoimg = rendercard.Fillet(moreinfocard.Image(), 16)
+		moreinfoimg = moreinfocard.Image()
 	}()
 	go func() {
 		defer wg.Done()
@@ -668,7 +681,7 @@ func diskstate() (stateinfo []*status, err error) {
 func moreinfo(m *ctrl.Control[*zero.Ctx]) (stateinfo []*status, err error) {
 	var mems runtime.MemStats
 	runtime.ReadMemStats(&mems)
-	fmtmem := storagefmt(float64(mems.Sys))
+	fmtmem := storagefmt(float64(mems.Alloc))
 
 	hostinfo, err := host.Info()
 	if err != nil {
