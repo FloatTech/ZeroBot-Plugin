@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
-	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -40,7 +39,7 @@ var (
 			"- jj@xxx\n" +
 			"- 使用[道具名称]jj@xxx\n" +
 			"- 注册牛牛\n" +
-			"- 赎牛牛(cd:45分钟)\n" +
+			"- 赎牛牛(cd:60分钟)\n" +
 			"- 牛牛商店\n" +
 			"- 牛牛背包\n" +
 			"- 注销牛牛\n" +
@@ -114,19 +113,19 @@ func init() {
 				answer = r.Event.Message.String()
 				n, err := strconv.Atoi(answer)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 
 				info, err := db.findNiuNiu(gid, uid)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 
 				money, err := info.purchaseItem(n)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 
@@ -136,12 +135,12 @@ func init() {
 				}
 
 				if err = wallet.InsertWalletOf(uid, -money); err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 
 				if err = db.insertNiuNiu(&info, gid); err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
+					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
 
@@ -160,14 +159,14 @@ func init() {
 			return
 		}
 
-		if time.Since(last.TimeLimit) > time.Minute*45 {
+		if time.Since(last.TimeLimit) > time.Minute*60 {
 			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
 			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 
-		if last.Count < 6 {
-			ctx.SendChain(message.Text("你还没有被厥够6次呢,不能赎牛牛"))
+		if last.Count < 4 {
+			ctx.SendChain(message.Text("你还没有被厥够4次呢,不能赎牛牛"))
 			return
 		}
 
@@ -178,20 +177,20 @@ func init() {
 		}
 
 		if err := wallet.InsertWalletOf(uid, -150); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
 		niuniu, err := db.findNiuNiu(gid, uid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
 		niuniu.Length = last.Length
 
 		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
@@ -211,14 +210,14 @@ func init() {
 			return
 		}
 		m.sort(true)
-		var allUsers []drawUserRanking
-		for _, info := range m {
-			allUsers = append(allUsers, drawUserRanking{
+		allUsers := make(drawer, len(m))
+		for i, info := range m {
+			allUsers[i] = drawUserRanking{
 				Name: ctx.CardOrNickName(info.UID),
 				User: info,
-			})
+			}
 		}
-		ranking, err := drawRanking(allUsers, true)
+		ranking, err := allUsers.drawRanking(true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -245,14 +244,14 @@ func init() {
 			return
 		}
 		m.sort(false)
-		var allUsers []drawUserRanking
-		for _, info := range m {
-			allUsers = append(allUsers, drawUserRanking{
+		allUsers := make(drawer, len(m))
+		for i, info := range m {
+			allUsers[i] = drawUserRanking{
 				Name: ctx.CardOrNickName(info.UID),
 				User: info,
-			})
+			}
 		}
-		ranking, err := drawRanking(allUsers, false)
+		ranking, err := allUsers.drawRanking(false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
@@ -283,7 +282,7 @@ func init() {
 		}
 		niuniuList, err := db.readAllTable(gid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
@@ -325,7 +324,7 @@ func init() {
 			return
 		}
 		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
@@ -347,12 +346,12 @@ func init() {
 		// 添加数据进入表
 		if err := db.insertNiuNiu(&u, gid); err != nil {
 			if err = db.createGIDTable(gid); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 
 			if err = db.insertNiuNiu(&u, gid); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR:", err))
 				return
 			}
 		}
@@ -377,7 +376,7 @@ func init() {
 		fiancee := ctx.State["regex_matched"].([]string)
 		adduser, err := strconv.ParseInt(fiancee[3]+fiancee[4], 10, 64)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 		uid := ctx.Event.UserID
@@ -408,12 +407,12 @@ func init() {
 		}
 
 		if err = db.insertNiuNiu(&myniuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
 		if err = db.insertNiuNiu(&adduserniuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
@@ -434,7 +433,7 @@ func init() {
 				Count:     count.Count + 1,
 				Length:    count.Length,
 			}
-			if time.Since(c.TimeLimit) > time.Minute*45 {
+			if time.Since(c.TimeLimit) > time.Minute*60 {
 				c = lastLength{
 					TimeLimit: time.Now(),
 					Count:     1,
@@ -472,36 +471,4 @@ func init() {
 		}
 		ctx.SendChain(message.Text("注销成功,你已经没有牛牛了"))
 	})
-}
-
-func randomChoice(options []string) string {
-	return options[rand.Intn(len(options))]
-}
-
-func updateMap(t string, d bool) {
-	value, ok := prop.Load(t)
-	if value == nil {
-		return
-	}
-	// 检查一次是否已经过期
-	if !d {
-		if time.Since(value.TimeLimit) > time.Minute*8 {
-			prop.Delete(t)
-		}
-		return
-	}
-	if ok {
-		prop.Store(t, &propsCount{
-			Count:     value.Count + 1,
-			TimeLimit: value.TimeLimit,
-		})
-	} else {
-		prop.Store(t, &propsCount{
-			Count:     1,
-			TimeLimit: time.Now(),
-		})
-	}
-	if time.Since(value.TimeLimit) > time.Minute*8 {
-		prop.Delete(t)
-	}
 }
