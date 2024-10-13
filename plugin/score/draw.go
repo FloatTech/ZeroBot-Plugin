@@ -286,7 +286,6 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 	if err != nil {
 		return
 	}
-	now := time.Now()
 	back, err := gg.LoadImage(a.picfile)
 	if err != nil {
 		return
@@ -408,7 +407,6 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 	canvas.DrawImage(whitetext, 0, 0)
 
 	img = canvas.Image()
-	fmt.Println(time.Since(now).String())
 	return
 }
 
