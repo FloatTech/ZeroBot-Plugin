@@ -17,8 +17,8 @@ schema = 3
     version = "v0.2.2-0.20230413152719-e101cc3606ef"
     hash = "sha256-2okFyPQSYIxrc8hxICsbjEM9xq25a3I2A4wmDIYFCg8="
   [mod."github.com/FloatTech/rendercard"]
-    version = "v0.1.1"
-    hash = "sha256-w5GcscWQzgdcfC0Vw4u+7/NipP3PTB2UrVcxki88IPo="
+    version = "v0.1.2"
+    hash = "sha256-9KeVK12Dz3ygH+4cOzl5ymOC9pvN8Mi4oQFeY8suheE="
   [mod."github.com/FloatTech/sqlite"]
     version = "v1.6.3"
     hash = "sha256-zWPByEMi89ms67ubPg0fAPIRxfpBC2IRKc0iNVLqkPU="
@@ -206,8 +206,8 @@ schema = 3
     version = "v1.5.0"
     hash = "sha256-fGdJM4LJrZA9jxHuYVo4EUQ3I1k0IVG3QQCBCgZkeZI="
   [mod."github.com/tidwall/gjson"]
-    version = "v1.17.3"
-    hash = "sha256-zui8S4qlfFXNLartKynJbYqeM/MW3f3eDbojIvh/KS8="
+    version = "v1.18.0"
+    hash = "sha256-CO6hqDu8Y58Po6A01e5iTpwiUBQ5khUZsw7czaJHw0I="
   [mod."github.com/tidwall/match"]
     version = "v1.1.1"
     hash = "sha256-M2klhPId3Q3T3VGkSbOkYl/2nLHnsG+yMbXkPkyrRdg="
