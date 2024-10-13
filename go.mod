@@ -45,7 +45,7 @@ require (
 	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240829093431-bea5257d1a2b
 	gitlab.com/gomidi/midi/v2 v2.1.7
 	golang.org/x/image v0.16.0
-	golang.org/x/sys v0.20.0
+	golang.org/x/sys v0.26.0
 	golang.org/x/text v0.15.0
 	gopkg.in/yaml.v3 v3.0.1
 )
