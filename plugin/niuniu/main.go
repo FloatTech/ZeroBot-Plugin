@@ -112,19 +112,19 @@ func init() {
 				answer = r.Event.Message.String()
 				n, err := strconv.Atoi(answer)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 
 				info, err := db.findNiuNiu(gid, uid)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 
 				money, err := info.purchaseItem(n)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 
@@ -134,12 +134,12 @@ func init() {
 				}
 
 				if err = wallet.InsertWalletOf(uid, -money); err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 
 				if err = db.insertNiuNiu(&info, gid); err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
+					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
 
@@ -176,20 +176,20 @@ func init() {
 		}
 
 		if err := wallet.InsertWalletOf(uid, -150); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
 		niuniu, err := db.findNiuNiu(gid, uid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
 		niuniu.Length = last.Length
 
 		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
@@ -260,7 +260,7 @@ func init() {
 		}
 		niuniuList, err := db.readAllTable(gid)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
@@ -302,7 +302,7 @@ func init() {
 			return
 		}
 		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
@@ -324,12 +324,12 @@ func init() {
 		// 添加数据进入表
 		if err := db.insertNiuNiu(&u, gid); err != nil {
 			if err = db.createGIDTable(gid); err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 
 			if err = db.insertNiuNiu(&u, gid); err != nil {
-				ctx.SendChain(message.Text("ERROR:", err))
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
 		}
@@ -354,7 +354,7 @@ func init() {
 		fiancee := ctx.State["regex_matched"].([]string)
 		adduser, err := strconv.ParseInt(fiancee[3]+fiancee[4], 10, 64)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		uid := ctx.Event.UserID
@@ -385,12 +385,12 @@ func init() {
 		}
 
 		if err = db.insertNiuNiu(&myniuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
 		if err = db.insertNiuNiu(&adduserniuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
