@@ -44,11 +44,11 @@ schema = 3
     version = "v0.0.0-20200320125537-f189e35d30ca"
     hash = "sha256-ALeRuEJN9jHjGb4wNKJcxC59vVx8Tj7hHikEGkaZZ0s="
   [mod."github.com/antchfx/htmlquery"]
-    version = "v1.3.1"
-    hash = "sha256-4ZzKk7Z+vH8ytisdtcZz/Y0MbnVVhruiO/7gtUy3ouQ="
+    version = "v1.3.3"
+    hash = "sha256-r82c0jTg0yg4I+daWTsaL5eP2P+BUCAIMtvLhi3OiB8="
   [mod."github.com/antchfx/xpath"]
-    version = "v1.3.0"
-    hash = "sha256-SU+Tnf5c9vsDCrY1BVKjqYLhB91xt9oHBS5bicbs2cA="
+    version = "v1.3.2"
+    hash = "sha256-7SNF5CbW/YZ9YTF0x91FddDuONIpNB+lpb6YklkwsvI="
   [mod."github.com/blend/go-sdk"]
     version = "v1.20220411.3"
     hash = "sha256-yxrf24hru8NeTPUmoaJG1PcmHE5pn/U36Sj9Qg+JVqg="
@@ -206,8 +206,8 @@ schema = 3
     version = "v1.5.0"
     hash = "sha256-fGdJM4LJrZA9jxHuYVo4EUQ3I1k0IVG3QQCBCgZkeZI="
   [mod."github.com/tidwall/gjson"]
-    version = "v1.17.3"
-    hash = "sha256-zui8S4qlfFXNLartKynJbYqeM/MW3f3eDbojIvh/KS8="
+    version = "v1.18.0"
+    hash = "sha256-CO6hqDu8Y58Po6A01e5iTpwiUBQ5khUZsw7czaJHw0I="
   [mod."github.com/tidwall/match"]
     version = "v1.1.1"
     hash = "sha256-M2klhPId3Q3T3VGkSbOkYl/2nLHnsG+yMbXkPkyrRdg="
