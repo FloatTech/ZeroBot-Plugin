@@ -45,8 +45,8 @@ func init() {
 		out, chs, err := usr.Marshal(false, txt)
 		if err != nil {
 			if hasaccount {
-				err = usr.Login()
-				if err == nil {
+				err2 := usr.Login()
+				if err2 == nil {
 					out, chs, err = usr.Marshal(false, txt)
 				}
 			}
@@ -84,8 +84,8 @@ func init() {
 		out, err := usr.Unmarshal(false, txt)
 		if err != nil {
 			if hasaccount {
-				err = usr.Login()
-				if err == nil {
+				err2 := usr.Login()
+				if err2 == nil {
 					out, err = usr.Unmarshal(false, txt)
 				}
 			}
