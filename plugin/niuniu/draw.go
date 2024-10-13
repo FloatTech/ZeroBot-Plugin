@@ -19,6 +19,9 @@ type drawer []drawUserRanking
 
 func (allUsers drawer) drawRanking(t bool) (img image.Image, err error) {
 	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
+	if err != nil {
+		return nil,err
+	}
 	var (
 		title string
 		s     string
@@ -39,7 +42,7 @@ func (allUsers drawer) drawRanking(t bool) (img image.Image, err error) {
 		if err != nil {
 			return nil, err
 		}
-		_ = resp.Close
+		_ = resp.Body.Close()
 		ri[i] = &rendercard.RankInfo{
 			Avatar:         decode,
 			TopLeftText:    user.Name,
