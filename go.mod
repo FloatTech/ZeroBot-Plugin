@@ -8,7 +8,7 @@ require (
 	github.com/FloatTech/floatbox v0.0.0-20240505082030-226ec6713e14
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
-	github.com/FloatTech/rendercard v0.1.1
+	github.com/FloatTech/rendercard v0.1.2
 	github.com/FloatTech/sqlite v1.6.3
 	github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562
 	github.com/FloatTech/zbpctrl v1.6.2-0.20240904160347-1317e11a15bb
@@ -24,6 +24,7 @@ require (
 	github.com/fumiama/go-base16384 v1.7.0
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
+	github.com/fumiama/imgsz v0.0.4
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
 	github.com/fumiama/terasu v0.0.0-20240507144117-547a591149c0
@@ -59,7 +60,6 @@ require (
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fumiama/go-simple-protobuf v0.2.0 // indirect
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
-	github.com/fumiama/imgsz v0.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
