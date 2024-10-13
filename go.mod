@@ -15,7 +15,7 @@ require (
 	github.com/FloatTech/zbputils v1.7.2-0.20240822065525-5ea6811ed91c
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
-	github.com/antchfx/htmlquery v1.3.1
+	github.com/antchfx/htmlquery v1.3.3
 	github.com/corona10/goimagehash v1.1.0
 	github.com/davidscholberg/go-durationfmt v0.0.0-20170122144659-64843a2083d3
 	github.com/disintegration/imaging v1.6.2
@@ -24,6 +24,7 @@ require (
 	github.com/fumiama/go-base16384 v1.7.0
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
+	github.com/fumiama/imgsz v0.0.4
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
 	github.com/fumiama/terasu v0.0.0-20240507144117-547a591149c0
@@ -52,14 +53,13 @@ require (
 require (
 	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca // indirect
-	github.com/antchfx/xpath v1.3.0 // indirect
+	github.com/antchfx/xpath v1.3.2 // indirect
 	github.com/blend/go-sdk v1.20220411.3 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fumiama/go-simple-protobuf v0.2.0 // indirect
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
-	github.com/fumiama/imgsz v0.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect

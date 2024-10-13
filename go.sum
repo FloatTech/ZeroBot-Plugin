@@ -29,10 +29,10 @@ github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d/go.mod h1:PRWNwWq0
 github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca h1:kWzLcty5V2rzOqJM7Tp/MfSX0RMSI1x4IOLApEefYxA=
 github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
-github.com/antchfx/htmlquery v1.3.1 h1:wm0LxjLMsZhRHfQKKZscDf2COyH4vDYA3wyH+qZ+Ylc=
-github.com/antchfx/htmlquery v1.3.1/go.mod h1:PTj+f1V2zksPlwNt7uVvZPsxpKNa7mlVliCRxLX6Nx8=
-github.com/antchfx/xpath v1.3.0 h1:nTMlzGAK3IJ0bPpME2urTuFL76o4A96iYvoKFHRXJgc=
-github.com/antchfx/xpath v1.3.0/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
+github.com/antchfx/htmlquery v1.3.3 h1:x6tVzrRhVNfECDaVxnZi1mEGrQg3mjE/rxbH2Pe6dNE=
+github.com/antchfx/htmlquery v1.3.3/go.mod h1:WeU3N7/rL6mb6dCwtE30dURBnBieKDC/fR8t6X+cKjU=
+github.com/antchfx/xpath v1.3.2 h1:LNjzlsSjinu3bQpw9hWMY9ocB80oLOWuQqFvO6xt51U=
+github.com/antchfx/xpath v1.3.2/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
 github.com/blend/go-sdk v1.20220411.3 h1:GFV4/FQX5UzXLPwWV03gP811pj7B8J2sbuq+GJQofXc=
 github.com/blend/go-sdk v1.20220411.3/go.mod h1:7lnH8fTi6U4i1fArEXRyOIY2E1X4MALg09qsQqY1+ak=
 github.com/corona10/goimagehash v1.1.0 h1:teNMX/1e+Wn/AYSbLHX8mj+mF9r60R1kBeqE9MkoYwI=
