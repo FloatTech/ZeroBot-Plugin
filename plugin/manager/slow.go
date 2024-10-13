@@ -20,6 +20,10 @@ func collectsend(ctx *zero.Ctx, msgs ...message.MessageSegment) {
 	lazy, _ := slowsenders.LoadOrStore(id, &syncx.Lazy[*slowdo.Job[*zero.Ctx, message.MessageSegment]]{
 		Init: func() *slowdo.Job[*zero.Ctx, message.MessageSegment] {
 			x, err := slowdo.NewJob(time.Second*5, ctx, func(ctx *zero.Ctx, msg []message.MessageSegment) {
+				if len(msg) == 1 {
+					ctx.Send(msg)
+					return
+				}
 				m := make(message.Message, len(msg))
 				for i, item := range msg {
 					m[i] = message.CustomNode(
