@@ -4,11 +4,11 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20240826120833-9bf54389aadb
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20241013084507-e77badd1b165
 	github.com/FloatTech/floatbox v0.0.0-20240505082030-226ec6713e14
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
-	github.com/FloatTech/rendercard v0.1.2
+	github.com/FloatTech/rendercard v0.2.0
 	github.com/FloatTech/sqlite v1.6.3
 	github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562
 	github.com/FloatTech/zbpctrl v1.6.2-0.20240904160347-1317e11a15bb
@@ -26,7 +26,7 @@ require (
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
-	github.com/fumiama/terasu v0.0.0-20240507144117-547a591149c0
+	github.com/fumiama/terasu v0.0.0-20240710095334-67a8daa3a979
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jinzhu/gorm v1.9.16
@@ -43,9 +43,9 @@ require (
 	github.com/wcharczuk/go-chart/v2 v2.1.2
 	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240829093431-bea5257d1a2b
 	gitlab.com/gomidi/midi/v2 v2.1.7
-	golang.org/x/image v0.18.0
+	golang.org/x/image v0.21.0
 	golang.org/x/sys v0.26.0
-	golang.org/x/text v0.16.0
+	golang.org/x/text v0.19.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -67,7 +67,6 @@ require (
 	github.com/jfreymuth/oggvorbis v1.0.1 // indirect
 	github.com/jfreymuth/vorbis v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/liuzl/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/liuzl/da v0.0.0-20180704015230-14771aad5b1d // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
@@ -78,7 +77,6 @@ require (
 	github.com/pkumza/numcn v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/tetratelabs/wazero v1.5.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

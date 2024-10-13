@@ -669,6 +669,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>颜文字抽象转写</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/emozi"`
+
+  - [x] 抽象转写[文段]
+  - [x] 抽象还原[文段]
+  - [x] 抽象登录[用户名]
+
+</details>
+<details>
   <summary>好友申请及群聊邀请事件处理</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"`
@@ -1308,14 +1318,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"`
 
   - [x] >TL 你好
-
-</details>
-<details>
-  <summary>vits猫雷</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/vitsnyaru"`
-
-  - [x] 让猫雷说[xxxx]
 
 </details>
 <details>
