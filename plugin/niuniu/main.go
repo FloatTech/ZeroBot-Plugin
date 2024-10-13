@@ -2,7 +2,9 @@
 package niuniu
 
 import (
+	"bytes"
 	"fmt"
+	"image/png"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -151,7 +153,8 @@ func init() {
 	en.OnFullMatch("赎牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		last, ok := jjCount.Load(fmt.Sprintf("%d_%d", gid, uid))
+		t := fmt.Sprintf("%d_%d", gid, uid)
+		last, ok := jjCount.Load(t)
 
 		if !ok {
 			ctx.SendChain(message.Text("你还没有被厥呢"))
@@ -160,7 +163,7 @@ func init() {
 
 		if time.Since(last.TimeLimit) > time.Minute*45 {
 			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
-			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
+			jjCount.Delete(t)
 			return
 		}
 
@@ -174,27 +177,47 @@ func init() {
 			ctx.SendChain(message.Text("赎牛牛需要150ATRI币，快去赚钱吧"))
 			return
 		}
+		ctx.SendChain(message.Text(message.Text("赎牛牛后长度会变为:", last.Length, "cm,是否要这样做吗?【是|否】")))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(是|否)$`)).Repeat()
+		defer cancel()
+		timer := time.NewTimer(2 * time.Minute)
+		defer timer.Stop()
+		for {
+			select {
+			case <-timer.C:
+				ctx.SendChain(message.At(uid), message.Text("回答超时已自动取消"))
+				return
+			case r := <-recv:
+				answer := r.Event.Message.String()
 
-		if err := wallet.InsertWalletOf(uid, -150); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
+				if answer == "否" {
+					ctx.SendChain(message.Text("已销毁牛牛!"))
+					jjCount.Delete(t)
+					return
+				}
+
+				if err := wallet.InsertWalletOf(uid, -150); err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+
+				niuniu, err := db.findNiuNiu(gid, uid)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+
+				niuniu.Length = last.Length
+
+				if err = db.insertNiuNiu(&niuniu, gid); err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+
+				jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
+				ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
+			}
 		}
-
-		niuniu, err := db.findNiuNiu(gid, uid)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-
-		niuniu.Length = last.Length
-
-		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-
-		jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
-		ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
 	})
 	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -208,16 +231,27 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有男孩子哦"))
 			return
 		}
-		var messages strings.Builder
-		messages.WriteString("牛子长度排行榜\n")
-		for i, user := range m.sort(true) {
-			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
-				ctx.CardOrNickName(user.UID), user.Length))
+		m.sort(true)
+		var allUsers []drawUserRanking
+		for _, info := range m {
+			allUsers = append(allUsers, drawUserRanking{
+				Name: ctx.CardOrNickName(info.UID),
+				User: info,
+			})
 		}
-		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
-		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
-			ctx.Send(message.Text("发送排行失败"))
+		ranking, err := drawRanking(allUsers, "牛牛长度排行")
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, ranking)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(buf.Bytes()))
+
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -231,16 +265,26 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
 			return
 		}
-		var messages strings.Builder
-		messages.WriteString("牛牛深度排行榜\n")
-		for i, user := range m.sort(false) {
-			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
-				ctx.CardOrNickName(user.UID), user.Length))
+		m.sort(false)
+		var allUsers []drawUserRanking
+		for _, info := range m {
+			allUsers = append(allUsers, drawUserRanking{
+				Name: ctx.CardOrNickName(info.UID),
+				User: info,
+			})
 		}
-		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
-		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
-			ctx.Send(message.Text("发送排行失败"))
+		ranking, err := drawRanking(allUsers, "牛牛深度排行")
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, ranking)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(buf.Bytes()))
 	})
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID

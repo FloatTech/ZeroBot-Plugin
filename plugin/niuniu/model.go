@@ -295,7 +295,7 @@ func (m users) negative() users {
 	return m1
 }
 
-func (m users) sort(isDesc bool) users {
+func (m users) sort(isDesc bool) {
 	t := func(i, j int) bool {
 		return m[i].Length < m[j].Length
 	}
@@ -305,12 +305,12 @@ func (m users) sort(isDesc bool) users {
 		}
 	}
 	sort.Slice(m, t)
-	return m
 }
 
 func (m users) ranking(niuniu float64, uid int64) int {
 	result := niuniu > 0
-	for i, user := range m.sort(result) {
+	m.sort(result)
+	for i, user := range m {
 		if user.UID == uid {
 			return i + 1
 		}
@@ -328,7 +328,6 @@ func (db *model) createGIDTable(gid int64) error {
 	return db.sql.Create(strconv.FormatInt(gid, 10), &userInfo{})
 }
 
-// findNiuNiu 返回一个用户的牛牛信息
 func (db *model) findNiuNiu(gid, uid int64) (userInfo, error) {
 	db.RLock()
 	defer db.RUnlock()
@@ -337,7 +336,6 @@ func (db *model) findNiuNiu(gid, uid int64) (userInfo, error) {
 	return u, err
 }
 
-// insertNiuNiu 更新一个用户的牛牛信息
 func (db *model) insertNiuNiu(u *userInfo, gid int64) error {
 	db.Lock()
 	defer db.Unlock()
