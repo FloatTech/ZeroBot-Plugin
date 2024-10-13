@@ -2,7 +2,9 @@
 package niuniu
 
 import (
+	"bytes"
 	"fmt"
+	"image/png"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -208,16 +210,27 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有男孩子哦"))
 			return
 		}
-		var messages strings.Builder
-		messages.WriteString("牛子长度排行榜\n")
-		for i, user := range m.sort(true) {
-			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
-				ctx.CardOrNickName(user.UID), user.Length))
+		m.sort(true)
+		var allUsers []drawUserRanking
+		for _, info := range m {
+			allUsers = append(allUsers, drawUserRanking{
+				Name: ctx.CardOrNickName(info.UID),
+				User: info,
+			})
 		}
-		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
-		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
-			ctx.Send(message.Text("发送排行失败"))
+		ranking, err := drawRanking(allUsers, true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, ranking)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(buf.Bytes()))
+
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -231,16 +244,26 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
 			return
 		}
-		var messages strings.Builder
-		messages.WriteString("牛牛深度排行榜\n")
-		for i, user := range m.sort(false) {
-			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
-				ctx.CardOrNickName(user.UID), user.Length))
+		m.sort(true)
+		var allUsers []drawUserRanking
+		for _, info := range m {
+			allUsers = append(allUsers, drawUserRanking{
+				Name: ctx.CardOrNickName(info.UID),
+				User: info,
+			})
 		}
-		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
-		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
-			ctx.Send(message.Text("发送排行失败"))
+		ranking, err := drawRanking(allUsers, false)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, ranking)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(buf.Bytes()))
 	})
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
