@@ -40,7 +40,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil/v3 v3.24.4
 	github.com/sirupsen/logrus v1.9.3
-	github.com/tidwall/gjson v1.17.3
+	github.com/tidwall/gjson v1.18.0
 	github.com/wcharczuk/go-chart/v2 v2.1.1
 	github.com/wdvxdr1123/ZeroBot v1.7.5-0.20240829093431-bea5257d1a2b
 	gitlab.com/gomidi/midi/v2 v2.1.7
