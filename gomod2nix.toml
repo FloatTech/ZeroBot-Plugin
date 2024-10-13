@@ -49,9 +49,6 @@ schema = 3
   [mod."github.com/antchfx/xpath"]
     version = "v1.3.2"
     hash = "sha256-7SNF5CbW/YZ9YTF0x91FddDuONIpNB+lpb6YklkwsvI="
-  [mod."github.com/blend/go-sdk"]
-    version = "v1.20220411.3"
-    hash = "sha256-yxrf24hru8NeTPUmoaJG1PcmHE5pn/U36Sj9Qg+JVqg="
   [mod."github.com/corona10/goimagehash"]
     version = "v1.1.0"
     hash = "sha256-HyS8nc7kUNnDaVBDzJ9Ym4pRs83YB4M2vHSRwfm6mr4="
@@ -221,8 +218,8 @@ schema = 3
     version = "v0.6.1"
     hash = "sha256-8eFcw4YI0w6+GPhU5xMMQjiio94q/O5PpNO3QsvXve0="
   [mod."github.com/wcharczuk/go-chart/v2"]
-    version = "v2.1.1"
-    hash = "sha256-emvjt/ze8skM+MBflwV0EgS/svpaEGU/mn27Ie4VTXs="
+    version = "v2.1.2"
+    hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
     version = "v1.7.5-0.20240829093431-bea5257d1a2b"
     hash = "sha256-P8kexm2KOaXIk4Xnex5e02vv1ObTeWKhnWnxnDXrUDE="
@@ -236,20 +233,20 @@ schema = 3
     version = "v0.0.0-20190306152737-a1d7652674e8"
     hash = "sha256-VJ0sxFsqnx2O/NmXamL2F5bQeUw5sizVQ7NLusceK5Q="
   [mod."golang.org/x/image"]
-    version = "v0.16.0"
-    hash = "sha256-+BOLefaFM/c+AV3kmnNvztbhZ+a9GCNwkEya8hZSKYg="
+    version = "v0.18.0"
+    hash = "sha256-g9N/y4asXG1lctPJ1KEf8XIjeJi/mQ43EXUa8HTj/zQ="
   [mod."golang.org/x/mobile"]
     version = "v0.0.0-20190415191353-3e0bab5405d6"
     hash = "sha256-Ds7JS9muxzDc7WgCncAd0rMSFeBI88/I0dQsk13/56k="
   [mod."golang.org/x/net"]
-    version = "v0.24.0"
-    hash = "sha256-w1c21ljta5wNIyel9CSIn/crPzwOCRofNKhqmfs4aEQ="
+    version = "v0.25.0"
+    hash = "sha256-IjFfXLYNj27WLF7vpkZ6mfFXBnp+7QER3OQ0RgjxN54="
   [mod."golang.org/x/sys"]
     version = "v0.26.0"
     hash = "sha256-YjklsWNhx4g4TaWRWfFe1TMFKujbqiaNvZ38bfI35fM="
   [mod."golang.org/x/text"]
-    version = "v0.15.0"
-    hash = "sha256-pBnj0AEkfkvZf+3bN7h6epCD2kurw59clDP7yWvxKlk="
+    version = "v0.16.0"
+    hash = "sha256-hMTO45upjEuA4sJzGplJT+La2n3oAfHccfYWZuHcH+8="
   [mod."gopkg.in/yaml.v3"]
     version = "v3.0.1"
     hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="
