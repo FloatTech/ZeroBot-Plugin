@@ -29,8 +29,8 @@ schema = 3
     version = "v1.6.2-0.20240904160347-1317e11a15bb"
     hash = "sha256-x0ZR2bnkboEIjjRFMtMAN0T34BP9BPs7r3AwT3BCyzo="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20240822065525-5ea6811ed91c"
-    hash = "sha256-ouAExps1iPCcD1AmOxyhRXMBGHBDXvUGkplcnQCf3Bg="
+    version = "v1.7.2-0.20240911161040-1d89a7b10ff8"
+    hash = "sha256-3j7LE5Uqx5kPmi6c+WJEBFtLK0JGU4UGX7RpVuAjmf8="
   [mod."github.com/RomiChan/syncx"]
     version = "v0.0.0-20240418144900-b7402ffdebc7"
     hash = "sha256-L1j1vgiwqXpF9pjMoRRlrQUHzoULisw/01plaEAwxs4="

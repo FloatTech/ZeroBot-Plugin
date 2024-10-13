@@ -3,15 +3,21 @@ package chatcount
 
 import (
 	"fmt"
+	"image"
+	"net/http"
 	"strconv"
-	"strings"
+	"sync"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/rendercard"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
+	"github.com/FloatTech/zbputils/img/text"
 )
 
 const (
@@ -43,22 +49,53 @@ func init() {
 	})
 	engine.OnFullMatch("查看水群排名", zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			text := strings.Builder{}
-			text.WriteString("今日水群排行榜:\n")
 			chatTimeList := ctdb.getChatRank(ctx.Event.GroupID)
-			for i := 0; i < len(chatTimeList) && i < rankSize; i++ {
-				text.WriteString("第")
-				text.WriteString(strconv.Itoa(i + 1))
-				text.WriteString("名:")
-				text.WriteString(ctx.CardOrNickName(chatTimeList[i].UserID))
-				text.WriteString(" - ")
-				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayMessage, 10))
-				text.WriteString("条，共")
-				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayTime/60, 10))
-				text.WriteString("分")
-				text.WriteString(strconv.FormatInt(chatTimeList[i].TodayTime%60, 10))
-				text.WriteString("秒\n")
+			if len(chatTimeList) == 0 {
+				ctx.SendChain(message.Text("ERROR: 没有水群数据"))
+				return
 			}
-			ctx.SendChain(message.Text(text.String()))
+			rankinfo := make([]*rendercard.RankInfo, len(chatTimeList))
+
+			wg := &sync.WaitGroup{}
+			wg.Add(len(chatTimeList))
+			for i := 0; i < len(chatTimeList) && i < rankSize; i++ {
+				go func(i int) {
+					defer wg.Done()
+					resp, err := http.Get("https://q4.qlogo.cn/g?b=qq&nk=" + strconv.FormatInt(chatTimeList[i].UserID, 10) + "&s=100")
+					if err != nil {
+						return
+					}
+					defer resp.Body.Close()
+					img, _, err := image.Decode(resp.Body)
+					if err != nil {
+						return
+					}
+					rankinfo[i] = &rendercard.RankInfo{
+						TopLeftText:    ctx.CardOrNickName(chatTimeList[i].UserID),
+						BottomLeftText: "消息数: " + strconv.FormatInt(chatTimeList[i].TodayMessage, 10) + " 条",
+						RightText:      strconv.FormatInt(chatTimeList[i].TodayTime/60, 10) + "分" + strconv.FormatInt(chatTimeList[i].TodayTime%60, 10) + "秒",
+						Avatar:         img,
+					}
+				}(i)
+			}
+			wg.Wait()
+			fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			img, err := rendercard.DrawRankingCard(fontbyte, "今日水群排行榜", rankinfo)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			sendimg, err := imgfactory.ToBytes(img)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			if id := ctx.SendChain(message.ImageBytes(sendimg)); id.ID() == 0 {
+				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
+			}
 		})
 }
