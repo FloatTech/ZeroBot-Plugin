@@ -244,7 +244,7 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
 			return
 		}
-		m.sort(true)
+		m.sort(false)
 		var allUsers []drawUserRanking
 		for _, info := range m {
 			allUsers = append(allUsers, drawUserRanking{
