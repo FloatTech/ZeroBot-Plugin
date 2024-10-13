@@ -28,12 +28,12 @@ func init() {
 	getImg := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("imgdata.json", true)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		err = json.Unmarshal(data, &cardImgPathList)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return false
 		}
 		return true

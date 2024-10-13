@@ -86,6 +86,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/drawlots"         // 多功能抽签
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/driftbottle"      // 漂流瓶
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emojimix"         // 合成emoji
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/emozi"            // 颜文字抽象转写
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/event"            // 好友申请群聊邀请事件处理
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/font"             // 渲染任意文字到图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/fortune"          // 运势
@@ -135,7 +136,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tiangou"          // 舔狗日记
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/tracemoe"         // 搜番
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/translation"      // 翻译
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/vitsnyaru"        // vits猫雷
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wallet"           // 钱包
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wantquotes"       // 据意查句
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/warframeapi"      // warframeAPI插件
