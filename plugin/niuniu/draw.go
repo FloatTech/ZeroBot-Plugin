@@ -2,20 +2,23 @@ package niuniu
 
 import (
 	"fmt"
+	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/rendercard"
+	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/img/text"
 	"image"
 	"net/http"
-	"os"
 )
-
-var font, _ = os.ReadFile("./font/GlowSans.otf")
 
 type drawUserRanking struct {
 	Name string
 	User *userInfo
 }
 
-func drawRanking(allUsers []drawUserRanking, t bool) (img image.Image, err error) {
+type drawer []drawUserRanking
+
+func (allUsers drawer) drawRanking(t bool) (img image.Image, err error) {
+	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
 	var (
 		title string
 		s     string
@@ -26,8 +29,8 @@ func drawRanking(allUsers []drawUserRanking, t bool) (img image.Image, err error
 		title = "牛牛长度排行"
 		s = "牛牛长度"
 	}
-	var ri []*rendercard.RankInfo
-	for _, user := range allUsers {
+	ri := make([]*rendercard.RankInfo, len(allUsers))
+	for i, user := range allUsers {
 		resp, err := http.Get(fmt.Sprintf("https://q1.qlogo.cn/g?b=qq&nk=%d&s=100", user.User.UID))
 		if err != nil {
 			return nil, err
@@ -36,13 +39,14 @@ func drawRanking(allUsers []drawUserRanking, t bool) (img image.Image, err error
 		if err != nil {
 			return nil, err
 		}
-		ri = append(ri, &rendercard.RankInfo{
+		_ = resp.Close
+		ri[i] = &rendercard.RankInfo{
 			Avatar:         decode,
 			TopLeftText:    user.Name,
 			BottomLeftText: fmt.Sprintf("QQ:%d", user.User.UID),
 			RightText:      fmt.Sprintf("%s:%.2fcm", s, user.User.Length),
-		})
+		}
 	}
-	img, err = rendercard.DrawRankingCard(font, title, ri)
+	img, err = rendercard.DrawRankingCard(fontbyte, title, ri)
 	return
 }
