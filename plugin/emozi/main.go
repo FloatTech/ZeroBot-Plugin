@@ -1,3 +1,4 @@
+// Package emozi 颜文字抽象转写
 package emozi
 
 import (
