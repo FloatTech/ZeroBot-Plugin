@@ -1,3 +1,4 @@
+// Package emozi 颜文字抽象转写
 package emozi
 
 import (
@@ -23,6 +24,7 @@ func init() {
 	})
 	usr := emozi.Anonymous()
 	data, err := os.ReadFile(en.DataFolder() + "user.txt")
+	hasaccount := false
 	if err == nil {
 		arr := strings.Split(string(data), "\n")
 		if len(arr) >= 2 {
@@ -33,6 +35,7 @@ func init() {
 				usr = emozi.Anonymous()
 			} else {
 				logrus.Infoln("[emozi]", "以", usr, "身份登录成功")
+				hasaccount = true
 			}
 		}
 	}
@@ -41,8 +44,16 @@ func init() {
 		txt := strings.TrimSpace(ctx.State["args"].(string))
 		out, chs, err := usr.Marshal(false, txt)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
+			if hasaccount {
+				err = usr.Login()
+				if err == nil {
+					out, chs, err = usr.Marshal(false, txt)
+				}
+			}
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 		}
 		if len(chs) == 0 {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(out)))
@@ -72,6 +83,18 @@ func init() {
 		txt := strings.TrimSpace(ctx.State["args"].(string))
 		out, err := usr.Unmarshal(false, txt)
 		if err != nil {
+			if hasaccount {
+				err = usr.Login()
+				if err == nil {
+					out, err = usr.Unmarshal(false, txt)
+				}
+			}
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+		}
+		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -91,6 +114,8 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		usr = newusr
+		hasaccount = true
 		ctx.SendChain(message.Text("成功"))
 	})
 }

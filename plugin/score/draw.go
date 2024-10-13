@@ -286,7 +286,6 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 	if err != nil {
 		return
 	}
-
 	back, err := gg.LoadImage(a.picfile)
 	if err != nil {
 		return
@@ -295,30 +294,27 @@ func drawScore17b2(a *scdata) (img image.Image, err error) {
 	bx, by := float64(back.Bounds().Dx()), float64(back.Bounds().Dy())
 
 	sc := 1280 / bx
-
-	colors := gg.TakeColor(back, 3)
+	var colors []color.RGBA
 
 	canvas := gg.NewContext(1280, 1280*int(by)/int(bx))
-
 	cw, ch := float64(canvas.W()), float64(canvas.H())
 
 	sch := ch * 6 / 10
 
 	var blurback, scbackimg, backshadowimg, avatarimg, avatarbackimg, avatarshadowimg, whitetext, blacktext image.Image
-	var wg sync.WaitGroup
-	wg.Add(8)
+	wg := &sync.WaitGroup{}
+	wg.Add(7)
+	scback := gg.NewContext(canvas.W(), canvas.H())
 
+	scback.ScaleAbout(sc, sc, cw/2, ch/2)
+	scback.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
+	scback.Identity()
+
+	colors = gg.TakeColor(scback.Image(), 3)
 	go func() {
 		defer wg.Done()
-		scback := gg.NewContext(canvas.W(), canvas.H())
-		scback.ScaleAbout(sc, sc, cw/2, ch/2)
-		scback.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
-		scback.Identity()
 
-		go func() {
-			defer wg.Done()
-			blurback = imaging.Blur(scback.Image(), 20)
-		}()
+		blurback = imaging.Blur(scback.Image(), 20)
 
 		scbackimg = rendercard.Fillet(scback.Image(), 12)
 	}()
