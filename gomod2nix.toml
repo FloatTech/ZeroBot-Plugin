@@ -5,8 +5,8 @@ schema = 3
     version = "v1.1.1"
     hash = "sha256-hKshA0K92bKuK92mmtM0osVmqLJcSbeobeWSDpQoRCo="
   [mod."github.com/FloatTech/AnimeAPI"]
-    version = "v1.7.1-0.20241013084507-e77badd1b165"
-    hash = "sha256-+WHFb5oCByB8WFntS+2Lw1g3Tc9wXtXjBCavZJfN1w0="
+    version = "v1.7.1-0.20241014155835-b54f37cd7256"
+    hash = "sha256-t7oHl8vjP//rNsHP+8zABx5aSHqIRWmL3+CT3AnNfPE="
   [mod."github.com/FloatTech/floatbox"]
     version = "v0.0.0-20240505082030-226ec6713e14"
     hash = "sha256-v296D9T1QzFmcHQJNxJvx7sMtK+Jd1TUHXWqZtIvvf4="
