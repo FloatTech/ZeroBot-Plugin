@@ -11,16 +11,16 @@ import (
 )
 
 type drawUserRanking struct {
-	Name string
+	name string
 	User *userInfo
 }
 
 type drawer []drawUserRanking
 
-func (allUsers drawer) drawRanking(t bool) (img image.Image, err error) {
+func (allUsers drawer) draw(t bool) (img image.Image, err error) {
 	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	var (
 		title string
@@ -45,7 +45,7 @@ func (allUsers drawer) drawRanking(t bool) (img image.Image, err error) {
 		_ = resp.Body.Close()
 		ri[i] = &rendercard.RankInfo{
 			Avatar:         decode,
-			TopLeftText:    user.Name,
+			TopLeftText:    user.name,
 			BottomLeftText: fmt.Sprintf("QQ:%d", user.User.UID),
 			RightText:      fmt.Sprintf("%s:%.2fcm", s, user.User.Length),
 		}
