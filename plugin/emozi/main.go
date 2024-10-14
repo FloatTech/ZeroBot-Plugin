@@ -27,17 +27,19 @@ func init() {
 	usr := emozi.Anonymous()
 	data, err := os.ReadFile(en.DataFolder() + "user.txt")
 	refresh := func() {
-		t := time.NewTicker(time.Hour)
-		defer t.Stop()
-		for range t.C {
-			if !usr.IsValid() {
-				time.Sleep(time.Second * 2)
-				err := usr.Login()
-				if err != nil {
-					logrus.Warnln("[emozi] 重新登录账号失败:", err)
+		go func() {
+			t := time.NewTicker(time.Hour)
+			defer t.Stop()
+			for range t.C {
+				if !usr.IsValid() {
+					time.Sleep(time.Second * 2)
+					err := usr.Login()
+					if err != nil {
+						logrus.Warnln("[emozi] 重新登录账号失败:", err)
+					}
 				}
 			}
-		}
+		}()
 	}
 	refresher := sync.Once{}
 	if err == nil {
