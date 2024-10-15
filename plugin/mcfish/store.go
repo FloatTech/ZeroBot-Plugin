@@ -194,13 +194,6 @@ func init() {
 			}
 		}
 
-		// 更新交易鱼类数量
-		if checkIsFish(thingName) {
-			err := dbdata.updateCanSalesFishFor(uid, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
-			}
-		}
 		records, err := dbdata.getUserThingInfo(uid, "唱片")
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at store.go.9.1]:", err))
@@ -321,6 +314,14 @@ func init() {
 				logrus.Warnln(err)
 			}
 		}
+		// 更新交易鱼类数量
+		if checkIsFish(thingName) {
+			err := dbdata.updateCanSalesFishFor(uid, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
+			}
+		}
+
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("成功出售", thingName, "：", number, "个", ",你赚到了", pice*number, msg)))
 	})
 	engine.OnRegex(`^出售所有垃圾`, getdb, refreshFish).SetBlock(true).Limit(limitSet).Handle(func(ctx *zero.Ctx) {
@@ -532,13 +533,6 @@ func init() {
 			}
 		}
 
-		// 更新交易鱼类数量
-		if checkIsFish(thingName) {
-			err := dbdata.updateCanSalesFishFor(uid, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR,更新鱼类交易数量失败，此次交易不记录]:", err))
-			}
-		}
 		thing := thingInfos[index]
 		if thing.Number < number {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("商店数量不足")))
@@ -654,6 +648,13 @@ func init() {
 			err = dbdata.updateCurseFor(uid, "buy", 1)
 			if err != nil {
 				logrus.Warnln(err)
+			}
+		}
+		// 更新交易鱼类数量
+		if checkIsFish(thingName) {
+			err := dbdata.updateCanSalesFishFor(uid, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR,更新鱼类交易数量失败，此次交易不记录]:", err))
 			}
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你用", price, "购买了", number, thingName)))

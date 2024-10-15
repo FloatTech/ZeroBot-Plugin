@@ -791,6 +791,7 @@ func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 		userInfo.Duration = time.Now().Unix()
 		userInfo.SalesPole = 0
 		userInfo.BuyTing = 0
+		userInfo.SalesFish = 0
 	}
 	if sales && userInfo.SalesPole < 5 {
 		residue = 5 - userInfo.SalesPole
@@ -825,6 +826,9 @@ func (sql *fishdb) selectCanSalesFishFor(uid int64, sales int) int {
 	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
 		userInfo.Duration = time.Now().Unix()
+		// 在 checkCanSalesFor 也有更新buff时间，TODO：重构 *CanSalesFishFor 俩个函数
+		userInfo.SalesPole = 0
+		userInfo.BuyTing = 0
 		userInfo.SalesFish = 0
 		err := sql.db.Insert("buff", &userInfo)
 		if err != nil {
