@@ -2,8 +2,9 @@
 package niuniu
 
 import (
+	"bytes"
 	"fmt"
-	"math/rand"
+	"image/png"
 	"strconv"
 	"strings"
 	"time"
@@ -38,7 +39,7 @@ var (
 			"- jj@xxx\n" +
 			"- 使用[道具名称]jj@xxx\n" +
 			"- 注册牛牛\n" +
-			"- 赎牛牛(cd:45分钟)\n" +
+			"- 赎牛牛(cd:60分钟)\n" +
 			"- 牛牛商店\n" +
 			"- 牛牛背包\n" +
 			"- 注销牛牛\n" +
@@ -158,14 +159,14 @@ func init() {
 			return
 		}
 
-		if time.Since(last.TimeLimit) > time.Minute*45 {
+		if time.Since(last.TimeLimit) > time.Minute*60 {
 			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
 			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 
-		if last.Count < 6 {
-			ctx.SendChain(message.Text("你还没有被厥够6次呢,不能赎牛牛"))
+		if last.Count < 4 {
+			ctx.SendChain(message.Text("你还没有被厥够4次呢,不能赎牛牛"))
 			return
 		}
 
@@ -208,16 +209,27 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有男孩子哦"))
 			return
 		}
-		var messages strings.Builder
-		messages.WriteString("牛子长度排行榜\n")
-		for i, user := range m.sort(true) {
-			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
-				ctx.CardOrNickName(user.UID), user.Length))
+		m.sort(true)
+		allUsers := make(drawer, len(m))
+		for i, info := range m {
+			allUsers[i] = drawUserRanking{
+				name: ctx.CardOrNickName(info.UID),
+				User: info,
+			}
 		}
-		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
-		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
-			ctx.Send(message.Text("发送排行失败"))
+		ranking, err := allUsers.draw(true)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, ranking)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(buf.Bytes()))
+
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -231,16 +243,26 @@ func init() {
 			ctx.SendChain(message.Text("暂时没有女孩子哦"))
 			return
 		}
-		var messages strings.Builder
-		messages.WriteString("牛牛深度排行榜\n")
-		for i, user := range m.sort(false) {
-			messages.WriteString(fmt.Sprintf("第%d名  id:%s  长度:%.2fcm\n", i+1,
-				ctx.CardOrNickName(user.UID), user.Length))
+		m.sort(false)
+		allUsers := make(drawer, len(m))
+		for i, info := range m {
+			allUsers[i] = drawUserRanking{
+				name: ctx.CardOrNickName(info.UID),
+				User: info,
+			}
 		}
-		msg := ctxext.FakeSenderForwardNode(ctx, message.Text(&messages))
-		if id := ctx.Send(message.Message{msg}).ID(); id == 0 {
-			ctx.Send(message.Text("发送排行失败"))
+		ranking, err := allUsers.draw(false)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, ranking)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		ctx.SendChain(message.ImageBytes(buf.Bytes()))
 	})
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
@@ -411,7 +433,7 @@ func init() {
 				Count:     count.Count + 1,
 				Length:    count.Length,
 			}
-			if time.Since(c.TimeLimit) > time.Minute*45 {
+			if time.Since(c.TimeLimit) > time.Minute*60 {
 				c = lastLength{
 					TimeLimit: time.Now(),
 					Count:     1,
@@ -421,11 +443,11 @@ func init() {
 		}
 
 		jjCount.Store(j, &c)
-		if c.Count > 5 {
+		if c.Count > 2 {
 			ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
 				"你们不要再找ta🤺啦！"})))
 			// 保证只发送一次
-			if c.Count < 7 {
+			if c.Count < 4 {
 				id := ctx.SendPrivateMessage(adduser,
 					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
 				if id == 0 {
@@ -449,36 +471,4 @@ func init() {
 		}
 		ctx.SendChain(message.Text("注销成功,你已经没有牛牛了"))
 	})
-}
-
-func randomChoice(options []string) string {
-	return options[rand.Intn(len(options))]
-}
-
-func updateMap(t string, d bool) {
-	value, ok := prop.Load(t)
-	if value == nil {
-		return
-	}
-	// 检查一次是否已经过期
-	if !d {
-		if time.Since(value.TimeLimit) > time.Minute*8 {
-			prop.Delete(t)
-		}
-		return
-	}
-	if ok {
-		prop.Store(t, &propsCount{
-			Count:     value.Count + 1,
-			TimeLimit: value.TimeLimit,
-		})
-	} else {
-		prop.Store(t, &propsCount{
-			Count:     1,
-			TimeLimit: time.Now(),
-		})
-	}
-	if time.Since(value.TimeLimit) > time.Minute*8 {
-		prop.Delete(t)
-	}
 }

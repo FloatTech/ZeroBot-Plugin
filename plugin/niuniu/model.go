@@ -295,7 +295,7 @@ func (m users) negative() users {
 	return m1
 }
 
-func (m users) sort(isDesc bool) users {
+func (m users) sort(isDesc bool) {
 	t := func(i, j int) bool {
 		return m[i].Length < m[j].Length
 	}
@@ -305,12 +305,11 @@ func (m users) sort(isDesc bool) users {
 		}
 	}
 	sort.Slice(m, t)
-	return m
 }
 
 func (m users) ranking(niuniu float64, uid int64) int {
-	result := niuniu > 0
-	for i, user := range m.sort(result) {
+	m.sort(niuniu > 0)
+	for i, user := range m {
 		if user.UID == uid {
 			return i + 1
 		}
