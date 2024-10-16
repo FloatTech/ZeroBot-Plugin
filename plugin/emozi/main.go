@@ -5,6 +5,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/FloatTech/AnimeAPI/emozi"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -24,18 +26,33 @@ func init() {
 	})
 	usr := emozi.Anonymous()
 	data, err := os.ReadFile(en.DataFolder() + "user.txt")
-	hasaccount := false
+	refresh := func() {
+		go func() {
+			t := time.NewTicker(time.Hour)
+			defer t.Stop()
+			for range t.C {
+				if !usr.IsValid() {
+					time.Sleep(time.Second * 2)
+					err := usr.Login()
+					if err != nil {
+						logrus.Warnln("[emozi] 重新登录账号失败:", err)
+					}
+				}
+			}
+		}()
+	}
+	refresher := sync.Once{}
 	if err == nil {
 		arr := strings.Split(string(data), "\n")
 		if len(arr) >= 2 {
 			usr = emozi.NewUser(arr[0], arr[1])
 			err = usr.Login()
 			if err != nil {
-				logrus.Infoln("[emozi]", "以", usr, "身份登录失败:", err)
+				logrus.Infoln("[emozi]", "以", arr[0], "身份登录失败:", err)
 				usr = emozi.Anonymous()
 			} else {
-				logrus.Infoln("[emozi]", "以", usr, "身份登录成功")
-				hasaccount = true
+				logrus.Infoln("[emozi]", "以", arr[0], "身份登录成功")
+				refresher.Do(refresh)
 			}
 		}
 	}
@@ -44,16 +61,8 @@ func init() {
 		txt := strings.TrimSpace(ctx.State["args"].(string))
 		out, chs, err := usr.Marshal(false, txt)
 		if err != nil {
-			if hasaccount {
-				err = usr.Login()
-				if err == nil {
-					out, chs, err = usr.Marshal(false, txt)
-				}
-			}
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
 		}
 		if len(chs) == 0 {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(out)))
@@ -83,18 +92,6 @@ func init() {
 		txt := strings.TrimSpace(ctx.State["args"].(string))
 		out, err := usr.Unmarshal(false, txt)
 		if err != nil {
-			if hasaccount {
-				err = usr.Login()
-				if err == nil {
-					out, err = usr.Unmarshal(false, txt)
-				}
-			}
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		}
-		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -115,7 +112,7 @@ func init() {
 			return
 		}
 		usr = newusr
-		hasaccount = true
+		refresher.Do(refresh)
 		ctx.SendChain(message.Text("成功"))
 	})
 }

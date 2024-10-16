@@ -148,18 +148,18 @@ func init() {
 				imgname = name
 			}
 			imgpath := cache + "/" + imgname + ".png"
-			err := pool.SendImageFromPool("pool"+imgname, imgpath, func() error {
+			err := pool.SendImageFromPool(imgpath, func(pth string) error {
 				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
 				if err != nil {
 					return err
 				}
-				f, err := os.Create(imgpath)
+				f, err := os.Create(pth)
 				if err != nil {
 					return err
 				}
 				defer f.Close()
 				return os.WriteFile(f.Name(), data, 0755)
-			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+			}, ctxext.Send(ctx))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -190,9 +190,9 @@ func init() {
 			var imgmsg message.MessageSegment
 			var err error
 			if p == 1 {
-				imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
+				imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
 			} else {
-				imgmsg, err = poolimg(ctx, imgurl, name, cache)
+				imgmsg, err = poolimg(imgurl, name, cache)
 			}
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -213,7 +213,7 @@ func init() {
 		if ok {
 			imgurl := bed + info.ImgURL
 			var tarotmsg message.Message
-			imgmsg, err := poolimg(ctx, imgurl, match, cache)
+			imgmsg, err := poolimg(imgurl, match, cache)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -284,9 +284,9 @@ func init() {
 				var imgmsg message.MessageSegment
 				var err error
 				if p == 1 {
-					imgmsg, err = poolimg(ctx, imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
+					imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
 				} else {
-					imgmsg, err = poolimg(ctx, imgurl, name, cache)
+					imgmsg, err = poolimg(imgurl, name, cache)
 				}
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
@@ -319,17 +319,9 @@ func init() {
 	})
 }
 
-func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
+func poolimg(imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
 	imgfile := cache + "/" + imgname + ".png"
 	aimgfile := file.BOTPATH + "/" + imgfile
-	m, err := pool.GetImage("pool" + imgname)
-	if err == nil {
-		msg = message.Image(m.String())
-		if ctxext.SendToSelf(ctx)(msg) == 0 {
-			msg = msg.Add("cache", "0")
-		}
-		return
-	}
 	if file.IsNotExist(aimgfile) {
 		var data []byte
 		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
@@ -347,8 +339,6 @@ func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageS
 			return
 		}
 	}
-	m.SetFile(aimgfile)
-	_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
 	msg = message.Image("file:///" + aimgfile)
 	return
 }

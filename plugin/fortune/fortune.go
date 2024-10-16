@@ -146,7 +146,7 @@ func init() {
 			digest := md5.Sum(helper.StringToBytes(zipfile + strconv.Itoa(index) + title + text))
 			cachefile := cache + hex.EncodeToString(digest[:])
 
-			err = pool.SendImageFromPool(cachefile, cachefile, func() error {
+			err = pool.SendImageFromPool(cachefile, func(cachefile string) error {
 				f, err := os.Create(cachefile)
 				if err != nil {
 					return err
@@ -154,7 +154,7 @@ func init() {
 				_, err = draw(background, fontdata, title, text, f)
 				_ = f.Close()
 				return err
-			}, ctxext.Send(ctx), ctxext.GetMessage(ctx))
+			}, ctxext.Send(ctx))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

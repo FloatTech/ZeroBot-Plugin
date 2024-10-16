@@ -593,8 +593,8 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			thingInfo := store{}
 			_ = sql.db.Find("store", &thingInfo, "where Name = '"+name+"'")
 			if thingInfo.Number > 150 {
-				// 通货膨胀
-				thing.Discount = (1000 - 5*(thingInfo.Number-150)) / 10
+				// 商品贬值,价格区间 -50%到0%
+				thing.Discount = 50 + rand.Intn(50)
 			}
 			err = sql.db.Insert("stroeDiscount", &thing)
 			if err != nil {
@@ -791,6 +791,7 @@ func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 		userInfo.Duration = time.Now().Unix()
 		userInfo.SalesPole = 0
 		userInfo.BuyTing = 0
+		userInfo.SalesFish = 0
 	}
 	if sales && userInfo.SalesPole < 5 {
 		residue = 5 - userInfo.SalesPole
@@ -825,7 +826,14 @@ func (sql *fishdb) selectCanSalesFishFor(uid int64, sales int) int {
 	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
 		userInfo.Duration = time.Now().Unix()
+		// 在 checkCanSalesFor 也有更新buff时间，TODO：重构 *CanSalesFishFor 俩个函数
+		userInfo.SalesPole = 0
+		userInfo.BuyTing = 0
 		userInfo.SalesFish = 0
+		err := sql.db.Insert("buff", &userInfo)
+		if err != nil {
+			return residue
+		}
 	}
 	maxSales := 100 - userInfo.SalesFish
 	if maxSales < 0 {
