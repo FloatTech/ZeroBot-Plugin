@@ -39,10 +39,10 @@ func (allUsers drawer) draw(t bool) (img image.Image, err error) {
 			return nil, err
 		}
 		decode, _, err := image.Decode(resp.Body)
+		_ = resp.Body.Close()
 		if err != nil {
 			return nil, err
 		}
-		_ = resp.Body.Close()
 		ri[i] = &rendercard.RankInfo{
 			Avatar:         decode,
 			TopLeftText:    user.name,
