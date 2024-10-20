@@ -12,7 +12,7 @@ import (
 
 type drawUserRanking struct {
 	name string
-	User *userInfo
+	user *userInfo
 }
 
 type drawer []drawUserRanking
@@ -34,7 +34,7 @@ func (allUsers drawer) draw(t bool) (img image.Image, err error) {
 	}
 	ri := make([]*rendercard.RankInfo, len(allUsers))
 	for i, user := range allUsers {
-		resp, err := http.Get(fmt.Sprintf("https://q1.qlogo.cn/g?b=qq&nk=%d&s=100", user.User.UID))
+		resp, err := http.Get(fmt.Sprintf("https://q1.qlogo.cn/g?b=qq&nk=%d&s=100", user.user.UID))
 		if err != nil {
 			return nil, err
 		}
@@ -46,8 +46,8 @@ func (allUsers drawer) draw(t bool) (img image.Image, err error) {
 		ri[i] = &rendercard.RankInfo{
 			Avatar:         decode,
 			TopLeftText:    user.name,
-			BottomLeftText: fmt.Sprintf("QQ:%d", user.User.UID),
-			RightText:      fmt.Sprintf("%s:%.2fcm", s, user.User.Length),
+			BottomLeftText: fmt.Sprintf("QQ:%d", user.user.UID),
+			RightText:      fmt.Sprintf("%s:%.2fcm", s, user.user.Length),
 		}
 	}
 	img, err = rendercard.DrawRankingCard(fontbyte, title, ri)

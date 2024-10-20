@@ -2,8 +2,10 @@
 package niuniu
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"image/png"
 	"math"
 	"math/rand"
 	"sort"
@@ -273,6 +275,23 @@ func (u *userInfo) purchaseItem(n int) (int, error) {
 		err = errors.New("无效的选择")
 	}
 	return money, err
+}
+
+func (m users) setupDrawList(ctx *zero.Ctx, t bool) ([]byte, error) {
+	allUsers := make(drawer, len(m))
+	for i, info := range m {
+		allUsers[i] = drawUserRanking{
+			name: ctx.CardOrNickName(info.UID),
+			user: info,
+		}
+	}
+	image, err := allUsers.draw(t)
+	if err != nil {
+		return nil, err
+	}
+	var buf bytes.Buffer
+	err = png.Encode(&buf, image)
+	return buf.Bytes(), err
 }
 
 func (m users) positive() users {

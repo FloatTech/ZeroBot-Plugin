@@ -2,9 +2,7 @@
 package niuniu
 
 import (
-	"bytes"
 	"fmt"
-	"image/png"
 	"strconv"
 	"strings"
 	"time"
@@ -210,25 +208,12 @@ func init() {
 			return
 		}
 		m.sort(true)
-		allUsers := make(drawer, len(m))
-		for i, info := range m {
-			allUsers[i] = drawUserRanking{
-				name: ctx.CardOrNickName(info.UID),
-				User: info,
-			}
-		}
-		ranking, err := allUsers.draw(true)
+		buf, err := m.setupDrawList(ctx, true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var buf bytes.Buffer
-		err = png.Encode(&buf, ranking)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		ctx.SendChain(message.ImageBytes(buf.Bytes()))
+		ctx.SendChain(message.ImageBytes(buf))
 
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -244,25 +229,13 @@ func init() {
 			return
 		}
 		m.sort(false)
-		allUsers := make(drawer, len(m))
-		for i, info := range m {
-			allUsers[i] = drawUserRanking{
-				name: ctx.CardOrNickName(info.UID),
-				User: info,
-			}
-		}
-		ranking, err := allUsers.draw(false)
+		buf, err := m.setupDrawList(ctx, false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		var buf bytes.Buffer
-		err = png.Encode(&buf, ranking)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		ctx.SendChain(message.ImageBytes(buf.Bytes()))
+
+		ctx.SendChain(message.ImageBytes(buf))
 	})
 	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
