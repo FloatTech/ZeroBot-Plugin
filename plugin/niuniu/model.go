@@ -24,7 +24,7 @@ type model struct {
 	sync.RWMutex
 }
 
-type userInfo struct {
+type UserInfo struct {
 	UID       int64
 	Length    float64
 	UserCount int
@@ -39,7 +39,7 @@ type userInfo struct {
 	Buff5     int // 暂定
 }
 
-type users []*userInfo
+type users []*UserInfo
 
 var (
 	db    = &model{}
@@ -54,8 +54,19 @@ var (
 	})
 )
 
+// GetNiuNiuInfo ...
+func GetNiuNiuInfo(gid, uid int64) (*UserInfo, error) {
+	niu, err := db.findNiuNiu(gid, uid)
+	return &niu, err
+}
+
+// InsertNiuNiuInfo ...
+func InsertNiuNiuInfo(u *UserInfo, gid int64) error {
+	return db.insertNiuNiu(u, gid)
+}
+
 // useWeiGe 使用道具伟哥
-func (u *userInfo) useWeiGe() (string, float64) {
+func (u *UserInfo) useWeiGe() (string, float64) {
 	niuniu := u.Length
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu += reduce
@@ -67,7 +78,7 @@ func (u *userInfo) useWeiGe() (string, float64) {
 }
 
 // usePhilter 使用道具媚药
-func (u *userInfo) usePhilter() (string, float64) {
+func (u *UserInfo) usePhilter() (string, float64) {
 	niuniu := u.Length
 	reduce := math.Abs(hitGlue(niuniu))
 	niuniu -= reduce
@@ -79,7 +90,7 @@ func (u *userInfo) usePhilter() (string, float64) {
 }
 
 // useArtifact 使用道具击剑神器
-func (u *userInfo) useArtifact(adduserniuniu float64) (string, float64, float64) {
+func (u *UserInfo) useArtifact(adduserniuniu float64) (string, float64, float64) {
 	myLength := u.Length
 	difference := myLength - adduserniuniu
 	var (
@@ -101,7 +112,7 @@ func (u *userInfo) useArtifact(adduserniuniu float64) (string, float64, float64)
 }
 
 // useShenJi 使用道具击剑神稽
-func (u *userInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
+func (u *UserInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
 	myLength := u.Length
 	difference := myLength - adduserniuniu
 	var (
@@ -132,10 +143,10 @@ func (u *userInfo) useShenJi(adduserniuniu float64) (string, float64, float64) {
 	return r, myLength, adduserniuniu + 0.7*change
 }
 
-func (u *userInfo) processNiuNiuAction(t string, props string) (string, error) {
+func (u *UserInfo) processNiuNiuAction(t string, props string) (string, error) {
 	var (
 		messages string
-		info     userInfo
+		info     UserInfo
 		err      error
 		f        float64
 	)
@@ -173,7 +184,7 @@ func (u *userInfo) processNiuNiuAction(t string, props string) (string, error) {
 	return messages, err
 }
 
-func (u *userInfo) createUserInfoByProps(props string) error {
+func (u *UserInfo) createUserInfoByProps(props string) error {
 	var (
 		err error
 	)
@@ -210,12 +221,12 @@ func (u *userInfo) createUserInfoByProps(props string) error {
 
 // 接收值依次是 被jj用户的信息 记录gid和uid的字符串 道具名称
 // 返回值依次是 要发送的消息 错误信息
-func (u *userInfo) processJJuAction(adduserniuniu *userInfo, t string, props string) (string, error) {
+func (u *UserInfo) processJJuAction(adduserniuniu *UserInfo, t string, props string) (string, error) {
 	var (
 		fencingResult string
 		f             float64
 		f1            float64
-		info          userInfo
+		info          UserInfo
 		err           error
 	)
 	v, ok := prop.Load(t)
@@ -253,7 +264,7 @@ func (u *userInfo) processJJuAction(adduserniuniu *userInfo, t string, props str
 	return fencingResult, err
 }
 
-func (u *userInfo) purchaseItem(n int) (int, error) {
+func (u *UserInfo) purchaseItem(n int) (int, error) {
 	var (
 		money int
 		err   error
@@ -295,7 +306,7 @@ func (m users) setupDrawList(ctx *zero.Ctx, t bool) ([]byte, error) {
 }
 
 func (m users) positive() users {
-	var m1 []*userInfo
+	var m1 []*UserInfo
 	for _, i2 := range m {
 		if i2.Length > 0 {
 			m1 = append(m1, i2)
@@ -305,7 +316,7 @@ func (m users) positive() users {
 }
 
 func (m users) negative() users {
-	var m1 []*userInfo
+	var m1 []*UserInfo
 	for _, i2 := range m {
 		if i2.Length <= 0 {
 			m1 = append(m1, i2)
@@ -343,20 +354,20 @@ func (db *model) randLength() float64 {
 func (db *model) createGIDTable(gid int64) error {
 	db.Lock()
 	defer db.Unlock()
-	return db.sql.Create(strconv.FormatInt(gid, 10), &userInfo{})
+	return db.sql.Create(strconv.FormatInt(gid, 10), &UserInfo{})
 }
 
 // findNiuNiu 返回一个用户的牛牛信息
-func (db *model) findNiuNiu(gid, uid int64) (userInfo, error) {
+func (db *model) findNiuNiu(gid, uid int64) (UserInfo, error) {
 	db.RLock()
 	defer db.RUnlock()
-	u := userInfo{}
+	u := UserInfo{}
 	err := db.sql.Find(strconv.FormatInt(gid, 10), &u, "where UID = "+strconv.FormatInt(uid, 10))
 	return u, err
 }
 
 // insertNiuNiu 更新一个用户的牛牛信息
-func (db *model) insertNiuNiu(u *userInfo, gid int64) error {
+func (db *model) insertNiuNiu(u *UserInfo, gid int64) error {
 	db.Lock()
 	defer db.Unlock()
 	return db.sql.Insert(strconv.FormatInt(gid, 10), u)
@@ -371,6 +382,6 @@ func (db *model) deleteniuniu(gid, uid int64) error {
 func (db *model) readAllTable(gid int64) (users, error) {
 	db.Lock()
 	defer db.Unlock()
-	a, err := sql.FindAll[userInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 0")
+	a, err := sql.FindAll[UserInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 0")
 	return a, err
 }

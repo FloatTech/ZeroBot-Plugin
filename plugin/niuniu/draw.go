@@ -13,7 +13,7 @@ import (
 
 type drawUserRanking struct {
 	name string
-	user *userInfo
+	user *UserInfo
 }
 
 type drawer []drawUserRanking

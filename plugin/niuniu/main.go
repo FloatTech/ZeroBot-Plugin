@@ -311,7 +311,7 @@ func init() {
 		}
 		// 获取初始长度
 		length := db.randLength()
-		u := userInfo{
+		u := UserInfo{
 			UID:    uid,
 			Length: length,
 		}
