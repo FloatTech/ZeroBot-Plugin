@@ -2,12 +2,13 @@ package niuniu
 
 import (
 	"fmt"
+	"image"
+	"net/http"
+
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/rendercard"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
-	"image"
-	"net/http"
 )
 
 type drawUserRanking struct {

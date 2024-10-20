@@ -214,7 +214,6 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.ImageBytes(buf))
-
 	})
 	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
