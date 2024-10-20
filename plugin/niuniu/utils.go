@@ -6,12 +6,55 @@ import (
 	"math"
 	"math/rand"
 	"strings"
+	"time"
 )
 
 var (
 	jjProp     = []string{"击剑神器", "击剑神稽"}
 	dajiaoProp = []string{"伟哥", "媚药"}
 )
+
+// 检查字符串是否在切片中
+func contains(s string, array []string) bool {
+	for _, item := range array {
+		if strings.EqualFold(item, s) {
+			return true
+		}
+	}
+	return false
+}
+
+func randomChoice(options []string) string {
+	return options[rand.Intn(len(options))]
+}
+
+func updateMap(t string, d bool) {
+	value, ok := prop.Load(t)
+	if value == nil {
+		return
+	}
+	// 检查一次是否已经过期
+	if !d {
+		if time.Since(value.TimeLimit) > time.Minute*8 {
+			prop.Delete(t)
+		}
+		return
+	}
+	if ok {
+		prop.Store(t, &propsCount{
+			Count:     value.Count + 1,
+			TimeLimit: value.TimeLimit,
+		})
+	} else {
+		prop.Store(t, &propsCount{
+			Count:     1,
+			TimeLimit: time.Now(),
+		})
+	}
+	if time.Since(value.TimeLimit) > time.Minute*8 {
+		prop.Delete(t)
+	}
+}
 
 func generateRandomStingTwo(niuniu float64) (string, float64) {
 	probability := rand.Intn(100 + 1)
@@ -204,14 +247,4 @@ func hitGlue(l float64) float64 {
 	default:
 		return rand.Float64()
 	}
-}
-
-// 检查字符串是否在切片中
-func contains(s string, array []string) bool {
-	for _, item := range array {
-		if strings.EqualFold(item, s) {
-			return true
-		}
-	}
-	return false
 }
