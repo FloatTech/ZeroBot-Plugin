@@ -1267,6 +1267,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 今日老婆[@xxx]
 
   - [x] 黄油角色[@xxx]
+  
+  - [x] 娘化穿越到异世界[@xxx]
 
 </details>
 <details>
