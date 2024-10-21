@@ -289,10 +289,10 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
-
 		messages, err := niuniu.processNiuNiuAction(t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
+			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
@@ -375,6 +375,7 @@ func init() {
 		fencingResult, err := myniuniu.processJJuAction(&adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
+			jjLimiter.Delete(t)
 			return
 		}
 
