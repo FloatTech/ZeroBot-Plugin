@@ -482,30 +482,29 @@ func init() {
 		}
 		t := fmt.Sprintf("%d_%d", gid, uid)
 		value, ok := countDeleteNiuNiu.Load(t)
-		if ok {
-			if time.Since(value.TimeLimit) < 24*time.Hour {
-				money := getMoneyForNumber(value.Count)
-				walletOf := wallet.GetWalletOf(uid)
-				if !(walletOf > money) {
-					ctx.SendChain(message.Text(fmt.Sprintf("你今天已经注销了%d次了,此次注销需要%d个ATRI币,没钱就等待明天重置吧", value.Count+1, money)))
-					return
-				}
-				if err = wallet.InsertWalletOf(uid, -money); err != nil {
-					ctx.SendChain(message.Text("ERROR:", err))
-					return
-				}
-				countDeleteNiuNiu.Store(t, &propsCount{
-					Count: value.Count + 1,
-				})
-			} else {
-				countDeleteNiuNiu.Delete(t)
-			}
-		} else {
+		if !ok {
 			countDeleteNiuNiu.Store(t, &propsCount{
 				Count:     1,
 				TimeLimit: time.Now(),
 			})
 			value = &propsCount{}
+		}
+		if value.TimeLimit.IsZero() && time.Since(value.TimeLimit) < 24*time.Hour {
+			money := getMoneyForNumber(value.Count)
+			walletOf := wallet.GetWalletOf(uid)
+			if walletOf < money {
+				ctx.SendChain(message.Text(fmt.Sprintf("你今天已经注销了%d次了,此次注销需要%d个ATRI币,没钱就等待明天重置吧", value.Count+1, money)))
+				return
+			}
+			if err = wallet.InsertWalletOf(uid, -money); err != nil {
+				ctx.SendChain(message.Text("ERROR:", err))
+				return
+			}
+			countDeleteNiuNiu.Store(t, &propsCount{
+				Count: value.Count + 1,
+			})
+		} else {
+			countDeleteNiuNiu.Delete(t)
 		}
 		err = db.deleteniuniu(gid, uid)
 		if err != nil {
