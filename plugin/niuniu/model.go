@@ -142,8 +142,14 @@ func (u *userInfo) processNiuNiuAction(t string, props string) (string, error) {
 	load, ok := prop.Load(t)
 	info = *u
 	if props != "" {
-		if contains(t, dajiaoProp) {
-			return "", errors.New("道具不存在")
+		if props != "伟哥" && props != "媚药" {
+			err = errors.New("道具不存在")
+		}
+		if props == "击剑神器" || props == "击剑神稽" {
+			err = errors.New("道具不能混着用哦")
+		}
+		if err != nil {
+			return "", err
 		}
 		if err = u.createUserInfoByProps(props); err != nil {
 			return "", err
@@ -221,8 +227,11 @@ func (u *userInfo) processJJuAction(adduserniuniu *userInfo, t string, props str
 	v, ok := prop.Load(t)
 	info = *u
 	if props != "" {
-		if contains(t, jjProp) {
-			return "", errors.New("道具不存在")
+		if props != "击剑神器" && props != "击剑神稽" {
+			err = errors.New("道具不存在")
+		}
+		if props == "伟哥" || props == "媚药" {
+			err = errors.New("道具不能混着用哦")
 		}
 		if err = u.createUserInfoByProps(props); err != nil {
 			return "", err
@@ -347,12 +356,12 @@ func (db *model) createGIDTable(gid int64) error {
 }
 
 // findNiuNiu 返回一个用户的牛牛信息
-func (db *model) findNiuNiu(gid, uid int64) (userInfo, error) {
+func (db *model) findNiuNiu(gid, uid int64) (*userInfo, error) {
 	db.RLock()
 	defer db.RUnlock()
 	u := userInfo{}
 	err := db.sql.Find(strconv.FormatInt(gid, 10), &u, "where UID = "+strconv.FormatInt(uid, 10))
-	return u, err
+	return &u, err
 }
 
 // insertNiuNiu 更新一个用户的牛牛信息

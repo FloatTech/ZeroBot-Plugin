@@ -5,24 +5,8 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"strings"
 	"time"
 )
-
-var (
-	jjProp     = []string{"击剑神器", "击剑神稽"}
-	dajiaoProp = []string{"伟哥", "媚药"}
-)
-
-// 检查字符串是否在切片中
-func contains(s string, array []string) bool {
-	for _, item := range array {
-		if strings.EqualFold(item, s) {
-			return true
-		}
-	}
-	return false
-}
 
 func randomChoice(options []string) string {
 	return options[rand.Intn(len(options))]
@@ -54,6 +38,46 @@ func updateMap(t string, d bool) {
 	if time.Since(value.TimeLimit) > time.Minute*8 {
 		prop.Delete(t)
 	}
+}
+
+func getMoneyForNumber(n int) (money int) {
+	switch n {
+	case 1:
+		money = 5
+	case 2:
+		money = 10
+	default:
+		money = n * 10
+	}
+	return
+}
+
+func niuNiuProfit(niuniu float64) (money int, message string) {
+	switch {
+	case 0 < niuniu && niuniu <= 15:
+		message = randomChoice([]string{
+			"你的牛牛太小啦",
+			"这么小的牛牛就要肩负起这么大的责任吗？快去打胶吧！",
+		})
+	case niuniu > 15:
+		money = int(niuniu * 10)
+		message = randomChoice([]string{
+			fmt.Sprintf("你的牛牛已经离你而去了,你赚取了%d个ATRI币", money),
+			fmt.Sprintf("啊！你的牛☞已经没啦🤣,为了这点钱就出卖你的牛牛可真不值,你赚取了%d个ATRI币", money),
+		})
+	case niuniu <= 0 && niuniu >= -15:
+		message = randomChoice([]string{
+			"你的牛牛太小啦",
+			"这么小的牛牛就要肩负起这么大的责任吗？快去找别人玩吧！",
+		})
+	case niuniu < -15:
+		money = int(math.Abs(niuniu * 10))
+		message = randomChoice([]string{
+			fmt.Sprintf("此世做了女孩子来世来当男孩子(bushi),你赚取了%d个ATRI币", money),
+			fmt.Sprintf("呜呜呜,不哭不哭当女孩子不委屈的,你赚取了%d个ATRI币", money),
+		})
+	}
+	return
 }
 
 func generateRandomStingTwo(niuniu float64) (string, float64) {

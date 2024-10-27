@@ -38,6 +38,7 @@ var (
 			"- 使用[道具名称]jj@xxx\n" +
 			"- 注册牛牛\n" +
 			"- 赎牛牛(cd:60分钟)\n" +
+			"- 出售牛牛\n" +
 			"- 牛牛商店\n" +
 			"- 牛牛背包\n" +
 			"- 注销牛牛\n" +
@@ -46,13 +47,36 @@ var (
 			"- 牛子深度排行\n",
 		PrivateDataFolder: "niuniu",
 	})
-	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
-	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
-	jjCount       = syncx.Map[string, *lastLength]{}
-	prop          = syncx.Map[string, *propsCount]{}
+	dajiaoLimiter     = rate.NewManager[string](time.Second*90, 1)
+	jjLimiter         = rate.NewManager[string](time.Second*150, 1)
+	jjCount           = syncx.Map[string, *lastLength]{}
+	prop              = syncx.Map[string, *propsCount]{}
+	countDeleteNiuNiu = syncx.Map[string, *propsCount]{} // 结构一样所以用同一个结构体
 )
 
 func init() {
+	en.OnFullMatch("出售牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		info, err := db.findNiuNiu(gid, uid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+
+		money, msg := niuNiuProfit(info.Length)
+		if money == 0 {
+			ctx.SendChain(message.Text(msg))
+			return
+		}
+
+		if err = wallet.InsertWalletOf(uid, money); err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+
+		ctx.SendChain(message.Text(msg))
+	})
 	en.OnFullMatch("牛牛背包", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
@@ -137,7 +161,7 @@ func init() {
 					return
 				}
 
-				if err = db.insertNiuNiu(&info, gid); err != nil {
+				if err = db.insertNiuNiu(info, gid); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
@@ -167,33 +191,52 @@ func init() {
 			ctx.SendChain(message.Text("你还没有被厥够4次呢,不能赎牛牛"))
 			return
 		}
+		ctx.SendChain(message.Text("再次确认一下哦,这次赎牛牛，牛牛长度将会变成", last.Length, "cm\n还需要嘛【是|否】"))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(是|否)$`)).Repeat()
+		defer cancel()
+		timer := time.NewTimer(2 * time.Minute)
+		defer timer.Stop()
+		for {
+			select {
+			case <-timer.C:
+				ctx.SendChain(message.Text("操作超时，已自动取消"))
+				return
+			case c := <-recv:
+				answer := c.Event.Message.String()
+				if answer == "否" {
+					ctx.SendChain(message.Text("取消成功!"))
+					return
+				}
+				money := wallet.GetWalletOf(uid)
+				if money < 150 {
+					ctx.SendChain(message.Text("赎牛牛需要150ATRI币，快去赚钱吧，目前仅有:", money, "个ATRI币"))
+					return
+				}
 
-		money := wallet.GetWalletOf(uid)
-		if money < 150 {
-			ctx.SendChain(message.Text("赎牛牛需要150ATRI币，快去赚钱吧"))
-			return
+				if err := wallet.InsertWalletOf(uid, -150); err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+
+				niuniu, err := db.findNiuNiu(gid, uid)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+
+				niuniu.Length = last.Length
+
+				if err = db.insertNiuNiu(niuniu, gid); err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
+
+				jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
+
+				ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
+				return
+			}
 		}
-
-		if err := wallet.InsertWalletOf(uid, -150); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		niuniu, err := db.findNiuNiu(gid, uid)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		niuniu.Length = last.Length
-
-		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
-		ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
 	})
 	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
@@ -289,13 +332,14 @@ func init() {
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
+
 		messages, err := niuniu.processNiuNiuAction(t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
 			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
-		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
+		if err = db.insertNiuNiu(niuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -372,19 +416,18 @@ func init() {
 			jjLimiter.Delete(t)
 			return
 		}
-		fencingResult, err := myniuniu.processJJuAction(&adduserniuniu, t, fiancee[1])
+		fencingResult, err := myniuniu.processJJuAction(adduserniuniu, t, fiancee[1])
 		if err != nil {
 			ctx.SendChain(message.Text(err))
-			jjLimiter.Delete(t)
 			return
 		}
 
-		if err = db.insertNiuNiu(&myniuniu, gid); err != nil {
+		if err = db.insertNiuNiu(myniuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
-		if err = db.insertNiuNiu(&adduserniuniu, gid); err != nil {
+		if err = db.insertNiuNiu(adduserniuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -437,11 +480,38 @@ func init() {
 			ctx.SendChain(message.Text("你还没有牛牛呢，咋的你想凭空造一个啊"))
 			return
 		}
+		t := fmt.Sprintf("%d_%d", gid, uid)
+		value, ok := countDeleteNiuNiu.Load(t)
+		if ok {
+			if time.Since(value.TimeLimit) < 24*time.Hour {
+				money := getMoneyForNumber(value.Count)
+				walletOf := wallet.GetWalletOf(uid)
+				if !(walletOf > money) {
+					ctx.SendChain(message.Text(fmt.Sprintf("你今天已经注销了%d次了,此次注销需要%d个ATRI币,没钱就等待明天重置吧", value.Count+1, money)))
+					return
+				}
+				if err = wallet.InsertWalletOf(uid, -money); err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				countDeleteNiuNiu.Store(t, &propsCount{
+					Count: value.Count + 1,
+				})
+			} else {
+				countDeleteNiuNiu.Delete(t)
+			}
+		} else {
+			countDeleteNiuNiu.Store(t, &propsCount{
+				Count:     1,
+				TimeLimit: time.Now(),
+			})
+			value = &propsCount{}
+		}
 		err = db.deleteniuniu(gid, uid)
 		if err != nil {
 			ctx.SendChain(message.Text("注销失败"))
 			return
 		}
-		ctx.SendChain(message.Text("注销成功,你已经没有牛牛了"))
+		ctx.SendChain(message.Text("这是你今天第", value.Count+1, "次注销,注销成功,你已经没有牛牛了"))
 	})
 }
