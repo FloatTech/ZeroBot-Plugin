@@ -148,6 +148,10 @@ func init() {
 				}
 				choicetext = "\n今天你的群老公是"
 			}
+			favor, err = 民政局.更新好感度(uid, fiancee, 1+rand.Intn(5))
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR]:", err))
+			}
 			// 请大家吃席
 			ctx.SendChain(
 				message.Text(sendtext[0][rand.Intn(len(sendtext[0]))]),
@@ -158,6 +162,7 @@ func init() {
 					"\n",
 					"[", ctx.CardOrNickName(fiancee), "]",
 					"(", fiancee, ")哒",
+					"(", fiancee, ")哒\n当前你们好感度为", favor,
 				),
 			)
 		})
