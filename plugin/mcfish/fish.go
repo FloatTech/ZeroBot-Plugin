@@ -267,8 +267,8 @@ func init() {
 					thingName = "金竿"
 				case dice >= probabilities["钻石竿"].Min && dice < probabilities["钻石竿"].Max:
 					thingName = "钻石竿"
-				case dice >= probabilities["下界合金竿竿竿"].Min && dice < probabilities["下界合金竿竿竿"].Max:
-					thingName = "下界合金竿竿竿"
+				case dice >= probabilities["下界合金竿"].Min && dice < probabilities["下界合金竿"].Max:
+					thingName = "下界合金竿"
 				default:
 					thingName = "木竿"
 				}
