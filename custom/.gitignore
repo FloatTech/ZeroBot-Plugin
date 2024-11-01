@@ -1,0 +1,4 @@
+!.gitignore
+!doc.go
+!plugin
+*
