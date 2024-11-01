@@ -11,8 +11,8 @@ github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef h1:CJbK/2FR
 github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef/go.mod h1:el5hGpj1C1bDRxcTXYRwEivDCr40zZeJpcrLrB1fajs=
 github.com/FloatTech/rendercard v0.2.0 h1:PBTZ2gCEy/dAEGSfWecrGTrWDYpiBJD1dVzNDDaOxh4=
 github.com/FloatTech/rendercard v0.2.0/go.mod h1:Sbojcy1t3NfFz7/WicZRmR/uKFxNMYkKF8qHx69dxY0=
-github.com/FloatTech/sqlite v1.6.3 h1:MQkqBNlkPuCoKQQgoNLuTL/2Ci3tBTFAnVYBdD0Wy4M=
-github.com/FloatTech/sqlite v1.6.3/go.mod h1:zFbHzRfB+CJ+VidfjuVbrcin3DAz283F7hF1hIeHzpY=
+github.com/FloatTech/sqlite v1.7.0 h1:FGSn4pCR12kESozn7IvNx3U39dwR/AcFM9oPyGACsl0=
+github.com/FloatTech/sqlite v1.7.0/go.mod h1:/4tzfCGhrZnnjC1U8vcfwGQeF6eR649fhOsS3+Le0+s=
 github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562 h1:snfw7FNFym1eNnLrQ/VCf80LiQo9C7jHgrunZDwiRcY=
 github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.6.2-0.20240904160347-1317e11a15bb h1:sGqwCiMDyUD/znWEVVRVxbd6Kg1KLgGnnIuq5bCUWaQ=
