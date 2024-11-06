@@ -388,7 +388,7 @@ func sendLive(ctx *zero.Ctx) error {
 				if lCover == "" {
 					lCover = value.Get("keyframe").String()
 				}
-				var msg []message.MessageSegment
+				var msg []message.Segment
 				msg = append(msg, message.Text(lName+" 正在直播：\n"))
 				msg = append(msg, message.Text(lTitle))
 				msg = append(msg, message.Image(lCover))
@@ -399,7 +399,7 @@ func sendLive(ctx *zero.Ctx) error {
 						switch {
 						case gid > 0:
 							if res := bdb.getAtAll(gid); res == 1 {
-								msg = append([]message.MessageSegment{message.AtAll()}, msg...)
+								msg = append([]message.Segment{message.AtAll()}, msg...)
 							}
 							ctx.SendGroupMessage(gid, msg)
 						case gid < 0:

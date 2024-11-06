@@ -187,7 +187,7 @@ func init() {
 			}
 			imgurl := bed + reverse[p] + card.ImgURL
 			tarotmsg := message.Message{message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n")}
-			var imgmsg message.MessageSegment
+			var imgmsg message.Segment
 			var err error
 			if p == 1 {
 				imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
@@ -281,7 +281,7 @@ func init() {
 				}
 				var tarotmsg message.Message
 				imgurl := bed + reverse[p] + card.ImgURL
-				var imgmsg message.MessageSegment
+				var imgmsg message.Segment
 				var err error
 				if p == 1 {
 					imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
@@ -319,7 +319,7 @@ func init() {
 	})
 }
 
-func poolimg(imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
+func poolimg(imgurl, imgname, cache string) (msg message.Segment, err error) {
 	imgfile := cache + "/" + imgname + ".png"
 	aimgfile := file.BOTPATH + "/" + imgfile
 	if file.IsNotExist(aimgfile) {

@@ -31,8 +31,8 @@ const (
 )
 
 type keydb struct {
-	db *sql.Sqlite
 	sync.RWMutex
+	db sql.Sqlite
 }
 
 // db内容
@@ -48,15 +48,11 @@ type apikey struct {
 }
 
 var (
-	name     = "椛椛"
-	limit    int
-	vilginfo = &keydb{
-		db: &sql.Sqlite{},
-	}
-	modelinfo = &keydb{
-		db: &sql.Sqlite{},
-	}
-	dtype = [...]string{
+	name      = "椛椛"
+	limit     int
+	vilginfo  keydb
+	modelinfo keydb
+	dtype     = [...]string{
 		"古风", "油画", "水彩画", "卡通画", "二次元", "浮世绘", "蒸汽波艺术", "low poly", "像素风格", "概念艺术", "未来主义", "赛博朋克", "写实风格", "洛丽塔风格", "巴洛克风格", "超现实主义",
 	}
 )
@@ -99,7 +95,7 @@ func init() { // 插件主体
 		}),
 	))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		vilginfo.db.DBPath = engine.DataFolder() + "ernieVilg.db"
+		vilginfo.db = sql.New(engine.DataFolder() + "ernieVilg.db")
 		err := vilginfo.db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text(serviceErr, err))
@@ -301,7 +297,7 @@ func init() { // 插件主体
 		}),
 	))
 	getmodeldb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		modelinfo.db.DBPath = engine.DataFolder() + "ernieModel.db"
+		modelinfo.db = sql.New(engine.DataFolder() + "ernieModel.db")
 		err := modelinfo.db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text(modelErr, err))
@@ -521,10 +517,10 @@ func (sql *keydb) insert(gid int64, model, akey, skey string) error {
 	}
 	// 获取group信息
 	groupinfo := apikey{} // 用于暂存数据
-	err = sql.db.Find("groupinfo", &groupinfo, "where ID is "+strconv.FormatInt(gid, 10))
+	err = sql.db.Find("groupinfo", &groupinfo, "WHERE ID = ?", gid)
 	if err != nil {
 		// 如果该group没有注册过
-		err = sql.db.Find("groupinfo", &groupinfo, "where APIKey is '"+akey+"' and SecretKey is '"+skey+"'")
+		err = sql.db.Find("groupinfo", &groupinfo, "WHERE APIKey = ? and SecretKey = ?", akey, skey)
 		if err == nil {
 			// 如果key存在过将当前的数据迁移过去
 			groupinfo.ID = gid
@@ -575,7 +571,7 @@ func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err err
 		model = "文心"
 	}
 	// 先判断该群是否已经设置过key了
-	if ok := sql.db.CanFind("groupinfo", "where ID is "+strconv.FormatInt(gid, 10)); !ok {
+	if ok := sql.db.CanFind("groupinfo", "WHERE ID = ?", gid); !ok {
 		if gid > 0 {
 			err = errors.New("该群没有设置过apikey，请前往https://wenxin.baidu.com/moduleApi/key获取key值后，发送指令:\n为本群设置" + model + "key [API Key] [Secret Key]\n或\n为自己设置" + model + "key [API Key] [Secret Key]")
 		} else {
@@ -584,7 +580,7 @@ func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err err
 		return
 	}
 	// 获取group信息
-	err = sql.db.Find("groupinfo", &groupinfo, "where ID is "+strconv.FormatInt(gid, 10))
+	err = sql.db.Find("groupinfo", &groupinfo, "WHERE ID = ?", gid)
 	if err != nil {
 		return
 	}
@@ -608,19 +604,16 @@ func (sql *keydb) checkGroup(gid int64, model string) (groupinfo apikey, err err
 		err = sql.db.Insert("groupinfo", &groupinfo)
 		if err == nil {
 			// 更新相同key的他人次数
-			condition := "where not ID is " + strconv.FormatInt(gid, 10) +
-				" and APIKey = '" + groupinfo.APIKey +
-				"' and SecretKey = '" + groupinfo.SecretKey + "'"
 			otherinfo := apikey{}
 			var groups []int64 // 将相同的key的ID暂存
 			// 无视没有找到相同的key的err
-			_ = sql.db.FindFor("groupinfo", &otherinfo, condition, func() error {
+			_ = sql.db.FindFor("groupinfo", &otherinfo, "WHERE ID <> ? AND APIKey = ? AND SecretKey = ?", func() error {
 				groups = append(groups, otherinfo.ID)
 				return nil
-			})
+			}, gid, groupinfo.APIKey, groupinfo.SecretKey)
 			if len(groups) != 0 { // 如果有相同的key就更新
 				for _, group := range groups {
-					err = sql.db.Find("groupinfo", &otherinfo, "where ID is "+strconv.FormatInt(group, 10))
+					err = sql.db.Find("groupinfo", &otherinfo, "WHERE ID = ?", group)
 					if err == nil {
 						otherinfo.Token = groupinfo.Token
 						otherinfo.Updatetime = groupinfo.Updatetime
@@ -644,7 +637,7 @@ func (sql *keydb) update(gid int64, sub int) error {
 	}
 	groupinfo := apikey{} // 用于暂存数据
 	// 获取group信息
-	err = sql.db.Find("groupinfo", &groupinfo, "where ID is "+strconv.FormatInt(gid, 10))
+	err = sql.db.Find("groupinfo", &groupinfo, "WHERE ID = ?", gid)
 	if err != nil {
 		return err
 	}
@@ -655,19 +648,16 @@ func (sql *keydb) update(gid int64, sub int) error {
 		return err
 	}
 	// 更新相同key的他人次数
-	condition := "where not ID is " + strconv.FormatInt(gid, 10) +
-		" and APIKey = '" + groupinfo.APIKey +
-		"' and SecretKey = '" + groupinfo.SecretKey + "'"
 	otherinfo := apikey{}
 	var groups []int64 // 将相同的key的ID暂存
 	// 无视没有找到相同的key的err
-	_ = sql.db.FindFor("groupinfo", &otherinfo, condition, func() error {
+	_ = sql.db.FindFor("groupinfo", &otherinfo, "WHERE ID <> ? AND APIKey = ? AND SecretKey = ?", func() error {
 		groups = append(groups, otherinfo.ID)
 		return nil
-	})
+	}, gid, groupinfo.APIKey, groupinfo.SecretKey)
 	if len(groups) != 0 { // 如果有相同的key就更新
 		for _, group := range groups {
-			err = sql.db.Find("groupinfo", &otherinfo, "where ID is "+strconv.FormatInt(group, 10))
+			err = sql.db.Find("groupinfo", &otherinfo, "WHERE ID = ?", group)
 			if err == nil {
 				otherinfo.MaxLimit = groupinfo.MaxLimit
 				otherinfo.DayLimit = groupinfo.DayLimit

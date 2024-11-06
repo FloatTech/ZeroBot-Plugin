@@ -25,13 +25,13 @@ var (
 )
 
 // dynamicCard2msg 处理DynCard
-func dynamicCard2msg(dynamicCard *bz.DynamicCard) (msg []message.MessageSegment, err error) {
+func dynamicCard2msg(dynamicCard *bz.DynamicCard) (msg []message.Segment, err error) {
 	var (
 		card  bz.Card
 		vote  bz.Vote
 		cType int
 	)
-	msg = make([]message.MessageSegment, 0, 16)
+	msg = make([]message.Segment, 0, 16)
 	// 初始化结构体
 	err = json.Unmarshal(binary.StringToBytes(dynamicCard.Card), &card)
 	if err != nil {
@@ -50,7 +50,7 @@ func dynamicCard2msg(dynamicCard *bz.DynamicCard) (msg []message.MessageSegment,
 		msg = append(msg, message.Text(card.User.Uname, msgType[cType], "\n",
 			card.Item.Content, "\n",
 			"转发的内容: \n"))
-		var originMsg []message.MessageSegment
+		var originMsg []message.Segment
 		var co bz.Card
 		co, err = bz.LoadCardDetail(card.Origin)
 		if err != nil {
@@ -146,18 +146,18 @@ func dynamicCard2msg(dynamicCard *bz.DynamicCard) (msg []message.MessageSegment,
 }
 
 // card2msg cType=1, 2, 4, 8, 16, 64, 256, 2048, 4200, 4308时,处理Card字符串,cType为card类型
-func card2msg(dynamicCard *bz.DynamicCard, card *bz.Card, cType int) (msg []message.MessageSegment, err error) {
+func card2msg(dynamicCard *bz.DynamicCard, card *bz.Card, cType int) (msg []message.Segment, err error) {
 	var (
 		vote bz.Vote
 	)
-	msg = make([]message.MessageSegment, 0, 16)
+	msg = make([]message.Segment, 0, 16)
 	// 生成消息
 	switch cType {
 	case 1:
 		msg = append(msg, message.Text(card.User.Uname, msgType[cType], "\n",
 			card.Item.Content, "\n",
 			"转发的内容: \n"))
-		var originMsg []message.MessageSegment
+		var originMsg []message.Segment
 		var co bz.Card
 		co, err = bz.LoadCardDetail(card.Origin)
 		if err != nil {
@@ -253,7 +253,7 @@ func card2msg(dynamicCard *bz.DynamicCard, card *bz.Card, cType int) (msg []mess
 }
 
 // dynamicDetail 用动态id查动态信息
-func dynamicDetail(cookiecfg *bz.CookieConfig, dynamicIDStr string) (msg []message.MessageSegment, err error) {
+func dynamicDetail(cookiecfg *bz.CookieConfig, dynamicIDStr string) (msg []message.Segment, err error) {
 	dyc, err := bz.GetDynamicDetail(cookiecfg, dynamicIDStr)
 	if err != nil {
 		return
@@ -262,8 +262,8 @@ func dynamicDetail(cookiecfg *bz.CookieConfig, dynamicIDStr string) (msg []messa
 }
 
 // articleCard2msg 专栏转消息
-func articleCard2msg(card bz.Card, defaultID string) (msg []message.MessageSegment) {
-	msg = make([]message.MessageSegment, 0, 16)
+func articleCard2msg(card bz.Card, defaultID string) (msg []message.Segment) {
+	msg = make([]message.Segment, 0, 16)
 	for i := 0; i < len(card.OriginImageUrls); i++ {
 		msg = append(msg, message.Image(card.OriginImageUrls[i]))
 	}
@@ -274,8 +274,8 @@ func articleCard2msg(card bz.Card, defaultID string) (msg []message.MessageSegme
 }
 
 // liveCard2msg 直播卡片转消息
-func liveCard2msg(card bz.RoomCard) (msg []message.MessageSegment) {
-	msg = make([]message.MessageSegment, 0, 16)
+func liveCard2msg(card bz.RoomCard) (msg []message.Segment) {
+	msg = make([]message.Segment, 0, 16)
 	msg = append(msg, message.Image(card.RoomInfo.Keyframe))
 	msg = append(msg, message.Text("\n", card.RoomInfo.Title, "\n",
 		"主播: ", card.AnchorInfo.BaseInfo.Uname, "\n",
@@ -302,9 +302,9 @@ func liveCard2msg(card bz.RoomCard) (msg []message.MessageSegment) {
 }
 
 // videoCard2msg 视频卡片转消息
-func videoCard2msg(card bz.Card) (msg []message.MessageSegment, err error) {
+func videoCard2msg(card bz.Card) (msg []message.Segment, err error) {
 	var mCard bz.MemberCard
-	msg = make([]message.MessageSegment, 0, 16)
+	msg = make([]message.Segment, 0, 16)
 	mCard, err = bz.GetMemberCard(card.Owner.Mid)
 	if err != nil {
 		return

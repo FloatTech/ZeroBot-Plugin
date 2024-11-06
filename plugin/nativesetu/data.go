@@ -24,15 +24,15 @@ type setuclass struct {
 	Path  string `db:"path"`  // Path 图片路径
 }
 
-var ns = &nsetu{db: &sql.Sqlite{}}
+var ns nsetu
 
 type nsetu struct {
-	db *sql.Sqlite
+	db sql.Sqlite
 	mu sync.RWMutex
 }
 
 func (n *nsetu) List() (l []string) {
-	if file.IsExist(n.db.DBPath) {
+	if file.IsExist(dbpath) {
 		var err error
 		l, err = n.db.ListTables()
 		if err != nil {
@@ -46,7 +46,7 @@ func (n *nsetu) scanall(path string) error {
 	model := &setuclass{}
 	root := os.DirFS(path)
 	_ = n.db.Close()
-	_ = os.Remove(n.db.DBPath)
+	_ = os.Remove(dbpath)
 	err := n.db.Open(time.Hour)
 	if err != nil {
 		return err

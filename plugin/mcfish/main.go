@@ -20,8 +20,8 @@ import (
 )
 
 type fishdb struct {
-	db *sql.Sqlite
 	sync.RWMutex
+	db sql.Sqlite
 }
 
 // FishLimit 钓鱼次数上限
@@ -121,9 +121,7 @@ var (
 	durationList  = make(map[string]int, 50)              // 装备耐久分布
 	discountList  = make(map[string]int, 50)              // 价格波动信息
 	enchantLevel  = []string{"0", "Ⅰ", "Ⅱ", "Ⅲ"}
-	dbdata        = &fishdb{
-		db: &sql.Sqlite{},
-	}
+	dbdata        fishdb
 )
 
 var (
@@ -153,7 +151,7 @@ var (
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		dbdata.db.DBPath = engine.DataFolder() + "fishdata.db"
+		dbdata.db = sql.New(engine.DataFolder() + "fishdata.db")
 		err := dbdata.db.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("[ERROR at main.go.1]:", err))
@@ -245,7 +243,7 @@ func (sql *fishdb) updateFishInfo(uid int64, number int) (residue int, err error
 	if err != nil {
 		return 0, err
 	}
-	_ = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
 	if time.Unix(userInfo.Duration, 0).Day() != time.Now().Day() {
 		userInfo.Fish = 0
 		userInfo.Duration = time.Now().Unix()
@@ -278,7 +276,7 @@ func (sql *fishdb) updateCurseFor(uid int64, info string, number int) (err error
 	changeCheck := false
 	add := 0
 	buffName := "宝藏诅咒"
-	_ = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
 	if info == "fish" {
 		userInfo.Bless += number
 		for userInfo.Bless >= 75 {
@@ -306,7 +304,7 @@ func (sql *fishdb) updateCurseFor(uid int64, info string, number int) (err error
 			Name:     buffName,
 			Type:     "treasure",
 		}
-		_ = sql.db.Find(table, &thing, "where Name = '"+buffName+"'")
+		_ = sql.db.Find(table, &thing, "WHERE Name = ?", buffName)
 		thing.Number += add
 		return sql.db.Insert(table, &thing)
 	}
@@ -325,10 +323,10 @@ func (sql *fishdb) checkEquipFor(uid int64) (ok bool, err error) {
 	if err != nil {
 		return false, err
 	}
-	if !sql.db.CanFind("fishState", "where ID = "+strconv.FormatInt(uid, 10)) {
+	if !sql.db.CanFind("fishState", "WHERE ID = ?", uid) {
 		return true, nil
 	}
-	err = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	err = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
 	if err != nil {
 		return false, err
 	}
@@ -346,7 +344,7 @@ func (sql *fishdb) setEquipFor(uid int64) (err error) {
 	if err != nil {
 		return err
 	}
-	_ = sql.db.Find("fishState", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
 	if err != nil {
 		return err
 	}
@@ -362,10 +360,10 @@ func (sql *fishdb) getUserEquip(uid int64) (userInfo equip, err error) {
 	if err != nil {
 		return
 	}
-	if !sql.db.CanFind("equips", "where ID = "+strconv.FormatInt(uid, 10)) {
+	if !sql.db.CanFind("equips", "WHERE ID = ?", uid) {
 		return
 	}
-	err = sql.db.Find("equips", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	err = sql.db.Find("equips", &userInfo, "WHERE ID = ?", uid)
 	return
 }
 
@@ -378,7 +376,7 @@ func (sql *fishdb) updateUserEquip(userInfo equip) (err error) {
 		return
 	}
 	if userInfo.Durable == 0 {
-		return sql.db.Del("equips", "where ID = "+strconv.FormatInt(userInfo.ID, 10))
+		return sql.db.Del("equips", "WHERE ID = ?", userInfo.ID)
 	}
 	return sql.db.Insert("equips", &userInfo)
 }
@@ -400,13 +398,13 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 	if count == 0 {
 		return
 	}
-	if !sql.db.CanFind(name, "where Type is 'fish'") {
+	if !sql.db.CanFind(name, "WHERE Type = 'fish'") {
 		return
 	}
 	fishInfo := article{}
 	k := 0
 	for i := number * 2; i > 0 && k < len(fishList); {
-		_ = sql.db.Find(name, &fishInfo, "where Name is '"+fishList[k]+"'")
+		_ = sql.db.Find(name, &fishInfo, "WHERE Name = ?", fishList[k])
 		if fishInfo.Number <= 0 {
 			k++
 			continue
@@ -422,7 +420,7 @@ func (sql *fishdb) pickFishFor(uid int64, number int) (fishNames map[string]int,
 			i = 0
 		}
 		if fishInfo.Number <= 0 {
-			err = sql.db.Del(name, "where Duration = "+strconv.FormatInt(fishInfo.Duration, 10))
+			err = sql.db.Del(name, "WHERE Duration = ?", fishInfo.Duration)
 		} else {
 			err = sql.db.Insert(name, &fishInfo)
 		}
@@ -477,13 +475,13 @@ func (sql *fishdb) getUserThingInfo(uid int64, thing string) (thingInfos []artic
 	if count == 0 {
 		return
 	}
-	if !sql.db.CanFind(name, "where Name = '"+thing+"'") {
+	if !sql.db.CanFind(name, "WHERE Name = ?", thing) {
 		return
 	}
-	err = sql.db.FindFor(name, &userInfo, "where Name = '"+thing+"'", func() error {
+	err = sql.db.FindFor(name, &userInfo, "WHERE Name = ?", func() error {
 		thingInfos = append(thingInfos, userInfo)
 		return nil
-	})
+	}, thing)
 	return
 }
 
@@ -497,7 +495,7 @@ func (sql *fishdb) updateUserThingInfo(uid int64, userInfo article) (err error) 
 		return
 	}
 	if userInfo.Number == 0 {
-		return sql.db.Del(name, "where Duration = "+strconv.FormatInt(userInfo.Duration, 10))
+		return sql.db.Del(name, "WHERE Duration = ?", userInfo.Duration)
 	}
 	return sql.db.Insert(name, &userInfo)
 }
@@ -519,14 +517,14 @@ func (sql *fishdb) getNumberFor(uid int64, thing string) (number int, err error)
 	if count == 0 {
 		return
 	}
-	if !sql.db.CanFind(name, "where Name glob '*"+thing+"*'") {
+	if !sql.db.CanFind(name, "WHERE Name glob ?", "*"+thing+"*") {
 		return
 	}
 	info := article{}
-	err = sql.db.FindFor(name, &info, "where Name glob '*"+thing+"*'", func() error {
+	err = sql.db.FindFor(name, &info, "WHERE Name glob ?", func() error {
 		number += info.Number
 		return nil
-	})
+	}, "*"+thing+"*")
 	return
 }
 
@@ -540,13 +538,13 @@ func (sql *fishdb) getUserTypeInfo(uid int64, thingType string) (thingInfos []ar
 	if err != nil {
 		return
 	}
-	if !sql.db.CanFind(name, "where Type = '"+thingType+"'") {
+	if !sql.db.CanFind(name, "WHERE Type = ?", thingType) {
 		return
 	}
-	err = sql.db.FindFor(name, &userInfo, "where Type = '"+thingType+"'", func() error {
+	err = sql.db.FindFor(name, &userInfo, "WHERE Type = ?", func() error {
 		thingInfos = append(thingInfos, userInfo)
 		return nil
-	})
+	}, thingType)
 	return
 }
 
@@ -567,7 +565,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		return false, err
 	}
 	lastTime := storeDiscount{}
-	_ = sql.db.Find("stroeDiscount", &lastTime, "where Name = 'lastTime'")
+	_ = sql.db.Find("stroeDiscount", &lastTime, "WHERE Name = 'lastTime'")
 	refresh := false
 	timeNow := time.Now().Day()
 	if timeNow != lastTime.Discount {
@@ -591,7 +589,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 				Discount: thingDiscount,
 			}
 			thingInfo := store{}
-			_ = sql.db.Find("store", &thingInfo, "where Name = '"+name+"'")
+			_ = sql.db.Find("store", &thingInfo, "WHERE Name = ?", name)
 			if thingInfo.Number > 150 {
 				// 商品贬值,价格区间 -50%到0%
 				thing.Discount = 50 + rand.Intn(50)
@@ -601,7 +599,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 				return
 			}
 		default:
-			_ = sql.db.Find("stroeDiscount", &thing, "where Name = '"+name+"'")
+			_ = sql.db.Find("stroeDiscount", &thing, "WHERE Name = ?", name)
 		}
 		if thing.Discount != 0 {
 			discountList[name] = thing.Discount
@@ -611,14 +609,14 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 	}
 	thing := store{}
 	oldThing := []store{}
-	_ = sql.db.FindFor("stroeDiscount", &thing, "where type = 'pole'", func() error {
+	_ = sql.db.FindFor("stroeDiscount", &thing, "WHERE type = 'pole'", func() error {
 		if time.Since(time.Unix(thing.Duration, 0)) > 24 {
 			oldThing = append(oldThing, thing)
 		}
 		return nil
 	})
 	for _, info := range oldThing {
-		_ = sql.db.Del("stroeDiscount", "where Duration = "+strconv.FormatInt(info.Duration, 10))
+		_ = sql.db.Del("stroeDiscount", "WHERE Duration = ?", info.Duration)
 	}
 	if refresh {
 		// 每天调控1种鱼
@@ -629,7 +627,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			Type:     "fish",
 			Price:    priceList[fish] * discountList[fish] / 100,
 		}
-		_ = sql.db.Find("store", &thingInfo, "where Name = '"+fish+"'")
+		_ = sql.db.Find("store", &thingInfo, "WHERE Name = ?", fish)
 		thingInfo.Number += (100 - discountList[fish])
 		if thingInfo.Number < 1 {
 			thingInfo.Number = 100
@@ -642,7 +640,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			Type:     "article",
 			Price:    priceList["净化书"] * discountList["净化书"] / 100,
 		}
-		_ = sql.db.Find("store", &thingInfo, "where Name = '净化书'")
+		_ = sql.db.Find("store", &thingInfo, "WHERE Name = '净化书'")
 		thingInfo.Number = 20
 		_ = sql.db.Insert("store", &thingInfo)
 	}
@@ -688,13 +686,13 @@ func (sql *fishdb) getStoreThingInfo(thing string) (thingInfos []store, err erro
 	if count == 0 {
 		return
 	}
-	if !sql.db.CanFind("store", "where Name = '"+thing+"'") {
+	if !sql.db.CanFind("store", "WHERE Name = ?", thing) {
 		return
 	}
-	err = sql.db.FindFor("store", &thingInfo, "where Name = '"+thing+"'", func() error {
+	err = sql.db.FindFor("store", &thingInfo, "WHERE Name = ?", func() error {
 		thingInfos = append(thingInfos, thingInfo)
 		return nil
-	})
+	}, thing)
 	return
 }
 
@@ -713,10 +711,10 @@ func (sql *fishdb) checkStoreFor(thing store, number int) (ok bool, err error) {
 	if count == 0 {
 		return false, nil
 	}
-	if !sql.db.CanFind("store", "where Duration = "+strconv.FormatInt(thing.Duration, 10)) {
+	if !sql.db.CanFind("store", "WHERE Duration = ?", thing.Duration) {
 		return false, nil
 	}
-	err = sql.db.Find("store", &thing, "where Duration = "+strconv.FormatInt(thing.Duration, 10))
+	err = sql.db.Find("store", &thing, "WHERE Duration = ?", thing.Duration)
 	if err != nil {
 		return
 	}
@@ -735,7 +733,7 @@ func (sql *fishdb) updateStoreInfo(thingInfo store) (err error) {
 		return
 	}
 	if thingInfo.Number == 0 {
-		return sql.db.Del("store", "where Duration = "+strconv.FormatInt(thingInfo.Duration, 10))
+		return sql.db.Del("store", "WHERE Duration = ?", thingInfo.Duration)
 	}
 	return sql.db.Insert("store", &thingInfo)
 }
@@ -749,7 +747,7 @@ func (sql *fishdb) updateBuyTimeFor(uid int64, add int) (err error) {
 	if err != nil {
 		return err
 	}
-	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	userInfo.BuyTimes += add
 	if userInfo.BuyTimes > 20 {
 		userInfo.BuyTimes -= 20
@@ -768,7 +766,7 @@ func (sql *fishdb) useCouponAt(uid int64, times int) (int, error) {
 	if err != nil {
 		return useTimes, err
 	}
-	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	if userInfo.Coupon > 0 {
 		useTimes = math.Min(userInfo.Coupon, times)
 		userInfo.Coupon -= useTimes
@@ -786,7 +784,7 @@ func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 	if err != nil {
 		return residue, err
 	}
-	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
 		userInfo.Duration = time.Now().Unix()
 		userInfo.SalesPole = 0
@@ -823,7 +821,7 @@ func (sql *fishdb) selectCanSalesFishFor(uid int64, sales int) int {
 	if err != nil {
 		return residue
 	}
-	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
 		userInfo.Duration = time.Now().Unix()
 		// 在 checkCanSalesFor 也有更新buff时间，TODO：重构 *CanSalesFishFor 俩个函数
@@ -854,7 +852,7 @@ func (sql *fishdb) updateCanSalesFishFor(uid int64, sales int) error {
 	if err != nil {
 		return err
 	}
-	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
+	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	userInfo.SalesFish += sales
 	return sql.db.Insert("buff", &userInfo)
 }

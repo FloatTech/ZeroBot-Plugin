@@ -79,7 +79,7 @@ func match(ctx *zero.Ctx) bool {
 	return false
 }
 
-func face2emoji(face message.MessageSegment) rune {
+func face2emoji(face message.Segment) rune {
 	if face.Type == "text" {
 		r := []rune(face.Data["text"])
 		if len(r) != 1 {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
@@ -26,7 +27,7 @@ func init() { // 插件主体
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.DBPath = engine.DataFolder() + "item.db"
+		db = sql.New(engine.DataFolder() + "item.db")
 		_, err := engine.GetLazyData("item.db", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))

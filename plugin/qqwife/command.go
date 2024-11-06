@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -29,8 +28,8 @@ import (
 )
 
 type 婚姻登记 struct {
-	db *sql.Sqlite
 	sync.RWMutex
+	db sql.Sqlite
 }
 
 // 群设置
@@ -53,9 +52,7 @@ type userinfo struct {
 }
 
 var (
-	民政局 = &婚姻登记{
-		db: &sql.Sqlite{},
-	}
+	民政局    婚姻登记
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "一群一天一夫一妻制群老婆",
@@ -81,7 +78,7 @@ var (
 		}),
 	))
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		民政局.db.DBPath = engine.DataFolder() + "结婚登记表.db"
+		民政局.db = sql.New(engine.DataFolder() + "结婚登记表.db")
 		err := 民政局.db.Open(time.Hour)
 		if err == nil {
 			// 创建群配置表
@@ -281,7 +278,7 @@ func init() {
 					ctx.SendChain(message.Text("该功能只能在群组使用或者指定群组"))
 					return
 				}
-				err = 民政局.清理花名册("group" + strconv.FormatInt(ctx.Event.GroupID, 10))
+				err = 民政局.清理花名册(ctx.Event.GroupID)
 			default:
 				cmd := ctx.State["regex_matched"].([]string)[1]
 				gid, _ := strconv.ParseInt(cmd, 10, 64) // 判断是否为群号
@@ -289,7 +286,7 @@ func init() {
 					ctx.SendChain(message.Text("请输入正确的群号"))
 					return
 				}
-				err = 民政局.清理花名册("group" + cmd)
+				err = 民政局.清理花名册(gid)
 			}
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]:", err))
@@ -307,7 +304,7 @@ func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) 
 	if err != nil {
 		return
 	}
-	if !sql.db.CanFind("updateinfo", "where gid is "+strconv.FormatInt(gid, 10)) {
+	if !sql.db.CanFind("updateinfo", "WHERE gid = ?", gid) {
 		// 没有记录
 		return updateinfo{
 			GID:      gid,
@@ -316,7 +313,7 @@ func (sql *婚姻登记) 查看设置(gid int64) (dbinfo updateinfo, err error) 
 			CDtime:   12,
 		}, nil
 	}
-	_ = sql.db.Find("updateinfo", &dbinfo, "where gid is "+strconv.FormatInt(gid, 10))
+	_ = sql.db.Find("updateinfo", &dbinfo, "WHERE gid = ?", gid)
 	return
 }
 
@@ -334,7 +331,7 @@ func (sql *婚姻登记) 开门时间(gid int64) error {
 	sql.Lock()
 	defer sql.Unlock()
 	dbinfo := updateinfo{}
-	_ = sql.db.Find("updateinfo", &dbinfo, "where gid is "+strconv.FormatInt(gid, 10))
+	_ = sql.db.Find("updateinfo", &dbinfo, "WHERE gid = ?", gid)
 	if time.Now().Format("2006/01/02") != dbinfo.Updatetime {
 		// 如果跨天了就删除
 		_ = sql.db.Drop("group" + strconv.FormatInt(gid, 10))
@@ -355,10 +352,9 @@ func (sql *婚姻登记) 查户口(gid, uid int64) (info userinfo, err error) {
 	if err != nil {
 		return
 	}
-	uidstr := strconv.FormatInt(uid, 10)
-	err = sql.db.Find(gidstr, &info, "where user = "+uidstr)
+	err = sql.db.Find(gidstr, &info, "WHERE user = ?", uid)
 	if err != nil {
-		err = sql.db.Find(gidstr, &info, "where target = "+uidstr)
+		err = sql.db.Find(gidstr, &info, "WHERE target = ?", uid)
 	}
 	return
 }
@@ -423,7 +419,7 @@ func slicename(name string, canvas *gg.Context) (resultname string) {
 	return
 }
 
-func (sql *婚姻登记) 清理花名册(gid ...string) error {
+func (sql *婚姻登记) 清理花名册(gid ...int64) error {
 	sql.Lock()
 	defer sql.Unlock()
 	switch gid {
@@ -439,9 +435,9 @@ func (sql *婚姻登记) 清理花名册(gid ...string) error {
 		}
 		return err
 	default:
-		err := sql.db.Drop(gid[0])
+		err := sql.db.Drop("group" + strconv.FormatInt(gid[0], 10))
 		if err == nil {
-			_ = sql.db.Del("cdsheet", "where GroupID is "+strings.ReplaceAll(gid[0], "group", ""))
+			_ = sql.db.Del("cdsheet", "WHERE GroupID = ?", gid[0])
 		}
 		return err
 	}

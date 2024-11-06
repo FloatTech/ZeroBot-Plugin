@@ -246,11 +246,7 @@ func init() {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return
 			}
-			if err == nil {
-				ctx.SendChain(message.Text("成功！"))
-			} else {
-				ctx.SendChain(message.Text(serviceErr, err))
-			}
+			ctx.SendChain(message.Text("成功！"))
 		})
 	// 下载歌曲到对应的歌单里面
 	engine.OnRegex(`^下载歌单\s*((https:\/\/music\.163\.com\/#\/playlist\?id=)?(\d+)|http:\/\/music\.163\.com\/playlist\/(\d+).*[^\s$])\s*到\s*(.*)$`, zero.SuperUserPermission).SetBlock(true).Limit(ctxext.LimitByGroup).

@@ -17,14 +17,16 @@ type item struct {
 	Datetime time.Time `db:"datetime"`
 }
 
-var db = &sql.Sqlite{}
+var db sql.Sqlite
 
 func getRandomAudioByCategory(category string) (t item) {
-	_ = db.Find("item", &t, "where category = '"+category+"' ORDER BY RANDOM() limit 1")
+	_ = db.Find("item", &t, "WHERE category = ? ORDER BY RANDOM() limit 1", category)
 	return
 }
 
 func getRandomAudioByCategoryAndKeyword(category string, keyword string) (t item) {
-	_ = db.Find("item", &t, "where category = '"+category+"' and (title like '%"+keyword+"%' or content like '%"+keyword+"%') ORDER BY RANDOM() limit 1")
+	_ = db.Find("item", &t,
+		"WHERE category = ? and (title LIKE ? OR content LIKE ?) ORDER BY RANDOM() limit 1",
+		category, "%"+keyword+"%", "%"+keyword+"%")
 	return
 }

@@ -6,7 +6,7 @@ import (
 	sql "github.com/FloatTech/sqlite"
 )
 
-var db = &sql.Sqlite{}
+var db sql.Sqlite
 var mu sync.RWMutex
 
 type picture struct {

@@ -7,11 +7,11 @@ type book struct {
 	BookReview string `db:"bookreview"`
 }
 
-var db = &sql.Sqlite{}
+var db sql.Sqlite
 
 // 暂时随机选择一个书评
 func getBookReviewByKeyword(keyword string) (b book) {
-	_ = db.Find("bookreview", &b, "where bookreview LIKE '%"+keyword+"%'")
+	_ = db.Find("bookreview", &b, "WHERE bookreview LIKE ?", "%"+keyword+"%")
 	return
 }
 

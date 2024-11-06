@@ -49,7 +49,7 @@ func init() {
 }
 
 // migu 返回咪咕音乐卡片
-func migu(keyword string) message.MessageSegment {
+func migu(keyword string) message.Segment {
 	headers := http.Header{
 		"Cookie":     []string{"audioplayer_exist=1; audioplayer_open=0; migu_cn_cookie_id=3ad476db-f021-4bda-ab91-c485ac3d56a0; Hm_lvt_ec5a5474d9d871cb3d82b846d861979d=1671119573; Hm_lpvt_ec5a5474d9d871cb3d82b846d861979d=1671119573; WT_FPC=id=279ef92eaf314cbb8d01671116477485:lv=1671119583092:ss=1671116477485"},
 		"csrf":       []string{"LWKACV45JSQ"},
@@ -75,7 +75,7 @@ func migu(keyword string) message.MessageSegment {
 }
 
 // kuwo 返回酷我音乐卡片
-func kuwo(keyword string) message.MessageSegment {
+func kuwo(keyword string) message.Segment {
 	headers := http.Header{
 		"Cookie":     []string{"Hm_lvt_cdb524f42f0ce19b169a8071123a4797=1610284708,1610699237; _ga=GA1.2.1289529848.1591618534; kw_token=LWKACV45JSQ; Hm_lpvt_cdb524f42f0ce19b169a8071123a4797=1610699468; _gid=GA1.2.1868980507.1610699238; _gat=1"},
 		"csrf":       []string{"LWKACV45JSQ"},
@@ -109,7 +109,7 @@ func kuwo(keyword string) message.MessageSegment {
 }
 
 // kugou 返回酷狗音乐卡片
-func kugou(keyword string) message.MessageSegment {
+func kugou(keyword string) message.Segment {
 	stamp := time.Now().UnixNano() / 1e6
 	hash := md5str(
 		fmt.Sprintf(
@@ -163,7 +163,7 @@ func kugou(keyword string) message.MessageSegment {
 }
 
 // cloud163 返回网易云音乐卡片
-func cloud163(keyword string) (msg message.MessageSegment) {
+func cloud163(keyword string) (msg message.Segment) {
 	requestURL := "http://music.163.com/api/search/get/web?type=1&limit=1&s=" + url.QueryEscape(keyword)
 	data, err := web.GetData(requestURL)
 	if err != nil {
@@ -175,7 +175,7 @@ func cloud163(keyword string) (msg message.MessageSegment) {
 }
 
 // qqmusic 返回QQ音乐卡片
-func qqmusic(keyword string) (msg message.MessageSegment) {
+func qqmusic(keyword string) (msg message.Segment) {
 	requestURL := "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg?platform=yqq.json&key=" + url.QueryEscape(keyword)
 	data, err := web.RequestDataWith(web.NewDefaultClient(), requestURL, "GET", "", web.RandUA(), nil)
 	if err != nil {

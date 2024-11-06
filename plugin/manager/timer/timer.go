@@ -2,7 +2,6 @@
 package timer
 
 import (
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -29,7 +28,7 @@ type Clock struct {
 
 var (
 	// @全体成员
-	atall = message.MessageSegment{
+	atall = message.Segment{
 		Type: "at",
 		Data: map[string]string{
 			"qq": "all",
@@ -133,7 +132,7 @@ func (c *Clock) CancelTimer(key uint32) bool {
 		}
 		c.timersmu.Lock()
 		delete(*c.timers, key) // 避免重复取消
-		e := c.db.Del("timer", "where id = "+strconv.Itoa(int(key)))
+		e := c.db.Del("timer", "WHERE id = ?", key)
 		c.timersmu.Unlock()
 		return e == nil
 	}

@@ -21,7 +21,7 @@ type joke struct {
 	Text string `db:"text"`
 }
 
-var db = &sql.Sqlite{}
+var db sql.Sqlite
 
 func init() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
@@ -32,7 +32,7 @@ func init() {
 	})
 
 	en.OnPrefixGroup([]string{"讲个笑话", "夸夸"}, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.DBPath = en.DataFolder() + "jokes.db"
+		db = sql.New(en.DataFolder() + "jokes.db")
 		_, err := en.GetLazyData("jokes.db", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))

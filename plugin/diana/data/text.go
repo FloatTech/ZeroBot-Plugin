@@ -23,7 +23,7 @@ type text struct {
 // LoadText 加载小作文
 func LoadText(dbfile string) error {
 	_, err := file.GetLazyData(dbfile, control.Md5File, false)
-	db.DBPath = dbfile
+	db = sql.New(dbfile)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func RandText() string {
 // HentaiText 发大病
 func HentaiText() string {
 	var t text
-	err := db.Find("text", &t, "where id = -3802576048116006195")
+	err := db.Find("text", &t, "WHERE id = -3802576048116006195")
 	if err != nil {
 		return err.Error()
 	}

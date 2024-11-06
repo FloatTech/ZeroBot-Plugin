@@ -1,7 +1,6 @@
 package steam
 
 import (
-	"strconv"
 	"sync"
 	"time"
 
@@ -16,7 +15,7 @@ var (
 	database streamDB
 	// 开启并检查数据库链接
 	getDB = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		database.db.DBPath = engine.DataFolder() + "steam.db"
+		database.db = sql.New(engine.DataFolder() + "steam.db")
 		err := database.db.Open(time.Hour)
 		if err != nil {
 			ctx.SendChain(message.Text("[steam] ERROR: ", err))
@@ -71,8 +70,7 @@ func (sdb *streamDB) update(dbInfo *player) error {
 func (sdb *streamDB) find(steamID int64) (dbInfo player, err error) {
 	sdb.Lock()
 	defer sdb.Unlock()
-	condition := "where steam_id = " + strconv.FormatInt(steamID, 10)
-	err = sdb.db.Find(tableListenPlayer, &dbInfo, condition)
+	err = sdb.db.Find(tableListenPlayer, &dbInfo, "WHERE steam_id = ?", steamID)
 	if err == sql.ErrNullResult { // 规避没有该用户数据的报错
 		err = nil
 	}
@@ -83,8 +81,7 @@ func (sdb *streamDB) find(steamID int64) (dbInfo player, err error) {
 func (sdb *streamDB) findWithGroupID(steamID int64, groupID string) (dbInfo player, err error) {
 	sdb.Lock()
 	defer sdb.Unlock()
-	condition := "where steam_id = " + strconv.FormatInt(steamID, 10) + " AND target LIKE '%" + groupID + "%'"
-	err = sdb.db.Find(tableListenPlayer, &dbInfo, condition)
+	err = sdb.db.Find(tableListenPlayer, &dbInfo, "WHERE steam_id = ? AND target LIKE ?", steamID, "%"+groupID+"%")
 	if err == sql.ErrNullResult { // 规避没有该用户数据的报错
 		err = nil
 	}
@@ -102,5 +99,5 @@ func (sdb *streamDB) findAll() (dbInfos []*player, err error) {
 func (sdb *streamDB) del(steamID int64) error {
 	sdb.Lock()
 	defer sdb.Unlock()
-	return sdb.db.Del(tableListenPlayer, "where steam_id = "+strconv.FormatInt(steamID, 10))
+	return sdb.db.Del(tableListenPlayer, "WHERE steam_id = ?", steamID)
 }

@@ -156,7 +156,7 @@ func handleLive(ctx *zero.Ctx) {
 }
 
 // getVideoSummary AI视频总结
-func getVideoSummary(cookiecfg *bz.CookieConfig, card bz.Card) (msg []message.MessageSegment, err error) {
+func getVideoSummary(cookiecfg *bz.CookieConfig, card bz.Card) (msg []message.Segment, err error) {
 	var (
 		data         []byte
 		videoSummary bz.VideoSummary
@@ -177,7 +177,7 @@ func getVideoSummary(cookiecfg *bz.CookieConfig, card bz.Card) (msg []message.Me
 		return
 	}
 	err = json.Unmarshal(data, &videoSummary)
-	msg = make([]message.MessageSegment, 0, 16)
+	msg = make([]message.Segment, 0, 16)
 	msg = append(msg, message.Text("已为你生成视频总结\n\n"))
 	msg = append(msg, message.Text(videoSummary.Data.ModelResult.Summary, "\n\n"))
 	for _, v := range videoSummary.Data.ModelResult.Outline {

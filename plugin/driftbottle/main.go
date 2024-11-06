@@ -27,7 +27,7 @@ type sea struct {
 	Time string `db:"time"` // we need to know the current time,master>
 }
 
-var seaSide = &sql.Sqlite{}
+var seaSide sql.Sqlite
 var seaLocker sync.RWMutex
 
 // We need a container to inject what we need :(
@@ -39,15 +39,15 @@ func init() {
 		Help:              "- @bot pick" + "- @bot throw xxx (xxx为投递内容)",
 		PrivateDataFolder: "driftbottle",
 	})
-	seaSide.DBPath = en.DataFolder() + "sea.db"
+	seaSide = sql.New(en.DataFolder() + "sea.db")
 	err := seaSide.Open(time.Hour)
 	if err != nil {
 		panic(err)
 	}
 
-	_ = createChannel(seaSide)
+	_ = createChannel(&seaSide)
 	en.OnFullMatch("pick", zero.OnlyToMe, zero.OnlyGroup).Limit(ctxext.LimitByGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		be, err := fetchBottle(seaSide)
+		be, err := fetchBottle(&seaSide)
 		if err != nil {
 			ctx.SendChain(message.Text("ERR:", err))
 		}
@@ -75,7 +75,7 @@ func init() {
 			senderFormatTime,
 			ctx.CardOrNickName(ctx.Event.UserID),
 			rawMessageCallBack,
-		).throw(seaSide)
+		).throw(&seaSide)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

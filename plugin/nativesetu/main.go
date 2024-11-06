@@ -13,6 +13,7 @@ import (
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -20,6 +21,7 @@ import (
 
 var (
 	setupath = "/tmp" // 绝对路径，图片根目录
+	dbpath   = ""
 )
 
 func init() {
@@ -34,7 +36,8 @@ func init() {
 		PrivateDataFolder: "nsetu",
 	})
 
-	ns.db.DBPath = engine.DataFolder() + "data.db"
+	dbpath = engine.DataFolder() + "data.db"
+	ns.db = sql.New(dbpath)
 	cfgfile := engine.DataFolder() + "setupath.txt"
 	if file.IsExist(cfgfile) {
 		b, err := os.ReadFile(cfgfile)
@@ -48,7 +51,7 @@ func init() {
 		panic(err)
 	}
 
-	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns)).SetBlock(true).
+	engine.OnRegex(`^本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, &ns)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			sc := new(setuclass)
@@ -69,7 +72,7 @@ func init() {
 				ctx.SendChain(message.Text(imgtype, ": ", sc.Name, "\n"), message.Image(p))
 			}
 		})
-	engine.OnRegex(`^刷新本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, ns), zero.SuperUserPermission).SetBlock(true).
+	engine.OnRegex(`^刷新本地(.*)$`, fcext.ValueInList(func(ctx *zero.Ctx) string { return ctx.State["regex_matched"].([]string)[1] }, &ns), zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			imgtype := ctx.State["regex_matched"].([]string)[1]
 			err := ns.scanclass(os.DirFS(setupath), imgtype, imgtype)

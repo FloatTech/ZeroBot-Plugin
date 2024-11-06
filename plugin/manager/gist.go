@@ -18,7 +18,7 @@ import (
 const gistraw = "https://gist.githubusercontent.com/%s/%s/raw/%s"
 
 func checkNewUser(qq, gid int64, ghun, hash string) (bool, string) {
-	if db.CanFind("member", "where ghun="+ghun) {
+	if db.CanFind("member", "WHERE ghun = ?", ghun) {
 		return false, "该github用户已入群"
 	}
 	gidsum := md5.Sum(helper.StringToBytes(strconv.FormatInt(gid, 10)))

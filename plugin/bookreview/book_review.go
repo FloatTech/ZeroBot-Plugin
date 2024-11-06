@@ -10,6 +10,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
@@ -24,7 +25,7 @@ func init() {
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.DBPath = engine.DataFolder() + "bookreview.db"
+		db = sql.New(engine.DataFolder() + "bookreview.db")
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("bookreview.db", true)
 		err := db.Open(time.Hour)

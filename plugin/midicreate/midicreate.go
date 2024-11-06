@@ -229,7 +229,7 @@ func init() {
 		return path.Ext(ctx.Event.File.Name) == ".mid"
 	}).SetBlock(false).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			fileURL := ctx.GetThisGroupFileUrl(ctx.Event.File.BusID, ctx.Event.File.ID)
+			fileURL := ctx.GetThisGroupFileURL(ctx.Event.File.BusID, ctx.Event.File.ID)
 			data, err := web.GetData(fileURL)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -242,12 +242,12 @@ func init() {
 			}
 			for i := 0; i < int(s.NumTracks()); i++ {
 				midStr := mid2txt(data, i)
+				fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", fmt.Sprintf("-%d.txt", i))
+				err := os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				fileName := strings.ReplaceAll(cachePath+"/"+ctx.Event.File.Name, ".mid", fmt.Sprintf("-%d.txt", i))
-				_ = os.WriteFile(fileName, binary.StringToBytes(midStr), 0666)
 				ctx.UploadThisGroupFile(file.BOTPATH+"/"+fileName, filepath.Base(fileName), "")
 			}
 		})
@@ -255,7 +255,7 @@ func init() {
 		return path.Ext(ctx.Event.File.Name) == ".txt" && strings.Contains(ctx.Event.File.Name, "midi制作")
 	}).SetBlock(false).Limit(ctxext.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
-			fileURL := ctx.GetThisGroupFileUrl(ctx.Event.File.BusID, ctx.Event.File.ID)
+			fileURL := ctx.GetThisGroupFileURL(ctx.Event.File.BusID, ctx.Event.File.ID)
 			data, err := web.GetData(fileURL)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))

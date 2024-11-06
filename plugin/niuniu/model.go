@@ -20,8 +20,8 @@ import (
 )
 
 type model struct {
-	sql sql.Sqlite
 	sync.RWMutex
+	sql sql.Sqlite
 }
 
 type userInfo struct {
@@ -44,7 +44,7 @@ type users []*userInfo
 var (
 	db    = &model{}
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.sql.DBPath = en.DataFolder() + "niuniu.db"
+		db.sql = sql.New(en.DataFolder() + "niuniu.db")
 		err := db.sql.Open(time.Hour * 24)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -351,7 +351,7 @@ func (db *model) findNiuNiu(gid, uid int64) (userInfo, error) {
 	db.RLock()
 	defer db.RUnlock()
 	u := userInfo{}
-	err := db.sql.Find(strconv.FormatInt(gid, 10), &u, "where UID = "+strconv.FormatInt(uid, 10))
+	err := db.sql.Find(strconv.FormatInt(gid, 10), &u, "WHERE UID = ?", uid)
 	return u, err
 }
 
@@ -365,12 +365,12 @@ func (db *model) insertNiuNiu(u *userInfo, gid int64) error {
 func (db *model) deleteniuniu(gid, uid int64) error {
 	db.Lock()
 	defer db.Unlock()
-	return db.sql.Del(strconv.FormatInt(gid, 10), "where UID = "+strconv.FormatInt(uid, 10))
+	return db.sql.Del(strconv.FormatInt(gid, 10), "WHERE UID = ?", uid)
 }
 
 func (db *model) readAllTable(gid int64) (users, error) {
 	db.Lock()
 	defer db.Unlock()
-	a, err := sql.FindAll[userInfo](&db.sql, strconv.FormatInt(gid, 10), "where UserCount  = 0")
+	a, err := sql.FindAll[userInfo](&db.sql, strconv.FormatInt(gid, 10), "WHERE UserCount  = 0")
 	return a, err
 }

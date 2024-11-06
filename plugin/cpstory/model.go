@@ -9,7 +9,7 @@ type cpstory struct {
 	Story string `db:"story"`
 }
 
-var db = &sql.Sqlite{}
+var db sql.Sqlite
 
 func getRandomCpStory() (cs cpstory) {
 	_ = db.Pick("cp_story", &cs)

@@ -30,7 +30,7 @@ var (
 )
 
 func newantidb(path string) (*antidb, error) {
-	db := &antidb{Sqlite: sqlite.Sqlite{DBPath: path}}
+	db := &antidb{Sqlite: sqlite.New(path)}
 	err := db.Open(bandur)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func newantidb(path string) (*antidb, error) {
 		cache.Touch(nilbt.ID, -time.Since(t))
 		return nil
 	})
-	_ = db.Del("__bantime__", "WHERE time<="+strconv.FormatInt(time.Now().Add(time.Minute-bandur).Unix(), 10))
+	_ = db.Del("__bantime__", "WHERE time <= ?", strconv.FormatInt(time.Now().Add(time.Minute-bandur).Unix(), 10))
 	return db, nil
 }
 

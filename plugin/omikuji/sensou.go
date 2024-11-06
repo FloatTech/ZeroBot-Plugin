@@ -11,6 +11,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -48,7 +49,7 @@ func init() { // 插件主体
 		})
 	engine.OnFullMatch("解签", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			db.DBPath = engine.DataFolder() + "kuji.db"
+			db = sql.New(engine.DataFolder() + "kuji.db")
 			_, err := engine.GetLazyData("kuji.db", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))

@@ -63,7 +63,7 @@ const (
 )
 
 var (
-	db    = &sql.Sqlite{}
+	db    sql.Sqlite
 	clock timer.Clock
 )
 
@@ -76,12 +76,12 @@ func init() { // 插件主体
 	})
 
 	go func() {
-		db.DBPath = engine.DataFolder() + "config.db"
+		db = sql.New(engine.DataFolder() + "config.db")
 		err := db.Open(time.Hour)
 		if err != nil {
 			panic(err)
 		}
-		clock = timer.NewClock(db)
+		clock = timer.NewClock(&db)
 		err = db.Create("welcome", &welcome{})
 		if err != nil {
 			panic(err)
@@ -442,7 +442,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_increase" && ctx.Event.SelfID != ctx.Event.UserID {
 				var w welcome
-				err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+				err := db.Find("welcome", &w, "WHERE gid = ?", ctx.Event.GroupID)
 				if err == nil {
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
@@ -494,7 +494,7 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			if ctx.Event.NoticeType == "group_decrease" {
 				var w welcome
-				err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+				err := db.Find("farewell", &w, "WHERE gid = ?", ctx.Event.GroupID)
 				if err == nil {
 					collectsend(ctx, message.ParseMessageFromString(welcometocq(ctx, w.Msg))...)
 				} else {
@@ -523,7 +523,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("测试欢迎语", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var w welcome
-			err := db.Find("welcome", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+			err := db.Find("welcome", &w, "WHERE gid = ?", ctx.Event.GroupID)
 			if err == nil {
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
@@ -550,7 +550,7 @@ func init() { // 插件主体
 	engine.OnFullMatch("测试告别辞", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var w welcome
-			err := db.Find("farewell", &w, "where gid = "+strconv.FormatInt(ctx.Event.GroupID, 10))
+			err := db.Find("farewell", &w, "WHERE gid = ?", ctx.Event.GroupID)
 			if err == nil {
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {

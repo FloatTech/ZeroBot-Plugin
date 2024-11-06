@@ -148,7 +148,7 @@ func init() {
 	//	})
 	// eng.OnFullMatch(`wf订阅检测`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 	//	rwm.Lock()
-	//	var msg []message.MessageSegment
+	//	var msg []message.Segment
 	//	for i, v := range gameTimes {
 	//		nt := time.Until(v.NextTime).Seconds()
 	//		switch {

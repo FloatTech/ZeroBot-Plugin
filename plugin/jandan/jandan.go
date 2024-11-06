@@ -10,6 +10,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/antchfx/htmlquery"
@@ -31,7 +32,7 @@ func init() {
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.DBPath = engine.DataFolder() + "pics.db"
+		db = sql.New(engine.DataFolder() + "pics.db")
 		_, _ = engine.GetLazyData("pics.db", false)
 		err := db.Open(time.Hour)
 		if err != nil {
@@ -95,7 +96,7 @@ func init() {
 						u := "https:" + v.Attr[0].Val
 						i := crc64.Checksum(binary.StringToBytes(u), crc64.MakeTable(crc64.ISO))
 						mu.RLock()
-						ok := db.CanFind("picture", "where id="+strconv.FormatUint(i, 10))
+						ok := db.CanFind("picture", "WHERE id = ?", i)
 						mu.RUnlock()
 						if !ok {
 							mu.Lock()

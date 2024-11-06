@@ -372,18 +372,16 @@ func (sql *婚姻登记) 判断CD(gid, uid int64, model string, cdtime float64) 
 	if err != nil {
 		return false, err
 	}
-	limitID := "where GroupID is " + strconv.FormatInt(gid, 10) +
-		" and UserID is " + strconv.FormatInt(uid, 10) +
-		" and ModeID is '" + model + "'"
-	if !sql.db.CanFind("cdsheet", limitID) {
+	limitID := "WHERE GroupID = ? AND UserID = ? AND ModeID = ?"
+	if !sql.db.CanFind("cdsheet", limitID, gid, uid, model) {
 		// 没有记录即不用比较
 		return true, nil
 	}
 	cdinfo := cdsheet{}
-	_ = sql.db.Find("cdsheet", &cdinfo, limitID)
+	_ = sql.db.Find("cdsheet", &cdinfo, limitID, gid, uid, model)
 	if time.Since(time.Unix(cdinfo.Time, 0)).Hours() > cdtime {
 		// 如果CD已过就删除
-		err = sql.db.Del("cdsheet", limitID)
+		err = sql.db.Del("cdsheet", limitID, gid, uid, model)
 		return true, err
 	}
 	return false, nil
@@ -404,16 +402,14 @@ func (sql *婚姻登记) 离婚休妻(gid, wife int64) error {
 	sql.Lock()
 	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
-	wifestr := strconv.FormatInt(wife, 10)
-	return sql.db.Del(gidstr, "where target = "+wifestr)
+	return sql.db.Del(gidstr, "WHERE target = ?", wife)
 }
 
 func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
 	sql.Lock()
 	defer sql.Unlock()
 	gidstr := "group" + strconv.FormatInt(gid, 10)
-	husbandstr := strconv.FormatInt(husband, 10)
-	return sql.db.Del(gidstr, "where user = "+husbandstr)
+	return sql.db.Del(gidstr, "WHERE user = ?", husband)
 }
 
 // 注入判断 是否单身条件

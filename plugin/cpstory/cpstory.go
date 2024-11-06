@@ -11,6 +11,7 @@ import (
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/math"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 )
@@ -24,7 +25,7 @@ func init() {
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.DBPath = engine.DataFolder() + "cp.db"
+		db = sql.New(engine.DataFolder() + "cp.db")
 		// os.RemoveAll(dbpath)
 		_, _ = engine.GetLazyData("cp.db", true)
 		err := db.Open(time.Hour)

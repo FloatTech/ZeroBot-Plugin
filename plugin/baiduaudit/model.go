@@ -224,7 +224,7 @@ func (g *group) reply(bdres *baiduRes) message.Message {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	// 建立消息段
-	msgs := make([]message.MessageSegment, 0, 8)
+	msgs := make([]message.Segment, 0, 8)
 	// 生成简略审核结果回复
 	msgs = append(msgs, message.Text(bdres.Conclusion, "\n"))
 	// 查看是否开启详细审核内容提示, 并确定审核内容值为疑似, 或者不合规

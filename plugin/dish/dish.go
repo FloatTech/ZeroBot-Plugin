@@ -2,7 +2,6 @@
 package dish
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -25,7 +24,7 @@ type dish struct {
 }
 
 var (
-	db          = &sql.Sqlite{}
+	db          sql.Sqlite
 	initialized = false
 )
 
@@ -37,7 +36,7 @@ func init() {
 		PublicDataFolder: "Dish",
 	})
 
-	db.DBPath = en.DataFolder() + "dishes.db"
+	db = sql.New(en.DataFolder() + "dishes.db")
 
 	if _, err := en.GetLazyData("dishes.db", true); err != nil {
 		logrus.Warnln("[dish]获取菜谱数据库文件失败")
@@ -77,7 +76,7 @@ func init() {
 		}
 
 		var d dish
-		if err := db.Find("dish", &d, fmt.Sprintf("WHERE name like '%%%s%%'", dishName)); err != nil {
+		if err := db.Find("dish", &d, "WHERE name LIKE ?", "%"+dishName+"%"); err != nil {
 			ctx.SendChain(message.Text("客官，本店没有" + dishName))
 			return
 		}

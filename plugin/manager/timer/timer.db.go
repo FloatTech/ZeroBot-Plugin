@@ -22,7 +22,7 @@ func (t *Timer) InsertInto(db *sql.Sqlite) error {
 
 /*
 func getTimerFrom(db *sql.Sqlite, id uint32) (t Timer, err error) {
-	err = db.Find("timer", &t, "where id = "+strconv.Itoa(int(id)))
+	err = db.Find("timer", &t, "WHERE id = "+strconv.Itoa(int(id)))
 	return
 }
 */

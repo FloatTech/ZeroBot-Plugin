@@ -6,6 +6,7 @@ import (
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
+	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
@@ -24,7 +25,7 @@ func init() {
 	})
 
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		db.DBPath = engine.DataFolder() + "nihongo.db"
+		db = sql.New(engine.DataFolder() + "nihongo.db")
 		_, err := engine.GetLazyData("nihongo.db", true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))

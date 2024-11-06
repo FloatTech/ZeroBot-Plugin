@@ -19,7 +19,7 @@ import (
 
 type datagetter func(string, bool) ([]byte, error)
 
-func (dgtr datagetter) randImage(file ...string) message.MessageSegment {
+func (dgtr datagetter) randImage(file ...string) message.Segment {
 	data, err := dgtr(file[rand.Intn(len(file))], true)
 	if err != nil {
 		return message.Text("ERROR: ", err)
@@ -27,7 +27,7 @@ func (dgtr datagetter) randImage(file ...string) message.MessageSegment {
 	return message.ImageBytes(data)
 }
 
-func (dgtr datagetter) randRecord(file ...string) message.MessageSegment {
+func (dgtr datagetter) randRecord(file ...string) message.Segment {
 	data, err := dgtr(file[rand.Intn(len(file))], true)
 	if err != nil {
 		return message.Text("ERROR: ", err)
@@ -35,7 +35,7 @@ func (dgtr datagetter) randRecord(file ...string) message.MessageSegment {
 	return message.Record("base64://" + base64.StdEncoding.EncodeToString(data))
 }
 
-func randText(text ...string) message.MessageSegment {
+func randText(text ...string) message.Segment {
 	return message.Text(text[rand.Intn(len(text))])
 }
 

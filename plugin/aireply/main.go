@@ -95,7 +95,7 @@ func init() { // 插件主体
 			// 获取回复的文本
 			reply := message.ParseMessageFromString(r.TalkPlain(ctx.Event.UserID, msg, zero.BotConfig.NickName[0]))
 			// 过滤掉文字消息
-			filterMsg := make([]message.MessageSegment, 0, len(reply))
+			filterMsg := make([]message.Segment, 0, len(reply))
 			sb := strings.Builder{}
 			for _, v := range reply {
 				if v.Type != "text" {

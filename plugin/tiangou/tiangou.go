@@ -19,7 +19,7 @@ type tiangou struct {
 	Text string `db:"text"`
 }
 
-var db = &sql.Sqlite{}
+var db sql.Sqlite
 
 func init() {
 	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
@@ -31,7 +31,7 @@ func init() {
 
 	en.OnFullMatch("舔狗日记", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			db.DBPath = en.DataFolder() + "tiangou.db"
+			db = sql.New(en.DataFolder() + "tiangou.db")
 			_, err := en.GetLazyData("tiangou.db", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
