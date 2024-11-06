@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/tts/genshin"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -26,13 +25,11 @@ func init() { // 插件主体
 		DisableOnDefault: true,
 		Brief:            "人工智能语音回复",
 		Help: "- @Bot 任意文本(任意一句话回复)\n" +
-			"- 设置语音模式[原神人物/百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
-			"- 设置默认语音模式[原神人物/百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
+			"- 设置语音模式[百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
+			"- 设置默认语音模式[百度/TTSCN/桑帛云] 数字(百度/TTSCN说话人/桑帛云)\n" +
 			"- 恢复成默认语音模式\n" +
 			"- 设置语音回复模式[沫沫|婧枫|青云客|小爱|ChatGPT]\n" +
-			"- 设置原神语音 api key xxxxxx (key请加开发群获得)\n" +
 			"- 设置百度语音 api id xxxxxx secret xxxxxx (请自行获得)\n" +
-			"当前适用的原神人物含有以下: \n" + list(genshin.SoundList[:], 5) +
 			"\n当前适用的TTSCN人物含有以下(以数字顺序代表): \n" + list(ttscnspeakers[:], 5),
 		PrivateDataFolder: "tts",
 	})
@@ -153,10 +150,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(err))
 			return
 		}
-		banner := genshin.TestRecord[param]
-		if banner == "" {
-			banner = genshin.TestRecord["默认"]
-		}
+		banner := "这是一段测试语音"
 		logrus.Debugln("[tts] banner:", banner, "get sound mode...")
 		// 设置验证
 		speaker, err := ttsmd.getSoundMode(ctx)
