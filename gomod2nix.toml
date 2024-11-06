@@ -5,11 +5,11 @@ schema = 3
     version = "v1.1.1"
     hash = "sha256-hKshA0K92bKuK92mmtM0osVmqLJcSbeobeWSDpQoRCo="
   [mod."github.com/FloatTech/AnimeAPI"]
-    version = "v1.7.1-0.20241014163126-6979a83dd88f"
-    hash = "sha256-K5WnWOEIkTTVLb99wEnLM6iekF5EUSEM5k4jFH4vWsY="
+    version = "v1.7.1-0.20241106140713-04a12240c99c"
+    hash = "sha256-dd4pu/qHgDtrjd0fQLtUTZ9tilMe8Pm37ETX/EPgNGM="
   [mod."github.com/FloatTech/floatbox"]
-    version = "v0.0.0-20240505082030-226ec6713e14"
-    hash = "sha256-v296D9T1QzFmcHQJNxJvx7sMtK+Jd1TUHXWqZtIvvf4="
+    version = "v0.0.0-20241106130736-5aea0a935024"
+    hash = "sha256-hSKmkzpNZwXRo0qm4G+1lXkNzWMwV9leYlYLQuzWx3M="
   [mod."github.com/FloatTech/gg"]
     version = "v1.1.3"
     hash = "sha256-7K/R2mKjUHVnoJ3b1wDObJ5Un2Htj59Y97G1Ja1tuPo="
@@ -20,17 +20,17 @@ schema = 3
     version = "v0.2.0"
     hash = "sha256-fgntEYGh2mEl618hM13kb0GGeQEXdP+lochYX8F2OXs="
   [mod."github.com/FloatTech/sqlite"]
-    version = "v1.6.3"
-    hash = "sha256-zWPByEMi89ms67ubPg0fAPIRxfpBC2IRKc0iNVLqkPU="
+    version = "v1.7.0"
+    hash = "sha256-ucSPM49W5ykkB8rj+ApxjwJZBHABl4kkGvKCgXNavow="
   [mod."github.com/FloatTech/ttl"]
     version = "v0.0.0-20240716161252-965925764562"
     hash = "sha256-/XjfdVXEzYgeM+OYuyy76tf13lO91vCcwpjWgkRGteU="
   [mod."github.com/FloatTech/zbpctrl"]
-    version = "v1.6.2-0.20240904160347-1317e11a15bb"
-    hash = "sha256-x0ZR2bnkboEIjjRFMtMAN0T34BP9BPs7r3AwT3BCyzo="
+    version = "v1.7.0"
+    hash = "sha256-HDDnE0oktWJH1tkxuQwUUbeJhmVwY5fyc/vR72D2mkU="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20241013175349-67b3df244b08"
-    hash = "sha256-INELgWsOG4HmMlmYCbTAaZYuRwBsVM8y7QZIHP5MPiU="
+    version = "v1.7.2-0.20241106140112-708bfd074ddd"
+    hash = "sha256-wuoobm/N4TwLc3/u7wbj/xH+C6tIiTMvbzQxKm70EIk="
   [mod."github.com/RomiChan/syncx"]
     version = "v0.0.0-20240418144900-b7402ffdebc7"
     hash = "sha256-L1j1vgiwqXpF9pjMoRRlrQUHzoULisw/01plaEAwxs4="
@@ -98,8 +98,8 @@ schema = 3
     version = "v0.0.0-20241001074058-27c4fe5259a4"
     hash = "sha256-rsV3MKRCSOBMIgJXFCGbCHRY2aBAb32ftU49hT3GjqY="
   [mod."github.com/fumiama/terasu"]
-    version = "v0.0.0-20240710095334-67a8daa3a979"
-    hash = "sha256-Ad5VUch73ndQZuJoioBzo6E3Ny6mdn9zWuaDrhxTWnc="
+    version = "v0.0.0-20241027183601-987ab91031ce"
+    hash = "sha256-WiG5BD1Icwq61KpqkQdf6dl64jEhaDJb2zAQROqXwvc="
   [mod."github.com/fumiama/unibase2n"]
     version = "v0.0.0-20240530074540-ec743fd5a6d6"
     hash = "sha256-I3xNzjrj5y0fy0dfa75V57GanfmHIHmubEn9/y0BBHw="
@@ -215,8 +215,8 @@ schema = 3
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.7.5"
-    hash = "sha256-bZHQpZvmNe26byd17TOvnw7A7Lq45voi6sv4eY+sYP8="
+    version = "v1.8.0"
+    hash = "sha256-3xQ+5NqZpHJdge1vrh0/bttaZt6u2ZiGtdZA0m80NBc="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
@@ -233,8 +233,8 @@ schema = 3
     version = "v0.0.0-20190415191353-3e0bab5405d6"
     hash = "sha256-Ds7JS9muxzDc7WgCncAd0rMSFeBI88/I0dQsk13/56k="
   [mod."golang.org/x/net"]
-    version = "v0.25.0"
-    hash = "sha256-IjFfXLYNj27WLF7vpkZ6mfFXBnp+7QER3OQ0RgjxN54="
+    version = "v0.27.0"
+    hash = "sha256-GrlN5isYeEVrPZVAHK0MDQatttbnyfSPoWJHj0xqhjk="
   [mod."golang.org/x/sys"]
     version = "v0.26.0"
     hash = "sha256-YjklsWNhx4g4TaWRWfFe1TMFKujbqiaNvZ38bfI35fM="
