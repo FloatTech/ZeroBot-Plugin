@@ -1544,18 +1544,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>人工智能回复</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aireply"`
-
-  - [x] @Bot 任意文本(任意一句话回复)
-
-  - [x] 设置文字回复模式[婧枫|沫沫|青云客|小爱|ChatGPT]
-
-  - [x] 设置 ChatGPT api key xxx
-
-</details>
-<details>
   <summary>词典匹配回复</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
