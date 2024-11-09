@@ -93,12 +93,13 @@ func init() {
 			ctx.SendChain(message.Text("设置成功"))
 		})
 	// 单身技能
-	engine.OnRegex(`^(娶|嫁)\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]`, zero.OnlyGroup, getdb, checkSingleDog).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern().Text(`^(娶|嫁)`).At().AsRule(), zero.OnlyGroup, getdb, checkSingleDog).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
-			choice := ctx.State["regex_matched"].([]string)[1]
-			fiancee, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+			choice := patternParsed[0].Text()[0]
+			fiancee, _ := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 			// 写入CD
 			err := 民政局.记录CD(gid, uid, "嫁娶")
 			if err != nil {
@@ -167,12 +168,12 @@ func init() {
 			)
 		})
 	// NTR技能
-	engine.OnRegex(`^当(\[CQ:at,qq=(\d+)\]\s?|(\d+))的小三`, zero.OnlyGroup, getdb, checkMistress).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern().Text(`^当`).At().Text(`的小三`).AsRule(), zero.OnlyGroup, getdb, checkMistress).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
-			fid := ctx.State["regex_matched"].([]string)
-			fiancee, _ := strconv.ParseInt(fid[2]+fid[3], 10, 64)
+			patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+			fiancee, _ := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 			// 写入CD
 			err := 民政局.记录CD(gid, uid, "NTR")
 			if err != nil {
@@ -253,12 +254,13 @@ func init() {
 			)
 		})
 	// 做媒技能
-	engine.OnRegex(`^做媒\s?\[CQ:at,qq=(\d+)\]\s?\[CQ:at,qq=(\d+)\]`, zero.OnlyGroup, zero.AdminPermission, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern().Text(`做媒`).At().At().AsRule(), zero.OnlyGroup, zero.AdminPermission, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
-			gayOne, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			gayZero, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+			gayOne, _ := strconv.ParseInt(patternParsed[1].At(), 10, 64)
+			gayZero, _ := strconv.ParseInt(patternParsed[2].At(), 10, 64)
 			// 写入CD
 			err := 民政局.记录CD(gid, uid, "做媒")
 			if err != nil {
@@ -416,7 +418,8 @@ func (sql *婚姻登记) 离婚休夫(gid, husband int64) error {
 func checkSingleDog(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
-	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+	patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+	fiancee, err := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额,你的target好像不存在?"))
 		return false
@@ -482,7 +485,8 @@ func checkSingleDog(ctx *zero.Ctx) bool {
 func checkMistress(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
-	fiancee, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+	patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+	fiancee, err := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额,你的target好像不存在?"))
 		return false
@@ -578,12 +582,13 @@ func checkDivorce(ctx *zero.Ctx) bool {
 func checkMatchmaker(ctx *zero.Ctx) bool {
 	gid := ctx.Event.GroupID
 	uid := ctx.Event.UserID
-	gayOne, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+	patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+	gayOne, err := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额，攻方好像不存在？"))
 		return false
 	}
-	gayZero, err := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+	gayZero, err := strconv.ParseInt(patternParsed[2].At(), 10, 64)
 	if err != nil {
 		ctx.SendChain(message.Text("额，受方好像不存在？"))
 		return false

@@ -31,9 +31,10 @@ type favorability struct {
 
 func init() {
 	// 好感度系统
-	engine.OnRegex(`^查好感度\s*(\[CQ:at,qq=)?(\d+)`, zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern().Text(`^查好感度`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
-			fiancee, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+			fiancee, _ := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 			uid := ctx.Event.UserID
 			favor, err := 民政局.查好感度(uid, fiancee)
 			if err != nil {
@@ -47,12 +48,12 @@ func init() {
 			)
 		})
 	// 礼物系统
-	engine.OnRegex(`^买礼物给\s?(\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern().Text(`^买礼物给`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
-			fiancee := ctx.State["regex_matched"].([]string)
-			gay, _ := strconv.ParseInt(fiancee[2]+fiancee[3], 10, 64)
+			patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+			gay, _ := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 			if gay == uid {
 				ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.At(uid), message.Text("你想给自己买什么礼物呢?")))
 				return
