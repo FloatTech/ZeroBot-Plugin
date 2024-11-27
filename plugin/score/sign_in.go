@@ -380,17 +380,21 @@ func copyImage(picFile string) (err error) {
 	if err != nil {
 		return err
 	}
-	// 筛选图片
-	var validFiles []string
-	for _, imgName := range files {
-		if !imgName.IsDir() && strings.HasSuffix(imgName.Name(), ".png") && !strings.HasSuffix(imgName.Name(), "signin.png") {
-			validFiles = append(validFiles, imgName.Name())
+
+	// 随机取10次图片，取到图片就break退出
+	imgNum := len(files)
+	var validFile string
+	for i := 0; i < len(files) && i < 10; i++ {
+		imgFile := files[rand.Intn(imgNum)]
+		if !imgFile.IsDir() && strings.HasSuffix(imgFile.Name(), ".png") && !strings.HasSuffix(imgFile.Name(), "signin.png") {
+			validFile = imgFile.Name()
+			break
 		}
 	}
-	if len(validFiles) == 0 {
-		return errors.New("copyImage: no valid ia found")
+	if len(validFile) == 0 {
+		return errors.New("copyImage: no local image")
 	}
-	selectedFile := cachePath + validFiles[rand.Intn(len(validFiles))]
+	selectedFile := cachePath + validFile
 
 	// 使用 io.Copy 复制签到背景
 	srcFile, err := os.Open(selectedFile)
@@ -409,5 +413,5 @@ func copyImage(picFile string) (err error) {
 		return err
 	}
 
-	return nil
+	return err
 }
