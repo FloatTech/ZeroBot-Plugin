@@ -3,6 +3,7 @@ package score
 
 import (
 	"encoding/base64"
+	"errors"
 	"io"
 	"math"
 	"math/rand"
@@ -156,7 +157,7 @@ func init() {
 		}
 		drawimage, err := styles[k](alldata)
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			ctx.SendChain(message.Text("签到成功，但签到图生成失败，请勿重复签到:\n", err))
 			return
 		}
 		// done.
@@ -190,7 +191,7 @@ func init() {
 			}
 			picFile := cachePath + uidStr + time.Now().Format("20060102") + ".png"
 			if file.IsNotExist(picFile) {
-				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("请先签到！"))
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("签到背景加载失败"))
 				return
 			}
 			trySendImage(picFile, ctx)
@@ -332,7 +333,8 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 	}
 	url, err := bilibili.GetRealURL(backgroundURL)
 	if err != nil {
-		return
+		// 使用本地已有的图片
+		return avatar, copyImage(picFile)
 	}
 	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
 	if err != nil {
@@ -368,4 +370,48 @@ func trySendImage(filePath string, ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("ERROR: 无法读取图片文件", err))
 		return
 	}
+}
+
+// 从已有签到背景中，复制出一张图片
+func copyImage(picFile string) (err error) {
+	// 读取目录中的文件列表,并随机挑选出一张图片
+	cachePath := engine.DataFolder() + "cache/"
+	files, err := os.ReadDir(cachePath)
+	if err != nil {
+		return err
+	}
+
+	// 随机取10次图片，取到图片就break退出
+	imgNum := len(files)
+	var validFile string
+	for i := 0; i < len(files) && i < 10; i++ {
+		imgFile := files[rand.Intn(imgNum)]
+		if !imgFile.IsDir() && strings.HasSuffix(imgFile.Name(), ".png") && !strings.HasSuffix(imgFile.Name(), "signin.png") {
+			validFile = imgFile.Name()
+			break
+		}
+	}
+	if len(validFile) == 0 {
+		return errors.New("copyImage: no local image")
+	}
+	selectedFile := cachePath + validFile
+
+	// 使用 io.Copy 复制签到背景
+	srcFile, err := os.Open(selectedFile)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(picFile)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
