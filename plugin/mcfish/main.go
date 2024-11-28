@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -28,7 +29,7 @@ type fishdb struct {
 const FishLimit = 50
 
 // version 规则版本号
-const version = "5.5.8"
+const version = "5.5.9"
 
 // 各物品信息
 type jsonInfo struct {
@@ -147,7 +148,7 @@ var (
 			"8.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率90%(包括梭哈),合成鱼竿的附魔等级=（附魔等级合/合成鱼竿数量）\n" +
 			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿,修复时可直接满耐久\n" +
 			"-> 鱼竿数量大于50的不能买东西;\n     鱼竿数量大于30的不能钓鱼;\n     每购/售10次鱼竿获得1层宝藏诅咒;\n     每购买20次物品将获得3次价格减半福利;\n     每钓鱼75次获得1本净化书;\n" +
-			"     每天最多只可出售5个鱼竿和购买15次物品;鱼类交易每天最多100条.",
+			"     每天可交易鱼竿10个，物品200件.",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -344,7 +345,7 @@ func (sql *fishdb) setEquipFor(uid int64) (err error) {
 	if err != nil {
 		return err
 	}
-	_ = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
+	err = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
 	if err != nil {
 		return err
 	}
@@ -608,7 +609,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 		}
 	}
 	thing := store{}
-	oldThing := []store{}
+	var oldThing []store
 	_ = sql.db.FindFor("stroeDiscount", &thing, "WHERE type = 'pole'", func() error {
 		if time.Since(time.Unix(thing.Duration, 0)) > 24 {
 			oldThing = append(oldThing, thing)
@@ -628,7 +629,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			Price:    priceList[fish] * discountList[fish] / 100,
 		}
 		_ = sql.db.Find("store", &thingInfo, "WHERE Name = ?", fish)
-		thingInfo.Number += (100 - discountList[fish])
+		thingInfo.Number += 100 - discountList[fish]
 		if thingInfo.Number < 1 {
 			thingInfo.Number = 100
 		}
@@ -774,15 +775,14 @@ func (sql *fishdb) useCouponAt(uid int64, times int) (int, error) {
 	return useTimes, sql.db.Insert("buff", &userInfo)
 }
 
-// 检测卖鱼竿上限
-func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
-	residue := 0
+// 买卖上限检测
+func (sql *fishdb) checkCanSalesFor(uid int64, saleType string, salesNum int) (int, error) {
 	sql.Lock()
 	defer sql.Unlock()
 	userInfo := buffInfo{ID: uid}
 	err := sql.db.Create("buff", &userInfo)
 	if err != nil {
-		return residue, err
+		return salesNum, err
 	}
 	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
@@ -791,14 +791,22 @@ func (sql *fishdb) checkCanSalesFor(uid int64, sales bool) (int, error) {
 		userInfo.BuyTing = 0
 		userInfo.SalesFish = 0
 	}
-	if sales && userInfo.SalesPole < 5 {
-		residue = 5 - userInfo.SalesPole
+	if strings.Contains(saleType, "竿") {
+		if userInfo.SalesPole >= 10 {
+			salesNum = -1
+		}
 		userInfo.SalesPole++
-	} else if userInfo.BuyTing < 15 {
-		residue = 15 - userInfo.BuyTing
-		userInfo.BuyTing++
+	} else {
+		maxSales := 200 - userInfo.SalesFish
+		if maxSales < 0 {
+			salesNum = 0
+		}
+		if salesNum > maxSales {
+			salesNum = maxSales
+		}
 	}
-	return residue, sql.db.Insert("buff", &userInfo)
+
+	return salesNum, sql.db.Insert("buff", &userInfo)
 }
 
 // 检测物品是否是鱼
@@ -809,38 +817,6 @@ func checkIsFish(thing string) bool {
 		}
 	}
 	return false
-}
-
-// 查询能交易鱼类的数量
-func (sql *fishdb) selectCanSalesFishFor(uid int64, sales int) int {
-	residue := 0
-	sql.Lock()
-	defer sql.Unlock()
-	userInfo := buffInfo{ID: uid}
-	err := sql.db.Create("buff", &userInfo)
-	if err != nil {
-		return residue
-	}
-	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
-	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
-		userInfo.Duration = time.Now().Unix()
-		// 在 checkCanSalesFor 也有更新buff时间，TODO：重构 *CanSalesFishFor 俩个函数
-		userInfo.SalesPole = 0
-		userInfo.BuyTing = 0
-		userInfo.SalesFish = 0
-		err := sql.db.Insert("buff", &userInfo)
-		if err != nil {
-			return residue
-		}
-	}
-	maxSales := 100 - userInfo.SalesFish
-	if maxSales < 0 {
-		maxSales = 0
-	}
-	if sales > maxSales {
-		sales = maxSales
-	}
-	return sales
 }
 
 // 更新买卖鱼上限，假定sales变量已经在 selectCanSalesFishFor 进行了防护
