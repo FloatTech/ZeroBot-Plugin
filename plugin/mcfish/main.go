@@ -798,7 +798,7 @@ func (sql *fishdb) checkCanSalesFor(uid int64, saleName string, salesNum int) (i
 		if userInfo.SalesPole >= 10 {
 			salesNum = -1
 		}
-	} else {
+	} else if !checkIsWaste(saleName) {
 		maxSales := 150 - userInfo.BuyTing
 		if maxSales < 0 {
 			salesNum = 0
@@ -823,8 +823,18 @@ func (sql *fishdb) updateCanSalesFor(uid int64, saleName string, sales int) erro
 	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
 	if strings.Contains(saleName, "竿") {
 		userInfo.SalesPole++
-	} else {
+	} else if !checkIsWaste(saleName) {
 		userInfo.BuyTing += sales
 	}
 	return sql.db.Insert("buff", &userInfo)
+}
+
+// 检测物品是否是垃圾
+func checkIsWaste(thing string) bool {
+	for _, v := range wasteList {
+		if v == thing {
+			return true
+		}
+	}
+	return false
 }

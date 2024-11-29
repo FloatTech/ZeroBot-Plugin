@@ -313,12 +313,10 @@ func init() {
 				logrus.Warnln(err)
 			}
 		}
-		// 更新交易限制（商店不卖垃圾）
-		if newCommodity.Type != "waste" {
-			err := dbdata.updateCanSalesFor(uid, thingName, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
-			}
+		// 更新交易限制
+		err = dbdata.updateCanSalesFor(uid, thingName, number)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
 		}
 
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("成功出售", thingName, "：", number, "个", ",你赚到了", pice*number, msg)))
@@ -651,10 +649,10 @@ func init() {
 				logrus.Warnln(err)
 			}
 		}
-		// 更新交易限制（商店不卖垃圾）
+		// 更新交易限制
 		err = dbdata.updateCanSalesFor(uid, thingName, number)
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR,更新鱼类交易数量失败，此次交易不记录]:", err))
+			ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你用", price, "购买了", number, thingName)))
 	})
