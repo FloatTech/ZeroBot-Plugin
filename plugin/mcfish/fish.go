@@ -323,7 +323,7 @@ func init() {
 						newThing = thingInfo[0]
 					}
 					if equipInfo.Equip == "美西螈" && thingName != "美西螈" {
-						number += 2
+						number += 4
 					}
 					newThing.Number += number
 				}

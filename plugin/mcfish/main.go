@@ -29,7 +29,7 @@ type fishdb struct {
 const FishLimit = 50
 
 // version 规则版本号
-const version = "5.5.9"
+const version = "5.6.0"
 
 // 各物品信息
 type jsonInfo struct {
@@ -102,7 +102,7 @@ type buffInfo struct {
 	Coupon    int `db:"Buff1"` // 优惠卷
 	SalesPole int `db:"Buff2"` // 卖鱼竿上限
 	BuyTing   int `db:"Buff3"` // 购买上限
-	SalesFish int `db:"Buff4"` // 卖鱼次数
+	Buff4     int `db:"Buff4"` // 暂定
 	Buff5     int `db:"Buff5"` // 暂定
 	Buff6     int `db:"Buff6"` // 暂定
 	Buff7     int `db:"Buff7"` // 暂定
@@ -139,7 +139,7 @@ var (
 			"-> 钻石竿 : 耐久上限:100 均价1500 上钩概率:0.03%\n-> 下界合金竿 : 耐久上限:150 均价3100 上钩概率:0.01%\n-> 三叉戟 : 可使1次钓鱼视为3次钓鱼. 耐久上限:300 均价4000 只能合成、修复和交易\n" +
 			"3.附魔书信息:\n-> 诱钓 : 减少上钩时间. 均价:1000, 上钩概率:0.25%\n-> 海之眷顾 : 增加宝藏上钩概率. 均价:2500, 上钩概率:0.10%\n" +
 			"4.稀有物品:\n-> 唱片 : 出售物品时使用该物品使价格翻倍. 均价:3000, 上钩概率:0.01%\n" +
-			"-> 美西螈 : 可装备,获得隐形[钓鱼佬]buff,并让钓到除鱼竿和美西螈外的物品数量变成3,无耐久上限.不可修复/附魔,每次钓鱼消耗两任意鱼类物品. 均价:3000, 上钩概率:0.01%\n" +
+			"-> 美西螈 : 可装备,获得隐形[钓鱼佬]buff,并让钓到除鱼竿和美西螈外的物品数量变成5,无耐久上限.不可修复/附魔,每次钓鱼消耗两任意鱼类物品. 均价:3000, 上钩概率:0.01%\n" +
 			"-> 海豚 : 使空竿概率变成垃圾概率. 均价:1000, 上钩概率:0.19%\n" +
 			"-> 宝藏诅咒 : 无法交易,每一层就会增加购买时10%价格和减少出售时10%价格(超过10层会变为倒贴钱). 上钩概率:0.25%\n-> 净化书 : 用于消除宝藏诅咒. 均价:5000, 上钩概率:0.19%\n" +
 			"5.鱼类信息:\n-> 鳕鱼 : 均价:10 上钩概率:0.69%\n-> 鲑鱼 : 均价:50 上钩概率:0.2%\n-> 热带鱼 : 均价:100 上钩概率:0.06%\n-> 河豚 : 均价:300 上钩概率:0.03%\n-> 鹦鹉螺 : 均价:500 上钩概率:0.01%\n-> 墨鱼 : 均价:500 上钩概率:0.01%\n" +
@@ -148,7 +148,7 @@ var (
 			"8.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率90%(包括梭哈),合成鱼竿的附魔等级=（附魔等级合/合成鱼竿数量）\n" +
 			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿,修复时可直接满耐久\n" +
 			"-> 鱼竿数量大于50的不能买东西;\n     鱼竿数量大于30的不能钓鱼;\n     每购/售10次鱼竿获得1层宝藏诅咒;\n     每购买20次物品将获得3次价格减半福利;\n     每钓鱼75次获得1本净化书;\n" +
-			"     每天可交易鱼竿10个，物品200件.",
+			"     每天可交易鱼竿10个，物品150件（垃圾除外）.",
 		PublicDataFolder: "McFish",
 	}).ApplySingle(ctxext.DefaultSingle)
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -592,8 +592,8 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			thingInfo := store{}
 			_ = sql.db.Find("store", &thingInfo, "WHERE Name = ?", name)
 			if thingInfo.Number > 150 {
-				// 商品贬值,价格区间 -50%到0%
-				thing.Discount = 50 + rand.Intn(50)
+				// 控制价格浮动区间： -10%到10%
+				thing.Discount = 90 + rand.Intn(20)
 			}
 			err = sql.db.Insert("stroeDiscount", &thing)
 			if err != nil {
@@ -776,7 +776,7 @@ func (sql *fishdb) useCouponAt(uid int64, times int) (int, error) {
 }
 
 // 买卖上限检测
-func (sql *fishdb) checkCanSalesFor(uid int64, saleType string, salesNum int) (int, error) {
+func (sql *fishdb) checkCanSalesFor(uid int64, saleName string, salesNum int) (int, error) {
 	sql.Lock()
 	defer sql.Unlock()
 	userInfo := buffInfo{ID: uid}
@@ -789,15 +789,17 @@ func (sql *fishdb) checkCanSalesFor(uid int64, saleType string, salesNum int) (i
 		userInfo.Duration = time.Now().Unix()
 		userInfo.SalesPole = 0
 		userInfo.BuyTing = 0
-		userInfo.SalesFish = 0
+		err := sql.db.Insert("buff", &userInfo)
+		if err != nil {
+			return salesNum, err
+		}
 	}
-	if strings.Contains(saleType, "竿") {
+	if strings.Contains(saleName, "竿") {
 		if userInfo.SalesPole >= 10 {
 			salesNum = -1
 		}
-		userInfo.SalesPole++
-	} else {
-		maxSales := 200 - userInfo.SalesFish
+	} else if !checkIsWaste(saleName) {
+		maxSales := 150 - userInfo.BuyTing
 		if maxSales < 0 {
 			salesNum = 0
 		}
@@ -806,21 +808,11 @@ func (sql *fishdb) checkCanSalesFor(uid int64, saleType string, salesNum int) (i
 		}
 	}
 
-	return salesNum, sql.db.Insert("buff", &userInfo)
+	return salesNum, err
 }
 
-// 检测物品是否是鱼
-func checkIsFish(thing string) bool {
-	for _, v := range fishList {
-		if v == thing {
-			return true
-		}
-	}
-	return false
-}
-
-// 更新买卖鱼上限，假定sales变量已经在 selectCanSalesFishFor 进行了防护
-func (sql *fishdb) updateCanSalesFishFor(uid int64, sales int) error {
+// 更新买卖鱼上限，假定sales变量已经在 checkCanSalesFor 进行了防护
+func (sql *fishdb) updateCanSalesFor(uid int64, saleName string, sales int) error {
 	sql.Lock()
 	defer sql.Unlock()
 	userInfo := buffInfo{ID: uid}
@@ -829,6 +821,20 @@ func (sql *fishdb) updateCanSalesFishFor(uid int64, sales int) error {
 		return err
 	}
 	_ = sql.db.Find("buff", &userInfo, "WHERE ID = ?", uid)
-	userInfo.SalesFish += sales
+	if strings.Contains(saleName, "竿") {
+		userInfo.SalesPole++
+	} else if !checkIsWaste(saleName) {
+		userInfo.BuyTing += sales
+	}
 	return sql.db.Insert("buff", &userInfo)
+}
+
+// 检测物品是否是垃圾
+func checkIsWaste(thing string) bool {
+	for _, v := range wasteList {
+		if v == thing {
+			return true
+		}
+	}
+	return false
 }

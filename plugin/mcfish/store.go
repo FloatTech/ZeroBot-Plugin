@@ -86,7 +86,7 @@ func init() {
 			if strings.Contains(thingName, "竿") {
 				msg = "一天只能交易10把鱼竿,明天再来售卖吧"
 			} else {
-				msg = "一天只能交易200次物品，明天再来吧~"
+				msg = "一天只能交易150次物品(垃圾除外)，明天再来吧~"
 			}
 			ctx.SendChain(message.Text(msg))
 			return
@@ -313,12 +313,10 @@ func init() {
 				logrus.Warnln(err)
 			}
 		}
-		// 更新交易鱼类数量
-		if checkIsFish(thingName) {
-			err := dbdata.updateCanSalesFishFor(uid, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
-			}
+		// 更新交易限制
+		err = dbdata.updateCanSalesFor(uid, thingName, number)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
 		}
 
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("成功出售", thingName, "：", number, "个", ",你赚到了", pice*number, msg)))
@@ -428,7 +426,7 @@ func init() {
 			if strings.Contains(thingName, "竿") {
 				msg = "一天只能交易10把鱼竿,明天再来售卖吧"
 			} else {
-				msg = "一天只能交易200次物品，明天再来吧~"
+				msg = "一天只能交易150次物品，明天再来吧~"
 			}
 			ctx.SendChain(message.Text(msg))
 			return
@@ -651,12 +649,10 @@ func init() {
 				logrus.Warnln(err)
 			}
 		}
-		// 更新交易鱼类数量
-		if checkIsFish(thingName) {
-			err := dbdata.updateCanSalesFishFor(uid, number)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR,更新鱼类交易数量失败，此次交易不记录]:", err))
-			}
+		// 更新交易限制
+		err = dbdata.updateCanSalesFor(uid, thingName, number)
+		if err != nil {
+			ctx.SendChain(message.Text("[ERROR,记录鱼类交易数量失败，此次交易不记录]:", err))
 		}
 		ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("你用", price, "购买了", number, thingName)))
 	})
