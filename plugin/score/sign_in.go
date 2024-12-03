@@ -4,6 +4,7 @@ package score
 import (
 	"encoding/base64"
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"math"
 	"math/rand"
@@ -332,15 +333,16 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		return
 	}
 	url, err := bilibili.GetRealURL(backgroundURL)
-	if err != nil {
-		// 使用本地已有的图片
-		return avatar, copyImage(picFile)
+	if err == nil {
+		data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
+		if err == nil {
+			return avatar, os.WriteFile(picFile, data, 0644)
+		}
 	}
-	data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
-	if err != nil {
-		return
-	}
-	return avatar, os.WriteFile(picFile, data, 0644)
+	// 获取网络图片失败，使用本地已有的图片
+	log.Error("[score:get online img error]:", err)
+	return avatar, copyImage(picFile)
+
 }
 
 // 使用"file:"发送图片失败后，改用base64发送
