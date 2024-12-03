@@ -340,7 +340,7 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 		}
 	}
 	// 获取网络图片失败，使用本地已有的图片
-	log.Error("[mcfish:try send local img,get url error:]", err)
+	log.Error("[score:get online img error]:", err)
 	return avatar, copyImage(picFile)
 
 }
