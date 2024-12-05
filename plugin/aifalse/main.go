@@ -40,7 +40,7 @@ import (
 )
 
 const (
-	backgroundURL = "https://iw233.cn/api.php?sort=mp"
+	backgroundURL = "https://pic.re/image"
 	referer       = "https://weibo.com/"
 )
 
