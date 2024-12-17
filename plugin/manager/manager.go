@@ -173,9 +173,9 @@ func init() { // 插件主体
 			if duration >= 43200 {
 				duration = 43199 // qq禁言最大时长为一个月
 			}
-		        ctx.SetThisGroupBan(
-		        	math.Str2Int64(parsed[1].At()), // 要禁言的人的qq
-		                duration*60, // 要禁言的时间（分钟）
+			ctx.SetThisGroupBan(
+				math.Str2Int64(parsed[1].At()), // 要禁言的人的qq
+				duration*60,                    // 要禁言的时间（分钟）
 			)
 			ctx.SendChain(message.Text("小黑屋收留成功~"))
 		})
