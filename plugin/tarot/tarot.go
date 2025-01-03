@@ -23,7 +23,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
+const bed = "https://github.moeyy.xyz/https://raw.githubusercontent.com/FloatTech/zbpdata/main/Tarot/"
 
 type cardInfo struct {
 	Description        string `json:"description"`
@@ -149,7 +149,7 @@ func init() {
 			}
 			imgpath := cache + "/" + imgname + ".png"
 			err := pool.SendImageFromPool(imgpath, func(pth string) error {
-				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
+				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "github.moeyy.xyz", web.RandUA(), nil)
 				if err != nil {
 					return err
 				}
@@ -324,7 +324,7 @@ func poolimg(imgurl, imgname, cache string) (msg message.Segment, err error) {
 	aimgfile := file.BOTPATH + "/" + imgfile
 	if file.IsNotExist(aimgfile) {
 		var data []byte
-		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
+		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "github.moeyy.xyz", web.RandUA(), nil)
 		if err != nil {
 			return
 		}
