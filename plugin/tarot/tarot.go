@@ -63,7 +63,7 @@ func init() {
 	if _, err := os.Stat(MajorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(MajorArcana, 0755)
 		if err != nil {
-			panic(err)
+			return 
 		}
 	}
 
@@ -71,7 +71,7 @@ func init() {
 	if _, err := os.Stat(MinorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(MinorArcana, 0755)
 		if err != nil {
-			panic(err)
+			return 
 		}
 	}
 	
@@ -79,7 +79,7 @@ func init() {
 	if _, err := os.Stat(Reverse_MajorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(Reverse_MajorArcana, 0755)
 		if err != nil {
-			panic(err)
+			return 
 		}
 	}
 	
@@ -87,7 +87,7 @@ func init() {
 	if _, err := os.Stat(Reverse_MinorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(Reverse_MinorArcana, 0755)
 		if err != nil {
-			panic(err)
+			return 
 		}
 	}
 	
