@@ -345,10 +345,7 @@ func (sql *fishdb) setEquipFor(uid int64) (err error) {
 	if err != nil {
 		return err
 	}
-	err = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
-	if err != nil {
-		return err
-	}
+	_ = sql.db.Find("fishState", &userInfo, "WHERE ID = ?", uid)
 	userInfo.Equip++
 	return sql.db.Insert("fishState", &userInfo)
 }
