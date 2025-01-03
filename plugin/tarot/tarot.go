@@ -63,7 +63,7 @@ func init() {
 	if _, err := os.Stat(MajorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(MajorArcana, 0755)
 		if err != nil {
-			return 
+			return
 		}
 	}
 
@@ -71,27 +71,25 @@ func init() {
 	if _, err := os.Stat(MinorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(MinorArcana, 0755)
 		if err != nil {
-			return 
+			return
 		}
 	}
-	
+
 	ReverseMajorArcana := engine.DataFolder() + "Reverse/MajorArcana"
 	if _, err := os.Stat(ReverseMajorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(ReverseMajorArcana, 0755)
 		if err != nil {
-			return 
+			return
 		}
 	}
-	
+
 	ReverseMinorArcana := engine.DataFolder() + "Reverse/MinorArcana"
 	if _, err := os.Stat(ReverseMinorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(ReverseMinorArcana, 0755)
 		if err != nil {
-			return 
+			return
 		}
 	}
-	
-	
 
 	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
@@ -166,12 +164,12 @@ func init() {
 				description = card.ReverseDescription
 			}
 			imgurl := reverse[p] + card.ImgURL
-			_, err := engine.GetLazyData(imgurl, true)  // 获取数据和错误
+			_, err := engine.GetLazyData(imgurl, true) // 获取数据和错误
 			if err != nil {
 				logrus.Infof("[tarot]下载数据错误： %s", err)
-				return 
+				return
 			}
-			imgpath := "/" + engine.DataFolder() + "/"+ imgurl
+			imgpath := "/" + engine.DataFolder() + "/" + imgurl
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + imgpath))
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n其释义为: ", description))
@@ -324,12 +322,12 @@ func poolimg(engine *control.Engine, imgurl, cache string) (msg message.Segment,
 	imgfile := cache + "/" + imgurl
 	aimgfile := file.BOTPATH + "/" + imgfile
 	if file.IsNotExist(aimgfile) {
-		_, err = engine.GetLazyData(imgurl, true)  // 获取数据和错误
+		_, err = engine.GetLazyData(imgurl, true) // 获取数据和错误
 		if err != nil {
 			logrus.Infof("[tarot]下载数据错误： %s", err)
-			return 
+			return
 		}
 	}
 	msg = message.Image("file:///" + aimgfile)
-	return 
+	return
 }
