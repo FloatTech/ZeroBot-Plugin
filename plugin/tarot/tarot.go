@@ -76,16 +76,16 @@ func init() {
 	}
 	
 	ReverseMajorArcana := engine.DataFolder() + "Reverse/MajorArcana"
-	if _, err := os.Stat(Reverse_MajorArcana); os.IsNotExist(err) {
-		err := os.MkdirAll(Reverse_MajorArcana, 0755)
+	if _, err := os.Stat(ReverseMajorArcana); os.IsNotExist(err) {
+		err := os.MkdirAll(ReverseMajorArcana, 0755)
 		if err != nil {
 			return 
 		}
 	}
 	
 	ReverseMinorArcana := engine.DataFolder() + "Reverse/MinorArcana"
-	if _, err := os.Stat(Reverse_MinorArcana); os.IsNotExist(err) {
-		err := os.MkdirAll(Reverse_MinorArcana, 0755)
+	if _, err := os.Stat(ReverseMinorArcana); os.IsNotExist(err) {
+		err := os.MkdirAll(ReverseMinorArcana, 0755)
 		if err != nil {
 			return 
 		}
