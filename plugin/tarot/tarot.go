@@ -75,7 +75,7 @@ func init() {
 		}
 	}
 	
-	Reverse_MajorArcana := engine.DataFolder() + "Reverse/MajorArcana"
+	ReverseMajorArcana := engine.DataFolder() + "Reverse/MajorArcana"
 	if _, err := os.Stat(Reverse_MajorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(Reverse_MajorArcana, 0755)
 		if err != nil {
@@ -83,7 +83,7 @@ func init() {
 		}
 	}
 	
-	Reverse_MinorArcana := engine.DataFolder() + "Reverse/MinorArcana"
+	ReverseMinorArcana := engine.DataFolder() + "Reverse/MinorArcana"
 	if _, err := os.Stat(Reverse_MinorArcana); os.IsNotExist(err) {
 		err := os.MkdirAll(Reverse_MinorArcana, 0755)
 		if err != nil {
@@ -198,11 +198,7 @@ func init() {
 			tarotmsg := message.Message{message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n")}
 			var imgmsg message.Segment
 			var err error
-			if p == 1 {
-				imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
-			} else {
-				imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
-			}
+			imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -292,11 +288,7 @@ func init() {
 				imgurl := reverse[p] + card.ImgURL
 				var imgmsg message.Segment
 				var err error
-				if p == 1 {
-					imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
-				} else {
-					imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
-				}
+				imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
