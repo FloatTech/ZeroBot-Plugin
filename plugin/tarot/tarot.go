@@ -12,18 +12,14 @@ import (
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
-
-const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
 type cardInfo struct {
 	Description        string `json:"description"`
@@ -61,12 +57,41 @@ func init() {
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	cache := engine.DataFolder() + "cache"
-	_ = os.RemoveAll(cache)
-	err := os.MkdirAll(cache, 0755)
-	if err != nil {
-		panic(err)
+	logrus.Infof("[tarot]uri: %s", engine.DataFolder())
+
+	MajorArcana := engine.DataFolder() + "MajorArcana"
+	if _, err := os.Stat(MajorArcana); os.IsNotExist(err) {
+		err := os.MkdirAll(MajorArcana, 0755)
+		if err != nil {
+			panic(err)
+		}
 	}
+
+	MinorArcana := engine.DataFolder() + "MinorArcana"
+	if _, err := os.Stat(MinorArcana); os.IsNotExist(err) {
+		err := os.MkdirAll(MinorArcana, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+	
+	Reverse_MajorArcana := engine.DataFolder() + "Reverse/MajorArcana"
+	if _, err := os.Stat(Reverse_MajorArcana); os.IsNotExist(err) {
+		err := os.MkdirAll(Reverse_MajorArcana, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+	
+	Reverse_MinorArcana := engine.DataFolder() + "Reverse/MinorArcana"
+	if _, err := os.Stat(Reverse_MinorArcana); os.IsNotExist(err) {
+		err := os.MkdirAll(Reverse_MinorArcana, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+	
+	
 
 	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
@@ -140,30 +165,14 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			imgurl := bed + reverse[p] + card.ImgURL
-			imgname := ""
-			if p == 1 {
-				imgname = reverse[p][:len(reverse[p])-1] + name
-			} else {
-				imgname = name
-			}
-			imgpath := cache + "/" + imgname + ".png"
-			err := pool.SendImageFromPool(imgpath, func(pth string) error {
-				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
-				if err != nil {
-					return err
-				}
-				f, err := os.Create(pth)
-				if err != nil {
-					return err
-				}
-				defer f.Close()
-				return os.WriteFile(f.Name(), data, 0755)
-			}, ctxext.Send(ctx))
+			imgurl := reverse[p] + card.ImgURL
+			_, err := engine.GetLazyData(imgurl, true)  // 获取数据和错误
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+				logrus.Infof("[tarot]下载数据错误： %s", err)
+				return 
 			}
+			imgpath := "/" + engine.DataFolder() + "/"+ imgurl
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + imgpath))
 			process.SleepAbout1sTo2s()
 			ctx.SendChain(message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n其释义为: ", description))
 			return
@@ -185,14 +194,14 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			imgurl := bed + reverse[p] + card.ImgURL
+			imgurl := reverse[p] + card.ImgURL
 			tarotmsg := message.Message{message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n")}
 			var imgmsg message.Segment
 			var err error
 			if p == 1 {
-				imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
+				imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
 			} else {
-				imgmsg, err = poolimg(imgurl, name, cache)
+				imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
 			}
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -211,9 +220,9 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
 		if ok {
-			imgurl := bed + info.ImgURL
+			imgurl := info.ImgURL
 			var tarotmsg message.Message
-			imgmsg, err := poolimg(imgurl, match, cache)
+			imgmsg, err := poolimg(engine, imgurl, engine.DataFolder())
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -280,13 +289,13 @@ func init() {
 					description = card.ReverseDescription
 				}
 				var tarotmsg message.Message
-				imgurl := bed + reverse[p] + card.ImgURL
+				imgurl := reverse[p] + card.ImgURL
 				var imgmsg message.Segment
 				var err error
 				if p == 1 {
-					imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
+					imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
 				} else {
-					imgmsg, err = poolimg(imgurl, name, cache)
+					imgmsg, err = poolimg(engine, imgurl, engine.DataFolder())
 				}
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
@@ -319,26 +328,16 @@ func init() {
 	})
 }
 
-func poolimg(imgurl, imgname, cache string) (msg message.Segment, err error) {
-	imgfile := cache + "/" + imgname + ".png"
+func poolimg(engine *control.Engine, imgurl, cache string) (msg message.Segment, err error) {
+	imgfile := cache + "/" + imgurl
 	aimgfile := file.BOTPATH + "/" + imgfile
 	if file.IsNotExist(aimgfile) {
-		var data []byte
-		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
+		_, err = engine.GetLazyData(imgurl, true)  // 获取数据和错误
 		if err != nil {
-			return
-		}
-		var f *os.File
-		f, err = os.Create(imgfile)
-		if err != nil {
-			return
-		}
-		defer f.Close()
-		err = os.WriteFile(f.Name(), data, 0755)
-		if err != nil {
-			return
+			logrus.Infof("[tarot]下载数据错误： %s", err)
+			return 
 		}
 	}
 	msg = message.Image("file:///" + aimgfile)
-	return
+	return 
 }
