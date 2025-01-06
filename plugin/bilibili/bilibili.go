@@ -82,12 +82,12 @@ func init() {
 				return
 			}
 			ctx.SendChain(message.Text(
-				"uid: ", card.Mid, "\n",
-				"name: ", card.Name, "\n",
-				"sex: ", card.Sex, "\n",
-				"sign: ", card.Sign, "\n",
-				"level: ", card.LevelInfo.CurrentLevel, "\n",
-				"birthday: ", card.Birthday,
+				"uid: ", card.Data.Card.Mid, "\n",
+				"name: ", card.Data.Card.Name, "\n",
+				"sex: ", card.Data.Card.Sex, "\n",
+				"sign: ", card.Data.Card.Sign, "\n",
+				"level: ", card.Data.Card.LevelInfo.CurrentLevel, "\n",
+				"birthday: ", card.Data.Card.Birthday,
 			))
 		})
 
@@ -128,7 +128,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			vups, err := vdb.filterVup(u.Attentions)
+			vups, err := vdb.filterVup(u.Data.Card.Attentions)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -158,12 +158,12 @@ func init() {
 					i--
 				}
 			}
-			facePath := cachePath + id + "vupFace" + path.Ext(u.Face)
+			facePath := cachePath + id + "vupFace" + path.Ext(u.Data.Card.Face)
 			backX := 500
 			backY := 500
 			var back image.Image
-			if path.Ext(u.Face) != ".webp" {
-				err = initFacePic(facePath, u.Face)
+			if path.Ext(u.Data.Card.Face) != ".webp" {
+				err = initFacePic(facePath, u.Data.Card.Face)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
@@ -176,7 +176,7 @@ func init() {
 				back = imgfactory.Size(back, backX, backY).Image()
 			}
 			if len(vups) > 50 {
-				ctx.SendChain(message.Text(u.Name + "关注的up主太多了, 只展示前50个up"))
+				ctx.SendChain(message.Text(u.Data.Card.Name + "关注的up主太多了, 只展示前50个up"))
 				vups = vups[:50]
 			}
 			canvas := gg.NewContext(1500, int(500*(1.1+float64(len(vups))/3)))
@@ -196,18 +196,18 @@ func init() {
 				return
 			}
 			sl, _ := canvas.MeasureString("好")
-			length, h := canvas.MeasureString(u.Mid)
-			n, _ := canvas.MeasureString(u.Name)
-			canvas.DrawString(u.Name, 550, 160-h)
+			length, h := canvas.MeasureString(u.Data.Card.Mid)
+			n, _ := canvas.MeasureString(u.Data.Card.Name)
+			canvas.DrawString(u.Data.Card.Name, 550, 160-h)
 			canvas.DrawRoundedRectangle(600+n-length*0.1, 160-h*2.5, length*1.2, h*2, fontSize*0.2)
 			canvas.SetRGB255(221, 221, 221)
 			canvas.Fill()
 			canvas.SetColor(color.Black)
-			canvas.DrawString(u.Mid, 600+n, 160-h)
-			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Fans), 550, 240-h)
-			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Attentions)), 1000, 240-h)
-			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Attentions))*100, vupLen, len(u.Attentions)), 550, 320-h)
-			regtime := time.Unix(u.Regtime, 0).Format("2006-01-02 15:04:05")
+			canvas.DrawString(u.Data.Card.Mid, 600+n, 160-h)
+			canvas.DrawString(fmt.Sprintf("粉丝：%d", u.Data.Card.Fans), 550, 240-h)
+			canvas.DrawString(fmt.Sprintf("关注：%d", len(u.Data.Card.Attentions)), 1000, 240-h)
+			canvas.DrawString(fmt.Sprintf("管人痴成分：%.2f%%（%d/%d）", float64(vupLen)/float64(len(u.Data.Card.Attentions))*100, vupLen, len(u.Data.Card.Attentions)), 550, 320-h)
+			regtime := time.Unix(u.Data.Card.Regtime, 0).Format("2006-01-02 15:04:05")
 			canvas.DrawString("注册日期："+regtime, 550, 400-h)
 			canvas.DrawString("查询日期："+time.Now().Format("2006-01-02"), 550, 480-h)
 			for i, v := range vups {
@@ -305,12 +305,12 @@ func init() {
 		}
 		today := time.Now().Format("20060102150415")
 		drawedFile := cachePath + id + today + "vupLike.png"
-		facePath := cachePath + id + "vupFace" + path.Ext(u.Face)
+		facePath := cachePath + id + "vupFace" + path.Ext(u.Data.Card.Face)
 		backX := 500
 		backY := 500
 		var back image.Image
-		if path.Ext(u.Face) != ".webp" {
-			err = initFacePic(facePath, u.Face)
+		if path.Ext(u.Data.Card.Face) != ".webp" {
+			err = initFacePic(facePath, u.Data.Card.Face)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -359,17 +359,17 @@ func init() {
 		if back != nil {
 			canvas.DrawImage(back, facestart, 0)
 		}
-		length, _ := canvas.MeasureString(u.Mid)
-		n, _ := canvas.MeasureString(u.Name)
-		canvas.DrawString(u.Name, startWidth, 122.5)
+		length, _ := canvas.MeasureString(u.Data.Card.Mid)
+		n, _ := canvas.MeasureString(u.Data.Card.Name)
+		canvas.DrawString(u.Data.Card.Name, startWidth, 122.5)
 		canvas.DrawRoundedRectangle(900+n-length*0.1, 66, length*1.2, 75, fontSize*0.2)
 		canvas.SetRGB255(221, 221, 221)
 		canvas.Fill()
 		canvas.SetColor(color.Black)
-		canvas.DrawString(u.Mid, 900+n, 122.5)
-		canvas.DrawString(fmt.Sprintf("粉丝：%d   关注：%d", u.Fans, u.Attention), startWidth, 222.5)
+		canvas.DrawString(u.Data.Card.Mid, 900+n, 122.5)
+		canvas.DrawString(fmt.Sprintf("粉丝：%d   关注：%d", u.Data.Card.Fans, u.Data.Card.Attention), startWidth, 222.5)
 		canvas.DrawString(fmt.Sprintf("页码：[%d/%d]", danmaku.Data.PageNum, (danmaku.Data.Total-1)/5), startWidth, 322.5)
-		canvas.DrawString("网页链接: "+fmt.Sprintf(bz.DanmakuURL, u.Mid), startWidth, 422.5)
+		canvas.DrawString("网页链接: "+fmt.Sprintf(bz.DanmakuURL, u.Data.Card.Mid), startWidth, 422.5)
 		var channelStart float64
 		channelStart = float64(550)
 		for i := 0; i < len(danmaku.Data.Data.Records); i++ {

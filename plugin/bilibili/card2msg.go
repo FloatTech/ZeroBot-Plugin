@@ -316,7 +316,7 @@ func videoCard2msg(card bz.Card) (msg []message.Segment, err error) {
 			err = nil
 			msg = append(msg, message.Text("UP主: ", card.Owner.Name, "\n"))
 		} else {
-			msg = append(msg, message.Text("UP主: ", card.Owner.Name, " 粉丝: ", bz.HumanNum(mCard.Fans), "\n"))
+			msg = append(msg, message.Text("UP主: ", card.Owner.Name, " 粉丝: ", bz.HumanNum(mCard.Data.Card.Fans), "\n"))
 		}
 	}
 	msg = append(msg, message.Text("播放: ", bz.HumanNum(card.Stat.View), " 弹幕: ", bz.HumanNum(card.Stat.Danmaku)))
