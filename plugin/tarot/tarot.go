@@ -64,7 +64,6 @@ func init() {
 			if at == "MinorArcana" {
 				for _, mat := range minorArcanaType {
 					cachePath := filepath.Join(engine.DataFolder(), r, at, mat)
-					_ = os.RemoveAll(cachePath)
 					err := os.MkdirAll(cachePath, 0755)
 					if err != nil {
 						panic(err)
@@ -72,7 +71,6 @@ func init() {
 				}
 			} else {
 				cachePath := filepath.Join(engine.DataFolder(), r, at)
-				_ = os.RemoveAll(cachePath)
 				err := os.MkdirAll(cachePath, 0755)
 				if err != nil {
 					panic(err)
