@@ -306,16 +306,18 @@ func videoCard2msg(card bz.Card) (msg []message.Segment, err error) {
 	var mCard bz.MemberCard
 	msg = make([]message.Segment, 0, 16)
 	mCard, err = bz.GetMemberCard(card.Owner.Mid)
-	if err != nil {
-		return
-	}
 	msg = append(msg, message.Text("标题: ", card.Title, "\n"))
 	if card.Rights.IsCooperation == 1 {
 		for i := 0; i < len(card.Staff); i++ {
 			msg = append(msg, message.Text(card.Staff[i].Title, ": ", card.Staff[i].Name, " 粉丝: ", bz.HumanNum(card.Staff[i].Follower), "\n"))
 		}
 	} else {
-		msg = append(msg, message.Text("UP主: ", card.Owner.Name, " 粉丝: ", bz.HumanNum(mCard.Fans), "\n"))
+		if err != nil {
+			err = nil
+			msg = append(msg, message.Text("UP主: ", card.Owner.Name, "\n"))
+		} else {
+			msg = append(msg, message.Text("UP主: ", card.Owner.Name, " 粉丝: ", bz.HumanNum(mCard.Fans), "\n"))
+		}
 	}
 	msg = append(msg, message.Text("播放: ", bz.HumanNum(card.Stat.View), " 弹幕: ", bz.HumanNum(card.Stat.Danmaku)))
 	msg = append(msg, message.Image(card.Pic))
