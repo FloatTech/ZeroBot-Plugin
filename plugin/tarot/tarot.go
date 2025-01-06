@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -42,6 +43,9 @@ var (
 	formationMap    = make(map[string]formation, 10)
 	majorArcanaName = make([]string, 0, 80)
 	formationName   = make([]string, 0, 10)
+	reverse         = [...]string{"", "Reverse/"}
+	arcanaType      = [...]string{"MajorArcana", "MinorArcana"}
+	minorArcanaType = [...]string{"Cups", "Pentacles", "Swords", "Wands"}
 )
 
 func init() {
@@ -55,13 +59,27 @@ func init() {
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	cache := engine.DataFolder() + "cache"
-	_ = os.RemoveAll(cache)
-	err := os.MkdirAll(cache, 0755)
-	if err != nil {
-		panic(err)
+	for _, r := range reverse {
+		for _, at := range arcanaType {
+			if at == "MinorArcana" {
+				for _, mat := range minorArcanaType {
+					cachePath := filepath.Join(engine.DataFolder(), r, at, mat)
+					_ = os.RemoveAll(cachePath)
+					err := os.MkdirAll(cachePath, 0755)
+					if err != nil {
+						panic(err)
+					}
+				}
+			} else {
+				cachePath := filepath.Join(engine.DataFolder(), r, at)
+				_ = os.RemoveAll(cachePath)
+				err := os.MkdirAll(cachePath, 0755)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
 	}
-
 	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
 		if err != nil {
@@ -102,7 +120,6 @@ func init() {
 		n := 1
 		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 		position := [...]string{"『正位』", "『逆位』"}
-		reverse := [...]string{"", "Reverse/"}
 		start := 0
 		length := 22
 		if match != "" {
@@ -137,7 +154,9 @@ func init() {
 			imgurl := reverse[p] + card.ImgURL
 			data, err := engine.GetLazyData(imgurl, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				// ctx.SendChain(message.Text("ERROR: ", err))
+				logrus.Infof("[tarot]获取图片失败: %v", err)
+				ctx.SendChain(message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n其释义为: ", description))
 				return
 			}
 			ctx.SendChain(message.ImageBytes(data))
@@ -166,12 +185,14 @@ func init() {
 			var imgmsg message.Segment
 			var err error
 			data, err := engine.GetLazyData(imgurl, true)
-			imgmsg = message.ImageBytes(data)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+				// ctx.SendChain(message.Text("ERROR: ", err))
+				logrus.Infof("[tarot]获取图片失败: %v", err)
+				// return
+			} else {
+				imgmsg = message.ImageBytes(data)
+				tarotmsg = append(tarotmsg, imgmsg)
 			}
-			tarotmsg = append(tarotmsg, imgmsg)
 			tarotmsg = append(tarotmsg, message.Text("\n其释义为: ", description))
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotmsg...)
 		}
@@ -187,12 +208,14 @@ func init() {
 			imgurl := info.ImgURL
 			var tarotmsg message.Message
 			data, err := engine.GetLazyData(imgurl, true)
-			imgmsg := message.ImageBytes(data)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+				// ctx.SendChain(message.Text("ERROR: ", err))
+				logrus.Infof("[tarot]获取图片失败: %v", err)
+				// return
+			} else {
+				imgmsg := message.ImageBytes(data)
+				tarotmsg = append(tarotmsg, imgmsg)
 			}
-			tarotmsg = append(tarotmsg, imgmsg)
 			tarotmsg = append(tarotmsg, message.Text("\n", match, "的含义是~\n『正位』:", info.Description, "\n『逆位』:", info.ReverseDescription))
 			if id := ctx.Send(tarotmsg).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
@@ -258,12 +281,14 @@ func init() {
 				var imgmsg message.Segment
 				var err error
 				data, err := engine.GetLazyData(imgurl, true)
-				imgmsg = message.ImageBytes(data)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+					// ctx.SendChain(message.Text("ERROR: ", err))
+					logrus.Infof("[tarot]获取图片失败: %v", err)
+					// return
+				} else {
+					imgmsg = message.ImageBytes(data)
+					tarotmsg = append(tarotmsg, imgmsg)
 				}
-				tarotmsg = append(tarotmsg, imgmsg)
 				build.WriteString(info.Represent[0][i])
 				build.WriteString(":")
 				build.WriteString(position[p])
@@ -289,37 +314,3 @@ func init() {
 		}
 	})
 }
-
-// func poolimg(ctx *zero.Ctx, imgurl, imgname, cache string) (msg message.MessageSegment, err error) {
-// 	imgfile := cache + "/" + imgname + ".png"
-// 	aimgfile := file.BOTPATH + "/" + imgfile
-// 	m, err := pool.GetImage("pool" + imgname)
-// 	if err == nil {
-// 		msg = message.Image(m.String())
-// 		if ctxext.SendToSelf(ctx)(msg) == 0 {
-// 			msg = msg.Add("cache", "0")
-// 		}
-// 		return
-// 	}
-// 	if file.IsNotExist(aimgfile) {
-// 		var data []byte
-// 		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
-// 		if err != nil {
-// 			return
-// 		}
-// 		var f *os.File
-// 		f, err = os.Create(imgfile)
-// 		if err != nil {
-// 			return
-// 		}
-// 		defer f.Close()
-// 		err = os.WriteFile(f.Name(), data, 0755)
-// 		if err != nil {
-// 			return
-// 		}
-// 	}
-// 	m.SetFile(aimgfile)
-// 	_, _ = m.Push(ctxext.SendToSelf(ctx), ctxext.GetMessage(ctx))
-// 	msg = message.Image("file:///" + aimgfile)
-// 	return
-// }
