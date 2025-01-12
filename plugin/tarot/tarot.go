@@ -5,25 +5,20 @@ import (
 	"encoding/json"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/floatbox/process"
-	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
-	"github.com/FloatTech/zbputils/img/pool"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
-
-const bed = "https://gitcode.net/shudorcl/zbp-tarot/-/raw/master/"
 
 type cardInfo struct {
 	Description        string `json:"description"`
@@ -48,6 +43,9 @@ var (
 	formationMap    = make(map[string]formation, 10)
 	majorArcanaName = make([]string, 0, 80)
 	formationName   = make([]string, 0, 10)
+	reverse         = [...]string{"", "Reverse/"}
+	arcanaType      = [...]string{"MajorArcana", "MinorArcana"}
+	minorArcanaType = [...]string{"Cups", "Pentacles", "Swords", "Wands"}
 )
 
 func init() {
@@ -61,13 +59,25 @@ func init() {
 		PublicDataFolder: "Tarot",
 	}).ApplySingle(ctxext.DefaultSingle)
 
-	cache := engine.DataFolder() + "cache"
-	_ = os.RemoveAll(cache)
-	err := os.MkdirAll(cache, 0755)
-	if err != nil {
-		panic(err)
+	for _, r := range reverse {
+		for _, at := range arcanaType {
+			if at == "MinorArcana" {
+				for _, mat := range minorArcanaType {
+					cachePath := filepath.Join(engine.DataFolder(), r, at, mat)
+					err := os.MkdirAll(cachePath, 0755)
+					if err != nil {
+						panic(err)
+					}
+				}
+			} else {
+				cachePath := filepath.Join(engine.DataFolder(), r, at)
+				err := os.MkdirAll(cachePath, 0755)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
 	}
-
 	getTarot := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		data, err := engine.GetLazyData("tarots.json", true)
 		if err != nil {
@@ -108,7 +118,6 @@ func init() {
 		n := 1
 		reasons := [...]string{"您抽到的是~\n", "锵锵锵，塔罗牌的预言是~\n", "诶，让我看看您抽到了~\n"}
 		position := [...]string{"『正位』", "『逆位』"}
-		reverse := [...]string{"", "Reverse/"}
 		start := 0
 		length := 22
 		if match != "" {
@@ -140,31 +149,15 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			imgurl := bed + reverse[p] + card.ImgURL
-			imgname := ""
-			if p == 1 {
-				imgname = reverse[p][:len(reverse[p])-1] + name
-			} else {
-				imgname = name
-			}
-			imgpath := cache + "/" + imgname + ".png"
-			err := pool.SendImageFromPool(imgpath, func(pth string) error {
-				data, err := web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
-				if err != nil {
-					return err
-				}
-				f, err := os.Create(pth)
-				if err != nil {
-					return err
-				}
-				defer f.Close()
-				return os.WriteFile(f.Name(), data, 0755)
-			}, ctxext.Send(ctx))
+			imgurl := reverse[p] + card.ImgURL
+			data, err := engine.GetLazyData(imgurl, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				// ctx.SendChain(message.Text("ERROR: ", err))
+				logrus.Infof("[tarot]获取图片失败: %v", err)
+				ctx.SendChain(message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n其释义为: ", description))
 				return
 			}
-			process.SleepAbout1sTo2s()
+			ctx.SendChain(message.ImageBytes(data))
 			ctx.SendChain(message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n其释义为: ", description))
 			return
 		}
@@ -185,20 +178,19 @@ func init() {
 			if p == 1 {
 				description = card.ReverseDescription
 			}
-			imgurl := bed + reverse[p] + card.ImgURL
+			imgurl := reverse[p] + card.ImgURL
 			tarotmsg := message.Message{message.Text(reasons[rand.Intn(len(reasons))], position[p], "的『", name, "』\n")}
 			var imgmsg message.Segment
 			var err error
-			if p == 1 {
-				imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
-			} else {
-				imgmsg, err = poolimg(imgurl, name, cache)
-			}
+			data, err := engine.GetLazyData(imgurl, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+				// ctx.SendChain(message.Text("ERROR: ", err))
+				logrus.Infof("[tarot]获取图片失败: %v", err)
+				// return
+			} else {
+				imgmsg = message.ImageBytes(data)
+				tarotmsg = append(tarotmsg, imgmsg)
 			}
-			tarotmsg = append(tarotmsg, imgmsg)
 			tarotmsg = append(tarotmsg, message.Text("\n其释义为: ", description))
 			msg[i] = ctxext.FakeSenderForwardNode(ctx, tarotmsg...)
 		}
@@ -211,14 +203,17 @@ func init() {
 		match := ctx.State["regex_matched"].([]string)[1]
 		info, ok := infoMap[match]
 		if ok {
-			imgurl := bed + info.ImgURL
+			imgurl := info.ImgURL
 			var tarotmsg message.Message
-			imgmsg, err := poolimg(imgurl, match, cache)
+			data, err := engine.GetLazyData(imgurl, true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
+				// ctx.SendChain(message.Text("ERROR: ", err))
+				logrus.Infof("[tarot]获取图片失败: %v", err)
+				// return
+			} else {
+				imgmsg := message.ImageBytes(data)
+				tarotmsg = append(tarotmsg, imgmsg)
 			}
-			tarotmsg = append(tarotmsg, imgmsg)
 			tarotmsg = append(tarotmsg, message.Text("\n", match, "的含义是~\n『正位』:", info.Description, "\n『逆位』:", info.ReverseDescription))
 			if id := ctx.Send(tarotmsg).ID(); id == 0 {
 				ctx.SendChain(message.Text("ERROR: 可能被风控了"))
@@ -280,19 +275,18 @@ func init() {
 					description = card.ReverseDescription
 				}
 				var tarotmsg message.Message
-				imgurl := bed + reverse[p] + card.ImgURL
+				imgurl := reverse[p] + card.ImgURL
 				var imgmsg message.Segment
 				var err error
-				if p == 1 {
-					imgmsg, err = poolimg(imgurl, reverse[p][:len(reverse[p])-1]+name, cache)
-				} else {
-					imgmsg, err = poolimg(imgurl, name, cache)
-				}
+				data, err := engine.GetLazyData(imgurl, true)
 				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
+					// ctx.SendChain(message.Text("ERROR: ", err))
+					logrus.Infof("[tarot]获取图片失败: %v", err)
+					// return
+				} else {
+					imgmsg = message.ImageBytes(data)
+					tarotmsg = append(tarotmsg, imgmsg)
 				}
-				tarotmsg = append(tarotmsg, imgmsg)
 				build.WriteString(info.Represent[0][i])
 				build.WriteString(":")
 				build.WriteString(position[p])
@@ -317,28 +311,4 @@ func init() {
 			ctx.SendChain(message.Text("没有找到", match, "噢~\n现有牌阵列表: \n", strings.Join(formationName, "\n")))
 		}
 	})
-}
-
-func poolimg(imgurl, imgname, cache string) (msg message.Segment, err error) {
-	imgfile := cache + "/" + imgname + ".png"
-	aimgfile := file.BOTPATH + "/" + imgfile
-	if file.IsNotExist(aimgfile) {
-		var data []byte
-		data, err = web.RequestDataWith(web.NewTLS12Client(), imgurl, "GET", "gitcode.net", web.RandUA(), nil)
-		if err != nil {
-			return
-		}
-		var f *os.File
-		f, err = os.Create(imgfile)
-		if err != nil {
-			return
-		}
-		defer f.Close()
-		err = os.WriteFile(f.Name(), data, 0755)
-		if err != nil {
-			return
-		}
-	}
-	msg = message.Image("file:///" + aimgfile)
-	return
 }
