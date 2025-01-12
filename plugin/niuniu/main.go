@@ -3,10 +3,11 @@ package niuniu
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 
+	"github.com/FloatTech/AnimeAPI/niu"
 	"github.com/FloatTech/AnimeAPI/wallet"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -23,11 +24,6 @@ type lastLength struct {
 	Length    float64
 }
 
-type propsCount struct {
-	Count     int
-	TimeLimit time.Time
-}
-
 var (
 	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
@@ -38,59 +34,139 @@ var (
 			"- 使用[道具名称]jj@xxx\n" +
 			"- 注册牛牛\n" +
 			"- 赎牛牛(cd:60分钟)\n" +
+			"- 出售牛牛\n" +
+			"- 牛牛拍卖行\n" +
 			"- 牛牛商店\n" +
 			"- 牛牛背包\n" +
 			"- 注销牛牛\n" +
 			"- 查看我的牛牛\n" +
 			"- 牛子长度排行\n" +
-			"- 牛子深度排行\n",
+			"- 牛子深度排行\n" +
+			"\n ps : 出售后的牛牛都会进入牛牛拍卖行哦",
 		PrivateDataFolder: "niuniu",
 	})
 	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
 	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
 	jjCount       = syncx.Map[string, *lastLength]{}
-	prop          = syncx.Map[string, *propsCount]{}
+	register      = syncx.Map[string, *lastLength]{}
 )
 
 func init() {
-	en.OnFullMatch("牛牛背包", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		gid := ctx.Event.GroupID
-		uid := ctx.Event.UserID
-		niu, err := db.findNiuNiu(gid, uid)
+	en.OnRegex(`^购买(\d+)牛牛$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		n, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
 		if err != nil {
-			ctx.SendChain(message.Text("你还没有牛牛呢快去注册一个吧！"))
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
-		ctx.SendChain(message.Text("当前牛牛背包如下",
-			"\n伟哥:", niu.WeiGe,
-			"\n媚药:", niu.Philter,
-			"\n击剑神器:", niu.Artifact,
-			"\n击剑神稽:", niu.ShenJi))
-	})
-	en.OnFullMatch("牛牛商店", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-
-		if _, err := db.findNiuNiu(gid, uid); err != nil {
-			ctx.SendChain(message.Text("你还没有牛牛呢快去注册一个吧！"))
+		msg, err := niu.Auction(gid, uid, n)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Reply(ctx.Event.Message), message.Text(msg))
+	})
+	en.OnFullMatch("牛牛拍卖行", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		auction, err := niu.ShowAuction(gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
 
 		var messages message.Message
-		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
-		messages = append(messages,
-			ctxext.FakeSenderForwardNode(ctx,
-				message.Text("商品1\n商品名:伟哥\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都增长，有效5次")))
-		messages = append(messages,
-			ctxext.FakeSenderForwardNode(ctx,
-				message.Text("商品2\n商品名:媚药\n商品价格:300ATRI币\n商品描述:可以让你打胶每次都减少，有效5次")))
-		messages = append(messages,
-			ctxext.FakeSenderForwardNode(ctx,
-				message.Text("商品3\n商品名:击剑神器\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都立于不败之地，有效2次")))
-		messages = append(messages,
-			ctxext.FakeSenderForwardNode(ctx,
-				message.Text("商品4\n商品名:击剑神稽\n商品价格:500ATRI币\n商品描述:可以让你每次击剑都失败，有效2次")))
+		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛拍卖行有以下牛牛")))
+		for _, info := range auction {
+			msg := fmt.Sprintf("商品序号: %d\n牛牛原所属: %d\n牛牛价格: %d%s\n牛牛大小: %.2fcm",
+				info.ID+1, info.UserID, info.Money, wallet.GetWalletName(), info.Length)
+			messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text(msg)))
+		}
+		if id := ctx.Send(messages).ID(); id == 0 {
+			ctx.Send(message.Text("发送拍卖行失败"))
+			return
+		}
+		ctx.SendChain(message.Reply(ctx.Event.Message), message.Text("请输入对应序号进行购买"))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(\d+)$`)).Repeat()
+		defer cancel()
+		timer := time.NewTimer(120 * time.Second)
+		answer := ""
+		defer timer.Stop()
+		for {
+			select {
+			case <-timer.C:
+				ctx.SendChain(message.At(uid), message.Text(" 超时,已自动取消"))
+				return
+			case r := <-recv:
+				answer = r.Event.Message.String()
+				n, err := strconv.Atoi(answer)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: ", err))
+					return
+				}
 
+				msg, err := niu.Auction(gid, uid, n)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+				ctx.SendChain(message.Reply(ctx.Event.Message), message.Text(msg))
+				return
+			}
+		}
+
+	})
+	en.OnFullMatch("出售牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		sell, err := niu.Sell(gid, uid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(sell))
+	})
+	en.OnFullMatch("牛牛背包", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		bag, err := niu.Bag(gid, uid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR:", err))
+			return
+		}
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(bag))
+	})
+	en.OnFullMatch("牛牛商店", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+
+		if _, err := niu.GetWordNiuNiu(gid, uid); err != nil {
+			ctx.SendChain(message.Text(niu.ErrNoNiuNiu))
+			return
+		}
+
+		propMap := map[int]struct {
+			name        string
+			cost        int
+			scope       string
+			description string
+			count       int
+		}{
+			1: {"伟哥", 300, "打胶", "可以让你打胶每次都增长", 5},
+			2: {"媚药", 300, "打胶", "可以让你打胶每次都减少", 5},
+			3: {"击剑神器", 500, "jj", "可以让你每次击剑都立于不败之地", 2},
+			4: {"击剑神稽", 500, "jj", "可以让你每次击剑都失败", 2},
+		}
+
+		var messages message.Message
+		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
+		for id, _ := range propMap {
+			product := propMap[id]
+			productInfo := fmt.Sprintf("商品%d\n商品名: %s\n商品价格: %dATRI币\n商品作用域: %s\n商品描述: %s\n使用次数:%d",
+				id, product.name, product.cost, product.scope, product.description, product.count)
+			messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text(productInfo)))
+		}
 		if id := ctx.Send(messages).ID(); id == 0 {
 			ctx.Send(message.Text("发送商店失败"))
 			return
@@ -115,29 +191,7 @@ func init() {
 					return
 				}
 
-				info, err := db.findNiuNiu(gid, uid)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-
-				money, err := info.purchaseItem(n)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-
-				if wallet.GetWalletOf(uid) < money {
-					ctx.SendChain(message.Text("你还没有足够的ATRI币呢,不能购买"))
-					return
-				}
-
-				if err = wallet.InsertWalletOf(uid, -money); err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
-
-				if err = db.insertNiuNiu(&info, gid); err != nil {
+				if err = niu.Store(gid, uid, n); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
@@ -147,7 +201,7 @@ func init() {
 			}
 		}
 	})
-	en.OnFullMatch("赎牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("赎牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
 		last, ok := jjCount.Load(fmt.Sprintf("%d_%d", gid, uid))
@@ -157,7 +211,7 @@ func init() {
 			return
 		}
 
-		if time.Since(last.TimeLimit) > time.Minute*60 {
+		if time.Since(last.TimeLimit) > time.Hour {
 			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
 			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
@@ -167,103 +221,74 @@ func init() {
 			ctx.SendChain(message.Text("你还没有被厥够4次呢,不能赎牛牛"))
 			return
 		}
+		ctx.SendChain(message.Text("再次确认一下哦,这次赎牛牛，牛牛长度将会变成", last.Length, "cm\n还需要嘛【是|否】"))
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(是|否)$`)).Repeat()
+		defer cancel()
+		timer := time.NewTimer(2 * time.Minute)
+		defer timer.Stop()
+		for {
+			select {
+			case <-timer.C:
+				ctx.SendChain(message.Text("操作超时，已自动取消"))
+				return
+			case c := <-recv:
+				answer := c.Event.Message.String()
+				if answer == "否" {
+					ctx.SendChain(message.Text("取消成功!"))
+					return
+				}
 
-		money := wallet.GetWalletOf(uid)
-		if money < 150 {
-			ctx.SendChain(message.Text("赎牛牛需要150ATRI币，快去赚钱吧"))
-			return
+				if err := niu.Redeem(gid, uid, last.Length); err == nil {
+					ctx.SendChain(message.Text("ERROR:", err))
+					return
+				}
+
+				jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
+
+				ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
+				return
+			}
 		}
-
-		if err := wallet.InsertWalletOf(uid, -150); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		niuniu, err := db.findNiuNiu(gid, uid)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		niuniu.Length = last.Length
-
-		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
-		ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
 	})
-	en.OnFullMatch("牛子长度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("牛子长度排行", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		niuniuList, err := db.readAllTable(gid)
+		infos, err := niu.GetRankingInfo(gid, true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m := niuniuList.positive()
-		if m == nil {
-			ctx.SendChain(message.Text("暂时没有男孩子哦"))
-			return
-		}
-		m.sort(true)
-		buf, err := m.setupDrawList(ctx, true)
+		img, err := processRankingImg(infos, ctx, true)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		ctx.SendChain(message.ImageBytes(buf))
+		ctx.SendChain(message.ImageBytes(img))
 	})
-	en.OnFullMatch("牛子深度排行", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("牛子深度排行", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
-		niuniuList, err := db.readAllTable(gid)
+		infos, err := niu.GetRankingInfo(gid, false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		m := niuniuList.negative()
-		if m == nil {
-			ctx.SendChain(message.Text("暂时没有女孩子哦"))
-			return
-		}
-		m.sort(false)
-		buf, err := m.setupDrawList(ctx, false)
+		img, err := processRankingImg(infos, ctx, false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-
-		ctx.SendChain(message.ImageBytes(buf))
+		ctx.SendChain(message.ImageBytes(img))
 	})
-	en.OnFullMatch("查看我的牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("查看我的牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		i, err := db.findNiuNiu(gid, uid)
-		if err != nil {
-			ctx.SendChain(message.Text("你还没有牛牛呢不能查看!"))
-			return
-		}
-		niuniu := i.Length
-		var result strings.Builder
-		sexLong := "长"
-		sex := "♂️"
-		if niuniu < 0 {
-			sexLong = "深"
-			sex = "♀️"
-		}
-		niuniuList, err := db.readAllTable(gid)
+		view, err := niu.View(gid, uid, ctx.CardOrNickName(uid))
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		result.WriteString(fmt.Sprintf("\n📛%s<%s>的牛牛信息\n⭕性别:%s\n⭕%s度:%.2fcm\n⭕排行:%d\n⭕%s ",
-			ctx.CardOrNickName(uid), strconv.FormatInt(uid, 10),
-			sex, sexLong, niuniu, niuniuList.ranking(niuniu, uid), generateRandomString(niuniu)))
-		ctx.SendChain(message.Text(&result))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(view))
 	})
-	en.OnRegex(`^(?:.*使用(.*))??打胶$`, zero.OnlyGroup,
-		getdb).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
+	en.OnRegex(`^(?:.*使用(.*))??打胶$`, zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := dajiaoLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["dajiao_last_touch"] = lt.LastTouch()
 		return lt
@@ -279,58 +304,27 @@ func init() {
 		// 获取群号和用户ID
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
-		t := fmt.Sprintf("%d_%d", gid, uid)
 		fiancee := ctx.State["regex_matched"].([]string)
-		updateMap(t, false)
 
-		niuniu, err := db.findNiuNiu(gid, uid)
+		msg, err := niu.HitGlue(gid, uid, fiancee[1])
 		if err != nil {
-			ctx.SendChain(message.Text("请先注册牛牛！"))
-			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
+			ctx.SendChain(message.Text("ERROR: ", err))
+			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 			return
 		}
-		messages, err := niuniu.processNiuNiuAction(t, fiancee[1])
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
+	})
+	en.OnFullMatch("注册牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		uid := ctx.Event.UserID
+		msg, err := niu.Register(gid, uid)
 		if err != nil {
-			ctx.SendChain(message.Text(err))
-			dajiaoLimiter.Delete(fmt.Sprintf("%d_%d", gid, uid))
-			return
-		}
-		if err = db.insertNiuNiu(&niuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-
-		ctx.SendChain(message.Text(messages))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
 	})
-	en.OnFullMatch("注册牛牛", zero.OnlyGroup, getdb).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		gid := ctx.Event.GroupID
-		uid := ctx.Event.UserID
-		if _, err := db.findNiuNiu(gid, uid); err == nil {
-			ctx.SendChain(message.Text("你已经注册过了"))
-			return
-		}
-		// 获取初始长度
-		length := db.randLength()
-		u := userInfo{
-			UID:    uid,
-			Length: length,
-		}
-		// 添加数据进入表
-		if err := db.insertNiuNiu(&u, gid); err != nil {
-			if err = db.createGIDTable(gid); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-
-			if err = db.insertNiuNiu(&u, gid); err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-		}
-		ctx.SendChain(message.At(uid),
-			message.Text("注册成功,你的牛牛现在有", u.Length, "cm"))
-	})
-	en.OnRegex(`^(?:.*使用(.*))??jj\s?(\[CQ:at,(?:\S*,)?qq=(\d+)(?:,\S*)?\]|(\d+))$`, getdb,
+	en.OnMessage(zero.NewPattern().Text(`^(?:.*使用(.*))??jj`).At().AsRule(),
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := jjLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["jj_last_touch"] = lt.LastTouch()
@@ -345,82 +339,55 @@ func init() {
 		})))
 	},
 	).Handle(func(ctx *zero.Ctx) {
-		fiancee := ctx.State["regex_matched"].([]string)
-		adduser, err := strconv.ParseInt(fiancee[3]+fiancee[4], 10, 64)
+		patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+		adduser, err := strconv.ParseInt(patternParsed[1].At(), 10, 64)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
+			jjLimiter.Delete(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 			return
 		}
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		t := fmt.Sprintf("%d_%d", gid, uid)
-		updateMap(t, false)
-		myniuniu, err := db.findNiuNiu(gid, uid)
+		msg, length, err := niu.JJ(gid, uid, adduser, patternParsed[0].Text()[1])
 		if err != nil {
-			ctx.SendChain(message.Text("你还没有牛牛快去注册一个吧!"))
-			jjLimiter.Delete(t)
-			return
-		}
-		adduserniuniu, err := db.findNiuNiu(gid, adduser)
-		if err != nil {
-			ctx.SendChain(message.At(uid), message.Text("对方还没有牛牛呢，不能🤺"))
-			jjLimiter.Delete(t)
-			return
-		}
-		if uid == adduser {
-			ctx.SendChain(message.Text("你要和谁🤺？你自己吗？"))
-			jjLimiter.Delete(t)
-			return
-		}
-		fencingResult, err := myniuniu.processJJuAction(&adduserniuniu, t, fiancee[1])
-		if err != nil {
-			ctx.SendChain(message.Text(err))
-			jjLimiter.Delete(t)
-			return
-		}
-
-		if err = db.insertNiuNiu(&myniuniu, gid); err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
+			jjLimiter.Delete(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 			return
 		}
-
-		if err = db.insertNiuNiu(&adduserniuniu, gid); err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-
-		ctx.SendChain(message.At(uid), message.Text(" ", fencingResult))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
 		j := fmt.Sprintf("%d_%d", gid, adduser)
 		count, ok := jjCount.Load(j)
 		var c lastLength
-		// 按照第一次jj时的时间计算，超过45分钟则重置
+		// 按照最后一次被jj时的时间计算，超过60分钟则重置
 		if !ok {
 			c = lastLength{
 				TimeLimit: time.Now(),
 				Count:     1,
-				Length:    adduserniuniu.Length,
+				Length:    length,
 			}
 		} else {
 			c = lastLength{
-				TimeLimit: c.TimeLimit,
+				TimeLimit: time.Now(),
 				Count:     count.Count + 1,
 				Length:    count.Length,
 			}
-			if time.Since(c.TimeLimit) > time.Minute*60 {
+			if time.Since(c.TimeLimit) > time.Hour {
 				c = lastLength{
 					TimeLimit: time.Now(),
 					Count:     1,
-					Length:    adduserniuniu.Length,
+					Length:    length,
 				}
 			}
 		}
 
 		jjCount.Store(j, &c)
 		if c.Count > 2 {
-			ctx.SendChain(message.Text(randomChoice([]string{fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
-				"你们不要再找ta🤺啦！"})))
-			// 保证只发送一次
-			if c.Count < 4 {
+			ctx.SendChain(message.Text(randomChoice([]string{
+				fmt.Sprintf("你们太厉害了，对方已经被你们打了%d次了，你们可以继续找他🤺", c.Count),
+				"你们不要再找ta🤺啦！"},
+			)))
+
+			if c.Count >= 4 {
 				id := ctx.SendPrivateMessage(adduser,
 					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
 				if id == 0 {
@@ -429,19 +396,33 @@ func init() {
 			}
 		}
 	})
-	en.OnFullMatch("注销牛牛", getdb, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("注销牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		_, err := db.findNiuNiu(gid, uid)
+		key := fmt.Sprintf("%d_%d", gid, uid)
+		data, ok := register.Load(key)
+		switch {
+		case !ok || time.Since(data.TimeLimit) > time.Hour*12:
+			data = &lastLength{
+				TimeLimit: time.Now(),
+				Count:     1,
+			}
+		default:
+			if err := wallet.InsertWalletOf(uid, -data.Count*50); err != nil {
+				ctx.SendChain(message.Text("你的钱不够你注销牛牛了，这次注销需要", data.Count*50, wallet.GetWalletName()))
+				return
+			}
+		}
+		register.Store(key, data)
+		msg, err := niu.Cancel(gid, uid)
 		if err != nil {
-			ctx.SendChain(message.Text("你还没有牛牛呢，咋的你想凭空造一个啊"))
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		err = db.deleteniuniu(gid, uid)
-		if err != nil {
-			ctx.SendChain(message.Text("注销失败"))
-			return
-		}
-		ctx.SendChain(message.Text("注销成功,你已经没有牛牛了"))
+		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
 	})
+}
+
+func randomChoice(options []string) string {
+	return options[rand.Intn(len(options))]
 }
