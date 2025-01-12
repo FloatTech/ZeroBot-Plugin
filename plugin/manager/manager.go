@@ -156,10 +156,11 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("全员自闭结束~"))
 		})
 	// 禁言
-	engine.OnRegex(`^禁言.*?(\d+).*?\s(\d+)(.*)`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnMessage(zero.NewPattern().Text("^禁言").At().Text("(\\d+)\\s*(.*)").AsRule(), zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			duration := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
-			switch ctx.State["regex_matched"].([]string)[3] {
+			parsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
+			duration := math.Str2Int64(parsed[2].Text()[1])
+			switch parsed[2].Text()[2] {
 			case "分钟":
 				//
 			case "小时":
@@ -173,8 +174,8 @@ func init() { // 插件主体
 				duration = 43199 // qq禁言最大时长为一个月
 			}
 			ctx.SetThisGroupBan(
-				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 要禁言的人的qq
-				duration*60, // 要禁言的时间（分钟）
+				math.Str2Int64(parsed[1].At()), // 要禁言的人的qq
+				duration*60,                    // 要禁言的时间（分钟）
 			)
 			ctx.SendChain(message.Text("小黑屋收留成功~"))
 		})
