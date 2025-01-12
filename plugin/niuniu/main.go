@@ -52,21 +52,6 @@ var (
 )
 
 func init() {
-	en.OnRegex(`^购买(\d+)牛牛$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		n, err := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		gid := ctx.Event.GroupID
-		uid := ctx.Event.UserID
-		msg, err := niu.Auction(gid, uid, n)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR:", err))
-			return
-		}
-		ctx.SendChain(message.Reply(ctx.Event.Message), message.Text(msg))
-	})
 	en.OnFullMatch("牛牛拍卖行", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
@@ -105,7 +90,7 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-
+				n--
 				msg, err := niu.Auction(gid, uid, n)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
