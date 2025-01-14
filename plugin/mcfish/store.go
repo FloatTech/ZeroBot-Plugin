@@ -76,20 +76,16 @@ func init() {
 		}
 
 		// 检测物品交易次数
-		number, err := dbdata.checkCanSalesFor(uid, thingName, number)
-		if err != nil {
-			ctx.SendChain(message.Text("[ERROR at store.go.75]:", err))
-			return
-		}
-		if number <= 0 {
-			var msg string
-			if strings.Contains(thingName, "竿") {
-				msg = "一天只能交易10把鱼竿,明天再来售卖吧"
-			} else {
-				msg = "一天只能交易150次物品(垃圾除外)，明天再来吧~"
+		if strings.Contains(thingName, "竿") {
+			number, err := dbdata.checkCanSalesFor(uid, thingName, number)
+			if err != nil {
+				ctx.SendChain(message.Text("[ERROR,查询购买资质失败]:", err))
+				return
 			}
-			ctx.SendChain(message.Text(msg))
-			return
+			if number <= 0 {
+				ctx.SendChain(message.Text("一天只能交易10把鱼竿,明天再来售卖吧"))
+				return
+			}
 		}
 
 		articles, err := dbdata.getUserThingInfo(uid, thingName)
@@ -424,9 +420,9 @@ func init() {
 		if number <= 0 {
 			var msg string
 			if strings.Contains(thingName, "竿") {
-				msg = "一天只能交易10把鱼竿,明天再来售卖吧"
+				msg = "一天只能交易10把鱼竿,明天再来购买吧"
 			} else {
-				msg = "一天只能交易150次物品，明天再来吧~"
+				msg = "一天只能购买30次物品，明天再来吧~"
 			}
 			ctx.SendChain(message.Text(msg))
 			return
