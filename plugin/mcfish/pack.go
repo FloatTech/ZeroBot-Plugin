@@ -196,7 +196,6 @@ func init() {
 
 		ctx.Send(msg)
 	})
-
 }
 
 func drawPackImage(uid int64, equipInfo equip, articles []article) (imagePicByte []byte, err error) {
