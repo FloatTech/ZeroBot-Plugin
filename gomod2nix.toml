@@ -44,11 +44,11 @@ schema = 3
     version = "v0.0.0-20200320125537-f189e35d30ca"
     hash = "sha256-ALeRuEJN9jHjGb4wNKJcxC59vVx8Tj7hHikEGkaZZ0s="
   [mod."github.com/antchfx/htmlquery"]
-    version = "v1.3.3"
-    hash = "sha256-r82c0jTg0yg4I+daWTsaL5eP2P+BUCAIMtvLhi3OiB8="
+    version = "v1.3.4"
+    hash = "sha256-nrtIgRgdOvo0iIQyrhHOFKOmoT8e2gduUsct3f5zDNA="
   [mod."github.com/antchfx/xpath"]
-    version = "v1.3.2"
-    hash = "sha256-7SNF5CbW/YZ9YTF0x91FddDuONIpNB+lpb6YklkwsvI="
+    version = "v1.3.3"
+    hash = "sha256-Ent9bgBTjKS8/61LKrIu/JcBI/Qsv6EEIojwsMjCgdY="
   [mod."github.com/corona10/goimagehash"]
     version = "v1.1.0"
     hash = "sha256-HyS8nc7kUNnDaVBDzJ9Ym4pRs83YB4M2vHSRwfm6mr4="
@@ -233,14 +233,14 @@ schema = 3
     version = "v0.0.0-20190415191353-3e0bab5405d6"
     hash = "sha256-Ds7JS9muxzDc7WgCncAd0rMSFeBI88/I0dQsk13/56k="
   [mod."golang.org/x/net"]
-    version = "v0.27.0"
-    hash = "sha256-GrlN5isYeEVrPZVAHK0MDQatttbnyfSPoWJHj0xqhjk="
+    version = "v0.33.0"
+    hash = "sha256-9swkU9vp6IflUUqAzK+y8PytSmrKLuryidP3RmRfe0w="
   [mod."golang.org/x/sys"]
     version = "v0.29.0"
     hash = "sha256-qfsodJQ1H1CBI8yQWOvsXJgY5qHmiuw566HrrIseYHI="
   [mod."golang.org/x/text"]
-    version = "v0.19.0"
-    hash = "sha256-C92pSYLLUQ2NKKcc60wpoSJ5UWAfnWkmd997C13fXdU="
+    version = "v0.21.0"
+    hash = "sha256-QaMwddBRnoS2mv9Y86eVC2x2wx/GZ7kr2zAJvwDeCPc="
   [mod."gopkg.in/yaml.v3"]
     version = "v3.0.1"
     hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="
