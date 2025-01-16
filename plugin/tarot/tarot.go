@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"os"
-	"path/filepath"
+	"path"
 	"strconv"
 	"strings"
 
@@ -63,14 +63,14 @@ func init() {
 		for _, at := range arcanaType {
 			if at == "MinorArcana" {
 				for _, mat := range minorArcanaType {
-					cachePath := filepath.Join(engine.DataFolder(), r, at, mat)
+					cachePath := path.Join(engine.DataFolder(), r, at, mat)
 					err := os.MkdirAll(cachePath, 0755)
 					if err != nil {
 						panic(err)
 					}
 				}
 			} else {
-				cachePath := filepath.Join(engine.DataFolder(), r, at)
+				cachePath := path.Join(engine.DataFolder(), r, at)
 				err := os.MkdirAll(cachePath, 0755)
 				if err != nil {
 					panic(err)
