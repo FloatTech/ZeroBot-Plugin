@@ -146,7 +146,7 @@ func init() {
 
 		var messages message.Message
 		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
-		for id, _ := range propMap {
+		for id := range propMap {
 			product := propMap[id]
 			productInfo := fmt.Sprintf("商品%d\n商品名: %s\n商品价格: %dATRI币\n商品作用域: %s\n商品描述: %s\n使用次数:%d",
 				id, product.name, product.cost, product.scope, product.description, product.count)
