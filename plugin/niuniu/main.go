@@ -100,7 +100,6 @@ func init() {
 				return
 			}
 		}
-
 	})
 	en.OnFullMatch("出售牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
