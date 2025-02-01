@@ -287,6 +287,9 @@ func randreply(m map[string][]string) zero.Handler {
 		text = strings.ReplaceAll(text, "{me}", nick)
 		id := ctx.Event.MessageID
 		for _, t := range strings.Split(text, "{segment}") {
+			if t == "" {
+				continue
+			}
 			process.SleepAbout1sTo2s()
 			id = ctx.SendChain(message.Reply(id), message.Text(t))
 		}
