@@ -165,6 +165,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功"))
 	})
 	en.OnPrefix("设置AI聊天模型名", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		args := strings.TrimSpace(ctx.State["args"].(string))
@@ -178,6 +179,7 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功"))
 	})
 	en.OnPrefix("设置AI聊天系统提示词", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		args := strings.TrimSpace(ctx.State["args"].(string))
@@ -191,5 +193,6 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功"))
 	})
 }
