@@ -20,7 +20,7 @@ linters:
     #- depguard
     - dogsled
     - errcheck
-    - exportloopref
+    #- exportloopref
     - exhaustive
     #- funlen
     #- goconst
