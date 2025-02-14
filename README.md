@@ -1543,6 +1543,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aichat"`
 
   - [x] 设置AI聊天触发概率10
+  - [x] 设置AI聊天温度80
   - [x] 设置AI聊天密钥xxx
   - [x] 设置AI聊天模型名xxx
   - [x] 设置AI聊天系统提示词xxx

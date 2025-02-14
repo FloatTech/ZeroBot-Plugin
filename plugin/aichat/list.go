@@ -40,8 +40,8 @@ func (l *list) add(grp int64, txt string) {
 	l.m[grp] = msgs
 }
 
-func (l *list) body(mn, sysp string, grp int64) deepinfra.Model {
-	m := model.NewCustom(mn, "", 0.7, 0.9, 1024).System(sysp)
+func (l *list) body(mn, sysp string, temp float32, grp int64) deepinfra.Model {
+	m := model.NewCustom(mn, "", temp, 0.9, 1024).System(sysp)
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	for _, msg := range l.m[grp] {
