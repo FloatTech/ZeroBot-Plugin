@@ -142,7 +142,11 @@ func init() {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		c.SetData(gid, int64(r&0xff))
+		err = c.SetData(gid, int64(r&0xff))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set data err: ", err))
+			return
+		}
 		ctx.SendChain(message.Text("成功"))
 	})
 	en.OnPrefix("设置AI聊天密钥", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
