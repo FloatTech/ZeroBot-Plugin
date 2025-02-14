@@ -73,6 +73,9 @@ schema = 3
   [mod."github.com/fumiama/cron"]
     version = "v1.3.0"
     hash = "sha256-/sN7X8dKXQgv8J+EDzVUB+o+AY9gBC8e1C6sYhaTy1k="
+  [mod."github.com/fumiama/deepinfra"]
+    version = "v0.0.0-20250214082557-71569e85d503"
+    hash = "sha256-uuFkUqWSVpLCG7Pz7Jz1XxFxv4pBuYGgaENoG9V4DnM="
   [mod."github.com/fumiama/go-base16384"]
     version = "v1.7.0"
     hash = "sha256-vTAsBBYe2ISzb2Nba5E96unodZSkhMcqo6hbwR01nz8="
