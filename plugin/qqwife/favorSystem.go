@@ -9,6 +9,7 @@ import (
 
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/imgfactory"
+	sql "github.com/FloatTech/sqlite"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -238,7 +239,8 @@ func init() {
 				return nil
 			})
 			// 删除旧数据
-			err = 民政局.db.Del("favorability", "WHERE Userinfo IN ?", delInfo)
+			q, s := sql.QuerySet("WHERE Userinfo", "IN", delInfo)
+			err = 民政局.db.Del("favorability", q, s...)
 			if err != nil {
 				ctx.SendChain(message.Text("[ERROR]: 删除好感度时发生了错误。\n错误信息:", err))
 			}
