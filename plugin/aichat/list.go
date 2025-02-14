@@ -35,7 +35,7 @@ func (l *list) add(grp int64, txt string) {
 		l.m[grp] = msgs
 		return
 	}
-	copy(msgs[:], msgs[1:])
+	copy(msgs, msgs[1:])
 	msgs[len(msgs)-1] = txt
 	l.m[grp] = msgs
 }
