@@ -5,8 +5,8 @@ schema = 3
     version = "v1.1.1"
     hash = "sha256-hKshA0K92bKuK92mmtM0osVmqLJcSbeobeWSDpQoRCo="
   [mod."github.com/FloatTech/AnimeAPI"]
-    version = "v1.7.1-0.20250112071824-df647215d106"
-    hash = "sha256-z2g+JVlY+X8zEPMNuqJx3A/+Eu1FDFtbh/3jdkPPDrs="
+    version = "v1.7.1-0.20250214133017-28762c8262a6"
+    hash = "sha256-I4lKQXRBQSX/QE+iPw10FEomBEhUlcaJaUO8YbYm6pE="
   [mod."github.com/FloatTech/floatbox"]
     version = "v0.0.0-20241106130736-5aea0a935024"
     hash = "sha256-hSKmkzpNZwXRo0qm4G+1lXkNzWMwV9leYlYLQuzWx3M="
@@ -20,8 +20,8 @@ schema = 3
     version = "v0.2.0"
     hash = "sha256-fgntEYGh2mEl618hM13kb0GGeQEXdP+lochYX8F2OXs="
   [mod."github.com/FloatTech/sqlite"]
-    version = "v1.7.0"
-    hash = "sha256-ucSPM49W5ykkB8rj+ApxjwJZBHABl4kkGvKCgXNavow="
+    version = "v1.7.1"
+    hash = "sha256-1x8xH5fFDlLts8YfzgO3vLF45Q7Ah+mYI6Wn8JG/qE0="
   [mod."github.com/FloatTech/ttl"]
     version = "v0.0.0-20240716161252-965925764562"
     hash = "sha256-/XjfdVXEzYgeM+OYuyy76tf13lO91vCcwpjWgkRGteU="
@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-HDDnE0oktWJH1tkxuQwUUbeJhmVwY5fyc/vR72D2mkU="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20241106140112-708bfd074ddd"
-    hash = "sha256-wuoobm/N4TwLc3/u7wbj/xH+C6tIiTMvbzQxKm70EIk="
+    version = "v1.7.2-0.20250214131804-02e9f18c43df"
+    hash = "sha256-pNLSoTbL8XxRgr8OsHE53QDYfUCaTtudySFxzAaEdVA="
   [mod."github.com/RomiChan/syncx"]
     version = "v0.0.0-20240418144900-b7402ffdebc7"
     hash = "sha256-L1j1vgiwqXpF9pjMoRRlrQUHzoULisw/01plaEAwxs4="
@@ -74,8 +74,8 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-/sN7X8dKXQgv8J+EDzVUB+o+AY9gBC8e1C6sYhaTy1k="
   [mod."github.com/fumiama/deepinfra"]
-    version = "v0.0.0-20250214072937-12ba46058885"
-    hash = "sha256-+Odqkb57KEtgwZz/JVnSzRsBcQ2t8tl2+CddGhAZizc="
+    version = "v0.0.0-20250214082557-71569e85d503"
+    hash = "sha256-uuFkUqWSVpLCG7Pz7Jz1XxFxv4pBuYGgaENoG9V4DnM="
   [mod."github.com/fumiama/go-base16384"]
     version = "v1.7.0"
     hash = "sha256-vTAsBBYe2ISzb2Nba5E96unodZSkhMcqo6hbwR01nz8="
