@@ -1,6 +1,7 @@
 package aichat
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/fumiama/deepinfra"
@@ -37,15 +38,15 @@ func (l *list) add(grp int64, txt string) {
 	}
 	copy(msgs, msgs[1:])
 	msgs[len(msgs)-1] = txt
-	l.m[grp] = msgs
 }
 
 func (l *list) body(mn, sysp string, temp float32, grp int64) deepinfra.Model {
 	m := model.NewCustom(mn, sepstr, temp, 0.9, 1024).System(sysp)
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	for _, msg := range l.m[grp] {
-		_ = m.User(msg)
+	sz := len(l.m[grp])
+	if sz == 0 {
+		return m.User("自己随机开启新话题")
 	}
-	return m
+	return m.User(strings.Join(l.m[grp], "\n\n"))
 }
