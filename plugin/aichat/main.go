@@ -94,6 +94,9 @@ func init() {
 		if !ctx.Event.IsToMe && rand.Intn(100) >= int(rate) {
 			return
 		}
+		if ctx.Event.IsToMe {
+			ctx.Block()
+		}
 		key := ""
 		err := c.GetExtra(&key)
 		if err != nil {
