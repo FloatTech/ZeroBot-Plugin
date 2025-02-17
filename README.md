@@ -1548,6 +1548,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天模型名xxx
   - [x] 设置AI聊天系统提示词xxx
   - [x] 设置AI聊天分隔符`</think>`(留空则清除)
+  - [x] 设置AI聊天(不)响应AT
 
 </details>
 <details>
@@ -1561,7 +1562,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>词典匹配回复</summary>
+  <summary>词典匹配回复, 仅@触发</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/thesaurus"`
 

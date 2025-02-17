@@ -33,7 +33,8 @@ var (
 			"- 设置AI聊天密钥xxx\n" +
 			"- 设置AI聊天模型名xxx\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
-			"- 设置AI聊天分隔符</think>(留空则清除)",
+			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
+			"- 设置AI聊天(不)响应AT",
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -42,6 +43,7 @@ var (
 	modelname    = "deepseek-ai/DeepSeek-R1"
 	systemprompt = "你正在QQ群与用户聊天，用户发送了消息。按自己的心情简短思考后条理清晰地回复。"
 	sepstr       = ""
+	noreplyat    = false
 )
 
 func init() {
@@ -74,7 +76,7 @@ func init() {
 	}
 
 	en.OnMessage(func(ctx *zero.Ctx) bool {
-		return ctx.ExtractPlainText() != ""
+		return ctx.ExtractPlainText() != "" && (!noreplyat || (noreplyat && !ctx.Event.IsToMe))
 	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
@@ -269,5 +271,24 @@ func init() {
 			return
 		}
 		ctx.SendChain(message.Text("设置成功"))
+	})
+	en.OnRegex("^设置AI聊天(不)?响应AT$", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		args := ctx.State["regex_matched"].([]string)
+		isno := args[1] == "不"
+		fp := en.DataFolder() + "NoReplyAT"
+		if isno {
+			f, err := os.Create(fp)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			defer f.Close()
+			f.WriteString("PLACEHOLDER")
+			noreplyat = true
+		} else {
+			_ = os.Remove(fp)
+			noreplyat = false
+		}
+		ctx.SendChain(message.Text("成功"))
 	})
 }
