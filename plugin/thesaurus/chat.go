@@ -84,8 +84,20 @@ func init() {
 
 		engine.OnMessage(zero.OnlyToMe, canmatch(tKIMO)).
 			SetBlock(false).Handle(func(ctx *zero.Ctx) {
-			r, err := kimoi.Chat(ctx.ExtractPlainText())
-			if err == nil && r.Confidence > 0.5 && r.Confidence < 0.95 {
+			msg := ctx.ExtractPlainText()
+			r, err := kimoi.Chat(msg)
+			if err == nil {
+				c := 0
+				for r.Confidence < 0.5 && c < 3 {
+					r, err = kimoi.Chat(msg)
+					if err != nil {
+						return
+					}
+					c++
+				}
+				if r.Confidence < 0.5 {
+					return
+				}
 				ctx.Block()
 				ctx.SendChain(message.Text(r.Reply))
 			}
