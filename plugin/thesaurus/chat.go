@@ -88,14 +88,14 @@ func init() {
 			r, err := kimoi.Chat(msg)
 			if err == nil {
 				c := 0
-				for r.Confidence < 0.5 && c < 3 {
+				for r.Confidence < 0.2 && c < 3 {
 					r, err = kimoi.Chat(msg)
 					if err != nil {
 						return
 					}
 					c++
 				}
-				if r.Confidence < 0.5 {
+				if r.Confidence < 0.2 {
 					return
 				}
 				ctx.Block()
