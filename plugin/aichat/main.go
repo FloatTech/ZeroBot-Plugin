@@ -283,7 +283,11 @@ func init() {
 				return
 			}
 			defer f.Close()
-			f.WriteString("PLACEHOLDER")
+			_, err = f.WriteString("PLACEHOLDER")
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
 			noreplyat = true
 		} else {
 			_ = os.Remove(fp)
