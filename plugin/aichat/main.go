@@ -41,7 +41,7 @@ var (
 
 var (
 	modelname    = "deepseek-ai/DeepSeek-R1"
-	systemprompt = "你正在QQ群与用户聊天，用户发送了消息。按自己的心情简短思考后条理清晰地回复。"
+	systemprompt = "你正在QQ群与用户聊天，你将收到不同的用户发送的一至多条消息，每条消息以【】包裹的用户名开始，随后是消息内容。按自己的心情简短思考后条理清晰地回复。"
 	sepstr       = ""
 	noreplyat    = false
 )
