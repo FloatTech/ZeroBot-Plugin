@@ -42,9 +42,9 @@ func init() {
 		}
 		ctx.SendChain(message.ImageBytes(pic))
 	})
-	engine.OnRegex(`^消除绑定诅咒(\d*)$`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^消除(绑定|宝藏)诅咒(\d*)$`, getdb).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		uid := ctx.Event.UserID
-		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[1])
+		number, _ := strconv.Atoi(ctx.State["regex_matched"].([]string)[2])
 		if number == 0 {
 			number = 1
 		}
@@ -190,7 +190,7 @@ func init() {
 			"6.垃圾:\n-> 均价:10 上钩概率:30%\n" +
 			"7.物品BUFF:\n-> 钓鱼佬 : 当背包名字含有'鱼'的物品数量超过100时激活,钓到物品概率提高至90%\n-> 修复大师 : 当背包鱼竿数量超过10时激活,修复物品时耐久百分百继承\n" +
 			"8.合成:\n-> 铁竿 : 3x木竿\n-> 金竿 : 3x铁竿\n-> 钻石竿 : 3x金竿\n-> 下界合金竿 : 3x钻石竿\n-> 三叉戟 : 3x下界合金竿\n注:合成成功率90%(包括梭哈),合成鱼竿的附魔等级=（附魔等级合/合成鱼竿数量）\n" +
-			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿,修复时可直接满耐久\n" +
+			"9.杂项:\n-> 无装备的情况下,每人最多可以购买3次100块钱的鱼竿,商店每日会上架1木竿\n-> 默认状态钓鱼上钩概率为60%(理论值!!!)\n-> 附魔的鱼竿会因附魔变得昂贵,每个附魔最高3级\n-> 三叉戟不算鱼竿,修复时可直接满耐久\n" +
 			"-> 鱼竿数量大于50的不能买东西;\n     鱼竿数量大于30的不能钓鱼;\n     每购/售10次鱼竿获得1层宝藏诅咒;\n     每购买20次物品将获得3次价格减半福利;\n     每钓鱼75次获得1本净化书;\n" +
 			"     每天可交易鱼竿10个，购买物品30件（垃圾除外）."
 
