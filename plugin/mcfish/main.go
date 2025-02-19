@@ -102,7 +102,7 @@ type buffInfo struct {
 	Coupon    int `db:"Buff1"` // 优惠卷
 	SalesPole int `db:"Buff2"` // 卖鱼竿上限
 	BuyTing   int `db:"Buff3"` // 购买上限
-	SalesFish int `db:"Buff4"` // 卖鱼次数
+	Buff4 	  int `db:"Buff4"` // 暂定
 	Buff5     int `db:"Buff5"` // 暂定
 	Buff6     int `db:"Buff6"` // 暂定
 	Buff7     int `db:"Buff7"` // 暂定
@@ -832,40 +832,4 @@ func checkIsWaste(thing string) bool {
 		}
 	}
 	return false
-}
-
-// 检测物品是否是鱼
-func checkIsFish(thing string) bool {
-	for _, v := range fishList {
-		if v == thing {
-			return true
-		}
-	}
-	return false
-}
-
-// 检测买卖鱼上限
-func (sql *fishdb) checkCanSalesFishFor(uid int64, sales int) (int, error) {
-	residue := 0
-	sql.Lock()
-	defer sql.Unlock()
-	userInfo := buffInfo{ID: uid}
-	err := sql.db.Create("buff", &userInfo)
-	if err != nil {
-		return residue, err
-	}
-	_ = sql.db.Find("buff", &userInfo, "where ID = "+strconv.FormatInt(uid, 10))
-	if time.Now().Day() != time.Unix(userInfo.Duration, 0).Day() {
-		userInfo.Duration = time.Now().Unix()
-		userInfo.SalesFish = 0
-	}
-	maxSales := 100 - userInfo.SalesFish
-	if maxSales < 0 {
-		maxSales = 0
-	}
-	if sales > maxSales {
-		sales = maxSales
-	}
-	userInfo.SalesFish += sales
-	return sales, sql.db.Insert("buff", &userInfo)
 }
