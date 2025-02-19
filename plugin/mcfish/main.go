@@ -634,7 +634,7 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			Other: 	  "30/0/0/0",
 		}
 		_ = sql.db.Find("store", &thingInfo, "WHERE Name = '初始木竿'")
-		thingInfo.Number += 1
+		thingInfo.Number ++
 		if thingInfo.Number > 5{
 			thingInfo.Number = 1
 		}
