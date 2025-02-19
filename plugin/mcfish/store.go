@@ -472,8 +472,8 @@ func init() {
 				thingPice := (priceList[info.Name] - (durationList[info.Name] - durable) - maintenance*2 +
 					induceLevel*600*discountList["诱钓"]/100 +
 					favorLevel*1800*discountList["海之眷顾"]/100) * discountList[info.Name] / 100
-				if strings.Contains(thingName, "初始木竿"){
-					thingPice = priceList["木竿"]+priceList["木竿"] * discountList["木竿"]/100
+				if strings.Contains(thingName, "初始木竿") {
+					thingPice = priceList["木竿"] + priceList["木竿"]*discountList["木竿"]/100
 				}
 				pice = append(pice, thingPice)
 			} else {
@@ -621,7 +621,7 @@ func init() {
 				Number:   1,
 				Other:    thing.Other,
 			}
-			if thingName == "初始木竿"{
+			if thingName == "初始木竿" {
 				newCommodity.Name = "木竿"
 			}
 		} else {
@@ -800,8 +800,8 @@ func drawStroeInfoImage(stroeInfo []store) (picImage image.Image, err error) {
 			induceLevel, _ := strconv.Atoi(poleInfo[2])
 			favorLevel, _ := strconv.Atoi(poleInfo[3])
 			pice = (priceList[info.Name] - (durationList[info.Name] - durable) - maintenance*2 + induceLevel*600 + favorLevel*1800) * discountList[info.Name] / 100
-			if strings.Contains(name, "初始木竿"){
-				pice = priceList["木竿"]+priceList["木竿"] * discountList["木竿"]/100
+			if strings.Contains(name, "初始木竿") {
+				pice = priceList["木竿"] + priceList["木竿"]*discountList["木竿"]/100
 			}
 		} else {
 			pice = priceList[info.Name] * discountList[info.Name] / 100
