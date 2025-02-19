@@ -102,7 +102,7 @@ type buffInfo struct {
 	Coupon    int `db:"Buff1"` // 优惠卷
 	SalesPole int `db:"Buff2"` // 卖鱼竿上限
 	BuyTing   int `db:"Buff3"` // 购买上限
-	Buff4 	  int `db:"Buff4"` // 暂定
+	Buff4     int `db:"Buff4"` // 暂定
 	Buff5     int `db:"Buff5"` // 暂定
 	Buff6     int `db:"Buff6"` // 暂定
 	Buff7     int `db:"Buff7"` // 暂定
@@ -630,12 +630,12 @@ func (sql *fishdb) refreshStroeInfo() (ok bool, err error) {
 			Duration: time.Now().Unix(),
 			Name:     "初始木竿",
 			Type:     "pole",
-			Price:    priceList["木竿"]+priceList["木竿"] * discountList["木竿"]/100,
-			Other: 	  "30/0/0/0",
+			Price:    priceList["木竿"] + priceList["木竿"]*discountList["木竿"]/100,
+			Other:    "30/0/0/0",
 		}
 		_ = sql.db.Find("store", &thingInfo, "WHERE Name = '初始木竿'")
-		thingInfo.Number ++
-		if thingInfo.Number > 5{
+		thingInfo.Number++
+		if thingInfo.Number > 5 {
 			thingInfo.Number = 1
 		}
 		_ = sql.db.Insert("store", &thingInfo)
