@@ -45,9 +45,9 @@ require (
 	github.com/wcharczuk/go-chart/v2 v2.1.2
 	github.com/wdvxdr1123/ZeroBot v1.8.0
 	gitlab.com/gomidi/midi/v2 v2.1.7
-	golang.org/x/image v0.21.0
+	golang.org/x/image v0.24.0
 	golang.org/x/sys v0.30.0
-	golang.org/x/text v0.21.0
+	golang.org/x/text v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
