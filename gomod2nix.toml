@@ -74,8 +74,8 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-/sN7X8dKXQgv8J+EDzVUB+o+AY9gBC8e1C6sYhaTy1k="
   [mod."github.com/fumiama/deepinfra"]
-    version = "v0.0.0-20250222055014-e969fc5b4ccf"
-    hash = "sha256-OD/5pId1fCSy6BsXnlgUWUcQqDiz0xpKezmozMwtpBQ="
+    version = "v0.0.0-20250222123807-c64d9d26d2f8"
+    hash = "sha256-cEPQpNKiWZ0+dp7NH0rQWnJOYnCirNQ6vmc/GlPLmSI="
   [mod."github.com/fumiama/go-base16384"]
     version = "v1.7.0"
     hash = "sha256-vTAsBBYe2ISzb2Nba5E96unodZSkhMcqo6hbwR01nz8="
