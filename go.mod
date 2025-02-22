@@ -12,7 +12,7 @@ require (
 	github.com/FloatTech/sqlite v1.7.1
 	github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562
 	github.com/FloatTech/zbpctrl v1.7.0
-	github.com/FloatTech/zbputils v1.7.2-0.20250221161059-26d1b9f9608b
+	github.com/FloatTech/zbputils v1.7.2-0.20250222055844-5d403aa9cecf
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/antchfx/htmlquery v1.3.4
@@ -21,7 +21,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/deepinfra v0.0.0-20250221162358-7c01751fe680
+	github.com/fumiama/deepinfra v0.0.0-20250222055014-e969fc5b4ccf
 	github.com/fumiama/go-base16384 v1.7.0
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3

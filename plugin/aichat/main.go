@@ -33,6 +33,7 @@ var (
 			"- 设置AI聊天温度80\n" +
 			"- 设置AI聊天密钥xxx\n" +
 			"- 设置AI聊天模型名xxx\n" +
+			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
 			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
 			"- 设置AI聊天(不)响应AT",
@@ -42,7 +43,7 @@ var (
 
 var (
 	modelname    = model.ModelDeepDeek
-	systemprompt = "你正在QQ群与用户聊天，你将收到不同的用户发送的一至多条消息，每条消息以【】包裹的用户名开始，随后是消息内容。按自己的心情简短思考后条理清晰地回复。"
+	systemprompt = chat.SystemPrompt
 	sepstr       = ""
 	noreplyat    = false
 )
@@ -264,6 +265,11 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		ctx.SendChain(message.Text("成功"))
+	})
+	en.OnFullMatch("重置AI聊天系统提示词", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		systemprompt = chat.SystemPrompt
+		_ = os.Remove(sf)
 		ctx.SendChain(message.Text("成功"))
 	})
 	en.OnPrefix("设置AI聊天分隔符", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
