@@ -150,11 +150,21 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 	if d == nil {
 		return errDBConn
 	}
-	d.lock.Lock()
-	defer d.lock.Unlock()
 	if addr == "" || targetID == 0 {
 		return errParam
 	}
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
+	// 检查是否存在
+	if err = d.sdb.Model(&ServerSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(&ServerSubscribe{}).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return errors.New("未找到订阅")
+		}
+		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
+		return
+	}
+
 	if err = d.sdb.Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).Delete(&ServerSubscribe{}).Error; err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return

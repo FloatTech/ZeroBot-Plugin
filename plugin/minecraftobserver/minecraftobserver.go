@@ -2,12 +2,10 @@
 package minecraftobserver
 
 import (
-	"errors"
 	"fmt"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zbpCtxExt "github.com/FloatTech/zbputils/ctxext"
-	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -99,19 +97,15 @@ func init() {
 		// 关键词查找
 		var extractedPlainText string
 		extractedPlainText = ctx.ExtractPlainText()
-		addr := strings.ReplaceAll(extractedPlainText, "mc服务器删除订阅 ", "")
+		addr := strings.ReplaceAll(extractedPlainText, "mc服务器取消订阅 ", "")
 		// 通过群组id和服务器地址获取服务器状态
 		targetID, targetType := warpTargetIDAndType(ctx)
 		err := dbInstance.deleteSubscribe(addr, targetID, targetType)
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				ctx.SendChain(message.Text("不存在的订阅！"))
-				return
-			}
 			logrus.Errorln(logPrefix+"deleteSubscribe error: ", err)
-			ctx.SendChain(message.Text("订阅删除失败...", fmt.Sprintf("错误信息: %v", err)))
+			ctx.SendChain(message.Text("取消订阅失败...", fmt.Sprintf("错误信息: %v", err)))
 		}
-		ctx.SendChain(message.Text("订阅删除成功"))
+		ctx.SendChain(message.Text("取消订阅成功"))
 	})
 	// 状态变更通知，全局触发，逐个服务器检查，检查到变更则逐个发送通知
 	engine.OnRegex(`^[m|M][c|C]服务器订阅拉取$`, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {

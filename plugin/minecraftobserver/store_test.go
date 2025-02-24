@@ -272,11 +272,11 @@ func Test_DAO(t *testing.T) {
 		if err != nil {
 			t.Fatalf("deleteSubscribe() error = %v", err)
 		}
-		//err = dbInstance.deleteSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
-		//if err == nil {
-		//	t.Fatalf("deleteSubscribe() error = %v", err)
-		//}
-		//logrus.Infoln("delete dup error: ", err)
+		err = dbInstance.deleteSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err == nil {
+			t.Fatalf("deleteSubscribe() error = %v", err)
+		}
+		logrus.Infoln("delete dup error: ", err)
 
 		// 检查其他的没有被删
 		allSub, err = dbInstance.getAllSubscribes()
