@@ -3,6 +3,7 @@ package minecraftobserver
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 	"testing"
 )
 
@@ -93,6 +94,31 @@ func Test_DAO(t *testing.T) {
 		}
 
 	})
+	// 重复添加订阅
+	t.Run("insert dup", func(t *testing.T) {
+		cleanTestData(t)
+		newSS := &ServerStatus{
+			ServerAddr:  "dx.zhaomc.net",
+			Description: "测试服务器",
+			Players:     "1/20",
+			Version:     "1.16.5",
+			FaviconMD5:  "1234567",
+		}
+		err := dbInstance.updateServerStatus(newSS)
+		if err != nil {
+			t.Errorf("upsertServerStatus() error = %v", err)
+		}
+		err = dbInstance.newSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+		err = dbInstance.newSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err == nil {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+		logrus.Infoln("insert dup error: ", err)
+	})
+
 	t.Run("update", func(t *testing.T) {
 		cleanTestData(t)
 		newSS := &ServerStatus{
@@ -125,7 +151,7 @@ func Test_DAO(t *testing.T) {
 			t.Errorf("getAllServer() got = %v, want 更新测试", queryResult2.Description)
 		}
 	})
-	t.Run("delete", func(t *testing.T) {
+	t.Run("delete status", func(t *testing.T) {
 		cleanTestData(t)
 		newSS := &ServerStatus{
 			ServerAddr:  "dx.zhaomc.net",
@@ -154,6 +180,128 @@ func Test_DAO(t *testing.T) {
 		_, err = dbInstance.getServerStatus("dx.zhaomc.net")
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			t.Fatalf("getAllServer() error = %v", err)
+		}
+
+	})
+
+	// 删除订阅
+	t.Run("delete subscribe", func(t *testing.T) {
+		cleanTestData(t)
+		newSS := &ServerStatus{
+			ServerAddr:  "dx.zhaomc.net",
+			Description: "测试服务器",
+			Players:     "1/20",
+			Version:     "1.16.5",
+			FaviconMD5:  "1234567",
+		}
+		err := dbInstance.updateServerStatus(newSS)
+		if err != nil {
+			t.Errorf("upsertServerStatus() error = %v", err)
+		}
+		err = dbInstance.newSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+		err = dbInstance.deleteSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("deleteSubscribe() error = %v", err)
+		}
+		// check delete
+		_, err = dbInstance.getServerStatus("dx.zhaomc.net")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+	})
+
+	// 重复删除订阅
+	t.Run("delete subscribe dup", func(t *testing.T) {
+		cleanTestData(t)
+		err := dbInstance.updateServerStatus(&ServerStatus{
+			ServerAddr:  "dx.zhaomc.net",
+			Description: "测试服务器",
+			Players:     "1/20",
+			Version:     "1.16.5",
+			FaviconMD5:  "1234567",
+		})
+		if err != nil {
+			t.Errorf("upsertServerStatus() error = %v", err)
+		}
+		err = dbInstance.newSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("newSubscribe() error = %v", err)
+		}
+
+		err = dbInstance.newSubscribe("dx.zhaomc.net123", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("newSubscribe() error = %v", err)
+		}
+		err = dbInstance.updateServerStatus(&ServerStatus{
+			ServerAddr:  "dx.zhaomc.net123",
+			Description: "测试服务器",
+			Players:     "1/20",
+			Version:     "1.16.5",
+			FaviconMD5:  "1234567",
+		})
+		if err != nil {
+			t.Fatalf("updateServerStatus() error = %v", err)
+		}
+		err = dbInstance.newSubscribe("dx.zhaomc.net4567", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("newSubscribe() error = %v", err)
+		}
+		err = dbInstance.updateServerStatus(&ServerStatus{
+			ServerAddr:  "dx.zhaomc.net4567",
+			Description: "测试服务器",
+			Players:     "1/20",
+			Version:     "1.16.5",
+			FaviconMD5:  "1234567",
+		})
+		if err != nil {
+			t.Fatalf("updateServerStatus() error = %v", err)
+		}
+
+		// 检查是不是3个
+		allSub, err := dbInstance.getAllSubscribes()
+		if err != nil {
+			t.Fatalf("getAllSubscribes() error = %v", err)
+		}
+		if len(allSub) != 3 {
+			t.Fatalf("getAllSubscribes() got = %v, want 3", len(allSub))
+		}
+		err = dbInstance.deleteSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("deleteSubscribe() error = %v", err)
+		}
+		//err = dbInstance.deleteSubscribe("dx.zhaomc.net", 123456, targetTypeGroup)
+		//if err == nil {
+		//	t.Fatalf("deleteSubscribe() error = %v", err)
+		//}
+		//logrus.Infoln("delete dup error: ", err)
+
+		// 检查其他的没有被删
+		allSub, err = dbInstance.getAllSubscribes()
+		if err != nil {
+			t.Fatalf("getAllSubscribes() error = %v", err)
+		}
+		// 检查是否符合预期
+		if len(allSub) != 2 {
+			t.Fatalf("getAllSubscribes() got = %v, want 2", len(allSub))
+		}
+		// 状态
+		_, err = dbInstance.getServerStatus("dx.zhaomc.net")
+		if !gorm.IsRecordNotFoundError(err) {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+		status1, err := dbInstance.getServerStatus("dx.zhaomc.net123")
+		if err != nil {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+		status2, err := dbInstance.getServerStatus("dx.zhaomc.net4567")
+		if err != nil {
+			t.Fatalf("getAllServer() error = %v", err)
+		}
+		if status1 == nil || status2 == nil {
+			t.Fatalf("getAllServer() want not nil")
 		}
 
 	})

@@ -104,7 +104,7 @@ func (d *db) updateServerStatus(ss *ServerStatus) (err error) {
 }
 
 func (d *db) delServerStatus(addr string) (err error) {
-	if err = d.sdb.Model(&ServerStatus{}).Delete(&ServerStatus{}).Where("server_addr = ?", addr).Error; err != nil {
+	if err = d.sdb.Where("server_addr = ?", addr).Delete(&ServerStatus{}).Error; err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
@@ -116,11 +116,21 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 	if d == nil {
 		return errDBConn
 	}
-	d.lock.Lock()
-	defer d.lock.Unlock()
 	if targetID == 0 || (targetType != 1 && targetType != 2) {
 		logrus.Errorln(logPrefix+"newSubscribe ERROR: 参数错误 ", targetID, " ", targetType)
 		return errParam
+	}
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	// 如果已经存在，需要报错
+	existedRec := &ServerSubscribe{}
+	err = d.sdb.Model(&ServerSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(existedRec).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		logrus.Errorln(logPrefix+"newSubscribe ERROR: ", err)
+		return
+	}
+	if existedRec.ID != 0 {
+		return errors.New("已经存在的订阅")
 	}
 	ss := &ServerSubscribe{
 		ServerAddr: addr,
@@ -145,7 +155,7 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 	if addr == "" || targetID == 0 {
 		return errParam
 	}
-	if err = d.sdb.Model(&ServerSubscribe{}).Delete(&ServerSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).Error; err != nil {
+	if err = d.sdb.Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).Delete(&ServerSubscribe{}).Error; err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
@@ -172,7 +182,7 @@ func (d *db) getAllSubscribes() (subs []ServerSubscribe, err error) {
 		return nil, errDBConn
 	}
 	subs = []ServerSubscribe{}
-	if err = d.sdb.Model(&subs).Find(&subs).Error; err != nil {
+	if err = d.sdb.Find(&subs).Error; err != nil {
 		logrus.Errorln(logPrefix+"getAllSubscribes ERROR: ", err)
 		return
 	}

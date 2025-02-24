@@ -132,7 +132,10 @@ func (ss *ServerStatus) GenerateServerStatusMsg() (msg message.Message) {
 	if ss == nil {
 		return
 	}
+	// 标题 & 描述
 	msg = append(msg, message.Text(fmt.Sprintf("%s\n", ss.Description)))
+	// 地址
+	msg = append(msg, message.Text(fmt.Sprintf("地址：%s\n", ss.ServerAddr)))
 	// 图标
 	if ss.FaviconRaw != "" && ss.FaviconRaw.checkPNG() {
 		msg = append(msg, message.Image(ss.FaviconRaw.toBase64String()))
@@ -142,7 +145,7 @@ func (ss *ServerStatus) GenerateServerStatusMsg() (msg message.Message) {
 		msg = append(msg, message.Text("Ping：超时\n"))
 	} else {
 		msg = append(msg, message.Text(fmt.Sprintf("Ping：%d 毫秒\n", ss.PingDelay)))
-		msg = append(msg, message.Text(fmt.Sprintf("在线人数：%s\n", ss.Players)))
+		msg = append(msg, message.Text(fmt.Sprintf("在线人数：%s", ss.Players)))
 	}
 	return
 }

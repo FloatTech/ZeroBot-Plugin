@@ -83,6 +83,7 @@ func init() {
 		if err != nil {
 			logrus.Errorln(logPrefix+"newSubscribe error: ", err)
 			ctx.SendChain(message.Text("订阅添加失败...", fmt.Sprintf("错误信息: %v", err)))
+			return
 		}
 		// 插入数据库（首条，需要更新状态）
 		err = dbInstance.updateServerStatus(ss.GenServerSubscribeSchema(addr, 0))
