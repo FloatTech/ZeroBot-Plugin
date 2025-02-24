@@ -912,6 +912,20 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>Minecraft服务器监控&订阅</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/minecraftobserver"`
+
+- [x] mc服务器状态 [服务器IP/URI]
+- [x] mc服务器添加订阅 [服务器IP/URI]
+- [x] mc服务器取消订阅 [服务器IP/URI]
+- [x] mc服务器订阅拉取 （需要插件定时任务配合使用，全局只需要设置一个）
+   - 使用job插件设置定时, 对话例子如下:：
+      - 记录在"@every 1m"触发的指令
+      - （机器人回答：您的下一条指令将被记录，在@@every 1m时触发）
+      - mc服务器订阅拉取
+</details>
+<details>
   <summary>钓鱼模拟器</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/mcfish"`
