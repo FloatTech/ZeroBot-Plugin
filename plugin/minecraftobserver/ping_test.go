@@ -11,8 +11,9 @@ func Test_PingListInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("getMinecraftServerStatus() error = %v", err)
 		}
-		msg := resp.GenServerSubscribeSchema("cn.nekoland.top", 123456).GenerateServerStatusMsg()
+		msg, iconBase64 := resp.genServerSubscribeSchema("cn.nekoland.top", 123456).generateServerStatusMsg()
 		fmt.Printf("msg: %v\n", msg)
+		fmt.Printf("iconBase64: %v\n", iconBase64)
 	})
 	t.Run("不可达", func(t *testing.T) {
 		ss, err := getMinecraftServerStatus("dx.123213213123123.net")

@@ -47,7 +47,7 @@ func initializeDB(dbpath string) error {
 		logrus.Errorln(logPrefix+"initializeDB ERROR: ", err)
 		return err
 	}
-	gdb.AutoMigrate(&ServerStatus{}, &ServerSubscribe{})
+	gdb.AutoMigrate(&serverStatus{}, &serverSubscribe{})
 	dbInstance = &db{
 		sdb:  gdb,
 		lock: sync.RWMutex{},
@@ -72,11 +72,11 @@ var (
 )
 
 // 通过群组id和服务器地址获取状态
-func (d *db) getServerStatus(addr string) (*ServerStatus, error) {
+func (d *db) getServerStatus(addr string) (*serverStatus, error) {
 	if d == nil {
 		return nil, errDBConn
 	}
-	var ss ServerStatus
+	var ss serverStatus
 	if err := d.sdb.Model(&ss).Where("server_addr = ?", addr).First(&ss).Error; err != nil {
 		logrus.Errorln(logPrefix+"getServerStatus ERROR: ", err)
 		return nil, err
@@ -85,7 +85,7 @@ func (d *db) getServerStatus(addr string) (*ServerStatus, error) {
 }
 
 // 更新服务器状态
-func (d *db) updateServerStatus(ss *ServerStatus) (err error) {
+func (d *db) updateServerStatus(ss *serverStatus) (err error) {
 	if d == nil {
 		return errDBConn
 	}
@@ -95,8 +95,8 @@ func (d *db) updateServerStatus(ss *ServerStatus) (err error) {
 		return errors.New("参数错误")
 	}
 	ss.LastUpdate = time.Now().Unix()
-	ss2 := ss.DeepCopy()
-	if err = d.sdb.Where(&ServerStatus{ServerAddr: ss.ServerAddr}).Assign(ss2).FirstOrCreate(ss).Debug().Error; err != nil {
+	ss2 := ss.deepCopy()
+	if err = d.sdb.Where(&serverStatus{ServerAddr: ss.ServerAddr}).Assign(ss2).FirstOrCreate(ss).Debug().Error; err != nil {
 		logrus.Errorln(logPrefix, fmt.Sprintf("updateServerStatus %v ERROR: %v", ss, err))
 		return
 	}
@@ -104,7 +104,7 @@ func (d *db) updateServerStatus(ss *ServerStatus) (err error) {
 }
 
 func (d *db) delServerStatus(addr string) (err error) {
-	if err = d.sdb.Where("server_addr = ?", addr).Delete(&ServerStatus{}).Error; err != nil {
+	if err = d.sdb.Where("server_addr = ?", addr).Delete(&serverStatus{}).Error; err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
@@ -123,8 +123,8 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 	// 如果已经存在，需要报错
-	existedRec := &ServerSubscribe{}
-	err = d.sdb.Model(&ServerSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(existedRec).Error
+	existedRec := &serverSubscribe{}
+	err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(existedRec).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		logrus.Errorln(logPrefix+"newSubscribe ERROR: ", err)
 		return
@@ -132,7 +132,7 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 	if existedRec.ID != 0 {
 		return errors.New("已经存在的订阅")
 	}
-	ss := &ServerSubscribe{
+	ss := &serverSubscribe{
 		ServerAddr: addr,
 		TargetID:   targetID,
 		TargetType: targetType,
@@ -157,7 +157,7 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 	defer d.lock.Unlock()
 
 	// 检查是否存在
-	if err = d.sdb.Model(&ServerSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(&ServerSubscribe{}).Error; err != nil {
+	if err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(&serverSubscribe{}).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return errors.New("未找到订阅")
 		}
@@ -165,14 +165,14 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 		return
 	}
 
-	if err = d.sdb.Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).Delete(&ServerSubscribe{}).Error; err != nil {
+	if err = d.sdb.Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).Delete(&serverSubscribe{}).Error; err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
 
 	// 扫描是否还有订阅，如果没有则删除服务器状态
 	var cnt int
-	err = d.sdb.Model(&ServerSubscribe{}).Where("server_addr = ?", addr).Count(&cnt).Error
+	err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ?", addr).Count(&cnt).Error
 	if err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
@@ -187,11 +187,11 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 }
 
 // 获取所有订阅
-func (d *db) getAllSubscribes() (subs []ServerSubscribe, err error) {
+func (d *db) getAllSubscribes() (subs []serverSubscribe, err error) {
 	if d == nil {
 		return nil, errDBConn
 	}
-	subs = []ServerSubscribe{}
+	subs = []serverSubscribe{}
 	if err = d.sdb.Find(&subs).Error; err != nil {
 		logrus.Errorln(logPrefix+"getAllSubscribes ERROR: ", err)
 		return

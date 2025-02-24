@@ -16,7 +16,7 @@ func Test_singleServerScan(t *testing.T) {
 	}
 	t.Run("状态变更", func(t *testing.T) {
 		cleanTestData(t)
-		newSS1 := &ServerStatus{
+		newSS1 := &serverStatus{
 			ServerAddr:  "cn.nekoland.top",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -46,7 +46,7 @@ func Test_singleServerScan(t *testing.T) {
 
 	t.Run("可达 -> 不可达", func(t *testing.T) {
 		cleanTestData(t)
-		newSS1 := &ServerStatus{
+		newSS1 := &serverStatus{
 			ServerAddr:  "dx.123213213123123.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -89,18 +89,19 @@ func Test_singleServerScan(t *testing.T) {
 		if len(msg) == 0 {
 			t.Fatalf("singleServerScan() got = %v, want not empty", msg)
 		}
+		fmt.Printf("msg: %v\n", msg)
 
 	})
 
 	t.Run("不可达 -> 可达", func(t *testing.T) {
 		cleanTestData(t)
-		newSS1 := &ServerStatus{
+		newSS1 := &serverStatus{
 			ServerAddr:  "cn.nekoland.top",
 			Description: "测试服务器",
 			Players:     "1/20",
 			Version:     "1.16.5",
 			FaviconMD5:  "",
-			PingDelay:   PingDelayUnreachable,
+			PingDelay:   pingDelayUnreachable,
 		}
 		err := dbInstance.updateServerStatus(newSS1)
 		if err != nil {

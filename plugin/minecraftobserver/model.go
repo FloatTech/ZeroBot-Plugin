@@ -2,18 +2,11 @@ package minecraftobserver
 
 import (
 	"crypto/md5"
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"github.com/FloatTech/imgfactory"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
-	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"image"
-	"image/png"
 	"strings"
 	"time"
 )
@@ -21,8 +14,8 @@ import (
 // ====================
 // DB Schema
 
-// ServerStatus 服务器状态
-type ServerStatus struct {
+// serverStatus 服务器状态
+type serverStatus struct {
 	// ID 主键
 	ID int64 `json:"id" gorm:"column:id;primary_key:pk_id;auto_increment;default:0"`
 	// 服务器地址
@@ -36,15 +29,15 @@ type ServerStatus struct {
 	// FaviconMD5 Favicon MD5
 	FaviconMD5 string `json:"favicon_md5" gorm:"column:favicon_md5;default:''"`
 	// FaviconRaw 原始数据
-	FaviconRaw Icon `json:"favicon_raw" gorm:"column:favicon_raw;default:null;type:CLOB"`
+	FaviconRaw icon `json:"favicon_raw" gorm:"column:favicon_raw;default:null;type:CLOB"`
 	// 延迟，不可达时为-1
 	PingDelay int64 `json:"ping_delay" gorm:"column:ping_delay;default:-1"`
 	// 更新时间
 	LastUpdate int64 `json:"last_update" gorm:"column:last_update;default:0"`
 }
 
-// ServerSubscribe 订阅信息
-type ServerSubscribe struct {
+// serverSubscribe 订阅信息
+type serverSubscribe struct {
 	// ID 主键
 	ID int64 `json:"id" gorm:"column:id;primary_key:pk_id;auto_increment;default:0"`
 	// 服务器地址
@@ -58,12 +51,12 @@ type ServerSubscribe struct {
 }
 
 const (
-	// PingDelayUnreachable 不可达
-	PingDelayUnreachable = -1
+	// pingDelayUnreachable 不可达
+	pingDelayUnreachable = -1
 )
 
-// IsServerStatusSpecChanged 检查是否有状态变化
-func (ss *ServerStatus) IsServerStatusSpecChanged(newStatus *ServerStatus) (res bool) {
+// isServerStatusSpecChanged 检查是否有状态变化
+func (ss *serverStatus) isServerStatusSpecChanged(newStatus *serverStatus) (res bool) {
 	res = false
 	if ss == nil || newStatus == nil {
 		res = false
@@ -75,86 +68,63 @@ func (ss *ServerStatus) IsServerStatusSpecChanged(newStatus *ServerStatus) (res 
 		return
 	}
 	// 状态由不可达变为可达 or 反之
-	if (ss.PingDelay == PingDelayUnreachable && newStatus.PingDelay != PingDelayUnreachable) ||
-		(ss.PingDelay != PingDelayUnreachable && newStatus.PingDelay == PingDelayUnreachable) {
+	if (ss.PingDelay == pingDelayUnreachable && newStatus.PingDelay != pingDelayUnreachable) ||
+		(ss.PingDelay != pingDelayUnreachable && newStatus.PingDelay == pingDelayUnreachable) {
 		res = true
 		return
 	}
 	return
 }
 
-// DeepCopy 深拷贝
-func (ss *ServerStatus) DeepCopy() (dst *ServerStatus) {
+// deepCopy 深拷贝
+func (ss *serverStatus) deepCopy() (dst *serverStatus) {
 	if ss == nil {
 		return
 	}
-	dst = &ServerStatus{}
-	dst.ID = ss.ID
-	dst.ServerAddr = ss.ServerAddr
-	dst.Description = ss.Description
-	dst.Players = ss.Players
-	dst.Version = ss.Version
-	dst.FaviconMD5 = ss.FaviconMD5
-	dst.FaviconRaw = ss.FaviconRaw
-	dst.PingDelay = ss.PingDelay
-	dst.LastUpdate = ss.LastUpdate
+	dst = &serverStatus{}
+	*dst = *ss
 	return
 }
 
-// FaviconToImage 转换为 image.Image
-func (ss *ServerStatus) FaviconToImage() (icon image.Image, err error) {
-	const prefix = "data:image/png;base64,"
-	if !strings.HasPrefix(string(ss.FaviconRaw), prefix) {
-		return nil, errors.Errorf("server icon should prepended with %s", prefix)
-	}
-	base64png := strings.TrimPrefix(string(ss.FaviconRaw), prefix)
-	r := base64.NewDecoder(base64.StdEncoding, strings.NewReader(base64png))
-	icon, err = png.Decode(r)
-	return
-}
-
-// FaviconToBytes ToBytes 转换为bytes
-func (ss *ServerStatus) FaviconToBytes() (b []byte, err error) {
-	i, err := ss.FaviconToImage()
-	if err != nil {
-		return nil, err
-	}
-	b, err = imgfactory.ToBytes(i)
-	if err != nil {
-		return nil, err
-	}
-	return
-}
-
-// GenerateServerStatusMsg 生成服务器状态消息
-func (ss *ServerStatus) GenerateServerStatusMsg() (msg message.Message) {
-	msg = make(message.Message, 0)
+// generateServerStatusMsg 生成服务器状态消息
+func (ss *serverStatus) generateServerStatusMsg() (msg string, iconBase64 string) {
+	var msgBuilder strings.Builder
 	if ss == nil {
 		return
 	}
-	// 标题 & 描述
-	msg = append(msg, message.Text(fmt.Sprintf("%s\n", ss.Description)))
-	// 地址
-	msg = append(msg, message.Text(fmt.Sprintf("地址：%s\n", ss.ServerAddr)))
+	msgBuilder.WriteString(ss.Description)
+	msgBuilder.WriteString("\n")
+	msgBuilder.WriteString("地址：")
+	msgBuilder.WriteString(ss.ServerAddr)
+	msgBuilder.WriteString("\n")
+	// 版本
+	msgBuilder.WriteString("版本：")
+	msgBuilder.WriteString(ss.Version)
+	msgBuilder.WriteString("\n")
+	// Ping
+	if ss.PingDelay < 0 {
+		msgBuilder.WriteString("Ping：超时\n")
+	} else {
+		msgBuilder.WriteString("Ping：")
+		msgBuilder.WriteString(fmt.Sprintf("%d 毫秒\n", ss.PingDelay))
+		msgBuilder.WriteString("在线人数：")
+		msgBuilder.WriteString(ss.Players)
+	}
 	// 图标
 	if ss.FaviconRaw != "" && ss.FaviconRaw.checkPNG() {
-		msg = append(msg, message.Image(ss.FaviconRaw.toBase64String()))
+		iconBase64 = ss.FaviconRaw.toBase64String()
 	}
-	msg = append(msg, message.Text(fmt.Sprintf("版本：%s\n", ss.Version)))
-	if ss.PingDelay < 0 {
-		msg = append(msg, message.Text("Ping：超时\n"))
-	} else {
-		msg = append(msg, message.Text(fmt.Sprintf("Ping：%d 毫秒\n", ss.PingDelay)))
-		msg = append(msg, message.Text(fmt.Sprintf("在线人数：%s", ss.Players)))
-	}
+	msg = msgBuilder.String()
 	return
 }
 
 // DB Schema End
-// ====================
 
-// ServerPingAndListResp 服务器状态数据传输对象 From mc server response
-type ServerPingAndListResp struct {
+// ====================
+// Ping & List Response DTO
+
+// serverPingAndListResp 服务器状态数据传输对象 From mc server response
+type serverPingAndListResp struct {
 	Description chat.Message
 	Players     struct {
 		Max    int
@@ -168,16 +138,16 @@ type ServerPingAndListResp struct {
 		Name     string
 		Protocol int
 	}
-	Favicon Icon
+	Favicon icon
 	Delay   time.Duration
 }
 
-// Icon should be a PNG image that is Base64 encoded
+// icon should be a PNG image that is Base64 encoded
 // (without newlines: \n, new lines no longer work since 1.13)
 // and prepended with "data:image/png;base64,".
-type Icon string
+type icon string
 
-//func (i Icon) toImage() (icon image.Image, err error) {
+//func (i icon) toImage() (icon image.Image, err error) {
 //	const prefix = "data:image/png;base64,"
 //	if !strings.HasPrefix(string(i), prefix) {
 //		return nil, errors.Errorf("server icon should prepended with %s", prefix)
@@ -189,23 +159,23 @@ type Icon string
 //}
 
 // checkPNG 检查是否为PNG
-func (i Icon) checkPNG() bool {
+func (i icon) checkPNG() bool {
 	const prefix = "data:image/png;base64,"
 	return strings.HasPrefix(string(i), prefix)
 }
 
 // toBase64String 转换为base64字符串
-func (i Icon) toBase64String() string {
+func (i icon) toBase64String() string {
 	return "base64://" + strings.TrimPrefix(string(i), "data:image/png;base64,")
 }
 
-// GenServerSubscribeSchema 将DTO转换为DB Schema
-func (dto *ServerPingAndListResp) GenServerSubscribeSchema(addr string, id int64) *ServerStatus {
+// genServerSubscribeSchema 将DTO转换为DB Schema
+func (dto *serverPingAndListResp) genServerSubscribeSchema(addr string, id int64) *serverStatus {
 	if dto == nil {
 		return nil
 	}
 	faviconMD5 := md5.Sum(helper.StringToBytes(string(dto.Favicon)))
-	return &ServerStatus{
+	return &serverStatus{
 		ID:          id,
 		ServerAddr:  addr,
 		Description: dto.Description.ClearString(),
@@ -218,23 +188,26 @@ func (dto *ServerPingAndListResp) GenServerSubscribeSchema(addr string, id int64
 	}
 }
 
+// Ping & List Response DTO End
 // ====================
 
+// ====================
+// Biz Model
 const (
 	logPrefix = "[minecraft observer] "
 )
 
 // warpTargetIDAndType 转换消息信息到订阅的目标ID和类型
-func warpTargetIDAndType(ctx *zero.Ctx) (int64, int64) {
+func warpTargetIDAndType(groupId, userId int64) (int64, int64) {
 	// 订阅
 	var targetID int64
 	var targetType int64
-	if ctx.Event.GroupID == 0 {
+	if groupId == 0 {
 		targetType = targetTypeUser
-		targetID = ctx.Event.UserID
+		targetID = userId
 	} else {
 		targetType = targetTypeGroup
-		targetID = ctx.Event.GroupID
+		targetID = groupId
 	}
 	return targetID, targetType
 }
@@ -245,44 +218,32 @@ const (
 	subStatusChangeTextNoticeIconFormat = "图标变更:\n"
 )
 
-func formatSubStatusChange(oldStatus, newStatus *ServerStatus) (msg message.Message) {
-	msg = make(message.Message, 0)
+func formatSubStatusChangeText(oldStatus, newStatus *serverStatus) string {
+	var msgBuilder strings.Builder
 	if oldStatus == nil || newStatus == nil {
-		return
+		return ""
 	}
-	// 不管怎么样，先显示地址
-	msg = append(msg, message.Text(fmt.Sprintf("服务器地址: %v\n", oldStatus.ServerAddr)))
+	// 变更通知
+	msgBuilder.WriteString(subStatusChangeTextNoticeTitleFormat)
+	// 地址
+	msgBuilder.WriteString(fmt.Sprintf("服务器地址: %v\n", oldStatus.ServerAddr))
+	// 描述
 	if oldStatus.Description != newStatus.Description {
-		msg = append(msg, message.Text(fmt.Sprintf("描述变更: %v -> %v\n", oldStatus.Description, newStatus.Description)))
+		msgBuilder.WriteString(fmt.Sprintf("描述变更: %v -> %v\n", oldStatus.Description, newStatus.Description))
 	}
+	// 版本
 	if oldStatus.Version != newStatus.Version {
-		msg = append(msg, message.Text(fmt.Sprintf("版本变更: %v -> %v\n", oldStatus.Version, newStatus.Version)))
-	}
-	if oldStatus.FaviconMD5 != newStatus.FaviconMD5 {
-		msg = append(msg, message.Text(subStatusChangeTextNoticeIconFormat))
-		var faviconOldBase64, faviconNewBase64 string
-		if oldStatus.FaviconRaw.checkPNG() {
-			faviconOldBase64 = oldStatus.FaviconRaw.toBase64String()
-			msg = append(msg, message.Text("旧图标："), message.Image(faviconOldBase64), message.Text("->"))
-		} else {
-			msg = append(msg, message.Text("旧图标：无->"))
-		}
-		if newStatus.FaviconRaw.checkPNG() {
-			faviconNewBase64 = newStatus.FaviconRaw.toBase64String()
-			msg = append(msg, message.Text("新图标："), message.Image(faviconNewBase64), message.Text("\n"))
-		} else {
-			msg = append(msg, message.Text("新图标：无\n"))
-		}
+		msgBuilder.WriteString(fmt.Sprintf("版本变更: %v -> %v\n", oldStatus.Version, newStatus.Version))
 	}
 	// 状态由不可达变为可达，反之
-	if oldStatus.PingDelay == PingDelayUnreachable && newStatus.PingDelay != PingDelayUnreachable {
-		msg = append(msg, message.Text(fmt.Sprintf("Ping延迟：超时 -> %d\n", newStatus.PingDelay)))
+	if oldStatus.PingDelay == pingDelayUnreachable && newStatus.PingDelay != pingDelayUnreachable {
+		msgBuilder.WriteString(fmt.Sprintf("Ping延迟：超时 -> %d\n", newStatus.PingDelay))
 	}
-	if oldStatus.PingDelay != PingDelayUnreachable && newStatus.PingDelay == PingDelayUnreachable {
-		msg = append(msg, message.Text(fmt.Sprintf("Ping延迟：%d -> 超时\n", oldStatus.PingDelay)))
+	if oldStatus.PingDelay != pingDelayUnreachable && newStatus.PingDelay == pingDelayUnreachable {
+		msgBuilder.WriteString(fmt.Sprintf("Ping延迟：%d -> 超时\n", oldStatus.PingDelay))
 	}
-	if len(msg) != 0 {
-		msg = append([]message.Segment{message.Text(subStatusChangeTextNoticeTitleFormat)}, msg...)
-	}
-	return
+	return msgBuilder.String()
 }
+
+// Biz Model End
+// ====================

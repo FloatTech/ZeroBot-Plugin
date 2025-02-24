@@ -10,14 +10,14 @@ import (
 
 var (
 	// pingServerUnreachableCounter Ping服务器不可达计数器，防止bot本体网络抖动导致误报
-	pingServerUnreachableCounter = syncx.Map[string, _pingServerUnreachableCounter]{}
+	pingServerUnreachableCounter = syncx.Map[string, pingServerUnreachableCounterDef]{}
 	// 计数器阈值
 	pingServerUnreachableCounterThreshold = int64(3)
 	// 时间阈值
 	pingServerUnreachableCounterTimeThreshold = time.Minute * 30
 )
 
-type _pingServerUnreachableCounter struct {
+type pingServerUnreachableCounterDef struct {
 	count                int64
 	firstUnreachableTime time.Time
 }
@@ -26,14 +26,14 @@ func addPingServerUnreachableCounter(addr string, ts time.Time) (int64, time.Tim
 	key := addr
 	get, ok := pingServerUnreachableCounter.Load(key)
 	if !ok {
-		pingServerUnreachableCounter.Store(key, _pingServerUnreachableCounter{
+		pingServerUnreachableCounter.Store(key, pingServerUnreachableCounterDef{
 			count:                1,
 			firstUnreachableTime: ts,
 		})
 		return 1, ts
 	}
 	// 存在则更新，时间戳不变
-	pingServerUnreachableCounter.Store(key, _pingServerUnreachableCounter{
+	pingServerUnreachableCounter.Store(key, pingServerUnreachableCounterDef{
 		count:                get.count + 1,
 		firstUnreachableTime: get.firstUnreachableTime,
 	})
@@ -46,13 +46,13 @@ func resetPingServerUnreachableCounter(addr string) {
 }
 
 // getMinecraftServerStatus 获取Minecraft服务器状态
-func getMinecraftServerStatus(addr string) (*ServerPingAndListResp, error) {
+func getMinecraftServerStatus(addr string) (*serverPingAndListResp, error) {
+	var s serverPingAndListResp
 	resp, delay, err := bot.PingAndListTimeout(addr, time.Second*5)
 	if err != nil {
 		logrus.Errorln(logPrefix+"PingAndList error: ", err)
 		return nil, err
 	}
-	var s ServerPingAndListResp
 	err = json.Unmarshal(resp, &s)
 	if err != nil {
 		logrus.Errorln(logPrefix+"Parse json response fail: ", err)

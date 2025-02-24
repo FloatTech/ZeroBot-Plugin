@@ -8,11 +8,11 @@ import (
 )
 
 func cleanTestData(t *testing.T) {
-	err := dbInstance.sdb.Delete(&ServerStatus{}).Where("id > 0").Error
+	err := dbInstance.sdb.Delete(&serverStatus{}).Where("id > 0").Error
 	if err != nil {
 		t.Fatalf("cleanTestData() error = %v", err)
 	}
-	err = dbInstance.sdb.Delete(&ServerSubscribe{}).Where("id > 0").Error
+	err = dbInstance.sdb.Delete(&serverSubscribe{}).Where("id > 0").Error
 	if err != nil {
 		t.Fatalf("cleanTestData() error = %v", err)
 	}
@@ -28,14 +28,14 @@ func Test_DAO(t *testing.T) {
 	}
 	t.Run("insert", func(t *testing.T) {
 		cleanTestData(t)
-		newSS1 := &ServerStatus{
+		newSS1 := &serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
 			Version:     "1.16.5",
 			FaviconMD5:  "1234567",
 		}
-		newSS2 := &ServerStatus{
+		newSS2 := &serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -97,7 +97,7 @@ func Test_DAO(t *testing.T) {
 	// 重复添加订阅
 	t.Run("insert dup", func(t *testing.T) {
 		cleanTestData(t)
-		newSS := &ServerStatus{
+		newSS := &serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -121,7 +121,7 @@ func Test_DAO(t *testing.T) {
 
 	t.Run("update", func(t *testing.T) {
 		cleanTestData(t)
-		newSS := &ServerStatus{
+		newSS := &serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -132,7 +132,7 @@ func Test_DAO(t *testing.T) {
 		if err != nil {
 			t.Errorf("upsertServerStatus() error = %v", err)
 		}
-		err = dbInstance.updateServerStatus(&ServerStatus{
+		err = dbInstance.updateServerStatus(&serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "更新测试",
 			Players:     "1/20",
@@ -153,7 +153,7 @@ func Test_DAO(t *testing.T) {
 	})
 	t.Run("delete status", func(t *testing.T) {
 		cleanTestData(t)
-		newSS := &ServerStatus{
+		newSS := &serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -187,7 +187,7 @@ func Test_DAO(t *testing.T) {
 	// 删除订阅
 	t.Run("delete subscribe", func(t *testing.T) {
 		cleanTestData(t)
-		newSS := &ServerStatus{
+		newSS := &serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -216,7 +216,7 @@ func Test_DAO(t *testing.T) {
 	// 重复删除订阅
 	t.Run("delete subscribe dup", func(t *testing.T) {
 		cleanTestData(t)
-		err := dbInstance.updateServerStatus(&ServerStatus{
+		err := dbInstance.updateServerStatus(&serverStatus{
 			ServerAddr:  "dx.zhaomc.net",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -235,7 +235,7 @@ func Test_DAO(t *testing.T) {
 		if err != nil {
 			t.Fatalf("newSubscribe() error = %v", err)
 		}
-		err = dbInstance.updateServerStatus(&ServerStatus{
+		err = dbInstance.updateServerStatus(&serverStatus{
 			ServerAddr:  "dx.zhaomc.net123",
 			Description: "测试服务器",
 			Players:     "1/20",
@@ -249,7 +249,7 @@ func Test_DAO(t *testing.T) {
 		if err != nil {
 			t.Fatalf("newSubscribe() error = %v", err)
 		}
-		err = dbInstance.updateServerStatus(&ServerStatus{
+		err = dbInstance.updateServerStatus(&serverStatus{
 			ServerAddr:  "dx.zhaomc.net4567",
 			Description: "测试服务器",
 			Players:     "1/20",
