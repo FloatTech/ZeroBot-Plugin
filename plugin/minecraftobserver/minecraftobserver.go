@@ -90,7 +90,15 @@ func init() {
 			ctx.SendChain(message.Text("服务器状态更新失败...", fmt.Sprintf("错误信息: %v", err)))
 			return
 		}
-		ctx.SendChain(message.Text(fmt.Sprintf("服务器 %s 订阅添加成功", addr)))
+		if sid := ctx.SendChain(message.Text(fmt.Sprintf("服务器 %s 订阅添加成功", addr))); sid.ID() == 0 {
+			logrus.Errorln(logPrefix + "SendChain failed")
+			return
+		}
+		// 成功后立即发送一次状态
+		if sid := ctx.SendChain(ss.GenServerSubscribeSchema(addr, 0).GenerateServerStatusMsg()...); sid.ID() == 0 {
+			logrus.Errorln(logPrefix + "SendChain failed")
+			return
+		}
 	})
 	// 删除
 	engine.OnRegex(`^[m|M][c|C]服务器取消订阅\s*(.+)$`, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
