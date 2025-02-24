@@ -212,12 +212,6 @@ func warpTargetIDAndType(groupID, userID int64) (int64, int64) {
 	return targetID, targetType
 }
 
-const (
-	subStatusChangeTextNoticeTitleFormat = "[Minecraft服务器状态变更通知]\n"
-	// 图标变更
-	subStatusChangeTextNoticeIconFormat = "[图标变更]\n"
-)
-
 // formatSubStatusChangeText 格式化状态变更文本
 func formatSubStatusChangeText(oldStatus, newStatus *serverStatus) string {
 	var msgBuilder strings.Builder
@@ -225,29 +219,29 @@ func formatSubStatusChangeText(oldStatus, newStatus *serverStatus) string {
 		return ""
 	}
 	// 变更通知
-	msgBuilder.WriteString(subStatusChangeTextNoticeTitleFormat)
+	msgBuilder.WriteString("[Minecraft服务器状态变更通知]\n")
 	// 地址
 	msgBuilder.WriteString(fmt.Sprintf("服务器地址: %v\n", oldStatus.ServerAddr))
 	// 描述
 	if oldStatus.Description != newStatus.Description {
-		msgBuilder.WriteString("-----[描述变更]-----\n")
+		msgBuilder.WriteString("\n-----[描述变更]-----\n")
 		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v\n", oldStatus.Description))
 		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v\n", newStatus.Description))
 	}
 	// 版本
 	if oldStatus.Version != newStatus.Version {
-		msgBuilder.WriteString("-----[版本变更]-----\n")
+		msgBuilder.WriteString("\n-----[版本变更]-----\n")
 		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v\n", oldStatus.Version))
 		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v\n", newStatus.Version))
 	}
 	// 状态由不可达变为可达，反之
 	if oldStatus.PingDelay == pingDelayUnreachable && newStatus.PingDelay != pingDelayUnreachable {
-		msgBuilder.WriteString("-----[Ping延迟]-----\n")
+		msgBuilder.WriteString("\n-----[Ping延迟]-----\n")
 		msgBuilder.WriteString(fmt.Sprintf("[旧]\n超时\n"))
 		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v毫秒\n", newStatus.PingDelay))
 	}
 	if oldStatus.PingDelay != pingDelayUnreachable && newStatus.PingDelay == pingDelayUnreachable {
-		msgBuilder.WriteString("-----[Ping延迟]-----\n")
+		msgBuilder.WriteString("\n-----[Ping延迟]-----\n")
 		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v毫秒\n", oldStatus.PingDelay))
 		msgBuilder.WriteString(fmt.Sprintf("[新]\n超时\n"))
 	}

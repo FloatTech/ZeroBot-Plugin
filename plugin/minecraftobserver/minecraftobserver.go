@@ -208,7 +208,7 @@ func singleServerScan(oldSubStatus *serverStatus) (changed bool, notifyMsg messa
 		// 如果有图标变更
 		if oldSubStatus.FaviconMD5 != newSubStatus.FaviconMD5 {
 			// 有图标变更
-			notifyMsg = append(notifyMsg, message.Text(subStatusChangeTextNoticeIconFormat))
+			notifyMsg = append(notifyMsg, message.Text("\n-----[图标变更]-----\n"))
 			// 旧图标
 			notifyMsg = append(notifyMsg, message.Text("[旧]\n"))
 			if oldSubStatus.FaviconRaw != "" {
