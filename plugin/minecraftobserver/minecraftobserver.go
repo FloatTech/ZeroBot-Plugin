@@ -104,6 +104,7 @@ func init() {
 		if err != nil {
 			logrus.Errorln(logPrefix+"deleteSubscribe error: ", err)
 			ctx.SendChain(message.Text("取消订阅失败...", fmt.Sprintf("错误信息: %v", err)))
+			return
 		}
 		ctx.SendChain(message.Text("取消订阅成功"))
 	})

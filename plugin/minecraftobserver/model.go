@@ -250,6 +250,8 @@ func formatSubStatusChange(oldStatus, newStatus *ServerStatus) (msg message.Mess
 	if oldStatus == nil || newStatus == nil {
 		return
 	}
+	// 不管怎么样，先显示地址
+	msg = append(msg, message.Text(fmt.Sprintf("服务器地址: %v\n", oldStatus.ServerAddr)))
 	if oldStatus.Description != newStatus.Description {
 		msg = append(msg, message.Text(fmt.Sprintf("描述变更: %v -> %v\n", oldStatus.Description, newStatus.Description)))
 	}
