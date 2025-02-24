@@ -94,7 +94,7 @@ func (ss *serverStatus) generateServerStatusMsg() (msg string, iconBase64 string
 	}
 	msgBuilder.WriteString(ss.Description)
 	msgBuilder.WriteString("\n")
-	msgBuilder.WriteString("地址：")
+	msgBuilder.WriteString("服务器地址：")
 	msgBuilder.WriteString(ss.ServerAddr)
 	msgBuilder.WriteString("\n")
 	// 版本
@@ -103,9 +103,9 @@ func (ss *serverStatus) generateServerStatusMsg() (msg string, iconBase64 string
 	msgBuilder.WriteString("\n")
 	// Ping
 	if ss.PingDelay < 0 {
-		msgBuilder.WriteString("Ping：超时\n")
+		msgBuilder.WriteString("Ping延迟：超时\n")
 	} else {
-		msgBuilder.WriteString("Ping：")
+		msgBuilder.WriteString("Ping延迟：")
 		msgBuilder.WriteString(fmt.Sprintf("%d 毫秒\n", ss.PingDelay))
 		msgBuilder.WriteString("在线人数：")
 		msgBuilder.WriteString(ss.Players)
@@ -213,11 +213,12 @@ func warpTargetIDAndType(groupID, userID int64) (int64, int64) {
 }
 
 const (
-	subStatusChangeTextNoticeTitleFormat = "Minecraft服务器状态变更通知:\n"
+	subStatusChangeTextNoticeTitleFormat = "[Minecraft服务器状态变更通知]\n"
 	// 图标变更
-	subStatusChangeTextNoticeIconFormat = "图标变更:\n"
+	subStatusChangeTextNoticeIconFormat = "[图标变更]\n"
 )
 
+// formatSubStatusChangeText 格式化状态变更文本
 func formatSubStatusChangeText(oldStatus, newStatus *serverStatus) string {
 	var msgBuilder strings.Builder
 	if oldStatus == nil || newStatus == nil {
@@ -229,18 +230,26 @@ func formatSubStatusChangeText(oldStatus, newStatus *serverStatus) string {
 	msgBuilder.WriteString(fmt.Sprintf("服务器地址: %v\n", oldStatus.ServerAddr))
 	// 描述
 	if oldStatus.Description != newStatus.Description {
-		msgBuilder.WriteString(fmt.Sprintf("描述变更: %v -> %v\n", oldStatus.Description, newStatus.Description))
+		msgBuilder.WriteString("-----[描述变更]-----\n")
+		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v\n", oldStatus.Description))
+		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v\n", newStatus.Description))
 	}
 	// 版本
 	if oldStatus.Version != newStatus.Version {
-		msgBuilder.WriteString(fmt.Sprintf("版本变更: %v -> %v\n", oldStatus.Version, newStatus.Version))
+		msgBuilder.WriteString("-----[版本变更]-----\n")
+		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v\n", oldStatus.Version))
+		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v\n", newStatus.Version))
 	}
 	// 状态由不可达变为可达，反之
 	if oldStatus.PingDelay == pingDelayUnreachable && newStatus.PingDelay != pingDelayUnreachable {
-		msgBuilder.WriteString(fmt.Sprintf("Ping延迟：超时 -> %d\n", newStatus.PingDelay))
+		msgBuilder.WriteString("-----[Ping延迟]-----\n")
+		msgBuilder.WriteString(fmt.Sprintf("[旧]\n超时\n"))
+		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v毫秒\n", newStatus.PingDelay))
 	}
 	if oldStatus.PingDelay != pingDelayUnreachable && newStatus.PingDelay == pingDelayUnreachable {
-		msgBuilder.WriteString(fmt.Sprintf("Ping延迟：%d -> 超时\n", oldStatus.PingDelay))
+		msgBuilder.WriteString("-----[Ping延迟]-----\n")
+		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v毫秒\n", oldStatus.PingDelay))
+		msgBuilder.WriteString(fmt.Sprintf("[新]\n超时\n"))
 	}
 	return msgBuilder.String()
 }

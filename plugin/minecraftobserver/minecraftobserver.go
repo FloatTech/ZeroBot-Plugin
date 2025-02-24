@@ -210,14 +210,14 @@ func singleServerScan(oldSubStatus *serverStatus) (changed bool, notifyMsg messa
 			// 有图标变更
 			notifyMsg = append(notifyMsg, message.Text(subStatusChangeTextNoticeIconFormat))
 			// 旧图标
-			notifyMsg = append(notifyMsg, message.Text("旧图标:\n"))
+			notifyMsg = append(notifyMsg, message.Text("[旧]\n"))
 			if oldSubStatus.FaviconRaw != "" {
 				notifyMsg = append(notifyMsg, message.Image(oldSubStatus.FaviconRaw.toBase64String()))
 			} else {
 				notifyMsg = append(notifyMsg, message.Text("(空)\n"))
 			}
 			// 新图标
-			notifyMsg = append(notifyMsg, message.Text("新图标:\n"))
+			notifyMsg = append(notifyMsg, message.Text("[新]\n"))
 			if newSubStatus.FaviconRaw != "" {
 				notifyMsg = append(notifyMsg, message.Image(newSubStatus.FaviconRaw.toBase64String()))
 			} else {
