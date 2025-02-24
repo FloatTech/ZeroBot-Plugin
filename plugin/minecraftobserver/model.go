@@ -198,16 +198,16 @@ const (
 )
 
 // warpTargetIDAndType 转换消息信息到订阅的目标ID和类型
-func warpTargetIDAndType(groupId, userId int64) (int64, int64) {
+func warpTargetIDAndType(groupID, userID int64) (int64, int64) {
 	// 订阅
 	var targetID int64
 	var targetType int64
-	if groupId == 0 {
+	if groupID == 0 {
 		targetType = targetTypeUser
-		targetID = userId
+		targetID = userID
 	} else {
 		targetType = targetTypeGroup
-		targetID = groupId
+		targetID = groupID
 	}
 	return targetID, targetType
 }
