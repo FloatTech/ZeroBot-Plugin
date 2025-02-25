@@ -198,3 +198,16 @@ func (d *db) getAllSubscribes() (subs []serverSubscribe, err error) {
 	}
 	return
 }
+
+// 获取渠道对应的订阅列表
+func (d *db) getSubscribesByTarget(targetID, targetType int64) (subs []serverSubscribe, err error) {
+	if d == nil {
+		return nil, errDBConn
+	}
+	subs = []serverSubscribe{}
+	if err = d.sdb.Model(&serverSubscribe{}).Where("target_id = ? and target_type = ?", targetID, targetType).Find(&subs).Error; err != nil {
+		logrus.Errorln(logPrefix+"getSubscribesByTarget ERROR: ", err)
+		return
+	}
+	return
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"strings"
 	"time"
 )
 
@@ -107,6 +108,76 @@ func init() {
 			return
 		}
 		ctx.Send(message.Text("取消订阅成功"))
+	})
+	// 查看当前渠道的所有订阅
+	engine.OnRegex(`^[mM][cC]服务器订阅列表$`, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		subList, err := dbInstance.getSubscribesByTarget(warpTargetIDAndType(ctx.Event.GroupID, ctx.Event.UserID))
+		if err != nil {
+			ctx.Send(message.Text("获取订阅列表失败... 错误信息: ", err))
+			return
+		}
+		if len(subList) == 0 {
+			ctx.Send(message.Text("当前没有订阅哦"))
+			return
+		}
+		stringBuilder := strings.Builder{}
+		stringBuilder.WriteString("[订阅列表]\n")
+		for _, v := range subList {
+			stringBuilder.WriteString(fmt.Sprintf("服务器地址: %s\n", v.ServerAddr))
+		}
+		if sid := ctx.Send(message.Text(stringBuilder.String())); sid.ID() == 0 {
+			logrus.Errorln(logPrefix + "Send failed")
+			return
+		}
+	})
+	// 查看全局订阅情况（仅限管理员私聊可用）
+	engine.OnRegex(`^[mM][cC]服务器全局订阅列表$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		subList, err := dbInstance.getAllSubscribes()
+		if err != nil {
+			ctx.Send(message.Text("获取全局订阅列表失败... 错误信息: ", err))
+			return
+		}
+		if len(subList) == 0 {
+			ctx.Send(message.Text("当前一个订阅都没有哦"))
+			return
+		}
+		userID := ctx.Event.UserID
+		userName := ctx.CardOrNickName(userID)
+		msg := make(message.Message, 0)
+
+		// 按照群组or用户分组来定
+		groupSubMap := make(map[int64][]serverSubscribe)
+		userSubMap := make(map[int64][]serverSubscribe)
+		for _, v := range subList {
+			switch v.TargetType {
+			case targetTypeGroup:
+				groupSubMap[v.TargetID] = append(groupSubMap[v.TargetID], v)
+			case targetTypeUser:
+				userSubMap[v.TargetID] = append(userSubMap[v.TargetID], v)
+			default:
+			}
+		}
+
+		// 群
+		for k, v := range groupSubMap {
+			stringBuilder := strings.Builder{}
+			stringBuilder.WriteString(fmt.Sprintf("[群 %d]存在以下订阅:\n", k))
+			for _, sub := range v {
+				stringBuilder.WriteString(fmt.Sprintf("服务器地址: %s\n", sub.ServerAddr))
+			}
+			msg = append(msg, message.CustomNode(userName, userID, message.Text(stringBuilder.String())))
+		}
+		// 个人
+		for k, v := range userSubMap {
+			stringBuilder := strings.Builder{}
+			stringBuilder.WriteString(fmt.Sprintf("[用户 %d]存在以下订阅:\n", k))
+			for _, sub := range v {
+				stringBuilder.WriteString(fmt.Sprintf("服务器地址: %s\n", sub.ServerAddr))
+			}
+			msg = append(msg, message.CustomNode(userName, userID, message.Text(stringBuilder.String())))
+		}
+		// 合并发送
+		ctx.SendPrivateForwardMessage(ctx.Event.UserID, msg)
 	})
 	// 状态变更通知，全局触发，逐个服务器检查，检查到变更则逐个发送通知
 	engine.OnRegex(`^[mM][cC]服务器订阅拉取$`, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {

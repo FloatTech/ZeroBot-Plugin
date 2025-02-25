@@ -93,6 +93,15 @@ func Test_DAO(t *testing.T) {
 			t.Fatalf("getAllServer() got = %v, want %v", res[1].TargetType, targetTypeUser)
 		}
 
+		// 顺带验证一下 byTarget
+		res2, err := dbInstance.getSubscribesByTarget(123456, targetTypeGroup)
+		if err != nil {
+			t.Fatalf("getSubscribesByTarget() error = %v", err)
+		}
+		if len(res2) != 1 {
+			t.Fatalf("getSubscribesByTarget() got = %v, want 1", len(res2))
+		}
+
 	})
 	// 重复添加订阅
 	t.Run("insert dup", func(t *testing.T) {
