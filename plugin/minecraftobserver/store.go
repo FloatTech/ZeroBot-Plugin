@@ -28,8 +28,9 @@ var (
 )
 
 type db struct {
-	sdb  *gorm.DB
-	lock sync.RWMutex
+	sdb           *gorm.DB
+	statusLock    sync.RWMutex
+	subscribeLock sync.RWMutex
 }
 
 // initializeDB 初始化数据库
@@ -49,8 +50,9 @@ func initializeDB(dbpath string) error {
 	}
 	gdb.AutoMigrate(&serverStatus{}, &serverSubscribe{})
 	dbInstance = &db{
-		sdb:  gdb,
-		lock: sync.RWMutex{},
+		sdb:           gdb,
+		statusLock:    sync.RWMutex{},
+		subscribeLock: sync.RWMutex{},
 	}
 	return nil
 }
@@ -76,6 +78,9 @@ func (d *db) getServerStatus(addr string) (*serverStatus, error) {
 	if d == nil {
 		return nil, errDBConn
 	}
+	if addr == "" {
+		return nil, errParam
+	}
 	var ss serverStatus
 	if err := d.sdb.Model(&ss).Where("server_addr = ?", addr).First(&ss).Error; err != nil {
 		logrus.Errorln(logPrefix+"getServerStatus ERROR: ", err)
@@ -89,10 +94,10 @@ func (d *db) updateServerStatus(ss *serverStatus) (err error) {
 	if d == nil {
 		return errDBConn
 	}
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if ss == nil {
-		return errors.New("参数错误")
+	d.statusLock.Lock()
+	defer d.statusLock.Unlock()
+	if ss == nil || ss.ServerAddr == "" {
+		return errParam
 	}
 	ss.LastUpdate = time.Now().Unix()
 	ss2 := ss.deepCopy()
@@ -104,6 +109,14 @@ func (d *db) updateServerStatus(ss *serverStatus) (err error) {
 }
 
 func (d *db) delServerStatus(addr string) (err error) {
+	if d == nil {
+		return errDBConn
+	}
+	if addr == "" {
+		return errParam
+	}
+	d.statusLock.Lock()
+	defer d.statusLock.Unlock()
 	if err = d.sdb.Where("server_addr = ?", addr).Delete(&serverStatus{}).Error; err != nil {
 		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
@@ -120,8 +133,8 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 		logrus.Errorln(logPrefix+"newSubscribe ERROR: 参数错误 ", targetID, " ", targetType)
 		return errParam
 	}
-	d.lock.Lock()
-	defer d.lock.Unlock()
+	d.subscribeLock.Lock()
+	defer d.subscribeLock.Unlock()
 	// 如果已经存在，需要报错
 	existedRec := &serverSubscribe{}
 	err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(existedRec).Error
@@ -150,12 +163,11 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 	if d == nil {
 		return errDBConn
 	}
-	if addr == "" || targetID == 0 {
+	if addr == "" || targetID == 0 || targetType == 0 {
 		return errParam
 	}
-	d.lock.Lock()
-	defer d.lock.Unlock()
-
+	d.subscribeLock.Lock()
+	defer d.subscribeLock.Unlock()
 	// 检查是否存在
 	if err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(&serverSubscribe{}).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
