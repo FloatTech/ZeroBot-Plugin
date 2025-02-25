@@ -131,7 +131,7 @@ func init() {
 		}
 	})
 	// 查看全局订阅情况（仅限管理员私聊可用）
-	engine.OnRegex(`^[mM][cC]服务器全局订阅列表$`, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^[mM][cC]服务器全局订阅列表$`, zero.OnlyPrivate, zero.SuperUserPermission, getDB).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		subList, err := dbInstance.getAllSubscribes()
 		if err != nil {
 			ctx.Send(message.Text("获取全局订阅列表失败... 错误信息: ", err))
