@@ -165,7 +165,7 @@ func init() {
 			for _, sub := range v {
 				stringBuilder.WriteString(fmt.Sprintf("服务器地址: %s\n", sub.ServerAddr))
 			}
-			msg = append(msg, message.CustomNode(userName, userID, message.Text(stringBuilder.String())))
+			msg = append(msg, message.CustomNode(userName, userID, stringBuilder.String()))
 		}
 		// 个人
 		for k, v := range userSubMap {
@@ -174,7 +174,7 @@ func init() {
 			for _, sub := range v {
 				stringBuilder.WriteString(fmt.Sprintf("服务器地址: %s\n", sub.ServerAddr))
 			}
-			msg = append(msg, message.CustomNode(userName, userID, message.Text(stringBuilder.String())))
+			msg = append(msg, message.CustomNode(userName, userID, stringBuilder.String()))
 		}
 		// 合并发送
 		ctx.SendPrivateForwardMessage(ctx.Event.UserID, msg)
