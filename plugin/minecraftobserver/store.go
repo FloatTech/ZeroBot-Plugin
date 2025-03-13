@@ -2,10 +2,8 @@ package minecraftobserver
 
 import (
 	"errors"
-	"fmt"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/jinzhu/gorm"
-	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"os"
@@ -45,7 +43,7 @@ func initializeDB(dbpath string) error {
 	}
 	gdb, err := gorm.Open("sqlite3", dbpath)
 	if err != nil {
-		logrus.Errorln(logPrefix+"initializeDB ERROR: ", err)
+		//logrus.Errorln(logPrefix+"initializeDB ERROR: ", err)
 		return err
 	}
 	gdb.AutoMigrate(&serverStatus{}, &serverSubscribe{})
@@ -65,7 +63,7 @@ var (
 		var err error
 		err = initializeDB(engine.DataFolder() + dbPath)
 		if err != nil {
-			logrus.Errorln(logPrefix+"initializeDB ERROR: ", err)
+			//logrus.Errorln(logPrefix+"initializeDB ERROR: ", err)
 			ctx.SendChain(message.Text("[mc-ob] ERROR: ", err))
 			return false
 		}
@@ -83,7 +81,7 @@ func (d *db) getServerStatus(addr string) (*serverStatus, error) {
 	}
 	var ss serverStatus
 	if err := d.sdb.Model(&ss).Where("server_addr = ?", addr).First(&ss).Error; err != nil {
-		logrus.Errorln(logPrefix+"getServerStatus ERROR: ", err)
+		//logrus.Errorln(logPrefix+"getServerStatus ERROR: ", err)
 		return nil, err
 	}
 	return &ss, nil
@@ -102,7 +100,7 @@ func (d *db) updateServerStatus(ss *serverStatus) (err error) {
 	ss.LastUpdate = time.Now().Unix()
 	ss2 := ss.deepCopy()
 	if err = d.sdb.Where(&serverStatus{ServerAddr: ss.ServerAddr}).Assign(ss2).FirstOrCreate(ss).Debug().Error; err != nil {
-		logrus.Errorln(logPrefix, fmt.Sprintf("updateServerStatus %v ERROR: %v", ss, err))
+		//logrus.Errorln(logPrefix, fmt.Sprintf("updateServerStatus %v ERROR: %v", ss, err))
 		return
 	}
 	return
@@ -118,7 +116,7 @@ func (d *db) delServerStatus(addr string) (err error) {
 	d.statusLock.Lock()
 	defer d.statusLock.Unlock()
 	if err = d.sdb.Where("server_addr = ?", addr).Delete(&serverStatus{}).Error; err != nil {
-		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
+		//logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
 	return
@@ -130,7 +128,7 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 		return errDBConn
 	}
 	if targetID == 0 || (targetType != 1 && targetType != 2) {
-		logrus.Errorln(logPrefix+"newSubscribe ERROR: 参数错误 ", targetID, " ", targetType)
+		//logrus.Errorln(logPrefix+"newSubscribe ERROR: 参数错误 ", targetID, " ", targetType)
 		return errParam
 	}
 	d.subscribeLock.Lock()
@@ -139,7 +137,7 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 	existedRec := &serverSubscribe{}
 	err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).First(existedRec).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		logrus.Errorln(logPrefix+"newSubscribe ERROR: ", err)
+		//logrus.Errorln(logPrefix+"newSubscribe ERROR: ", err)
 		return
 	}
 	if existedRec.ID != 0 {
@@ -152,7 +150,7 @@ func (d *db) newSubscribe(addr string, targetID, targetType int64) (err error) {
 		LastUpdate: time.Now().Unix(),
 	}
 	if err = d.sdb.Model(&ss).Create(ss).Error; err != nil {
-		logrus.Errorln(logPrefix+"newSubscribe ERROR: ", err)
+		//logrus.Errorln(logPrefix+"newSubscribe ERROR: ", err)
 		return
 	}
 	return
@@ -173,12 +171,12 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 		if gorm.IsRecordNotFoundError(err) {
 			return errors.New("未找到订阅")
 		}
-		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
+		//logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
 
 	if err = d.sdb.Where("server_addr = ? and target_id = ? and target_type = ?", addr, targetID, targetType).Delete(&serverSubscribe{}).Error; err != nil {
-		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
+		//logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
 
@@ -186,14 +184,11 @@ func (d *db) deleteSubscribe(addr string, targetID int64, targetType int64) (err
 	var cnt int
 	err = d.sdb.Model(&serverSubscribe{}).Where("server_addr = ?", addr).Count(&cnt).Error
 	if err != nil {
-		logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
+		//logrus.Errorln(logPrefix+"deleteSubscribe ERROR: ", err)
 		return
 	}
 	if cnt == 0 {
-		dErr := d.delServerStatus(addr)
-		if dErr != nil {
-			logrus.Errorln(logPrefix+"deleteSubscribe-delServerStatus ERROR: ", dErr)
-		}
+		_ = d.delServerStatus(addr)
 	}
 	return
 }
@@ -205,7 +200,7 @@ func (d *db) getAllSubscribes() (subs []serverSubscribe, err error) {
 	}
 	subs = []serverSubscribe{}
 	if err = d.sdb.Find(&subs).Error; err != nil {
-		logrus.Errorln(logPrefix+"getAllSubscribes ERROR: ", err)
+		//logrus.Errorln(logPrefix+"getAllSubscribes ERROR: ", err)
 		return
 	}
 	return
@@ -218,7 +213,7 @@ func (d *db) getSubscribesByTarget(targetID, targetType int64) (subs []serverSub
 	}
 	subs = []serverSubscribe{}
 	if err = d.sdb.Model(&serverSubscribe{}).Where("target_id = ? and target_type = ?", targetID, targetType).Find(&subs).Error; err != nil {
-		logrus.Errorln(logPrefix+"getSubscribesByTarget ERROR: ", err)
+		//logrus.Errorln(logPrefix+"getSubscribesByTarget ERROR: ", err)
 		return
 	}
 	return

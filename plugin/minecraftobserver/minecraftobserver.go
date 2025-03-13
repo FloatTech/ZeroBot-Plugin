@@ -6,7 +6,6 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	zbpCtxExt "github.com/FloatTech/zbputils/ctxext"
-	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 	"strings"
@@ -56,7 +55,7 @@ func init() {
 		}
 		msg = append(msg, message.Text(textMsg))
 		if id := ctx.Send(msg); id.ID() == 0 {
-			logrus.Errorln(logPrefix + "Send failed")
+			//logrus.Errorln(logPrefix + "Send failed")
 			return
 		}
 	})
@@ -82,7 +81,7 @@ func init() {
 			return
 		}
 		if sid := ctx.Send(message.Text(fmt.Sprintf("服务器 %s 订阅添加成功", addr))); sid.ID() == 0 {
-			logrus.Errorln(logPrefix + "Send failed")
+			//logrus.Errorln(logPrefix + "Send failed")
 			return
 		}
 		// 成功后立即发送一次状态
@@ -93,7 +92,7 @@ func init() {
 		}
 		msg = append(msg, message.Text(textMsg))
 		if id := ctx.Send(msg); id.ID() == 0 {
-			logrus.Errorln(logPrefix + "Send failed")
+			//logrus.Errorln(logPrefix + "Send failed")
 			return
 		}
 	})
@@ -126,7 +125,7 @@ func init() {
 			stringBuilder.WriteString(fmt.Sprintf("服务器地址: %s\n", v.ServerAddr))
 		}
 		if sid := ctx.Send(message.Text(stringBuilder.String())); sid.ID() == 0 {
-			logrus.Errorln(logPrefix + "Send failed")
+			//logrus.Errorln(logPrefix + "Send failed")
 			return
 		}
 	})
@@ -188,7 +187,7 @@ func init() {
 			ctx.SendPrivateMessage(su, message.Text(logPrefix, "获取订阅列表失败..."))
 			return
 		}
-		logrus.Debugln(logPrefix+"global get ", len(serverList), " subscribe(s)")
+		//logrus.Debugln(logPrefix+"global get ", len(serverList), " subscribe(s)")
 		serverMap := make(map[string][]serverSubscribe)
 		for _, v := range serverList {
 			serverMap[v.ServerAddr] = append(serverMap[v.ServerAddr], v)
@@ -198,43 +197,43 @@ func init() {
 			// 查询当前存储的状态
 			storedStatus, sErr := dbInstance.getServerStatus(subAddr)
 			if sErr != nil {
-				logrus.Errorln(logPrefix+fmt.Sprintf("getServerStatus ServerAddr(%s) error: ", subAddr), sErr)
+				//logrus.Errorln(logPrefix+fmt.Sprintf("getServerStatus ServerAddr(%s) error: ", subAddr), sErr)
 				continue
 			}
 			isChanged, changedNotifyMsg, sErr := singleServerScan(storedStatus)
 			if sErr != nil {
-				logrus.Errorln(logPrefix+"singleServerScan error: ", sErr)
+				//logrus.Errorln(logPrefix+"singleServerScan error: ", sErr)
 				continue
 			}
 			if !isChanged {
 				continue
 			}
 			changedCount++
-			logrus.Infoln(logPrefix+"singleServerScan changed in ", subAddr)
+			//logrus.Infoln(logPrefix+"singleServerScan changed in ", subAddr)
 			// 发送变化信息
 			for _, subInfo := range oneServerSubList {
-				logrus.Debugln(logPrefix+" now try to send subInfo to ", subInfo.TargetID, subInfo.TargetType)
+				//logrus.Debugln(logPrefix+" now try to send subInfo to ", subInfo.TargetID, subInfo.TargetType)
 				time.Sleep(100 * time.Millisecond)
 				if subInfo.TargetType == targetTypeUser {
 					if sid := ctx.SendPrivateMessage(subInfo.TargetID, changedNotifyMsg); sid == 0 {
-						logrus.Warnln(logPrefix + fmt.Sprintf("SendPrivateMessage to (%d,%d) failed", subInfo.TargetID, subInfo.TargetType))
+						//logrus.Warnln(logPrefix + fmt.Sprintf("SendPrivateMessage to (%d,%d) failed", subInfo.TargetID, subInfo.TargetType))
 					}
 				} else if subInfo.TargetType == targetTypeGroup {
 					m, ok := control.Lookup(name)
 					if !ok {
-						logrus.Warnln(logPrefix + "control.Lookup empty")
+						//logrus.Warnln(logPrefix + "control.Lookup empty")
 						continue
 					}
 					if !m.IsEnabledIn(subInfo.TargetID) {
 						continue
 					}
 					if sid := ctx.SendGroupMessage(subInfo.TargetID, changedNotifyMsg); sid == 0 {
-						logrus.Errorln(logPrefix + fmt.Sprintf("SendGroupMessage to (%d,%d) failed", subInfo.TargetID, subInfo.TargetType))
+						//logrus.Errorln(logPrefix + fmt.Sprintf("SendGroupMessage to (%d,%d) failed", subInfo.TargetID, subInfo.TargetType))
 					}
 				}
 			}
 		}
-		logrus.Debugln(logPrefix + fmt.Sprintf("global scan finished, %d server(s) changed", changedCount))
+		//logrus.Debugln(logPrefix + fmt.Sprintf("global scan finished, %d server(s) changed", changedCount))
 	})
 }
 
@@ -245,12 +244,12 @@ func singleServerScan(oldSubStatus *serverStatus) (changed bool, notifyMsg messa
 	// 获取服务器状态 & 检查是否需要更新
 	rawServerStatus, err := getMinecraftServerStatus(oldSubStatus.ServerAddr)
 	if err != nil {
-		logrus.Warnln(logPrefix+"getMinecraftServerStatus error: ", err)
+		//logrus.Warnln(logPrefix+"getMinecraftServerStatus error: ", err)
 		err = nil
 		// 计数器没有超限，增加计数器并跳过
 		if cnt, ts := addPingServerUnreachableCounter(oldSubStatus.ServerAddr, time.Now()); cnt < pingServerUnreachableCounterThreshold &&
 			time.Now().Sub(ts) < pingServerUnreachableCounterTimeThreshold {
-			logrus.Warnln(logPrefix+"server ", oldSubStatus.ServerAddr, " unreachable, counter: ", cnt, " ts:", ts)
+			//logrus.Warnln(logPrefix+"server ", oldSubStatus.ServerAddr, " unreachable, counter: ", cnt, " ts:", ts)
 			return
 		}
 		// 不可达计数器已经超限，则更新服务器状态
@@ -261,17 +260,17 @@ func singleServerScan(oldSubStatus *serverStatus) (changed bool, notifyMsg messa
 		newSubStatus = rawServerStatus.genServerSubscribeSchema(oldSubStatus.ServerAddr, oldSubStatus.ID)
 	}
 	if newSubStatus == nil {
-		logrus.Errorln(logPrefix + "newSubStatus is nil")
+		//logrus.Errorln(logPrefix + "newSubStatus is nil")
 		return
 	}
 	// 检查是否有订阅信息变化
 	if oldSubStatus.isServerStatusSpecChanged(newSubStatus) {
-		logrus.Warnf(logPrefix+"server subscribe spec changed: (%+v) -> (%+v)", oldSubStatus, newSubStatus)
+		//logrus.Warnf(logPrefix+"server subscribe spec changed: (%+v) -> (%+v)", oldSubStatus, newSubStatus)
 		changed = true
 		// 更新数据库
 		err = dbInstance.updateServerStatus(newSubStatus)
 		if err != nil {
-			logrus.Errorln(logPrefix+"updateServerSubscribeStatus error: ", err)
+			//logrus.Errorln(logPrefix+"updateServerSubscribeStatus error: ", err)
 			return
 		}
 		// 纯文本信息

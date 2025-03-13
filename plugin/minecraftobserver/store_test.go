@@ -2,8 +2,8 @@ package minecraftobserver
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
-	"github.com/sirupsen/logrus"
 	"testing"
 )
 
@@ -125,7 +125,7 @@ func Test_DAO(t *testing.T) {
 		if err == nil {
 			t.Fatalf("getAllServer() error = %v", err)
 		}
-		logrus.Infoln("insert dup error: ", err)
+		fmt.Printf("insert dup error: %+v", err)
 	})
 
 	t.Run("update", func(t *testing.T) {
@@ -285,7 +285,7 @@ func Test_DAO(t *testing.T) {
 		if err == nil {
 			t.Fatalf("deleteSubscribe() error = %v", err)
 		}
-		logrus.Infoln("delete dup error: ", err)
+		fmt.Println("delete dup error: ", err)
 
 		// 检查其他的没有被删
 		allSub, err = dbInstance.getAllSubscribes()
