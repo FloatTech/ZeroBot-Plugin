@@ -209,31 +209,23 @@ func init() {
 				continue
 			}
 			changedCount++
-			//logrus.Infoln(logPrefix+"singleServerScan changed in ", subAddr)
 			// 发送变化信息
 			for _, subInfo := range oneServerSubList {
-				//logrus.Debugln(logPrefix+" now try to send subInfo to ", subInfo.TargetID, subInfo.TargetType)
 				time.Sleep(100 * time.Millisecond)
 				if subInfo.TargetType == targetTypeUser {
-					if sid := ctx.SendPrivateMessage(subInfo.TargetID, changedNotifyMsg); sid == 0 {
-						//logrus.Warnln(logPrefix + fmt.Sprintf("SendPrivateMessage to (%d,%d) failed", subInfo.TargetID, subInfo.TargetType))
-					}
+					ctx.SendPrivateMessage(subInfo.TargetID, changedNotifyMsg)
 				} else if subInfo.TargetType == targetTypeGroup {
 					m, ok := control.Lookup(name)
 					if !ok {
-						//logrus.Warnln(logPrefix + "control.Lookup empty")
 						continue
 					}
 					if !m.IsEnabledIn(subInfo.TargetID) {
 						continue
 					}
-					if sid := ctx.SendGroupMessage(subInfo.TargetID, changedNotifyMsg); sid == 0 {
-						//logrus.Errorln(logPrefix + fmt.Sprintf("SendGroupMessage to (%d,%d) failed", subInfo.TargetID, subInfo.TargetType))
-					}
+					ctx.SendGroupMessage(subInfo.TargetID, changedNotifyMsg)
 				}
 			}
 		}
-		//logrus.Debugln(logPrefix + fmt.Sprintf("global scan finished, %d server(s) changed", changedCount))
 	})
 }
 
