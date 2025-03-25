@@ -37,6 +37,9 @@ schema = 3
   [mod."github.com/RomiChan/websocket"]
     version = "v1.4.3-0.20220227141055-9b2c6168c9c5"
     hash = "sha256-Adx+gvqB+CCoUXx7ebIaBDjVkav+wS5qZPmaqcApBWA="
+  [mod."github.com/Tnze/go-mc"]
+    version = "v1.20.2"
+    hash = "sha256-Nu4PXNxeARH0itm6yIIplFaywL2yQnPJFksmmuyIptI="
   [mod."github.com/adamzy/cedar-go"]
     version = "v0.0.0-20170805034717-80a9c64b256d"
     hash = "sha256-N19KTxh70IUBqnchFuWkrJD8uuFOIVqv1iSuN3YFIT0="
@@ -226,15 +229,15 @@ schema = 3
   [mod."gitlab.com/gomidi/midi/v2"]
     version = "v2.1.7"
     hash = "sha256-fbgxSMCk7PVII3sNEKuGWbN56fy3eM564Xb+lnYTxRQ="
-  [mod."golang.org/x/exp"]
-    version = "v0.0.0-20190306152737-a1d7652674e8"
-    hash = "sha256-VJ0sxFsqnx2O/NmXamL2F5bQeUw5sizVQ7NLusceK5Q="
+  [mod."golang.org/x/exp/shiny"]
+    version = "v0.0.0-20250210185358-939b2ce775ac"
+    hash = "sha256-OzKqtLbKQifhfDn3TnTCscfBIdKCHcvGNQuVYcqSMmc="
   [mod."golang.org/x/image"]
     version = "v0.24.0"
     hash = "sha256-nhcznNf4ePM7d0Jy2Si0dpMt7KQfRF5Y5QzMpwFCAVg="
   [mod."golang.org/x/mobile"]
-    version = "v0.0.0-20190415191353-3e0bab5405d6"
-    hash = "sha256-Ds7JS9muxzDc7WgCncAd0rMSFeBI88/I0dQsk13/56k="
+    version = "v0.0.0-20231127183840-76ac6878050a"
+    hash = "sha256-GdXSvrqQiJX6pOqc2Yr8gG0ZWysEE81YRl5qkt3JCMA="
   [mod."golang.org/x/net"]
     version = "v0.33.0"
     hash = "sha256-9swkU9vp6IflUUqAzK+y8PytSmrKLuryidP3RmRfe0w="
