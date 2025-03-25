@@ -4,11 +4,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/google/uuid"
 	"github.com/wdvxdr1123/ZeroBot/utils/helper"
-	"strings"
-	"time"
 )
 
 // ====================
@@ -147,7 +148,7 @@ type serverPingAndListResp struct {
 // and prepended with "data:image/png;base64,".
 type icon string
 
-//func (i icon) toImage() (icon image.Image, err error) {
+// func (i icon) toImage() (icon image.Image, err error) {
 //	const prefix = "data:image/png;base64,"
 //	if !strings.HasPrefix(string(i), prefix) {
 //		return nil, errors.Errorf("server icon should prepended with %s", prefix)
@@ -237,13 +238,13 @@ func formatSubStatusChangeText(oldStatus, newStatus *serverStatus) string {
 	// 状态由不可达变为可达，反之
 	if oldStatus.PingDelay == pingDelayUnreachable && newStatus.PingDelay != pingDelayUnreachable {
 		msgBuilder.WriteString("\n-----[Ping延迟]-----\n")
-		msgBuilder.WriteString(fmt.Sprintf("[旧]\n超时\n"))
+		msgBuilder.WriteString("[旧]\n超时\n")
 		msgBuilder.WriteString(fmt.Sprintf("[新]\n%v毫秒\n", newStatus.PingDelay))
 	}
 	if oldStatus.PingDelay != pingDelayUnreachable && newStatus.PingDelay == pingDelayUnreachable {
 		msgBuilder.WriteString("\n-----[Ping延迟]-----\n")
 		msgBuilder.WriteString(fmt.Sprintf("[旧]\n%v毫秒\n", oldStatus.PingDelay))
-		msgBuilder.WriteString(fmt.Sprintf("[新]\n超时\n"))
+		msgBuilder.WriteString("[新]\n超时\n")
 	}
 	return msgBuilder.String()
 }
