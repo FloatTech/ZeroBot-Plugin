@@ -2,9 +2,10 @@ package minecraftobserver
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/RomiChan/syncx"
 	"github.com/Tnze/go-mc/bot"
-	"time"
 )
 
 var (
@@ -49,12 +50,12 @@ func getMinecraftServerStatus(addr string) (*serverPingAndListResp, error) {
 	var s serverPingAndListResp
 	resp, delay, err := bot.PingAndListTimeout(addr, time.Second*5)
 	if err != nil {
-		//logrus.Errorln(logPrefix+"PingAndList error: ", err)
+		// logrus.Errorln(logPrefix+"PingAndList error: ", err)
 		return nil, err
 	}
 	err = json.Unmarshal(resp, &s)
 	if err != nil {
-		//logrus.Errorln(logPrefix+"Parse json response fail: ", err)
+		// logrus.Errorln(logPrefix+"Parse json response fail: ", err)
 		return nil, err
 	}
 	s.Delay = delay
