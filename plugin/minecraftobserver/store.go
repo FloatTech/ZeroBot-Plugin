@@ -61,7 +61,7 @@ var (
 	dbInstance *db
 	// 开启并检查数据库链接
 	getDB = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		var err error = initializeDB(engine.DataFolder() + dbPath)
+		var err = initializeDB(engine.DataFolder() + dbPath)
 		if err != nil {
 			// logrus.Errorln(logPrefix+"initializeDB ERROR: ", err)
 			ctx.SendChain(message.Text("[mc-ob] ERROR: ", err))
