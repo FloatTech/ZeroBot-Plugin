@@ -64,7 +64,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/custom"                   // 自定义插件合集
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"             // ahsai tts
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aifalse"           // 服务器监控
+	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aifalse"           // 服务器监控
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"            // 随机老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"       // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/autowithdraw"      // 触发者撤回时也自动撤回
