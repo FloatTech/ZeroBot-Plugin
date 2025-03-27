@@ -83,13 +83,12 @@ func processImageRecognition(ctx *zero.Ctx, model string) {
 		return
 	}
 	dataArray := gjson.Get(string(respBody), "data").Array()
-	countStr := fmt.Sprintf("%d", len(dataArray))
-	if countStr == "0" {
+	if len(dataArray) == 0 {
 		ctx.Send(message.Text("未识别到任何角色"))
 		return
 	}
 	var sk message.Message
-	sk = append(sk, ctxext.FakeSenderForwardNode(ctx, message.Text("共识别到 "+countStr+" 个角色，可能是以下来源")))
+	sk = append(sk, ctxext.FakeSenderForwardNode(ctx, message.Text("共识别到 ", len(dataArray), " 个角色，可能是以下来源")))
 	for _, value := range dataArray {
 		boxArray := value.Get("box").Array()
 		imgWidth, imgHeight := imageData.Bounds().Dx(), imageData.Bounds().Dy() // 你可以从 `imageData.Bounds()` 获取

@@ -394,6 +394,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>支付宝到账语音</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"`
+
+  - [x] 支付宝到账 1
+
+</details>
+<details>
   <summary>AnimeTrace 动画/Galgame识别</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/animetrace"`
@@ -403,14 +411,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] Gal识图 | Gal识图 [模型名]
 
   - [x] 动漫识图 | 动漫识图 2 | 动漫识图 [模型名]
-
-</details>
-<details>
-  <summary>支付宝到账语音</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"`
-
-  - [x] 支付宝到账 1
 
 </details>
 <details>
