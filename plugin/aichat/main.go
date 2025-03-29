@@ -132,7 +132,7 @@ func init() {
 			logrus.Warnln("[niniqun] post err:", err)
 			return
 		}
-		txt := strings.Trim(data, "\n 　")
+		txt := chat.Sanitize(strings.Trim(data, "\n 　"))
 		if len(txt) > 0 {
 			chat.Reply(gid, txt)
 			nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
