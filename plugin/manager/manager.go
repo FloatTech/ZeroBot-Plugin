@@ -156,7 +156,7 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("全员自闭结束~"))
 		})
 	// 禁言
-	engine.OnMessage(zero.NewPattern().Text("^禁言").At().Text("(\\d+)\\s*(.*)").AsRule(), zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
+	engine.OnMessage(zero.NewPattern(nil).Text("^禁言").At().Text("(\\d+)\\s*(.*)").AsRule(), zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			parsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
 			duration := math.Str2Int64(parsed[2].Text()[1])
@@ -650,7 +650,7 @@ func init() { // 插件主体
 		if rsp.RetCode == 0 {
 			ctx.SendChain(message.Text(option, "成功"))
 		} else {
-			ctx.SendChain(message.Text(option, "失败, 信息: ", rsp.Msg, "解释: ", rsp.Wording))
+			ctx.SendChain(message.Text(option, "失败, 信息: ", rsp.Message, "解释: ", rsp.Wording))
 		}
 	})
 	engine.OnCommand("精华列表", zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
@@ -699,7 +699,7 @@ func init() { // 插件主体
 		if rsp.RetCode == 0 {
 			ctx.SendChain(message.Text("取消成功"))
 		} else {
-			ctx.SendChain(message.Text("取消失败, 信息: ", rsp.Msg, "解释: ", rsp.Wording))
+			ctx.SendChain(message.Text("取消失败, 信息: ", rsp.Message, "解释: ", rsp.Wording))
 		}
 	})
 }

@@ -93,7 +93,7 @@ func init() {
 			ctx.SendChain(message.Text("设置成功"))
 		})
 	// 单身技能
-	engine.OnMessage(zero.NewPattern().Text(`^(娶|嫁)`).At().AsRule(), zero.OnlyGroup, getdb, checkSingleDog).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern(nil).Text(`^(娶|嫁)`).At().AsRule(), zero.OnlyGroup, getdb, checkSingleDog).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
@@ -168,7 +168,7 @@ func init() {
 			)
 		})
 	// NTR技能
-	engine.OnMessage(zero.NewPattern().Text(`^当`).At().Text(`的小三`).AsRule(), zero.OnlyGroup, getdb, checkMistress).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern(nil).Text(`^当`).At().Text(`的小三`).AsRule(), zero.OnlyGroup, getdb, checkMistress).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
@@ -254,7 +254,7 @@ func init() {
 			)
 		})
 	// 做媒技能
-	engine.OnMessage(zero.NewPattern().Text(`做媒`).At().At().AsRule(), zero.OnlyGroup, zero.AdminPermission, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern(nil).Text(`做媒`).At().At().AsRule(), zero.OnlyGroup, zero.AdminPermission, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID

@@ -32,7 +32,7 @@ type favorability struct {
 
 func init() {
 	// 好感度系统
-	engine.OnMessage(zero.NewPattern().Text(`^查好感度`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern(nil).Text(`^查好感度`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			patternParsed := ctx.State[zero.KeyPattern].([]zero.PatternParsed)
 			fiancee, _ := strconv.ParseInt(patternParsed[1].At(), 10, 64)
@@ -49,7 +49,7 @@ func init() {
 			)
 		})
 	// 礼物系统
-	engine.OnMessage(zero.NewPattern().Text(`^买礼物给`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern(nil).Text(`^买礼物给`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID

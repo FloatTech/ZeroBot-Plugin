@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync/atomic"
-	"unsafe"
 
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
@@ -24,13 +22,15 @@ import (
 )
 
 var (
-	api *deepinfra.API
-	en  = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
+	// en data [4 type] [8 temp] [8 rate] LSB
+	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Extra:            control.ExtraFromString("aichat"),
 		Brief:            "OpenAI聊天",
 		Help: "- 设置AI聊天触发概率10\n" +
 			"- 设置AI聊天温度80\n" +
+			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天接口地址https://xxx\n" +
 			"- 设置AI聊天密钥xxx\n" +
 			"- 设置AI聊天模型名xxx\n" +
 			"- 重置AI聊天系统提示词\n" +
@@ -44,14 +44,22 @@ var (
 var (
 	modelname    = model.ModelDeepDeek
 	systemprompt = chat.SystemPrompt
+	api          = deepinfra.OpenAIDeepInfra
 	sepstr       = ""
 	noreplyat    = false
 )
+
+var apitypes = map[string]uint8{
+	"OpenAI": 0,
+	"OLLaMA": 1,
+	"GenAI":  2,
+}
 
 func init() {
 	mf := en.DataFolder() + "model.txt"
 	sf := en.DataFolder() + "system.txt"
 	pf := en.DataFolder() + "sep.txt"
+	af := en.DataFolder() + "api.txt"
 	nf := en.DataFolder() + "NoReplyAT"
 	if file.IsExist(mf) {
 		data, err := os.ReadFile(mf)
@@ -77,6 +85,14 @@ func init() {
 			sepstr = string(data)
 		}
 	}
+	if file.IsExist(af) {
+		data, err := os.ReadFile(af)
+		if err != nil {
+			logrus.Warnln("read api", err)
+		} else {
+			api = string(data)
+		}
+	}
 	noreplyat = file.IsExist(nf)
 
 	en.OnMessage(func(ctx *zero.Ctx) bool {
@@ -92,6 +108,7 @@ func init() {
 		}
 		rate := c.GetData(gid)
 		temp := (rate >> 8) & 0xff
+		typ := (rate >> 16) & 0x0f
 		rate &= 0xff
 		if !ctx.Event.IsToMe && rand.Intn(100) >= int(rate) {
 			return
@@ -109,14 +126,7 @@ func init() {
 			logrus.Warnln("ERROR: get extra err: empty key")
 			return
 		}
-		var x deepinfra.API
-		y := &x
-		if api == nil {
-			x = deepinfra.NewAPI(deepinfra.APIDeepInfra, key)
-			atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(&api)), unsafe.Pointer(&x))
-		} else {
-			y = api
-		}
+
 		if temp <= 0 {
 			temp = 70 // default setting
 		}
@@ -124,14 +134,39 @@ func init() {
 			temp = 100
 		}
 
-		data, err := y.Request(chat.Ask(model.NewOpenAI(
-			modelname, sepstr,
-			float32(temp)/100, 0.9, 4096,
-		), gid, systemprompt))
-		if err != nil {
-			logrus.Warnln("[niniqun] post err:", err)
+		var x deepinfra.API
+		var mod model.Protocol
+
+		switch typ {
+		case 0:
+			x = deepinfra.NewAPI(api, key)
+			mod = model.NewOpenAI(
+				modelname, sepstr,
+				float32(temp)/100, 0.9, 4096,
+			)
+		case 1:
+			x = deepinfra.NewAPI(api, key)
+			mod = model.NewOLLaMA(
+				modelname, sepstr,
+				float32(temp)/100, 0.9, 4096,
+			)
+		case 2:
+			x = deepinfra.NewAPI(api, key)
+			mod = model.NewGenAI(
+				modelname,
+				float32(temp)/100, 0.9, 4096,
+			)
+		default:
+			logrus.Warnln("[aichat] unsupported AI type", typ)
 			return
 		}
+
+		data, err := x.Request(chat.Ask(mod, gid, systemprompt))
+		if err != nil {
+			logrus.Warnln("[aichat] post err:", err)
+			return
+		}
+
 		txt := chat.Sanitize(strings.Trim(data, "\n 　"))
 		if len(txt) > 0 {
 			chat.Reply(gid, txt)
@@ -217,6 +252,48 @@ func init() {
 		err = c.SetData(gid, val|(int64(r&0xff)<<8))
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set data err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	})
+	en.OnPrefix("设置AI聊天接口类型", zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: no such plugin"))
+			return
+		}
+		typ, ok := apitypes[args]
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: 未知类型 ", args))
+			return
+		}
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		val := c.GetData(gid) & (^0x0f0000)
+		err := c.SetData(gid, val|(int64(typ&0x0f)<<16))
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set data err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	})
+	en.OnPrefix("设置AI聊天接口地址", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		api = args
+		err := os.WriteFile(af, []byte(args), 0644)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		ctx.SendChain(message.Text("成功"))
