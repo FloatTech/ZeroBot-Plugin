@@ -402,6 +402,18 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>AnimeTrace 动画/Galgame识别</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/animetrace"`
+
+  基于[AnimeTrace](https://ai.animedb.cn/)API  的识图搜索插件
+  
+  - [x] Gal识图 | Gal识图 [模型名]
+
+  - [x] 动漫识图 | 动漫识图 2 | 动漫识图 [模型名]
+
+</details>
+<details>
   <summary>触发者撤回时也自动撤回</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/autowithdraw"`
