@@ -232,10 +232,10 @@ func init() {
 		Handle(newextrasetstr(&cfg.ModelName))
 	en.OnPrefix("设置AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.SystemP))
-	en.OnFullMatch("查看AI聊天系统提示词", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("查看AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text(cfg.SystemP))
 	})
-	en.OnFullMatch("重置AI聊天系统提示词", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("重置AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if !ok {
 			ctx.SendChain(message.Text("ERROR: no such plugin"))
@@ -249,10 +249,10 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功"))
 	})
-	en.OnPrefix("设置AI聊天分隔符", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+	en.OnPrefix("设置AI聊天分隔符", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.Separator))
-	en.OnRegex("^设置AI聊天(不)?响应AT$", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+	en.OnRegex("^设置AI聊天(不)?响应AT$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoReplyAT))
-	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoSystemP))
 }
