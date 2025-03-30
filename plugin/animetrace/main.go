@@ -67,7 +67,7 @@ func processImageRecognition(ctx *zero.Ctx, model string) {
 		ctx.Send(message.Text("下载图片失败: ", err))
 		return
 	}
-	//ctx.Send(message.Text(model))
+	// ctx.Send(message.Text(model))
 	respBody, err := createAndSendMultipartRequest("https://api.animetrace.com/v1/search", imageData, map[string]string{
 		"is_multi":  "0",
 		"model":     model,
