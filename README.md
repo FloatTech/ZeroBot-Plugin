@@ -1558,10 +1558,14 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 设置AI聊天触发概率10
   - [x] 设置AI聊天温度80
+  - [x] 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]
+  - [x] 设置AI聊天(不)支持系统提示词
+  - [x] 设置AI聊天接口地址https://xxx
   - [x] 设置AI聊天密钥xxx
   - [x] 设置AI聊天模型名xxx
-  - [x] 设置AI聊天系统提示词xxx
+  - [x] 查看AI聊天系统提示词
   - [x] 重置AI聊天系统提示词
+  - [x] 设置AI聊天系统提示词xxx
   - [x] 设置AI聊天分隔符`</think>`(留空则清除)
   - [x] 设置AI聊天(不)响应AT
 

@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	// en data [4 type] [8 temp] [8 rate] LSB
+	// en data [4 cfg] [4 type] [8 temp] [8 rate] LSB
 	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Extra:            control.ExtraFromString("aichat"),
@@ -30,9 +30,11 @@ var (
 		Help: "- 设置AI聊天触发概率10\n" +
 			"- 设置AI聊天温度80\n" +
 			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天(不)支持系统提示词\n" +
 			"- 设置AI聊天接口地址https://xxx\n" +
 			"- 设置AI聊天密钥xxx\n" +
 			"- 设置AI聊天模型名xxx\n" +
+			"- 查看AI聊天系统提示词\n" +
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
 			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
@@ -42,11 +44,12 @@ var (
 )
 
 var (
-	modelname    = model.ModelDeepDeek
-	systemprompt = chat.SystemPrompt
-	api          = deepinfra.OpenAIDeepInfra
-	sepstr       = ""
-	noreplyat    = false
+	modelname      = model.ModelDeepDeek
+	systemprompt   = chat.SystemPrompt
+	api            = deepinfra.OpenAIDeepInfra
+	sepstr         = ""
+	noreplyat      = false
+	nosystemprompt = false
 )
 
 var apitypes = map[string]uint8{
@@ -61,6 +64,7 @@ func init() {
 	pf := en.DataFolder() + "sep.txt"
 	af := en.DataFolder() + "api.txt"
 	nf := en.DataFolder() + "NoReplyAT"
+	syspf := en.DataFolder() + "NoSystemPrompt"
 	if file.IsExist(mf) {
 		data, err := os.ReadFile(mf)
 		if err != nil {
@@ -94,6 +98,7 @@ func init() {
 		}
 	}
 	noreplyat = file.IsExist(nf)
+	nosystemprompt = file.IsExist(syspf)
 
 	en.OnMessage(func(ctx *zero.Ctx) bool {
 		return ctx.ExtractPlainText() != "" && (!noreplyat || (noreplyat && !ctx.Event.IsToMe))
@@ -134,24 +139,21 @@ func init() {
 			temp = 100
 		}
 
-		var x deepinfra.API
+		x := deepinfra.NewAPI(api, key)
 		var mod model.Protocol
 
 		switch typ {
 		case 0:
-			x = deepinfra.NewAPI(api, key)
 			mod = model.NewOpenAI(
 				modelname, sepstr,
 				float32(temp)/100, 0.9, 4096,
 			)
 		case 1:
-			x = deepinfra.NewAPI(api, key)
 			mod = model.NewOLLaMA(
 				modelname, sepstr,
 				float32(temp)/100, 0.9, 4096,
 			)
 		case 2:
-			x = deepinfra.NewAPI(api, key)
 			mod = model.NewGenAI(
 				modelname,
 				float32(temp)/100, 0.9, 4096,
@@ -161,7 +163,7 @@ func init() {
 			return
 		}
 
-		data, err := x.Request(chat.Ask(mod, gid, systemprompt))
+		data, err := x.Request(chat.Ask(mod, gid, systemprompt, nosystemprompt))
 		if err != nil {
 			logrus.Warnln("[aichat] post err:", err)
 			return
@@ -344,6 +346,9 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功"))
 	})
+	en.OnFullMatch("查看AI聊天系统提示词", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		ctx.SendChain(message.Text(systemprompt))
+	})
 	en.OnFullMatch("重置AI聊天系统提示词", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		systemprompt = chat.SystemPrompt
 		_ = os.Remove(sf)
@@ -384,6 +389,28 @@ func init() {
 		} else {
 			_ = os.Remove(nf)
 			noreplyat = false
+		}
+		ctx.SendChain(message.Text("成功"))
+	})
+	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		args := ctx.State["regex_matched"].([]string)
+		isno := args[1] == "不"
+		if isno {
+			f, err := os.Create(syspf)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			defer f.Close()
+			_, err = f.WriteString("PLACEHOLDER")
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+			nosystemprompt = true
+		} else {
+			_ = os.Remove(syspf)
+			nosystemprompt = false
 		}
 		ctx.SendChain(message.Text("成功"))
 	})
