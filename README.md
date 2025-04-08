@@ -977,6 +977,14 @@ print("run[CQ:image,file="+j["img"]+"]")
     - mc服务器订阅拉取
 </details>
 <details>
+  <summary>Movies猫眼电影查询</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/movies"`
+
+- [x] 今日电影
+- [x] 预售电影
+</details>
+<details>
   <summary>摸鱼</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/moyu"`
