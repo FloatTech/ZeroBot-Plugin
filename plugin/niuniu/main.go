@@ -308,7 +308,7 @@ func init() {
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
 	})
-	en.OnMessage(zero.NewPattern().Text(`^(?:.*使用(.*))??jj`).At().AsRule(),
+	en.OnMessage(zero.NewPattern(nil).Text(`^(?:.*使用(.*))??jj`).At().AsRule(),
 		zero.OnlyGroup).SetBlock(true).Limit(func(ctx *zero.Ctx) *rate.Limiter {
 		lt := jjLimiter.Load(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
 		ctx.State["jj_last_touch"] = lt.LastTouch()
