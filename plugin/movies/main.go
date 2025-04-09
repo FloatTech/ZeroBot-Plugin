@@ -185,7 +185,6 @@ type cardInfo struct {
 }
 
 func drawOnListPic(lits movieOnList) (data []byte, err error) {
-
 	rankinfo := make([]*cardInfo, len(lits.MovieList))
 
 	wg := &sync.WaitGroup{}
@@ -240,7 +239,6 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 }
 
 func drawComListPic(lits comingList) (data []byte, err error) {
-
 	rankinfo := make([]*cardInfo, len(lits.MovieList))
 
 	wg := &sync.WaitGroup{}
