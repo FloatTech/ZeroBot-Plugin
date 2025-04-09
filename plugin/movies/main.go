@@ -26,9 +26,8 @@ import (
 )
 
 const (
-	apiURL  = "https://m.maoyan.com/ajax/"
-	infoURL = "detailmovie?movieId="
-	ua      = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"
+	apiURL = "https://m.maoyan.com/ajax/"
+	ua     = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36"
 )
 
 var (
@@ -127,6 +126,8 @@ func init() {
 				ctx.SendChain(message.Text("[EEROR2]:", err))
 				return
 			}
+			movieInfo.MovieInfo.Wish = info.Wish
+			movieInfo.MovieInfo.ComingTitle = info.ComingTitle
 			parsed.MovieList[i] = movieInfo.MovieInfo
 		}
 		// 整理数据，进行排序
@@ -159,7 +160,7 @@ type movieInfo struct {
 	Rt      string `json:"rt"`      // 上映时间
 
 	ShowInfo    string `json:"showInfo"`    // 今日上映信息
-	ComingTitle string `json:"comingTitle"` // 预售标题
+	ComingTitle string `json:"comingTitle"` // 预售信息
 
 	Sc      float64 `json:"sc"`      // 评分
 	Wish    int64   `json:"wish"`    // 观看人数
@@ -175,7 +176,7 @@ type movieShow struct {
 	MovieInfo movieInfo `json:"detailMovie"`
 }
 
-type CardInfo struct {
+type cardInfo struct {
 	Avatar         image.Image
 	TopLeftText    string
 	BottomLeftText []string
@@ -185,7 +186,7 @@ type CardInfo struct {
 
 func drawOnListPic(lits movieOnList) (data []byte, err error) {
 
-	rankinfo := make([]*CardInfo, len(lits.MovieList))
+	rankinfo := make([]*cardInfo, len(lits.MovieList))
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(lits.MovieList))
@@ -202,14 +203,15 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 				movieType = info.Version
 			}
 			watched := ""
-			if info.Watched > 100000000 {
+			switch {
+			case info.Watched > 100000000:
 				watched = strconv.FormatFloat(float64(info.Watched)/100000000, 'f', 2, 64) + "亿"
-			} else if info.Watched > 10000 {
+			case info.Watched > 10000:
 				watched = strconv.FormatFloat(float64(info.Watched)/10000, 'f', 2, 64) + "万"
-			} else {
+			default:
 				watched = strconv.FormatInt(info.Watched, 10)
 			}
-			rankinfo[i] = &CardInfo{
+			rankinfo[i] = &cardInfo{
 				TopLeftText: info.Nm + " (" + strconv.FormatInt(info.ID, 10) + ")",
 				BottomLeftText: []string{
 					"导演：" + info.Dir,
@@ -239,7 +241,7 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 
 func drawComListPic(lits comingList) (data []byte, err error) {
 
-	rankinfo := make([]*CardInfo, len(lits.MovieList))
+	rankinfo := make([]*cardInfo, len(lits.MovieList))
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(lits.MovieList))
@@ -256,21 +258,22 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 				movieType = info.Version
 			}
 			wish := ""
-			if info.Wish > 100000000 {
+			switch {
+			case info.Wish > 100000000:
 				wish = strconv.FormatFloat(float64(info.Wish)/100000000, 'f', 2, 64) + "亿"
-			} else if info.Wish > 10000 {
+			case info.Wish > 10000:
 				wish = strconv.FormatFloat(float64(info.Wish)/10000, 'f', 2, 64) + "万"
-			} else {
+			default:
 				wish = strconv.FormatInt(info.Wish, 10)
 			}
-			rankinfo[i] = &CardInfo{
+			rankinfo[i] = &cardInfo{
 				TopLeftText: info.Nm + " (" + strconv.FormatInt(info.ID, 10) + ")",
 				BottomLeftText: []string{
 					"导演：" + info.Dir,
 					"演员：" + info.Star,
 					"标签：" + info.Cat,
 					"语言: " + info.OriLang + "    类型: " + movieType,
-					"上映时间: " + info.Rt,
+					"上映时间: " + info.Rt + "    播放时间: " + info.ComingTitle,
 				},
 				RightText: wish + "人期待",
 				Avatar:    img,
@@ -291,7 +294,7 @@ func drawComListPic(lits comingList) (data []byte, err error) {
 	return
 }
 
-func drawRankingCard(fontdata []byte, title string, rankinfo []*CardInfo) (img image.Image, err error) {
+func drawRankingCard(fontdata []byte, title string, rankinfo []*cardInfo) (img image.Image, err error) {
 	line := len(rankinfo)
 	const lineh = 130
 	const w = 800
