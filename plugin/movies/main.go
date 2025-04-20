@@ -17,7 +17,6 @@ import (
 	"github.com/FloatTech/gg"
 	"github.com/FloatTech/imgfactory"
 	"github.com/FloatTech/rendercard"
-	"github.com/FloatTech/ttl"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
@@ -32,8 +31,9 @@ const (
 
 var (
 	mu       sync.RWMutex
-	todayPic = ttl.NewCache[uint64, []byte](time.Hour * 12)
-	en       = control.Register("movies", &ctrl.Options[*zero.Ctx]{
+	todayPic = make([][]byte, 2)
+	lasttime time.Time
+	en       = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "电影查询",
 		Help: "- 今日电影\n" +
@@ -44,102 +44,49 @@ var (
 
 func init() {
 	en.OnFullMatch("今日电影").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		todayOnPic := todayPic.Get(0)
-		if todayOnPic != nil {
-			ctx.SendChain(message.ImageBytes(todayOnPic))
+		if todayPic != nil && time.Since(lasttime) < 12*time.Hour {
+			ctx.SendChain(message.ImageBytes(todayPic[0]))
 			return
 		}
-		data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL+"movieOnInfoList", "", "GET", ua, nil)
+		lasttime = time.Now()
+		movieComingList, err := getMovieList("今日电影")
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR1]", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		var parsed movieOnList
-		err = json.Unmarshal(data, &parsed)
+		if len(movieComingList) == 0 {
+			ctx.SendChain(message.Text("没有今日电影"))
+			return
+		}
+		pic, err := drawOnListPic(movieComingList)
 		if err != nil {
-			ctx.SendChain(message.Text("[EEROR2]:", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if len(parsed.MovieList) == 0 {
-			ctx.SendChain(message.Text("今日无电影上映"))
-		}
-		for i, info := range parsed.MovieList {
-			movieID := strconv.FormatInt(info.ID, 10)
-			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL+"detailmovie?movieId="+movieID, "", "GET", ua, nil)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR1]", err))
-				return
-			}
-			var movieInfo movieShow
-			err = json.Unmarshal(data, &movieInfo)
-			if err != nil {
-				ctx.SendChain(message.Text("[EEROR2]:", err))
-				return
-			}
-			parsed.MovieList[i] = movieInfo.MovieInfo
-		}
-		// 整理数据，进行排序
-		sort.Slice(parsed.MovieList, func(i, j int) bool {
-			if parsed.MovieList[i].Sc != parsed.MovieList[j].Sc {
-				return parsed.MovieList[i].Sc > parsed.MovieList[j].Sc
-			}
-			return parsed.MovieList[i].Watched > parsed.MovieList[j].Watched
-		})
-		pic, err := drawOnListPic(parsed)
-		if err != nil {
-			ctx.SendChain(message.Text("[EEROR3]:", err))
-			return
-		}
-		todayPic.Set(0, pic)
+		todayPic[0] = pic
 		ctx.SendChain(message.ImageBytes(pic))
 	})
 	en.OnFullMatch("预售电影").SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		todayOnPic := todayPic.Get(1)
-		if todayOnPic != nil {
-			ctx.SendChain(message.ImageBytes(todayOnPic))
+		if todayPic[1] != nil && time.Since(lasttime) < 12*time.Hour {
+			ctx.SendChain(message.ImageBytes(todayPic[1]))
 			return
 		}
-		data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL+"comingList?token=", "", "GET", ua, nil)
+		lasttime = time.Now()
+		movieComingList, err := getMovieList("预售电影")
 		if err != nil {
-			ctx.SendChain(message.Text("[ERROR4]", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		var parsed comingList
-		err = json.Unmarshal(data, &parsed)
+		if len(movieComingList) == 0 {
+			ctx.SendChain(message.Text("没有预售电影"))
+			return
+		}
+		pic, err := drawComListPic(movieComingList)
 		if err != nil {
-			ctx.SendChain(message.Text("[EEROR5]:", err))
+			ctx.SendChain(message.Text("[ERROR]:", err))
 			return
 		}
-		if len(parsed.MovieList) == 0 {
-			ctx.SendChain(message.Text("没有预售信息"))
-		}
-		for i, info := range parsed.MovieList {
-			movieID := strconv.FormatInt(info.ID, 10)
-			data, err := web.RequestDataWith(web.NewDefaultClient(), apiURL+"detailmovie?movieId="+movieID, "", "GET", ua, nil)
-			if err != nil {
-				ctx.SendChain(message.Text("[ERROR1]", err))
-				return
-			}
-			var movieInfo movieShow
-			err = json.Unmarshal(data, &movieInfo)
-			if err != nil {
-				ctx.SendChain(message.Text("[EEROR2]:", err))
-				return
-			}
-			movieInfo.MovieInfo.Wish = info.Wish
-			movieInfo.MovieInfo.ComingTitle = info.ComingTitle
-			parsed.MovieList[i] = movieInfo.MovieInfo
-		}
-		// 整理数据，进行排序
-		sort.Slice(parsed.MovieList, func(i, j int) bool {
-			return parsed.MovieList[i].Wish > parsed.MovieList[j].Wish
-		})
-		pic, err := drawComListPic(parsed)
-		if err != nil {
-			ctx.SendChain(message.Text("[EEROR6]:", err))
-			return
-		}
-		todayPic.Set(1, pic)
+		todayPic[1] = pic
 		ctx.SendChain(message.ImageBytes(pic))
 	})
 }
@@ -184,14 +131,71 @@ type cardInfo struct {
 	Rank           string
 }
 
-func drawOnListPic(lits movieOnList) (data []byte, err error) {
-	rankinfo := make([]*cardInfo, len(lits.MovieList))
+func getMovieList(mode string) (movieList []movieInfo, err error) {
+	var data []byte
+	if mode == "今日电影" {
+		data, err = web.RequestDataWith(web.NewDefaultClient(), apiURL+"movieOnInfoList", "", "GET", ua, nil)
+		if err != nil {
+			return
+		}
+		var parsed movieOnList
+		err = json.Unmarshal(data, &parsed)
+		if err != nil {
+			return
+		}
+		movieList = parsed.MovieList
+	} else {
+		data, err = web.RequestDataWith(web.NewDefaultClient(), apiURL+"comingList?token=", "", "GET", ua, nil)
+		if err != nil {
+			return
+		}
+		var parsed comingList
+		err = json.Unmarshal(data, &parsed)
+		if err != nil {
+			return
+		}
+		movieList = parsed.MovieList
+	}
+	if len(movieList) == 0 {
+		return
+	}
+	for i, info := range movieList {
+		movieID := strconv.FormatInt(info.ID, 10)
+		data, err = web.RequestDataWith(web.NewDefaultClient(), apiURL+"detailmovie?movieId="+movieID, "", "GET", ua, nil)
+		if err != nil {
+			return
+		}
+		var movieInfo movieShow
+		err = json.Unmarshal(data, &movieInfo)
+		if err != nil {
+			return
+		}
+		if mode != "今日电影" {
+			movieList[i].ComingTitle = movieInfo.MovieInfo.ComingTitle
+		}
+		movieList[i] = movieInfo.MovieInfo
+	}
+	// 整理数据，进行排序
+	sort.Slice(movieList, func(i, j int) bool {
+		if movieList[i].Sc != movieList[j].Sc {
+			return movieList[i].Sc > movieList[j].Sc
+		}
+		if mode == "今日电影" {
+			return movieList[i].Watched > movieList[j].Watched
+		} else {
+			return movieList[i].Wish > movieList[j].Wish
+		}
+	})
+	return movieList, nil
+}
+func drawOnListPic(lits []movieInfo) (data []byte, err error) {
+	rankinfo := make([]*cardInfo, len(lits))
 
 	wg := &sync.WaitGroup{}
-	wg.Add(len(lits.MovieList))
-	for i := 0; i < len(lits.MovieList); i++ {
+	wg.Add(len(lits))
+	for i := 0; i < len(lits); i++ {
 		go func(i int) {
-			info := lits.MovieList[i]
+			info := lits[i]
 			defer wg.Done()
 			img, err := avatar(&info)
 			if err != nil {
@@ -238,14 +242,14 @@ func drawOnListPic(lits movieOnList) (data []byte, err error) {
 	return
 }
 
-func drawComListPic(lits comingList) (data []byte, err error) {
-	rankinfo := make([]*cardInfo, len(lits.MovieList))
+func drawComListPic(lits []movieInfo) (data []byte, err error) {
+	rankinfo := make([]*cardInfo, len(lits))
 
 	wg := &sync.WaitGroup{}
-	wg.Add(len(lits.MovieList))
-	for i := 0; i < len(lits.MovieList); i++ {
+	wg.Add(len(lits))
+	for i := 0; i < len(lits); i++ {
 		go func(i int) {
-			info := lits.MovieList[i]
+			info := lits[i]
 			defer wg.Done()
 			img, err := avatar(&info)
 			if err != nil {
@@ -400,6 +404,7 @@ func drawRankingCard(fontdata []byte, title string, rankinfo []*cardInfo) (img i
 	return
 }
 
+// avatar 获取电影海报,图片大且多，存本地增加响应速度
 func avatar(movieInfo *movieInfo) (pic image.Image, err error) {
 	mu.Lock()
 	defer mu.Unlock()
