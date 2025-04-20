@@ -171,7 +171,7 @@ func getMovieList(mode string) (movieList []movieInfo, err error) {
 			return
 		}
 		if mode != "今日电影" {
-			movieList[i].ComingTitle = movieInfo.MovieInfo.ComingTitle
+			movieInfo.MovieInfo.ComingTitle = movieList[i].ComingTitle
 		}
 		movieList[i] = movieInfo.MovieInfo
 	}
@@ -182,9 +182,8 @@ func getMovieList(mode string) (movieList []movieInfo, err error) {
 		}
 		if mode == "今日电影" {
 			return movieList[i].Watched > movieList[j].Watched
-		} else {
-			return movieList[i].Wish > movieList[j].Wish
 		}
+		return movieList[i].Wish > movieList[j].Wish
 	})
 	return movieList, nil
 }
