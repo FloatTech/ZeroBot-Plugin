@@ -248,5 +248,4 @@ func getVideoDownload(cookiecfg *bz.CookieConfig, card bz.Card, cachePath string
 	}
 	msg = append(msg, message.Video("file:///"+file.BOTPATH+"/"+videoFile))
 	return
-
 }
