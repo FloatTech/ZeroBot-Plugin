@@ -318,7 +318,6 @@ func videoCard2msg(card bz.Card) (msg []message.Segment, err error) {
 		}
 	} else {
 		if err != nil {
-			err = nil
 			msg = append(msg, message.Text("UP主: ", card.Owner.Name, "\n"))
 		} else {
 			msg = append(msg, message.Text("UP主: ", card.Owner.Name, " 粉丝: ", bz.HumanNum(mCard.Fans), "\n"))
