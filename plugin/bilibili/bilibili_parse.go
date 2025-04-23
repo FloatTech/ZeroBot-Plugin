@@ -39,6 +39,7 @@ var (
 	searchDynamicRe  = regexp.MustCompile(searchDynamic)
 	searchArticleRe  = regexp.MustCompile(searchArticle)
 	searchLiveRoomRe = regexp.MustCompile(searchLiveRoom)
+	cachePath        string
 )
 
 // 插件主体
@@ -48,14 +49,13 @@ func init() {
 		Brief:            "b站链接解析",
 		Help:             "例:- t.bilibili.com/642277677329285174\n- bilibili.com/read/cv17134450\n- bilibili.com/video/BV13B4y1x7pS\n- live.bilibili.com/22603245 ",
 	})
-	cachePath := en.DataFolder() + "cache/"
+	cachePath = en.DataFolder() + "cache/"
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
 	en.OnRegex(`((b23|acg).tv|bili2233.cn)\\?/[0-9a-zA-Z]+`).SetBlock(true).Limit(limit.LimitByGroup).
 		Handle(func(ctx *zero.Ctx) {
 			u := ctx.State["regex_matched"].([]string)[0]
 			u = strings.ReplaceAll(u, "\\", "")
-			ctx.State["cache_path"] = cachePath
 			realurl, err := bz.GetRealURL("https://" + u)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -105,22 +105,10 @@ func init() {
 			}
 			ctx.SendChain(message.Text("已", option, "视频总结"))
 		})
-	en.OnRegex(searchVideo, func(ctx *zero.Ctx) bool {
-		ctx.State["cache_path"] = cachePath
-		return true
-	}).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleVideo)
-	en.OnRegex(searchDynamic, func(ctx *zero.Ctx) bool {
-		ctx.State["cache_path"] = cachePath
-		return true
-	}).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleDynamic)
-	en.OnRegex(searchArticle, func(ctx *zero.Ctx) bool {
-		ctx.State["cache_path"] = cachePath
-		return true
-	}).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleArticle)
-	en.OnRegex(searchLiveRoom, func(ctx *zero.Ctx) bool {
-		ctx.State["cache_path"] = cachePath
-		return true
-	}).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleLive)
+	en.OnRegex(searchVideo).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleVideo)
+	en.OnRegex(searchDynamic).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleDynamic)
+	en.OnRegex(searchArticle).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleArticle)
+	en.OnRegex(searchLiveRoom).SetBlock(true).Limit(limit.LimitByGroup).Handle(handleLive)
 }
 
 func handleVideo(ctx *zero.Ctx) {
@@ -148,7 +136,6 @@ func handleVideo(ctx *zero.Ctx) {
 		}
 	}
 	ctx.SendChain(msg...)
-	cachePath := ctx.State["cache_path"].(string)
 	downLoadMsg, err := getVideoDownload(cfg, card, cachePath)
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
@@ -256,7 +243,7 @@ func getVideoDownload(cookiecfg *bz.CookieConfig, card bz.Card, cachePath string
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if err != nil {
-		err = errors.Errorf("未配置ffmpeg，%s", stderr.String())
+		err = errors.Errorf("未配置ffmpeg，%v", stderr)
 		return
 	}
 	msg = append(msg, message.Video("file:///"+file.BOTPATH+"/"+videoFile))
