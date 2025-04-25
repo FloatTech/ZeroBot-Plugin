@@ -11,6 +11,7 @@
       }
   ),
   buildGoApplication ? pkgs.buildGoApplication,
+  ...
 }:
 buildGoApplication {
   pname = "ZeroBot-Plugin";
