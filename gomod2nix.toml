@@ -8,8 +8,8 @@ schema = 3
     version = "v1.7.1-0.20250423082452-e16339a3962c"
     hash = "sha256-pyv242GLfslHEgQN5TgYsdpJKWzWR8qc4mJ8NXF0I8s="
   [mod."github.com/FloatTech/floatbox"]
-    version = "v0.0.0-20241106130736-5aea0a935024"
-    hash = "sha256-hSKmkzpNZwXRo0qm4G+1lXkNzWMwV9leYlYLQuzWx3M="
+    version = "v0.0.0-20250513111443-adba80e84e80"
+    hash = "sha256-Zt9zkUa3qqldrSttAq66YLPZPxrnkOR2MaU7oapIWEE="
   [mod."github.com/FloatTech/gg"]
     version = "v1.1.3"
     hash = "sha256-7K/R2mKjUHVnoJ3b1wDObJ5Un2Htj59Y97G1Ja1tuPo="
@@ -112,6 +112,9 @@ schema = 3
   [mod."github.com/gabriel-vasile/mimetype"]
     version = "v1.0.4"
     hash = "sha256-5hl9zBo3nkPt8dZfcLoOix8lAKLm3qIkWhopoS4V34E="
+  [mod."github.com/go-ego/gse"]
+    version = "v0.80.3"
+    hash = "sha256-uxTQN4cxE/ZReZqjlIEQ3WYD9w2Ec37LRHQftJXsSZQ="
   [mod."github.com/go-ole/go-ole"]
     version = "v1.2.6"
     hash = "sha256-+oxitLeJxYF19Z6g+6CgmCHJ1Y5D8raMi2Cb3M6nXCs="
@@ -217,6 +220,9 @@ schema = 3
   [mod."github.com/tklauser/numcpus"]
     version = "v0.6.1"
     hash = "sha256-8eFcw4YI0w6+GPhU5xMMQjiio94q/O5PpNO3QsvXve0="
+  [mod."github.com/vcaesar/cedar"]
+    version = "v0.20.2"
+    hash = "sha256-3WblBdkR9AZcvZCKSteBV5kdhahiFHG2dbLWfwrVkwM="
   [mod."github.com/wcharczuk/go-chart/v2"]
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
