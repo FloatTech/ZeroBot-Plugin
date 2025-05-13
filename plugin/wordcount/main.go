@@ -26,7 +26,7 @@ var (
 	seg                 gse.Segmenter
 )
 
-// MessageRecord将保存聊天消息的时间与内容到json
+// MessageRecord represents a chat message with timestamp and text to json.
 type MessageRecord struct {
 	Time int64  `json:"time"`
 	Text string `json:"text"`
