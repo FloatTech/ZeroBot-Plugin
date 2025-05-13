@@ -2,192 +2,275 @@
 package wordcount
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-	"regexp"
 	"sort"
-	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/FloatTech/floatbox/binary"
-	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
+	"github.com/go-ego/gse"
 	"github.com/golang/freetype"
-	"github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 var (
-	re        = regexp.MustCompile(`^[一-龥]+$`)
-	stopwords []string
+	stopwords           map[string]struct{}
+	wordcountDataFolder string
+	seg                 gse.Segmenter
 )
+
+type MessageRecord struct {
+	Time int64  `json:"time"`
+	Text string `json:"text"`
+}
+
+func appendJSONLine(filePath string, record MessageRecord) {
+	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	data, err := json.Marshal(record)
+	if err != nil {
+		return
+	}
+	f.Write(data)
+	f.WriteString("\n")
+}
+
+func loadStopwords() {
+	stopwords = make(map[string]struct{})
+	data, err := os.ReadFile(wordcountDataFolder + "stopwords.txt")
+	if err != nil {
+		return
+	}
+	for _, w := range strings.Split(strings.ReplaceAll(string(data), "\r", ""), "\n") {
+		w = strings.TrimSpace(w)
+		if w != "" {
+			stopwords[w] = struct{}{}
+		}
+	}
+}
+
+func loadCustomDicts() {
+	err := seg.LoadDictEmbed("zh_s")
+	if err != nil {
+		fmt.Println("加载内置词典失败:", err)
+	} else {
+		fmt.Println("成功加载内置词典")
+	}
+}
 
 func init() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "聊天热词",
-		Help:             "- 热词 [群号] [消息数目]|热词 123456 1000",
+		Help:             "- 热词 | 历史热词",
 		PublicDataFolder: "WordCount",
 	})
-	cachePath := engine.DataFolder() + "cache/"
-	_ = os.RemoveAll(cachePath)
-	_ = os.MkdirAll(cachePath, 0755)
-	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		_, err := engine.GetLazyData("stopwords.txt", false)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return false
-		}
-		data, err := os.ReadFile(engine.DataFolder() + "stopwords.txt")
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return false
-		}
-		stopwords = strings.Split(strings.ReplaceAll(binary.BytesToString(data), "\r", ""), "\n")
-		sort.Strings(stopwords)
-		logrus.Infoln("[wordcount]加载", len(stopwords), "条停用词")
-		return true
-	})).Limit(ctxext.LimitByUser).SetBlock(true).
+	wordcountDataFolder = engine.DataFolder()
+	_ = os.MkdirAll(wordcountDataFolder+"cache/", 0755)
+
+	// 加载 stopwords.txt（如不存在）
+	_, err := engine.GetLazyData("stopwords.txt", false)
+	if err != nil {
+		fmt.Println("下载 stopwords.txt 失败：", err)
+	}
+
+	loadStopwords()
+	loadCustomDicts()
+
+	engine.OnMessage(zero.OnlyGroup).
 		Handle(func(ctx *zero.Ctx) {
-			_, err := file.GetLazyData(text.FontFile, control.Md5File, true)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+			gid := ctx.Event.GroupID
+			today := time.Now().Format("20060102")
+			groupFolder := fmt.Sprintf("%s/messages/%d/", wordcountDataFolder, gid)
+			_ = os.MkdirAll(groupFolder, 0755)
+			filePath := fmt.Sprintf("%s%s.json", groupFolder, today)
+
+			textContent := strings.TrimSpace(message.ParseMessageFromString(ctx.Event.RawMessage).ExtractPlainText())
+			if textContent == "" {
 				return
 			}
-			b, err := os.ReadFile(text.FontFile)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+			record := MessageRecord{Time: time.Now().Unix(), Text: textContent}
+			appendJSONLine(filePath, record)
+		})
+
+	engine.OnRegex(`^热词$`, zero.OnlyGroup).
+		Handle(func(ctx *zero.Ctx) {
+			_, _ = file.GetLazyData(text.FontFile, control.Md5File, true)
+			b, _ := os.ReadFile(text.FontFile)
+			font, _ := freetype.ParseFont(b)
+
+			ctx.SendChain(message.Text("开始统计中..."))
+			gid := ctx.Event.GroupID
+
+			baseFolder := fmt.Sprintf("%s/messages/%d/", wordcountDataFolder, gid)
+			today := time.Now().Format("20060102")
+			filePath := fmt.Sprintf("%s%s.json", baseFolder, today)
+			if !file.IsExist(filePath) {
+				ctx.SendChain(message.Text("ERROR: 今日无聊天记录"))
 				return
 			}
-			font, err := freetype.ParseFont(b)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+			content, _ := os.ReadFile(filePath)
+			messages := []string{}
+			for _, line := range strings.Split(string(content), "\n") {
+				if strings.TrimSpace(line) == "" {
+					continue
+				}
+				var rec MessageRecord
+				if err := json.Unmarshal([]byte(line), &rec); err == nil {
+					messages = append(messages, rec.Text)
+				}
+			}
+			if len(messages) == 0 {
+				ctx.SendChain(message.Text("ERROR: 今日无有效聊天记录"))
 				return
 			}
 
-			ctx.SendChain(message.Text("少女祈祷中..."))
-			gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
-			if p > 10000 {
-				p = 10000
-			}
-			if p == 0 {
-				p = 1000
-			}
-			if gid == 0 {
-				gid = ctx.Event.GroupID
-			}
-			group := ctx.GetGroupInfo(gid, false)
-			if group.MemberCount == 0 {
-				ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获得热词呢"))
-				return
-			}
-			today := time.Now().Format("20060102")
-			drawedFile := fmt.Sprintf("%s%d%s%dwordCount.png", cachePath, gid, today, p)
-			if file.IsExist(drawedFile) {
-				ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
-				return
-			}
-			messageMap := make(map[string]int, 256)
-			msghists := make(chan *gjson.Result, 256)
-			go func() {
-				h := ctx.GetLatestGroupMessageHistory(gid)
-				messageSeq := h.Get("messages.0.message_seq").Int()
-				msghists <- &h
-				for i := 1; i < int(p/20) && messageSeq != 0; i++ {
-					h := ctx.GetGroupMessageHistory(gid, messageSeq)
-					msghists <- &h
-					messageSeq = h.Get("messages.0.message_seq").Int()
+			// 跳过stopword和2个字以下的词
+			messageMap := make(map[string]int)
+
+			for _, msg := range messages {
+				text := strings.TrimSpace(msg)
+				if text == "" {
+					continue
 				}
-				close(msghists)
-			}()
-			var wg sync.WaitGroup
-			var mapmu sync.Mutex
-			for h := range msghists {
-				wg.Add(1)
-				go func(h *gjson.Result) {
-					for _, v := range h.Get("messages.#.message").Array() {
-						tex := strings.TrimSpace(message.ParseMessageFromString(v.Str).ExtractPlainText())
-						if tex == "" {
-							continue
-						}
-						for _, t := range ctx.GetWordSlices(tex).Get("slices").Array() {
-							tex := strings.TrimSpace(t.Str)
-							i := sort.SearchStrings(stopwords, tex)
-							if re.MatchString(tex) && (i >= len(stopwords) || stopwords[i] != tex) {
-								mapmu.Lock()
-								messageMap[tex]++
-								mapmu.Unlock()
-							}
-						}
+
+				segments := seg.Segment([]byte(text))
+				words := gse.ToSlice(segments, true)
+
+				for _, word := range words {
+					// 跳过停用词
+					if _, isStopword := stopwords[word]; isStopword {
+						continue
 					}
-					wg.Done()
-				}(h)
+					// 跳过所有单字词
+					if len([]rune(word)) < 2 {
+						continue
+					}
+
+					messageMap[word]++
+				}
 			}
-			wg.Wait()
 
 			wc := rankByWordCount(messageMap)
 			if len(wc) > 20 {
 				wc = wc[:20]
 			}
-			// 绘图
-			if len(wc) == 0 {
-				ctx.SendChain(message.Text("ERROR: 历史消息为空或者无法获得历史消息"))
-				return
-			}
+
 			bars := make([]chart.Value, len(wc))
 			for i, v := range wc {
-				bars[i] = chart.Value{
-					Value: float64(v.Value),
-					Label: v.Key,
-				}
+				bars[i] = chart.Value{Value: float64(v.Value), Label: v.Key}
 			}
+
+			drawedFile := fmt.Sprintf("%s%d%swordCount.png", wordcountDataFolder+"cache/", gid, today)
 			graph := chart.BarChart{
-				Font:  font,
-				Title: fmt.Sprintf("%s(%d)在%s号的%d条消息的热词top20", group.Name, gid, time.Now().Format("2006-01-02"), p),
-				Background: chart.Style{
-					Padding: chart.Box{
-						Top: 40,
-					},
-				},
-				Height:   500,
-				BarWidth: 25,
-				Bars:     bars,
+				Font:       font,
+				Title:      "热词TOP20 - 今日",
+				Background: chart.Style{Padding: chart.Box{Top: 40}},
+				Height:     500,
+				BarWidth:   35,
+				Bars:       bars,
 			}
-			f, err := os.Create(drawedFile)
-			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
-			err = graph.Render(chart.PNG, f)
+			f, _ := os.Create(drawedFile)
+			_ = graph.Render(chart.PNG, f)
 			_ = f.Close()
-			if err != nil {
-				_ = os.Remove(drawedFile)
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return
-			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
-}
 
-func rankByWordCount(wordFrequencies map[string]int) pairlist {
-	pl := make(pairlist, len(wordFrequencies))
-	i := 0
-	for k, v := range wordFrequencies {
-		pl[i] = pair{k, v}
-		i++
-	}
-	sort.Sort(sort.Reverse(pl))
-	return pl
+	//历史所有热词
+	engine.OnRegex(`^(历史热词)$`, zero.OnlyGroup).
+		Handle(func(ctx *zero.Ctx) {
+			// 加载字体
+			_, _ = file.GetLazyData(text.FontFile, control.Md5File, true)
+			b, _ := os.ReadFile(text.FontFile)
+			font, _ := freetype.ParseFont(b)
+
+			ctx.SendChain(message.Text("开始统计历史热词中..."))
+			gid := ctx.Event.GroupID
+
+			baseFolder := fmt.Sprintf("%s/messages/%d/", wordcountDataFolder, gid)
+			files, _ := os.ReadDir(baseFolder)
+
+			messages := []string{}
+			for _, f := range files {
+				if !f.IsDir() && strings.HasSuffix(f.Name(), ".json") {
+					content, _ := os.ReadFile(baseFolder + f.Name())
+					for _, line := range strings.Split(string(content), "\n") {
+						if strings.TrimSpace(line) == "" {
+							continue
+						}
+						var rec MessageRecord
+						if err := json.Unmarshal([]byte(line), &rec); err == nil {
+							messages = append(messages, rec.Text)
+						}
+					}
+				}
+			}
+
+			if len(messages) == 0 {
+				ctx.SendChain(message.Text("ERROR: 没有历史聊天记录"))
+				return
+			}
+
+			// 跳过stopword和2个字以下的词
+			messageMap := make(map[string]int)
+
+			for _, msg := range messages {
+				text := strings.TrimSpace(msg)
+				if text == "" {
+					continue
+				}
+
+				segments := seg.Segment([]byte(text))
+				words := gse.ToSlice(segments, true)
+
+				for _, word := range words {
+					if _, isStopword := stopwords[word]; isStopword {
+						continue
+					}
+
+					if len([]rune(word)) < 2 {
+						continue
+					}
+
+					messageMap[word]++
+				}
+			}
+
+			wc := rankByWordCount(messageMap)
+			if len(wc) > 20 {
+				wc = wc[:20]
+			}
+
+			bars := make([]chart.Value, len(wc))
+			for i, v := range wc {
+				bars[i] = chart.Value{Value: float64(v.Value), Label: v.Key}
+			}
+
+			drawedFile := fmt.Sprintf("%s%d_historyWordCount.png", wordcountDataFolder+"cache/", gid)
+			graph := chart.BarChart{
+				Font:       font,
+				Title:      "热词TOP20 - 历史",
+				Background: chart.Style{Padding: chart.Box{Top: 40}},
+				Height:     500,
+				BarWidth:   35,
+				Bars:       bars,
+			}
+			f, _ := os.Create(drawedFile)
+			_ = graph.Render(chart.PNG, f)
+			_ = f.Close()
+			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
+		})
+
 }
 
 type pair struct {
@@ -200,3 +283,14 @@ type pairlist []pair
 func (p pairlist) Len() int           { return len(p) }
 func (p pairlist) Less(i, j int) bool { return p[i].Value < p[j].Value }
 func (p pairlist) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
+func rankByWordCount(wordFrequencies map[string]int) pairlist {
+	pl := make(pairlist, len(wordFrequencies))
+	i := 0
+	for k, v := range wordFrequencies {
+		pl[i] = pair{k, v}
+		i++
+	}
+	sort.Sort(sort.Reverse(pl))
+	return pl
+}
