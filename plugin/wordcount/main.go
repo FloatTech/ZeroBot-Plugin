@@ -11,6 +11,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-ego/gse"
+	"github.com/golang/freetype"
+	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
+	"github.com/wcharczuk/go-chart/v2"
+
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
@@ -18,17 +24,16 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
-	"github.com/golang/freetype"
-	"github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
-	"github.com/wcharczuk/go-chart/v2"
+
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 var (
 	re        = regexp.MustCompile(`^[一-龥]+$`)
 	stopwords []string
+	seg       gse.Segmenter
 )
 
 func init() {
@@ -39,6 +44,11 @@ func init() {
 		PublicDataFolder: "WordCount",
 	})
 	cachePath := engine.DataFolder() + "cache/"
+	// 读取gse内置中文词典
+	err := seg.LoadDictEmbed()
+	if err != nil {
+		panic(err)
+	}
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
 	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
@@ -120,12 +130,14 @@ func init() {
 						if tex == "" {
 							continue
 						}
-						for _, t := range ctx.GetWordSlices(tex).Get("slices").Array() {
-							tex := strings.TrimSpace(t.Str)
-							i := sort.SearchStrings(stopwords, tex)
-							if re.MatchString(tex) && (i >= len(stopwords) || stopwords[i] != tex) {
+						segments := seg.Segment(helper.StringToBytes(tex))
+						words := gse.ToSlice(segments, true)
+						for _, word := range words {
+							word = strings.TrimSpace(word)
+							i := sort.SearchStrings(stopwords, word)
+							if re.MatchString(word) && (i >= len(stopwords) || stopwords[i] != word) {
 								mapmu.Lock()
-								messageMap[tex]++
+								messageMap[word]++
 								mapmu.Unlock()
 							}
 						}
