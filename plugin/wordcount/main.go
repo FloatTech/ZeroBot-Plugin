@@ -26,6 +26,7 @@ var (
 	seg                 gse.Segmenter
 )
 
+// 保存聊天消息的时间与内容到json
 type MessageRecord struct {
 	Time int64  `json:"time"`
 	Text string `json:"text"`
@@ -37,12 +38,18 @@ func appendJSONLine(filePath string, record MessageRecord) {
 		return
 	}
 	defer f.Close()
+
 	data, err := json.Marshal(record)
 	if err != nil {
 		return
 	}
-	f.Write(data)
-	f.WriteString("\n")
+	// 错误处理
+	if _, err := f.Write(data); err != nil {
+		return
+	}
+	if _, err := f.WriteString("\n"); err != nil {
+		return
+	}
 }
 
 func loadStopwords() {
