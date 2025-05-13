@@ -2,11 +2,10 @@
 package thesaurus
 
 import (
-	"bytes"
 	"math/rand"
 	"strings"
 
-	"github.com/fumiama/jieba"
+	"github.com/go-ego/gse"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
@@ -55,11 +54,8 @@ func init() {
 		ctx.SendChain(message.Text("成功!"))
 	})
 	go func() {
-		data, err := engine.GetLazyData("dict.txt", false)
-		if err != nil {
-			panic(err)
-		}
-		seg, err := jieba.LoadDictionary(bytes.NewReader(data))
+		var seg gse.Segmenter
+		err := seg.LoadDictEmbed()
 		if err != nil {
 			panic(err)
 		}
@@ -102,10 +98,10 @@ func init() {
 				ctx.SendChain(message.Text(r.Reply))
 			}
 		})
-		engine.OnMessage(zero.OnlyToMe, canmatch(tDERE), match(chatListD, seg)).
+		engine.OnMessage(zero.OnlyToMe, canmatch(tDERE), match(chatListD, &seg)).
 			SetBlock(false).
 			Handle(randreply(sm.D))
-		engine.OnMessage(zero.OnlyToMe, canmatch(tKAWA), match(chatListK, seg)).
+		engine.OnMessage(zero.OnlyToMe, canmatch(tKAWA), match(chatListK, &seg)).
 			SetBlock(false).
 			Handle(randreply(sm.K))
 	}()
@@ -122,7 +118,7 @@ const (
 	tKAWA
 )
 
-func match(l []string, seg *jieba.Segmenter) zero.Rule {
+func match(l []string, seg *gse.Segmenter) zero.Rule {
 	return func(ctx *zero.Ctx) bool {
 		return ctxext.JiebaSimilarity(0.66, seg, func(ctx *zero.Ctx) string {
 			return ctx.ExtractPlainText()

@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
 	github.com/FloatTech/AnimeAPI v1.7.1-0.20250423082452-e16339a3962c
-	github.com/FloatTech/floatbox v0.0.0-20241106130736-5aea0a935024
+	github.com/FloatTech/floatbox v0.0.0-20250513111443-adba80e84e80
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.2.0
@@ -30,6 +30,7 @@ require (
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
 	github.com/fumiama/terasu v0.0.0-20241027183601-987ab91031ce
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
+	github.com/go-ego/gse v0.80.3
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/gorm v1.9.16
@@ -85,6 +86,7 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
+	github.com/vcaesar/cedar v0.20.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp/shiny v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/mobile v0.0.0-20231127183840-76ac6878050a // indirect

@@ -3,8 +3,8 @@ github.com/Baidu-AIP/golang-sdk v1.1.1/go.mod h1:bXnGw7xPeKt8aF7UCELKrV6UZ/46spI
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/FloatTech/AnimeAPI v1.7.1-0.20250423082452-e16339a3962c h1:bEe8VP2aHLR2NHk1BsBQFtP0XE3cxquvr0tW0CkKcDk=
 github.com/FloatTech/AnimeAPI v1.7.1-0.20250423082452-e16339a3962c/go.mod h1:XXG1eBJf+eeWacQx5azsQKL5Gg7jDYTFyyZGIa/56js=
-github.com/FloatTech/floatbox v0.0.0-20241106130736-5aea0a935024 h1:mrvWpiwfRklt9AyiQjKgDGJjf4YL6FZ3yC+ydbkuF2o=
-github.com/FloatTech/floatbox v0.0.0-20241106130736-5aea0a935024/go.mod h1:+P3hs+Cvl10/Aj3SNE96TuBvKAXCe+XD1pKphTZyiwk=
+github.com/FloatTech/floatbox v0.0.0-20250513111443-adba80e84e80 h1:lFD1pd8NkYCrw0QpTX/T5pJ67I7AL5eGxQ4v0r9f81Q=
+github.com/FloatTech/floatbox v0.0.0-20250513111443-adba80e84e80/go.mod h1:IWoFFqu+0FeaHHQdddyiTRL5z7gJME6qHC96qh0R2sc=
 github.com/FloatTech/gg v1.1.3 h1:+GlL02lTKsxJQr4WCuNwVxC1/eBZrCvypCIBtxuOFb4=
 github.com/FloatTech/gg v1.1.3/go.mod h1:/9oLP54CMfq4r+71XL26uaFTJ1uL1boAyX67680/1HE=
 github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef h1:CJbK/2FRwPuZpeb6M4sWK2d7oXDnBEGhpkQuQrgc91A=
@@ -92,6 +92,8 @@ github.com/gdamore/tcell v1.3.0/go.mod h1:Hjvr+Ofd+gLglo7RYKxxnzCBmev3BzsS67MebK
 github.com/go-audio/audio v1.0.0/go.mod h1:6uAu0+H2lHkwdGsAY+j2wHPNPpPoeg5AaEFh9FlA+Zs=
 github.com/go-audio/riff v1.0.0/go.mod h1:l3cQwc85y79NQFCRB7TiPoNiaijp6q8Z0Uv38rVG498=
 github.com/go-audio/wav v1.0.0/go.mod h1:3yoReyQOsiARkvPl3ERCi8JFjihzG6WhjYpZCf5zAWE=
+github.com/go-ego/gse v0.80.3 h1:YNFkjMhlhQnUeuoFcUEd1ivh6SOB764rT8GDsEbDiEg=
+github.com/go-ego/gse v0.80.3/go.mod h1:Gt3A9Ry1Eso2Kza4MRaiZ7f2DTAvActmETY46Lxg0gU=
 github.com/go-ole/go-ole v1.2.6 h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
@@ -192,6 +194,9 @@ github.com/tklauser/go-sysconf v0.3.12 h1:0QaGUFOdQaIVdPgfITYzaTegZvdCjmYO52cSFA
 github.com/tklauser/go-sysconf v0.3.12/go.mod h1:Ho14jnntGE1fpdOqQEEaiKRpvIavV0hSfmBq8nJbHYI=
 github.com/tklauser/numcpus v0.6.1 h1:ng9scYS7az0Bk4OZLvrNXNSAO2Pxr1XXRAPyjhIx+Fk=
 github.com/tklauser/numcpus v0.6.1/go.mod h1:1XfjsgE2zo8GVw7POkMbHENHzVg3GzmoZ9fESEdAacY=
+github.com/vcaesar/cedar v0.20.2 h1:TDx7AdZhilKcfE1WvdToTJf5VrC/FXcUOW+KY1upLZ4=
+github.com/vcaesar/cedar v0.20.2/go.mod h1:lyuGvALuZZDPNXwpzv/9LyxW+8Y6faN7zauFezNsnik=
+github.com/vcaesar/tt v0.20.1 h1:D/jUeeVCNbq3ad8M7hhtB3J9x5RZ6I1n1eZ0BJp7M+4=
 github.com/wcharczuk/go-chart/v2 v2.1.2 h1:Y17/oYNuXwZg6TFag06qe8sBajwwsuvPiJJXcUcLL6E=
 github.com/wcharczuk/go-chart/v2 v2.1.2/go.mod h1:Zi4hbaqlWpYajnXB2K22IUYVXRXaLfSGNNR7P4ukyyQ=
 github.com/wdvxdr1123/ZeroBot v1.8.2-0.20250330133859-27c25d9412b5 h1:HsMcBsVpYuQv+W8pjX5WdwYROrFQP9c5Pbf4x4adDus=
