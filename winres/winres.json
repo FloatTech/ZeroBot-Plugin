@@ -12,7 +12,7 @@
       "0409": {
         "identity": {
           "name": "ZeroBot-Plugin",
-          "version": "1.9.7.2217"
+          "version": "1.9.8.2223"
         },
         "description": "",
         "minimum-os": "vista",
@@ -36,23 +36,23 @@
     "#1": {
       "0000": {
         "fixed": {
-          "file_version": "1.9.7.2217",
-          "product_version": "v1.9.7",
-          "timestamp": "2025-05-14T21:53:06+08:00"
+          "file_version": "1.9.8.2223",
+          "product_version": "v1.9.8",
+          "timestamp": "2025-06-01T18:52:57+08:00"
         },
         "info": {
           "0409": {
             "Comments": "OneBot plugins based on ZeroBot",
             "CompanyName": "FloatTech",
             "FileDescription": "https://github.com/FloatTech/ZeroBot-Plugin",
-            "FileVersion": "1.9.7.2217",
+            "FileVersion": "1.9.8.2223",
             "InternalName": "",
             "LegalCopyright": "© 2020 - 2025 FloatTech. All Rights Reserved.",
             "LegalTrademarks": "",
             "OriginalFilename": "ZBP.EXE",
             "PrivateBuild": "",
             "ProductName": "ZeroBot-Plugin",
-            "ProductVersion": "v1.9.7",
+            "ProductVersion": "v1.9.8",
             "SpecialBuild": ""
           }
         }
