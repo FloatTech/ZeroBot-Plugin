@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-HDDnE0oktWJH1tkxuQwUUbeJhmVwY5fyc/vR72D2mkU="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20250601085303-b2a05f133d5b"
-    hash = "sha256-Z3hHIGpJOXYiX56JaM+XMzq/cCQQ/PxKEmpNWOIv52Q="
+    version = "v1.7.2-0.20250601113004-1bee2a7cd4b6"
+    hash = "sha256-pNL591h1gGP60wKEuvvF3DoshbaphoLze7Pa7gDA9bQ="
   [mod."github.com/RomiChan/syncx"]
     version = "v0.0.0-20240418144900-b7402ffdebc7"
     hash = "sha256-L1j1vgiwqXpF9pjMoRRlrQUHzoULisw/01plaEAwxs4="
@@ -77,8 +77,8 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-/sN7X8dKXQgv8J+EDzVUB+o+AY9gBC8e1C6sYhaTy1k="
   [mod."github.com/fumiama/deepinfra"]
-    version = "v0.0.0-20250330125128-71ec2f7c085e"
-    hash = "sha256-O7Om4mIcBB2zdVxaeKh7qHbiG83gVLP+f8vxSF17kCw="
+    version = "v0.0.0-20250601112706-0175c95164c1"
+    hash = "sha256-/8Hufq5n84QHOgS0igYQWo1zxjOBBbrqad2wQfKHBhY="
   [mod."github.com/fumiama/go-base16384"]
     version = "v1.7.0"
     hash = "sha256-vTAsBBYe2ISzb2Nba5E96unodZSkhMcqo6hbwR01nz8="
