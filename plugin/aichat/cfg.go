@@ -1,6 +1,7 @@
 package aichat
 
 import (
+	"strconv"
 	"strings"
 
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -17,6 +18,8 @@ var cfg = newconfig()
 type config struct {
 	ModelName string
 	Type      int
+	MaxN      uint
+	TopP      float32
 	SystemP   string
 	API       string
 	Key       string
@@ -87,6 +90,60 @@ func newextrasetbool(ptr *bool) func(ctx *zero.Ctx) {
 		}
 		*ptr = isno
 		err := c.SetExtra(&cfg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	}
+}
+
+func newextrasetuint(ptr *uint) func(ctx *zero.Ctx) {
+	return func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: no such plugin"))
+			return
+		}
+		n, err := strconv.ParseUint(args, 10, 64)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: parse args err: ", err))
+			return
+		}
+		*ptr = uint(n)
+		err = c.SetExtra(&cfg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	}
+}
+
+func newextrasetfloat32(ptr *float32) func(ctx *zero.Ctx) {
+	return func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: no such plugin"))
+			return
+		}
+		n, err := strconv.ParseFloat(args, 32)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: parse args err: ", err))
+			return
+		}
+		*ptr = float32(n)
+		err = c.SetExtra(&cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
 			return

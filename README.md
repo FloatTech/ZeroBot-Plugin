@@ -1588,6 +1588,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天系统提示词xxx
   - [x] 设置AI聊天分隔符`</think>`(留空则清除)
   - [x] 设置AI聊天(不)响应AT
+  - [x] 设置AI聊天最大长度4096
+  - [x] 设置AI聊天TopP 0.9
 
 </details>
 <details>

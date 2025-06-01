@@ -36,7 +36,9 @@ var (
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
 			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
-			"- 设置AI聊天(不)响应AT",
+			"- 设置AI聊天(不)响应AT\n" +
+			"- 设置AI聊天最大长度4096\n" +
+			"- 设置AI聊天TopP 0.9",
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -83,22 +85,30 @@ func init() {
 
 		x := deepinfra.NewAPI(cfg.API, cfg.Key)
 		var mod model.Protocol
+		maxn := cfg.MaxN
+		if maxn == 0 {
+			maxn = 4096
+		}
+		topp := cfg.TopP
+		if topp == 0 {
+			topp = 0.9
+		}
 
 		switch cfg.Type {
 		case 0:
 			mod = model.NewOpenAI(
 				cfg.ModelName, cfg.Separator,
-				float32(temp)/100, 0.9, 4096,
+				float32(temp)/100, topp, maxn,
 			)
 		case 1:
 			mod = model.NewOLLaMA(
 				cfg.ModelName, cfg.Separator,
-				float32(temp)/100, 0.9, 4096,
+				float32(temp)/100, topp, maxn,
 			)
 		case 2:
 			mod = model.NewGenAI(
 				cfg.ModelName,
-				float32(temp)/100, 0.9, 4096,
+				float32(temp)/100, topp, maxn,
 			)
 		default:
 			logrus.Warnln("[aichat] unsupported AI type", cfg.Type)
@@ -255,4 +265,8 @@ func init() {
 		Handle(newextrasetbool(&cfg.NoReplyAT))
 	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoSystemP))
+	en.OnPrefix("设置AI聊天最大长度", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetuint(&cfg.MaxN))
+	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetfloat32(&cfg.TopP))
 }
