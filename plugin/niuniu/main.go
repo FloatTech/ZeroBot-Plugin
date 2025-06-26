@@ -81,7 +81,7 @@ func init() {
 		for {
 			select {
 			case <-timer.C:
-				ctx.SendChain(message.At(uid), message.Text(" 超时,已自动取消"))
+				ctx.SendChain(message.At(uid), message.Text(" 超时，已自动取消"))
 				return
 			case r := <-recv:
 				answer = r.Event.Message.String()
@@ -108,6 +108,12 @@ func init() {
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
+		}
+		// 数据库操作成功之后，及时删除残留的缓存
+		key := fmt.Sprintf("%d_%d", gid, uid)
+		_, ok := jjCount.Load(key)
+		if ok {
+			jjCount.Delete(key)
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(sell))
 	})
@@ -165,7 +171,7 @@ func init() {
 		for {
 			select {
 			case <-timer.C:
-				ctx.SendChain(message.At(uid), message.Text(" 超时,已自动取消"))
+				ctx.SendChain(message.At(uid), message.Text(" 超时，已自动取消"))
 				return
 			case r := <-recv:
 				answer = r.Event.Message.String()
@@ -196,16 +202,16 @@ func init() {
 		}
 
 		if time.Since(last.TimeLimit) > time.Hour {
-			ctx.SendChain(message.Text("时间已经过期了,牛牛已被收回!"))
+			ctx.SendChain(message.Text("时间已经过期了，牛牛已被收回!"))
 			jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 			return
 		}
 
 		if last.Count < 4 {
-			ctx.SendChain(message.Text("你还没有被厥够4次呢,不能赎牛牛"))
+			ctx.SendChain(message.Text("你还没有被厥够4次呢，不能赎牛牛"))
 			return
 		}
-		ctx.SendChain(message.Text("再次确认一下哦,这次赎牛牛，牛牛长度将会变成", last.Length, "cm\n还需要嘛【是|否】"))
+		ctx.SendChain(message.Text("再次确认一下哦，这次赎牛牛，牛牛长度将会变成", last.Length, "cm\n还需要嘛【是|否】"))
 		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(是|否)$`)).Repeat()
 		defer cancel()
 		timer := time.NewTimer(2 * time.Minute)
@@ -222,11 +228,11 @@ func init() {
 					return
 				}
 
-				if err := niu.Redeem(gid, uid, last.Length); err == nil {
+				if err := niu.Redeem(gid, uid, last.Length); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
-
+				// 成功赎回，删除残留的缓存。
 				jjCount.Delete(fmt.Sprintf("%d_%d", gid, uid))
 
 				ctx.SendChain(message.At(uid), message.Text(fmt.Sprintf("恭喜你!成功赎回牛牛,当前长度为:%.2fcm", last.Length)))
@@ -342,8 +348,9 @@ func init() {
 		j := fmt.Sprintf("%d_%d", gid, adduser)
 		count, ok := jjCount.Load(j)
 		var c lastLength
-		// 按照最后一次被jj时的时间计算，超过60分钟则重置
+		// 按照最后一次被 jj 时的时间计算，超过60分钟则重置
 		if !ok {
+			// 第一次被 jj
 			c = lastLength{
 				TimeLimit: time.Now(),
 				Count:     1,
@@ -355,6 +362,7 @@ func init() {
 				Count:     count.Count + 1,
 				Length:    count.Length,
 			}
+			// 超时了，重置
 			if time.Since(c.TimeLimit) > time.Hour {
 				c = lastLength{
 					TimeLimit: time.Now(),
