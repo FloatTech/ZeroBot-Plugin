@@ -29,7 +29,8 @@ func init() {
 			"- 网易点歌[xxx]\n" +
 			"- 酷我点歌[xxx]\n" +
 			"- 酷狗点歌[xxx]\n" +
-			"- 咪咕点歌[xxx]",
+			"- 咪咕点歌[xxx]\n" +
+			"- qq点歌[xxx]\n",
 	}).OnRegex(`^(.{0,2})点歌\s?(.{1,25})$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			// switch 平台
@@ -42,8 +43,10 @@ func init() {
 				ctx.SendChain(kugou(ctx.State["regex_matched"].([]string)[2]))
 			case "网易":
 				ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[2]))
-			default: // 默认 QQ音乐
+			case "qq":
 				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
+			default: // 默认咪咕点歌
+				ctx.SendChain(migu(ctx.State["regex_matched"].([]string)[2]))
 			}
 		})
 }

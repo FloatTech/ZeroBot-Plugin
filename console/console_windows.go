@@ -38,12 +38,18 @@ func setConsoleTitle(title string) (err error) {
 }
 
 func init() {
+	debugMode := os.Getenv("DEBUG_MODE") == "1"
 	stdin := windows.Handle(os.Stdin.Fd())
 
 	var mode uint32
 	err := windows.GetConsoleMode(stdin, &mode)
 	if err != nil {
-		panic(err)
+		if debugMode {
+			logrus.Warnf("调试模式下忽略控制台模式获取失败: %v", err)
+			return // 调试模式下直接返回，跳过后续配置
+		} else {
+			panic(err) // 非调试模式下 panic
+		}
 	}
 
 	mode &^= windows.ENABLE_QUICK_EDIT_MODE // 禁用快速编辑模式
