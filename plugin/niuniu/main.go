@@ -65,7 +65,7 @@ func init() {
 		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛拍卖行有以下牛牛")))
 		for _, info := range auction {
 			msg := fmt.Sprintf("商品序号: %d\n牛牛原所属: %d\n牛牛价格: %d%s\n牛牛大小: %.2fcm",
-				info.ID+1, info.UserID, info.Money, wallet.GetWalletName(), info.Length)
+				info.ID, info.UserID, info.Money, wallet.GetWalletName(), info.Length)
 			messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text(msg)))
 		}
 		if id := ctx.Send(messages).ID(); id == 0 {
@@ -90,7 +90,6 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				n--
 				msg, err := niu.Auction(gid, uid, n)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
@@ -151,7 +150,7 @@ func init() {
 
 		var messages message.Message
 		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
-		for id := range propMap {
+		for id := 1; id <= len(propMap); id++ {
 			product := propMap[id]
 			productInfo := fmt.Sprintf("商品%d\n商品名: %s\n商品价格: %dATRI币\n商品作用域: %s\n商品描述: %s\n使用次数:%d",
 				id, product.name, product.cost, product.scope, product.description, product.count)
@@ -380,6 +379,9 @@ func init() {
 			)))
 
 			if c.Count >= 4 {
+				if c.Count == 6 {
+					return
+				}
 				id := ctx.SendPrivateMessage(adduser,
 					message.Text(fmt.Sprintf("你在%d群里已经被厥冒烟了，快去群里赎回你原本的牛牛!\n发送:`赎牛牛`即可！", gid)))
 				if id == 0 {
@@ -394,7 +396,7 @@ func init() {
 		key := fmt.Sprintf("%d_%d", gid, uid)
 		data, ok := register.Load(key)
 		switch {
-		case !ok || time.Since(data.TimeLimit) > time.Hour*12:
+		case !ok || time.Since(data.TimeLimit) > time.Hour*24:
 			data = &lastLength{
 				TimeLimit: time.Now(),
 				Count:     1,
@@ -404,6 +406,7 @@ func init() {
 				ctx.SendChain(message.Text("你的钱不够你注销牛牛了，这次注销需要", data.Count*50, wallet.GetWalletName()))
 				return
 			}
+			data.Count++
 		}
 		register.Store(key, data)
 		msg, err := niu.Cancel(gid, uid)
