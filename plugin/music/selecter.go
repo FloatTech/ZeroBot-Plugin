@@ -61,7 +61,6 @@ func longzhu(keyword string) message.Segment {
 	// 假设 data 是包含整个 JSON 数组的字节切片
 	results := gjson.ParseBytes(data).Array()
 	for _, result := range results {
-		fmt.Print(result)
 		if strings.Contains(strings.ToLower(result.Get("title").String()), strings.ToLower(keyword)) {
 			if musicURL := result.Get("full_track").String(); musicURL != "" {
 				return message.Record(musicURL)
