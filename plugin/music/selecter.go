@@ -59,10 +59,22 @@ func init() {
 func longzhu(keyword string) message.Segment {
 	data, _ := web.GetData(fmt.Sprintf(longZhuURL, url.QueryEscape(keyword)))
 	// 假设 data 是包含整个 JSON 数组的字节切片
-	result := gjson.GetBytes(data, "#.full_track")
-	// 取第一个非空的 full_track 链接
-	firstFullTrack := result.Array()[0].String()
-	return message.Record(firstFullTrack)
+	results := gjson.ParseBytes(data).Array()
+	for _, result := range results {
+		if strings.Contains(strings.ToLower(result.Get("title").String()), strings.ToLower(keyword)) {
+			if musicURL := result.Get("full_track").String(); musicURL != "" {
+				return message.Record(musicURL)
+			}
+		}
+	}
+
+	if len(results) > 0 {
+		if musicURL := results[0].Get("full_track").String(); musicURL != "" {
+			return message.Record(musicURL)
+		}
+	}
+
+	return message.Text("点歌失败, 找不到 ", keyword, " 的相关结果")
 }
 
 // migu 返回咪咕音乐卡片
