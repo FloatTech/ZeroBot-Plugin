@@ -21,6 +21,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+var (
+	longZhuURL = "https://www.hhlqilongzhu.cn/api/joox/juhe_music.php?msg=%v"
+)
+
 func init() {
 	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
@@ -45,10 +49,20 @@ func init() {
 				ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[2]))
 			case "qq":
 				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
-			default: // 默认咪咕点歌
-				ctx.SendChain(migu(ctx.State["regex_matched"].([]string)[2]))
+			default: // 默认聚合点歌
+				ctx.SendChain(longzhu(ctx.State["regex_matched"].([]string)[2]))
 			}
 		})
+}
+
+// longzhu 聚合平台
+func longzhu(keyword string) message.Segment {
+	data, _ := web.GetData(fmt.Sprintf(longZhuURL, url.QueryEscape(keyword)))
+	// 假设 data 是包含整个 JSON 数组的字节切片
+	result := gjson.GetBytes(data, "#.full_track")
+	// 取第一个非空的 full_track 链接
+	firstFullTrack := result.Array()[0].String()
+	return message.Record(firstFullTrack)
 }
 
 // migu 返回咪咕音乐卡片
