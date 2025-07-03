@@ -255,6 +255,8 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
   - [x] 翻牌
   
   - [x] 赞我
+  
+  - [x] 群签到
 
   - [x] [开启 | 关闭]入群验证
 

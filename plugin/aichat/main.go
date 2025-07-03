@@ -9,6 +9,7 @@ import (
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
 	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -38,16 +39,24 @@ var (
 			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
 			"- 设置AI聊天(不)响应AT\n" +
 			"- 设置AI聊天最大长度4096\n" +
-			"- 设置AI聊天TopP 0.9",
+			"- 设置AI聊天TopP 0.9\n" +
+			"- 设置AI语音群号1048452984	(tips：群里必须有AI声聊应用)\n" +
+			"- [启用|禁用]AI语音\n" +
+			"- 设置AI语音模型\n" +
+			"- 发送AI语音xxx",
 		PrivateDataFolder: "aichat",
 	})
 )
 
-var apitypes = map[string]uint8{
-	"OpenAI": 0,
-	"OLLaMA": 1,
-	"GenAI":  2,
-}
+var (
+	apitypes = map[string]uint8{
+		"OpenAI": 0,
+		"OLLaMA": 1,
+		"GenAI":  2,
+	}
+	customgid = int64(1048452984)
+	modelName = "lucy-voice-xueling"
+)
 
 func init() {
 	en.OnMessage(ensureconfig, func(ctx *zero.Ctx) bool {
@@ -269,4 +278,56 @@ func init() {
 		Handle(newextrasetuint(&cfg.MaxN))
 	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetfloat32(&cfg.TopP))
+	en.OnPrefix("设置AI语音群号", zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			u := strings.TrimSpace(ctx.State["args"].(string))
+			num, err := strconv.ParseInt(u, 10, 64)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: parse gid err: ", err))
+				return
+			}
+			ctx.SendChain(message.Text("设置AI语音群号为", num))
+			customgid = num
+		})
+	en.OnFullMatch("设置AI语音模型", zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			jsonData := ctx.GetAICharacters(customgid, 1)
+
+			// 转换为字符串数组
+			var names []string
+			// 初始化两个映射表
+			nameToID := make(map[string]string)
+			nameToURL := make(map[string]string)
+			characters := jsonData.Get("#.characters.#")
+
+			// 遍历每个角色对象
+			characters.ForEach(func(_, character gjson.Result) bool {
+				// 提取当前角色的三个字段
+				name := character.Get("character_name").String()
+				names = append(names, name)
+				id := character.Get("character_id").String()
+				url := character.Get("preview_url").String()
+
+				// 存入映射表（重复名称会覆盖，保留最后出现的条目）
+				nameToID[name] = id
+				nameToURL[name] = url
+				return true // 继续遍历
+			})
+			var builder strings.Builder
+			// 写入开头文本
+			builder.WriteString("请选择模型序号：\n")
+
+			// 遍历names数组，拼接序号和名称
+			for i, v := range names {
+				// 将数字转换为字符串（不依赖fmt）
+				numStr := strconv.Itoa(i + 1)
+				// 拼接格式："序号. 名称\n"
+				builder.WriteString(numStr)
+				builder.WriteString(". ")
+				builder.WriteString(v)
+				builder.WriteString("\n")
+			}
+			// 获取最终字符串
+			ctx.SendChain(message.Text(builder.String()))
+		})
 }
