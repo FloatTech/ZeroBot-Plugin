@@ -280,6 +280,20 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
 
 </details>
 <details>
+  <summary>群应用：AI声聊</summary>
+
+  `import _ "github.com/FloatTech/zbputils/airecord"`
+
+  - [x] 设置AI语音群号1048452984(tips：机器人任意所在群聊即可)
+
+  - [x] 设置AI语音模型
+
+  - [x] 查看AI语音配置
+
+  - [x] 发送AI语音xxx
+
+</details>
+<details>
   <summary>定时指令触发器</summary>
 
   `import _ "github.com/FloatTech/zbputils/job"`
@@ -1582,7 +1596,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天温度80
   - [x] 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]
   - [x] 设置AI聊天(不)支持系统提示词
-  - [x] 设置AI聊天接口地址https://xxx
+  - [x] 设置AI聊天接口地址https://api.deepseek.com/chat/completions
   - [x] 设置AI聊天密钥xxx
   - [x] 设置AI聊天模型名xxx
   - [x] 查看AI聊天系统提示词
@@ -1592,6 +1606,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天(不)响应AT
   - [x] 设置AI聊天最大长度4096
   - [x] 设置AI聊天TopP 0.9
+  - [x] 设置AI聊天(不)以AI语音输出
+  - [x] 查看AI聊天配置 
 
 </details>
 <details>

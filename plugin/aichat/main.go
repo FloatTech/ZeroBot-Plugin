@@ -30,7 +30,7 @@ var (
 			"- 设置AI聊天温度80\n" +
 			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
-			"- 设置AI聊天接口地址https://xxx\n" +
+			"- 设置AI聊天接口地址https://api.deepseek.com/chat/completions\n" +
 			"- 设置AI聊天密钥xxx\n" +
 			"- 设置AI聊天模型名xxx\n" +
 			"- 查看AI聊天系统提示词\n" +
