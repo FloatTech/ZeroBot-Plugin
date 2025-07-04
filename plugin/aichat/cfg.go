@@ -1,6 +1,7 @@
 package aichat
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -150,4 +151,34 @@ func newextrasetfloat32(ptr *float32) func(ctx *zero.Ctx) {
 		}
 		ctx.SendChain(message.Text("成功"))
 	}
+}
+
+func printConfig(cfg config) string {
+	var builder strings.Builder
+	builder.WriteString("当前AI聊天配置：\n")
+	builder.WriteString(fmt.Sprintf("• 模型名：%s\n", cfg.ModelName))
+	builder.WriteString(fmt.Sprintf("• 触发概率：%d%%\n", cfg.Type))
+	builder.WriteString(fmt.Sprintf("• 最大生成长度：%d\n", cfg.MaxN))
+	builder.WriteString(fmt.Sprintf("• TopP采样值：%.1f\n", cfg.TopP))
+	builder.WriteString(fmt.Sprintf("• 系统提示词：%s\n", cfg.SystemP))
+	builder.WriteString(fmt.Sprintf("• 接口地址：%s\n", cfg.API))
+	builder.WriteString(fmt.Sprintf("• 密钥：%s\n", maskKey(cfg.Key)))
+	builder.WriteString(fmt.Sprintf("• 分隔符：%s\n", cfg.Separator))
+	builder.WriteString(fmt.Sprintf("• 响应@：%s\n", yesNo(!cfg.NoReplyAT)))
+	builder.WriteString(fmt.Sprintf("• 支持系统提示词：%s\n", yesNo(!cfg.NoSystemP)))
+	return builder.String()
+}
+
+func maskKey(key string) string {
+	if len(key) <= 4 {
+		return "****"
+	}
+	return key[:2] + strings.Repeat("*", len(key)-4) + key[len(key)-2:]
+}
+
+func yesNo(b bool) string {
+	if b {
+		return "是"
+	}
+	return "否"
 }
