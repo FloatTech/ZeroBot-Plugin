@@ -14,7 +14,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var cfg = newconfig()
+var (
+	cfg = newconfig()
+)
 
 type config struct {
 	ModelName string
