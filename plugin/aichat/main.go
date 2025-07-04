@@ -273,7 +273,7 @@ func init() {
 		Handle(newextrasetuint(&cfg.MaxN))
 	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetfloat32(&cfg.TopP))
-	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.SuperUserPermission).SetBlock(true).
+	en.OnFullMatch("查看AI聊天配置", ensureconfig).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(printConfig(cfg)))
 		})
