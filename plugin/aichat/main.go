@@ -2,6 +2,7 @@
 package aichat
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/airecord"
 	"github.com/FloatTech/zbputils/chat"
 	"github.com/FloatTech/zbputils/control"
 )
@@ -139,6 +141,8 @@ func init() {
 				if t == "" {
 					continue
 				}
+				recCfg := airecord.GetRecordConfig()
+				fmt.Println(recCfg)
 				if id != nil {
 					id = ctx.SendChain(message.Reply(id), message.Text(t))
 				} else {
