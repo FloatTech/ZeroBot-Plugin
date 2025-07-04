@@ -29,6 +29,7 @@ type config struct {
 	Separator string
 	NoReplyAT bool
 	NoSystemP bool
+	NoRecord  bool
 }
 
 func newconfig() config {
@@ -155,19 +156,30 @@ func newextrasetfloat32(ptr *float32) func(ctx *zero.Ctx) {
 	}
 }
 
-func printConfig(cfg config) string {
+func printConfig(rate int64, temperature int64, cfg config) string {
+	maxn := cfg.MaxN
+	if maxn == 0 {
+		maxn = 4096
+	}
+	topp := cfg.TopP
+	if topp == 0 {
+		topp = 0.9
+	}
 	var builder strings.Builder
 	builder.WriteString("当前AI聊天配置：\n")
 	builder.WriteString(fmt.Sprintf("• 模型名：%s\n", cfg.ModelName))
-	builder.WriteString(fmt.Sprintf("• 触发概率：%d%%\n", cfg.Type))
-	builder.WriteString(fmt.Sprintf("• 最大生成长度：%d\n", cfg.MaxN))
-	builder.WriteString(fmt.Sprintf("• TopP采样值：%.1f\n", cfg.TopP))
+	builder.WriteString(fmt.Sprintf("• 接口类型：%d(%s)\n", cfg.Type, apilist[cfg.Type]))
+	builder.WriteString(fmt.Sprintf("• 触发概率：%d%%\n", rate))
+	builder.WriteString(fmt.Sprintf("• 温度：%.2f\n", float32(temperature)/100))
+	builder.WriteString(fmt.Sprintf("• 最大长度：%d\n", maxn))
+	builder.WriteString(fmt.Sprintf("• TopP：%.1f\n", topp))
 	builder.WriteString(fmt.Sprintf("• 系统提示词：%s\n", cfg.SystemP))
 	builder.WriteString(fmt.Sprintf("• 接口地址：%s\n", cfg.API))
 	builder.WriteString(fmt.Sprintf("• 密钥：%s\n", maskKey(cfg.Key)))
 	builder.WriteString(fmt.Sprintf("• 分隔符：%s\n", cfg.Separator))
 	builder.WriteString(fmt.Sprintf("• 响应@：%s\n", yesNo(!cfg.NoReplyAT)))
 	builder.WriteString(fmt.Sprintf("• 支持系统提示词：%s\n", yesNo(!cfg.NoSystemP)))
+	builder.WriteString(fmt.Sprintf("• 以AI语音输出：%s\n", yesNo(!cfg.NoRecord)))
 	return builder.String()
 }
 
