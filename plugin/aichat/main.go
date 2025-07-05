@@ -144,7 +144,7 @@ func init() {
 				logrus.Infoln("[aichat] 回复内容:", t)
 				recCfg := airecord.GetRecordConfig()
 				if !cfg.NoRecord {
-					record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t).String()
+					record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
 					if record != "" {
 						ctx.SendChain(message.Record(record))
 					} else {

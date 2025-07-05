@@ -282,7 +282,7 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
 <details>
   <summary>群应用：AI声聊</summary>
 
-  `import _ "github.com/FloatTech/zbputils/airecord"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/airecord"`
 
   - [x] 设置AI语音群号1048452984(tips：机器人任意所在群聊即可)
 
