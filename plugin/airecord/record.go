@@ -116,8 +116,11 @@ func init() {
 			recCfg := airecord.GetRecordConfig()
 			record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, u)
 			if record == "" {
-				ctx.SendChain(message.Text("ERROR: get record err: empty record"))
-				return
+				id := ctx.SendGroupAIRecord(recCfg.ModelID, ctx.Event.GroupID, u)
+				if id == "" {
+					ctx.SendChain(message.Text("ERROR: get record err: empty record"))
+					return
+				}
 			}
 			ctx.SendChain(message.Record(record))
 		})
