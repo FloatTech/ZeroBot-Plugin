@@ -1026,6 +1026,10 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 酷我点歌[xxx]
 
   - [x] 酷狗点歌[xxx]
+  
+  - [x] qq点歌[xxx]
+  
+  - [x] 咪咕点歌[xxx]
 
 </details>
 <details>
