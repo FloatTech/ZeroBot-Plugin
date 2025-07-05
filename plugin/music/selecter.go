@@ -21,6 +21,10 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+var (
+	longZhuURL = "https://www.hhlqilongzhu.cn/api/joox/juhe_music.php?msg=%v"
+)
+
 func init() {
 	control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
@@ -29,7 +33,8 @@ func init() {
 			"- 网易点歌[xxx]\n" +
 			"- 酷我点歌[xxx]\n" +
 			"- 酷狗点歌[xxx]\n" +
-			"- 咪咕点歌[xxx]",
+			"- 咪咕点歌[xxx]\n" +
+			"- qq点歌[xxx]\n",
 	}).OnRegex(`^(.{0,2})点歌\s?(.{1,25})$`).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			// switch 平台
@@ -42,10 +47,35 @@ func init() {
 				ctx.SendChain(kugou(ctx.State["regex_matched"].([]string)[2]))
 			case "网易":
 				ctx.SendChain(cloud163(ctx.State["regex_matched"].([]string)[2]))
-			default: // 默认 QQ音乐
+			case "qq":
 				ctx.SendChain(qqmusic(ctx.State["regex_matched"].([]string)[2]))
+			default: // 默认聚合点歌
+				ctx.SendChain(longzhu(ctx.State["regex_matched"].([]string)[2]))
 			}
 		})
+}
+
+// longzhu 聚合平台
+func longzhu(keyword string) message.Segment {
+	data, _ := web.GetData(fmt.Sprintf(longZhuURL, url.QueryEscape(keyword)))
+	// 假设 data 是包含整个 JSON 数组的字节切片
+	results := gjson.ParseBytes(data).Array()
+	for _, result := range results {
+		if strings.Contains(strings.ToLower(result.Get("title").String()), strings.ToLower(keyword)) {
+			if musicURL := result.Get("full_track").String(); musicURL != "" {
+				return message.Record(musicURL)
+			}
+		}
+	}
+
+	results = gjson.GetBytes(data, "#.full_track").Array()
+	if len(results) > 0 {
+		if musicURL := results[0].String(); musicURL != "" {
+			return message.Record(musicURL)
+		}
+	}
+
+	return message.Text("点歌失败, 找不到 ", keyword, " 的相关结果")
 }
 
 // migu 返回咪咕音乐卡片
