@@ -13,9 +13,9 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/airecord"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/airecord"
 	"github.com/FloatTech/zbputils/chat"
 	"github.com/FloatTech/zbputils/control"
 )
@@ -142,7 +142,7 @@ func init() {
 					continue
 				}
 				logrus.Infoln("[aichat] 回复内容:", t)
-				recCfg := airecord.GetRecordConfig()
+				recCfg := airecord.RecCfg
 				if !cfg.NoRecord {
 					record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
 					if record != "" {

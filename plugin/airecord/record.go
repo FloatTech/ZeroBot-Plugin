@@ -11,8 +11,8 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/airecord"
 	ctrl "github.com/FloatTech/zbpctrl"
-	"github.com/FloatTech/zbputils/airecord"
 	"github.com/FloatTech/zbputils/control"
 )
 
@@ -36,7 +36,11 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: parse gid err: ", err))
 				return
 			}
-			airecord.SetCustomGID(num)
+			err = airecord.SetCustomGID(num)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: set gid err: ", err))
+				return
+			}
 			ctx.SendChain(message.Text("设置AI语音群号为", num))
 		})
 	en.OnFullMatch("设置AI语音模型", zero.SuperUserPermission).SetBlock(true).
@@ -98,7 +102,11 @@ func init() {
 						ctx.SendChain(message.Text("序号非法!"))
 						continue
 					}
-					airecord.SetRecordModel(names[num], nameToID[names[num]])
+					err = airecord.SetRecordModel(names[num], nameToID[names[num]])
+					if err != nil {
+						ctx.SendChain(message.Text("ERROR: set model err: ", err))
+						continue
+					}
 					ctx.SendChain(message.Text("已选择语音模型: ", names[num]))
 					ctx.SendChain(message.Record(nameToURL[names[num]]))
 					return
@@ -107,13 +115,13 @@ func init() {
 		})
 	en.OnFullMatch("查看AI语音配置").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			recCfg := airecord.GetRecordConfig()
+			recCfg := airecord.RecCfg
 			ctx.SendChain(message.Text(airecord.PrintRecordConfig(recCfg)))
 		})
 	en.OnPrefix("发送AI语音").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
-			recCfg := airecord.GetRecordConfig()
+			recCfg := airecord.RecCfg
 			record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, u)
 			if record == "" {
 				id := ctx.SendGroupAIRecord(recCfg.ModelID, ctx.Event.GroupID, u)
