@@ -50,6 +50,7 @@ const (
 		"- 列出所有提醒\n" +
 		"- 翻牌\n" +
 		"- 赞我\n" +
+		"- 群签到\n" +
 		"- 对信息回复: 回应表情 [表情]\n" +
 		"- 设置欢迎语XXX 可选添加 [{at}] [{nickname}] [{avatar}] [{uid}] [{gid}] [{groupname}]\n" +
 		"- 测试欢迎语\n" +
@@ -404,6 +405,12 @@ func init() { // 插件主体
 			}
 			ctx.SendLike(ctx.Event.UserID, 10)
 			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("给你赞了10下哦，记得回我~"))
+		})
+	// 群签到
+	engine.OnFullMatch("群签到", zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByUser).
+		Handle(func(ctx *zero.Ctx) {
+			ctx.SetGroupSign(ctx.Event.GroupID)
+			ctx.SendChain(message.Text("群签到成功，可在手机端输入框中的打卡查看"))
 		})
 	facere := regexp.MustCompile(`\[CQ:face,id=(\d+)\]`)
 	// 给消息回应表情
