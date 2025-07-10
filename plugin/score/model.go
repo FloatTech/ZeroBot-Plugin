@@ -2,6 +2,7 @@ package score
 
 import (
 	"os"
+	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -11,7 +12,10 @@ import (
 var sdb *scoredb
 
 // scoredb 分数数据库
-type scoredb gorm.DB
+type scoredb struct {
+	db      *gorm.DB
+	scoremu sync.Mutex
+}
 
 // scoretable 分数结构体
 type scoretable struct {
@@ -52,25 +56,31 @@ func initialize(dbpath string) *scoredb {
 		panic(err)
 	}
 	gdb.AutoMigrate(&scoretable{}).AutoMigrate(&signintable{})
-	return (*scoredb)(gdb)
+	return &scoredb{
+		db: gdb,
+	}
 }
 
 // Close ...
 func (sdb *scoredb) Close() error {
-	db := (*gorm.DB)(sdb)
+	db := sdb.db
 	return db.Close()
 }
 
 // GetScoreByUID 取得分数
 func (sdb *scoredb) GetScoreByUID(uid int64) (s scoretable) {
-	db := (*gorm.DB)(sdb)
+	sdb.scoremu.Lock()
+	defer sdb.scoremu.Unlock()
+	db := sdb.db
 	db.Model(&scoretable{}).FirstOrCreate(&s, "uid = ? ", uid)
 	return s
 }
 
 // InsertOrUpdateScoreByUID 插入或更新分数
 func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
-	db := (*gorm.DB)(sdb)
+	sdb.scoremu.Lock()
+	defer sdb.scoremu.Unlock()
+	db := sdb.db
 	s := scoretable{
 		UID:   uid,
 		Score: score,
@@ -91,14 +101,18 @@ func (sdb *scoredb) InsertOrUpdateScoreByUID(uid int64, score int) (err error) {
 
 // GetSignInByUID 取得签到次数
 func (sdb *scoredb) GetSignInByUID(uid int64) (si signintable) {
-	db := (*gorm.DB)(sdb)
+	sdb.scoremu.Lock()
+	defer sdb.scoremu.Unlock()
+	db := sdb.db
 	db.Model(&signintable{}).FirstOrCreate(&si, "uid = ? ", uid)
 	return si
 }
 
 // InsertOrUpdateSignInCountByUID 插入或更新签到次数
 func (sdb *scoredb) InsertOrUpdateSignInCountByUID(uid int64, count int) (err error) {
-	db := (*gorm.DB)(sdb)
+	sdb.scoremu.Lock()
+	defer sdb.scoremu.Unlock()
+	db := sdb.db
 	si := signintable{
 		UID:   uid,
 		Count: count,
@@ -118,7 +132,9 @@ func (sdb *scoredb) InsertOrUpdateSignInCountByUID(uid int64, count int) (err er
 }
 
 func (sdb *scoredb) GetScoreRankByTopN(n int) (st []scoretable, err error) {
-	db := (*gorm.DB)(sdb)
+	sdb.scoremu.Lock()
+	defer sdb.scoremu.Unlock()
+	db := sdb.db
 	err = db.Model(&scoretable{}).Order("score desc").Limit(n).Find(&st).Error
 	return
 }
