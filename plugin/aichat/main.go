@@ -142,18 +142,12 @@ func init() {
 					continue
 				}
 				logrus.Infoln("[aichat] 回复内容:", t)
-				recCfg := airecord.RecCfg
+				record := ""
 				if !cfg.NoRecord {
-					record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
-					if record != "" {
-						ctx.SendChain(message.Record(record))
-					} else {
-						if id != nil {
-							id = ctx.SendChain(message.Reply(id), message.Text(t))
-						} else {
-							id = ctx.SendChain(message.Text(t))
-						}
-					}
+					record = ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
+				}
+				if record != "" {
+					ctx.SendChain(message.Record(record))
 				} else {
 					if id != nil {
 						id = ctx.SendChain(message.Reply(id), message.Text(t))
