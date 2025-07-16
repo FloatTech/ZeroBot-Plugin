@@ -28,7 +28,7 @@ func init() {
 		PrivateDataFolder: "airecord",
 	})
 
-	en.OnPrefix("设置AI语音群号", zero.SuperUserPermission).SetBlock(true).
+	en.OnPrefix("设置AI语音群号", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
 			num, err := strconv.ParseInt(u, 10, 64)
@@ -43,7 +43,7 @@ func init() {
 			}
 			ctx.SendChain(message.Text("设置AI语音群号为", num))
 		})
-	en.OnFullMatch("设置AI语音模型", zero.SuperUserPermission).SetBlock(true).
+	en.OnFullMatch("设置AI语音模型", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession())
 			recv, cancel := next.Repeat()
@@ -113,12 +113,12 @@ func init() {
 				}
 			}
 		})
-	en.OnFullMatch("查看AI语音配置").SetBlock(true).
+	en.OnFullMatch("查看AI语音配置", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			recCfg := airecord.RecCfg
 			ctx.SendChain(message.Text(airecord.PrintRecordConfig(recCfg)))
 		})
-	en.OnPrefix("发送AI语音").SetBlock(true).
+	en.OnPrefix("发送AI语音", zero.UserOrGrpAdmin).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
 			recCfg := airecord.RecCfg

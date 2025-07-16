@@ -292,7 +292,7 @@ func init() {
 		Handle(newextrasetfloat32(&cfg.TopP))
 	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoRecord))
-	en.OnFullMatch("查看AI聊天配置", ensureconfig).SetBlock(true).
+	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
