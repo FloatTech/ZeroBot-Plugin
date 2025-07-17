@@ -13,6 +13,7 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/AnimeAPI/airecord"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/chat"
@@ -29,7 +30,7 @@ var (
 			"- 设置AI聊天温度80\n" +
 			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
-			"- 设置AI聊天接口地址https://xxx\n" +
+			"- 设置AI聊天接口地址https://api.deepseek.com/chat/completions\n" +
 			"- 设置AI聊天密钥xxx\n" +
 			"- 设置AI聊天模型名xxx\n" +
 			"- 查看AI聊天系统提示词\n" +
@@ -38,16 +39,21 @@ var (
 			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
 			"- 设置AI聊天(不)响应AT\n" +
 			"- 设置AI聊天最大长度4096\n" +
-			"- 设置AI聊天TopP 0.9",
+			"- 设置AI聊天TopP 0.9\n" +
+			"- 设置AI聊天(不)以AI语音输出\n" +
+			"- 查看AI聊天配置\n",
 		PrivateDataFolder: "aichat",
 	})
 )
 
-var apitypes = map[string]uint8{
-	"OpenAI": 0,
-	"OLLaMA": 1,
-	"GenAI":  2,
-}
+var (
+	apitypes = map[string]uint8{
+		"OpenAI": 0,
+		"OLLaMA": 1,
+		"GenAI":  2,
+	}
+	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
+)
 
 func init() {
 	en.OnMessage(ensureconfig, func(ctx *zero.Ctx) bool {
@@ -135,10 +141,20 @@ func init() {
 				if t == "" {
 					continue
 				}
-				if id != nil {
-					id = ctx.SendChain(message.Reply(id), message.Text(t))
+				logrus.Infoln("[aichat] 回复内容:", t)
+				recCfg := airecord.GetConfig()
+				record := ""
+				if !cfg.NoRecord {
+					record = ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
+				}
+				if record != "" {
+					ctx.SendChain(message.Record(record))
 				} else {
-					id = ctx.SendChain(message.Text(t))
+					if id != nil {
+						id = ctx.SendChain(message.Reply(id), message.Text(t))
+					} else {
+						id = ctx.SendChain(message.Text(t))
+					}
 				}
 				process.SleepAbout1sTo2s()
 			}
@@ -269,4 +285,24 @@ func init() {
 		Handle(newextrasetuint(&cfg.MaxN))
 	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetfloat32(&cfg.TopP))
+	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetbool(&cfg.NoRecord))
+	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(func(ctx *zero.Ctx) {
+			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+			if !ok {
+				ctx.SendChain(message.Text("ERROR: no such plugin"))
+				return
+			}
+			gid := ctx.Event.GroupID
+			rate := c.GetData(gid) & 0xff
+			temp := (c.GetData(gid) >> 8) & 0xff
+			if temp <= 0 {
+				temp = 70 // default setting
+			}
+			if temp > 100 {
+				temp = 100
+			}
+			ctx.SendChain(message.Text(printConfig(rate, temp, cfg)))
+		})
 }

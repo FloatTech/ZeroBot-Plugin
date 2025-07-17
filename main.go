@@ -38,6 +38,8 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/sleepmanage" // 统计睡眠时间
 
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/airecord" // 群应用：AI声聊
+
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
