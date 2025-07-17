@@ -163,7 +163,12 @@ func handleArticle(ctx *zero.Ctx) {
 }
 
 func handleLive(ctx *zero.Ctx) {
-	card, err := bz.GetLiveRoomInfo(ctx.State["regex_matched"].([]string)[1])
+	cookie, err := cfg.Load()
+	if err != nil {
+		ctx.SendChain(message.Text("ERROR: ", err))
+		return
+	}
+	card, err := bz.GetLiveRoomInfo(ctx.State["regex_matched"].([]string)[1], cookie)
 	if err != nil {
 		ctx.SendChain(message.Text("ERROR: ", err))
 		return
