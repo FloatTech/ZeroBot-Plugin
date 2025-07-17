@@ -115,13 +115,12 @@ func init() {
 		})
 	en.OnFullMatch("查看AI语音配置", zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			recCfg := airecord.RecCfg
-			ctx.SendChain(message.Text(airecord.PrintRecordConfig(recCfg)))
+			ctx.SendChain(message.Text(airecord.PrintRecordConfig()))
 		})
 	en.OnPrefix("发送AI语音", zero.UserOrGrpAdmin).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
-			recCfg := airecord.RecCfg
+			recCfg := airecord.GetConfig()
 			record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, u)
 			if record == "" {
 				id := ctx.SendGroupAIRecord(recCfg.ModelID, ctx.Event.GroupID, u)
