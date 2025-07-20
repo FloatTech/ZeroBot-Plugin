@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20250530055006-50f5c7587c5b
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20250717123723-d300df538b46
 	github.com/FloatTech/floatbox v0.0.0-20250513111443-adba80e84e80
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
@@ -45,7 +45,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.18.0
 	github.com/wcharczuk/go-chart/v2 v2.1.2
-	github.com/wdvxdr1123/ZeroBot v1.8.2-0.20250330133859-27c25d9412b5
+	github.com/wdvxdr1123/ZeroBot v1.8.2-0.20250707133321-6197b8ee5df7
 	gitlab.com/gomidi/midi/v2 v2.1.7
 	golang.org/x/image v0.24.0
 	golang.org/x/sys v0.30.0

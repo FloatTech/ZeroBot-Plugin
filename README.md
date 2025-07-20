@@ -255,6 +255,8 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
   - [x] 翻牌
   
   - [x] 赞我
+  
+  - [x] 群签到
 
   - [x] [开启 | 关闭]入群验证
 
@@ -275,6 +277,20 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
   - 注：使用gist加群自动审批，请在群介绍添加以下说明，同时开启`需要回答问题并由管理员审核`：加群请在github新建一个gist，其文件名为本群群号的字符串的md5(小写)，内容为一行，是当前unix时间戳(10分钟内有效)。然后请将您的用户名和gist哈希(小写)按照username/gisthash的格式填写到回答即可。
 
   - 设置欢迎语可选添加参数说明：{at}可在发送时艾特被欢迎者 {nickname}是被欢迎者名字 {avatar}是被欢迎者头像 {uid}是被欢迎者QQ号 {gid}是当前群群号 {groupname} 是当前群群名
+
+</details>
+<details>
+  <summary>群应用：AI声聊</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/airecord"`
+
+  - [x] 设置AI语音群号1048452984(tips：机器人任意所在群聊即可)
+
+  - [x] 设置AI语音模型
+
+  - [x] 查看AI语音配置
+
+  - [x] 发送AI语音xxx
 
 </details>
 <details>
@@ -1584,7 +1600,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天温度80
   - [x] 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]
   - [x] 设置AI聊天(不)支持系统提示词
-  - [x] 设置AI聊天接口地址https://xxx
+  - [x] 设置AI聊天接口地址https://api.deepseek.com/chat/completions
   - [x] 设置AI聊天密钥xxx
   - [x] 设置AI聊天模型名xxx
   - [x] 查看AI聊天系统提示词
@@ -1594,6 +1610,8 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天(不)响应AT
   - [x] 设置AI聊天最大长度4096
   - [x] 设置AI聊天TopP 0.9
+  - [x] 设置AI聊天(不)以AI语音输出
+  - [x] 查看AI聊天配置 
 
 </details>
 <details>
