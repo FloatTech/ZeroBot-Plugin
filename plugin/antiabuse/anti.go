@@ -17,7 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const bandur time.Duration = time.Minute * 10
+const bandur time.Duration = time.Minute * 2
 
 var (
 	managers *ctrl.Manager[*zero.Ctx] // managers lazy load
@@ -41,7 +41,7 @@ func init() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "违禁词检测",
-		Help:              "- /[添加|删除|查看]违禁词",
+		Help:              "- [添加|删除|查看]违禁词",
 		PrivateDataFolder: "anti_abuse",
 	})
 
@@ -57,9 +57,6 @@ func init() {
 	})
 
 	engine.OnMessage(onceRule, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
-		if !ctx.Event.IsToMe {
-			return true
-		}
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		msg := strings.ReplaceAll(ctx.MessageString(), "\n", "")
@@ -71,6 +68,7 @@ func init() {
 				t := time.Now().Unix()
 				cache.Set(uid, struct{}{})
 				ctx.SetThisGroupBan(uid, int64(bandur.Minutes()))
+				ctx.DeleteMessage(ctx.Event.MessageID)
 				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽", bandur))
 				db.Lock()
 				defer db.Unlock()
@@ -92,9 +90,9 @@ func init() {
 		return true
 	})
 
-	engine.OnCommand("添加违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
+	engine.OnPrefix("添加违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
 		func(ctx *zero.Ctx) {
-			args := ctx.State["args"].(string)
+			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.insertWord(ctx.Event.GroupID, args); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
@@ -102,9 +100,9 @@ func init() {
 			}
 		})
 
-	engine.OnCommand("删除违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
+	engine.OnPrefix("删除违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
 		func(ctx *zero.Ctx) {
-			args := ctx.State["args"].(string)
+			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.deleteWord(ctx.Event.GroupID, args); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
@@ -112,7 +110,7 @@ func init() {
 			}
 		})
 
-	engine.OnCommand("查看违禁词", zero.OnlyGroup, onceRule).Handle(
+	engine.OnPrefix("查看违禁词", zero.OnlyGroup, onceRule).Handle(
 		func(ctx *zero.Ctx) {
 			b, err := text.RenderToBase64(db.listWords(ctx.Event.GroupID), text.FontFile, 400, 20)
 			if err != nil {
