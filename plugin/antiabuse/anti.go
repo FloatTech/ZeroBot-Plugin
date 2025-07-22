@@ -102,7 +102,7 @@ func init() {
 		return true
 	})
 
-	engine.OnPrefix("添加违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
+	engine.OnPrefix(add, zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.insertWord(ctx.Event.GroupID, args); err != nil {
@@ -112,7 +112,7 @@ func init() {
 			}
 		})
 
-	engine.OnPrefix("删除违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
+	engine.OnPrefix(delete, zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.deleteWord(ctx.Event.GroupID, args); err != nil {
@@ -122,7 +122,7 @@ func init() {
 			}
 		})
 
-	engine.OnPrefix("查看违禁词", zero.OnlyGroup, onceRule).SetBlock(true).Handle(
+	engine.OnPrefix(list, zero.OnlyGroup, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			b, err := text.RenderToBase64(db.listWords(ctx.Event.GroupID), text.FontFile, 400, 20)
 			if err != nil {
