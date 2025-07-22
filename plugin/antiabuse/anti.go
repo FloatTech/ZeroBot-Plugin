@@ -20,7 +20,7 @@ import (
 const (
 	bandur time.Duration = time.Minute * 2
 	add                  = "添加违禁词"
-	delete               = "删除违禁词"
+	del                  = "删除违禁词"
 	list                 = "查看违禁词"
 )
 
@@ -62,7 +62,7 @@ func init() {
 	})
 
 	notAntiabuse := func(ctx *zero.Ctx) bool {
-		if zero.PrefixRule(add)(ctx) || zero.PrefixRule(delete)(ctx) || zero.PrefixRule(list)(ctx) {
+		if zero.PrefixRule(add)(ctx) || zero.PrefixRule(del)(ctx) || zero.PrefixRule(list)(ctx) {
 			return false
 		}
 		return true
@@ -112,7 +112,7 @@ func init() {
 			}
 		})
 
-	engine.OnPrefix(delete, zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
+	engine.OnPrefix(del, zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.deleteWord(ctx.Event.GroupID, args); err != nil {
