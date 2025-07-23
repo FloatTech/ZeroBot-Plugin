@@ -194,6 +194,18 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
 
 </details>
 <details>
+  <summary>违禁词检测</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/antiabuse"
+  `
+  - [x] 添加违禁词
+  
+  - [x] 删除违禁词
+  
+  - [x] 查看违禁词
+
+</details>
+<details>
   <summary>ATRI</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri"

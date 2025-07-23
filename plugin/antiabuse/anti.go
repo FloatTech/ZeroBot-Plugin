@@ -17,7 +17,12 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const bandur time.Duration = time.Minute * 10
+const (
+	bandur time.Duration = time.Minute * 2
+	add                  = "添加违禁词"
+	del                  = "删除违禁词"
+	list                 = "查看违禁词"
+)
 
 var (
 	managers *ctrl.Manager[*zero.Ctx] // managers lazy load
@@ -41,7 +46,7 @@ func init() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault:  false,
 		Brief:             "违禁词检测",
-		Help:              "- /[添加|删除|查看]违禁词",
+		Help:              "- [添加|删除|查看]违禁词",
 		PrivateDataFolder: "anti_abuse",
 	})
 
@@ -56,10 +61,14 @@ func init() {
 		return true
 	})
 
-	engine.OnMessage(onceRule, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
-		if !ctx.Event.IsToMe {
-			return true
+	notAntiabuse := func(ctx *zero.Ctx) bool {
+		if zero.PrefixRule(add)(ctx) || zero.PrefixRule(del)(ctx) || zero.PrefixRule(list)(ctx) {
+			return false
 		}
+		return true
+	}
+
+	engine.OnMessage(onceRule, notAntiabuse, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		msg := strings.ReplaceAll(ctx.MessageString(), "\n", "")
@@ -70,7 +79,8 @@ func init() {
 			if err := ctx.State["manager"].(*ctrl.Control[*zero.Ctx]).Manager.DoBlock(uid); err == nil {
 				t := time.Now().Unix()
 				cache.Set(uid, struct{}{})
-				ctx.SetThisGroupBan(uid, int64(bandur.Minutes()))
+				ctx.SetThisGroupBan(uid, int64(bandur.Seconds()))
+				ctx.DeleteMessage(ctx.Event.MessageID)
 				ctx.SendChain(message.Text("检测到违禁词, 已封禁/屏蔽", bandur))
 				db.Lock()
 				defer db.Unlock()
@@ -92,9 +102,9 @@ func init() {
 		return true
 	})
 
-	engine.OnCommand("添加违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
+	engine.OnPrefix(add, zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
-			args := ctx.State["args"].(string)
+			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.insertWord(ctx.Event.GroupID, args); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
@@ -102,9 +112,9 @@ func init() {
 			}
 		})
 
-	engine.OnCommand("删除违禁词", zero.OnlyGroup, zero.AdminPermission, onceRule).Handle(
+	engine.OnPrefix(del, zero.OnlyGroup, zero.AdminPermission, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
-			args := ctx.State["args"].(string)
+			args := strings.TrimSpace(ctx.State["args"].(string))
 			if err := db.deleteWord(ctx.Event.GroupID, args); err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 			} else {
@@ -112,7 +122,7 @@ func init() {
 			}
 		})
 
-	engine.OnCommand("查看违禁词", zero.OnlyGroup, onceRule).Handle(
+	engine.OnPrefix(list, zero.OnlyGroup, onceRule).SetBlock(true).Handle(
 		func(ctx *zero.Ctx) {
 			b, err := text.RenderToBase64(db.listWords(ctx.Event.GroupID), text.FontFile, 400, 20)
 			if err != nil {
