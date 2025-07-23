@@ -68,7 +68,7 @@ func init() {
 		return true
 	}
 
-	engine.OnMessage(notAntiabuse, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+	engine.OnMessage(onceRule, notAntiabuse, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
 		msg := strings.ReplaceAll(ctx.MessageString(), "\n", "")
