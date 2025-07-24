@@ -2,8 +2,6 @@
 package kfccrazythursday
 
 import (
-	"encoding/json"
-
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -14,12 +12,6 @@ import (
 const (
 	crazyURL = "https://api.pearktrue.cn/api/kfc/"
 )
-
-type crazyResponse struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
-	Text string `json:"text"`
-}
 
 func init() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
@@ -34,17 +26,7 @@ func init() {
 			return
 		}
 
-		var resp crazyResponse
-		if err := json.Unmarshal(data, &resp); err != nil {
-			ctx.SendChain(message.Text("JSON解析失败: ", err))
-			return
-		}
-
-		if resp.Code != 200 {
-			ctx.SendChain(message.Text("API返回错误: ", resp.Msg))
-			return
-		}
-
-		ctx.SendChain(message.Text(resp.Text))
+		// 根据来源API修改返回方式到直接输出文本
+		ctx.SendChain(message.Text(string(data)))
 	})
 }
