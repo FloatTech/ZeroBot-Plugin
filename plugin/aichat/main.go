@@ -41,7 +41,8 @@ var (
 			"- 设置AI聊天最大长度4096\n" +
 			"- 设置AI聊天TopP 0.9\n" +
 			"- 设置AI聊天(不)以AI语音输出\n" +
-			"- 查看AI聊天配置\n",
+			"- 查看AI聊天配置\n" +
+			"- 重置AI聊天\n",
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -305,4 +306,8 @@ func init() {
 			}
 			ctx.SendChain(message.Text(printConfig(rate, temp, cfg)))
 		})
+	en.OnFullMatch("重置AI聊天", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		chat.Reset()
+		ctx.SendChain(message.Text("成功"))
+	})
 }
