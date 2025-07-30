@@ -114,7 +114,7 @@ func init() {
 				messageSeq := h.Get("messages.0.message_seq").Int()
 				msghists <- &h
 				for i := 1; i < int(p/20) && messageSeq != 0; i++ {
-					h := ctx.GetGroupMessageHistory(gid, messageSeq)
+					h := ctx.GetGroupMessageHistory(gid, messageSeq, 20, false)
 					msghists <- &h
 					messageSeq = h.Get("messages.0.message_seq").Int()
 				}

@@ -1,14 +1,17 @@
-// Package aichat OpenAI聊天
+// Package aichat OpenAI聊天和群聊摘要
 package aichat
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
 	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -42,7 +45,8 @@ var (
 			"- 设置AI聊天TopP 0.9\n" +
 			"- 设置AI聊天(不)以AI语音输出\n" +
 			"- 查看AI聊天配置\n" +
-			"- 重置AI聊天\n",
+			"- 重置AI聊天\n" +
+			"- 群聊摘要 [群号] [消息数目]|群聊摘要 123456 1000\n",
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -310,4 +314,85 @@ func init() {
 		chat.Reset()
 		ctx.SendChain(message.Text("成功"))
 	})
+
+	// 添加群聊摘要功能
+	en.OnRegex(`^群聊摘要\s?(\d*)\s?(\d*)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		ctx.SendChain(message.Text("少女思考中..."))
+		gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		if p > 1000 {
+			p = 1000
+		}
+		if p == 0 {
+			p = 200
+		}
+		if gid == 0 {
+			gid = ctx.Event.GroupID
+		}
+		group := ctx.GetGroupInfo(gid, false)
+		if group.MemberCount == 0 {
+			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取摘要"))
+			return
+		}
+
+		var messages []string
+
+		h := ctx.GetGroupMessageHistory(gid, 0, p, false)
+		h.Get("messages").ForEach(func(_, msgObj gjson.Result) bool {
+			nickname := removeControlChars(msgObj.Get("sender.nickname").Str)
+			text := strings.TrimSpace(message.ParseMessageFromString(msgObj.Get("raw_message").Str).ExtractPlainText())
+			if text != "" {
+				messages = append(messages, nickname+": "+text)
+			}
+			return true
+		})
+
+		if len(messages) == 0 {
+			ctx.SendChain(message.Text("ERROR: 历史消息为空或者无法获得历史消息"))
+			return
+		}
+
+		// 调用大模型API进行摘要
+		summary, err := summarizeMessages(messages)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+
+		ctx.SendChain(message.Text(
+			fmt.Sprintf("群 %s(%d) 的 %d 条消息摘要:\n\n", group.Name, gid, p),
+			summary,
+		))
+	})
+}
+
+// summarizeMessages 调用大模型API进行消息摘要
+func summarizeMessages(messages []string) (string, error) {
+	// 使用现有的AI配置进行摘要
+	x := deepinfra.NewAPI(cfg.API, cfg.Key)
+	mod := model.NewOpenAI(
+		cfg.ModelName, cfg.Separator,
+		float32(70)/100, 0.9, 4096,
+	)
+
+	// 构造摘要请求提示
+	summaryPrompt := "请将以下群聊消息总结成一段简洁的摘要，保留每个用户主要话题和关键信息:\n\n" +
+		strings.Join(messages, "\n") + "\n\n群聊摘要:"
+
+	data, err := x.Request(mod.User(summaryPrompt))
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(data), nil
+}
+
+func removeControlChars(s string) string {
+	var builder strings.Builder
+	for _, r := range s {
+		if !unicode.IsControl(r) { // 保留非控制字符
+			builder.WriteRune(r)
+		}
+	}
+	return builder.String()
 }
