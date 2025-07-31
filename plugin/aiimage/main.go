@@ -81,8 +81,8 @@ func init() {
 			}
 
 			cfg := GetConfig()
-			if cfg.APIKey == "" || cfg.APIURL == "" {
-				ctx.SendChain(message.Text("请先配置API密钥和地址"))
+			if cfg.APIKey == "" || cfg.APIURL == "" || cfg.ModelName == "" {
+				ctx.SendChain(message.Text("请先配置API密钥、地址和模型"))
 				return
 			}
 
