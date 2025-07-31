@@ -1496,7 +1496,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/word_count"`
 
-  - [x] 热词 [群号] [消息数目]|热词 123456 1000
+  - [x] 热词 [消息数目]|热词 1000
 
 </details>
 <details>

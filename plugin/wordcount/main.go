@@ -39,7 +39,7 @@ func init() {
 	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "聊天热词",
-		Help:             "- 热词 [群号] [消息数目]|热词 123456 1000",
+		Help:             "- 热词 [消息数目]|热词 1000",
 		PublicDataFolder: "WordCount",
 	})
 	cachePath := engine.DataFolder() + "cache/"
@@ -50,7 +50,7 @@ func init() {
 	}
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
-	engine.OnRegex(`^热词\s?(\d*)\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
+	engine.OnRegex(`^热词\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		_, err := engine.GetLazyData("stopwords.txt", false)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -84,17 +84,14 @@ func init() {
 			}
 
 			ctx.SendChain(message.Text("少女祈祷中..."))
-			gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-			p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+			p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 			if p > 10000 {
 				p = 10000
 			}
 			if p == 0 {
 				p = 1000
 			}
-			if gid == 0 {
-				gid = ctx.Event.GroupID
-			}
+			gid := ctx.Event.GroupID
 			group := ctx.GetGroupInfo(gid, false)
 			if group.MemberCount == 0 {
 				ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获得热词呢"))
