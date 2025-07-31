@@ -73,6 +73,7 @@ func init() {
 
 	en.OnPrefix("AI画图").SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			ctx.SendChain(message.Text("少女思考中..."))
 			prompt := strings.TrimSpace(ctx.State["args"].(string))
 			if prompt == "" {
 				ctx.SendChain(message.Text("请输入图片描述"))

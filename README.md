@@ -414,6 +414,18 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>aiimage</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiimage"`
+
+  - [x] 设置AI画图密钥	
+  - [x] 设置AI画图接口地址https://api.siliconflow.cn/v1/images/generations
+  - [x] 设置AI画图模型名Kwai-Kolors/Kolors
+  - [x] 查看AI画图配置
+  - [x] AI画图 [描述]
+
+</details>
+<details>
   <summary>AIWife</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"`
