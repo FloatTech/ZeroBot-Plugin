@@ -1,4 +1,4 @@
-// Package aichat OpenAI聊天和群聊摘要
+// Package aichat OpenAI聊天和群聊总结
 package aichat
 
 import (
@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
-	"unicode"
+	"time"
 
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
@@ -21,6 +21,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/chat"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 )
 
 var (
@@ -46,7 +47,7 @@ var (
 			"- 设置AI聊天(不)以AI语音输出\n" +
 			"- 查看AI聊天配置\n" +
 			"- 重置AI聊天\n" +
-			"- 群聊摘要 [群号] [消息数目]|群聊摘要 123456 1000\n",
+			"- 群聊总结 [消息数目]|群聊总结 1000\n",
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -58,6 +59,7 @@ var (
 		"GenAI":  2,
 	}
 	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
+	limit   = ctxext.NewLimiterManager(time.Second*60, 1)
 )
 
 func init() {
@@ -315,20 +317,17 @@ func init() {
 		ctx.SendChain(message.Text("成功"))
 	})
 
-	// 添加群聊摘要功能
-	en.OnRegex(`^群聊摘要\s?(\d*)\s?(\d*)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	// 添加群聊总结功能
+	en.OnRegex(`^群聊总结\s?(\d*)$`, ensureconfig, zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("少女思考中..."))
-		gid, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
-		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[2], 10, 64)
+		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		if p > 1000 {
 			p = 1000
 		}
 		if p == 0 {
 			p = 200
 		}
-		if gid == 0 {
-			gid = ctx.Event.GroupID
-		}
+		gid := ctx.Event.GroupID
 		group := ctx.GetGroupInfo(gid, false)
 		if group.MemberCount == 0 {
 			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取摘要"))
@@ -339,7 +338,7 @@ func init() {
 
 		h := ctx.GetGroupMessageHistory(gid, 0, p, false)
 		h.Get("messages").ForEach(func(_, msgObj gjson.Result) bool {
-			nickname := removeControlChars(msgObj.Get("sender.nickname").Str)
+			nickname := msgObj.Get("sender.nickname").Str
 			text := strings.TrimSpace(message.ParseMessageFromString(msgObj.Get("raw_message").Str).ExtractPlainText())
 			if text != "" {
 				messages = append(messages, nickname+": "+text)
@@ -360,7 +359,7 @@ func init() {
 		}
 
 		ctx.SendChain(message.Text(
-			fmt.Sprintf("群 %s(%d) 的 %d 条消息摘要:\n\n", group.Name, gid, p),
+			fmt.Sprintf("群 %s(%d) 的 %d 条消息总结:\n\n", group.Name, gid, p),
 			summary,
 		))
 	})
@@ -376,8 +375,8 @@ func summarizeMessages(messages []string) (string, error) {
 	)
 
 	// 构造摘要请求提示
-	summaryPrompt := "请将以下群聊消息总结成一段简洁的摘要，保留每个用户主要话题和关键信息:\n\n" +
-		strings.Join(messages, "\n") + "\n\n群聊摘要:"
+	summaryPrompt := "请总结这个群聊内容，要求按发言顺序梳理，明确标注每个发言者的昵称，并完整呈现其核心观点、提出的问题、发表的看法或做出的回应，确保不遗漏关键信息，且能体现成员间的对话逻辑和互动关系:\n\n" +
+		strings.Join(messages, "\n---\n")
 
 	data, err := x.Request(mod.User(summaryPrompt))
 	if err != nil {
@@ -385,14 +384,4 @@ func summarizeMessages(messages []string) (string, error) {
 	}
 
 	return strings.TrimSpace(data), nil
-}
-
-func removeControlChars(s string) string {
-	var builder strings.Builder
-	for _, r := range s {
-		if !unicode.IsControl(r) { // 保留非控制字符
-			builder.WriteRune(r)
-		}
-	}
-	return builder.String()
 }
