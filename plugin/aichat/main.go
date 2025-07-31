@@ -366,7 +366,18 @@ func init() {
 		b.WriteString(strconv.FormatInt(p, 10))
 		b.WriteString(" 条消息总结:\n\n")
 		b.WriteString(summary)
-		ctx.SendChain(message.Text(b.String()))
+
+		// 分割总结内容为多段
+		parts := strings.Split(b.String(), "\n\n")
+		msg := make(message.Message, 0, len(parts))
+		for _, part := range parts {
+			if part != "" {
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(part)))
+			}
+		}
+		if len(msg) > 0 {
+			ctx.Send(msg)
+		}
 	})
 }
 
