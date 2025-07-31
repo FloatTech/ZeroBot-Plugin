@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/go-ego/gse"
@@ -108,44 +107,22 @@ func init() {
 				return
 			}
 			messageMap := make(map[string]int, 256)
-			msghists := make(chan *gjson.Result, 256)
-			go func() {
-				h := ctx.GetLatestGroupMessageHistory(gid)
-				messageSeq := h.Get("messages.0.message_seq").Int()
-				msghists <- &h
-				for i := 1; i < int(p/20) && messageSeq != 0; i++ {
-					h := ctx.GetGroupMessageHistory(gid, messageSeq, 20, false)
-					msghists <- &h
-					messageSeq = h.Get("messages.0.message_seq").Int()
-				}
-				close(msghists)
-			}()
-			var wg sync.WaitGroup
-			var mapmu sync.Mutex
-			for h := range msghists {
-				wg.Add(1)
-				go func(h *gjson.Result) {
-					for _, v := range h.Get("messages.#.message").Array() {
-						tex := strings.TrimSpace(message.ParseMessageFromString(v.Str).ExtractPlainText())
-						if tex == "" {
-							continue
-						}
-						segments := seg.Segment(helper.StringToBytes(tex))
-						words := gse.ToSlice(segments, true)
-						for _, word := range words {
-							word = strings.TrimSpace(word)
-							i := sort.SearchStrings(stopwords, word)
-							if re.MatchString(word) && (i >= len(stopwords) || stopwords[i] != word) {
-								mapmu.Lock()
-								messageMap[word]++
-								mapmu.Unlock()
-							}
+			h := ctx.GetGroupMessageHistory(gid, 0, p, false)
+			h.Get("messages").ForEach(func(_, msgObj gjson.Result) bool {
+				tex := strings.TrimSpace(message.ParseMessageFromString(msgObj.Get("raw_message").Str).ExtractPlainText())
+				if tex != "" {
+					segments := seg.Segment(helper.StringToBytes(tex))
+					words := gse.ToSlice(segments, true)
+					for _, word := range words {
+						word = strings.TrimSpace(word)
+						i := sort.SearchStrings(stopwords, word)
+						if re.MatchString(word) && (i >= len(stopwords) || stopwords[i] != word) {
+							messageMap[word]++
 						}
 					}
-					wg.Done()
-				}(h)
-			}
-			wg.Wait()
+				}
+				return true
+			})
 
 			wc := rankByWordCount(messageMap)
 			if len(wc) > 20 {

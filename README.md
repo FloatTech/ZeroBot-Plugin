@@ -1625,6 +1625,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天(不)以AI语音输出
   - [x] 查看AI聊天配置 
   - [x] 重置AI聊天
+  - [x] 群聊总结 [消息数目]|群聊总结 1000
 
 </details>
 <details>

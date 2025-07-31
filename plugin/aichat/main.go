@@ -2,7 +2,6 @@
 package aichat
 
 import (
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -59,7 +58,7 @@ var (
 		"GenAI":  2,
 	}
 	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
-	limit   = ctxext.NewLimiterManager(time.Second*60, 1)
+	limit   = ctxext.NewLimiterManager(time.Second*30, 1)
 )
 
 func init() {
@@ -358,10 +357,16 @@ func init() {
 			return
 		}
 
-		ctx.SendChain(message.Text(
-			fmt.Sprintf("群 %s(%d) 的 %d 条消息总结:\n\n", group.Name, gid, p),
-			summary,
-		))
+		var b strings.Builder
+		b.WriteString("群 ")
+		b.WriteString(group.Name)
+		b.WriteByte('(')
+		b.WriteString(strconv.FormatInt(gid, 10))
+		b.WriteString(") 的 ")
+		b.WriteString(strconv.FormatInt(p, 10))
+		b.WriteString(" 条消息总结:\n\n")
+		b.WriteString(summary)
+		ctx.SendChain(message.Text(b.String()))
 	})
 }
 
