@@ -317,7 +317,7 @@ func init() {
 	})
 
 	// 添加群聊总结功能
-	en.OnRegex(`^群聊总结\s?(\d*)$`, ensureconfig, zero.OnlyGroup).SetBlock(true).Limit(limit.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^群聊总结\s?(\d*)$`, ensureconfig, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(limit.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("少女思考中..."))
 		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		if p > 1000 {
