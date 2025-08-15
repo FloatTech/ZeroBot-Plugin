@@ -418,7 +418,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiimage"`
 
-  - [x] 设置AI画图密钥	
+  - [x] 设置AI画图密钥xxx	
   - [x] 设置AI画图接口地址https://api.siliconflow.cn/v1/images/generations
   - [x] 设置AI画图模型名Kwai-Kolors/Kolors
   - [x] 查看AI画图配置
