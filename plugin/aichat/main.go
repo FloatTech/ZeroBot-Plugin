@@ -1,14 +1,16 @@
-// Package aichat OpenAI聊天
+// Package aichat OpenAI聊天和群聊总结
 package aichat
 
 import (
 	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
 	"github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -18,6 +20,7 @@ import (
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/chat"
 	"github.com/FloatTech/zbputils/control"
+	"github.com/FloatTech/zbputils/ctxext"
 )
 
 var (
@@ -30,9 +33,9 @@ var (
 			"- 设置AI聊天温度80\n" +
 			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
-			"- 设置AI聊天接口地址https://api.deepseek.com/chat/completions\n" +
+			"- 设置AI聊天接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
 			"- 设置AI聊天密钥xxx\n" +
-			"- 设置AI聊天模型名xxx\n" +
+			"- 设置AI聊天模型名Qwen/Qwen3-8B\n" +
 			"- 查看AI聊天系统提示词\n" +
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
@@ -41,7 +44,9 @@ var (
 			"- 设置AI聊天最大长度4096\n" +
 			"- 设置AI聊天TopP 0.9\n" +
 			"- 设置AI聊天(不)以AI语音输出\n" +
-			"- 查看AI聊天配置\n",
+			"- 查看AI聊天配置\n" +
+			"- 重置AI聊天\n" +
+			"- 群聊总结 [消息数目]|群聊总结 1000\n",
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -53,6 +58,7 @@ var (
 		"GenAI":  2,
 	}
 	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
+	limit   = ctxext.NewLimiterManager(time.Second*30, 1)
 )
 
 func init() {
@@ -305,4 +311,93 @@ func init() {
 			}
 			ctx.SendChain(message.Text(printConfig(rate, temp, cfg)))
 		})
+	en.OnFullMatch("重置AI聊天", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		chat.Reset()
+		ctx.SendChain(message.Text("成功"))
+	})
+
+	// 添加群聊总结功能
+	en.OnRegex(`^群聊总结\s?(\d*)$`, ensureconfig, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(limit.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+		ctx.SendChain(message.Text("少女思考中..."))
+		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
+		if p > 1000 {
+			p = 1000
+		}
+		if p == 0 {
+			p = 200
+		}
+		gid := ctx.Event.GroupID
+		group := ctx.GetGroupInfo(gid, false)
+		if group.MemberCount == 0 {
+			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取摘要"))
+			return
+		}
+
+		var messages []string
+
+		h := ctx.GetGroupMessageHistory(gid, 0, p, false)
+		h.Get("messages").ForEach(func(_, msgObj gjson.Result) bool {
+			nickname := msgObj.Get("sender.nickname").Str
+			text := strings.TrimSpace(message.ParseMessageFromString(msgObj.Get("raw_message").Str).ExtractPlainText())
+			if text != "" {
+				messages = append(messages, nickname+": "+text)
+			}
+			return true
+		})
+
+		if len(messages) == 0 {
+			ctx.SendChain(message.Text("ERROR: 历史消息为空或者无法获得历史消息"))
+			return
+		}
+
+		// 调用大模型API进行摘要
+		summary, err := summarizeMessages(messages)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+
+		var b strings.Builder
+		b.WriteString("群 ")
+		b.WriteString(group.Name)
+		b.WriteByte('(')
+		b.WriteString(strconv.FormatInt(gid, 10))
+		b.WriteString(") 的 ")
+		b.WriteString(strconv.FormatInt(p, 10))
+		b.WriteString(" 条消息总结:\n\n")
+		b.WriteString(summary)
+
+		// 分割总结内容为多段
+		parts := strings.Split(b.String(), "\n\n")
+		msg := make(message.Message, 0, len(parts))
+		for _, part := range parts {
+			if part != "" {
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(part)))
+			}
+		}
+		if len(msg) > 0 {
+			ctx.Send(msg)
+		}
+	})
+}
+
+// summarizeMessages 调用大模型API进行消息摘要
+func summarizeMessages(messages []string) (string, error) {
+	// 使用现有的AI配置进行摘要
+	x := deepinfra.NewAPI(cfg.API, cfg.Key)
+	mod := model.NewOpenAI(
+		cfg.ModelName, cfg.Separator,
+		float32(70)/100, 0.9, 4096,
+	)
+
+	// 构造摘要请求提示
+	summaryPrompt := "请总结这个群聊内容，要求按发言顺序梳理，明确标注每个发言者的昵称，并完整呈现其核心观点、提出的问题、发表的看法或做出的回应，确保不遗漏关键信息，且能体现成员间的对话逻辑和互动关系:\n\n" +
+		strings.Join(messages, "\n---\n")
+
+	data, err := x.Request(mod.User(summaryPrompt))
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(data), nil
 }
