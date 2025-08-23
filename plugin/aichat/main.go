@@ -48,7 +48,7 @@ var (
 			"- 查看AI聊天配置\n" +
 			"- 重置AI聊天\n" +
 			"- 群聊总结 [消息数目]|群聊总结 1000\n" +
-			"- /g [内容] （使用大模型聊天）\n",
+			"- /gpt [内容] （使用大模型聊天）\n",
 
 		PrivateDataFolder: "aichat",
 	})
@@ -387,8 +387,8 @@ func init() {
 		}
 	})
 
-	// 添加 /g 命令处理（同时支持回复消息和直接使用）
-	en.OnKeyword("/g", ensureconfig).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	// 添加 /gpt 命令处理（同时支持回复消息和直接使用）
+	en.OnKeyword("/gpt", ensureconfig).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		text := ctx.MessageString()
 
 		var query string
@@ -416,8 +416,9 @@ func init() {
 			}
 		}
 
-		// 提取 /g 后面的内容
-		parts := strings.SplitN(text, "/g", 2)
+		// 提取 /gpt 后面的内容
+		parts := strings.SplitN(text, "/gpt", 2)
+
 		var gContent string
 		if len(parts) > 1 {
 			gContent = strings.TrimSpace(parts[1])
