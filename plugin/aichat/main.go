@@ -2,6 +2,7 @@
 package aichat
 
 import (
+	"errors"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -46,7 +47,9 @@ var (
 			"- 设置AI聊天(不)以AI语音输出\n" +
 			"- 查看AI聊天配置\n" +
 			"- 重置AI聊天\n" +
-			"- 群聊总结 [消息数目]|群聊总结 1000\n",
+			"- 群聊总结 [消息数目]|群聊总结 1000\n" +
+			"- /g [内容] （使用大模型聊天）\n",
+
 		PrivateDataFolder: "aichat",
 	})
 )
@@ -329,7 +332,7 @@ func init() {
 		gid := ctx.Event.GroupID
 		group := ctx.GetGroupInfo(gid, false)
 		if group.MemberCount == 0 {
-			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取摘要"))
+			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取总结"))
 			return
 		}
 
@@ -350,8 +353,12 @@ func init() {
 			return
 		}
 
-		// 调用大模型API进行摘要
-		summary, err := summarizeMessages(messages)
+		// 构造总结请求提示
+		summaryPrompt := "请总结这个群聊内容，要求按发言顺序梳理，明确标注每个发言者的昵称，并完整呈现其核心观点、提出的问题、发表的看法或做出的回应，确保不遗漏关键信息，且能体现成员间的对话逻辑和互动关系:\n\n" +
+			strings.Join(messages, "\n---\n")
+
+		// 调用大模型API进行总结
+		summary, err := llmchat(summaryPrompt)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -379,22 +386,101 @@ func init() {
 			ctx.Send(msg)
 		}
 	})
+
+	// 添加 /g 命令处理（同时支持回复消息和直接使用）
+	en.OnKeyword("/g", ensureconfig).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		text := ctx.MessageString()
+
+		var query string
+		var replyContent string
+
+		// 检查是否是回复消息
+		if strings.Contains(text, "[CQ:reply,") {
+			// 提取被回复的消息ID
+			start := strings.Index(text, "[CQ:reply,id=")
+			if start != -1 {
+				idStart := start + len("[CQ:reply,id=")
+				idEnd := strings.IndexAny(text[idStart:], ",]")
+				if idEnd != -1 {
+					idEnd += idStart
+					replyIDStr := text[idStart:idEnd]
+					replyID, err := strconv.ParseInt(replyIDStr, 10, 64)
+					if err == nil {
+						// 获取被回复的消息内容
+						replyMsg := ctx.GetMessage(replyID)
+						if replyMsg.Elements != nil {
+							replyContent = message.Message(replyMsg.Elements).ExtractPlainText()
+						}
+					}
+				}
+			}
+		}
+
+		// 提取 /g 后面的内容
+		parts := strings.SplitN(text, "/g", 2)
+		var gContent string
+		if len(parts) > 1 {
+			gContent = strings.TrimSpace(parts[1])
+		}
+
+		// 组合内容：如果有回复内容，则使用回复内容 + /g 内容；否则只使用 /g 内容
+		if replyContent != "" && gContent != "" {
+			query = replyContent + "\n\n" + gContent
+		} else if replyContent != "" {
+			query = replyContent
+		} else if gContent != "" {
+			query = gContent
+		} else {
+			return
+		}
+
+		// 调用大模型API进行聊天
+		reply, err := llmchat(query)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+
+		// 分割内容为多段
+		parts = strings.Split(reply, "\n\n")
+		msg := make(message.Message, 0, len(parts))
+		for _, part := range parts {
+			if part != "" {
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(part)))
+			}
+		}
+		if len(msg) > 0 {
+			ctx.Send(msg)
+		}
+	})
 }
 
-// summarizeMessages 调用大模型API进行消息摘要
-func summarizeMessages(messages []string) (string, error) {
-	// 使用现有的AI配置进行摘要
+// llmchat 调用大模型API包装
+func llmchat(prompt string) (string, error) {
 	x := deepinfra.NewAPI(cfg.API, cfg.Key)
-	mod := model.NewOpenAI(
-		cfg.ModelName, cfg.Separator,
-		float32(70)/100, 0.9, 4096,
-	)
+	var mod model.Protocol
+	switch cfg.Type {
+	case 0:
+		mod = model.NewOpenAI(
+			cfg.ModelName, cfg.Separator,
+			float32(70)/100, 0.9, 4096,
+		)
+	case 1:
+		mod = model.NewOLLaMA(
+			cfg.ModelName, cfg.Separator,
+			float32(70)/100, 0.9, 4096,
+		)
+	case 2:
+		mod = model.NewGenAI(
+			cfg.ModelName,
+			float32(70)/100, 0.9, 4096,
+		)
+	default:
+		logrus.Warnln("[aichat] unsupported AI type", cfg.Type)
+		return "", errors.New("不支持的AI类型")
+	}
 
-	// 构造摘要请求提示
-	summaryPrompt := "请总结这个群聊内容，要求按发言顺序梳理，明确标注每个发言者的昵称，并完整呈现其核心观点、提出的问题、发表的看法或做出的回应，确保不遗漏关键信息，且能体现成员间的对话逻辑和互动关系:\n\n" +
-		strings.Join(messages, "\n---\n")
-
-	data, err := x.Request(mod.User(summaryPrompt))
+	data, err := x.Request(mod.User(prompt))
 	if err != nil {
 		return "", err
 	}
