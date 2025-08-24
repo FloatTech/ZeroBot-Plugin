@@ -5,8 +5,8 @@ schema = 3
     version = "v1.1.1"
     hash = "sha256-hKshA0K92bKuK92mmtM0osVmqLJcSbeobeWSDpQoRCo="
   [mod."github.com/FloatTech/AnimeAPI"]
-    version = "v1.7.1-0.20250530055006-50f5c7587c5b"
-    hash = "sha256-xDXPwphMS26J02q/ysQy3CJPK5B9c7uoqwFt1xFIF5Q="
+    version = "v1.7.1-0.20250717123723-d300df538b46"
+    hash = "sha256-ZauOGdJb6XcAVsXvZ8B76+1daRm1s84vXoKwmvS0rn4="
   [mod."github.com/FloatTech/floatbox"]
     version = "v0.0.0-20250513111443-adba80e84e80"
     hash = "sha256-Zt9zkUa3qqldrSttAq66YLPZPxrnkOR2MaU7oapIWEE="
@@ -227,8 +227,8 @@ schema = 3
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.8.2-0.20250330133859-27c25d9412b5"
-    hash = "sha256-gT3uFTg5E0Th3r1M1vLzr0QtOjbMusqEjD/ckoBdDFc="
+    version = "v1.8.2-0.20250707133321-6197b8ee5df7"
+    hash = "sha256-iVAgUtXm/SO3BcdW4XDRFnbZBUk9b1GbIILajibcFo8="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
