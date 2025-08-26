@@ -396,13 +396,24 @@ func init() {
 		b.WriteString(" 条消息总结:\n\n")
 		b.WriteString(summary)
 
-		// 分割总结内容为多段
-		parts := strings.Split(b.String(), "\n")
-		msg := make(message.Message, 0, len(parts))
-		for _, part := range parts {
-			if part != "" {
-				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(part)))
+		// 分割总结内容为多段（按1000字符长度切割）
+		summaryText := b.String()
+		msg := make(message.Message, 0)
+		for len(summaryText) > 0 {
+			if len(summaryText) <= 1000 {
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(summaryText)))
+				break
 			}
+
+			// 查找1000字符内的最后一个换行符，尽量在换行处分割
+			chunk := summaryText[:1000]
+			lastNewline := strings.LastIndex(chunk, "\n")
+			if lastNewline > 0 {
+				chunk = summaryText[:lastNewline+1]
+			}
+
+			msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(chunk)))
+			summaryText = summaryText[len(chunk):]
 		}
 		if len(msg) > 0 {
 			ctx.Send(msg)
@@ -470,13 +481,23 @@ func init() {
 			return
 		}
 
-		// 分割内容为多段
-		parts = strings.Split(reply, "\n")
-		msg := make(message.Message, 0, len(parts))
-		for _, part := range parts {
-			if part != "" {
-				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(part)))
+		// 分割总结内容为多段（按1000字符长度切割）
+		msg := make(message.Message, 0)
+		for len(reply) > 0 {
+			if len(reply) <= 1000 {
+				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(reply)))
+				break
 			}
+
+			// 查找1000字符内的最后一个换行符，尽量在换行处分割
+			chunk := reply[:1000]
+			lastNewline := strings.LastIndex(chunk, "\n")
+			if lastNewline > 0 {
+				chunk = reply[:lastNewline+1]
+			}
+
+			msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(chunk)))
+			reply = reply[len(chunk):]
 		}
 		if len(msg) > 0 {
 			ctx.Send(msg)
