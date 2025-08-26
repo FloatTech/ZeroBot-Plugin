@@ -64,6 +64,32 @@ var (
 	limit   = ctxext.NewLimiterManager(time.Second*30, 1)
 )
 
+// getModelParams 获取模型参数：温度(float32(temp)/100)、TopP和最大长度
+func getModelParams(temp int64) (temperature float32, topp float32, maxn uint) {
+	// 处理温度参数
+	if temp <= 0 {
+		temp = 70 // default setting
+	}
+	if temp > 100 {
+		temp = 100
+	}
+	temperature = float32(temp) / 100
+
+	// 处理TopP参数
+	topp = cfg.TopP
+	if topp == 0 {
+		topp = 0.9
+	}
+
+	// 处理最大长度参数
+	maxn = cfg.MaxN
+	if maxn == 0 {
+		maxn = 4096
+	}
+
+	return temperature, topp, maxn
+}
+
 func init() {
 	en.OnMessage(ensureconfig, func(ctx *zero.Ctx) bool {
 		return ctx.ExtractPlainText() != "" &&
@@ -91,39 +117,25 @@ func init() {
 			return
 		}
 
-		if temp <= 0 {
-			temp = 70 // default setting
-		}
-		if temp > 100 {
-			temp = 100
-		}
+		temperature, topp, maxn := getModelParams(temp)
 
 		x := deepinfra.NewAPI(cfg.API, cfg.Key)
 		var mod model.Protocol
-		maxn := cfg.MaxN
-		if maxn == 0 {
-			maxn = 4096
-		}
-		topp := cfg.TopP
-		if topp == 0 {
-			topp = 0.9
-		}
-
 		switch cfg.Type {
 		case 0:
 			mod = model.NewOpenAI(
 				cfg.ModelName, cfg.Separator,
-				float32(temp)/100, topp, maxn,
+				temperature, topp, maxn,
 			)
 		case 1:
 			mod = model.NewOLLaMA(
 				cfg.ModelName, cfg.Separator,
-				float32(temp)/100, topp, maxn,
+				temperature, topp, maxn,
 			)
 		case 2:
 			mod = model.NewGenAI(
 				cfg.ModelName,
-				float32(temp)/100, topp, maxn,
+				temperature, topp, maxn,
 			)
 		default:
 			logrus.Warnln("[aichat] unsupported AI type", cfg.Type)
@@ -322,6 +334,16 @@ func init() {
 	// 添加群聊总结功能
 	en.OnRegex(`^群聊总结\s?(\d*)$`, ensureconfig, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(limit.LimitByGroup).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text("少女思考中..."))
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			return
+		}
+		rate := c.GetData(gid)
+		temp := (rate >> 8) & 0xff
 		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		if p > 1000 {
 			p = 1000
@@ -329,7 +351,6 @@ func init() {
 		if p == 0 {
 			p = 200
 		}
-		gid := ctx.Event.GroupID
 		group := ctx.GetGroupInfo(gid, false)
 		if group.MemberCount == 0 {
 			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取总结"))
@@ -358,7 +379,8 @@ func init() {
 			strings.Join(messages, "\n")
 
 		// 调用大模型API进行总结
-		summary, err := llmchat(summaryPrompt)
+		summary, err := llmchat(summaryPrompt, temp)
+
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -389,6 +411,16 @@ func init() {
 
 	// 添加 /gpt 命令处理（同时支持回复消息和直接使用）
 	en.OnKeyword("/gpt", ensureconfig).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			return
+		}
+		rate := c.GetData(gid)
+		temp := (rate >> 8) & 0xff
 		text := ctx.MessageString()
 
 		var query string
@@ -436,7 +468,7 @@ func init() {
 		}
 
 		// 调用大模型API进行聊天
-		reply, err := llmchat(query)
+		reply, err := llmchat(query, temp)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -457,24 +489,26 @@ func init() {
 }
 
 // llmchat 调用大模型API包装
-func llmchat(prompt string) (string, error) {
+func llmchat(prompt string, temp int64) (string, error) {
+	temperature, topp, maxn := getModelParams(temp) // 使用默认温度70
+
 	x := deepinfra.NewAPI(cfg.API, cfg.Key)
 	var mod model.Protocol
 	switch cfg.Type {
 	case 0:
 		mod = model.NewOpenAI(
 			cfg.ModelName, cfg.Separator,
-			float32(70)/100, 0.9, 4096,
+			temperature, topp, maxn,
 		)
 	case 1:
 		mod = model.NewOLLaMA(
 			cfg.ModelName, cfg.Separator,
-			float32(70)/100, 0.9, 4096,
+			temperature, topp, maxn,
 		)
 	case 2:
 		mod = model.NewGenAI(
 			cfg.ModelName,
-			float32(70)/100, 0.9, 4096,
+			temperature, topp, maxn,
 		)
 	default:
 		logrus.Warnln("[aichat] unsupported AI type", cfg.Type)
