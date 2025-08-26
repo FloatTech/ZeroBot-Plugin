@@ -447,7 +447,7 @@ func init() {
 					// 获取被回复的消息内容
 					replyMsg := ctx.GetMessage(replyID)
 					if replyMsg.Elements != nil {
-						replyContent = message.Message(replyMsg.Elements).ExtractPlainText()
+						replyContent = replyMsg.Elements.ExtractPlainText()
 					}
 				}
 				break // 找到回复元素后退出循环
