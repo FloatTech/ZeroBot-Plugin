@@ -426,25 +426,20 @@ func init() {
 		var query string
 		var replyContent string
 
-		// 检查是否是回复消息
-		if strings.Contains(text, "[CQ:reply,") {
-			// 提取被回复的消息ID
-			start := strings.Index(text, "[CQ:reply,id=")
-			if start != -1 {
-				idStart := start + len("[CQ:reply,id=")
-				idEnd := strings.IndexAny(text[idStart:], ",]")
-				if idEnd != -1 {
-					idEnd += idStart
-					replyIDStr := text[idStart:idEnd]
-					replyID, err := strconv.ParseInt(replyIDStr, 10, 64)
-					if err == nil {
-						// 获取被回复的消息内容
-						replyMsg := ctx.GetMessage(replyID)
-						if replyMsg.Elements != nil {
-							replyContent = message.Message(replyMsg.Elements).ExtractPlainText()
-						}
+		// 检查是否是回复消息 (使用MessageElement检查而不是CQ码)
+		for _, elem := range ctx.Event.Message {
+			if elem.Type == "reply" {
+				// 提取被回复的消息ID
+				replyIDStr := elem.Data["id"]
+				replyID, err := strconv.ParseInt(replyIDStr, 10, 64)
+				if err == nil {
+					// 获取被回复的消息内容
+					replyMsg := ctx.GetMessage(replyID)
+					if replyMsg.Elements != nil {
+						replyContent = message.Message(replyMsg.Elements).ExtractPlainText()
 					}
 				}
+				break // 找到回复元素后退出循环
 			}
 		}
 
@@ -456,14 +451,15 @@ func init() {
 			gContent = strings.TrimSpace(parts[1])
 		}
 
-		// 组合内容：如果有回复内容，则使用回复内容 + /g 内容；否则只使用 /g 内容
-		if replyContent != "" && gContent != "" {
+		// 组合内容：优先使用回复内容，如果同时有/gpt内容则拼接
+		switch {
+		case replyContent != "" && gContent != "":
 			query = replyContent + "\n" + gContent
-		} else if replyContent != "" {
+		case replyContent != "":
 			query = replyContent
-		} else if gContent != "" {
+		case gContent != "":
 			query = gContent
-		} else {
+		default:
 			return
 		}
 
