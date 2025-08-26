@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 )
+
 // Base64字符表
 const base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
@@ -19,8 +20,9 @@ var fumoChars = []string{
 	"fUmo,", "fuMo,", "fumO,", "FUmo,", "FuMo,", "FumO,", "fUMo,", "fUmO,",
 	"fuMO,", "FUMo,", "FuMO,", "fUMO,", "FUMO,", "fumo+", "Fumo+", "fUmo+",
 	"fuMo+", "fumO+", "FUmo+", "FuMo+", "FumO+", "fUMo+", "fUmO+", "fuMO+",
-	"FUMO+", "fumo|", "Fumo|", "fUmo|", "fuMo|", "fumO|", "FUmo|", "FuMo|",
-	"FumO|", "fUMo|", "fUmO|", "fuMO|", "fumo/", "Fumo/", "fUmo/",
+	"FUMo+", "FUmO+", "fUMO+", "FUMO+", "fumo|", "Fumo|", "fUmo|", "fuMo|", 
+	"fumO|", "FUmo|", "FuMo|", "FumO|", "fUMo|", "fUmO|", "fuMO|", "fumo/", 
+	"Fumo/", "fUmo/",
 }
 
 //Base64 2 Fumo
@@ -28,6 +30,7 @@ var fumoChars = []string{
 var encodeMap = make(map[byte]string)
 // 创建解码映射表
 var decodeMap = make(map[string]byte)
+
 func init() {
 	for i := 0; i < 64 && i < len(fumoChars); i++ {
 		base64Char := base64Chars[i]
@@ -37,6 +40,7 @@ func init() {
 		decodeMap[fumoChar] = base64Char
 	}
 }
+
 //加密
 func encryptFumo(text string) string {
 	if text == "" {

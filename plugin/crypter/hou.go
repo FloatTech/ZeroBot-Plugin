@@ -46,8 +46,9 @@ func decodeHou(code string) string {
 
 	// 过滤出有效的齁语字符
 	var validChars []string
-	for _, char := range code {
-		charStr := string(char)
+	runes := []rune(code)
+	for _, r := range runes {
+		charStr := string(r)
 		if _, exists := houCodebookMap[charStr]; exists {
 			validChars = append(validChars, charStr)
 		}

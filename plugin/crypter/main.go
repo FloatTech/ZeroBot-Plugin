@@ -2,13 +2,9 @@
 package crypter
 
 import (
-	"time"
-
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
 func init() {
@@ -21,15 +17,15 @@ func init() {
 			"- 齁语解密 [密文] 或 h解密 [密文]\n\n" +
 			"- Fumo语加解密:\n" +
 			"- fumo加密 [文本]\n" +
-			"- fumo解密 [密文]\n\n"
+			"- fumo解密 [密文]\n\n",
 		PublicDataFolder: "Crypter",
 	})
 
 	//hou
-	engine.OnRegex(`^(?:齁语加密|h加密)\s*(.+)$`).SetBlock(true).Limit(crypterLimit.LimitByUser).Handle(houEncryptHandler)
-	engine.OnRegex(`^(?:齁语解密|h解密)\s*(.+)$`).SetBlock(true).Limit(crypterLimit.LimitByUser).Handle(houDecryptHandler)
+	engine.OnRegex(`^(?:齁语加密|h加密)\s*(.+)$`).SetBlock(true).Handle(houEncryptHandler)
+	engine.OnRegex(`^(?:齁语解密|h解密)\s*(.+)$`).SetBlock(true).Handle(houDecryptHandler)
 
 	//Fumo
-	engine.OnRegex(`^fumo加密\s*(.+)$`).SetBlock(true).Limit(crypterLimit.LimitByUser).Handle(fumoEncryptHandler)
-	engine.OnRegex(`^fumo解密\s*(.+)$`).SetBlock(true).Limit(crypterLimit.LimitByUser).Handle(fumoDecryptHandler)
+	engine.OnRegex(`^fumo加密\s*(.+)$`).SetBlock(true).Handle(fumoEncryptHandler)
+	engine.OnRegex(`^fumo解密\s*(.+)$`).SetBlock(true).Handle(fumoDecryptHandler)
 }
