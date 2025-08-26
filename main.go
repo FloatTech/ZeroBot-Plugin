@@ -67,7 +67,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/custom"                   // 自定义插件合集
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"             // ahsai tts
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aifalse"           // 服务器监控
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiimage"           // AI画图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiwife"            // 随机老婆
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/alipayvoice"       // 支付宝到账语音
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/animetrace"        // AnimeTrace 动画/Galgame识别
@@ -84,6 +83,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chrev"             // 英文字符翻转
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser"             // 三次元小姐姐
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"           // cp短打
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/crypter"           // 奇怪语言加解密
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"         // 今日早报
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"          // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"             // 嘉心糖发病
