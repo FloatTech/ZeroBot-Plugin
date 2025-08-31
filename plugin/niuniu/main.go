@@ -43,8 +43,8 @@ var (
 	})
 	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
 	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
-	jjCount       = syncx.Map[string, *niu.Rm]{}
-	register      = syncx.Map[string, *niu.Rm]{}
+	jjCount       = syncx.Map[string, *niu.PKRecord]{}
+	register      = syncx.Map[string, *niu.PKRecord]{}
 )
 
 func init() {
@@ -350,18 +350,18 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
 		j := fmt.Sprintf("%d_%d", gid, adduser)
 		count, ok := jjCount.Load(j)
-		var c niu.Rm
+		var c niu.PKRecord
 		// 按照最后一次被 jj 时的时间计算，超过60分钟则重置
 		if !ok {
 			// 第一次被 jj
-			c = niu.Rm{
+			c = niu.PKRecord{
 				NiuID:     niuID,
 				TimeLimit: time.Now(),
 				Count:     1,
 				Length:    length,
 			}
 		} else {
-			c = niu.Rm{
+			c = niu.PKRecord{
 				NiuID:     niuID,
 				TimeLimit: time.Now(),
 				Count:     count.Count + 1,
@@ -369,7 +369,7 @@ func init() {
 			}
 			// 超时了，重置
 			if time.Since(c.TimeLimit) > time.Hour {
-				c = niu.Rm{
+				c = niu.PKRecord{
 					NiuID:     niuID,
 					TimeLimit: time.Now(),
 					Count:     1,
@@ -404,7 +404,7 @@ func init() {
 		data, ok := register.Load(key)
 		switch {
 		case !ok || time.Since(data.TimeLimit) > time.Hour*24:
-			data = &niu.Rm{
+			data = &niu.PKRecord{
 				TimeLimit: time.Now(),
 				Count:     1,
 			}
