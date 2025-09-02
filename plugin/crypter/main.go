@@ -10,7 +10,7 @@ import (
 func init() {
 	engine := control.Register("crypter", &ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief: "奇怪语言加解密",
+		Brief:            "奇怪语言加解密",
 		Help: "多种语言加解密插件\n" +
 			"- 齁语加解密:\n" +
 			"- 齁语加密 [文本] 或 h加密 [文本]\n" +
@@ -21,11 +21,11 @@ func init() {
 		PublicDataFolder: "Crypter",
 	})
 
-	//hou
+	// hou
 	engine.OnRegex(`^(?:齁语加密|h加密)\s*(.+)$`).SetBlock(true).Handle(houEncryptHandler)
 	engine.OnRegex(`^(?:齁语解密|h解密)\s*(.+)$`).SetBlock(true).Handle(houDecryptHandler)
 
-	//Fumo
+	// Fumo
 	engine.OnRegex(`^fumo加密\s*(.+)$`).SetBlock(true).Handle(fumoEncryptHandler)
 	engine.OnRegex(`^fumo解密\s*(.+)$`).SetBlock(true).Handle(fumoDecryptHandler)
 }
