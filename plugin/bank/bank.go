@@ -1,4 +1,4 @@
-// bank 包提供银行相关的核心功能，包括存款、取款、贷款等操作。
+//Package bank 银行
 package bank
 
 import (

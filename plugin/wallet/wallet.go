@@ -1,4 +1,4 @@
-// package wallet 钱包
+// Package wallet 钱包
 package wallet
 
 import (
