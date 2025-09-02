@@ -6,7 +6,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-//hou
+// hou
 func houEncryptHandler(ctx *zero.Ctx) {
 	text := ctx.State["regex_matched"].([]string)[1]
 	result := encodeHou(text)
@@ -19,7 +19,7 @@ func houDecryptHandler(ctx *zero.Ctx) {
 	ctx.SendChain(message.Text(result))
 }
 
-//fumo
+// fumo
 func fumoEncryptHandler(ctx *zero.Ctx) {
 	text := ctx.State["regex_matched"].([]string)[1]
 	result := encryptFumo(text)

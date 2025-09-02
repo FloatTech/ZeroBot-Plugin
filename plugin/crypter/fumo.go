@@ -20,14 +20,15 @@ var fumoChars = []string{
 	"fUmo,", "fuMo,", "fumO,", "FUmo,", "FuMo,", "FumO,", "fUMo,", "fUmO,",
 	"fuMO,", "FUMo,", "FuMO,", "fUMO,", "FUMO,", "fumo+", "Fumo+", "fUmo+",
 	"fuMo+", "fumO+", "FUmo+", "FuMo+", "FumO+", "fUMo+", "fUmO+", "fuMO+",
-	"FUMo+", "FUmO+", "fUMO+", "FUMO+", "fumo|", "Fumo|", "fUmo|", "fuMo|", 
-	"fumO|", "FUmo|", "FuMo|", "FumO|", "fUMo|", "fUmO|", "fuMO|", "fumo/", 
+	"FUMo+", "FUmO+", "fUMO+", "FUMO+", "fumo|", "Fumo|", "fUmo|", "fuMo|",
+	"fumO|", "FUmo|", "FuMo|", "FumO|", "fUMo|", "fUmO|", "fuMO|", "fumo/",
 	"Fumo/", "fUmo/",
 }
 
-//Base64 2 Fumo
+// Base64 2 Fumo
 // 创建编码映射表
 var encodeMap = make(map[byte]string)
+
 // 创建解码映射表
 var decodeMap = make(map[string]byte)
 
@@ -35,13 +36,13 @@ func init() {
 	for i := 0; i < 64 && i < len(fumoChars); i++ {
 		base64Char := base64Chars[i]
 		fumoChar := fumoChars[i]
-		
+
 		encodeMap[base64Char] = fumoChar
 		decodeMap[fumoChar] = base64Char
 	}
 }
 
-//加密
+// 加密
 func encryptFumo(text string) string {
 	if text == "" {
 		return "请输入要加密的文本"
@@ -59,11 +60,11 @@ func encryptFumo(text string) string {
 		}
 	}
 	result := fumoBody.String() + strings.Repeat("=", paddingCount)
-	
+
 	return result
 }
 
-//解密
+// 解密
 func decryptFumo(fumoText string) string {
 	if fumoText == "" {
 		return "请输入要解密的Fumo语密文"
