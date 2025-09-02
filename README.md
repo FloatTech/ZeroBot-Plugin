@@ -647,6 +647,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>奇怪语言加解密</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/crypter"`
+
+  - [x] 齁语加密 [文本] 或 h加密 [文本]
+  - [x] 齁语解密 [密文] 或 h解密 [密文]
+  - [x] fumo加密 [文本]
+  - [x] fumo解密 [文本]
+
+</details>
+<details>
   <summary>今日早报</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"`
