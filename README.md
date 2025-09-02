@@ -520,6 +520,33 @@ print("run[CQ:image,file="+j["img"]+"]")
 
     检测类型编号列表:[1:违禁违规|2:文本色情|3:敏感信息|4:恶意推广|5:低俗辱骂|6:恶意推广-联系方式|7:恶意推广-软文推广]
 </details>
+
+<details>
+  <summary>bank</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bank"`
+
+  - [x] 银行活期存款 [金额]
+
+  - [x] 银行定期存款 [金额] [期限(3/7/15/30天)]
+
+  - [x] 银行活期取款 [金额/全部]
+
+  - [x] 银行定期取款 [全部] [定期款序列号]
+
+  - [x] 银行贷款 [金额] [期限(天)]
+
+  - [x] 银行还款 [金额]
+    
+  - [x] 查看我的存款
+    
+  - [x] 查看我的贷款
+    
+  - [x] 查看今日利率
+      
+  - [x] 我要信仰之跃
+</details>
+
 <details>
   <summary>base64卦加解密</summary>
 
