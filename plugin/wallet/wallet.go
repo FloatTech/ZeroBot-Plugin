@@ -1,4 +1,4 @@
-// Package wallet 钱包
+// package wallet 钱包
 package wallet
 
 import (
@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
+	// 导入银行插件，用于检查贷款状态
+	"github.com/FloatTech/ZeroBot-Plugin/plugin/bank"
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -20,6 +22,7 @@ import (
 	"github.com/wcharczuk/go-chart/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
 )
 
 func init() {
@@ -232,6 +235,13 @@ func init() {
 			uidInt, err := strconv.ParseInt(uidStr, 10, 64)
 			if err != nil {
 				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("QQ号处理失败"))
+				return
+			}
+
+			// 检查用户是否有未还清且未逾期的贷款
+			account := bank.GetOrCreateAccount(ctx.Event.UserID)
+			if bank.HasActiveLoan(account) {
+				ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("你有未还清且未逾期的贷款，期间禁止转账操作"))
 				return
 			}
 
