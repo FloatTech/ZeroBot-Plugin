@@ -7,9 +7,10 @@ import (
 
 // 齁语密码表
 var houCodebook = []string{
-	"齁", "哦", "噢", "喔", "咕", "咿", "嗯", "啊", 
+	"齁", "哦", "噢", "喔", "咕", "咿", "嗯", "啊",
 	"～", "哈", "！", "唔", "哼", "❤", "呃", "呼",
 }
+
 // 索引:  0    1    2    3    4    5    6    7
 //       8    9   10   11   12   13   14   15
 
@@ -35,7 +36,7 @@ func encodeHou(text string) string {
 		encoded.WriteString(houCodebook[high])
 		encoded.WriteString(houCodebook[low])
 	}
-	
+
 	return encoded.String()
 }
 
@@ -52,31 +53,31 @@ func decodeHou(code string) string {
 			validChars = append(validChars, charStr)
 		}
 	}
-	
+
 	if len(validChars)%2 != 0 {
 		return "齁语密文长度错误，无法解密"
 	}
-	
+
 	// 解密过程
 	var byteList []byte
 	for i := 0; i < len(validChars); i += 2 {
 		highIdx, highExists := houCodebookMap[validChars[i]]
 		lowIdx, lowExists := houCodebookMap[validChars[i+1]]
-		
+
 		if !highExists || !lowExists {
 			return "齁语密文包含无效字符"
 		}
-		
+
 		originalByte := byte((highIdx << 4) | lowIdx)
 		byteList = append(byteList, originalByte)
 	}
-	
+
 	result := string(byteList)
-	
+
 	if !isValidUTF8(result) {
 		return "齁语解密失败，结果不是有效的文本"
 	}
-	
+
 	return result
 }
 
