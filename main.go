@@ -85,6 +85,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/chrev"             // 英文字符翻转
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/coser"             // 三次元小姐姐
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/cpstory"           // cp短打
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/crypter"           // 奇怪语言加解密
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/dailynews"         // 今日早报
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/danbooru"          // DeepDanbooru二次元图标签识别
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/diana"             // 嘉心糖发病
