@@ -25,9 +25,9 @@ import (
 
 const (
 	enableVideoSummary   = int64(0x10)
-	unableVideoSummary   = ^enableVideoSummary
+	disableVideoSummary  = ^enableVideoSummary
 	enableVideoDownload  = int64(0x20)
-	unableVideoDownload  = ^enableVideoDownload
+	disableVideoDownload = ^enableVideoDownload
 	bilibiliparseReferer = "https://www.bilibili.com"
 )
 
@@ -96,7 +96,7 @@ func init() {
 			case "开启", "打开", "启用":
 				data |= enableVideoSummary
 			case "关闭", "关掉", "禁用":
-				data &= unableVideoSummary
+				data &= disableVideoSummary
 			default:
 				return
 			}
@@ -125,7 +125,7 @@ func init() {
 			case "开启", "打开", "启用":
 				data |= enableVideoDownload
 			case "关闭", "关掉", "禁用":
-				data &= unableVideoDownload
+				data &= disableVideoDownload
 			default:
 				return
 			}
