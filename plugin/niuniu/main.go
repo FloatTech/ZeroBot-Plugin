@@ -154,8 +154,8 @@ func init() {
 				"使用说明:\n"+
 					"商品id-商品数量\n"+
 					"如想购买10个伟哥\n"+
-					"即:1-10"),
-			message.Text("牛牛商店当前售卖的物品如下")))
+					"即:1-10")))
+		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
 		for id := 1; id <= len(propMap); id++ {
 			product := propMap[id]
 			productInfo := fmt.Sprintf("商品%d\n商品名: %s\n商品价格: %dATRI币\n商品作用域: %s\n商品描述: %s",
