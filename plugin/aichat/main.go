@@ -126,9 +126,7 @@ func init() {
 			mod = model.NewOpenAI(
 				cfg.ModelName, cfg.Separator,
 				temperature, topp, maxn,
-			).SetExtra(&map[string]bool{
-				"enable_thinking": false,
-			})
+			)
 		case 1:
 			mod = model.NewOLLaMA(
 				cfg.ModelName, cfg.Separator,
@@ -518,9 +516,7 @@ func llmchat(prompt string, temp int64) (string, error) {
 		mod = model.NewOpenAI(
 			cfg.ModelName, cfg.Separator,
 			temperature, topp, maxn,
-		).SetExtra(&map[string]bool{
-			"enable_thinking": false,
-		})
+		)
 	case 1:
 		mod = model.NewOLLaMA(
 			cfg.ModelName, cfg.Separator,
