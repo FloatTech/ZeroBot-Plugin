@@ -569,7 +569,10 @@ func init() {
 
 		loan.RepaidAmount += actualDeduct
 		account.LastUpdate = time.Now()
-		SaveAccount(account)
+		if err := SaveAccount(account); err != nil {
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("还款记录保存失败：", err))
+			return
+		}
 
 		if amount > remaining {
 			refund := amount - remaining

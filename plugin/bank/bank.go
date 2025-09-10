@@ -1,4 +1,4 @@
-// bank 包提供银行相关的核心功能，包括存款、取款、贷款等操作。
+// Package bank 银行
 package bank
 
 import (
@@ -144,15 +144,25 @@ func calculateDailyCurrentInterest() {
 
 // 加载利息信息
 func loadInterestInfo() {
-	if !file.IsExist(interestPath) {
-		saveInterestInfo()
-		return
-	}
-	data, err := os.ReadFile(interestPath)
-	if err != nil {
-		return
-	}
-	_ = yaml.Unmarshal(data, dailyInterest)
+    if !file.IsExist(interestPath) {
+        // 检查 saveInterestInfo 的错误返回值
+        if err := saveInterestInfo(); err != nil {
+            fmt.Printf("加载利息信息失败：首次创建利息文件时出错 - %v", err)
+            return
+        }
+        return
+    }
+
+    data, err := os.ReadFile(interestPath)
+    if err != nil {
+        fmt.Printf("读取利息信息文件失败：%v", err) // 补充错误日志
+        return
+    }
+
+    // 检查 yaml 解析错误
+    if err := yaml.Unmarshal(data, dailyInterest); err != nil {
+        fmt.Printf("解析利息信息失败：%v", err)
+    }
 }
 
 // 保存利息信息
