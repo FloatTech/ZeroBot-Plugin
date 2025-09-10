@@ -2,9 +2,11 @@
 package niuniu
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/niu"
@@ -17,12 +19,6 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/extension/rate"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
-
-type lastLength struct {
-	TimeLimit time.Time
-	Count     int
-	Length    float64
-}
 
 var (
 	en = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
@@ -47,8 +43,8 @@ var (
 	})
 	dajiaoLimiter = rate.NewManager[string](time.Second*90, 1)
 	jjLimiter     = rate.NewManager[string](time.Second*150, 1)
-	jjCount       = syncx.Map[string, *lastLength]{}
-	register      = syncx.Map[string, *lastLength]{}
+	jjCount       = syncx.Map[string, *niu.PKRecord]{}
+	register      = syncx.Map[string, *niu.PKRecord]{}
 )
 
 func init() {
@@ -103,15 +99,19 @@ func init() {
 	en.OnFullMatch("出售牛牛", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		uid := ctx.Event.UserID
+		key := fmt.Sprintf("%d_%d", gid, uid)
 		sell, err := niu.Sell(gid, uid)
-		if err != nil {
+		if errors.Is(err, niu.ErrCanceled) || errors.Is(err, niu.ErrNoNiuNiu) {
+			ctx.SendChain(message.Text(err))
+			jjCount.Delete(key)
+			return
+		} else if err != nil {
 			ctx.SendChain(message.Text("ERROR:", err))
 			return
 		}
+
 		// 数据库操作成功之后，及时删除残留的缓存
-		key := fmt.Sprintf("%d_%d", gid, uid)
-		_, ok := jjCount.Load(key)
-		if ok {
+		if _, ok := jjCount.Load(key); ok {
 			jjCount.Delete(key)
 		}
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(sell))
@@ -140,29 +140,33 @@ func init() {
 			cost        int
 			scope       string
 			description string
-			count       int
 		}{
-			1: {"伟哥", 300, "打胶", "可以让你打胶每次都增长", 5},
-			2: {"媚药", 300, "打胶", "可以让你打胶每次都减少", 5},
-			3: {"击剑神器", 500, "jj", "可以让你每次击剑都立于不败之地", 2},
-			4: {"击剑神稽", 500, "jj", "可以让你每次击剑都失败", 2},
+			1: {"伟哥", 100, "打胶", "可以让你打胶每次都增长"},
+			2: {"媚药", 100, "打胶", "可以让你打胶每次都减少"},
+			3: {"击剑神器", 300, "jj", "可以让你每次击剑都立于不败之地"},
+			4: {"击剑神稽", 300, "jj", "可以让你每次击剑都失败"},
 		}
 
 		var messages message.Message
+		messages = append(messages, ctxext.FakeSenderForwardNode(ctx,
+			message.Text("输入对应序号进行购买商品"),
+			message.Text(
+				"使用说明:\n"+
+					"商品id-商品数量\n"+
+					"如想购买10个伟哥\n"+
+					"即:1-10")))
 		messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text("牛牛商店当前售卖的物品如下")))
 		for id := 1; id <= len(propMap); id++ {
 			product := propMap[id]
-			productInfo := fmt.Sprintf("商品%d\n商品名: %s\n商品价格: %dATRI币\n商品作用域: %s\n商品描述: %s\n使用次数:%d",
-				id, product.name, product.cost, product.scope, product.description, product.count)
+			productInfo := fmt.Sprintf("商品%d\n商品名: %s\n商品价格: %dATRI币\n商品作用域: %s\n商品描述: %s",
+				id, product.name, product.cost, product.scope, product.description)
 			messages = append(messages, ctxext.FakeSenderForwardNode(ctx, message.Text(productInfo)))
 		}
 		if id := ctx.Send(messages).ID(); id == 0 {
 			ctx.Send(message.Text("发送商店失败"))
 			return
 		}
-
-		ctx.SendChain(message.Text("输入对应序号进行购买商品"))
-		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(\d+)$`)).Repeat()
+		recv, cancel := zero.NewFutureEvent("message", 999, false, zero.CheckUser(uid), zero.CheckGroup(gid), zero.RegexRule(`^(\d+)-(\d+)$`)).Repeat()
 		defer cancel()
 		timer := time.NewTimer(120 * time.Second)
 		answer := ""
@@ -174,13 +178,13 @@ func init() {
 				return
 			case r := <-recv:
 				answer = r.Event.Message.String()
-				n, err := strconv.Atoi(answer)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return
-				}
 
-				if err = niu.Store(gid, uid, n); err != nil {
+				// 解析输入的商品ID和数量
+				parts := strings.Split(answer, "-")
+				productID, _ := strconv.Atoi(parts[0])
+				quantity, _ := strconv.Atoi(parts[1])
+
+				if err := niu.Store(gid, uid, productID, quantity); err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
@@ -227,7 +231,7 @@ func init() {
 					return
 				}
 
-				if err := niu.Redeem(gid, uid, last.Length); err != nil {
+				if err := niu.Redeem(gid, uid, *last); err != nil {
 					ctx.SendChain(message.Text("ERROR:", err))
 					return
 				}
@@ -337,7 +341,7 @@ func init() {
 		}
 		uid := ctx.Event.UserID
 		gid := ctx.Event.GroupID
-		msg, length, err := niu.JJ(gid, uid, adduser, patternParsed[0].Text()[1])
+		msg, length, niuID, err := niu.JJ(gid, uid, adduser, patternParsed[0].Text()[1])
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			jjLimiter.Delete(fmt.Sprintf("%d_%d", ctx.Event.GroupID, ctx.Event.UserID))
@@ -346,24 +350,27 @@ func init() {
 		ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text(msg))
 		j := fmt.Sprintf("%d_%d", gid, adduser)
 		count, ok := jjCount.Load(j)
-		var c lastLength
+		var c niu.PKRecord
 		// 按照最后一次被 jj 时的时间计算，超过60分钟则重置
 		if !ok {
 			// 第一次被 jj
-			c = lastLength{
+			c = niu.PKRecord{
+				NiuID:     niuID,
 				TimeLimit: time.Now(),
 				Count:     1,
 				Length:    length,
 			}
 		} else {
-			c = lastLength{
+			c = niu.PKRecord{
+				NiuID:     niuID,
 				TimeLimit: time.Now(),
 				Count:     count.Count + 1,
 				Length:    count.Length,
 			}
 			// 超时了，重置
 			if time.Since(c.TimeLimit) > time.Hour {
-				c = lastLength{
+				c = niu.PKRecord{
+					NiuID:     niuID,
 					TimeLimit: time.Now(),
 					Count:     1,
 					Length:    length,
@@ -397,7 +404,7 @@ func init() {
 		data, ok := register.Load(key)
 		switch {
 		case !ok || time.Since(data.TimeLimit) > time.Hour*24:
-			data = &lastLength{
+			data = &niu.PKRecord{
 				TimeLimit: time.Now(),
 				Count:     1,
 			}
