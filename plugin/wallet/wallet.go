@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
-	// 导入银行插件，用于检查贷款状态
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/bank"
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
