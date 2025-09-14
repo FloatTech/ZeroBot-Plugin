@@ -9,8 +9,6 @@ import (
 
 // ======== RSS ========[START]
 
-// type SingleFeedItem gofeed.Item
-
 func genHashForFeedItem(link, guid string) string {
 	idString := link + "||" + guid
 	h := fnv.New32()
@@ -51,8 +49,6 @@ type RssSource struct {
 	Link string `gorm:"column:link"         json:"link"`
 	// UpdatedParsed RSS页面更新时间
 	UpdatedParsed time.Time `gorm:"column:updated_parsed" json:"updated_parsed"`
-	//// Ctime create time
-	// Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
 	// Mtime update time
 	Mtime time.Time `gorm:"column:mtime;default:current_timestamp;" json:"mtime"`
 }
@@ -83,8 +79,6 @@ type RssContent struct {
 	Author      string    `gorm:"column:author"      json:"author"`
 	Thumbnail   string    `gorm:"column:thumbnail"   json:"thumbnail"`
 	Content     string    `gorm:"column:content"     json:"content"`
-	//// Ctime create time
-	// Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
 	// Mtime update time
 	Mtime time.Time `gorm:"column:mtime;default:current_timestamp;" json:"mtime"`
 }
@@ -109,8 +103,6 @@ type RssSubscribe struct {
 	GroupID int64 `gorm:"column:group_id;not null;uniqueIndex:uk_sid_gid"`
 	// 订阅频道
 	RssSourceID int64 `gorm:"column:rss_source_id;not null;uniqueIndex:uk_sid_gid"`
-	//// Ctime create time
-	// Ctime int64 `gorm:"column:ctime;default:current_timestamp"  json:"ctime"`
 	// Mtime update time
 	Mtime time.Time `gorm:"column:mtime;default:current_timestamp;" json:"mtime"`
 }

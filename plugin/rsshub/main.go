@@ -18,19 +18,8 @@ import (
 
 // 初始化 repo
 var (
-	rssRepo domain.RssDomain
-	initErr error
-	//// getRssRepo repo 初始化方法，单例
-	// getRssRepo = ctxext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-	//	logrus.Infoln("RssHub订阅姬：初始化")
-	//	rssRepo, initErr = domain.NewRssDomain(engine.DataFolder() + "rsshub.db")
-	//	if initErr != nil {
-	//		ctx.SendChain(message.Text("RssHub订阅姬：初始化失败", initErr.Error()))
-	//		return false
-	//	}
-	//	return true
-	// })
-	// regexpForSQL 防注入
+	rssRepo      domain.RssDomain
+	initErr      error
 	regexpForSQL = regexp.MustCompile(`[\^<>\[\]%&\*\(\)\{\}\|\=]|(union\s+select|update\s+|delete\s+|drop\s+|truncate\s+|insert\s+|exec\s+|declare\s+)`)
 )
 
