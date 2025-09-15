@@ -78,6 +78,19 @@ func init() {
 				handleLive(ctx)
 			}
 		})
+	en.OnRegex(`^([BV][A-Za-z0-9]+)`).SetBlock(true).Limit(limit.LimitByGroup).
+		Handle(func(ctx *zero.Ctx) {
+			u := ctx.State["regex_matched"].([]string)[0]
+			if !strings.Contains(u, "bilibili") {
+                u = "bilibili.com/video/" + u
+            }
+			var bilibiliurl string
+			bilibiliurl = "https://" + u
+			if searchVideoRe.MatchString(bilibiliurl){
+				ctx.State["regex_matched"] = searchVideoRe.FindStringSubmatch(bilibiliurl)
+				handleVideo(ctx)
+			}
+		})
 	en.OnRegex(`^(开启|打开|启用|关闭|关掉|禁用)视频总结$`, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
