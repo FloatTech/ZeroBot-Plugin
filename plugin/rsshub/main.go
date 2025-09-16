@@ -74,8 +74,8 @@ func init() {
 		sendRssUpdateMsg(ctx, groupToFeedsMap)
 	})
 	// 添加订阅
-	engine.OnRegex(`^添加rsshub订阅-(.+)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		routeStr := ctx.State["regex_matched"].([]string)[1]
+	engine.OnPrefix("添加rsshub订阅-", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		routeStr := ctx.State["args"].(string)
 		input := regexpForSQL.ReplaceAllString(routeStr, "")
 		logrus.Debugf("添加rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
 		rv, _, isSubExisted, err := rssRepo.Subscribe(context.Background(), ctx.Event.GroupID, input)
@@ -98,8 +98,8 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: 发送订阅源快照失败，可能被风控了"))
 		}
 	})
-	engine.OnRegex(`^删除rsshub订阅-(.+)$`, zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		routeStr := ctx.State["regex_matched"].([]string)[1]
+	engine.OnPrefix("删除rsshub订阅-", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		routeStr := ctx.State["args"].(string)
 		input := regexpForSQL.ReplaceAllString(routeStr, "")
 		logrus.Debugf("删除rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
 		err := rssRepo.Unsubscribe(context.Background(), ctx.Event.GroupID, input)

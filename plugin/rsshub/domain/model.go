@@ -10,9 +10,12 @@ import (
 // ======== RSS ========[START]
 
 func genHashForFeedItem(link, guid string) string {
-	idString := link + "||" + guid
 	h := fnv.New32()
-	_, _ = h.Write([]byte(idString))
+	// 分三次写入数据：link、分隔符、guid
+	_, _ = h.Write([]byte(link))
+	_, _ = h.Write([]byte("||"))
+	_, _ = h.Write([]byte(guid))
+
 	encoded := hex.EncodeToString(h.Sum(nil))
 	return encoded
 }
