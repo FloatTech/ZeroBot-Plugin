@@ -53,8 +53,6 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 			err = repo.storage.UpsertSource(ctx, cv.Source)
 			if err != nil {
 				logrus.WithContext(ctx).Errorf("[rsshub syncRss] upsert source error: %v", err)
-				err = nil
-				// continue
 			}
 		}
 		var updateChannelView = &RssClientView{Source: cv.Source, Contents: []*RssContent{}}
