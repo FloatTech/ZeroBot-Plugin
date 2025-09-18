@@ -3,7 +3,9 @@ package wife
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
@@ -51,14 +53,23 @@ func init() {
 				)
 				return
 			}
+			re := regexp.MustCompile(`^\[(.*?)\](.*)\..*$`)
+			match := re.FindStringSubmatch(card)
+			var msgText string
+			if len(match) == 3 {
+				work, name := match[1], match[2]
+				msgText = fmt.Sprintf("今天的二次元老婆是~来自【%s】的【%s】哒", work, name)
+			} else {
+				msgText = fmt.Sprintf("今天的二次元老婆是~【%s】哒", card)
+			}
 			if id := ctx.SendChain(
 				message.At(ctx.Event.UserID),
-				message.Text("今天的二次元老婆是~【", card, "】哒"),
+				message.Text(msgText),
 				message.ImageBytes(data),
 			); id.ID() == 0 {
 				ctx.SendChain(
 					message.At(ctx.Event.UserID),
-					message.Text("今天的二次元老婆是~【", card, "】哒\n【图片发送失败, 请联系维护者】"),
+					message.Text(msgText, "\n【图片发送失败, 多半是被夹了，请联系维护者】"),
 				)
 			}
 		})
