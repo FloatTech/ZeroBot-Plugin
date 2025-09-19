@@ -16,7 +16,16 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-var re = regexp.MustCompile(`^\[(.*?)\](.*)\..*$`)
+var (
+	cards  = []string{}
+	re     = regexp.MustCompile(`^\[(.*?)\](.*)\..*$`)
+	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
+		DisableOnDefault: false,
+		Help:             "- 抽老婆",
+		Brief:            "从老婆库抽每日老婆",
+		PublicDataFolder: "Wife",
+	}).ApplySingle(ctxext.DefaultSingle)
+)
 
 func card2name(card string) (string, string) {
 	match := re.FindStringSubmatch(card)
@@ -27,14 +36,7 @@ func card2name(card string) (string, string) {
 }
 
 func init() {
-	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Help:             "- 抽老婆",
-		Brief:            "从老婆库抽每日老婆",
-		PublicDataFolder: "Wife",
-	}).ApplySingle(ctxext.DefaultSingle)
 	_ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
-	cards := []string{}
 	engine.OnFullMatch("抽老婆", fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
 			data, err := engine.GetLazyData("wife.json", true)
