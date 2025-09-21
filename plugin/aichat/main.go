@@ -142,7 +142,7 @@ func init() {
 			return
 		}
 
-		data, err := x.Request(chat.Ask(mod, gid, cfg.SystemP, cfg.NoSystemP))
+		data, err := x.Request(chat.GetChatContext(mod, gid, cfg.SystemP, cfg.NoSystemP))
 		if err != nil {
 			logrus.Warnln("[aichat] post err:", err)
 			return
@@ -150,7 +150,7 @@ func init() {
 
 		txt := chat.Sanitize(strings.Trim(data, "\n 　"))
 		if len(txt) > 0 {
-			chat.Reply(gid, txt)
+			chat.AddChatReply(gid, zero.BotConfig.NickName[0], txt)
 			nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 			txt = strings.ReplaceAll(txt, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
 			txt = strings.ReplaceAll(txt, "{me}", nick)
@@ -327,7 +327,7 @@ func init() {
 			ctx.SendChain(message.Text(printConfig(rate, temp, cfg)))
 		})
 	en.OnFullMatch("重置AI聊天", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		chat.Reset()
+		chat.ResetChat()
 		ctx.SendChain(message.Text("成功"))
 	})
 
