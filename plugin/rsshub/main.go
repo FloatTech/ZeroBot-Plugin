@@ -18,7 +18,7 @@ import (
 
 // 初始化 repo
 var (
-	rssRepo      domain.RssDomain
+	rssRepo      *domain.RssDomain
 	initErr      error
 	regexpForSQL = regexp.MustCompile(`[\^<>\[\]%&\*\(\)\{\}\|\=]|(union\s+select|update\s+|delete\s+|drop\s+|truncate\s+|insert\s+|exec\s+|declare\s+)`)
 )
@@ -28,11 +28,11 @@ var (
 	engine = control.Register("rsshub", &ctrl.Options[*zero.Ctx]{
 		// 默认不启动
 		DisableOnDefault: false,
-		Brief:            "RssHub订阅姬",
+		Brief:            "rsshub订阅姬",
 		// 详细帮助
-		Help: "RssHub订阅姬desu~ \n" +
+		Help: "rsshub订阅姬desu~ \n" +
 			"支持的详细订阅列表文档可见：\n" +
-			"https://rsshub.netlify.app/ \n" +
+			"https://rsshub.netlify.app/zh/ \n" +
 			"- 添加rsshub订阅-/bookfere/weekly \n" +
 			"- 删除rsshub订阅-/bookfere/weekly \n" +
 			"- 查看rsshub订阅列表 \n" +
@@ -43,10 +43,10 @@ var (
 		// 插件数据存储路径
 		PrivateDataFolder: "rsshub",
 		OnEnable: func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("RssHub订阅姬现在启动了哦"))
+			ctx.SendChain(message.Text("rsshub订阅姬现在启动了哦"))
 		},
 		OnDisable: func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text("RssHub订阅姬现在关闭了哦"))
+			ctx.SendChain(message.Text("rsshub订阅姬现在关闭了哦"))
 		},
 	}).ApplySingle(zbpCtxExt.DefaultSingle)
 )
@@ -55,7 +55,7 @@ var (
 func init() {
 	rssRepo, initErr = domain.NewRssDomain(engine.DataFolder() + "rsshub.db")
 	if initErr != nil {
-		logrus.Errorln("RssHub订阅姬：初始化失败", initErr)
+		logrus.Errorln("rsshub订阅姬：初始化失败", initErr)
 		panic(initErr)
 	}
 	engine.OnFullMatch("rsshub同步", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -80,18 +80,18 @@ func init() {
 		logrus.Debugf("添加rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
 		rv, _, isSubExisted, err := rssRepo.Subscribe(context.Background(), ctx.Event.GroupID, input)
 		if err != nil {
-			ctx.SendChain(message.Text("RssHub订阅姬：添加失败", err.Error()))
+			ctx.SendChain(message.Text("rsshub订阅姬：添加失败", err.Error()))
 			return
 		}
 		if isSubExisted {
-			ctx.SendChain(message.Text("RssHub订阅姬：已存在，更新成功"))
+			ctx.SendChain(message.Text("rsshub订阅姬：已存在，更新成功"))
 		} else {
-			ctx.SendChain(message.Text("RssHub订阅姬：添加成功\n", rv.Source.Title))
+			ctx.SendChain(message.Text("rsshub订阅姬：添加成功\n", rv.Source.Title))
 		}
 		// 添加成功，发送订阅源快照
 		msg, err := newRssDetailsMsg(ctx, rv)
 		if len(msg) == 0 || err != nil {
-			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("RssHub推送错误", err))
+			ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text("rsshub推送错误", err))
 			return
 		}
 		if id := ctx.Send(msg).ID(); id == 0 {
@@ -104,21 +104,21 @@ func init() {
 		logrus.Debugf("删除rsshub订阅：raw(%s), replaced(%s)", routeStr, input)
 		err := rssRepo.Unsubscribe(context.Background(), ctx.Event.GroupID, input)
 		if err != nil {
-			ctx.SendChain(message.Text("RssHub订阅姬：删除失败 ", err.Error()))
+			ctx.SendChain(message.Text("rsshub订阅姬：删除失败 ", err.Error()))
 			return
 		}
-		ctx.SendChain(message.Text(fmt.Sprintf("RssHub订阅姬：删除%s成功", input)))
+		ctx.SendChain(message.Text(fmt.Sprintf("rsshub订阅姬：删除%s成功", input)))
 	})
 	engine.OnFullMatch("查看rsshub订阅列表", zero.OnlyGroup).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		rv, err := rssRepo.GetSubscribedChannelsByGroupID(context.Background(), ctx.Event.GroupID)
 		if err != nil {
-			ctx.SendChain(message.Text("RssHub订阅姬：查询失败 ", err.Error()))
+			ctx.SendChain(message.Text("rsshub订阅姬：查询失败 ", err.Error()))
 			return
 		}
 		// 添加成功，发送订阅源信息
 		msg, err := newRssSourcesMsg(ctx, rv)
 		if err != nil {
-			ctx.SendChain(message.Text("RssHub订阅姬：查询失败 ", err.Error()))
+			ctx.SendChain(message.Text("rsshub订阅姬：查询失败 ", err.Error()))
 			return
 		}
 		if len(msg) == 0 {
@@ -132,7 +132,7 @@ func init() {
 // sendRssUpdateMsg 发送Rss更新消息
 func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClientView) {
 	for groupID, views := range groupToFeedsMap {
-		logrus.Infof("RssHub插件在群 %d 触发推送检查", groupID)
+		logrus.Infof("rsshub插件在群 %d 触发推送检查", groupID)
 		for _, view := range views {
 			if view == nil || len(view.Contents) == 0 {
 				continue
@@ -142,8 +142,8 @@ func sendRssUpdateMsg(ctx *zero.Ctx, groupToFeedsMap map[int64][]*domain.RssClie
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(rssHubPushErrMsg, err))
 				continue
 			}
-			logrus.Infof("RssHub插件在群 %d 开始推送 %s", groupID, view.Source.Title)
-			ctx.SendGroupMessage(groupID, message.Text(fmt.Sprintf("%s\n该RssHub频道下有更新了哦~", view.Source.Title)))
+			logrus.Infof("rsshub插件在群 %d 开始推送 %s", groupID, view.Source.Title)
+			ctx.SendGroupMessage(groupID, message.Text(fmt.Sprintf("%s\n该rsshub频道下有更新了哦~", view.Source.Title)))
 			if res := ctx.SendGroupForwardMessage(groupID, msg); !res.Exists() {
 				ctx.SendPrivateMessage(zero.BotConfig.SuperUsers[0], message.Text(rssHubPushErrMsg))
 			}

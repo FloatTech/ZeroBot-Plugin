@@ -10,15 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// RepoStorage 定义RepoStorage接口
-type RepoStorage interface {
-	RepoContent
-	RepoSource
-	RepoSubscribe
-	RepoMultiQuery
-	initDB() error
-}
-
 // repoStorage db struct for rss
 type repoStorage struct {
 	orm *gorm.DB

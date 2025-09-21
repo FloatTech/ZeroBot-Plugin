@@ -13,7 +13,7 @@ import (
 // 1. 获取所有频道
 // 2. 遍历所有频道，检查频道是否更新
 // 3. 如果更新，获取更新的内容，但是返回的数据
-func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClientView, err error) {
+func (repo *RssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClientView, err error) {
 	updated = make(map[int64]*RssClientView)
 	// 获取所有频道
 	sources, err := repo.storage.GetSources(ctx)
@@ -73,7 +73,7 @@ func (repo *rssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 }
 
 // checkSourceNeedUpdate 检查频道是否需要更新
-func (repo *rssDomain) checkSourceNeedUpdate(ctx context.Context, source *RssSource) (needUpdate bool, err error) {
+func (repo *RssDomain) checkSourceNeedUpdate(ctx context.Context, source *RssSource) (needUpdate bool, err error) {
 	var sourceInDB *RssSource
 	sourceInDB, err = repo.storage.GetSourceByRssHubFeedLink(ctx, source.RssHubFeedPath)
 	if err != nil {
@@ -92,7 +92,7 @@ func (repo *rssDomain) checkSourceNeedUpdate(ctx context.Context, source *RssSou
 }
 
 // processContentsUpdate 处理内容(s)更新
-func (repo *rssDomain) processContentsUpdate(ctx context.Context, cv *RssClientView, updateChannelView *RssClientView) error {
+func (repo *RssDomain) processContentsUpdate(ctx context.Context, cv *RssClientView, updateChannelView *RssClientView) error {
 	var err error
 	for _, content := range cv.Contents {
 		if content == nil {
@@ -115,7 +115,7 @@ func (repo *rssDomain) processContentsUpdate(ctx context.Context, cv *RssClientV
 }
 
 // processContentItemUpdate 处理单个内容更新
-func (repo *rssDomain) processContentItemUpdate(ctx context.Context, content *RssContent) (existed bool, err error) {
+func (repo *RssDomain) processContentItemUpdate(ctx context.Context, content *RssContent) (existed bool, err error) {
 	existed, err = repo.storage.IsContentHashIDExist(ctx, content.HashID)
 	if err != nil {
 		return

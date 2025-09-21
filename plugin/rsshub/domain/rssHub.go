@@ -12,31 +12,17 @@ import (
 )
 
 // RssDomain RssRepo定义
-type RssDomain interface {
-	// Subscribe 订阅Rss频道
-	Subscribe(ctx context.Context, gid int64, route string) (rv *RssClientView, isChannelExisted,
-		isSubExisted bool, err error)
-	// Unsubscribe 取消订阅Rss频道
-	Unsubscribe(ctx context.Context, gid int64, route string) (err error)
-	// GetSubscribedChannelsByGroupID 获取群组订阅的Rss频道
-	GetSubscribedChannelsByGroupID(ctx context.Context, gid int64) (rv []*RssClientView, err error)
-	// Sync 同步Rss频道
-	// 返回群组-频道推送视图  map[群组]推送内容数组
-	Sync(ctx context.Context) (groupView map[int64][]*RssClientView, err error)
-}
-
-// rssDomain RssRepo定义
-type rssDomain struct {
-	storage      RepoStorage
+type RssDomain struct {
+	storage      *repoStorage
 	rssHubClient *RssHubClient
 }
 
 // NewRssDomain 新建RssDomain，调用方保证单例模式
-func NewRssDomain(dbPath string) (RssDomain, error) {
+func NewRssDomain(dbPath string) (*RssDomain, error) {
 	return newRssDomain(dbPath)
 }
 
-func newRssDomain(dbPath string) (*rssDomain, error) {
+func newRssDomain(dbPath string) (*RssDomain, error) {
 	if _, err := os.Stat(dbPath); err != nil || os.IsNotExist(err) {
 		// 生成文件
 		f, err := os.Create(dbPath)
@@ -50,7 +36,7 @@ func newRssDomain(dbPath string) (*rssDomain, error) {
 		logrus.Errorf("[rsshub NewRssDomain] open db error: %v", err)
 		panic(err)
 	}
-	repo := &rssDomain{
+	repo := &RssDomain{
 		storage:      &repoStorage{orm: orm},
 		rssHubClient: &RssHubClient{Client: http.DefaultClient},
 	}
@@ -63,7 +49,7 @@ func newRssDomain(dbPath string) (*rssDomain, error) {
 }
 
 // Subscribe QQ群订阅Rss频道
-func (repo *rssDomain) Subscribe(ctx context.Context, gid int64, feedPath string) (
+func (repo *RssDomain) Subscribe(ctx context.Context, gid int64, feedPath string) (
 	rv *RssClientView, isChannelExisted, isSubExisted bool, err error) {
 	// 验证
 	feed, err := repo.rssHubClient.FetchFeed(feedPath)
@@ -118,7 +104,7 @@ func (repo *rssDomain) Subscribe(ctx context.Context, gid int64, feedPath string
 }
 
 // Unsubscribe 群组取消订阅
-func (repo *rssDomain) Unsubscribe(ctx context.Context, gid int64, feedPath string) (err error) {
+func (repo *RssDomain) Unsubscribe(ctx context.Context, gid int64, feedPath string) (err error) {
 	existedSubscribes, ifExisted, err := repo.storage.GetIfExistedSubscribe(ctx, gid, feedPath)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[rsshub Subscribe] query sub by route error: %v", err)
@@ -153,7 +139,7 @@ func (repo *rssDomain) Unsubscribe(ctx context.Context, gid int64, feedPath stri
 }
 
 // GetSubscribedChannelsByGroupID 获取群对应的订阅的频道信息
-func (repo *rssDomain) GetSubscribedChannelsByGroupID(ctx context.Context, gid int64) ([]*RssClientView, error) {
+func (repo *RssDomain) GetSubscribedChannelsByGroupID(ctx context.Context, gid int64) ([]*RssClientView, error) {
 	channels, err := repo.storage.GetSubscribedChannelsByGroupID(ctx, gid)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[rsshub GetSubscribedChannelsByGroupID] GetSubscribedChannelsByGroupID error: %v", err)
@@ -170,7 +156,7 @@ func (repo *rssDomain) GetSubscribedChannelsByGroupID(ctx context.Context, gid i
 }
 
 // Sync 同步任务，按照群组订阅情况做好map切片
-func (repo *rssDomain) Sync(ctx context.Context) (groupView map[int64][]*RssClientView, err error) {
+func (repo *RssDomain) Sync(ctx context.Context) (groupView map[int64][]*RssClientView, err error) {
 	groupView = make(map[int64][]*RssClientView)
 	// 获取所有Rss频道
 	// 获取所有频道
