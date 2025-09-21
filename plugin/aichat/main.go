@@ -10,6 +10,7 @@ import (
 
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
+	goba "github.com/fumiama/go-onebot-agent"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 
@@ -33,6 +34,7 @@ var (
 		Help: "- 设置AI聊天触发概率10\n" +
 			"- 设置AI聊天温度80\n" +
 			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天(不)使用Agent模式\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
 			"- 设置AI聊天接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
 			"- 设置AI聊天密钥xxx\n" +
@@ -142,6 +144,24 @@ func init() {
 			return
 		}
 
+		if !cfg.NoAgent {
+			role := goba.PermRoleUser
+			if zero.AdminPermission(ctx) {
+				role = goba.PermRoleAdmin
+				if zero.SuperUserPermission(ctx) {
+					role = goba.PermRoleOwner
+				}
+			}
+			req, err := chat.AgentOf(ctx.Event.SelfID).GetAction(x, mod, gid, role, false)
+			if err != nil {
+				logrus.Warnln("[aichat] agent err:", err, &req)
+				return
+			}
+			logrus.Infoln("[aichat] agent do:", &req)
+			ctx.CallAction(req.Action, req.Params)
+			return
+		}
+
 		data, err := x.Request(chat.GetChatContext(mod, gid, cfg.SystemP, cfg.NoSystemP))
 		if err != nil {
 			logrus.Warnln("[aichat] post err:", err)
@@ -150,7 +170,7 @@ func init() {
 
 		txt := chat.Sanitize(strings.Trim(data, "\n 　"))
 		if len(txt) > 0 {
-			chat.AddChatReply(gid, zero.BotConfig.NickName[0], txt)
+			chat.AddChatReply(gid, txt)
 			nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 			txt = strings.ReplaceAll(txt, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
 			txt = strings.ReplaceAll(txt, "{me}", nick)
@@ -302,6 +322,8 @@ func init() {
 		Handle(newextrasetbool(&cfg.NoReplyAT))
 	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoSystemP))
+	en.OnRegex("^设置AI聊天(不)?使用Agent模式$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetbool(&cfg.NoAgent))
 	en.OnPrefix("设置AI聊天最大长度", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetuint(&cfg.MaxN))
 	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).

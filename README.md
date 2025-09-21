@@ -1634,6 +1634,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天触发概率10
   - [x] 设置AI聊天温度80
   - [x] 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]
+  - [x] 设置AI聊天(不)使用Agent模式
   - [x] 设置AI聊天(不)支持系统提示词
   - [x] 设置AI聊天接口地址https://api.siliconflow.cn/v1/chat/completions
   - [x] 设置AI聊天密钥xxx
@@ -1649,6 +1650,7 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 查看AI聊天配置 
   - [x] 重置AI聊天
   - [x] 群聊总结 [消息数目]|群聊总结 1000
+  - [x] /gpt [内容]（使用大模型聊天）
 
 </details>
 <details>
