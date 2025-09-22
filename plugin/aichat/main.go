@@ -159,6 +159,17 @@ func init() {
 			}
 			logrus.Infoln("[aichat] agent do:", reqs)
 			for _, req := range reqs {
+				if req.Action == "send_group_msg" {
+					gid, ok := req.Params["group_id"].(int64)
+					if !ok {
+						logrus.Warnln("[aichat] invalid", req.Action, req.Params)
+						continue
+					}
+					if ctx.Event.GroupID != gid && !zero.SuperUserPermission(ctx) {
+						logrus.Warnln("[aichat] refuse to send out of grp from", ctx.Event.GroupID, "to", gid)
+						continue
+					}
+				}
 				ctx.CallAction(req.Action, req.Params)
 				process.SleepAbout1sTo2s()
 			}
