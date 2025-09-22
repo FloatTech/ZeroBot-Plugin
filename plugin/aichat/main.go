@@ -152,13 +152,16 @@ func init() {
 					role = goba.PermRoleOwner
 				}
 			}
-			req, err := chat.AgentOf(ctx.Event.SelfID).GetAction(x, mod, gid, role, false)
+			reqs, err := chat.AgentOf(ctx.Event.SelfID).GetAction(x, mod, gid, role, false)
 			if err != nil {
-				logrus.Warnln("[aichat] agent err:", err, &req)
+				logrus.Warnln("[aichat] agent err:", err, reqs)
 				return
 			}
-			logrus.Infoln("[aichat] agent do:", &req)
-			ctx.CallAction(req.Action, req.Params)
+			logrus.Infoln("[aichat] agent do:", reqs)
+			for _, req := range reqs {
+				ctx.CallAction(req.Action, req.Params)
+				process.SleepAbout1sTo2s()
+			}
 			return
 		}
 
