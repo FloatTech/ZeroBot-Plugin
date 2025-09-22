@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-HDDnE0oktWJH1tkxuQwUUbeJhmVwY5fyc/vR72D2mkU="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20250812085410-2741050f465f"
-    hash = "sha256-NoCU7tqzihm2xEr1LelrfMzeg9RDQ9OsFBVXfNDcxvs="
+    version = "v1.7.2-0.20250922144137-bf2b9bb6a8d9"
+    hash = "sha256-lt+sQLlhnn+9Ch+HY7Rx9dS28QIZ8oUkFmmHnT7prCE="
   [mod."github.com/RomiChan/syncx"]
     version = "v0.0.0-20240418144900-b7402ffdebc7"
     hash = "sha256-L1j1vgiwqXpF9pjMoRRlrQUHzoULisw/01plaEAwxs4="
@@ -77,11 +77,14 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-/sN7X8dKXQgv8J+EDzVUB+o+AY9gBC8e1C6sYhaTy1k="
   [mod."github.com/fumiama/deepinfra"]
-    version = "v0.0.0-20250910022828-8cde75e137f4"
-    hash = "sha256-1CV8t3R91maqJztHg7whECqvS4+sxWcSvq+EyO4PyZ8="
+    version = "v0.0.0-20250920170049-e3d1b92cc3a1"
+    hash = "sha256-f9VxOcbETaEbT5GmsRLOqBcijKQsE/e7T54ES4obaIg="
   [mod."github.com/fumiama/go-base16384"]
     version = "v1.7.0"
     hash = "sha256-vTAsBBYe2ISzb2Nba5E96unodZSkhMcqo6hbwR01nz8="
+  [mod."github.com/fumiama/go-onebot-agent"]
+    version = "v0.0.0-20250922152742-c40bb3512d63"
+    hash = "sha256-51FsnvtH5c4sAAXMVxx3XUsd80C8dYgzGiQF6c26leg="
   [mod."github.com/fumiama/go-registry"]
     version = "v0.2.7"
     hash = "sha256-Rjl+z0Hlp2LMi8+pnFe5HrxctyHMi7UPiK33g/OgLdA="
@@ -227,8 +230,8 @@ schema = 3
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.8.2-0.20250804063440-ccc03e33ac20"
-    hash = "sha256-2bFcPmcDsZxTD3sU3i2QD4M/ehSF43Ohf5ltuq1QtOQ="
+    version = "v1.8.2-0.20250921063512-13752a73d444"
+    hash = "sha256-eTqHrn/uzpa+IUoIg+LxHKQmR3oF1CgByz7speXxazE="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
