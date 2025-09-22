@@ -4,6 +4,7 @@ package aichat
 import (
 	"errors"
 	"math/rand"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -160,11 +161,12 @@ func init() {
 			logrus.Infoln("[aichat] agent do:", reqs)
 			for _, req := range reqs {
 				if req.Action == "send_group_msg" {
-					gid, ok := req.Params["group_id"].(int64)
-					if !ok {
+					v := reflect.ValueOf(req.Params["group_id"])
+					if !v.CanInt() {
 						logrus.Warnln("[aichat] invalid", req.Action, req.Params)
 						continue
 					}
+					gid = v.Int()
 					if ctx.Event.GroupID != gid && !zero.SuperUserPermission(ctx) {
 						logrus.Warnln("[aichat] refuse to send out of grp from", ctx.Event.GroupID, "to", gid)
 						continue
