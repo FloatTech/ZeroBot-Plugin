@@ -2,6 +2,7 @@
 package aichat
 
 import (
+	"encoding/json"
 	"errors"
 	"math/rand"
 	"reflect"
@@ -161,12 +162,16 @@ func init() {
 			logrus.Infoln("[aichat] agent do:", reqs)
 			for _, req := range reqs {
 				if req.Action == "send_group_msg" {
-					v := reflect.ValueOf(req.Params["group_id"])
-					if !v.CanInt() {
-						logrus.Warnln("[aichat] invalid", req.Action, req.Params)
+					v, ok := req.Params["group_id"].(json.Number)
+					if !ok {
+						logrus.Warnln("[aichat] invalid group_id type", reflect.TypeOf(req.Params["group_id"]))
 						continue
 					}
-					gid = v.Int()
+					gid, err = v.Int64()
+					if !ok {
+						logrus.Warnln("[aichat] agent conv req gid err:", err)
+						continue
+					}
 					if ctx.Event.GroupID != gid && !zero.SuperUserPermission(ctx) {
 						logrus.Warnln("[aichat] refuse to send out of grp from", ctx.Event.GroupID, "to", gid)
 						continue

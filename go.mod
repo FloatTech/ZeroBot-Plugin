@@ -24,7 +24,7 @@ require (
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/deepinfra v0.0.0-20250920170049-e3d1b92cc3a1
 	github.com/fumiama/go-base16384 v1.7.0
-	github.com/fumiama/go-onebot-agent v0.0.0-20250922144028-320c6b821c49
+	github.com/fumiama/go-onebot-agent v0.0.0-20250922152742-c40bb3512d63
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
