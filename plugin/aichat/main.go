@@ -575,7 +575,7 @@ func llmchat(prompt string, temp int64) (string, error) {
 		return "", errors.New("不支持的AI类型")
 	}
 
-	data, err := x.Request(mod.User(prompt))
+	data, err := x.Request(mod.User(model.NewContentText(prompt)))
 	if err != nil {
 		return "", err
 	}

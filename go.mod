@@ -22,7 +22,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/deepinfra v0.0.0-20250920170049-e3d1b92cc3a1
+	github.com/fumiama/deepinfra v0.0.0-20250923161832-8757564fe76c
 	github.com/fumiama/go-base16384 v1.7.0
 	github.com/fumiama/go-onebot-agent v0.0.0-20250922152742-c40bb3512d63
 	github.com/fumiama/go-registry v0.2.7
@@ -63,7 +63,7 @@ require (
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fumiama/go-simple-protobuf v0.2.0 // indirect
 	github.com/fumiama/gofastTEA v0.0.10 // indirect
-	github.com/fumiama/imgsz v0.0.2 // indirect
+	github.com/fumiama/imgsz v0.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
