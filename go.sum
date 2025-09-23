@@ -17,8 +17,8 @@ github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562 h1:snfw7FNFym1eNnLrQ
 github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.7.0 h1:Hxo6EIhJo+pHjcQP9QgIJgluaT1pHH99zkk3njqTNMo=
 github.com/FloatTech/zbpctrl v1.7.0/go.mod h1:xmM4dSwHA02Gei3ogCRiG+RTrw/7Z69PfrN5NYf8BPE=
-github.com/FloatTech/zbputils v1.7.2-0.20250921072315-465a1f1d1fbb h1:/3nfw+rPFvTNsEdj+QmslUL67QZeeO7Xkx2bxOnLtLo=
-github.com/FloatTech/zbputils v1.7.2-0.20250921072315-465a1f1d1fbb/go.mod h1:mkH3Tii83bsO7+gj5s3wLUWEIYY2+5G948aW4TtUxbg=
+github.com/FloatTech/zbputils v1.7.2-0.20250922144137-bf2b9bb6a8d9 h1:iR36inettls14aMOADNQ7PHNlGvgyDRRYp2dBgZCp8A=
+github.com/FloatTech/zbputils v1.7.2-0.20250922144137-bf2b9bb6a8d9/go.mod h1:L1Rvdf6JUXGRIdKaXVtBWa0iW481zccCjYdYeDSaMXs=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=
 github.com/PuerkitoBio/goquery v1.8.0/go.mod h1:ypIiRMtY7COPGk+I/YbZLbxsxn9g5ejnI2HSMtkjZvI=
@@ -67,6 +67,8 @@ github.com/fumiama/deepinfra v0.0.0-20250920170049-e3d1b92cc3a1 h1:6PglFpNVm3Dal
 github.com/fumiama/deepinfra v0.0.0-20250920170049-e3d1b92cc3a1/go.mod h1:wW05PQSn8mo1mZIoa6LBUE+3xIBjkoONvnfPTV5ZOhY=
 github.com/fumiama/go-base16384 v1.7.0 h1:6fep7XPQWxRlh4Hu+KsdH+6+YdUp+w6CwRXtMWSsXCA=
 github.com/fumiama/go-base16384 v1.7.0/go.mod h1:OEn+947GV5gsbTAnyuUW/SrfxJYUdYupSIQXOuGOcXM=
+github.com/fumiama/go-onebot-agent v0.0.0-20250922152742-c40bb3512d63 h1:ZdPMPIgZMH4HV4A/JIBb8G7UpLM4iUHWQ8qGjKnKiVI=
+github.com/fumiama/go-onebot-agent v0.0.0-20250922152742-c40bb3512d63/go.mod h1:wVMgFWkR3GpipL05FkokvrV/jWFIgoEWN1jzUGa0bWg=
 github.com/fumiama/go-registry v0.2.7 h1:tLEqgEpsiybQMqBv0dLHm5leia/z1DhajMupwnOHeNs=
 github.com/fumiama/go-registry v0.2.7/go.mod h1:m+wp5fF8dYgVoFkBPZl+vlK90loymaJE0JCtocVQLEs=
 github.com/fumiama/go-simple-protobuf v0.2.0 h1:ACyN1MAlu7pDR3EszWgzUeNP+IRsSHwH6V9JCJA5R5o=

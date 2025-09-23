@@ -30,6 +30,7 @@ type config struct {
 	NoReplyAT bool
 	NoSystemP bool
 	NoRecord  bool
+	NoAgent   bool
 }
 
 func newconfig() config {
