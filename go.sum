@@ -59,8 +59,6 @@ github.com/fumiama/ahsai v0.1.0 h1:LXD61Kaj6kJHa3AEGsLIfKNzcgaVxg7JB72OR4yNNZ4=
 github.com/fumiama/ahsai v0.1.0/go.mod h1:fFeNnqgo44i8FIaguK659aQryuZeFy+4klYLQu/rfdk=
 github.com/fumiama/cron v1.3.0 h1:ZWlwuexF+HQHl3cYytEE5HNwD99q+3vNZF1GrEiXCFo=
 github.com/fumiama/cron v1.3.0/go.mod h1:bz5Izvgi/xEUI8tlBN8BI2jr9Moo8N4or0KV8xXuPDY=
-github.com/fumiama/deepinfra v0.0.0-20250920170049-e3d1b92cc3a1 h1:6PglFpNVm3DalGyRldacW2/v4jGWwn3v3q1tr2PhbVQ=
-github.com/fumiama/deepinfra v0.0.0-20250920170049-e3d1b92cc3a1/go.mod h1:wW05PQSn8mo1mZIoa6LBUE+3xIBjkoONvnfPTV5ZOhY=
 github.com/fumiama/deepinfra v0.0.0-20250923161832-8757564fe76c h1:ypY8ynfghPMamNfG1qS+XJ52BSBrA1HVR1c7aL5dUkI=
 github.com/fumiama/deepinfra v0.0.0-20250923161832-8757564fe76c/go.mod h1:HgRu6n9XgeyNki7wHHlTa75ORiv3UlYZafqOAoazhOI=
 github.com/fumiama/go-base16384 v1.7.0 h1:6fep7XPQWxRlh4Hu+KsdH+6+YdUp+w6CwRXtMWSsXCA=
@@ -75,8 +73,6 @@ github.com/fumiama/gofastTEA v0.0.10 h1:JJJ+brWD4kie+mmK2TkspDXKzqq0IjXm89aGYfoG
 github.com/fumiama/gofastTEA v0.0.10/go.mod h1:RIdbYZyB4MbH6ZBlPymRaXn3cD6SedlCu5W/HHfMPBk=
 github.com/fumiama/gotracemoe v0.0.3 h1:iI5EbE9A3UUbfukG6+/soYPjp1S31eCNYf4tw7s6/Jc=
 github.com/fumiama/gotracemoe v0.0.3/go.mod h1:tyqahdUzHf0bQIAVY/GYmDWvYYe5ik1ZbhnGYh+zl40=
-github.com/fumiama/imgsz v0.0.2 h1:fAkC0FnIscdKOXwAxlyw3EUba5NzxZdSxGaq3Uyfxak=
-github.com/fumiama/imgsz v0.0.2/go.mod h1:dR71mI3I2O5u6+PCpd47M9TZptzP+39tRBcbdIkoqM4=
 github.com/fumiama/imgsz v0.0.4 h1:Lsasu2hdSSFS+vnD+nvR1UkiRMK7hcpyYCC0FzgSMFI=
 github.com/fumiama/imgsz v0.0.4/go.mod h1:bISOQVTlw9sRytPwe8ir7tAaEmyz9hSNj9n8mXMBG0E=
 github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565 h1:sQuR2+N5HurnvsZhiKdEg+Ig354TaqgCQRxd/0KgIOQ=
