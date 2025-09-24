@@ -28,6 +28,7 @@ var (
 	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
 )
 
+// ModelType 支持打印 string 并生产 protocal
 type ModelType int
 
 func newModelType(typ string) (ModelType, error) {
@@ -65,6 +66,7 @@ func (mt ModelType) protocol(modn string, temp float32, topp float32, maxn uint)
 	return
 }
 
+// ModelBool 支持打印成 "是/否"
 type ModelBool bool
 
 func (mb ModelBool) String() string {
@@ -74,6 +76,7 @@ func (mb ModelBool) String() string {
 	return "否"
 }
 
+// ModelKey 支持隐藏密钥
 type ModelKey string
 
 func (mk ModelKey) String() string {
