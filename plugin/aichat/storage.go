@@ -100,7 +100,7 @@ func newstoragebitmap(bmp int64, minv, maxv int64) func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		stor.setbybmp(int64(r), bmp)
+		stor.setbybmp(r, bmp)
 		err = stor.saveto(ctx, gid)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set data err: ", err))
