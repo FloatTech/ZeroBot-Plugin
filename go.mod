@@ -22,7 +22,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fumiama/ahsai v0.1.0
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/deepinfra v0.0.0-20250924134153-348633b5c6fb
+	github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa
 	github.com/fumiama/go-base16384 v1.7.0
 	github.com/fumiama/go-onebot-agent v0.0.0-20250924153727-0cdc929590cf
 	github.com/fumiama/go-registry v0.2.7
