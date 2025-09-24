@@ -2,14 +2,16 @@
 package aichat
 
 import (
-	"errors"
+	"encoding/json"
 	"math/rand"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/fumiama/deepinfra"
 	"github.com/fumiama/deepinfra/model"
+	goba "github.com/fumiama/go-onebot-agent"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 
@@ -32,11 +34,12 @@ var (
 		Brief:            "OpenAI聊天",
 		Help: "- 设置AI聊天触发概率10\n" +
 			"- 设置AI聊天温度80\n" +
-			"- 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天(识图)接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天(不)使用Agent模式\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
-			"- 设置AI聊天接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
-			"- 设置AI聊天密钥xxx\n" +
-			"- 设置AI聊天模型名Qwen/Qwen3-8B\n" +
+			"- 设置AI聊天(识图)接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
+			"- 设置AI聊天(识图)密钥xxx\n" +
+			"- 设置AI聊天(识图)模型名Qwen/Qwen3-8B\n" +
 			"- 查看AI聊天系统提示词\n" +
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
@@ -55,57 +58,24 @@ var (
 )
 
 var (
-	apitypes = map[string]uint8{
-		"OpenAI": 0,
-		"OLLaMA": 1,
-		"GenAI":  2,
-	}
-	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
-	limit   = ctxext.NewLimiterManager(time.Second*30, 1)
+	limit = ctxext.NewLimiterManager(time.Second*30, 1)
 )
-
-// getModelParams 获取模型参数：温度(float32(temp)/100)、TopP和最大长度
-func getModelParams(temp int64) (temperature float32, topp float32, maxn uint) {
-	// 处理温度参数
-	if temp <= 0 {
-		temp = 70 // default setting
-	}
-	if temp > 100 {
-		temp = 100
-	}
-	temperature = float32(temp) / 100
-
-	// 处理TopP参数
-	topp = cfg.TopP
-	if topp == 0 {
-		topp = 0.9
-	}
-
-	// 处理最大长度参数
-	maxn = cfg.MaxN
-	if maxn == 0 {
-		maxn = 4096
-	}
-
-	return temperature, topp, maxn
-}
 
 func init() {
 	en.OnMessage(ensureconfig, func(ctx *zero.Ctx) bool {
 		return ctx.ExtractPlainText() != "" &&
-			(!cfg.NoReplyAT || (cfg.NoReplyAT && !ctx.Event.IsToMe))
+			(bool(!cfg.NoReplyAT) || (bool(cfg.NoReplyAT) && !ctx.Event.IsToMe))
 	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
+		stor, err := newstorage(ctx, gid)
+		if err != nil {
+			logrus.Warnln("ERROR: ", err)
 			return
 		}
-		rate := c.GetData(gid)
-		temp := (rate >> 8) & 0xff
-		rate &= 0xff
+		rate := stor.rate()
 		if !ctx.Event.IsToMe && rand.Intn(100) >= int(rate) {
 			return
 		}
@@ -116,33 +86,63 @@ func init() {
 			logrus.Warnln("ERROR: get extra err: empty key")
 			return
 		}
+		temperature := stor.temp()
+		topp, maxn := cfg.mparams()
 
-		temperature, topp, maxn := getModelParams(temp)
-
-		x := deepinfra.NewAPI(cfg.API, cfg.Key)
-		var mod model.Protocol
-		switch cfg.Type {
-		case 0:
-			mod = model.NewOpenAI(
-				cfg.ModelName, cfg.Separator,
-				temperature, topp, maxn,
-			)
-		case 1:
-			mod = model.NewOLLaMA(
-				cfg.ModelName, cfg.Separator,
-				temperature, topp, maxn,
-			)
-		case 2:
-			mod = model.NewGenAI(
-				cfg.ModelName,
-				temperature, topp, maxn,
-			)
-		default:
-			logrus.Warnln("[aichat] unsupported AI type", cfg.Type)
+		x := deepinfra.NewAPI(cfg.API, string(cfg.Key))
+		mod, err := cfg.Type.protocol(cfg.ModelName, temperature, topp, maxn)
+		if err != nil {
+			logrus.Warnln("ERROR: ", err)
 			return
 		}
 
-		data, err := x.Request(chat.GetChatContext(mod, gid, cfg.SystemP, cfg.NoSystemP))
+		if !stor.noagent() {
+			role := goba.PermRoleUser
+			if zero.AdminPermission(ctx) {
+				role = goba.PermRoleAdmin
+				if zero.SuperUserPermission(ctx) {
+					role = goba.PermRoleOwner
+				}
+			}
+			ag := chat.AgentOf(ctx.Event.SelfID)
+			if cfg.ImageAPI != "" && !ag.CanViewImage() {
+				mod, err := cfg.ImageType.protocol(cfg.ImageModelName, temperature, topp, maxn)
+				if err != nil {
+					logrus.Warnln("ERROR: ", err)
+					return
+				}
+				ag.SetViewImageAPI(deepinfra.NewAPI(cfg.ImageAPI, string(cfg.ImageKey)), mod)
+			}
+			reqs, err := ag.GetAction(x, mod, gid, role, false)
+			if err != nil {
+				logrus.Warnln("[aichat] agent err:", err, reqs)
+				return
+			}
+			logrus.Infoln("[aichat] agent do:", reqs)
+			for _, req := range reqs {
+				if req.Action == "send_group_msg" {
+					v, ok := req.Params["group_id"].(json.Number)
+					if !ok {
+						logrus.Warnln("[aichat] invalid group_id type", reflect.TypeOf(req.Params["group_id"]))
+						continue
+					}
+					gid, err = v.Int64()
+					if !ok {
+						logrus.Warnln("[aichat] agent conv req gid err:", err)
+						continue
+					}
+					if ctx.Event.GroupID != gid && !zero.SuperUserPermission(ctx) {
+						logrus.Warnln("[aichat] refuse to send out of grp from", ctx.Event.GroupID, "to", gid)
+						continue
+					}
+				}
+				ctx.CallAction(req.Action, req.Params)
+				process.SleepAbout1sTo2s()
+			}
+			return
+		}
+
+		data, err := x.Request(chat.GetChatContext(mod, gid, cfg.SystemP, bool(cfg.NoSystemP)))
 		if err != nil {
 			logrus.Warnln("[aichat] post err:", err)
 			return
@@ -150,7 +150,7 @@ func init() {
 
 		txt := chat.Sanitize(strings.Trim(data, "\n 　"))
 		if len(txt) > 0 {
-			chat.AddChatReply(gid, zero.BotConfig.NickName[0], txt)
+			chat.AddChatReply(gid, txt)
 			nick := zero.BotConfig.NickName[rand.Intn(len(zero.BotConfig.NickName))]
 			txt = strings.ReplaceAll(txt, "{name}", ctx.CardOrNickName(ctx.Event.UserID))
 			txt = strings.ReplaceAll(txt, "{me}", nick)
@@ -165,7 +165,7 @@ func init() {
 				logrus.Infoln("[aichat] 回复内容:", t)
 				recCfg := airecord.GetConfig()
 				record := ""
-				if !cfg.NoRecord {
+				if !stor.norecord() {
 					record = ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
 				}
 				if record != "" {
@@ -181,72 +181,8 @@ func init() {
 			}
 		}
 	})
-	en.OnPrefix("设置AI聊天触发概率", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := strings.TrimSpace(ctx.State["args"].(string))
-		if args == "" {
-			ctx.SendChain(message.Text("ERROR: empty args"))
-			return
-		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
-			ctx.SendChain(message.Text("ERROR: no such plugin"))
-			return
-		}
-		r, err := strconv.Atoi(args)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: parse rate err: ", err))
-			return
-		}
-		if r > 100 {
-			r = 100
-		} else if r < 0 {
-			r = 0
-		}
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			gid = -ctx.Event.UserID
-		}
-		val := c.GetData(gid) & (^0xff)
-		err = c.SetData(gid, val|int64(r&0xff))
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: set data err: ", err))
-			return
-		}
-		ctx.SendChain(message.Text("成功"))
-	})
-	en.OnPrefix("设置AI聊天温度", zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := strings.TrimSpace(ctx.State["args"].(string))
-		if args == "" {
-			ctx.SendChain(message.Text("ERROR: empty args"))
-			return
-		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
-			ctx.SendChain(message.Text("ERROR: no such plugin"))
-			return
-		}
-		r, err := strconv.Atoi(args)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: parse rate err: ", err))
-			return
-		}
-		if r > 100 {
-			r = 100
-		} else if r < 0 {
-			r = 0
-		}
-		gid := ctx.Event.GroupID
-		if gid == 0 {
-			gid = -ctx.Event.UserID
-		}
-		val := c.GetData(gid) & (^0xff00)
-		err = c.SetData(gid, val|(int64(r&0xff)<<8))
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: set data err: ", err))
-			return
-		}
-		ctx.SendChain(message.Text("成功"))
-	})
+	en.OnPrefix("设置AI聊天触发概率", zero.AdminPermission).SetBlock(true).Handle(newstoragebitmap(bitmaprate, 0, 100))
+	en.OnPrefix("设置AI聊天温度", zero.AdminPermission).SetBlock(true).Handle(newstoragebitmap(bitmaptemp, 0, 100))
 	en.OnPrefix("设置AI聊天接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		args := strings.TrimSpace(ctx.State["args"].(string))
 		if args == "" {
@@ -258,13 +194,37 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: no such plugin"))
 			return
 		}
-		typ, ok := apitypes[args]
-		if !ok {
-			ctx.SendChain(message.Text("ERROR: 未知类型 ", args))
+		typ, err := newModelType(args)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		cfg.Type = int(typ)
-		err := c.SetExtra(&cfg)
+		cfg.Type = typ
+		err = c.SetExtra(&cfg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	})
+	en.OnPrefix("设置AI聊天识图接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: no such plugin"))
+			return
+		}
+		typ, err := newModelType(args)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		cfg.ImageType = typ
+		err = c.SetExtra(&cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
 			return
@@ -273,10 +233,16 @@ func init() {
 	})
 	en.OnPrefix("设置AI聊天接口地址", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.API))
+	en.OnPrefix("设置AI聊天识图接口地址", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetstr(&cfg.ImageAPI))
 	en.OnPrefix("设置AI聊天密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.Key))
+	en.OnPrefix("设置AI聊天识图密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetstr(&cfg.ImageKey))
 	en.OnPrefix("设置AI聊天模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ModelName))
+	en.OnPrefix("设置AI聊天识图模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetstr(&cfg.ImageModelName))
 	en.OnPrefix("设置AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.SystemP))
 	en.OnFullMatch("查看AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -302,29 +268,32 @@ func init() {
 		Handle(newextrasetbool(&cfg.NoReplyAT))
 	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoSystemP))
+	en.OnRegex("^设置AI聊天(不)?使用Agent模式$", ensureconfig, zero.SuperUserPermission).SetBlock(true).
+		Handle(newstoragebool(bitmapnagt))
 	en.OnPrefix("设置AI聊天最大长度", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetuint(&cfg.MaxN))
 	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetfloat32(&cfg.TopP))
-	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(newextrasetbool(&cfg.NoRecord))
+	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", ensureconfig, zero.AdminPermission).SetBlock(true).
+		Handle(newstoragebool(bitmapnrec))
 	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-			if !ok {
-				ctx.SendChain(message.Text("ERROR: no such plugin"))
+			gid := ctx.Event.GroupID
+			stor, err := newstorage(ctx, gid)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			gid := ctx.Event.GroupID
-			rate := c.GetData(gid) & 0xff
-			temp := (c.GetData(gid) >> 8) & 0xff
-			if temp <= 0 {
-				temp = 70 // default setting
-			}
-			if temp > 100 {
-				temp = 100
-			}
-			ctx.SendChain(message.Text(printConfig(rate, temp, cfg)))
+			ctx.SendChain(
+				message.Text(
+					"【当前AI聊天本群配置】\n",
+					"• 触发概率：", stor.rate(), "\n",
+					"• 温度：", stor.temp(), "\n",
+					"• 以AI语音输出：", ModelBool(!stor.norecord()), "\n",
+					"• 使用Agent：", ModelBool(!stor.noagent()), "\n",
+				),
+				message.Text("【当前AI聊天全局配置】\n", &cfg),
+			)
 		})
 	en.OnFullMatch("重置AI聊天", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		chat.ResetChat()
@@ -338,12 +307,6 @@ func init() {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
-			return
-		}
-		rate := c.GetData(gid)
-		temp := (rate >> 8) & 0xff
 		p, _ := strconv.ParseInt(ctx.State["regex_matched"].([]string)[1], 10, 64)
 		if p > 1000 {
 			p = 1000
@@ -378,8 +341,13 @@ func init() {
 		summaryPrompt := "请总结这个群聊内容，要求按发言顺序梳理，明确标注每个发言者的昵称，并完整呈现其核心观点、提出的问题、发表的看法或做出的回应，确保不遗漏关键信息，且能体现成员间的对话逻辑和互动关系:\n" +
 			strings.Join(messages, "\n")
 
+		stor, err := newstorage(ctx, gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		// 调用大模型API进行总结
-		summary, err := llmchat(summaryPrompt, temp)
+		summary, err := llmchat(summaryPrompt, stor.temp())
 
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
@@ -426,12 +394,6 @@ func init() {
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
-			return
-		}
-		rate := c.GetData(gid)
-		temp := (rate >> 8) & 0xff
 		text := ctx.MessageString()
 
 		var query string
@@ -474,8 +436,13 @@ func init() {
 			return
 		}
 
+		stor, err := newstorage(ctx, gid)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		// 调用大模型API进行聊天
-		reply, err := llmchat(query, temp)
+		reply, err := llmchat(query, stor.temp())
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
@@ -506,33 +473,17 @@ func init() {
 }
 
 // llmchat 调用大模型API包装
-func llmchat(prompt string, temp int64) (string, error) {
-	temperature, topp, maxn := getModelParams(temp) // 使用默认温度70
+func llmchat(prompt string, temp float32) (string, error) {
+	topp, maxn := cfg.mparams()
 
-	x := deepinfra.NewAPI(cfg.API, cfg.Key)
-	var mod model.Protocol
-	switch cfg.Type {
-	case 0:
-		mod = model.NewOpenAI(
-			cfg.ModelName, cfg.Separator,
-			temperature, topp, maxn,
-		)
-	case 1:
-		mod = model.NewOLLaMA(
-			cfg.ModelName, cfg.Separator,
-			temperature, topp, maxn,
-		)
-	case 2:
-		mod = model.NewGenAI(
-			cfg.ModelName,
-			temperature, topp, maxn,
-		)
-	default:
-		logrus.Warnln("[aichat] unsupported AI type", cfg.Type)
-		return "", errors.New("不支持的AI类型")
+	x := deepinfra.NewAPI(cfg.API, string(cfg.Key))
+
+	mod, err := cfg.Type.protocol(cfg.ModelName, temp, topp, maxn)
+	if err != nil {
+		return "", nil
 	}
 
-	data, err := x.Request(mod.User(prompt))
+	data, err := x.Request(mod.User(model.NewContentText(prompt)))
 	if err != nil {
 		return "", err
 	}
