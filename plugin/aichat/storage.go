@@ -116,7 +116,7 @@ func newstoragebool(bmp int64) func(ctx *zero.Ctx) {
 	}
 	return func(ctx *zero.Ctx) {
 		args := ctx.State["regex_matched"].([]string)
-		iszero := args[1] == "不"
+		isone := args[1] == "不"
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
@@ -126,9 +126,9 @@ func newstoragebool(bmp int64) func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
-		v := 1
-		if iszero {
-			v = 0
+		v := 0
+		if isone {
+			v = 1
 		}
 		stor.setbybmp(int64(v), bmp)
 		err = stor.saveto(ctx, gid)
