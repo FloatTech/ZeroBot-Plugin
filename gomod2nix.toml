@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.0"
     hash = "sha256-HDDnE0oktWJH1tkxuQwUUbeJhmVwY5fyc/vR72D2mkU="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20250812085410-2741050f465f"
-    hash = "sha256-NoCU7tqzihm2xEr1LelrfMzeg9RDQ9OsFBVXfNDcxvs="
+    version = "v1.7.2-0.20250925155009-638ed762e15e"
+    hash = "sha256-pW8tS0/oBSmc9vmfHXuYWtsy7a6+qd5f4W0icrwHl+8="
   [mod."github.com/RomiChan/syncx"]
     version = "v0.0.0-20240418144900-b7402ffdebc7"
     hash = "sha256-L1j1vgiwqXpF9pjMoRRlrQUHzoULisw/01plaEAwxs4="
@@ -77,11 +77,14 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-/sN7X8dKXQgv8J+EDzVUB+o+AY9gBC8e1C6sYhaTy1k="
   [mod."github.com/fumiama/deepinfra"]
-    version = "v0.0.0-20250910022828-8cde75e137f4"
-    hash = "sha256-1CV8t3R91maqJztHg7whECqvS4+sxWcSvq+EyO4PyZ8="
+    version = "v0.0.0-20250924162107-cf156d49a0fa"
+    hash = "sha256-D0lgA7jBDLE8v9ePDiWwH439eB5+cDlj2fKRAc0wUms="
   [mod."github.com/fumiama/go-base16384"]
     version = "v1.7.0"
     hash = "sha256-vTAsBBYe2ISzb2Nba5E96unodZSkhMcqo6hbwR01nz8="
+  [mod."github.com/fumiama/go-onebot-agent"]
+    version = "v0.0.0-20250925171858-9c2cb926ec95"
+    hash = "sha256-UAQWC1ScdMbcvDgwnM5n97HXMdqBO5NfW0Y0CbAKfNA="
   [mod."github.com/fumiama/go-registry"]
     version = "v0.2.7"
     hash = "sha256-Rjl+z0Hlp2LMi8+pnFe5HrxctyHMi7UPiK33g/OgLdA="
@@ -95,8 +98,8 @@ schema = 3
     version = "v0.0.3"
     hash = "sha256-O3cDkVXu5NG1ZtzubxhH+S91zfgu4uH1L+OiSGYSNXQ="
   [mod."github.com/fumiama/imgsz"]
-    version = "v0.0.2"
-    hash = "sha256-eYUjP1TKWUrsY++rzg4rezOvmvmjADZFBizIIDHnZtY="
+    version = "v0.0.4"
+    hash = "sha256-rrGx+v41OEl0ATwL6u5TNcpfkCQbj3jFNnGiQUNu2qs="
   [mod."github.com/fumiama/jieba"]
     version = "v0.0.0-20221203025406-36c17a10b565"
     hash = "sha256-DvDx1pdldkdaSszrbadM/VwqT9TTSmWl6G6a+ysXYEM="
@@ -227,8 +230,8 @@ schema = 3
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.8.2-0.20250804063440-ccc03e33ac20"
-    hash = "sha256-2bFcPmcDsZxTD3sU3i2QD4M/ehSF43Ohf5ltuq1QtOQ="
+    version = "v1.8.2-0.20250921063512-13752a73d444"
+    hash = "sha256-eTqHrn/uzpa+IUoIg+LxHKQmR3oF1CgByz7speXxazE="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
