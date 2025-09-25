@@ -122,11 +122,18 @@ func init() {
 				ag.SetViewImageAPI(deepinfra.NewAPI(cfg.ImageAPI, string(cfg.ImageKey)), mod)
 			}
 			ctx.NoTimeout()
+			hasresp := false
+			defer func() {
+				if hasresp {
+					ag.AddTerminus(gid)
+				}
+			}()
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
 				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), x, mod, gid, role)
 				if len(reqs) == 0 {
 					return
 				}
+				hasresp = true
 				for _, req := range reqs {
 					resp := ctx.CallAction(req.Action, req.Params)
 					logrus.Infoln("[aichat] agent get resp:", reqs)
