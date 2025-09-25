@@ -63,8 +63,8 @@ github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa h1:UMMNejpPp8dn9
 github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa/go.mod h1:uqsWK/GM9OvKV0pXZOQB63rWugBbiXInY8E1JoRKhkg=
 github.com/fumiama/go-base16384 v1.7.0 h1:6fep7XPQWxRlh4Hu+KsdH+6+YdUp+w6CwRXtMWSsXCA=
 github.com/fumiama/go-base16384 v1.7.0/go.mod h1:OEn+947GV5gsbTAnyuUW/SrfxJYUdYupSIQXOuGOcXM=
-github.com/fumiama/go-onebot-agent v0.0.0-20250925150209-46ace7c2b17a h1:PapkA1fkFCzBbcmFaxRQvRAHbRig3NIgstzG7OFcXjQ=
-github.com/fumiama/go-onebot-agent v0.0.0-20250925150209-46ace7c2b17a/go.mod h1:FIhZxVeFAs201W06EgXxx/6b/l/ETSmu2sQOj10kjdk=
+github.com/fumiama/go-onebot-agent v0.0.0-20250925163239-0ede409f6187 h1:kO+Ye7JdQLiUXpDqcBFOMeg5wmPovemTS/khlN+n+tU=
+github.com/fumiama/go-onebot-agent v0.0.0-20250925163239-0ede409f6187/go.mod h1:FIhZxVeFAs201W06EgXxx/6b/l/ETSmu2sQOj10kjdk=
 github.com/fumiama/go-registry v0.2.7 h1:tLEqgEpsiybQMqBv0dLHm5leia/z1DhajMupwnOHeNs=
 github.com/fumiama/go-registry v0.2.7/go.mod h1:m+wp5fF8dYgVoFkBPZl+vlK90loymaJE0JCtocVQLEs=
 github.com/fumiama/go-simple-protobuf v0.2.0 h1:ACyN1MAlu7pDR3EszWgzUeNP+IRsSHwH6V9JCJA5R5o=
