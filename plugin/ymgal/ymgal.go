@@ -72,7 +72,7 @@ func init() {
 
 func sendYmgal(y ymgal, ctx *zero.Ctx) {
 	if y.PictureList == "" {
-		ctx.SendChain(message.Text(zero.BotConfig.NickName[0] + "暂时没有这样的图呢"))
+		ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "暂时没有这样的图呢"))
 		return
 	}
 	m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Text(y.Title))}

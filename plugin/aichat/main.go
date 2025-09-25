@@ -4,7 +4,6 @@ package aichat
 import (
 	"encoding/json"
 	"math/rand"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/tidwall/gjson"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
+	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/AnimeAPI/airecord"
@@ -54,7 +54,15 @@ var (
 			"- /gpt [内容] （使用大模型聊天）\n",
 
 		PrivateDataFolder: "aichat",
-	})
+	}).ApplySingle(single.New(
+		single.WithKeyFn(func(ctx *zero.Ctx) int64 {
+			if ctx.Event.GroupID == 0 {
+				return -ctx.Event.UserID
+			}
+			return ctx.Event.GroupID
+		}),
+		// no post option, silently quit
+	))
 )
 
 var (
@@ -113,31 +121,23 @@ func init() {
 				}
 				ag.SetViewImageAPI(deepinfra.NewAPI(cfg.ImageAPI, string(cfg.ImageKey)), mod)
 			}
-			reqs, err := ag.GetAction(x, mod, gid, role, false)
-			if err != nil {
-				logrus.Warnln("[aichat] agent err:", err, reqs)
-				return
-			}
-			logrus.Infoln("[aichat] agent do:", reqs)
-			for _, req := range reqs {
-				if req.Action == "send_group_msg" {
-					v, ok := req.Params["group_id"].(json.Number)
-					if !ok {
-						logrus.Warnln("[aichat] invalid group_id type", reflect.TypeOf(req.Params["group_id"]))
-						continue
-					}
-					gid, err = v.Int64()
-					if !ok {
-						logrus.Warnln("[aichat] agent conv req gid err:", err)
-						continue
-					}
-					if ctx.Event.GroupID != gid && !zero.SuperUserPermission(ctx) {
-						logrus.Warnln("[aichat] refuse to send out of grp from", ctx.Event.GroupID, "to", gid)
-						continue
-					}
+			ctx.NoTimeout()
+			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
+				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), x, mod, gid, role)
+				if len(reqs) == 0 {
+					return
 				}
-				ctx.CallAction(req.Action, req.Params)
-				process.SleepAbout1sTo2s()
+				for _, req := range reqs {
+					resp := ctx.CallAction(req.Action, req.Params)
+					logrus.Infoln("[aichat] agent get resp:", reqs)
+					ag.AddResponse(gid, &goba.APIResponse{
+						Status:  resp.Status,
+						Data:    json.RawMessage(resp.Data.Raw),
+						Message: resp.Message,
+						Wording: resp.Wording,
+						RetCode: resp.RetCode,
+					})
+				}
 			}
 			return
 		}

@@ -13,7 +13,6 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
@@ -35,16 +34,7 @@ var (
 		Brief:             "国际象棋",
 		Help:              helpString,
 		PrivateDataFolder: "chess",
-	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
-		single.WithPostFn[int64](func(ctx *zero.Ctx) {
-			ctx.Send(
-				message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("有操作正在执行, 请稍后再试..."),
-				),
-			)
-		}),
-	))
+	}).ApplySingle(ctxext.GroupSingle)
 )
 
 func init() {

@@ -14,7 +14,6 @@ import (
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 数据库
@@ -83,17 +82,7 @@ func init() { // 插件主体
 			"指令示例：\n" +
 			name + "帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图",
 		PrivateDataFolder: "wenxinAI",
-	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
-		single.WithPostFn[int64](func(ctx *zero.Ctx) {
-			ctx.Break()
-			ctx.Send(
-				message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text(zero.BotConfig.NickName[0], "正在给别人画图，请不要打扰哦"),
-				),
-			)
-		}),
-	))
+	}).ApplySingle(ctxext.NewGroupSingle("正在给别人画图，请不要打扰哦"))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		vilginfo.db = sql.New(engine.DataFolder() + "ernieVilg.db")
 		err := vilginfo.db.Open(time.Hour)
@@ -285,17 +274,7 @@ func init() { // 插件主体
 			"文心自定义 请写出下面这道题的解题过程。\\n题目:养殖场养鸭376只,养鸡的只数比鸭多258只,这个养殖场一共养鸭和鸡多少只?\\n解：\n\n" +
 			"文心自定义 1+1=?\n" +
 			"文心自定义 歌曲名：大风车转啊转\\n歌词：",
-	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
-		single.WithPostFn[int64](func(ctx *zero.Ctx) {
-			ctx.Break()
-			ctx.Send(
-				message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text(zero.BotConfig.NickName[0], "正在给别人编辑，请不要打扰哦"),
-				),
-			)
-		}),
-	))
+	}).ApplySingle(ctxext.NewGroupSingle("正在给别人编辑，请不要打扰哦"))
 	getmodeldb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		modelinfo.db = sql.New(engine.DataFolder() + "ernieModel.db")
 		err := modelinfo.db.Open(time.Hour)

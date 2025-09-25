@@ -17,7 +17,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 反并发
-	"github.com/wdvxdr1123/ZeroBot/extension/single"
+
 	// 数据库
 	sql "github.com/FloatTech/sqlite"
 	// 画图
@@ -67,16 +67,7 @@ var (
 			"\"娶群友\"&\"(娶|嫁)@对方QQ\"指令好感度随机增加1~5。\n\"A牛B的C\"会导致C恨A, 好感度-5;\nB为了报复A, 好感度+5(什么柜子play)\nA为BC做媒,成功B、C对A好感度+1反之-1\n做媒成功BC好感度+1" +
 			"\nTips: 群老婆列表过0点刷新",
 		PrivateDataFolder: "qqwife",
-	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
-		single.WithPostFn[int64](func(ctx *zero.Ctx) {
-			ctx.Send(
-				message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("别着急，民政局门口排长队了！"),
-				),
-			)
-		}),
-	))
+	}).ApplySingle(ctxext.NewGroupSingle("别着急，民政局门口排长队了！"))
 	getdb = fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		民政局.db = sql.New(engine.DataFolder() + "结婚登记表.db")
 		err := 民政局.db.Open(time.Hour)
