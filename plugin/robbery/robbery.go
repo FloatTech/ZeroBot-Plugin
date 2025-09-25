@@ -11,7 +11,6 @@ import (
 	sql "github.com/FloatTech/sqlite"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/wdvxdr1123/ZeroBot/extension/single"
 
 	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/math"
@@ -45,16 +44,7 @@ func init() {
 			"7. 每日可打劫或被打劫一次\n" +
 			"8. 打劫失败不计入次数\n",
 		PrivateDataFolder: "robbery",
-	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
-		single.WithPostFn[int64](func(ctx *zero.Ctx) {
-			ctx.Send(
-				message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("别着急，警察局门口排长队了！"),
-				),
-			)
-		}),
-	))
+	}).ApplySingle(ctxext.NewGroupSingle("别着急，警察局门口排长队了！"))
 	getdb := fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
 		police.db = sql.New(engine.DataFolder() + "robbery.db")
 		err := police.db.Open(time.Hour)

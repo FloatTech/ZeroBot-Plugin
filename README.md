@@ -1644,12 +1644,12 @@ print("run[CQ:image,file="+j["img"]+"]")
 
   - [x] 设置AI聊天触发概率10
   - [x] 设置AI聊天温度80
-  - [x] 设置AI聊天接口类型[OpenAI|OLLaMA|GenAI]
+  - [x] 设置AI聊天(识图)接口类型[OpenAI|OLLaMA|GenAI]
   - [x] 设置AI聊天(不)使用Agent模式
   - [x] 设置AI聊天(不)支持系统提示词
-  - [x] 设置AI聊天接口地址https://api.siliconflow.cn/v1/chat/completions
-  - [x] 设置AI聊天密钥xxx
-  - [x] 设置AI聊天模型名Qwen/Qwen3-8B
+  - [x] 设置AI聊天(识图)接口地址https://api.siliconflow.cn/v1/chat/completions
+  - [x] 设置AI聊天(识图)密钥xxx
+  - [x] 设置AI聊天(识图)模型名Qwen/Qwen3-8B
   - [x] 查看AI聊天系统提示词
   - [x] 重置AI聊天系统提示词
   - [x] 设置AI聊天系统提示词xxx

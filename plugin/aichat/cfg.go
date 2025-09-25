@@ -1,6 +1,7 @@
 package aichat
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -18,19 +19,92 @@ var (
 	cfg = newconfig()
 )
 
+var (
+	apitypes = map[string]uint8{
+		"OpenAI": 0,
+		"OLLaMA": 1,
+		"GenAI":  2,
+	}
+	apilist = [3]string{"OpenAI", "OLLaMA", "GenAI"}
+)
+
+// ModelType 支持打印 string 并生产 protocal
+type ModelType int
+
+func newModelType(typ string) (ModelType, error) {
+	t, ok := apitypes[typ]
+	if !ok {
+		return 0, errors.New("未知类型 " + typ)
+	}
+	return ModelType(t), nil
+}
+
+func (mt ModelType) String() string {
+	return apilist[mt]
+}
+
+func (mt ModelType) protocol(modn string, temp float32, topp float32, maxn uint) (mod model.Protocol, err error) {
+	switch cfg.Type {
+	case 0:
+		mod = model.NewOpenAI(
+			modn, cfg.Separator,
+			temp, topp, maxn,
+		)
+	case 1:
+		mod = model.NewOLLaMA(
+			modn, cfg.Separator,
+			temp, topp, maxn,
+		)
+	case 2:
+		mod = model.NewGenAI(
+			modn,
+			temp, topp, maxn,
+		)
+	default:
+		err = errors.New("unsupported model type " + strconv.Itoa(int(cfg.Type)))
+	}
+	return
+}
+
+// ModelBool 支持打印成 "是/否"
+type ModelBool bool
+
+func (mb ModelBool) String() string {
+	if mb {
+		return "是"
+	}
+	return "否"
+}
+
+// ModelKey 支持隐藏密钥
+type ModelKey string
+
+func (mk ModelKey) String() string {
+	if len(mk) == 0 {
+		return "未设置"
+	}
+	if len(mk) <= 4 {
+		return "****"
+	}
+	key := string(mk)
+	return key[:2] + strings.Repeat("*", len(key)-4) + key[len(key)-2:]
+}
+
 type config struct {
-	ModelName string
-	Type      int
-	MaxN      uint
-	TopP      float32
-	SystemP   string
-	API       string
-	Key       string
-	Separator string
-	NoReplyAT bool
-	NoSystemP bool
-	NoRecord  bool
-	NoAgent   bool
+	ModelName      string
+	ImageModelName string
+	Type           ModelType
+	ImageType      ModelType
+	MaxN           uint
+	TopP           float32
+	SystemP        string
+	API            string
+	ImageAPI       string
+	Key            ModelKey
+	ImageKey       ModelKey
+	Separator      string
+	NoReplyAT      ModelBool
+	NoSystemP      ModelBool
 }
 
 func newconfig() config {
@@ -41,8 +115,45 @@ func newconfig() config {
 	}
 }
 
+func (c *config) String() string {
+	topp, maxn := c.mparams()
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf("• 模型名：%s\n", c.ModelName))
+	sb.WriteString(fmt.Sprintf("• 图像模型名：%s\n", c.ImageModelName))
+	sb.WriteString(fmt.Sprintf("• 接口类型：%v\n", c.Type))
+	sb.WriteString(fmt.Sprintf("• 图像接口类型：%v\n", c.ImageType))
+	sb.WriteString(fmt.Sprintf("• 最大长度：%d\n", maxn))
+	sb.WriteString(fmt.Sprintf("• TopP：%.1f\n", topp))
+	sb.WriteString(fmt.Sprintf("• 系统提示词：%s\n", c.SystemP))
+	sb.WriteString(fmt.Sprintf("• 接口地址：%s\n", c.API))
+	sb.WriteString(fmt.Sprintf("• 图像接口地址：%s\n", c.ImageAPI))
+	sb.WriteString(fmt.Sprintf("• 密钥：%v\n", c.Key))
+	sb.WriteString(fmt.Sprintf("• 图像密钥：%v\n", c.ImageKey))
+	sb.WriteString(fmt.Sprintf("• 分隔符：%s\n", c.Separator))
+	sb.WriteString(fmt.Sprintf("• 响应@：%v\n", !c.NoReplyAT))
+	sb.WriteString(fmt.Sprintf("• 支持系统提示词：%v\n", !c.NoSystemP))
+	return sb.String()
+}
+
 func (c *config) isvalid() bool {
 	return c.ModelName != "" && c.API != "" && c.Key != ""
+}
+
+// 获取全局模型参数：TopP和最大长度
+func (c *config) mparams() (topp float32, maxn uint) {
+	// 处理TopP参数
+	topp = c.TopP
+	if topp == 0 {
+		topp = 0.9
+	}
+
+	// 处理最大长度参数
+	maxn = c.MaxN
+	if maxn == 0 {
+		maxn = 4096
+	}
+
+	return topp, maxn
 }
 
 func ensureconfig(ctx *zero.Ctx) bool {
@@ -62,7 +173,7 @@ func ensureconfig(ctx *zero.Ctx) bool {
 	return true
 }
 
-func newextrasetstr(ptr *string) func(ctx *zero.Ctx) {
+func newextrasetstr[T ~string](ptr *T) func(ctx *zero.Ctx) {
 	return func(ctx *zero.Ctx) {
 		args := strings.TrimSpace(ctx.State["args"].(string))
 		if args == "" {
@@ -74,7 +185,7 @@ func newextrasetstr(ptr *string) func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("ERROR: no such plugin"))
 			return
 		}
-		*ptr = args
+		*ptr = T(args)
 		err := c.SetExtra(&cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
@@ -84,7 +195,7 @@ func newextrasetstr(ptr *string) func(ctx *zero.Ctx) {
 	}
 }
 
-func newextrasetbool(ptr *bool) func(ctx *zero.Ctx) {
+func newextrasetbool[T ~bool](ptr *T) func(ctx *zero.Ctx) {
 	return func(ctx *zero.Ctx) {
 		args := ctx.State["regex_matched"].([]string)
 		isno := args[1] == "不"
@@ -93,7 +204,7 @@ func newextrasetbool(ptr *bool) func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text("ERROR: no such plugin"))
 			return
 		}
-		*ptr = isno
+		*ptr = T(isno)
 		err := c.SetExtra(&cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
@@ -155,45 +266,4 @@ func newextrasetfloat32(ptr *float32) func(ctx *zero.Ctx) {
 		}
 		ctx.SendChain(message.Text("成功"))
 	}
-}
-
-func printConfig(rate int64, temperature int64, cfg config) string {
-	maxn := cfg.MaxN
-	if maxn == 0 {
-		maxn = 4096
-	}
-	topp := cfg.TopP
-	if topp == 0 {
-		topp = 0.9
-	}
-	var builder strings.Builder
-	builder.WriteString("当前AI聊天配置：\n")
-	builder.WriteString(fmt.Sprintf("• 模型名：%s\n", cfg.ModelName))
-	builder.WriteString(fmt.Sprintf("• 接口类型：%d(%s)\n", cfg.Type, apilist[cfg.Type]))
-	builder.WriteString(fmt.Sprintf("• 触发概率：%d%%\n", rate))
-	builder.WriteString(fmt.Sprintf("• 温度：%.2f\n", float32(temperature)/100))
-	builder.WriteString(fmt.Sprintf("• 最大长度：%d\n", maxn))
-	builder.WriteString(fmt.Sprintf("• TopP：%.1f\n", topp))
-	builder.WriteString(fmt.Sprintf("• 系统提示词：%s\n", cfg.SystemP))
-	builder.WriteString(fmt.Sprintf("• 接口地址：%s\n", cfg.API))
-	builder.WriteString(fmt.Sprintf("• 密钥：%s\n", maskKey(cfg.Key)))
-	builder.WriteString(fmt.Sprintf("• 分隔符：%s\n", cfg.Separator))
-	builder.WriteString(fmt.Sprintf("• 响应@：%s\n", yesNo(!cfg.NoReplyAT)))
-	builder.WriteString(fmt.Sprintf("• 支持系统提示词：%s\n", yesNo(!cfg.NoSystemP)))
-	builder.WriteString(fmt.Sprintf("• 以AI语音输出：%s\n", yesNo(!cfg.NoRecord)))
-	return builder.String()
-}
-
-func maskKey(key string) string {
-	if len(key) <= 4 {
-		return "****"
-	}
-	return key[:2] + strings.Repeat("*", len(key)-4) + key[len(key)-2:]
-}
-
-func yesNo(b bool) string {
-	if b {
-		return "是"
-	}
-	return "否"
 }

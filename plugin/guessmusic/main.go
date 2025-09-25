@@ -15,7 +15,6 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
-	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	// 图片输出
@@ -65,17 +64,7 @@ var (
 			"- 下载歌单[网易云歌单链接/ID]到[歌单名称]\n" +
 			"- 解除绑定 [歌单名称]",
 		PrivateDataFolder: "guessmusic",
-	}).ApplySingle(single.New(
-		single.WithKeyFn(func(ctx *zero.Ctx) int64 { return ctx.Event.GroupID }),
-		single.WithPostFn[int64](func(ctx *zero.Ctx) {
-			ctx.Break()
-			ctx.Send(
-				message.ReplyWithMessage(ctx.Event.MessageID,
-					message.Text("已经有正在进行的游戏..."),
-				),
-			)
-		}),
-	))
+	}).ApplySingle(ctxext.NewGroupSingle("已经有正在进行的游戏..."))
 	// 用于存放歌曲三个片段的缓存文件夹
 	cachePath = engine.DataFolder() + "cache/"
 	// 用于存放用户的配置
