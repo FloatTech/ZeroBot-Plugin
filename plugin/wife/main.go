@@ -18,16 +18,16 @@ import (
 
 var (
 	cards  = []string{}
-	re     = regexp.MustCompile(`^\[(.*?)\](.*) - P\d+\..*$`)
+	re     = regexp.MustCompile(`^\[(.*?)\](.*)\..*$`)
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "- 抽老婆",
 		Brief:            "从老婆库抽每日老婆",
 		PublicDataFolder: "Wife",
 	}).ApplySingle(ctxext.DefaultSingle)
-	getJson = fcext.DoOnceOnSuccess(
+	getJSON = fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			data, err := engine.GetLazyData("wife.json", false)
+			data, err := engine.GetLazyData("wife.json", true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
@@ -53,7 +53,7 @@ func card2name(card string) (string, string) {
 
 func init() {
 	_ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
-	engine.OnFullMatch("抽老婆", getJson).SetBlock(true).
+	engine.OnFullMatch("抽老婆", getJSON).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			card := cards[fcext.RandSenderPerDayN(ctx.Event.UserID, len(cards))]
 			data, err := engine.GetLazyData("wives/"+card, true)
