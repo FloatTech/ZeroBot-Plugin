@@ -270,7 +270,7 @@ func init() {
 			ctx.SendChain(
 				message.Text(
 					"【当前AI聊天本群配置】\n",
-					"• 触发概率：", stor.rate(), "\n",
+					"• 触发概率：", int(stor.rate()), "\n",
 					"• 温度：", stor.temp(), "\n",
 					"• 以AI语音输出：", ModelBool(!stor.norecord()), "\n",
 					"• 使用Agent：", ModelBool(!stor.noagent()), "\n",
