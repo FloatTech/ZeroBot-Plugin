@@ -219,13 +219,13 @@ func init() {
 	en.OnPrefix("设置AI聊天识图密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ImageKey))
 	en.OnPrefix("设置AI聊天Agent密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(newextrasetstr(&cfg.ImageKey))
+		Handle(newextrasetstr(&cfg.AgentKey))
 	en.OnPrefix("设置AI聊天模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ModelName))
 	en.OnPrefix("设置AI聊天识图模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ImageModelName))
 	en.OnPrefix("设置AI聊天Agent模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(newextrasetstr(&cfg.ImageModelName))
+		Handle(newextrasetstr(&cfg.AgentModelName))
 	en.OnPrefix("设置AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.SystemP))
 	en.OnFullMatch("查看AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
