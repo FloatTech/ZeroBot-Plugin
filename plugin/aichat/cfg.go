@@ -93,17 +93,20 @@ func (mk ModelKey) String() string {
 type config struct {
 	ModelName      string
 	ImageModelName string
+	AgentModelName string
 	Type           ModelType
 	ImageType      ModelType
+	AgentType      ModelType
 	MaxN           uint
 	TopP           float32
 	SystemP        string
 	API            string
 	ImageAPI       string
+	AgentAPI       string
 	Key            ModelKey
 	ImageKey       ModelKey
+	AgentKey       ModelKey
 	Separator      string
-	NoReplyAT      ModelBool
 	NoSystemP      ModelBool
 }
 
@@ -130,7 +133,6 @@ func (c *config) String() string {
 	sb.WriteString(fmt.Sprintf("• 密钥：%v\n", c.Key))
 	sb.WriteString(fmt.Sprintf("• 图像密钥：%v\n", c.ImageKey))
 	sb.WriteString(fmt.Sprintf("• 分隔符：%s\n", c.Separator))
-	sb.WriteString(fmt.Sprintf("• 响应@：%v\n", !c.NoReplyAT))
 	sb.WriteString(fmt.Sprintf("• 支持系统提示词：%v\n", !c.NoSystemP))
 	return sb.String()
 }
@@ -259,6 +261,33 @@ func newextrasetfloat32(ptr *float32) func(ctx *zero.Ctx) {
 			return
 		}
 		*ptr = float32(n)
+		err = c.SetExtra(&cfg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	}
+}
+
+func newextrasetmodeltype(ptr *ModelType) func(ctx *zero.Ctx) {
+	return func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: no such plugin"))
+			return
+		}
+		typ, err := newModelType(args)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		*ptr = typ
 		err = c.SetExtra(&cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
