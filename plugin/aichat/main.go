@@ -103,7 +103,7 @@ func init() {
 		temperature := stor.temp()
 		topp, maxn := cfg.mparams()
 
-		if !stor.noagent() {
+		if !stor.noagent() && cfg.AgentAPI != "" && cfg.AgentModelName != "" {
 			x := deepinfra.NewAPI(cfg.AgentAPI, string(cfg.AgentKey))
 			mod, err := cfg.Type.protocol(cfg.AgentModelName, temperature, topp, maxn)
 			if err != nil {
