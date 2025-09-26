@@ -29,7 +29,7 @@ var (
 )
 
 func init() {
-	enguess.OnFullMatch("猜老婆").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
+	enguess.OnFullMatch("猜老婆", getJson).SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
 		class := 3
 
 		card := cards[rand.Intn(len(cards))]

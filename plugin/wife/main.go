@@ -18,28 +18,16 @@ import (
 
 var (
 	cards  = []string{}
-	re     = regexp.MustCompile(`^\[(.*?)\](.*)\..*$`)
+	re     = regexp.MustCompile(`^\[(.*?)\](.*) - P\d+\..*$`)
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "- 抽老婆",
 		Brief:            "从老婆库抽每日老婆",
 		PublicDataFolder: "Wife",
 	}).ApplySingle(ctxext.DefaultSingle)
-)
-
-func card2name(card string) (string, string) {
-	match := re.FindStringSubmatch(card)
-	if len(match) >= 3 {
-		return match[1], match[2]
-	}
-	return "", ""
-}
-
-func init() {
-	_ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
-	engine.OnFullMatch("抽老婆", fcext.DoOnceOnSuccess(
+	getJson = fcext.DoOnceOnSuccess(
 		func(ctx *zero.Ctx) bool {
-			data, err := engine.GetLazyData("wife.json", true)
+			data, err := engine.GetLazyData("wife.json", false)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return false
@@ -52,7 +40,20 @@ func init() {
 			logrus.Infof("[wife]加载%d个老婆", len(cards))
 			return true
 		},
-	)).SetBlock(true).
+	)
+)
+
+func card2name(card string) (string, string) {
+	match := re.FindStringSubmatch(card)
+	if len(match) >= 3 {
+		return match[1], match[2]
+	}
+	return "", ""
+}
+
+func init() {
+	_ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
+	engine.OnFullMatch("抽老婆", getJson).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			card := cards[fcext.RandSenderPerDayN(ctx.Event.UserID, len(cards))]
 			data, err := engine.GetLazyData("wives/"+card, true)
