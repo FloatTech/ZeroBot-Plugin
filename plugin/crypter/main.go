@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("crypter", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "奇怪语言加解密",
 		Help: "多种语言加解密插件\n" +

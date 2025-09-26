@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20250926165541-8ae591d47008
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20250926171956-ba37dfebfc4a
 	github.com/FloatTech/floatbox v0.0.0-20250513111443-adba80e84e80
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
@@ -48,9 +48,9 @@ require (
 	github.com/wcharczuk/go-chart/v2 v2.1.2
 	github.com/wdvxdr1123/ZeroBot v1.8.2-0.20250921063512-13752a73d444
 	gitlab.com/gomidi/midi/v2 v2.1.7
-	golang.org/x/image v0.31.0
+	golang.org/x/image v0.24.0
 	golang.org/x/sys v0.30.0
-	golang.org/x/text v0.29.0
+	golang.org/x/text v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -89,8 +89,6 @@ require (
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/vcaesar/cedar v0.20.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/exp/shiny v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/mobile v0.0.0-20231127183840-76ac6878050a // indirect
 	golang.org/x/net v0.33.0 // indirect
 	modernc.org/libc v1.61.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
