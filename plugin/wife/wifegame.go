@@ -2,16 +2,13 @@
 package wife
 
 import (
-	"errors"
+	"bytes"
+	"image"
 	"image/color"
-	"io/fs"
 	"math/rand"
-	"os"
 	"strings"
 	"time"
 
-	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/gg"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -32,25 +29,18 @@ var (
 )
 
 func init() {
-	// _ = os.MkdirAll(engine.DataFolder()+"wives", 0755)
 	enguess.OnFullMatch("猜老婆").SetBlock(true).Limit(ctxext.LimitByUser).Handle(func(ctx *zero.Ctx) {
-		var err error
 		class := 3
 
-		fileName, err := lottery()
+		card := cards[rand.Intn(len(cards))]
+		pic, err := engine.GetLazyData("wives/"+card, true)
 		if err != nil {
 			ctx.SendChain(message.Text("[猜老婆]error:\n", err))
 			return
 		}
-
-		work, name := card2name(fileName)
-		picFile := file.BOTPATH + "/" + engine.DataFolder() + "wives/" + fileName
-		pic, err := os.ReadFile(picFile)
-		if err != nil {
-			ctx.SendChain(message.Text("[猜老婆]error:\n", err))
-			return
-		}
-		img, err := gg.LoadImage(picFile)
+		work, name := card2name(card)
+		name = strings.ToLower(name)
+		img, _, err := image.Decode(bytes.NewReader(pic))
 		if err != nil {
 			ctx.SendChain(message.Text("[猜老婆]error:\n", err))
 			return
@@ -67,13 +57,13 @@ func init() {
 		if id := ctx.SendChain(
 			message.ImageBytes(q),
 		); id.ID() != 0 {
-			ctx.SendChain(message.Text("请回答该二次元角色名字\n以“xxx酱”格式回答"))
+			ctx.SendChain(message.Text("请回答该二次元角色名字\n以“xxx酱”格式回答\n发送“跳过”结束猜题"))
 		}
 		var next *zero.FutureEvent
 		if ctx.Event.GroupID == 0 {
-			next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(·)?.+酱$`), ctx.CheckSession())
+			next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(·)?[^酱]+酱|^跳过$`), ctx.CheckSession())
 		} else {
-			next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`(·)?.+酱$`), zero.CheckGroup(ctx.Event.GroupID))
+			next = zero.NewFutureEvent("message", 999, false, zero.RegexRule(`^(·)?[^酱]+酱|^跳过$`), zero.CheckGroup(ctx.Event.GroupID))
 		}
 		recv, cancel := next.Repeat()
 		defer cancel()
@@ -92,12 +82,22 @@ func init() {
 				)
 				return
 			case c := <-recv:
-				tick.Reset(105 * time.Second)
-				after.Reset(120 * time.Second)
-				msg := c.Event.Message.String()
-				msg, _, _ = strings.Cut(msg, "酱")
+				// tick.Reset(105 * time.Second)
+				// after.Reset(120 * time.Second)
+				msg := strings.ReplaceAll(c.Event.Message.String(), "酱", "")
+				if msg == "" {
+					continue
+				}
+				if msg == "跳过" {
+					if msgID := ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
+						message.Text("已跳过猜题\n角色是:\n", name, "\n出自《", work, "》\n"),
+						message.ImageBytes(pic))); msgID.ID() == 0 {
+						ctx.SendChain(message.Text("太棒了,你猜对了!\n图片发送失败,可能被风控\n角色是:\n", name, "\n出自《", work, "》"))
+					}
+					return
+				}
 				class--
-				if strings.Contains(name, msg) {
+				if strings.Contains(name, strings.ToLower(msg)) {
 					if msgID := ctx.Send(message.ReplyWithMessage(c.Event.MessageID,
 						message.Text("太棒了,你猜对了!\n角色是:\n", name, "\n出自《", work, "》\n"),
 						message.ImageBytes(pic))); msgID.ID() == 0 {
@@ -120,59 +120,18 @@ func init() {
 					)
 					continue
 				}
+				msg = ""
+				if class == 2 {
+					msg = "(提示：" + work + ")\n"
+				}
 				ctx.SendChain(
-					message.Text("回答错误,你还有", class, "次机会\n请继续作答(难度降低)\n"),
+					message.Text("回答错误,你还有", class, "次机会\n", msg, "请继续作答(难度降低)\n"),
 					message.ImageBytes(q),
 				)
 				continue
 			}
 		}
 	})
-}
-
-// 从本地图库随机抽取，规避网络问题
-func lottery() (fileName string, err error) {
-	path := engine.DataFolder() + "wives" + "/"
-	if file.IsNotExist(path) {
-		err = errors.New("图库文件夹不存在,请先发送“抽老婆”扩展图库")
-		return
-	}
-	files, err := os.ReadDir(path)
-	if err != nil {
-		return
-	}
-	// 如果本地列表为空
-	if len(files) == 0 {
-		err = errors.New("本地数据为0,请先发送“抽老婆”扩展图库")
-		return
-	}
-	fileName = randPicture(files, 10)
-	if fileName == "" {
-		err = errors.New("抽取图库轮空了,请重试")
-	}
-	return
-}
-
-func randPicture(files []fs.DirEntry, indexMax int) (fileName string) {
-	if len(files) > 1 {
-		picture := files[rand.Intn(len(files))]
-		// 如果是文件夹就递归
-		if picture.IsDir() {
-			indexMax--
-			if indexMax <= 0 {
-				return
-			}
-			fileName = randPicture(files, indexMax)
-		} else {
-			fileName = picture.Name()
-		}
-	} else {
-		music := files[0]
-		if !music.IsDir() {
-			fileName = files[0].Name()
-		}
-	}
-	return
 }
 
 // 马赛克生成
