@@ -571,7 +571,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>b站动态、专栏、视频、直播解析</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibiliparse"`
 
   - [x] t.bilibili.com/642277677329285174 | bilibili.com/read/cv17134450 | bilibili.com/video/BV13B4y1x7pS | live.bilibili.com/22603245
 
@@ -579,7 +579,7 @@ print("run[CQ:image,file="+j["img"]+"]")
 <details>
   <summary>b站动态、直播推送,需要配合job一起使用</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibili"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/bilibilipush"`
 
   - [x] 添加b站订阅[uid|name]
 
