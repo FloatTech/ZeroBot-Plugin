@@ -82,7 +82,7 @@ func init() {
 		}
 		ctx.State["__aichat_stor__"] = stor
 		return ctx.ExtractPlainText() != "" &&
-			(bool(!stor.noreplyat()) || (bool(stor.noreplyat()) && !ctx.Event.IsToMe))
+			(!stor.noreplyat() || (stor.noreplyat() && !ctx.Event.IsToMe))
 	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
