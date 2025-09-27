@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"regexp"
 	"sort"
 	"strconv"
 	"time"
@@ -31,7 +30,6 @@ import (
 )
 
 var (
-	re             = regexp.MustCompile(`^\d+$`)
 	danmakuTypeMap = map[int64]string{
 		0: "普通消息",
 		1: "礼物",
@@ -73,7 +71,7 @@ func init() {
 		}
 		return true
 	})
-	engine.OnRegex(`^>user info\s?(.{1,25})$`, getPara).SetBlock(true).
+	engine.OnRegex(`^>user info\s?(.{1,25})$`, bz.RequireUser(cfg)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
 			card, err := bz.GetMemberCard(id)
@@ -91,7 +89,7 @@ func init() {
 			))
 		})
 
-	engine.OnRegex(`^>vup info\s?(.{1,25})$`, getPara).SetBlock(true).
+	engine.OnRegex(`^>vup info\s?(.{1,25})$`, bz.RequireUser(cfg)).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
 			// 获取详情
@@ -114,7 +112,7 @@ func init() {
 			))
 		})
 
-	engine.OnRegex(`^查成分\s?(.{1,25})$`, getPara, getdb).SetBlock(true).
+	engine.OnRegex(`^查成分\s?(.{1,25})$`, bz.RequireUser(cfg), getdb).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			id := ctx.State["uid"].(string)
 			today := time.Now().Format("20060102")
@@ -134,7 +132,7 @@ func init() {
 				return
 			}
 			vupLen := len(vups)
-			medals, err := bz.GetMedalWall(cfg, id)
+			medals, err := cfg.GetMedalWall(id)
 			sort.Sort(bz.MedalSorter(medals))
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -275,7 +273,7 @@ func init() {
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
 
-	engine.OnRegex(`^查弹幕\s?(\S{1,25})\s?(\d*)$`, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	engine.OnRegex(`^查弹幕\s?(\S{1,25})\s?(\d*)$`, bz.RequireUser(cfg)).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		id := ctx.State["uid"].(string)
 		pagenum := ctx.State["regex_matched"].([]string)[2]
 		if pagenum == "" {
@@ -581,52 +579,4 @@ func int2rbg(t int64) (int64, int64, int64) {
 	binary.LittleEndian.PutUint64(buf[:], uint64(t))
 	b, g, r := int64(buf[0]), int64(buf[1]), int64(buf[2])
 	return r, g, b
-}
-
-func getPara(ctx *zero.Ctx) bool {
-	keyword := ctx.State["regex_matched"].([]string)[1]
-	if !re.MatchString(keyword) {
-		searchRes, err := bz.SearchUser(cfg, keyword)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return false
-		}
-		ctx.State["uid"] = strconv.FormatInt(searchRes[0].Mid, 10)
-		return true
-	}
-	next := zero.NewFutureEvent("message", 999, false, ctx.CheckSession())
-	recv, cancel := next.Repeat()
-	defer cancel()
-	ctx.SendChain(message.Text("输入为纯数字, 请选择查询uid还是用户名, 输入对应序号：\n0. 查询uid\n1. 查询用户名"))
-	for {
-		select {
-		case <-time.After(time.Second * 10):
-			ctx.SendChain(message.Text("时间太久啦！", zero.BotConfig.NickName[0], "帮你选择查询uid"))
-			ctx.State["uid"] = keyword
-			return true
-		case c := <-recv:
-			msg := c.Event.Message.ExtractPlainText()
-			num, err := strconv.Atoi(msg)
-			if err != nil {
-				ctx.SendChain(message.Text("请输入数字!"))
-				continue
-			}
-			if num < 0 || num > 1 {
-				ctx.SendChain(message.Text("序号非法!"))
-				continue
-			}
-			if num == 0 {
-				ctx.State["uid"] = keyword
-				return true
-			} else if num == 1 {
-				searchRes, err := bz.SearchUser(cfg, keyword)
-				if err != nil {
-					ctx.SendChain(message.Text("ERROR: ", err))
-					return false
-				}
-				ctx.State["uid"] = strconv.FormatInt(searchRes[0].Mid, 10)
-				return true
-			}
-		}
-	}
 }

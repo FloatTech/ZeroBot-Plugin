@@ -4,15 +4,15 @@ go 1.20
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20250901143505-180d33844860
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20250926171956-ba37dfebfc4a
 	github.com/FloatTech/floatbox v0.0.0-20250513111443-adba80e84e80
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
 	github.com/FloatTech/rendercard v0.2.0
-	github.com/FloatTech/sqlite v1.7.1
+	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20240716161252-965925764562
 	github.com/FloatTech/zbpctrl v1.7.0
-	github.com/FloatTech/zbputils v1.7.2-0.20250925155009-638ed762e15e
+	github.com/FloatTech/zbputils v1.7.2-0.20250926153026-d616e2b87477
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20220227141055-9b2c6168c9c5
 	github.com/Tnze/go-mc v1.20.2
@@ -24,12 +24,12 @@ require (
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa
 	github.com/fumiama/go-base16384 v1.7.0
-	github.com/fumiama/go-onebot-agent v0.0.0-20250925150209-46ace7c2b17a
+	github.com/fumiama/go-onebot-agent v0.0.0-20250926145606-37ebfa6131c8
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
-	github.com/fumiama/terasu v0.0.0-20241027183601-987ab91031ce
+	github.com/fumiama/terasu v0.0.0-20250409134005-3ac40e382e6c
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
 	github.com/go-ego/gse v0.80.3
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
@@ -96,8 +96,6 @@ require (
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/vcaesar/cedar v0.20.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/exp/shiny v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/mobile v0.0.0-20231127183840-76ac6878050a // indirect
 	golang.org/x/net v0.33.0 // indirect
 	modernc.org/libc v1.61.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect

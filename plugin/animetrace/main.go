@@ -23,7 +23,7 @@ import (
 )
 
 func init() {
-	engine := control.Register("animetrace", &ctrl.Options[*zero.Ctx]{
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "AnimeTrace 动画/Galgame识别插件",
 		Help:             "- Gal识图\n- 动漫识图\n- 动漫识图 2\n- 动漫识图 [模型名]\n- Gal识图 [模型名]",

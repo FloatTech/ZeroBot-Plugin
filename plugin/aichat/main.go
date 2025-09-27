@@ -34,12 +34,12 @@ var (
 		Brief:            "OpenAI聊天",
 		Help: "- 设置AI聊天触发概率10\n" +
 			"- 设置AI聊天温度80\n" +
-			"- 设置AI聊天(识图)接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天(识图|Agent)接口类型[OpenAI|OLLaMA|GenAI]\n" +
 			"- 设置AI聊天(不)使用Agent模式\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
-			"- 设置AI聊天(识图)接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
-			"- 设置AI聊天(识图)密钥xxx\n" +
-			"- 设置AI聊天(识图)模型名Qwen/Qwen3-8B\n" +
+			"- 设置AI聊天(识图|Agent)接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
+			"- 设置AI聊天(识图|Agent)密钥xxx\n" +
+			"- 设置AI聊天(识图|Agent)模型名Qwen/Qwen3-8B\n" +
 			"- 查看AI聊天系统提示词\n" +
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
@@ -71,9 +71,6 @@ var (
 
 func init() {
 	en.OnMessage(ensureconfig, func(ctx *zero.Ctx) bool {
-		return ctx.ExtractPlainText() != "" &&
-			(bool(!cfg.NoReplyAT) || (bool(cfg.NoReplyAT) && !ctx.Event.IsToMe))
-	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
@@ -81,8 +78,17 @@ func init() {
 		stor, err := newstorage(ctx, gid)
 		if err != nil {
 			logrus.Warnln("ERROR: ", err)
-			return
+			return false
 		}
+		ctx.State["__aichat_stor__"] = stor
+		return ctx.ExtractPlainText() != "" &&
+			(!stor.noreplyat() || (stor.noreplyat() && !ctx.Event.IsToMe))
+	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+		gid := ctx.Event.GroupID
+		if gid == 0 {
+			gid = -ctx.Event.UserID
+		}
+		stor := ctx.State["__aichat_stor__"].(storage)
 		rate := stor.rate()
 		if !ctx.Event.IsToMe && rand.Intn(100) >= int(rate) {
 			return
@@ -97,14 +103,13 @@ func init() {
 		temperature := stor.temp()
 		topp, maxn := cfg.mparams()
 
-		x := deepinfra.NewAPI(cfg.API, string(cfg.Key))
-		mod, err := cfg.Type.protocol(cfg.ModelName, temperature, topp, maxn)
-		if err != nil {
-			logrus.Warnln("ERROR: ", err)
-			return
-		}
-
-		if !stor.noagent() {
+		if !stor.noagent() && cfg.AgentAPI != "" && cfg.AgentModelName != "" {
+			x := deepinfra.NewAPI(cfg.AgentAPI, string(cfg.AgentKey))
+			mod, err := cfg.Type.protocol(cfg.AgentModelName, temperature, topp, maxn)
+			if err != nil {
+				logrus.Warnln("ERROR: ", err)
+				return
+			}
 			role := goba.PermRoleUser
 			if zero.AdminPermission(ctx) {
 				role = goba.PermRoleAdmin
@@ -122,11 +127,13 @@ func init() {
 				ag.SetViewImageAPI(deepinfra.NewAPI(cfg.ImageAPI, string(cfg.ImageKey)), mod)
 			}
 			ctx.NoTimeout()
+			hasresp := false
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
 				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), x, mod, gid, role)
 				if len(reqs) == 0 {
-					return
+					break
 				}
+				hasresp = true
 				for _, req := range reqs {
 					resp := ctx.CallAction(req.Action, req.Params)
 					logrus.Infoln("[aichat] agent get resp:", reqs)
@@ -139,9 +146,19 @@ func init() {
 					})
 				}
 			}
-			return
+			if hasresp {
+				ag.AddTerminus(gid)
+				return
+			}
+			// no response, fall back to normal chat
 		}
 
+		x := deepinfra.NewAPI(cfg.API, string(cfg.Key))
+		mod, err := cfg.Type.protocol(cfg.ModelName, temperature, topp, maxn)
+		if err != nil {
+			logrus.Warnln("ERROR: ", err)
+			return
+		}
 		data, err := x.Request(chat.GetChatContext(mod, gid, cfg.SystemP, bool(cfg.NoSystemP)))
 		if err != nil {
 			logrus.Warnln("[aichat] post err:", err)
@@ -181,68 +198,34 @@ func init() {
 			}
 		}
 	})
-	en.OnPrefix("设置AI聊天触发概率", zero.AdminPermission).SetBlock(true).Handle(newstoragebitmap(bitmaprate, 0, 100))
-	en.OnPrefix("设置AI聊天温度", zero.AdminPermission).SetBlock(true).Handle(newstoragebitmap(bitmaptemp, 0, 100))
-	en.OnPrefix("设置AI聊天接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := strings.TrimSpace(ctx.State["args"].(string))
-		if args == "" {
-			ctx.SendChain(message.Text("ERROR: empty args"))
-			return
-		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
-			ctx.SendChain(message.Text("ERROR: no such plugin"))
-			return
-		}
-		typ, err := newModelType(args)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		cfg.Type = typ
-		err = c.SetExtra(&cfg)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
-			return
-		}
-		ctx.SendChain(message.Text("成功"))
-	})
-	en.OnPrefix("设置AI聊天识图接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
-		args := strings.TrimSpace(ctx.State["args"].(string))
-		if args == "" {
-			ctx.SendChain(message.Text("ERROR: empty args"))
-			return
-		}
-		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
-		if !ok {
-			ctx.SendChain(message.Text("ERROR: no such plugin"))
-			return
-		}
-		typ, err := newModelType(args)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return
-		}
-		cfg.ImageType = typ
-		err = c.SetExtra(&cfg)
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
-			return
-		}
-		ctx.SendChain(message.Text("成功"))
-	})
+	en.OnPrefix("设置AI聊天触发概率", zero.AdminPermission).SetBlock(true).
+		Handle(ctxext.NewStorageSaveBitmapHandler(bitmaprate, 0, 100))
+	en.OnPrefix("设置AI聊天温度", zero.AdminPermission).SetBlock(true).
+		Handle(ctxext.NewStorageSaveBitmapHandler(bitmaptemp, 0, 100))
+	en.OnPrefix("设置AI聊天接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetmodeltype(&cfg.Type))
+	en.OnPrefix("设置AI聊天识图接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetmodeltype(&cfg.ImageType))
+	en.OnPrefix("设置AI聊天Agent接口类型", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetmodeltype(&cfg.AgentType))
 	en.OnPrefix("设置AI聊天接口地址", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.API))
 	en.OnPrefix("设置AI聊天识图接口地址", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ImageAPI))
+	en.OnPrefix("设置AI聊天Agent接口地址", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetstr(&cfg.AgentAPI))
 	en.OnPrefix("设置AI聊天密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.Key))
 	en.OnPrefix("设置AI聊天识图密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ImageKey))
+	en.OnPrefix("设置AI聊天Agent密钥", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetstr(&cfg.AgentKey))
 	en.OnPrefix("设置AI聊天模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ModelName))
 	en.OnPrefix("设置AI聊天识图模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.ImageModelName))
+	en.OnPrefix("设置AI聊天Agent模型名", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(newextrasetstr(&cfg.AgentModelName))
 	en.OnPrefix("设置AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.SystemP))
 	en.OnFullMatch("查看AI聊天系统提示词", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
@@ -265,17 +248,17 @@ func init() {
 	en.OnPrefix("设置AI聊天分隔符", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.Separator))
 	en.OnRegex("^设置AI聊天(不)?响应AT$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(newextrasetbool(&cfg.NoReplyAT))
+		Handle(ctxext.NewStorageSaveBoolHandler(bitmapnrat))
 	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoSystemP))
 	en.OnRegex("^设置AI聊天(不)?使用Agent模式$", ensureconfig, zero.SuperUserPermission).SetBlock(true).
-		Handle(newstoragebool(bitmapnagt))
+		Handle(ctxext.NewStorageSaveBoolHandler(bitmapnagt))
 	en.OnPrefix("设置AI聊天最大长度", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetuint(&cfg.MaxN))
 	en.OnPrefix("设置AI聊天TopP", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetfloat32(&cfg.TopP))
 	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", ensureconfig, zero.AdminPermission).SetBlock(true).
-		Handle(newstoragebool(bitmapnrec))
+		Handle(ctxext.NewStorageSaveBoolHandler(bitmapnrec))
 	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
@@ -287,10 +270,11 @@ func init() {
 			ctx.SendChain(
 				message.Text(
 					"【当前AI聊天本群配置】\n",
-					"• 触发概率：", stor.rate(), "\n",
+					"• 触发概率：", int(stor.rate()), "\n",
 					"• 温度：", stor.temp(), "\n",
 					"• 以AI语音输出：", ModelBool(!stor.norecord()), "\n",
 					"• 使用Agent：", ModelBool(!stor.noagent()), "\n",
+					"• 响应@：", ModelBool(!stor.noreplyat()), "\n",
 				),
 				message.Text("【当前AI聊天全局配置】\n", &cfg),
 			)

@@ -1,4 +1,4 @@
-package bilibili
+package bilibilipush
 
 import (
 	"encoding/json"

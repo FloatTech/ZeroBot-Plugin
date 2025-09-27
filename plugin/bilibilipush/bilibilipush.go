@@ -1,5 +1,5 @@
-// Package bilibili b站推送
-package bilibili
+// Package bilibilipush b站推送
+package bilibilipush
 
 import (
 	"bytes"
@@ -34,10 +34,11 @@ var (
 	lastTime   = map[int64]int64{}
 	liveStatus = map[int64]int{}
 	upMap      = map[int64]string{}
+	cfg        = bz.NewCookieConfig("data/Bilibili/config.json")
 )
 
 func init() {
-	en := control.Register("bilibilipush", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "b站推送",
 		Help: "- 添加b站订阅[uid|name]\n" +
@@ -75,7 +76,7 @@ func init() {
 		ctx.SendChain(message.Text("已关闭艾特全体Oo"))
 	})
 
-	en.OnRegex(`^添加[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^添加[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, bz.RequireUser(cfg)).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid, cfg)
 		if err != nil || name == "" {
@@ -93,7 +94,7 @@ func init() {
 		ctx.SendChain(message.Text("已添加" + name + "的订阅"))
 	})
 
-	en.OnRegex(`^取消[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消[B|b]站订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, bz.RequireUser(cfg)).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid, cfg)
 		if err != nil {
@@ -110,7 +111,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的订阅"))
 	})
-	en.OnRegex(`^取消[B|b]站动态订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消[B|b]站动态订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, bz.RequireUser(cfg)).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		name, err := getName(buid, cfg)
 		if err != nil {
@@ -127,7 +128,7 @@ func init() {
 		}
 		ctx.SendChain(message.Text("已取消" + name + "的动态订阅"))
 	})
-	en.OnRegex(`^取消[B|b]站直播订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, getPara).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^取消[B|b]站直播订阅\s?(.{1,25})$`, zero.UserOrGrpAdmin, bz.RequireUser(cfg)).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		buid, _ := strconv.ParseInt(ctx.State["uid"].(string), 10, 64)
 		gid := ctx.Event.GroupID
 		if gid == 0 {
@@ -333,7 +334,7 @@ func sendDynamic(ctx *zero.Ctx) error {
 						err = errors.Errorf("动态%v的解析有问题,%v", cardList[i].Get("desc.dynamic_id_str"), err)
 						return err
 					}
-					msg, err := dynamicCard2msg(&dc)
+					msg, err := dc.ToMessage()
 					if err != nil {
 						err = errors.Errorf("动态%v的解析有问题,%v", cardList[i].Get("desc.dynamic_id_str"), err)
 						return err

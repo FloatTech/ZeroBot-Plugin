@@ -93,17 +93,20 @@ func (mk ModelKey) String() string {
 type config struct {
 	ModelName      string
 	ImageModelName string
+	AgentModelName string
 	Type           ModelType
 	ImageType      ModelType
+	AgentType      ModelType
 	MaxN           uint
 	TopP           float32
 	SystemP        string
 	API            string
 	ImageAPI       string
+	AgentAPI       string
 	Key            ModelKey
 	ImageKey       ModelKey
+	AgentKey       ModelKey
 	Separator      string
-	NoReplyAT      ModelBool
 	NoSystemP      ModelBool
 }
 
@@ -120,17 +123,20 @@ func (c *config) String() string {
 	sb := strings.Builder{}
 	sb.WriteString(fmt.Sprintf("• 模型名：%s\n", c.ModelName))
 	sb.WriteString(fmt.Sprintf("• 图像模型名：%s\n", c.ImageModelName))
+	sb.WriteString(fmt.Sprintf("• Agent模型名：%s\n", c.AgentModelName))
 	sb.WriteString(fmt.Sprintf("• 接口类型：%v\n", c.Type))
 	sb.WriteString(fmt.Sprintf("• 图像接口类型：%v\n", c.ImageType))
+	sb.WriteString(fmt.Sprintf("• Agent接口类型：%v\n", c.AgentType))
 	sb.WriteString(fmt.Sprintf("• 最大长度：%d\n", maxn))
 	sb.WriteString(fmt.Sprintf("• TopP：%.1f\n", topp))
 	sb.WriteString(fmt.Sprintf("• 系统提示词：%s\n", c.SystemP))
 	sb.WriteString(fmt.Sprintf("• 接口地址：%s\n", c.API))
 	sb.WriteString(fmt.Sprintf("• 图像接口地址：%s\n", c.ImageAPI))
+	sb.WriteString(fmt.Sprintf("• Agent接口地址：%s\n", c.AgentAPI))
 	sb.WriteString(fmt.Sprintf("• 密钥：%v\n", c.Key))
 	sb.WriteString(fmt.Sprintf("• 图像密钥：%v\n", c.ImageKey))
+	sb.WriteString(fmt.Sprintf("• Agent密钥：%v\n", c.AgentKey))
 	sb.WriteString(fmt.Sprintf("• 分隔符：%s\n", c.Separator))
-	sb.WriteString(fmt.Sprintf("• 响应@：%v\n", !c.NoReplyAT))
 	sb.WriteString(fmt.Sprintf("• 支持系统提示词：%v\n", !c.NoSystemP))
 	return sb.String()
 }
@@ -259,6 +265,33 @@ func newextrasetfloat32(ptr *float32) func(ctx *zero.Ctx) {
 			return
 		}
 		*ptr = float32(n)
+		err = c.SetExtra(&cfg)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
+			return
+		}
+		ctx.SendChain(message.Text("成功"))
+	}
+}
+
+func newextrasetmodeltype(ptr *ModelType) func(ctx *zero.Ctx) {
+	return func(ctx *zero.Ctx) {
+		args := strings.TrimSpace(ctx.State["args"].(string))
+		if args == "" {
+			ctx.SendChain(message.Text("ERROR: empty args"))
+			return
+		}
+		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
+		if !ok {
+			ctx.SendChain(message.Text("ERROR: no such plugin"))
+			return
+		}
+		typ, err := newModelType(args)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		*ptr = typ
 		err = c.SetExtra(&cfg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
