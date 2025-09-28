@@ -2,22 +2,22 @@
 package dailynews
 
 import (
-	"github.com/FloatTech/floatbox/binary"
+	"encoding/base64"
+
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/tidwall/gjson"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-const api = "http://dwz.2xb.cn/zaob"
+const api = "https://uapis.cn/api/v1/daily/news-image"
 
 func init() {
-	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
-		DisableOnDefault:  false,
-		Brief:             "今日早报",
-		Help:              "- 今日早报",
+	engine := control.Register("dailynews", &ctrl.Options[*zero.Ctx]{
+		DisableOnDefault: false,
+		Brief:            "今日早报",
+		Help:             "- 今日早报",
 		PrivateDataFolder: "dailynews",
 	})
 
@@ -28,7 +28,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			picURL := gjson.Get(binary.BytesToString(data), "imageUrl").String()
-			ctx.SendChain(message.Image(picURL))
+			ctx.SendChain(message.Image("base64://" + base64.StdEncoding.EncodeToString(data)))
 		})
 }
