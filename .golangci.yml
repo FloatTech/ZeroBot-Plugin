@@ -56,7 +56,7 @@ run:
   deadline: 5m
   issues-exit-code: 1
   tests: false
-  go: '1.20'
+  go: '1.25'
 
 # output configuration options
 output:
