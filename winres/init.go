@@ -1,4 +1,4 @@
 // Package winres 生成windows资源
 package winres
 
-//go:generate env GOOS= GOARCH= go run github.com/FloatTech/ZeroBot-Plugin/winres/gen
+//go:generate go run github.com/FloatTech/ZeroBot-Plugin/winres/gen
