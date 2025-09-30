@@ -39,7 +39,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w
+      - -s -w -checklinkname=0
 
 checksum:
   name_template: "zbp_checksums.txt"
