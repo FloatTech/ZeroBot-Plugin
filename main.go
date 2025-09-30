@@ -1,7 +1,7 @@
 // Package main ZeroBot-Plugin main file
 package main
 
-//go:generate cp main.go abineundo/ref/main
+//go:generate env GOOS= GOARCH= go run github.com/FloatTech/ZeroBot-Plugin/abineundo/ref -r .
 
 import (
 	"encoding/json"

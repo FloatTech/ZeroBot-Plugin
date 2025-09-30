@@ -4,7 +4,6 @@ env:
 before:
   hooks:
     - go mod tidy
-    - if [ ! -f custom/register.go ]; then touch custom/register.go; fi
     - go generate ./...
     - go install github.com/tc-hib/go-winres@latest
     - go-winres make

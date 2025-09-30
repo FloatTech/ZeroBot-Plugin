@@ -10,7 +10,7 @@ import (
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
 
-//go:generate go run github.com/FloatTech/ZeroBot-Plugin/kanban/gen
+//go:generate env GOOS= GOARCH= go run github.com/FloatTech/ZeroBot-Plugin/kanban/gen
 
 func init() {
 	PrintBanner()

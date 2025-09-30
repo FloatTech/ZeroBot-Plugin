@@ -36,7 +36,6 @@ jobs:
       - name: Tidy Modules
         run: |
           go mod tidy
-          if [ ! -f custom/register.go ]; then touch custom/register.go; fi
           go generate ./...
 
       - name: golangci-lint
