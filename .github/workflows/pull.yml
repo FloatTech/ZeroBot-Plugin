@@ -36,7 +36,7 @@ jobs:
       - name: Tidy Modules
         run: |
           go mod tidy
-          go generate ./...
+           go generate main.go
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@master
