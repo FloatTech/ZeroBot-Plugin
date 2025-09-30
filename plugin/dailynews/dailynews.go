@@ -2,8 +2,6 @@
 package dailynews
 
 import (
-	"encoding/base64"
-
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -14,10 +12,10 @@ import (
 const api = "https://uapis.cn/api/v1/daily/news-image"
 
 func init() {
-	engine := control.Register("dailynews", &ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "今日早报",
-		Help:             "- 今日早报",
+	engine := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
+		DisableOnDefault:  false,
+		Brief:             "今日早报",
+		Help:              "- 今日早报",
 		PrivateDataFolder: "dailynews",
 	})
 
@@ -28,6 +26,6 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			ctx.SendChain(message.Image("base64://" + base64.StdEncoding.EncodeToString(data)))
+			ctx.SendChain(message.ImageBytes(data))
 		})
 }
