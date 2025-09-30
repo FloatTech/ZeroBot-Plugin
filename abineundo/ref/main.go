@@ -27,8 +27,10 @@ func main() {
 	fo.Close()
 
 	regf := path.Join(*root, "custom/register.go")
+	tgtf := path.Join(*root, "abineundo/ref/custom/register.go")
 	if _, err := os.Stat(regf); err != nil {
 		if os.IsNotExist(err) {
+			_ = os.WriteFile(tgtf, []byte("package custom\n"), 0644)
 			return
 		}
 		panic(err)
@@ -38,7 +40,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fo, err = os.Create(path.Join(*root, "abineundo/ref/custom/register.go"))
+	fo, err = os.Create(tgtf)
 	if err != nil {
 		panic(err)
 	}
