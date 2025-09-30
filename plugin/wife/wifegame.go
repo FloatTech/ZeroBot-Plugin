@@ -21,7 +21,7 @@ import (
 
 var (
 	sizeList = []int{0, 3, 5, 8}
-	enguess  = control.Register("wifegame", &ctrl.Options[*zero.Ctx]{
+	enguess  = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Help:             "- 猜老婆",
 		Brief:            "从老婆库猜老婆",

@@ -8,13 +8,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@master
         with:
-          go-version: '1.20'
+          go-version: '1.24'
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@master
+        with:
+          fetch-depth: 0
 
       - name: Tidy Modules
-        run: go mod tidy
+        run: |
+          go mod tidy
+          go generate main.go
 
       - name: Run Lint
         uses: golangci/golangci-lint-action@master
