@@ -32,11 +32,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: Tidy Modules
         run: |
           go mod tidy
-           go generate main.go
+          go generate main.go
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@master

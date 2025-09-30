@@ -27,6 +27,8 @@ jobs:
       fail-fast: true
     steps:
       - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
       - name: Setup Go environment
         uses: actions/setup-go@master
         with:
