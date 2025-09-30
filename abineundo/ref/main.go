@@ -1,3 +1,4 @@
+// Package main generate necessary files that needed for compiling
 package main
 
 import (
@@ -30,7 +31,7 @@ func main() {
 	tgtf := path.Join(*root, "abineundo/ref/custom/register.go")
 	if _, err := os.Stat(regf); err != nil {
 		if os.IsNotExist(err) {
-			_ = os.WriteFile(tgtf, []byte("package custom\n"), 0644)
+			_ = os.WriteFile(tgtf, []byte("// Package custom ...\npackage custom\n"), 0644)
 			return
 		}
 		panic(err)
