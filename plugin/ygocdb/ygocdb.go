@@ -1,13 +1,12 @@
-// Package ygo 一些关于ygo的插件
-package ygo
+// Package ygocdb 游戏王卡查插件
+package ygocdb
 
 import (
+	"encoding/json"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
-
-	"encoding/json"
 
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
@@ -39,7 +38,7 @@ type searchResult struct {
 }
 
 func init() {
-	en := control.Register("ygocdb", &ctrl.Options[*zero.Ctx]{
+	en := control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "游戏王百鸽API", // 本插件基于游戏王百鸽API"https://www.ygo-sem.cn/"
 		Help: "- /ydp [xxx]\n" +

@@ -6,7 +6,7 @@ env:
   BINARY_PREFIX: "zbp_"
   BINARY_SUFFIX: ""
   PR_PROMPT: "::warning:: Build artifact will not be uploaded due to the workflow is trigged by pull request."
-  LD_FLAGS: "-w -s"
+  LD_FLAGS: "-w -s -checklinkname=0"
 
 jobs:
   build:
@@ -27,10 +27,12 @@ jobs:
       fail-fast: true
     steps:
       - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
       - name: Setup Go environment
         uses: actions/setup-go@master
         with:
-          go-version: '1.20'
+          go-version: '1.25'
       - name: Cache downloaded module
         uses: actions/cache@master
         continue-on-error: true
@@ -45,6 +47,7 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           IS_PR: ${{ !!github.head_ref }}
         run: |
+          GOOS= GOARCH= go generate ./...
           if [ $GOOS = "windows" ]; then export BINARY_SUFFIX="$BINARY_SUFFIX.exe"; fi
           if $IS_PR ; then echo $PR_PROMPT; fi
           export BINARY_NAME="$BINARY_PREFIX$GOOS_$GOARCH$BINARY_SUFFIX"

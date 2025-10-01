@@ -1474,50 +1474,6 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 每日特惠
 </details>
 <details>
-  <summary>百度文心AI</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wenxinAI"`
-
-  基于百度文心API的一些功能
-
-  key申请链接：https://wenxin.baidu.com/moduleApi/key
-  
-  - [x] 为[自己/本群/QQ号/群+群号]设置文心key [API Key] [Secret Key]
-  
-  - [x] 为[自己/本群/QQ号/群+群号]设置画图key [API Key] [Secret Key]
-  
-  例：“为10086设置画图key 123 456”；“为群10010设置画图key 789 101”
-  
-  文心key和画图key的API key 可以是相同的，只是文心key日限为200，画图日限为50，以此作区别。
-  
-  - [x] 文心作文 (x字的)[作文题目]
-  
-  - [x] 文心提案 (x字的)[文案标题]
-  
-  - [x] 文心摘要 (x字的)[文章内容]
-  
-  - [x] 文心小说 (x字的)[小说上文]
-  
-  - [x] 文心对联 [上联]
-  
-  - [x] 文心问答 [问题]
-	
-  - [x] 文心补全 [带“_”的填空题]
-  
-  - [x] 文心自定义 [prompt]
-
-  - [x] [bot名称]画几张[图片描述]的[图片类型][图片尺寸]
-
-  指令示例：
-
-  - 文心作文 我的椛椛机器人
-
-  - 文心作文 300字的我的椛椛机器人
-
-  - 椛椛帮我画几张金凤凰，背景绚烂，高饱和，古风，仙境，高清，4K，古风的油画方图
-
-</details>
-<details>
   <summary>抽老婆</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/wife"`
@@ -1560,27 +1516,27 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>一些游戏王插件</summary>
+  <summary>游戏王白鸽API卡查</summary>
 
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygo"`
-  
-  ##### 白鸽API卡查
-	    
-  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygocdb.go"`
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygocdb"`
+
   - [x] /ydp [xxx]
   - [x] /yds [xxx]
   - [x] /ydb [xxx]
   - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
-	
-  ##### 集换社卡价查询
 
-  ###### `"github.com/FloatTech/ZeroBot-Plugin/plugin/ygo/ygotrade.go"`
+</details>
+<details>
+  <summary>游戏王集换社卡价查询</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygotrade"`
+
   - [x] 查卡价 [卡名]
   - [x] 查卡价 [卡名] -r [稀有度 稀有度 ...]
   - [x] 查卡店  [卡名]
   - [x] 查卡店  [卡名] -r [稀有度]
   - 注：卡店只支持单个稀有度查询
-	
+
 </details>
 <details>
   <summary>月幕galgame图</summary>
@@ -1736,15 +1692,15 @@ go mod tidy
 
 ```bash
 # 本机平台
-go build -ldflags "-s -w" -o zerobot -trimpath
+go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
 # x64 Linux 平台 如各种云服务器
-GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o zerobot -trimpath
+GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
 # x64 Windows 平台 如大多数家用电脑
-GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o zerobot.exe -trimpath
+GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -checklinkname=0" -o zerobot.exe -trimpath
 # armv6 Linux 平台 如树莓派 zero W
-GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot -trimpath
+GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
 # （由于引入了github.com/fumiama/sqlite3，本项不再可用）mips Linux 平台 如 路由器 wndr4300
-GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot -trimpath
+GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
 ```
 
 5. 运行 OneBot 框架，并同时运行本插件

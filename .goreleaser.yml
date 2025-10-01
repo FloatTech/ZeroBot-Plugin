@@ -4,6 +4,7 @@ env:
 before:
   hooks:
     - go mod tidy
+    - go generate ./...
     - go install github.com/tc-hib/go-winres@latest
     - go-winres make
 builds:
@@ -25,7 +26,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w
+      - -s -w -checklinkname=0
   - id: win
     env:
       - CGO_ENABLED=0
@@ -38,7 +39,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w
+      - -s -w -checklinkname=0
 
 checksum:
   name_template: "zbp_checksums.txt"

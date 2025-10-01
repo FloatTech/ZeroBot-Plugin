@@ -56,7 +56,7 @@ run:
   deadline: 5m
   issues-exit-code: 1
   tests: false
-  go: '1.20'
+  go: '1.24'
 
 # output configuration options
 output:
@@ -64,12 +64,12 @@ output:
    - format: "colored-line-number"
   print-issued-lines: true
   print-linter-name: true
-  uniq-by-line: true
 
 issues:
   # Fix found issues (if it's supported by the linter)
   fix: true
   exclude-use-default: false
+  uniq-by-line: true
   exclude:
     - "Error return value of .((os.)?std(out|err)..*|.*Close|.*Seek|.*Flush|os.Remove(All)?|.*print(f|ln)?|os.(Un)?Setenv). is not check"
     - 'identifier ".*" contain non-ASCII character: U\+.*'
