@@ -1286,6 +1286,17 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>RSSHub</summary>
+
+`import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/rsshub"`
+
+- [x] 添加rsshub订阅-/bookfere/weekly
+- [x] 删除rsshub订阅-/bookfere/weekly
+- [x] 查看rsshub订阅列表  
+- [x] rsshub同步  (使用job执行定时任务------记录在"@every 10m"触发的指令) 
+
+</details>
+<details>
   <summary>在线代码运行</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"`
