@@ -2,6 +2,7 @@
 package wordcount
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"regexp"
@@ -10,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-ego/gse"
+	"github.com/fumiama/jieba"
 	"github.com/golang/freetype"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
@@ -26,13 +27,11 @@ import (
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
-	"github.com/wdvxdr1123/ZeroBot/utils/helper"
 )
 
 var (
 	re        = regexp.MustCompile(`^[一-龥]+$`)
 	stopwords []string
-	seg       gse.Segmenter
 )
 
 func init() {
@@ -43,8 +42,12 @@ func init() {
 		PublicDataFolder: "WordCount",
 	})
 	cachePath := engine.DataFolder() + "cache/"
-	// 读取gse内置中文词典
-	err := seg.LoadDictEmbed()
+	dat, err := file.GetLazyData("data/Chat/dict.txt", control.Md5File, true)
+	if err != nil {
+		panic(err)
+	}
+	var seg jieba.Segmenter
+	err = seg.LoadUserDictionary(bytes.NewReader(dat))
 	if err != nil {
 		panic(err)
 	}
@@ -108,8 +111,7 @@ func init() {
 			h.Get("messages").ForEach(func(_, msgObj gjson.Result) bool {
 				tex := strings.TrimSpace(message.ParseMessageFromString(msgObj.Get("raw_message").Str).ExtractPlainText())
 				if tex != "" {
-					segments := seg.Segment(helper.StringToBytes(tex))
-					words := gse.ToSlice(segments, true)
+					words := seg.Cut(tex, true)
 					for _, word := range words {
 						word = strings.TrimSpace(word)
 						i := sort.SearchStrings(stopwords, word)
