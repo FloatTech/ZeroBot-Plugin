@@ -46,8 +46,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	var seg jieba.Segmenter
-	err = seg.LoadUserDictionary(bytes.NewReader(dat))
+	seg, err := jieba.LoadDictionary(bytes.NewReader(dat))
 	if err != nil {
 		panic(err)
 	}
