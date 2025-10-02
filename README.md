@@ -1674,6 +1674,7 @@ go version
 go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GO111MODULE=auto
 go mod tidy
+go generate main.go
 ```
 
 3. 编辑 main.go 文件，内容按需修改
