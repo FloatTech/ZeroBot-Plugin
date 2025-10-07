@@ -136,6 +136,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/realcugan"         // realcugan清晰术
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/reborn"            // 投胎
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/robbery"           // 打劫群友的ATRI币
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/rsshub"            // RSSHub订阅姬
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/runcode"           // 在线运行代码
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/saucenao"          // 以图搜图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/score"             // 分数
