@@ -85,8 +85,8 @@ github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4 h1:zN9e09TYKXI1mNku
 github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4/go.mod h1:iZf1H/Jcw5gjOOFb4C5nlweJtViWc7uwUxRCe14pbYk=
 github.com/fumiama/sqlite3 v1.29.10-simp h1:c5y3uKyU0q9t0/SyfynzYyuslQ5zP+5CD8e0yYY554A=
 github.com/fumiama/sqlite3 v1.29.10-simp/go.mod h1:ItX2a1OVGgNsFh6Dv60JQvGfJfTPHPVpV6DF59akYOA=
-github.com/fumiama/terasu v0.0.0-20250930151601-1d9b679c36c2 h1:NAmsblfyAfQIZLPxkJil/kh6EV7Vrs/c7LGOavnUONM=
-github.com/fumiama/terasu v0.0.0-20250930151601-1d9b679c36c2/go.mod h1:UVx8YP1jKKL1Cj+uy+OnQRM2Ih6U36Mqy9GSf7jabsI=
+github.com/fumiama/terasu v0.0.0-20251006080703-541b84ca4a5f h1:skKZClM6lBzK8VyiFX/a2+nMs4W+pfGOXIgt2LZBVMM=
+github.com/fumiama/terasu v0.0.0-20251006080703-541b84ca4a5f/go.mod h1:5wnbYtJ8Rv0GG7EIiYSqniKnGDXDvkKqCcZQehh3UCQ=
 github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6 h1:LtDgr628eji8jRpjPCxsk7ibjcfi97QieZVCTjxLCBw=
 github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6/go.mod h1:lEaZsT4FRSqcjnQ5q8y+mkenkzR/r1D3BJmfdp0vqDg=
 github.com/gabriel-vasile/mimetype v1.0.4/go.mod h1:6CDPel/o/3/s4+bp6kIbsWATq8pmgOisOPG40CJa6To=

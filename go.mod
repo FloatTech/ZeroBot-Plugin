@@ -29,7 +29,7 @@ require (
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
-	github.com/fumiama/terasu v0.0.0-20250930151601-1d9b679c36c2
+	github.com/fumiama/terasu v0.0.0-20251006080703-541b84ca4a5f
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/uuid v1.6.0
