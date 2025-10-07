@@ -113,8 +113,8 @@ schema = 3
     version = "v0.0.0-20241001074058-27c4fe5259a4"
     hash = "sha256-rsV3MKRCSOBMIgJXFCGbCHRY2aBAb32ftU49hT3GjqY="
   [mod."github.com/fumiama/terasu"]
-    version = "v0.0.0-20250930151601-1d9b679c36c2"
-    hash = "sha256-82fl+7St6LaUR6J4G/1RTToBlutA2EF40vAMYptAS/g="
+    version = "v0.0.0-20251006080703-541b84ca4a5f"
+    hash = "sha256-FQnOlahP7384Z2TFOCVWOjsWB/aqpbumPOwCo4TlI/k="
   [mod."github.com/fumiama/unibase2n"]
     version = "v0.0.0-20240530074540-ec743fd5a6d6"
     hash = "sha256-I3xNzjrj5y0fy0dfa75V57GanfmHIHmubEn9/y0BBHw="
