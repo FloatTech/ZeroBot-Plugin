@@ -1693,15 +1693,15 @@ go generate main.go
 
 ```bash
 # 本机平台
-go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
+go build -ldflags "-s -w" -o zerobot -trimpath
 # x64 Linux 平台 如各种云服务器
-GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
+GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o zerobot -trimpath
 # x64 Windows 平台 如大多数家用电脑
-GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -checklinkname=0" -o zerobot.exe -trimpath
+GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o zerobot.exe -trimpath
 # armv6 Linux 平台 如树莓派 zero W
-GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
+GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot -trimpath
 # （由于引入了github.com/fumiama/sqlite3，本项不再可用）mips Linux 平台 如 路由器 wndr4300
-GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w -checklinkname=0" -o zerobot -trimpath
+GOOS=linux GOARCH=mips GOMIPS=softfloat CGO_ENABLED=0 go build -ldflags "-s -w" -o zerobot -trimpath
 ```
 
 5. 运行 OneBot 框架，并同时运行本插件

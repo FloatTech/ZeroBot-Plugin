@@ -6,7 +6,7 @@ env:
   BINARY_PREFIX: "zbp_"
   BINARY_SUFFIX: ""
   PR_PROMPT: "::warning:: Build artifact will not be uploaded due to the workflow is trigged by pull request."
-  LD_FLAGS: "-w -s -checklinkname=0"
+  LD_FLAGS: "-w -s"
 
 jobs:
   build:
