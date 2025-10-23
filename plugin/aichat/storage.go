@@ -25,7 +25,7 @@ func (s storage) rate() uint8 {
 }
 
 func (s storage) temp() float32 {
-	temp := (ctxext.Storage)(s).Get(bitmaptemp)
+	temp := int8((ctxext.Storage)(s).Get(bitmaptemp))
 	// 处理温度参数
 	if temp <= 0 {
 		temp = 70 // default setting
