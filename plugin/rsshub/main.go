@@ -25,7 +25,7 @@ var (
 
 var (
 	// 注册插件
-	engine = control.Register("rsshub", &ctrl.Options[*zero.Ctx]{
+	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		// 默认不启动
 		DisableOnDefault: false,
 		Brief:            "rsshub订阅姬",
