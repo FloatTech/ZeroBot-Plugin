@@ -321,9 +321,20 @@ func init() {
 			return
 		}
 
-		// 构造总结请求提示
-		summaryPrompt := "请总结这个群聊内容，要求按发言顺序梳理，明确标注每个发言者的昵称，并完整呈现其核心观点、提出的问题、发表的看法或做出的回应，确保不遗漏关键信息，且能体现成员间的对话逻辑和互动关系:\n" +
-			strings.Join(messages, "\n")
+		// 构造总结请求提示 (使用通用版省流提示词)
+		// 使用反引号定义多行字符串，更清晰
+		promptTemplate := `请对以下群聊对话进行【极简总结】。
+要求：
+1. 剔除客套与废话，直击主题。
+2. 使用 Markdown 列表格式。
+3. 按以下结构输出：
+   - 🎯 核心议题：(一句话概括)
+   - 💡 关键观点/结论：(提取3-5个重点)
+   - ✅ 下一步/待办：(如果有，明确谁做什么)
+
+群聊对话内容如下：
+`
+		summaryPrompt := promptTemplate + strings.Join(messages, "\n")
 
 		stor, err := newstorage(ctx, gid)
 		if err != nil {
