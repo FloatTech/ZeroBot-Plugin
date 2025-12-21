@@ -34,12 +34,12 @@ var (
 		Brief:            "OpenAI聊天",
 		Help: "- 设置AI聊天触发概率10\n" +
 			"- 设置AI聊天温度80\n" +
-			"- 设置AI聊天(识图|Agent)接口类型[OpenAI|OLLaMA|GenAI]\n" +
+			"- 设置AI聊天(|识图|Agent)接口类型[OpenAI|OLLaMA|GenAI]\n" +
 			"- 设置AI聊天(不)使用Agent模式\n" +
 			"- 设置AI聊天(不)支持系统提示词\n" +
-			"- 设置AI聊天(识图|Agent)接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
-			"- 设置AI聊天(识图|Agent)密钥xxx\n" +
-			"- 设置AI聊天(识图|Agent)模型名Qwen/Qwen3-8B\n" +
+			"- 设置AI聊天(|识图|Agent)接口地址https://api.siliconflow.cn/v1/chat/completions\n" +
+			"- 设置AI聊天(|识图|Agent)密钥xxx\n" +
+			"- 设置AI聊天(|识图|Agent)模型名Qwen/Qwen3-8B\n" +
 			"- 查看AI聊天系统提示词\n" +
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
@@ -247,7 +247,7 @@ func init() {
 	})
 	en.OnPrefix("设置AI聊天分隔符", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetstr(&cfg.Separator))
-	en.OnRegex("^设置AI聊天(不)?响应AT$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+	en.OnRegex("^设置AI聊天(不)?响应AT$", ensureconfig, zero.SuperUserPermission).SetBlock(true).
 		Handle(ctxext.NewStorageSaveBoolHandler(bitmapnrat))
 	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(newextrasetbool(&cfg.NoSystemP))
@@ -259,7 +259,7 @@ func init() {
 		Handle(newextrasetfloat32(&cfg.TopP))
 	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", ensureconfig, zero.AdminPermission).SetBlock(true).
 		Handle(ctxext.NewStorageSaveBoolHandler(bitmapnrec))
-	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			stor, err := newstorage(ctx, gid)
@@ -279,7 +279,7 @@ func init() {
 				message.Text("【当前AI聊天全局配置】\n", &cfg),
 			)
 		})
-	en.OnFullMatch("重置AI聊天", ensureconfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("重置AI聊天", ensureconfig, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		chat.ResetChat()
 		ctx.SendChain(message.Text("成功"))
 	})
