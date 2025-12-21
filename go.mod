@@ -17,14 +17,14 @@ require (
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
 	github.com/Tnze/go-mc v1.20.2
 	github.com/antchfx/htmlquery v1.3.4
-	github.com/corona10/goimagehash v1.1.0
+	github.com/corona10/goimagehash v1.1.1-0.20240121134706-d8115886f360
 	github.com/davidscholberg/go-durationfmt v0.0.0-20170122144659-64843a2083d3
 	github.com/disintegration/imaging v1.6.2
 	github.com/fumiama/ahsai v0.1.1
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa
 	github.com/fumiama/go-base16384 v1.7.1
-	github.com/fumiama/go-onebot-agent v0.0.0-20251221140154-74f64c788c43
+	github.com/fumiama/go-onebot-agent v0.0.0-20251221160352-39bf5588f40c
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/imgsz v0.0.4

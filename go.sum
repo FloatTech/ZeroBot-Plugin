@@ -43,8 +43,8 @@ github.com/antchfx/htmlquery v1.3.4/go.mod h1:K9os0BwIEmLAvTqaNSua8tXLWRWZpocZIH
 github.com/antchfx/xpath v1.3.3/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
 github.com/antchfx/xpath v1.3.5 h1:PqbXLC3TkfeZyakF5eeh3NTWEbYl4VHNVeufANzDbKQ=
 github.com/antchfx/xpath v1.3.5/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
-github.com/corona10/goimagehash v1.1.0 h1:teNMX/1e+Wn/AYSbLHX8mj+mF9r60R1kBeqE9MkoYwI=
-github.com/corona10/goimagehash v1.1.0/go.mod h1:VkvE0mLn84L4aF8vCb6mafVajEb6QYMHl2ZJLn0mOGI=
+github.com/corona10/goimagehash v1.1.1-0.20240121134706-d8115886f360 h1:SvD9vQN+3r0wskoSrQ7IOyDmOtRIXhT3rlnf819r/bY=
+github.com/corona10/goimagehash v1.1.1-0.20240121134706-d8115886f360/go.mod h1:PFDP0Q0oYvEuipJHMSbeK8tjbuRzkQqjPDYm3n71ITA=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -72,8 +72,8 @@ github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa h1:UMMNejpPp8dn9
 github.com/fumiama/deepinfra v0.0.0-20250924162107-cf156d49a0fa/go.mod h1:uqsWK/GM9OvKV0pXZOQB63rWugBbiXInY8E1JoRKhkg=
 github.com/fumiama/go-base16384 v1.7.1 h1:1P1x6FWRvd7PtbH4idDAGWAjKKcVxggxlROYKRXbw58=
 github.com/fumiama/go-base16384 v1.7.1/go.mod h1:OEn+947GV5gsbTAnyuUW/SrfxJYUdYupSIQXOuGOcXM=
-github.com/fumiama/go-onebot-agent v0.0.0-20251221140154-74f64c788c43 h1:r2geleO1BKKtUPDm8WEh1LYW2BZ6Astld7iWn6vy7ZU=
-github.com/fumiama/go-onebot-agent v0.0.0-20251221140154-74f64c788c43/go.mod h1:D9aWf8zuveMTDN9iZ4DqF0Dnm0heD44KIsrb6vcwnms=
+github.com/fumiama/go-onebot-agent v0.0.0-20251221160352-39bf5588f40c h1:ZBDR5RGQRplJrUrlDG1NkIwQzfinogsiGwEt8G/mrMk=
+github.com/fumiama/go-onebot-agent v0.0.0-20251221160352-39bf5588f40c/go.mod h1:ErcEFz8v7rFGSLqFlQkOWyJAGnBzAE930wGtD+NBBkQ=
 github.com/fumiama/go-registry v0.2.7 h1:tLEqgEpsiybQMqBv0dLHm5leia/z1DhajMupwnOHeNs=
 github.com/fumiama/go-registry v0.2.7/go.mod h1:m+wp5fF8dYgVoFkBPZl+vlK90loymaJE0JCtocVQLEs=
 github.com/fumiama/go-simple-protobuf v0.2.0 h1:ACyN1MAlu7pDR3EszWgzUeNP+IRsSHwH6V9JCJA5R5o=
