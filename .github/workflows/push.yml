@@ -1,5 +1,8 @@
 name: PushLint
-on: [ push ]
+on:
+  push:
+    branches:
+      - master
 jobs:
   golangci:
     name: lint
@@ -13,6 +16,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@master
         with:
+          ref: master
           fetch-depth: 0
 
       - name: Tidy Modules
