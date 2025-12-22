@@ -11,7 +11,7 @@ require (
 	github.com/FloatTech/rendercard v0.2.0
 	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d
-	github.com/FloatTech/zbpctrl v1.7.0
+	github.com/FloatTech/zbpctrl v1.7.1-0.20251222053912-c0e551828149
 	github.com/FloatTech/zbputils v1.7.2-0.20251221141527-35f149bccf9a
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
