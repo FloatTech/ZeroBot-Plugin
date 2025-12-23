@@ -182,17 +182,18 @@ func init() {
 				logrus.Infoln("[aichat] 回复内容:", t)
 				recCfg := airecord.GetConfig()
 				record := ""
-				if !stor.norecord() {
+				if !fastfailnorecord && !stor.norecord() {
 					record = ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
-				}
-				if record != "" {
-					ctx.SendChain(message.Record(record))
-				} else {
-					if id != nil {
-						id = ctx.SendChain(message.Reply(id), message.Text(t))
-					} else {
-						id = ctx.SendChain(message.Text(t))
+					if record != "" {
+						ctx.SendChain(message.Record(record))
+						continue
 					}
+					fastfailnorecord = true
+				}
+				if id != nil {
+					id = ctx.SendChain(message.Reply(id), message.Text(t))
+				} else {
+					id = ctx.SendChain(message.Text(t))
 				}
 				process.SleepAbout1sTo2s()
 			}

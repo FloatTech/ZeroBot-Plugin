@@ -13,6 +13,10 @@ const (
 	bitmapnrat = 0x040000
 )
 
+var (
+	fastfailnorecord = false
+)
+
 type storage ctxext.Storage
 
 func newstorage(ctx *zero.Ctx, gid int64) (storage, error) {
