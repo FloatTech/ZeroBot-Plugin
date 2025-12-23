@@ -46,5 +46,4 @@ jobs:
         with: 
           delete-branch: true
           branch-suffix: short-commit-hash
-        with:
           title: "chore(nix): bump deps"
