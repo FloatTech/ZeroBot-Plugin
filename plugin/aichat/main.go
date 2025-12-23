@@ -263,6 +263,9 @@ func init() {
 	en.OnFullMatch("查看AI聊天配置", ensureconfig, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
+			if gid == 0 {
+				gid = -ctx.Event.UserID
+			}
 			stor, err := newstorage(ctx, gid)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
