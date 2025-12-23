@@ -57,6 +57,8 @@ run:
   issues-exit-code: 1
   tests: false
   go: '1.24'
+  skip-dirs:
+    - data
 
 # output configuration options
 output:
