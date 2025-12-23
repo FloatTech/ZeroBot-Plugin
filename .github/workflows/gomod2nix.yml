@@ -38,7 +38,7 @@ jobs:
           git config --local user.name 'github-actions[bot]'
           git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add --all
-          git commit -m "chore: bump deps"
+          git commit -m "chore(nix): bump deps"
       - name: Create Pull Request
         if: ${{ !github.head_ref }}
         continue-on-error: true
@@ -46,3 +46,5 @@ jobs:
         with: 
           delete-branch: true
           branch-suffix: short-commit-hash
+        with:
+          title: "chore(nix): bump deps"
