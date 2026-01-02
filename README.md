@@ -1516,6 +1516,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>小红书文案</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/xhstext"`
+
+  - [x] 捧场
+
+  - [x] 有梗
+
+</details>
+<details>
   <summary>游戏王白鸽API卡查</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygocdb"`
