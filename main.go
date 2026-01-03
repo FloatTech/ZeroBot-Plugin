@@ -112,6 +112,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jandan"            // 煎蛋网无聊图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/jptingroom"        // 日语听力学习材料
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/kfccrazythursday"  // 疯狂星期四
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/llm"               // 大模型聊天和群聊总结
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolicon"           // lolicon 随机图片
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/lolimi"            // 桑帛云 API
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/magicprompt"       // magicprompt吟唱提示
@@ -179,6 +180,8 @@ import (
 	//                      vvvvvvv低优先级区vvvvvvv                      //
 	//                          vvvvvvvvvvvvvv                          //
 	//                               vvvv                               //
+
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aichatcfg" // AI聊天配置
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aichat" // AI聊天
 

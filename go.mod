@@ -12,11 +12,11 @@ require (
 	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d
 	github.com/FloatTech/zbpctrl v1.7.1
-	github.com/FloatTech/zbputils v1.7.2-0.20251223092310-25b804fef625
+	github.com/FloatTech/zbputils v1.7.2-0.20260103151557-34c60f3591d5
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
 	github.com/Tnze/go-mc v1.20.2
-	github.com/antchfx/htmlquery v1.3.4
+	github.com/antchfx/htmlquery v1.3.5
 	github.com/corona10/goimagehash v1.1.1-0.20240121134706-d8115886f360
 	github.com/davidscholberg/go-durationfmt v0.0.0-20170122144659-64843a2083d3
 	github.com/disintegration/imaging v1.6.2
@@ -24,7 +24,7 @@ require (
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/deepinfra v0.0.0-20251221163610-e98ee3ba437a
 	github.com/fumiama/go-base16384 v1.7.1
-	github.com/fumiama/go-onebot-agent v0.0.0-20251221163750-c11c679e4636
+	github.com/fumiama/go-onebot-agent v0.0.0-20260103153303-915960b3a069
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/imgsz v0.0.4
@@ -43,33 +43,33 @@ require (
 	github.com/mroth/weightedrand v1.0.0
 	github.com/notnil/chess v1.10.0
 	github.com/pkg/errors v0.9.1
-	github.com/shirou/gopsutil/v4 v4.25.11
+	github.com/shirou/gopsutil/v4 v4.25.12
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.18.0
 	github.com/wcharczuk/go-chart/v2 v2.1.2
-	github.com/wdvxdr1123/ZeroBot v1.8.2
-	gitlab.com/gomidi/midi/v2 v2.3.16
+	github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260103120253-8a8f1347f983
+	gitlab.com/gomidi/midi/v2 v2.3.18
 	golang.org/x/image v0.34.0
 	golang.org/x/sys v0.39.0
 	golang.org/x/text v0.32.0
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.10.3 // indirect
+	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
-	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
-	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antchfx/xpath v1.3.5 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/ebitengine/oto/v3 v3.4.0 // indirect
+	github.com/ebitengine/oto/v3 v3.3.2 // indirect
 	github.com/ebitengine/purego v0.9.1 // indirect
 	github.com/ericpauley/go-quantize v0.0.0-20200331213906-ae555eb2afa4 // indirect
 	github.com/fumiama/go-simple-protobuf v0.2.0 // indirect
 	github.com/fumiama/gofastTEA v0.1.3 // indirect
 	github.com/fumiama/orbyte v0.0.0-20251002065953-3bb358367eb5 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
-	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/gopxl/beep/v2 v2.1.1 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
@@ -77,9 +77,9 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/liuzl/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/liuzl/da v0.0.0-20180704015230-14771aad5b1d // indirect
-	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
+	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mmcdole/goxpp v1.1.1 // indirect
+	github.com/mmcdole/goxpp v1.1.1-0.20240225020742-a0c311522b23 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
@@ -88,7 +88,7 @@ require (
 	github.com/pkumza/numcn v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/tetratelabs/wazero v1.9.0 // indirect
+	github.com/tetratelabs/wazero v1.5.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
