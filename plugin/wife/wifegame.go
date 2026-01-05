@@ -4,7 +4,6 @@ package wife
 import (
 	"bytes"
 	"image"
-	"image/color"
 	"math/rand"
 	"strings"
 	"time"
@@ -15,7 +14,6 @@ import (
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	zbmath "github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/imgfactory"
 )
 
@@ -134,24 +132,8 @@ func init() {
 	})
 }
 
-// 马赛克生成
+// 高斯模糊生成
 func mosaic(dst *imgfactory.Factory, level int) ([]byte, error) {
-	b := dst.Image().Bounds()
-	p := imgfactory.NewFactoryBG(dst.W(), dst.H(), color.NRGBA{255, 255, 255, 255})
-	markSize := zbmath.Max(b.Max.X, b.Max.Y) * sizeList[level] / 200
-
-	for yOfMarknum := 0; yOfMarknum <= zbmath.Ceil(b.Max.Y, markSize); yOfMarknum++ {
-		for xOfMarknum := 0; xOfMarknum <= zbmath.Ceil(b.Max.X, markSize); xOfMarknum++ {
-			a := dst.Image().At(xOfMarknum*markSize+markSize/2, yOfMarknum*markSize+markSize/2)
-			cc := color.NRGBAModel.Convert(a).(color.NRGBA)
-			for y := 0; y < markSize; y++ {
-				for x := 0; x < markSize; x++ {
-					xOfPic := xOfMarknum*markSize + x
-					yOfPic := yOfMarknum*markSize + y
-					p.Image().Set(xOfPic, yOfPic, cc)
-				}
-			}
-		}
-	}
-	return imgfactory.ToBytes(p.Blur(3).Image())
+	blurRadius := float64(sizeList[level] * 3)
+	return imgfactory.ToBytes(dst.Blur(blurRadius).Image())
 }
