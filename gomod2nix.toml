@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.1"
     hash = "sha256-wkeiaUTpPVbpH7fcXeoLtG+aGIMJbvoc/9sbi2IXK0I="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20260104162610-89522e42ecca"
-    hash = "sha256-xvv7VHQ1XaYTP4+eCT6bZ6Zq48IWoqsYCBIGPk1P5sw="
+    version = "v1.7.2-0.20260106131604-3ff237cdb792"
+    hash = "sha256-gI8wWI5hjyhYLnj85egm4ARhEnsX16DixW20W6PXYQk="
   [mod."github.com/PuerkitoBio/goquery"]
     version = "v1.8.0"
     hash = "sha256-I3QaPWATvBOL/F26fIiYWKS13yBUYo+9o3tcsGIu8tY="
@@ -92,8 +92,8 @@ schema = 3
     version = "v1.7.1"
     hash = "sha256-Fd1QaeYx+3q4C3XQXlPFnDmKPsoZH6837fN/7rn8i9s="
   [mod."github.com/fumiama/go-onebot-agent"]
-    version = "v0.0.0-20260104164334-63ab0bc7f53a"
-    hash = "sha256-t+jnemW581ehzDklZ8+CO9uQN3jaww6nefXSuVuFZpQ="
+    version = "v0.0.0-20260106123931-a0c81601f2d7"
+    hash = "sha256-YqG/SnqOIkWDEKHPL79mbccHY8iwW4acVdTiWIdKeVM="
   [mod."github.com/fumiama/go-registry"]
     version = "v0.2.7"
     hash = "sha256-Rjl+z0Hlp2LMi8+pnFe5HrxctyHMi7UPiK33g/OgLdA="
