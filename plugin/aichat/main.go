@@ -2,7 +2,6 @@
 package aichat
 
 import (
-	"encoding/json"
 	"math/rand"
 	"strings"
 
@@ -122,15 +121,7 @@ func init() {
 					if req.Action == goba.SVM { // is a fake action
 						continue
 					}
-					resp := ctx.CallAction(req.Action, req.Params)
-					logrus.Infoln("[aichat] agent get resp:", reqs)
-					ag.AddResponse(gid, &goba.APIResponse{
-						Status:  resp.Status,
-						Data:    json.RawMessage(resp.Data.Raw),
-						Message: resp.Message,
-						Wording: resp.Wording,
-						RetCode: resp.RetCode,
-					})
+					_ = ctx.CallAction(req.Action, req.Params)
 				}
 			}
 			if hasresp {
