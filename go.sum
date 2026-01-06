@@ -16,8 +16,8 @@ github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d h1:mUQ/c3wXKsUGa4Sg9
 github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.7.1 h1:0yPEmCForhyMbnhTckmjDUFFDZgQp1RjO2bVF4ZVqOs=
 github.com/FloatTech/zbpctrl v1.7.1/go.mod h1:xmM4dSwHA02Gei3ogCRiG+RTrw/7Z69PfrN5NYf8BPE=
-github.com/FloatTech/zbputils v1.7.2-0.20260106131604-3ff237cdb792 h1:LHJ75vp0gizrO1ko/2t8/98mPHD1bQSXkonn02VRB4A=
-github.com/FloatTech/zbputils v1.7.2-0.20260106131604-3ff237cdb792/go.mod h1:TKnvn/rgLBlcizp8XtseduIkAw1Mq3cwpvT5GAG69fA=
+github.com/FloatTech/zbputils v1.7.2-0.20260106142643-d2d50560ae97 h1:lmlg7nKGbr/+rwPFZ98z5IetB4ooTFZFyd1ovzd1gA4=
+github.com/FloatTech/zbputils v1.7.2-0.20260106142643-d2d50560ae97/go.mod h1:K80JcDL2x1rqsyOzMPSIqqqSiJncWwlPIgHcNXnYIAw=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=
 github.com/PuerkitoBio/goquery v1.8.0/go.mod h1:ypIiRMtY7COPGk+I/YbZLbxsxn9g5ejnI2HSMtkjZvI=
@@ -67,8 +67,8 @@ github.com/fumiama/deepinfra v0.0.0-20251221163610-e98ee3ba437a h1:a0+2vaXajfxsN
 github.com/fumiama/deepinfra v0.0.0-20251221163610-e98ee3ba437a/go.mod h1:uqsWK/GM9OvKV0pXZOQB63rWugBbiXInY8E1JoRKhkg=
 github.com/fumiama/go-base16384 v1.7.1 h1:1P1x6FWRvd7PtbH4idDAGWAjKKcVxggxlROYKRXbw58=
 github.com/fumiama/go-base16384 v1.7.1/go.mod h1:OEn+947GV5gsbTAnyuUW/SrfxJYUdYupSIQXOuGOcXM=
-github.com/fumiama/go-onebot-agent v0.0.0-20260106123931-a0c81601f2d7 h1:QYlLOAWxH3PU/vFiTmhI+TnsA4i+ahk+UxSbqBxkEOU=
-github.com/fumiama/go-onebot-agent v0.0.0-20260106123931-a0c81601f2d7/go.mod h1:rTrS23rvTYuZcSngENJTvcBFTz1nGsImSv+bW7yfhqs=
+github.com/fumiama/go-onebot-agent v0.0.0-20260106141737-1ac01594b67f h1:U6/IW2KL7xeAlIjV6MJTXMqmzcJaMXi43S4zXjIv+3s=
+github.com/fumiama/go-onebot-agent v0.0.0-20260106141737-1ac01594b67f/go.mod h1:rTrS23rvTYuZcSngENJTvcBFTz1nGsImSv+bW7yfhqs=
 github.com/fumiama/go-registry v0.2.7 h1:tLEqgEpsiybQMqBv0dLHm5leia/z1DhajMupwnOHeNs=
 github.com/fumiama/go-registry v0.2.7/go.mod h1:m+wp5fF8dYgVoFkBPZl+vlK90loymaJE0JCtocVQLEs=
 github.com/fumiama/go-simple-protobuf v0.2.0 h1:ACyN1MAlu7pDR3EszWgzUeNP+IRsSHwH6V9JCJA5R5o=

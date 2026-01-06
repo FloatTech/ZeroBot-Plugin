@@ -111,7 +111,7 @@ func init() {
 			logrus.Debugln("[aichat] agent set no timeout")
 			hasresp := false
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
-				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), x, mod, gid, role)
+				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
 				if len(reqs) == 0 {
 					logrus.Debugln("[aichat] agent call got empty response")
 					break
