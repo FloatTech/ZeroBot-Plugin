@@ -119,32 +119,21 @@ func init() {
 					break
 				}
 				hasresp = true
-				haseoa := false
 				for _, req := range reqs {
 					if req.Action == goba.SVM { // is a fake action
 						if hassavemem {
-							if !haseoa {
-								ag.AddTerminus(gid)
-								haseoa = true
-								logrus.Warnln("[aichat] agent call save mem multi times, force inserting EOA")
-							} else {
-								logrus.Warnln("[aichat] agent call save mem multi times, but EOA has been inserted")
-							}
-							break
+							ag.AddTerminus(gid)
+							logrus.Warnln("[aichat] agent call save mem multi times, force inserting EOA")
+							return
 						}
 						hassavemem = true
 						continue
 					}
 					if req.Action == "send_private_msg" || req.Action == "send_group_msg" {
 						if ispuremsg {
-							if !haseoa {
-								ag.AddTerminus(gid)
-								haseoa = true
-								logrus.Warnln("[aichat] agent call send msg multi times, force inserting EOA")
-							} else {
-								logrus.Warnln("[aichat] agent call send msg multi times, but EOA has been inserted")
-							}
-							break
+							ag.AddTerminus(gid)
+							logrus.Warnln("[aichat] agent call send msg multi times, force inserting EOA")
+							return
 						}
 						ispuremsg = true
 					}
