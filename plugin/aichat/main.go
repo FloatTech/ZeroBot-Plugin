@@ -112,8 +112,21 @@ func init() {
 			hasresp := false
 			ispuremsg := false
 			hassavemem := false
+			var (
+				reqs []zero.APIRequest
+				cl   func()
+			)
+			defer func() {
+				if cl != nil {
+					cl()
+				}
+			}()
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
-				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
+				reqs, cl = chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
+				if cl != nil {
+					cl()
+					cl = nil
+				}
 				if len(reqs) == 0 {
 					logrus.Debugln("[aichat] agent call got empty response")
 					break
