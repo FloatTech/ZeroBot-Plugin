@@ -110,6 +110,8 @@ func init() {
 			ctx.NoTimeout()
 			logrus.Debugln("[aichat] agent set no timeout")
 			hasresp := false
+			ispuremsg := false
+			hassavemem := false
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
 				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
 				if len(reqs) == 0 {
@@ -117,9 +119,34 @@ func init() {
 					break
 				}
 				hasresp = true
+				haseoa := false
 				for _, req := range reqs {
 					if req.Action == goba.SVM { // is a fake action
+						if hassavemem {
+							if !haseoa {
+								ag.AddTerminus(gid)
+								haseoa = true
+								logrus.Warnln("[aichat] agent call save mem multi times, force inserting EOA")
+							} else {
+								logrus.Warnln("[aichat] agent call save mem multi times, but EOA has been inserted")
+							}
+							break
+						}
+						hassavemem = true
 						continue
+					}
+					if req.Action == "send_private_msg" || req.Action == "send_group_msg" {
+						if ispuremsg {
+							if !haseoa {
+								ag.AddTerminus(gid)
+								haseoa = true
+								logrus.Warnln("[aichat] agent call send msg multi times, force inserting EOA")
+							} else {
+								logrus.Warnln("[aichat] agent call send msg multi times, but EOA has been inserted")
+							}
+							break
+						}
+						ispuremsg = true
 					}
 					_ = ctx.CallAction(req.Action, req.Params)
 				}
