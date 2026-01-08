@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.1"
     hash = "sha256-wkeiaUTpPVbpH7fcXeoLtG+aGIMJbvoc/9sbi2IXK0I="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20260108145711-b2fb69a728cc"
-    hash = "sha256-MjFGiPPqHAzfiiKYxcGb56VAowDCBY5jU/VkAhoLQUc="
+    version = "v1.7.2-0.20260108160028-ff0902a05ebd"
+    hash = "sha256-d3yy9hPl9OH9l1QzCCdrEls0oeYhIGp1WiZ1T03hPAo="
   [mod."github.com/PuerkitoBio/goquery"]
     version = "v1.8.0"
     hash = "sha256-I3QaPWATvBOL/F26fIiYWKS13yBUYo+9o3tcsGIu8tY="
@@ -248,8 +248,8 @@ schema = 3
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.8.3-0.20260103120253-8a8f1347f983"
-    hash = "sha256-/6biuhXUIYxyJ0uT1R5Yk8RD2cm9/SQWtFvcyQgnWJE="
+    version = "v1.8.3-0.20260108153355-cbf2ab0dd527"
+    hash = "sha256-cD/6S94r0fgp0112TFsddESKwoXGe1L7LSFAkJvh3LQ="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
