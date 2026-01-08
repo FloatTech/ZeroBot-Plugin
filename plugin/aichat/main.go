@@ -51,6 +51,10 @@ func init() {
 			logrus.Warnln("ERROR: cannot get stor")
 			return false
 		}
+		if _, ok := ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_hooked__"]; !ok {
+			logrus.Warnln("ERROR: ctx has not been hooked by agent")
+			return false
+		}
 		if !(ctx.ExtractPlainText() != "" &&
 			(!stor.NoReplyAt() || (stor.NoReplyAt() && !ctx.Event.IsToMe))) {
 			return false
@@ -112,21 +116,8 @@ func init() {
 			hasresp := false
 			ispuremsg := false
 			hassavemem := false
-			var (
-				reqs []zero.APIRequest
-				cl   func()
-			)
-			defer func() {
-				if cl != nil {
-					cl()
-				}
-			}()
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
-				reqs, cl = chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
-				if cl != nil {
-					cl()
-					cl = nil
-				}
+				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
 				if len(reqs) == 0 {
 					logrus.Debugln("[aichat] agent call got empty response")
 					break

@@ -16,8 +16,8 @@ github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d h1:mUQ/c3wXKsUGa4Sg9
 github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d/go.mod h1:fHZFWGquNXuHttu9dUYoKuNbm3dzLETnIOnm1muSfDs=
 github.com/FloatTech/zbpctrl v1.7.1 h1:0yPEmCForhyMbnhTckmjDUFFDZgQp1RjO2bVF4ZVqOs=
 github.com/FloatTech/zbpctrl v1.7.1/go.mod h1:xmM4dSwHA02Gei3ogCRiG+RTrw/7Z69PfrN5NYf8BPE=
-github.com/FloatTech/zbputils v1.7.2-0.20260108145711-b2fb69a728cc h1:rJyBo8aG7w9LRJCsmpU4QAXyFn4dFpLaMPwBWzeuOGI=
-github.com/FloatTech/zbputils v1.7.2-0.20260108145711-b2fb69a728cc/go.mod h1:O3Js6obaao6BhxHx7hl1xwup4jXm/Fk2cmZEg5qNur8=
+github.com/FloatTech/zbputils v1.7.2-0.20260108160028-ff0902a05ebd h1:6wjYpYyG294ja2dFnDbnbDlQdz8azGAxQibeOJNpORc=
+github.com/FloatTech/zbputils v1.7.2-0.20260108160028-ff0902a05ebd/go.mod h1:yLJvsQJssgQIB4+/uVRNseN4sgFqyfGQLcrKUuXL454=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=
 github.com/PuerkitoBio/goquery v1.8.0/go.mod h1:ypIiRMtY7COPGk+I/YbZLbxsxn9g5ejnI2HSMtkjZvI=
@@ -206,8 +206,8 @@ github.com/tklauser/numcpus v0.11.0 h1:nSTwhKH5e1dMNsCdVBukSZrURJRoHbSEQjdEbY+9R
 github.com/tklauser/numcpus v0.11.0/go.mod h1:z+LwcLq54uWZTX0u/bGobaV34u6V7KNlTZejzM6/3MQ=
 github.com/wcharczuk/go-chart/v2 v2.1.2 h1:Y17/oYNuXwZg6TFag06qe8sBajwwsuvPiJJXcUcLL6E=
 github.com/wcharczuk/go-chart/v2 v2.1.2/go.mod h1:Zi4hbaqlWpYajnXB2K22IUYVXRXaLfSGNNR7P4ukyyQ=
-github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260103120253-8a8f1347f983 h1:hb2FUDooAf3u32wCTgJcBBuGPZF1sjgj8NfJaSy529s=
-github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260103120253-8a8f1347f983/go.mod h1:trueIIVRywKJa3ov4QphzVvzYzgCNrlXdf9JvPJOFW8=
+github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260108153355-cbf2ab0dd527 h1:QQAAftj7MvP+Ebxfs1MV5d6fswYi6YJ2YFkoicFpcEY=
+github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260108153355-cbf2ab0dd527/go.mod h1:trueIIVRywKJa3ov4QphzVvzYzgCNrlXdf9JvPJOFW8=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=
 github.com/yusufpapurcu/wmi v1.2.4/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
