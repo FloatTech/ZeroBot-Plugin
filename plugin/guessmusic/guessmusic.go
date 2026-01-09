@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/pkg/errors"
@@ -30,7 +28,7 @@ func init() {
 	var err1 error
 	t2s, err1 = gocc.New("t2s")
 	if err1 != nil {
-		log.Infof("[guessmusic]:%s", err1)
+		panic(err1)
 	}
 
 	engine.OnRegex(`^(个人|团队)猜歌(-(.*))?$`, zero.OnlyGroup).SetBlock(true).Limit(ctxext.LimitByGroup).

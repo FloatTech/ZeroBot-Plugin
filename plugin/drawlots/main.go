@@ -36,7 +36,7 @@ var (
 	lotsList = func() map[string]info {
 		lotsList, err := getList()
 		if err != nil {
-			logrus.Infoln("[drawlots]加载失败:", err)
+			logrus.Infoln("[drawlots]加载失败:", err, "(如果从未使用过该插件, 这是正常现象)")
 		} else {
 			logrus.Infoln("[drawlots]加载", len(lotsList), "个抽签")
 		}

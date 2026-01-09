@@ -36,11 +36,11 @@ func (c *RssHubClient) FetchFeed(path string) (feed *gofeed.Feed, err error) {
 		}
 	}
 	if err != nil {
-		logrus.Errorf("[rsshub FetchFeed] fetch feed error: %v", err)
+		logrus.Warnf("[rsshub FetchFeed] fetch feed error: %v", err)
 		return nil, err
 	}
 	if len(data) == 0 {
-		logrus.Errorf("[rsshub FetchFeed] fetch feed error: data is empty")
+		logrus.Warnf("[rsshub FetchFeed] fetch feed error: data is empty")
 		return nil, errors.New("feed data is empty")
 	}
 	feed, err = gofeed.NewParser().Parse(bytes.NewBuffer(data))

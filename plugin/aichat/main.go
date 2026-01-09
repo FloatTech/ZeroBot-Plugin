@@ -2,6 +2,7 @@
 package aichat
 
 import (
+	"encoding/json"
 	"math/rand"
 	"strings"
 
@@ -123,6 +124,7 @@ func init() {
 					break
 				}
 				hasresp = true
+				ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_triggered__"] = struct{}{}
 				for _, req := range reqs {
 					if req.Action == goba.SVM { // is a fake action
 						if hassavemem {
@@ -141,7 +143,17 @@ func init() {
 						}
 						ispuremsg = true
 					}
-					_ = ctx.CallAction(req.Action, req.Params)
+					logrus.Debugln("[chat] agent triggered", gid, "add requ:", &req)
+					ag.AddRequest(gid, &req)
+					rsp := ctx.CallAction(req.Action, req.Params)
+					logrus.Debugln("[chat] agent triggered", gid, "add resp:", &rsp)
+					ag.AddResponse(gid, &goba.APIResponse{
+						Status:  rsp.Status,
+						Data:    json.RawMessage(rsp.Data.Raw),
+						Message: rsp.Message,
+						Wording: rsp.Wording,
+						RetCode: rsp.RetCode,
+					})
 				}
 			}
 			if hasresp {
@@ -177,7 +189,7 @@ func init() {
 				if t == "" {
 					continue
 				}
-				logrus.Infoln("[aichat] 回复内容:", t)
+				logrus.Debugln("[aichat] 回复内容:", t)
 				recCfg := airecord.GetConfig()
 				record := ""
 				if !fastfailnorecord && !stor.NoRecord() {

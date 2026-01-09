@@ -3,8 +3,9 @@ package minecraftobserver
 import (
 	"errors"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"testing"
+
+	"github.com/jinzhu/gorm"
 )
 
 func cleanTestData(t *testing.T) {

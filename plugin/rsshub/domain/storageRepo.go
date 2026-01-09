@@ -19,7 +19,7 @@ type repoStorage struct {
 func (s *repoStorage) initDB() (err error) {
 	err = s.orm.AutoMigrate(&RssSource{}, &RssContent{}, &RssSubscribe{}).Error
 	if err != nil {
-		logrus.Errorf("[rsshub initDB] error: %v", err)
+		logrus.Warnf("[rsshub initDB] error: %v", err)
 		return err
 	}
 	return nil
@@ -28,7 +28,7 @@ func (s *repoStorage) initDB() (err error) {
 
 // GetSubscribesBySource Impl
 func (s *repoStorage) GetSubscribesBySource(ctx context.Context, feedPath string) ([]*RssSubscribe, error) {
-	logrus.WithContext(ctx).Infof("[rsshub GetSubscribesBySource] feedPath: %s", feedPath)
+	logrus.WithContext(ctx).Debugf("[rsshub GetSubscribesBySource] feedPath: %s", feedPath)
 	rs := make([]*RssSubscribe, 0)
 	err := s.orm.Model(&RssSubscribe{}).Joins(fmt.Sprintf("%s left join %s on %s.rss_source_id=%s.id", tableNameRssSubscribe, tableNameRssSource, tableNameRssSubscribe, tableNameRssSource)).
 		Where("rss_source.rss_hub_feed_path = ?", feedPath).Select("rss_subscribe.*").Find(&rs).Error
@@ -36,7 +36,7 @@ func (s *repoStorage) GetSubscribesBySource(ctx context.Context, feedPath string
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub GetSubscribesBySource] error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub GetSubscribesBySource] error: %v", err)
 		return nil, err
 	}
 	return rs, nil
@@ -56,7 +56,7 @@ func (s *repoStorage) GetIfExistedSubscribe(ctx context.Context, gid int64, feed
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, false, nil
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub GetIfExistedSubscribe] error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub GetIfExistedSubscribe] error: %v", err)
 		return nil, false, err
 	}
 	if rs.ID == 0 {
@@ -76,14 +76,14 @@ func (s *repoStorage) UpsertSource(ctx context.Context, source *RssSource) (err 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = s.orm.Create(source).Omit("id").Error
 			if err != nil {
-				logrus.WithContext(ctx).Errorf("[rsshub] add source error: %v", err)
+				logrus.WithContext(ctx).Warnf("[rsshub] add source error: %v", err)
 				return
 			}
 		}
 		return
 	}
 	source.ID = querySource.ID
-	logrus.WithContext(ctx).Infof("[rsshub] update source: %+v", source.UpdatedParsed)
+	logrus.WithContext(ctx).Debugf("[rsshub] update source: %+v", source.UpdatedParsed)
 	err = s.orm.Model(&source).Where(&RssSource{ID: source.ID}).
 		Updates(&RssSource{
 			Title:         source.Title,
@@ -94,7 +94,7 @@ func (s *repoStorage) UpsertSource(ctx context.Context, source *RssSource) (err 
 			Mtime:         time.Now(),
 		}).Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub] update source error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] update source error: %v", err)
 		return
 	}
 	logrus.Println("[rsshub] add source success: ", source.ID)
@@ -109,10 +109,10 @@ func (s *repoStorage) GetSources(ctx context.Context) (sources []RssSource, err 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("source not found")
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub] get sources error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] get sources error: %v", err)
 		return
 	}
-	logrus.WithContext(ctx).Infof("[rsshub] get sources success: %d", len(sources))
+	logrus.WithContext(ctx).Debugf("[rsshub] get sources success: %d", len(sources))
 	return
 }
 
@@ -124,7 +124,7 @@ func (s *repoStorage) GetSourceByRssHubFeedLink(ctx context.Context, rssHubFeedL
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub] get source error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] get source error: %v", err)
 		return
 	}
 	return
@@ -134,7 +134,7 @@ func (s *repoStorage) GetSourceByRssHubFeedLink(ctx context.Context, rssHubFeedL
 func (s *repoStorage) DeleteSource(ctx context.Context, fID int64) (err error) {
 	err = s.orm.Delete(&RssSource{}, "id = ?", fID).Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.DeleteSource: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.DeleteSource: %v", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("source not found")
 		}
@@ -161,7 +161,7 @@ func (s *repoStorage) UpsertContent(ctx context.Context, content *RssContent) (e
 	}
 	err = s.orm.Create(content).Omit("id").Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.UpsertContent: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.UpsertContent: %v", err)
 		return
 	}
 	return
@@ -171,7 +171,7 @@ func (s *repoStorage) UpsertContent(ctx context.Context, content *RssContent) (e
 func (s *repoStorage) DeleteSourceContents(ctx context.Context, channelID int64) (rows int64, err error) {
 	err = s.orm.Delete(&RssSubscribe{}).Where(&RssSubscribe{RssSourceID: channelID}).Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.DeleteSourceContents: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.DeleteSourceContents: %v", err)
 		return
 	}
 	return
@@ -185,7 +185,7 @@ func (s *repoStorage) IsContentHashIDExist(ctx context.Context, hashID string) (
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.IsContentHashIDExist: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.IsContentHashIDExist: %v", err)
 		return false, err
 	}
 	return true, nil
@@ -204,7 +204,7 @@ func (s *repoStorage) CreateSubscribe(ctx context.Context, gid, rssSourceID int6
 	}
 	err = s.orm.Create(&RssSubscribe{GroupID: gid, RssSourceID: rssSourceID}).Omit("id").Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.CreateSubscribe: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.CreateSubscribe: %v", err)
 		return
 	}
 	return
@@ -214,7 +214,7 @@ func (s *repoStorage) CreateSubscribe(ctx context.Context, gid, rssSourceID int6
 func (s *repoStorage) DeleteSubscribe(ctx context.Context, subscribeID int64) (err error) {
 	err = s.orm.Delete(&RssSubscribe{}, "id = ?", subscribeID).Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.DeleteSubscribe error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.DeleteSubscribe error: %v", err)
 		return
 	}
 	return
@@ -228,7 +228,7 @@ func (s *repoStorage) GetSubscribeByID(ctx context.Context, gid int64, subscribe
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.GetSubscribeByID: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.GetSubscribeByID: %v", err)
 		return nil, err
 	}
 	return
@@ -247,7 +247,7 @@ func (s *repoStorage) GetSubscribedChannelsByGroupID(ctx context.Context, gid in
 			err = nil
 			return
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.GetSubscribedChannelsByGroupID: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.GetSubscribedChannelsByGroupID: %v", err)
 		return
 	}
 	return
@@ -262,7 +262,7 @@ func (s *repoStorage) GetSubscribes(ctx context.Context) (res []*RssSubscribe, e
 			err = nil
 			return
 		}
-		logrus.WithContext(ctx).Errorf("[rsshub] storage.GetSubscribes: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub] storage.GetSubscribes: %v", err)
 		return
 	}
 	return

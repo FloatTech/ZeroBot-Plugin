@@ -28,7 +28,7 @@ func (repo *RssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 		feed, err = repo.rssHubClient.FetchFeed(channel.RssHubFeedPath)
 		// 如果获取失败，则跳过
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[rsshub syncRss] fetch path(%+v) error: %v", channel.RssHubFeedPath, err)
+			logrus.WithContext(ctx).Warnf("[rsshub syncRss] fetch path(%+v) error: %v", channel.RssHubFeedPath, err)
 			continue
 		}
 		rv := convertFeedToRssView(0, channel.RssHubFeedPath, feed)
@@ -42,27 +42,27 @@ func (repo *RssDomain) syncRss(ctx context.Context) (updated map[int64]*RssClien
 		var needUpdate bool
 		needUpdate, err = repo.checkSourceNeedUpdate(ctx, cv.Source)
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[rsshub syncRss] checkSourceNeedUpdate error: %v", err)
+			logrus.WithContext(ctx).Warnf("[rsshub syncRss] checkSourceNeedUpdate error: %v", err)
 			err = nil
 			continue
 		}
 		// 保存
-		logrus.WithContext(ctx).Infof("[rsshub syncRss] cv %+v, need update(real): %v", cv.Source, needUpdate)
+		logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %+v, need update(real): %v", cv.Source, needUpdate)
 		// 如果需要更新，更新channel 和 content
 		if needUpdate {
 			err = repo.storage.UpsertSource(ctx, cv.Source)
 			if err != nil {
-				logrus.WithContext(ctx).Errorf("[rsshub syncRss] upsert source error: %v", err)
+				logrus.WithContext(ctx).Warnf("[rsshub syncRss] upsert source error: %v", err)
 			}
 		}
 		var updateChannelView = &RssClientView{Source: cv.Source, Contents: []*RssContent{}}
 		err = repo.processContentsUpdate(ctx, cv, updateChannelView)
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[rsshub syncRss] processContentsUpdate error: %v", err)
+			logrus.WithContext(ctx).Warnf("[rsshub syncRss] processContentsUpdate error: %v", err)
 			continue
 		}
 		if len(updateChannelView.Contents) == 0 {
-			logrus.WithContext(ctx).Infof("[rsshub syncRss] cv %s, no new content", cv.Source.RssHubFeedPath)
+			logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %s, no new content", cv.Source.RssHubFeedPath)
 			continue
 		}
 		updateChannelView.Sort()
@@ -80,7 +80,7 @@ func (repo *RssDomain) checkSourceNeedUpdate(ctx context.Context, source *RssSou
 		return
 	}
 	if sourceInDB == nil {
-		logrus.WithContext(ctx).Errorf("[rsshub syncRss] source not found: %v", source.RssHubFeedPath)
+		logrus.WithContext(ctx).Warnf("[rsshub syncRss] source not found: %v", source.RssHubFeedPath)
 		return
 	}
 	source.ID = sourceInDB.ID
@@ -102,13 +102,13 @@ func (repo *RssDomain) processContentsUpdate(ctx context.Context, cv *RssClientV
 		var existed bool
 		existed, err = repo.processContentItemUpdate(ctx, content)
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[rsshub syncRss] upsert content error: %v", err)
+			logrus.WithContext(ctx).Warnf("[rsshub syncRss] upsert content error: %v", err)
 			err = nil
 			continue
 		}
 		if !existed {
 			updateChannelView.Contents = append(updateChannelView.Contents, content)
-			logrus.WithContext(ctx).Infof("[rsshub syncRss] cv %s, add new content: %v", cv.Source.RssHubFeedPath, content.Title)
+			logrus.WithContext(ctx).Debugf("[rsshub syncRss] cv %s, add new content: %v", cv.Source.RssHubFeedPath, content.Title)
 		}
 	}
 	return err
@@ -127,7 +127,7 @@ func (repo *RssDomain) processContentItemUpdate(ctx context.Context, content *Rs
 	// 保存
 	err = repo.storage.UpsertContent(ctx, content)
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[rsshub syncRss] upsert content error: %v", err)
+		logrus.WithContext(ctx).Warnf("[rsshub syncRss] upsert content error: %v", err)
 		return
 	}
 	return
