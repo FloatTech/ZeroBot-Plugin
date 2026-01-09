@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.1"
     hash = "sha256-wkeiaUTpPVbpH7fcXeoLtG+aGIMJbvoc/9sbi2IXK0I="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20260108160028-ff0902a05ebd"
-    hash = "sha256-d3yy9hPl9OH9l1QzCCdrEls0oeYhIGp1WiZ1T03hPAo="
+    version = "v1.7.2-0.20260109060005-2922571e6c7e"
+    hash = "sha256-1pqapf4y2SffTTj7+N0Os8dboNKawlIjoAL/9PDiBiM="
   [mod."github.com/PuerkitoBio/goquery"]
     version = "v1.8.0"
     hash = "sha256-I3QaPWATvBOL/F26fIiYWKS13yBUYo+9o3tcsGIu8tY="
