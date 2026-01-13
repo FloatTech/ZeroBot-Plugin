@@ -135,17 +135,17 @@ func init() {
 	})
 	en.OnPrefix("设置AI聊天分隔符", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(chat.NewExtraSetStr(&chat.AC.Separator))
-	en.OnRegex("^设置AI聊天(不)?响应AT$", chat.EnsureConfig, zero.SuperUserPermission).SetBlock(true).
+	en.OnRegex("^设置AI聊天(不)?响应AT$", zero.SuperUserPermission).SetBlock(true).
 		Handle(ctxext.NewStorageSaveBoolHandler(chat.BitmapNrat))
 	en.OnRegex("^设置AI聊天(不)?支持系统提示词$", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(chat.NewExtraSetBool(&chat.AC.NoSystemP))
-	en.OnRegex("^设置AI聊天(不)?使用Agent模式$", chat.EnsureConfig, zero.SuperUserPermission).SetBlock(true).
+	en.OnRegex("^设置AI聊天(不)?使用Agent模式$", zero.SuperUserPermission).SetBlock(true).
 		Handle(ctxext.NewStorageSaveBoolHandler(chat.BitmapNagt))
 	en.OnPrefix("设置AI聊天最大长度", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(chat.NewExtraSetUint(&chat.AC.MaxN))
 	en.OnPrefix("设置AI聊天TopP", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(chat.NewExtraSetFloat32(&chat.AC.TopP))
-	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", chat.EnsureConfig, zero.AdminPermission).SetBlock(true).
+	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", zero.AdminPermission).SetBlock(true).
 		Handle(ctxext.NewStorageSaveBoolHandler(chat.BitmapNrec))
 	en.OnFullMatch("查看AI聊天配置", chat.EnsureConfig, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
