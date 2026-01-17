@@ -9,7 +9,7 @@
 //
 //	Place this package at the very top of top-level main.go so its init (present
 //	or future) executes before other plugin packages, filling in a predictable
-//	plugin priority.
+//	plugin priority and setup console properties.
 //
 // Typical usage:
 //

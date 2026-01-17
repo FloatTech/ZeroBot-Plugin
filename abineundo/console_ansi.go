@@ -1,7 +1,6 @@
 //go:build !windows
 
-// Package console sets console's behavior on init
-package console
+package abineundo
 
 import (
 	"fmt"
