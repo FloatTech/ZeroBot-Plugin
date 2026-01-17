@@ -115,8 +115,8 @@ func init() {
 			ctx.NoTimeout()
 			logrus.Debugln("[aichat] agent set no timeout")
 			hasresp := false
-			ispuremsg := false
-			hassavemem := false
+			//ispuremsg := false
+			//hassavemem := false
 			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
 				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
 				if len(reqs) == 0 {
@@ -127,22 +127,22 @@ func init() {
 				ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_triggered__"] = struct{}{}
 				for _, req := range reqs {
 					if req.Action == goba.SVM { // is a fake action
-						if hassavemem {
+						/*if hassavemem {
 							ag.AddTerminus(gid)
 							logrus.Warnln("[aichat] agent call save mem multi times, force inserting EOA")
 							return
 						}
-						hassavemem = true
+						hassavemem = true*/
 						continue
 					}
-					if req.Action == "send_private_msg" || req.Action == "send_group_msg" {
+					/*if req.Action == "send_private_msg" || req.Action == "send_group_msg" {
 						if ispuremsg {
 							ag.AddTerminus(gid)
 							logrus.Warnln("[aichat] agent call send msg multi times, force inserting EOA")
 							return
 						}
 						ispuremsg = true
-					}
+					}*/
 					logrus.Debugln("[chat] agent triggered", gid, "add requ:", &req)
 					ag.AddRequest(gid, &req)
 					rsp := ctx.CallAction(req.Action, req.Params)
