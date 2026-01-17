@@ -52,8 +52,8 @@ func init() {
 			logrus.Warnln("ERROR: cannot get stor")
 			return false
 		}
-		if _, ok := ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_hooked__"]; !ok {
-			logrus.Warnln("ERROR: ctx has not been hooked by agent")
+		if _, ok := ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_hooked__"]; !ok && !stor.NoAgent() {
+			logrus.Infoln("[aichat] skip agent for ctx has not been hooked by agent")
 			return false
 		}
 		if !(ctx.ExtractPlainText() != "" &&
@@ -62,10 +62,6 @@ func init() {
 		}
 		rate := stor.Rate()
 		if !ctx.Event.IsToMe && rand.Intn(100) >= int(rate) {
-			return false
-		}
-		if chat.AC.Key == "" {
-			logrus.Warnln("ERROR: get extra err: empty key")
 			return false
 		}
 		if ctx.Event.IsToMe {
@@ -82,7 +78,7 @@ func init() {
 		topp, maxn := chat.AC.MParams()
 
 		logrus.Debugln("[aichat] agent mode test: noagent", stor.NoAgent(), "hasapi", chat.AC.AgentAPI != "", "hasmodel", chat.AC.AgentModelName != "")
-		if !stor.NoAgent() && chat.AC.AgentAPI != "" && chat.AC.AgentModelName != "" {
+		if !stor.NoAgent() && chat.AC.AgentAPI != "" && chat.AC.AgentModelName != "" && chat.AC.Key != "" {
 			logrus.Debugln("[aichat] enter agent mode")
 			x := deepinfra.NewAPI(chat.AC.AgentAPI, string(chat.AC.AgentKey))
 			mod, err := chat.AC.Type.Protocol(chat.AC.AgentModelName, temperature, topp, maxn)

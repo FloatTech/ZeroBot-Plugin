@@ -1635,7 +1635,9 @@ print("run[CQ:image,file="+j["img"]+"]")
   - [x] 设置AI聊天(不)以AI语音输出
   - [x] 设置AI聊天Agent性格
   - [x] 查看AI聊天Agent性格
-  - [x] 重置AI聊天Agent性格
+  - [x] 设置AI聊天Agent性别
+  - [x] 查看AI聊天Agent性别
+  - [x] 重置AI聊天Agent性格性别
   - [x] 重置AI聊天Agent
   - [x] 查看AI聊天配置 
   - [x] 重置AI聊天

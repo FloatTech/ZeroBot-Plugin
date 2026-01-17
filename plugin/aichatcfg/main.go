@@ -29,9 +29,11 @@ var (
 			"- 查看AI聊天系统提示词\n" +
 			"- 重置AI聊天系统提示词\n" +
 			"- 设置AI聊天系统提示词xxx\n" +
-			"- 设置AI聊天Agent性格" +
-			"- 查看AI聊天Agent性格xxx" +
-			"- 重置AI聊天Agent性格\n" +
+			"- 设置AI聊天Agent性格xxx" +
+			"- 查看AI聊天Agent性格" +
+			"- 设置AI聊天Agent性别xxx" +
+			"- 查看AI聊天Agent性别" +
+			"- 重置AI聊天Agent性格性别\n" +
 			"- 设置AI聊天分隔符</think>(留空则清除)\n" +
 			"- 设置AI聊天(不)响应AT\n" +
 			"- 设置AI聊天最大长度4096\n" +
@@ -45,12 +47,6 @@ var (
 
 func init() {
 	en.UsePreHandler(chat.EnsureConfig, func(ctx *zero.Ctx) bool {
-		if !chat.IsAgentCharReady {
-			if chat.AC.AgentChar != "" {
-				chat.AgentChar = []byte(chat.AC.AgentChar)
-			}
-			chat.IsAgentCharReady = true
-		}
 		k := zero.StateKeyPrefixKeep + "aichatcfg_stor__"
 		if _, ok := ctx.State[k]; ok {
 			return true
@@ -98,7 +94,13 @@ func init() {
 	en.OnPrefix("设置AI聊天系统提示词", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(chat.NewExtraSetStr(&chat.AC.SystemP))
 	en.OnPrefix("设置AI聊天Agent性格", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(chat.NewExtraSetStr(&chat.AC.AgentChar))
+		Handle(chat.NewExtraSetStr(&chat.AC.AgentChar), func(ctx *zero.Ctx) {
+			chat.AgentCharConfig.Chars = chat.AC.AgentChar
+		})
+	en.OnPrefix("设置AI聊天Agent性别", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(chat.NewExtraSetStr(&chat.AC.AgentSex), func(ctx *zero.Ctx) {
+			chat.AgentCharConfig.Sex = chat.AC.AgentSex
+		})
 	en.OnFullMatch("查看AI聊天系统提示词", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		ctx.SendChain(message.Text(chat.AC.SystemP))
 	})
@@ -119,13 +121,13 @@ func init() {
 		}
 		ctx.SendChain(message.Text("成功"))
 	})
-	en.OnFullMatch("重置AI聊天Agent性格", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnFullMatch("重置AI聊天Agent性格性别", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 		if !ok {
 			ctx.SendChain(message.Text("ERROR: no such plugin"))
 			return
 		}
-		chat.AC.AgentChar = ""
+		chat.ResetAgentCharConfig()
 		err := c.SetExtra(&chat.AC)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: set extra err: ", err))
