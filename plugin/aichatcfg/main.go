@@ -94,11 +94,11 @@ func init() {
 	en.OnPrefix("设置AI聊天系统提示词", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
 		Handle(chat.NewExtraSetStr(&chat.AC.SystemP))
 	en.OnPrefix("设置AI聊天Agent性格", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(chat.NewExtraSetStr(&chat.AC.AgentChar), func(ctx *zero.Ctx) {
+		Handle(chat.NewExtraSetStr(&chat.AC.AgentChar), func(_ *zero.Ctx) {
 			chat.AgentCharConfig.Chars = chat.AC.AgentChar
 		})
 	en.OnPrefix("设置AI聊天Agent性别", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
-		Handle(chat.NewExtraSetStr(&chat.AC.AgentSex), func(ctx *zero.Ctx) {
+		Handle(chat.NewExtraSetStr(&chat.AC.AgentSex), func(_ *zero.Ctx) {
 			chat.AgentCharConfig.Sex = chat.AC.AgentSex
 		})
 	en.OnFullMatch("查看AI聊天系统提示词", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
