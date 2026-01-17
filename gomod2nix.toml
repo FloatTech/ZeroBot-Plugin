@@ -29,8 +29,8 @@ schema = 3
     version = "v1.7.1"
     hash = "sha256-wkeiaUTpPVbpH7fcXeoLtG+aGIMJbvoc/9sbi2IXK0I="
   [mod."github.com/FloatTech/zbputils"]
-    version = "v1.7.2-0.20260117035520-ab3ea04ef68c"
-    hash = "sha256-OgBPWxRt9pXQSD/IFmB7fsI0eOvOvvTF3FsARUxVFIA="
+    version = "v1.7.2-0.20260117102821-810378820dcc"
+    hash = "sha256-tDpYZB2Snw8kaZbqw0Q+q98/dk1JJLesEU+poqyrhr8="
   [mod."github.com/PuerkitoBio/goquery"]
     version = "v1.8.0"
     hash = "sha256-I3QaPWATvBOL/F26fIiYWKS13yBUYo+9o3tcsGIu8tY="
@@ -92,8 +92,8 @@ schema = 3
     version = "v1.7.1"
     hash = "sha256-Fd1QaeYx+3q4C3XQXlPFnDmKPsoZH6837fN/7rn8i9s="
   [mod."github.com/fumiama/go-onebot-agent"]
-    version = "v0.0.0-20260106161505-f7d25272034c"
-    hash = "sha256-+bu2VbZVwS7SDgfx53aZjQxSRtrXFi+g0Jn8W9w6QQ8="
+    version = "v0.0.0-20260117094018-cd93ccfd6e04"
+    hash = "sha256-V4Lpzn+KC1SXblNv9GnVfKd0femTaqty7wqFXuD+Roo="
   [mod."github.com/fumiama/go-registry"]
     version = "v0.2.7"
     hash = "sha256-Rjl+z0Hlp2LMi8+pnFe5HrxctyHMi7UPiK33g/OgLdA="
@@ -224,8 +224,8 @@ schema = 3
     version = "v4.25.12"
     hash = "sha256-gzk9GW4+tXUWmxAVD3by/k4D/+l++TvajRVTkQJvwmM="
   [mod."github.com/sirupsen/logrus"]
-    version = "v1.9.3"
-    hash = "sha256-EnxsWdEUPYid+aZ9H4/iMTs1XMvCLbXZRDyvj89Ebms="
+    version = "v1.9.4"
+    hash = "sha256-ltRvmtM3XTCAFwY0IesfRqYIivyXPPuvkFjL4ARh1wg="
   [mod."github.com/tetratelabs/wazero"]
     version = "v1.5.0"
     hash = "sha256-fGdJM4LJrZA9jxHuYVo4EUQ3I1k0IVG3QQCBCgZkeZI="
@@ -248,8 +248,8 @@ schema = 3
     version = "v2.1.2"
     hash = "sha256-GXWWea/u6BezTsPPrWhTYiTetPP/YW6P+Sj4YdocPaM="
   [mod."github.com/wdvxdr1123/ZeroBot"]
-    version = "v1.8.3-0.20260108153355-cbf2ab0dd527"
-    hash = "sha256-cD/6S94r0fgp0112TFsddESKwoXGe1L7LSFAkJvh3LQ="
+    version = "v1.8.3-0.20260117102541-393033a35adb"
+    hash = "sha256-Yz2OTU05kDZOHX8J04jX5Jg5ya9rwqsH0TySSBhMOp0="
   [mod."github.com/yusufpapurcu/wmi"]
     version = "v1.2.4"
     hash = "sha256-N+YDBjOW59YOsZ2lRBVtFsEEi48KhNQRb63/0ZSU3bA="
