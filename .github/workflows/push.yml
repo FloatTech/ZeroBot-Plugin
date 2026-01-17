@@ -20,10 +20,8 @@ jobs:
           fetch-depth: 0
           submodules: 'recursive'
 
-      - name: Tidy Modules
-        run: |
-          go mod tidy
-          go generate main.go
+      - name: Prepare Necessary Runtime Files
+        run: go generate main.go
 
       - name: Run Lint
         uses: golangci/golangci-lint-action@master
