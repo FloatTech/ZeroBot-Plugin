@@ -1,6 +1,6 @@
 module github.com/FloatTech/ZeroBot-Plugin
 
-go 1.24.2
+go 1.25.1
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
@@ -33,7 +33,7 @@ require (
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/uuid v1.6.0
-	github.com/guohuiyuan/music-lib v1.0.1
+	github.com/guohuiyuan/music-lib v1.0.2-0.20260121020416-53f6cb24629d
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jozsefsallai/gophersauce v1.0.1
 	github.com/kanrichan/resvg-go v0.0.2-0.20231001163256-63db194ca9f5
