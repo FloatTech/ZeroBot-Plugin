@@ -2,7 +2,6 @@
 package music
 
 import (
-	"errors"
 	"fmt"
 
 	ctrl "github.com/FloatTech/zbpctrl"     // 别名 zbpctrl 为 ctrl
@@ -13,18 +12,19 @@ import (
 	"github.com/guohuiyuan/music-lib/migu"
 	"github.com/guohuiyuan/music-lib/netease"
 	"github.com/guohuiyuan/music-lib/qq"
+	"github.com/pkg/errors"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-// 平台映射：指令前缀 -> 平台名称
-var platformMap = map[string]string{
-	"咪咕": "migu",
-	"酷我": "kuwo",
-	"酷狗": "kugou",
-	"网易": "netease",
-	"qq": "qq",
-	"":   "kuwo", // 默认点歌指向酷我
+// 平台映射：指令前缀 -> 点歌函数
+var platformMap = map[string]func(string) (message.Segment, error){
+	"咪咕": getMiguMusic,
+	"酷我": getKuwoMusic,
+	"酷狗": getKugouMusic,
+	"网易": getNeteaseMusic,
+	"qq": getQQMusic,
+	"":   getKuwoMusic, // 默认点歌指向酷我
 }
 
 func init() {
@@ -44,55 +44,46 @@ func init() {
 			platformPrefix := matches[1]
 			keyword := matches[2]
 
-			// 获取目标平台
-			targetPlatform, ok := platformMap[platformPrefix]
+			// 获取目标平台处理函数
+			processFunc, ok := platformMap[platformPrefix]
 			if !ok {
 				ctx.SendChain(message.Text("不支持的点播平台：", platformPrefix))
 				return
 			}
 
 			// 执行点播并返回结果
-			seg, err := getMusicSegment(targetPlatform, keyword)
+			seg, err := processFunc(keyword)
 			if err != nil {
-				ctx.SendChain(message.Text("点歌失败：", err.Error()))
+				// 修改：直接传递 err，不需要 call .Error()
+				ctx.SendChain(message.Text("点歌失败：", err))
 				return
 			}
 			ctx.SendChain(seg)
 		})
 }
 
-// getMusicSegment 根据平台和关键词获取音乐消息段
-func getMusicSegment(platform, keyword string) (message.Segment, error) {
-	switch platform {
-	case "migu":
-		return getMiguMusic(keyword)
-	case "kuwo":
-		return getKuwoMusic(keyword)
-	case "kugou":
-		return getKugouMusic(keyword)
-	case "netease":
-		return getNeteaseMusic(keyword)
-	case "qq":
-		return getQQMusic(keyword)
-	default:
-		return message.Segment{}, errors.New("未知的音乐平台：" + platform)
-	}
-}
+// 删除了 getMusicSegment 函数，因为已经通过 Map 直接分发
 
 // --- 各平台适配层（基于 music-lib 实现） ---
 
 // getMiguMusic 咪咕音乐点播
 func getMiguMusic(keyword string) (message.Segment, error) {
 	songs, err := migu.Search(keyword)
-	if err != nil || len(songs) == 0 {
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "咪咕音乐搜索失败")
+	}
+	if len(songs) == 0 {
 		return message.Segment{}, errors.New("咪咕音乐未找到相关歌曲：" + keyword)
 	}
 	song := songs[0]
 
 	// 传入 &song (指针)
 	playURL, err := migu.GetDownloadURL(&song)
-	if err != nil || playURL == "" {
-		return message.Segment{}, errors.New("获取咪咕播放链接失败：" + err.Error())
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "获取咪咕播放链接失败")
+	}
+	if playURL == "" {
+		return message.Segment{}, errors.New("获取咪咕播放链接失败：链接为空")
 	}
 
 	return message.CustomMusic(
@@ -105,15 +96,21 @@ func getMiguMusic(keyword string) (message.Segment, error) {
 // getKuwoMusic 酷我音乐点播
 func getKuwoMusic(keyword string) (message.Segment, error) {
 	songs, err := kuwo.Search(keyword)
-	if err != nil || len(songs) == 0 {
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "酷我音乐搜索失败")
+	}
+	if len(songs) == 0 {
 		return message.Segment{}, errors.New("酷我音乐未找到相关歌曲：" + keyword)
 	}
 	song := songs[0]
 
 	// 传入 &song (指针)
 	playURL, err := kuwo.GetDownloadURL(&song)
-	if err != nil || playURL == "" {
-		return message.Segment{}, errors.New("获取酷我播放链接失败：" + err.Error())
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "获取酷我播放链接失败")
+	}
+	if playURL == "" {
+		return message.Segment{}, errors.New("获取酷我播放链接失败：链接为空")
 	}
 
 	return message.CustomMusic(
@@ -126,15 +123,21 @@ func getKuwoMusic(keyword string) (message.Segment, error) {
 // getKugouMusic 酷狗音乐点播
 func getKugouMusic(keyword string) (message.Segment, error) {
 	songs, err := kugou.Search(keyword)
-	if err != nil || len(songs) == 0 {
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "酷狗音乐搜索失败")
+	}
+	if len(songs) == 0 {
 		return message.Segment{}, errors.New("酷狗音乐未找到相关歌曲：" + keyword)
 	}
 	song := songs[0]
 
 	// 传入 &song (指针)
 	playURL, err := kugou.GetDownloadURL(&song)
-	if err != nil || playURL == "" {
-		return message.Segment{}, errors.New("获取酷狗播放链接失败：" + err.Error())
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "获取酷狗播放链接失败")
+	}
+	if playURL == "" {
+		return message.Segment{}, errors.New("获取酷狗播放链接失败：链接为空")
 	}
 
 	return message.CustomMusic(
@@ -147,15 +150,21 @@ func getKugouMusic(keyword string) (message.Segment, error) {
 // getNeteaseMusic 网易云音乐点播
 func getNeteaseMusic(keyword string) (message.Segment, error) {
 	songs, err := netease.Search(keyword)
-	if err != nil || len(songs) == 0 {
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "网易云音乐搜索失败")
+	}
+	if len(songs) == 0 {
 		return message.Segment{}, errors.New("网易云音乐未找到相关歌曲：" + keyword)
 	}
 	song := songs[0]
 
 	// 获取播放直链
 	playURL, err := netease.GetDownloadURL(&song)
-	if err != nil || playURL == "" {
-		return message.Segment{}, errors.New("获取网易云播放链接失败：" + err.Error())
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "获取网易云播放链接失败")
+	}
+	if playURL == "" {
+		return message.Segment{}, errors.New("获取网易云播放链接失败：链接为空")
 	}
 
 	// 构造 CustomMusic
@@ -169,15 +178,21 @@ func getNeteaseMusic(keyword string) (message.Segment, error) {
 // getQQMusic QQ音乐点播
 func getQQMusic(keyword string) (message.Segment, error) {
 	songs, err := qq.Search(keyword)
-	if err != nil || len(songs) == 0 {
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "QQ音乐搜索失败")
+	}
+	if len(songs) == 0 {
 		return message.Segment{}, errors.New("QQ音乐未找到相关歌曲：" + keyword)
 	}
 	song := songs[0]
 
 	// 获取播放直链
 	playURL, err := qq.GetDownloadURL(&song)
-	if err != nil || playURL == "" {
-		return message.Segment{}, errors.New("获取QQ音乐播放链接失败：" + err.Error())
+	if err != nil {
+		return message.Segment{}, errors.Wrap(err, "获取QQ音乐播放链接失败")
+	}
+	if playURL == "" {
+		return message.Segment{}, errors.New("获取QQ音乐播放链接失败：链接为空")
 	}
 
 	// 构造 CustomMusic
