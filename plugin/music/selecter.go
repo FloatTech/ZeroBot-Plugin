@@ -57,24 +57,6 @@ func init() {
 		})
 }
 
-// getMusicSegment 根据平台和关键词获取音乐消息段
-func getMusicSegment(platform, keyword string) (message.Segment, error) {
-	switch platform {
-	case "migu":
-		return getMiguMusic(keyword)
-	case "kuwo":
-		return getKuwoMusic(keyword)
-	case "kugou":
-		return getKugouMusic(keyword)
-	case "netease":
-		return getNeteaseMusic(keyword)
-	case "qq":
-		return getQQMusic(keyword)
-	default:
-		return message.Segment{}, errors.New("未知的音乐平台：" + platform)
-	}
-}
-
 func getMiguMusic(keyword string) (message.Segment, error) {
 	songs, err := migu.Search(keyword)
 	if err != nil {
