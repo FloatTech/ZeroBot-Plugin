@@ -142,6 +142,9 @@ schema = 3
   [mod."github.com/gopxl/beep/v2"]
     version = "v2.1.1"
     hash = "sha256-JLCUJCG+VvNlVF296JWIOUvvUFHlqEAJvZfw853qwwU="
+  [mod."github.com/guohuiyuan/music-lib"]
+    version = "v1.0.2-0.20260121020416-53f6cb24629d"
+    hash = "sha256-juVJ/nh6zA5Gu5+dRzIx8tElXLscRQYwY9vLvVKh078="
   [mod."github.com/jfreymuth/oggvorbis"]
     version = "v1.0.5"
     hash = "sha256-jphTCaPr34ZT9Id4ZZ6zU9Vnxzy6cTjCwjpQ819eGV0="
