@@ -21,7 +21,9 @@ jobs:
           submodules: 'recursive'
 
       - name: Prepare Necessary Runtime Files
-        run: go generate main.go
+        run: |
+          go generate main.go
+          go mod tidy
 
       - name: Run Lint
         uses: golangci/golangci-lint-action@master
