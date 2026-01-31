@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/RomiChan/syncx"
 	"github.com/fumiama/deepinfra"
 	goba "github.com/fumiama/go-onebot-agent"
 	"github.com/sirupsen/logrus"
@@ -52,7 +53,8 @@ func init() {
 			logrus.Warnln("ERROR: cannot get stor")
 			return false
 		}
-		if _, ok := ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_hooked__"]; !ok && !stor.NoAgent() {
+		mp := ctx.State[control.StateKeySyncxState].(*syncx.Map[string, any])
+		if _, ok := mp.Load(chat.StateKeyAgentHooked); !ok && !stor.NoAgent() {
 			logrus.Infoln("[aichat] skip agent for ctx has not been hooked by agent")
 			return false
 		}
@@ -76,6 +78,7 @@ func init() {
 		stor := ctx.State[zero.StateKeyPrefixKeep+"aichatcfg_stor__"].(chat.Storage)
 		temperature := stor.Temp()
 		topp, maxn := chat.AC.MParams()
+		mp := ctx.State[control.StateKeySyncxState].(*syncx.Map[string, any])
 
 		logrus.Debugln("[aichat] agent mode test: noagent", stor.NoAgent(), "hasapi", chat.AC.AgentAPI != "", "hasmodel", chat.AC.AgentModelName != "")
 		if !stor.NoAgent() && chat.AC.AgentAPI != "" && chat.AC.AgentModelName != "" && chat.AC.Key != "" {
@@ -120,7 +123,7 @@ func init() {
 					break
 				}
 				hasresp = true
-				ctx.State[zero.StateKeyPrefixKeep+"_chat_ag_triggered__"] = struct{}{}
+				mp.Store(chat.StateKeyAgentTriggered, struct{}{})
 				for _, req := range reqs {
 					if req.Action == goba.SVM { // is a fake action
 						/*if hassavemem {
