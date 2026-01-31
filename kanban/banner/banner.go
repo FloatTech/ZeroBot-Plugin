@@ -3,13 +3,13 @@
 package banner
 
 // Version ...
-var Version = "v1.10.17"
+var Version = "v1.10.18"
 
 // Copyright ...
 var Copyright = "© 2020 - 2026 FloatTech"
 
 // Banner ...
 var Banner = "* OneBot + ZeroBot + Golang\n" +
-	"* Version " + Version + " - 2026-02-01 00:40:07 +0800 CST\n" +
+	"* Version " + Version + " - 2026-02-01 01:08:19 +0800 CST\n" +
 	"* Copyright " + Copyright + ". All Rights Reserved.\n" +
 	"* Project: https://github.com/FloatTech/ZeroBot-Plugin"
