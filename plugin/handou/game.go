@@ -28,7 +28,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-type idiomJson struct {
+type idiomJSON struct {
 	Word         string   `json:"word"`         // 成语
 	Chars        []string `json:"chars"`        // 成语
 	Pinyin       []string `json:"pinyin"`       // 拼音
@@ -106,7 +106,7 @@ var (
 	)
 
 	pinyinFont      []byte
-	idiomInfoMap    = make(map[string]idiomJson)
+	idiomInfoMap    = make(map[string]idiomJSON)
 	habitsIdiomKeys = make([]string, 0)
 
 	errHadGuessed      = errors.New("had guessed")
@@ -244,7 +244,7 @@ func poolIdiom() string {
 	return keys[rand.Intn(len(keys))]
 }
 
-func newHandouGame(target idiomJson) func(string) (bool, []byte, error) {
+func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 	var (
 		class  = len(target.Chars)
 		words  = target.Word
@@ -269,7 +269,7 @@ func newHandouGame(target idiomJson) func(string) (bool, []byte, error) {
 
 	return func(s string) (win bool, data []byte, err error) {
 		answer := []rune(s)
-		var answerData idiomJson
+		var answerData idiomJSON
 
 		if s != "" {
 			if words == s {
@@ -296,7 +296,7 @@ func newHandouGame(target idiomJson) func(string) (bool, []byte, error) {
 				logrus.Warningln("通过API获取成语信息: ", newIdiom.Word)
 				if newIdiom.Word != "" {
 					idiomInfoMap[newIdiom.Word] = *newIdiom
-					go func() { _ = saveIdiomJson() }()
+					go func() { _ = saveIdiomJSON() }()
 				}
 				if newIdiom.Word != s {
 					err = errUnknownWord
@@ -398,7 +398,7 @@ func newHandouGame(target idiomJson) func(string) (bool, []byte, error) {
 			}
 			existPinyin = append(existPinyin, v)
 		}
-		tickIdiom := idiomJson{
+		tickIdiom := idiomJSON{
 			Chars:  tickExistChars,
 			Pinyin: tickTruePinyin,
 		}
@@ -515,7 +515,7 @@ func newHandouGame(target idiomJson) func(string) (bool, []byte, error) {
 }
 
 // drawHanBlock 绘制汉字方块，支持多行显示（6字以上时分成两行）
-func drawHanBlock(hanFontSize, pinFontSize float64, idiom, target idiomJson, exitPinyin ...string) image.Image {
+func drawHanBlock(hanFontSize, pinFontSize float64, idiom, target idiomJSON, exitPinyin ...string) image.Image {
 	class := len(target.Chars)
 
 	// 确保切片长度一致
@@ -575,21 +575,21 @@ func drawHanBlock(hanFontSize, pinFontSize float64, idiom, target idiomJson, exi
 		}
 
 		// 计算当前字符在哪一行哪一列
-		idiom_rows := 0
+		idiomRows := 0
 		col := i
 		if rows > 1 {
-			idiom_rows = i / charsPerRow
+			idiomRows = i / charsPerRow
 			col = i % charsPerRow
 		}
 
 		x := float64(space + col*blockPinWidth)
 		// 如果上一层字数是奇数就额外移位
-		if idiom_rows%2 == 1 {
+		if idiomRows%2 == 1 {
 			x += float64(blockPinWidth) / 2
 		}
-		y := float64(idiom_rows*(int(pinHeight+hanHeight+boxPadding*2)+space*2) + space)
+		y := float64(idiomRows*(int(pinHeight+hanHeight+boxPadding*2)+space*2) + space)
 		if len(exitPinyin) > 0 {
-			y = float64(idiom_rows*(int(pinHeight+hanHeight+boxPadding*2+pinHeight)+space*2) + space)
+			y = float64(idiomRows*(int(pinHeight+hanHeight+boxPadding*2+pinHeight)+space*2) + space)
 		}
 
 		// 绘制拼音
@@ -654,7 +654,7 @@ func drawHanBlock(hanFontSize, pinFontSize float64, idiom, target idiomJson, exi
 	return ctx.Image()
 }
 
-func anserOutString(s idiomJson) string {
+func anserOutString(s idiomJSON) string {
 	msg := s.Word
 	if s.Baobian != "" && s.Baobian != "-" {
 		msg += "\n" + s.Baobian + "词"

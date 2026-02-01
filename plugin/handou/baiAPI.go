@@ -3,7 +3,7 @@ package handou
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/url"
 	"os"
 	"slices"
@@ -101,7 +101,7 @@ type baiduAPIData struct {
 	} `json:"data"`
 }
 
-func geiAPIdata(s string) (*idiomJson, error) {
+func geiAPIdata(s string) (*idiomJSON, error) {
 	url := "https://hanyuapp.baidu.com/dictapp/swan/termdetail?wd=" + url.QueryEscape(s) + "&client=pc&source_tag=2&lesson_from=xiaodu"
 	logrus.Warningln(url)
 	data, err := web.GetData(url)
@@ -115,7 +115,7 @@ func geiAPIdata(s string) (*idiomJson, error) {
 		return nil, err
 	}
 	if apiData.Data.Name == "" {
-		return nil, fmt.Errorf("未找到该成语")
+		return nil, errors.New("未找到该成语")
 	}
 	derivation := ""
 	for _, v := range apiData.Data.ChuChu {
@@ -127,7 +127,7 @@ func geiAPIdata(s string) (*idiomJson, error) {
 
 	explanation := apiData.Data.DefinitionInfo.Definition + apiData.Data.DefinitionInfo.ModernDefinition
 	if derivation == "" && explanation == "" {
-		return nil, fmt.Errorf("无法获取成语词源和解释")
+		return nil, errors.New("无法获取成语词源和解释")
 	}
 	synonyms := make([]string, len(apiData.Data.Synonyms))
 	for i, synonym := range apiData.Data.Synonyms {
@@ -154,7 +154,7 @@ func geiAPIdata(s string) (*idiomJson, error) {
 		pinyinSlice = strings.Split(apiData.Data.Definition[0].Pinyin, " ")
 	}
 
-	newIdiom := idiomJson{
+	newIdiom := idiomJSON{
 		Word:         apiData.Data.Name,
 		Chars:        chars,
 		Pinyin:       pinyinSlice,
@@ -170,7 +170,7 @@ func geiAPIdata(s string) (*idiomJson, error) {
 
 var mu sync.Mutex
 
-func saveIdiomJson() error {
+func saveIdiomJSON() error {
 	mu.Lock()
 	defer mu.Unlock()
 	f, err := os.Create(idiomFilePath)

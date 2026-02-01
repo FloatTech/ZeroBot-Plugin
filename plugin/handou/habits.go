@@ -3,6 +3,7 @@ package handou
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"math/rand"
@@ -15,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// UserHabits 用户习惯
 type UserHabits struct {
 	mu          sync.RWMutex
 	habits      map[string]int // 单字频率
@@ -38,7 +40,7 @@ func initUserHabits() error {
 	if file.IsNotExist(userHabitsFile) {
 		f, err := os.Create(userHabitsFile)
 		if err != nil {
-			return fmt.Errorf("创建用户习惯库时发生错误: %v", err)
+			return errors.New("创建用户习惯库时发生错误: " + err.Error())
 		}
 		_ = f.Close()
 		return saveHabits()
@@ -47,7 +49,7 @@ func initUserHabits() error {
 	// 读取现有习惯数据
 	habitsFile, err := os.ReadFile(userHabitsFile)
 	if err != nil {
-		return fmt.Errorf("读取用户习惯库时发生错误: %v", err)
+		return errors.New("读取用户习惯库时发生错误: " + err.Error())
 	}
 
 	var savedData struct {
@@ -69,7 +71,7 @@ func initUserHabits() error {
 				savedData.TotalWords += count
 			}
 		} else {
-			return fmt.Errorf("解析用户习惯库时发生错误: %v", err)
+			return errors.New("解析用户习惯库时发生错误: " + err.Error())
 		}
 	}
 
