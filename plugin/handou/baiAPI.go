@@ -103,7 +103,7 @@ type baiduAPIData struct {
 
 func geiAPIdata(s string) (*idiomJSON, error) {
 	url := "https://hanyuapp.baidu.com/dictapp/swan/termdetail?wd=" + url.QueryEscape(s) + "&client=pc&source_tag=2&lesson_from=xiaodu"
-	logrus.Warningln(url)
+	logrus.Debugln(url)
 	data, err := web.GetData(url)
 	if err != nil {
 		return nil, err

@@ -156,7 +156,7 @@ func updateHabits(input string) error {
 	// 异步保存到文件
 	go func() {
 		if err := saveHabits(); err != nil {
-			logrus.Warn("保存用户习惯时发生错误: ", err)
+			logrus.Debugln("保存用户习惯时发生错误: ", err)
 		}
 	}()
 
@@ -210,10 +210,11 @@ func calculatePriorityScore(idiom string) float64 {
 
 	// 4. 考虑成语长度, 让长成语也有机会被选中
 	idiomScore := 0.0
-	if rand.Intn(100) < 80 {
+	if rand.Intn(100) < 60 {
 		idiomScore = 20 / (1 + 1*math.Abs(float64(charsLenght)-4))
 	} else {
-		idiomScore = float64(charsLenght) * 10
+		count := 2.0 + float64(rand.Intn(18))
+		idiomScore = 100 / (1 + 1*math.Abs(float64(charsLenght)-count))
 	}
 
 	finalScore := charsScore + bigramScore + penaltyScore + idiomScore
@@ -272,7 +273,7 @@ func prioritizeData(data []string) []string {
 	prioritized := make([]string, limit)
 	for i := range limit {
 		prioritized[i] = idiomScores[startIndex+i].idiom
-		logrus.Warningf("成语 '%s' 分数=%.2f",
+		logrus.Debugf("成语 '%s' 分数=%.2f",
 			idiomScores[startIndex+i].idiom, idiomScores[startIndex+i].score)
 	}
 

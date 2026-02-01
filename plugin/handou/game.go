@@ -289,11 +289,11 @@ func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 			if !ok {
 				newIdiom, err1 := geiAPIdata(s)
 				if err1 != nil {
-					logrus.Warningln("通过API获取成语信息时发生错误: ", err1)
+					logrus.Debugln("通过API获取成语信息时发生错误: ", err1)
 					err = errUnknownWord
 					return
 				}
-				logrus.Warningln("通过API获取成语信息: ", newIdiom.Word)
+				logrus.Debugln("通过API获取成语信息: ", newIdiom.Word)
 				if newIdiom.Word != "" {
 					idiomInfoMap[newIdiom.Word] = *newIdiom
 					go func() { _ = saveIdiomJSON() }()
