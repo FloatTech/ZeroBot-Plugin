@@ -383,7 +383,7 @@ func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 					tickTruePinyin[i] = string(tickTruePinyinChar)
 					tickExistPinyin[i] = string(tickExistPinyinChar)
 				}
-				if len(record) == 2 {
+				if len(record) >= 2 {
 					tickTruePinyin[0] = pinyin[0]
 					tickExistChars[0] = chars[0]
 				}
