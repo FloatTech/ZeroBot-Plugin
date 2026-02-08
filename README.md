@@ -847,6 +847,16 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>猜成语</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/handou"`
+
+  - [x] 个人猜成语
+
+  - [x] 团队猜成语
+
+</details>
+<details>
   <summary>一言</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/hitokoto"`
