@@ -223,7 +223,6 @@ func init() {
 								message.Text("回答错误。"),
 							),
 						)
-
 					}
 				}
 			}
