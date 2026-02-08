@@ -104,7 +104,7 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/gif"               // 制图
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/github"            // 搜索GitHub仓库
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/guessmusic"        // 猜歌
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/handou"          	 // 猜成语
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/handou"            // 猜成语
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hitokoto"          // 一言
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hs"                // 炉石
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/hyaku"             // 百人一首
