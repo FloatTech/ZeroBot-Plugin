@@ -14,6 +14,11 @@ import (
 
 var faceTagRe = regexp.MustCompile(`\{\{face:(\d+)\}\}`)
 
+func parseID(v interface{}) int64 {
+	n, _ := strconv.ParseInt(fmt.Sprintf("%v", v), 10, 64)
+	return n
+}
+
 func serializeMsg(segs message.Message) string {
 	var sb strings.Builder
 	for _, seg := range segs {
@@ -57,9 +62,7 @@ func getInput(ctx *zero.Ctx, cmds ...string) string {
 func getReplyContent(ctx *zero.Ctx) string {
 	for _, seg := range ctx.Event.Message {
 		if seg.Type == "reply" {
-			var msgID int64
-			fmt.Sscanf(fmt.Sprintf("%v", seg.Data["id"]), "%d", &msgID)
-			if msgID > 0 {
+			if msgID := parseID(seg.Data["id"]); msgID > 0 {
 				if msg := ctx.GetMessage(msgID); msg.Elements != nil {
 					return serializeMsg(msg.Elements)
 				}
@@ -72,9 +75,7 @@ func getReplyContent(ctx *zero.Ctx) string {
 func getReplyFaceIDs(ctx *zero.Ctx) []int {
 	for _, seg := range ctx.Event.Message {
 		if seg.Type == "reply" {
-			var msgID int64
-			fmt.Sscanf(fmt.Sprintf("%v", seg.Data["id"]), "%d", &msgID)
-			if msgID > 0 {
+			if msgID := parseID(seg.Data["id"]); msgID > 0 {
 				return extractFaceIDs(ctx.GetMessage(msgID).Elements)
 			}
 		}
@@ -86,9 +87,7 @@ func extractFaceIDs(segs message.Message) []int {
 	var ids []int
 	for _, seg := range segs {
 		if seg.Type == "face" {
-			var id int
-			fmt.Sscanf(fmt.Sprintf("%v", seg.Data["id"]), "%d", &id)
-			if id > 0 {
+			if id := int(parseID(seg.Data["id"])); id > 0 {
 				ids = append(ids, id)
 			}
 		}
