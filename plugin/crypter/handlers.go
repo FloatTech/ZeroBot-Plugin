@@ -2,18 +2,106 @@
 package crypter
 
 import (
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+
 	"github.com/FloatTech/AnimeAPI/airecord"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
+var faceTagRe = regexp.MustCompile(`\{\{face:(\d+)\}\}`)
+
+func serializeMsg(segs message.Message) string {
+	var sb strings.Builder
+	for _, seg := range segs {
+		switch seg.Type {
+		case "text":
+			sb.WriteString(fmt.Sprintf("%v", seg.Data["text"]))
+		case "face":
+			fmt.Fprintf(&sb, "{{face:%v}}", seg.Data["id"])
+		}
+	}
+	return sb.String()
+}
+
+func deserializeMsg(s string) message.Message {
+	var msg message.Message
+	last := 0
+	for _, loc := range faceTagRe.FindAllStringSubmatchIndex(s, -1) {
+		if loc[0] > last {
+			msg = append(msg, message.Text(s[last:loc[0]]))
+		}
+		id, _ := strconv.Atoi(s[loc[2]:loc[3]])
+		msg = append(msg, message.Face(id))
+		last = loc[1]
+	}
+	if last < len(s) {
+		msg = append(msg, message.Text(s[last:]))
+	}
+	return msg
+}
+
+func getInput(ctx *zero.Ctx, cmds ...string) string {
+	full := serializeMsg(ctx.Event.Message)
+	for _, cmd := range cmds {
+		if idx := strings.Index(full, cmd); idx >= 0 {
+			return strings.TrimSpace(full[idx+len(cmd):])
+		}
+	}
+	return ""
+}
+
+func getReplyContent(ctx *zero.Ctx) string {
+	for _, seg := range ctx.Event.Message {
+		if seg.Type == "reply" {
+			var msgID int64
+			fmt.Sscanf(fmt.Sprintf("%v", seg.Data["id"]), "%d", &msgID)
+			if msgID > 0 {
+				if msg := ctx.GetMessage(msgID); msg.Elements != nil {
+					return serializeMsg(msg.Elements)
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func getReplyFaceIDs(ctx *zero.Ctx) []int {
+	for _, seg := range ctx.Event.Message {
+		if seg.Type == "reply" {
+			var msgID int64
+			fmt.Sscanf(fmt.Sprintf("%v", seg.Data["id"]), "%d", &msgID)
+			if msgID > 0 {
+				return extractFaceIDs(ctx.GetMessage(msgID).Elements)
+			}
+		}
+	}
+	return nil
+}
+
+func extractFaceIDs(segs message.Message) []int {
+	var ids []int
+	for _, seg := range segs {
+		if seg.Type == "face" {
+			var id int
+			fmt.Sscanf(fmt.Sprintf("%v", seg.Data["id"]), "%d", &id)
+			if id > 0 {
+				ids = append(ids, id)
+			}
+		}
+	}
+	return ids
+}
+
 // hou
 func houEncryptHandler(ctx *zero.Ctx) {
-	text := ctx.State["regex_matched"].([]string)[1]
+	text := getInput(ctx, "h加密", "齁语加密")
 	result := encodeHou(text)
 	recCfg := airecord.GetConfig()
-	record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, result)
-	if record != "" {
+	if record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, result); record != "" {
 		ctx.SendChain(message.Record(record))
 	} else {
 		ctx.SendChain(message.Text(result))
@@ -21,20 +109,52 @@ func houEncryptHandler(ctx *zero.Ctx) {
 }
 
 func houDecryptHandler(ctx *zero.Ctx) {
-	text := ctx.State["regex_matched"].([]string)[1]
-	result := decodeHou(text)
-	ctx.SendChain(message.Text(result))
+	text := getInput(ctx, "h解密", "齁语解密")
+	if text == "" {
+		text = getReplyContent(ctx)
+	}
+	if text == "" {
+		ctx.SendChain(message.Text("请输入密文或回复加密消息"))
+		return
+	}
+	ctx.SendChain(deserializeMsg(decodeHou(text))...)
 }
 
 // fumo
 func fumoEncryptHandler(ctx *zero.Ctx) {
-	text := ctx.State["regex_matched"].([]string)[1]
-	result := encryptFumo(text)
-	ctx.SendChain(message.Text(result))
+	ctx.SendChain(message.Text(encryptFumo(getInput(ctx, "fumo加密"))))
 }
 
 func fumoDecryptHandler(ctx *zero.Ctx) {
-	text := ctx.State["regex_matched"].([]string)[1]
-	result := decryptFumo(text)
-	ctx.SendChain(message.Text(result))
+	text := getInput(ctx, "fumo解密")
+	if text == "" {
+		text = getReplyContent(ctx)
+	}
+	if text == "" {
+		ctx.SendChain(message.Text("请输入密文或回复加密消息"))
+		return
+	}
+	ctx.SendChain(deserializeMsg(decryptFumo(text))...)
+}
+
+// qq表情
+func qqEmojiEncryptHandler(ctx *zero.Ctx) {
+	text := getInput(ctx, "qq加密")
+	if text == "" {
+		ctx.SendChain(message.Text("请输入要加密的文本"))
+		return
+	}
+	ctx.SendChain(encodeQQEmoji(text)...)
+}
+
+func qqEmojiDecryptHandler(ctx *zero.Ctx) {
+	faceIDs := extractFaceIDs(ctx.Event.Message)
+	if len(faceIDs) == 0 {
+		faceIDs = getReplyFaceIDs(ctx)
+	}
+	if len(faceIDs) == 0 {
+		ctx.SendChain(message.Text("请回复QQ表情加密消息进行解密"))
+		return
+	}
+	ctx.SendChain(deserializeMsg(decodeQQEmoji(faceIDs))...)
 }

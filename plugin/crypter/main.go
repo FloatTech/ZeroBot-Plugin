@@ -17,15 +17,25 @@ func init() {
 			"- 齁语解密 [密文] 或 h解密 [密文]\n\n" +
 			"- Fumo语加解密:\n" +
 			"- fumo加密 [文本]\n" +
-			"- fumo解密 [密文]\n\n",
+			"- fumo解密 [密文]\n\n" +
+			"- QQ表情加解密:\n" +
+			"- qq加密 [文本]\n" +
+			"- qq解密 [密文]\n\n" +
+			"注意：QQ表情解密建议使用回复，尽量不要复制粘贴\n\n",
 		PublicDataFolder: "Crypter",
 	})
 
+	re := `(?:\[CQ:reply,id=-?\d+\])?`
+
 	// hou
-	engine.OnRegex(`^(?:齁语加密|h加密)\s*(.+)$`).SetBlock(true).Handle(houEncryptHandler)
-	engine.OnRegex(`^(?:齁语解密|h解密)\s*(.+)$`).SetBlock(true).Handle(houDecryptHandler)
+	engine.OnRegex(re + `^(?:齁语加密|h加密)\s*(.+)$`).SetBlock(true).Handle(houEncryptHandler)
+	engine.OnRegex(re + `(?:齁语解密|h解密)\s*(.*)$`).SetBlock(true).Handle(houDecryptHandler)
 
 	// Fumo
-	engine.OnRegex(`^fumo加密\s*(.+)$`).SetBlock(true).Handle(fumoEncryptHandler)
-	engine.OnRegex(`^fumo解密\s*(.+)$`).SetBlock(true).Handle(fumoDecryptHandler)
+	engine.OnRegex(re + `^fumo加密\s*(.+)$`).SetBlock(true).Handle(fumoEncryptHandler)
+	engine.OnRegex(re + `fumo解密\s*(.*)$`).SetBlock(true).Handle(fumoDecryptHandler)
+
+	// QQ表情
+	engine.OnRegex(re + `^qq加密\s*(.+)$`).SetBlock(true).Handle(qqEmojiEncryptHandler)
+	engine.OnRegex(re + `qq解密`).SetBlock(true).Handle(qqEmojiDecryptHandler)
 }
