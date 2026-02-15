@@ -15,7 +15,7 @@ import (
 var faceTagRe = regexp.MustCompile(`\{\{face:(\d+)\}\}`)
 
 func parseID(v interface{}) int64 {
-	n, _ := strconv.ParseInt(fmt.Sprintf("%v", v), 10, 64)
+	n, _ := strconv.ParseInt(fmt.Sprint(v), 10, 64)
 	return n
 }
 
@@ -34,17 +34,16 @@ func serializeMsg(segs message.Message) string {
 
 func deserializeMsg(s string) message.Message {
 	var msg message.Message
-	last := 0
-	for _, loc := range faceTagRe.FindAllStringSubmatchIndex(s, -1) {
-		if loc[0] > last {
-			msg = append(msg, message.Text(s[last:loc[0]]))
+	parts := faceTagRe.Split(s, -1)
+	matches := faceTagRe.FindAllStringSubmatch(s, -1)
+	for i, part := range parts {
+		if part != "" {
+			msg = append(msg, message.Text(part))
 		}
-		id, _ := strconv.Atoi(s[loc[2]:loc[3]])
-		msg = append(msg, message.Face(id))
-		last = loc[1]
-	}
-	if last < len(s) {
-		msg = append(msg, message.Text(s[last:]))
+		if i < len(matches) {
+			id, _ := strconv.Atoi(matches[i][1])
+			msg = append(msg, message.Face(id))
+		}
 	}
 	return msg
 }
