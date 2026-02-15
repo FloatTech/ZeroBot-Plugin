@@ -24,7 +24,7 @@ func serializeMsg(segs message.Message) string {
 	for _, seg := range segs {
 		switch seg.Type {
 		case "text":
-			sb.WriteString(fmt.Sprintf("%v", seg.Data["text"]))
+			sb.WriteString(seg.Data["text"])
 		case "face":
 			fmt.Fprintf(&sb, "{{face:%v}}", seg.Data["id"])
 		}
