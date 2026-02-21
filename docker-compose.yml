@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     # Image is composed from your Docker Hub username and repository name.
     # Provide values in a .env file (see .env.example) or export them in your shell.
-    image: ${DOCKERHUB_USERNAME}/ZeroBot-Plugin:latest
+    image: ${DOCKERHUB_USERNAME}/zerobot-plugin:latest
     container_name: zerobot-plugin
     restart: unless-stopped
     # No ports or volumes needed for the bot by default

@@ -11,3 +11,4 @@ ZeroBot-Plugin*
 /.direnv
 /result
 config.json
+.env

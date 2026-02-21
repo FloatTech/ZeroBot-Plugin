@@ -13,6 +13,9 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Run code generators (generate banner and other generated files)
+RUN go generate main.go
+
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o zerobot-plugin .
 
