@@ -43,7 +43,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/zerobot-plugin
           # generate Docker tags based on the following events/attributes
           #   nightly, master, pr-2, 1.2.3, 1.2, 1
           tags: |
