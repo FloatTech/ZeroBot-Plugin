@@ -41,8 +41,6 @@ jobs:
         with:
           images: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/zerobot-plugin
-          # generate Docker tags based on the following events/attributes
-          #   nightly, master, pr-2, 1.2.3, 1.2, 1
           tags: |
             type=schedule,pattern=nightly
             type=edge
@@ -51,6 +49,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
+            type=raw,value=latest
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
