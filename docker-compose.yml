@@ -11,6 +11,6 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ./data:/home/appuser/data
-      - ./config.json:/home/appuser/config.json:ro
+      - ./config.json:/home/appuser/config.json
     command: ["/home/appuser/zerobot-plugin", "-c", "/home/appuser/config.json"]
     user: "1000:1000"
