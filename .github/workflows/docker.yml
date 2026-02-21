@@ -30,7 +30,7 @@ jobs:
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Debug Docker Login
         run: |
-          echo "Username: ${{ secrets.DOCKER_HUB_USERNAME }}" 
+          echo "Username: ${{ secrets.DOCKERHUB_USERNAME }}" 
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
