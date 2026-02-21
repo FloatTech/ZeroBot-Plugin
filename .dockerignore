@@ -58,3 +58,5 @@ docs/
 !go.mod
 !go.sum
 !Dockerfile
+config.json
+.env

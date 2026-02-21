@@ -47,5 +47,7 @@ VOLUME ["/home/appuser/data"]
 # Switch to non-root user
 USER appuser
 
+RUN /home/appuser/zerobot-plugin -s /home/appuser/config.json || true
+
 # Run the bot by default (absolute path)
 CMD ["/home/appuser/zerobot-plugin"]
