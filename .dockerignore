@@ -1,0 +1,62 @@
+.git
+.github
+.gitlab-ci.yml
+.dockerignore
+# VCS
+.git
+.github
+.gitlab-ci.yml
+
+# Docker / misc
+.dockerignore
+.DS_Store
+.env
+.env.local
+
+# Editors/IDEs
+.vscode
+.idea
+*.swp
+*.swo
+
+# Node / build artifacts
+node_modules
+
+# Common binary / build outputs
+bin/
+dist/
+_build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+
+# Logs, caches, temporary files
+*.log
+*.tmp
+*.prof
+coverage.out
+*.coverprofile
+.cache
+tmp/
+temp/
+
+# Go test / tooling
+Godeps/
+*.test
+
+# Generated files and large data
+**/gen/
+data/
+downloads
+docs/
+
+# Keep module files and Dockerfile in context
+!go.mod
+!go.sum
+!Dockerfile
+config.json
+.env
