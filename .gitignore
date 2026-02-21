@@ -10,3 +10,4 @@ ZeroBot-Plugin*
 *.syso
 /.direnv
 /result
+config.json
