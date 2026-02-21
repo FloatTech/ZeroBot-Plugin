@@ -1,24 +1,16 @@
 services:
   zerobot-plugin:
-    # 如果当前目录下有 Dockerfile，会自动构建
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
-    # Image is composed from your Docker Hub username and repository name.
-    # Provide values in a .env file (see .env.example) or export them in your shell.
     image: ${DOCKERHUB_USERNAME}/zerobot-plugin:latest
     container_name: zerobot-plugin
     restart: unless-stopped
-    # No ports or volumes needed for the bot by default
+    working_dir: /home/appuser
     environment:
       - TZ=Asia/Shanghai
-      # Set DOCKERHUB_USERNAME in your environment when using this compose file
-      # e.g. `export DOCKERHUB_USERNAME=yourhubuser`
-    # Mount runtime data and config (adjust via .env or defaults)
     volumes:
-      - /data:/home/appuser/data
+      - ./data:/home/appuser/data
       - ./config.json:/home/appuser/config.json:ro
-    # Run the bot with the mounted config
     command: ["/home/appuser/zerobot-plugin", "-c", "/home/appuser/config.json"]
-    # 确保以 appuser (uid=1000) 身份运行，配合宿主机权限设置
     user: "1000:1000"
