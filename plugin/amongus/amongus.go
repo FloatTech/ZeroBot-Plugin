@@ -108,7 +108,7 @@ func init() {
 				return
 			}
 			// 请求 API 获取战绩
-			data, err := web.GetData(profileAPI + user.AmongusID)
+			data, err := web.GetData(profileAPI + strings.ReplaceAll(user.AmongusID, "#", "%23"))
 			if err != nil {
 				ctx.SendChain(message.Text("[amongus] 请求失败: ", err))
 				return
