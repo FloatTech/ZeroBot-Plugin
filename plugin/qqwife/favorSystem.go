@@ -118,10 +118,12 @@ func init() {
 				ctx.SendChain(message.At(uid), message.Text("[ERROR]:你的技能CD记录失败\n", err))
 			}
 			// 输出结果
+			gifts := []string{"女装", "玫瑰花", "巧克力", "非洲之心", "睡衣", "玩偶", "咸鱼之王","键盘","保洁织的围巾","机器人","足力健","奥特曼","Amongus","鹅鸭杀"}
+			gift := gifts[rand.Intn(len(gifts))]
 			if mood == 0 {
-				ctx.SendChain(message.Text("你花了", moneyToFavor, wallet.GetWalletName(), "买了一件女装送给了ta,ta很不喜欢,你们的好感度降低至", lastfavor))
+				ctx.SendChain(message.Text("你花了", moneyToFavor, wallet.GetWalletName(), "买了", gift, "送给了ta,ta很不喜欢,你们的好感度降低至", lastfavor))
 			} else {
-				ctx.SendChain(message.Text("你花了", moneyToFavor, wallet.GetWalletName(), "买了一件女装送给了ta,ta很喜欢,你们的好感度升至", lastfavor))
+				ctx.SendChain(message.Text("你花了", moneyToFavor, wallet.GetWalletName(), "买了", gift, "送给了ta,ta很喜欢,你们的好感度升至", lastfavor))
 			}
 		})
 	engine.OnFullMatch("好感度列表", zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).

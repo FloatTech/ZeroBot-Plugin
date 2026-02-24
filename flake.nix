@@ -64,8 +64,10 @@
         contents = [
           pkgs.cacert
           pkgs.openssl
+          pkgs.tzdata
         ];
         config = {
+          Env = ["TZ=Asia/Shanghai"];
           Cmd = ["${ZeroBot-Plugin}/bin/ZeroBot-Plugin"];
         };
       };
