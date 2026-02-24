@@ -254,7 +254,7 @@ func init() {
 			)
 		})
 	// 做媒技能
-	engine.OnMessage(zero.NewPattern(nil).Text(`做媒`).At().AsRule(), zero.OnlyGroup, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
+	engine.OnMessage(zero.NewPattern(nil).Text(`做媒`).At().At().AsRule(), zero.OnlyGroup, getdb, checkMatchmaker).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
