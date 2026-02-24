@@ -1547,29 +1547,6 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
-  <summary>游戏王白鸽API卡查</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygocdb"`
-
-  - [x] /ydp [xxx]
-  - [x] /yds [xxx]
-  - [x] /ydb [xxx]
-  - 注：[xxx]为搜索内容;p:返回一张图片;s:返回一张效果描述;b:高级搜索
-
-</details>
-<details>
-  <summary>游戏王集换社卡价查询</summary>
-
-  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygotrade"`
-
-  - [x] 查卡价 [卡名]
-  - [x] 查卡价 [卡名] -r [稀有度 稀有度 ...]
-  - [x] 查卡店  [卡名]
-  - [x] 查卡店  [卡名] -r [稀有度]
-  - 注：卡店只支持单个稀有度查询
-
-</details>
-<details>
   <summary>月幕galgame图</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"`

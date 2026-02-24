@@ -67,6 +67,7 @@ import (
 	//                               vvvv                               //
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/custom"                   // 自定义插件合集
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/amongus"           // Amongus
 	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ahsai"             // ahsai tts
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aifalse"           // 服务器监控
 	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/aiimage"           // AI画图
@@ -157,8 +158,6 @@ import (
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordcount"         // 聊天热词
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/wordle"            // 猜单词
 	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/xhstext"           // 小红书文案
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygocdb"            // 游戏王白鸽API卡查
-	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ygotrade"          // 游戏王集换社卡价查询
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/ymgal"             // 月幕galgame
 	//_ "github.com/FloatTech/ZeroBot-Plugin/plugin/yujn"              // 遇见API
 
