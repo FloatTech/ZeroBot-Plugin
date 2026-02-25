@@ -104,24 +104,24 @@ func init() {
 		picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
 		// 获取签到时间
 		si := sdb.GetSignInByUID(uid)
-		// siUpdateTimeStr := si.UpdatedAt.Format("20060102")
+		siUpdateTimeStr := si.UpdatedAt.Format("20060102")
 
-		// switch {
-		// case si.Count >= signinMax && siUpdateTimeStr == today:
-		// 	// 如果签到时间是今天
-		// 	ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
-		// 	if file.IsExist(drawedFile) {
-		// 		trySendImage(drawedFile, ctx)
-		// 	}
-		// 	return
-		// case siUpdateTimeStr != today:
-		// 	// 如果是跨天签到就清数据
-		// 	err := sdb.InsertOrUpdateSignInCountByUID(uid, 0)
-		// 	if err != nil {
-		// 		ctx.SendChain(message.Text("ERROR: ", err))
-		// 		return
-		// 	}
-		// }
+		switch {
+		case si.Count >= signinMax && siUpdateTimeStr == today:
+			// 如果签到时间是今天
+			ctx.SendChain(message.Reply(ctx.Event.MessageID), message.Text("今天你已经签到过了！"))
+			if file.IsExist(drawedFile) {
+				trySendImage(drawedFile, ctx)
+			}
+			return
+		case siUpdateTimeStr != today:
+			// 如果是跨天签到就清数据
+			err := sdb.InsertOrUpdateSignInCountByUID(uid, 0)
+			if err != nil {
+				ctx.SendChain(message.Text("ERROR: ", err))
+				return
+			}
+		}
 		// 更新签到次数
 		err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
 		if err != nil {
