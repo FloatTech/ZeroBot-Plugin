@@ -273,10 +273,6 @@ schema = 3
     version = 'v0.0.0-20180221191011-83c6a9932646'
     hash = 'sha256-yvPV+HlDOyJsiwAcVHQkmtw8DHSXyw+cXHkigXm8rAA='
 
-  [mod.'github.com/notnil/chess']
-    version = 'v1.10.0'
-    hash = 'sha256-hsUOS4rVuMW+UCPJzhsZh3PHCi1Lol12BwKujcICayo='
-
   [mod.'github.com/pbnjay/memory']
     version = 'v0.0.0-20210728143218-7b4eea64cf58'
     hash = 'sha256-QI+F1oPLOOtwNp8+m45OOoSfYFs3QVjGzE0rFdpF/IA='
