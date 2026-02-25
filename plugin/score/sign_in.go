@@ -104,7 +104,7 @@ func init() {
 		picFile := cachePath + strconv.FormatInt(uid, 10) + today + ".png"
 		// 获取签到时间
 		si := sdb.GetSignInByUID(uid)
-		siUpdateTimeStr := si.UpdatedAt.Format("20060102")
+		// siUpdateTimeStr := si.UpdatedAt.Format("20060102")
 
 		// switch {
 		// case si.Count >= signinMax && siUpdateTimeStr == today:
