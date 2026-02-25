@@ -2,6 +2,7 @@
 package amongus
 
 import (
+	"net/url"
 	"fmt"
 	"strings"
 	"sync"
@@ -108,7 +109,12 @@ func init() {
 				return
 			}
 			// 请求 API 获取战绩
-			data, err := web.GetData(profileAPI + user.AmongusID)
+			//data, err := web.GetData(profileAPI + user.AmongusID)
+			encodedID := url.PathEscape(user.AmongusID)
+
+        		// 3. 发起请求
+        		fullURL := profileAPI + encodedID
+        		data, err := web.GetData(fullURL)
 			if err != nil {
 				ctx.SendChain(message.Text("[amongus] 请求失败: ", err))
 				return
