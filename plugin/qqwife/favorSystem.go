@@ -50,7 +50,6 @@ func init() {
 		})
 	// 礼物系统
 	engine.OnMessage(zero.NewPattern(nil).Text(`^(买礼物给|送礼物给)`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser)
-	// engine.OnMessage(zero.NewPattern(nil).Text(`^买礼物给`).At().AsRule(), zero.OnlyGroup, getdb).SetBlock(true).Limit(ctxext.LimitByUser).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID
 			uid := ctx.Event.UserID
