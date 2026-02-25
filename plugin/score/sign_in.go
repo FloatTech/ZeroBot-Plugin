@@ -105,6 +105,7 @@ func init() {
 		// 获取签到时间
 		si := sdb.GetSignInByUID(uid)
 		siUpdateTimeStr := si.UpdatedAt.Format("20060102")
+		
 		// switch {
 		// case si.Count >= signinMax && siUpdateTimeStr == today:
 		// 	// 如果签到时间是今天
