@@ -105,7 +105,7 @@ func init() {
 		// 获取签到时间
 		si := sdb.GetSignInByUID(uid)
 		siUpdateTimeStr := si.UpdatedAt.Format("20060102")
-		
+
 		// switch {
 		// case si.Count >= signinMax && siUpdateTimeStr == today:
 		// 	// 如果签到时间是今天
@@ -122,23 +122,23 @@ func init() {
 		// 		return
 		// 	}
 		// }
-		// // 更新签到次数
-		// err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
-		// if err != nil {
-		// 	ctx.SendChain(message.Text("ERROR: ", err))
-		// 	return
-		// }
-		// // 更新经验
-		// level := sdb.GetScoreByUID(uid).Score + 1
-		// if level > SCOREMAX {
-		// 	level = SCOREMAX
-		// 	ctx.SendChain(message.At(uid), message.Text("你的等级已经达到上限"))
-		// }
-		// err = sdb.InsertOrUpdateScoreByUID(uid, level)
-		// if err != nil {
-		// 	ctx.SendChain(message.Text("ERROR: ", err))
-		// 	return
-		// }
+		// 更新签到次数
+		err := sdb.InsertOrUpdateSignInCountByUID(uid, si.Count+1)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
+		// 更新经验
+		level := sdb.GetScoreByUID(uid).Score + 1
+		if level > SCOREMAX {
+			level = SCOREMAX
+			ctx.SendChain(message.At(uid), message.Text("你的等级已经达到上限"))
+		}
+		err = sdb.InsertOrUpdateScoreByUID(uid, level)
+		if err != nil {
+			ctx.SendChain(message.Text("ERROR: ", err))
+			return
+		}
 		// 更新钱包
 		rank := getrank(level)
 		add := 1 + rand.Intn(10) + rank*5 // 等级越高获得的钱越高
