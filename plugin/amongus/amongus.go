@@ -114,6 +114,7 @@ func init() {
 			// 3. 发起请求
 			fullURL := profileAPI + encodedID
 			data, err := web.GetData(fullURL)
+
 			if err != nil {
 				ctx.SendChain(message.Text("[amongus] 请求失败: ", err))
 				return

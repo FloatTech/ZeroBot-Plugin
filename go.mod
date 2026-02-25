@@ -102,6 +102,7 @@ require (
 	modernc.org/sqlite v1.41.0 // indirect
 )
 
+
 replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.29.10-simp
 
 replace modernc.org/libc => github.com/fumiama/libc v0.0.0-20240530081950-6f6d8586b5c5
