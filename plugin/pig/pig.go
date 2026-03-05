@@ -50,7 +50,7 @@ func init() {
 	})
 
 	engine.OnRegex(`^随机猪猪$`).SetBlock(true).Handle(handleRandomPig)
-}	engine.OnRegex(`^搜索猪猪\s+(.+)$`).SetBlock(true).Handle(handleSearchPig)
+	engine.OnRegex(`^搜索猪猪\s+(.+)$`).SetBlock(true).Handle(handleSearchPig)
 	engine.OnRegex(`^猪猪id\s+(\d+)$`).SetBlock(true).Handle(handlePigByID)
 }
 
