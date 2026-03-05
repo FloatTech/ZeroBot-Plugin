@@ -38,7 +38,7 @@ var (
 	// 上次更新时间
 	lastUpdateTime time.Time
 	// 引擎实例
-	engine *ctrl.Options[*zero.Ctx]
+	engine *control.Engine
 )
 
 func init() {
@@ -49,8 +49,8 @@ func init() {
 		PublicDataFolder: "Pig",
 	})
 
-	engine.OnFullMatchGroup([]string{"随机猪猪", "来份猪猪", "抽个猪猪"}).SetBlock(true).Handle(handleRandomPig)
-	engine.OnRegex(`^搜索猪猪\s+(.+)$`).SetBlock(true).Handle(handleSearchPig)
+	engine.OnRegex(`^随机猪猪$`).SetBlock(true).Handle(handleRandomPig)
+}	engine.OnRegex(`^搜索猪猪\s+(.+)$`).SetBlock(true).Handle(handleSearchPig)
 	engine.OnRegex(`^猪猪id\s+(\d+)$`).SetBlock(true).Handle(handlePigByID)
 }
 
