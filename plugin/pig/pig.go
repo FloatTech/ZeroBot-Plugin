@@ -1,4 +1,4 @@
-// Package pigpig 猪猪表情包插件 (ZBPData 纯净重构版)
+// Package pigpig 猪猪表情包
 package pigpig
 
 import (
@@ -23,11 +23,11 @@ type PigResponse struct {
 	Images []PigImage `json:"images"`
 }
 
-// PigImage 图片信息结构 (已精简，去除了不必要的 Thumbnail 等字段)
+// PigImage 图片信息结构
 type PigImage struct {
 	ID       string `json:"id"`
 	Title    string `json:"title"`
-	Filename string `json:"filename"` // 现在这里是 "123.jpg" 这种纯净文件名
+	Filename string `json:"filename"`
 }
 
 var (
@@ -102,7 +102,7 @@ func fetchImageLazy(img PigImage) (string, error) {
 	// 【核心逻辑】拼接 assets 子目录
 	// JSON 里的 Filename 是 "2072.jpg"
 	// 实际在仓库里的路径是 "Pig/assets/2072.jpg"
-	// GetLazyData 会自动在前加上 "Pig/"，所以我们只需要传 "assets/2072.jpg"
+	// GetLazyData 会自动在前加上 "Pig/"，传 "assets/2072.jpg"
 	targetPath := filepath.Join("assets", img.Filename)
 
 	// false 表示优先使用本地文件，不强制从网络拉取
