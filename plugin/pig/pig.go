@@ -4,6 +4,7 @@ package pigpig
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors" // 【新增】引入 errors 库
 	"fmt"
 	"math/rand"
 	"path/filepath"
@@ -44,9 +45,9 @@ var (
 func init() {
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
-		Brief:            "随机/搜索猪猪表情包",
+		Brief:            "来份猪猪",
 		Help:             "- 随机猪猪：随机发送一张猪猪表情\n- 搜索猪猪 [关键词]：搜索相关猪猪\n- 猪猪id [id]：精确查找",
-		PublicDataFolder: "Pig",
+		PrivateDataFolder: "Pig",
 	})
 
 	engine.OnRegex(`^随机猪猪$`).SetBlock(true).Handle(handleRandomPig)
@@ -54,7 +55,7 @@ func init() {
 	engine.OnRegex(`^猪猪id\s+(\d+)$`).SetBlock(true).Handle(handlePigByID)
 }
 
-// checkAndUpdateData 检查并更新数据 (读取 pig_data.json)
+// checkAndUpdateData 检查并更新数据
 func checkAndUpdateData(ctx *zero.Ctx) error {
 	pigMutex.Lock()
 	defer pigMutex.Unlock()
@@ -71,16 +72,16 @@ func checkAndUpdateData(ctx *zero.Ctx) error {
 		// 读取根目录下的 pig_data.json
 		dataBytes, err := engine.GetLazyData("pig_data.json", true)
 		if err != nil {
-			return fmt.Errorf("读取数据文件失败: %v", err)
+			return errors.New("读取数据文件失败: " + err.Error())
 		}
 
 		var data PigResponse
 		if err := json.Unmarshal(dataBytes, &data); err != nil {
-			return fmt.Errorf("解析JSON失败: %v", err)
+			return errors.New("解析JSON失败: " + err.Error())
 		}
 
 		if len(data.Images) == 0 {
-			return fmt.Errorf("数据文件为空")
+			return errors.New("数据文件为空")
 		}
 
 		pigCache = data.Images
@@ -96,19 +97,16 @@ func checkAndUpdateData(ctx *zero.Ctx) error {
 // fetchImageLazy 按需从 assets 文件夹获取图片并转为 Base64
 func fetchImageLazy(img PigImage) (string, error) {
 	if img.Filename == "" {
-		return "", fmt.Errorf("图片数据异常，缺少文件名")
+		return "", errors.New("图片数据异常，缺少文件名")
 	}
 
-	// 【核心逻辑】拼接 assets 子目录
-	// JSON 里的 Filename 是 "2072.jpg"
-	// 实际在仓库里的路径是 "Pig/assets/2072.jpg"
-	// GetLazyData 会自动在前加上 "Pig/"，传 "assets/2072.jpg"
+	// 拼接 assets 子目录
 	targetPath := filepath.Join("assets", img.Filename)
 
 	// false 表示优先使用本地文件，不强制从网络拉取
 	imgData, err := engine.GetLazyData(targetPath, false)
 	if err != nil {
-		return "", fmt.Errorf("图片资源缺失 (%s): %v", targetPath, err)
+		return "", errors.New("图片资源缺失 (" + targetPath + "): " + err.Error())
 	}
 
 	return "base64://" + base64.StdEncoding.EncodeToString(imgData), nil
@@ -117,7 +115,7 @@ func fetchImageLazy(img PigImage) (string, error) {
 // handleRandomPig 处理随机猪猪
 func handleRandomPig(ctx *zero.Ctx) {
 	if err := checkAndUpdateData(ctx); err != nil {
-		ctx.SendChain(message.Text("❌ 获取数据失败: ", err))
+		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 随机猪猪失败，获取数据错误"))
 		return
 	}
 
@@ -125,7 +123,7 @@ func handleRandomPig(ctx *zero.Ctx) {
 	defer pigMutex.RUnlock()
 
 	if len(pigCache) == 0 {
-		ctx.SendChain(message.Text("❌ 暂无猪猪数据"))
+		ctx.SendChain(message.Text("[Pig] ERROR: 暂无猪猪数据，请联系管理员"))
 		return
 	}
 
@@ -134,7 +132,7 @@ func handleRandomPig(ctx *zero.Ctx) {
 
 	b64Image, err := fetchImageLazy(target)
 	if err != nil {
-		ctx.SendChain(message.Text("❌ 图片加载失败: ", err))
+		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
 		return
 	}
 
@@ -150,7 +148,7 @@ func handleSearchPig(ctx *zero.Ctx) {
 	keyword = strings.TrimSpace(keyword)
 
 	if err := checkAndUpdateData(ctx); err != nil {
-		ctx.SendChain(message.Text("❌ 获取数据失败: ", err))
+		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 搜索猪猪失败，获取数据错误"))
 		return
 	}
 
@@ -166,7 +164,7 @@ func handleSearchPig(ctx *zero.Ctx) {
 	}
 
 	if len(results) == 0 {
-		ctx.SendChain(message.Text(fmt.Sprintf("❌ 未找到包含“%s”的猪猪。", keyword)))
+		ctx.SendChain(message.Text("[Pig] ERROR: 未找到包含“", keyword, "”的猪猪"))
 		return
 	}
 
@@ -187,7 +185,7 @@ func handleSearchPig(ctx *zero.Ctx) {
 
 	b64Image, err := fetchImageLazy(results[0])
 	if err != nil {
-		ctx.SendChain(message.Text(sb.String() + "\n❌ 图片加载失败: " + err.Error()))
+		ctx.SendChain(message.Text(sb.String(), "\n\n[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
 		return
 	}
 
@@ -202,7 +200,7 @@ func handlePigByID(ctx *zero.Ctx) {
 	targetID := ctx.State["regex_matched"].([]string)[1]
 
 	if err := checkAndUpdateData(ctx); err != nil {
-		ctx.SendChain(message.Text("❌ 获取数据失败: ", err))
+		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 精确查找失败，获取数据错误"))
 		return
 	}
 
@@ -219,13 +217,13 @@ func handlePigByID(ctx *zero.Ctx) {
 	}
 
 	if target == nil {
-		ctx.SendChain(message.Text(fmt.Sprintf("❌ 未找到 ID 为 %s 的猪猪。", targetID)))
+		ctx.SendChain(message.Text("[Pig] ERROR: 未找到 ID 为 ", targetID, " 的猪猪"))
 		return
 	}
 
 	b64Image, err := fetchImageLazy(*target)
 	if err != nil {
-		ctx.SendChain(message.Text("❌ 图片加载失败: ", err))
+		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
 		return
 	}
 
