@@ -2,9 +2,8 @@
 package pigpig
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"errors" // 【新增】引入 errors 库
+	"errors"
 	"fmt"
 	"math/rand"
 	"path/filepath"
@@ -18,217 +17,195 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 )
 
-// PigResponse 对应精简后的 JSON 结构
-type PigResponse struct {
+// pigResponse 内部结构体
+type pigResponse struct {
 	Total  int        `json:"total"`
-	Images []PigImage `json:"images"`
+	Images []pigImage `json:"images"`
 }
 
-// PigImage 图片信息结构
-type PigImage struct {
+// pigImage 内部结构体
+type pigImage struct {
 	ID       string `json:"id"`
 	Title    string `json:"title"`
 	Filename string `json:"filename"`
 }
 
 var (
-	// 数据缓存
-	pigCache []PigImage
-	// 读写锁
-	pigMutex sync.RWMutex
-	// 上次更新时间
+	pigCache       []pigImage
+	pigMap         = make(map[string]*pigImage) // 使用 map 方便 ID 查找
+	pigMutex       sync.RWMutex
 	lastUpdateTime time.Time
-	// 引擎实例
-	engine *control.Engine
-)
 
-func init() {
+	// 初始化 engine
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "来份猪猪",
 		Help:             "- 随机猪猪：随机发送一张猪猪表情\n- 搜索猪猪 [关键词]：搜索相关猪猪\n- 猪猪id [id]：精确查找",
 		PrivateDataFolder: "Pig",
 	})
+)
 
-	engine.OnRegex(`^随机猪猪$`).SetBlock(true).Handle(handleRandomPig)
-	engine.OnRegex(`^搜索猪猪\s+(.+)$`).SetBlock(true).Handle(handleSearchPig)
-	engine.OnRegex(`^猪猪id\s+(\d+)$`).SetBlock(true).Handle(handlePigByID)
+func init() {
+	// 1. 随机猪猪
+	engine.OnRegex(`^(随机猪猪|来份猪猪|抽个猪猪)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if err := checkAndUpdateData(); err != nil {
+			ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 随机猪猪失败，获取数据错误"))
+			return
+		}
+
+		pigMutex.RLock()
+		defer pigMutex.RUnlock()
+
+		if len(pigCache) == 0 {
+			ctx.SendChain(message.Text("[Pig] ERROR: 暂无猪猪数据，请联系管理员"))
+			return
+		}
+
+		target := pigCache[rand.Intn(len(pigCache))]
+		imgData, err := target.fetch()
+		if err != nil {
+			ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
+			return
+		}
+
+		ctx.SendChain(
+			message.Text(fmt.Sprintf("🐷 ID: %s | %s", target.ID, target.Title)),
+			message.ImageBytes(imgData), // 直接使用 ImageBytes，无需 base64
+		)
+	})
+
+	// 2. 搜索猪猪
+	engine.OnRegex(`^搜索猪猪\s+(.+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		keyword := strings.TrimSpace(ctx.State["regex_matched"].([]string)[1])
+
+		if err := checkAndUpdateData(); err != nil {
+			ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 搜索猪猪失败，获取数据错误"))
+			return
+		}
+
+		pigMutex.RLock()
+		defer pigMutex.RUnlock()
+
+		var results []pigImage
+		for _, p := range pigCache {
+			if strings.Contains(p.Title, keyword) {
+				results = append(results, p)
+			}
+		}
+
+		if len(results) == 0 {
+			ctx.SendChain(message.Text("[Pig] ERROR: 未找到包含“", keyword, "”的猪猪"))
+			return
+		}
+
+		var sb strings.Builder
+		sb.WriteString(fmt.Sprintf("🔎 根据关键词“%s”找到 %d 只猪猪：\n", keyword, len(results)))
+
+		maxShow := 10
+		for i, p := range results {
+			if i >= maxShow {
+				sb.WriteString(fmt.Sprintf("\n...等共 %d 条结果", len(results)))
+				break
+			}
+			sb.WriteString(fmt.Sprintf("%d: %s (ID: %s)\n", i+1, p.Title, p.ID))
+		}
+
+		sb.WriteString("\n为您返回第一个猪猪：\n💡 提示：输入“猪猪id [id]”可精确获取")
+
+		imgData, err := results[0].fetch()
+		if err != nil {
+			ctx.SendChain(message.Text(sb.String(), "\n\n[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
+			return
+		}
+
+		ctx.SendChain(
+			message.Text(sb.String()),
+			message.ImageBytes(imgData), // 直接使用 ImageBytes
+		)
+	})
+
+	// 3. 猪猪id精确查找
+	engine.OnRegex(`^猪猪id\s+(\d+)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		targetID := ctx.State["regex_matched"].([]string)[1]
+
+		if err := checkAndUpdateData(); err != nil {
+			ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 精确查找失败，获取数据错误"))
+			return
+		}
+
+		pigMutex.RLock()
+		defer pigMutex.RUnlock()
+
+		// 直接使用 map 进行 O(1) 查找，抛弃 for 循环
+		target, exists := pigMap[targetID]
+		if !exists {
+			ctx.SendChain(message.Text("[Pig] ERROR: 未找到 ID 为 ", targetID, " 的猪猪"))
+			return
+		}
+
+		imgData, err := target.fetch()
+		if err != nil {
+			ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
+			return
+		}
+
+		ctx.SendChain(
+			message.Text(fmt.Sprintf("🐷 ID: %s | %s", target.ID, target.Title)),
+			message.ImageBytes(imgData), // 直接使用 ImageBytes
+		)
+	})
 }
 
-// checkAndUpdateData 检查并更新数据
-func checkAndUpdateData(ctx *zero.Ctx) error {
+// checkAndUpdateData
+func checkAndUpdateData() error {
 	pigMutex.Lock()
 	defer pigMutex.Unlock()
 
-	now := time.Now()
-	// 如果缓存为空，或者今天是新的一天，则尝试更新
-	shouldUpdate := len(pigCache) == 0 || now.Format("2006-01-02") != lastUpdateTime.Format("2006-01-02")
-
-	if shouldUpdate {
-		if ctx != nil {
-			ctx.SendChain(message.Text("🐷 正在同步今日猪猪数据，请稍候..."))
-		}
-
-		// 读取根目录下的 pig_data.json
-		dataBytes, err := engine.GetLazyData("pig_data.json", true)
-		if err != nil {
-			return errors.New("读取数据文件失败: " + err.Error())
-		}
-
-		var data PigResponse
-		if err := json.Unmarshal(dataBytes, &data); err != nil {
-			return errors.New("解析JSON失败: " + err.Error())
-		}
-
-		if len(data.Images) == 0 {
-			return errors.New("数据文件为空")
-		}
-
-		pigCache = data.Images
-		lastUpdateTime = now
-
-		if ctx != nil {
-			ctx.SendChain(message.Text(fmt.Sprintf("✅ 同步完成！当前共有 %d 只猪猪。", len(pigCache))))
-		}
+	// 如果有缓存且距上次更新不足 24 小时，直接返回
+	if len(pigCache) > 0 && time.Since(lastUpdateTime) < 24*time.Hour {
+		return nil
 	}
+
+	dataBytes, err := engine.GetLazyData("pig_data.json", true)
+	if err != nil {
+		return errors.New("读取数据文件失败: " + err.Error())
+	}
+
+	var data pigResponse
+	if err := json.Unmarshal(dataBytes, &data); err != nil {
+		return errors.New("解析JSON失败: " + err.Error())
+	}
+
+	if len(data.Images) == 0 {
+		return errors.New("数据文件为空")
+	}
+
+	pigCache = data.Images
+
+	// 更新缓存时，顺便重构一份查询 Map
+	newMap := make(map[string]*pigImage, len(pigCache))
+	for i := range pigCache {
+		newMap[pigCache[i].ID] = &pigCache[i]
+	}
+	pigMap = newMap
+
+	lastUpdateTime = time.Now()
 	return nil
 }
 
-// fetchImageLazy 按需从 assets 文件夹获取图片并转为 Base64
-func fetchImageLazy(img PigImage) (string, error) {
+// fetch 作为 pigImage 的专属方法，直接返回 []byte
+func (img *pigImage) fetch() ([]byte, error) {
 	if img.Filename == "" {
-		return "", errors.New("图片数据异常，缺少文件名")
+		return nil, errors.New("图片数据异常，缺少文件名")
 	}
 
-	// 拼接 assets 子目录
 	targetPath := filepath.Join("assets", img.Filename)
 
-	// false 表示优先使用本地文件，不强制从网络拉取
-	imgData, err := engine.GetLazyData(targetPath, false)
+	// 使用 true，直接返回字节数组
+	imgData, err := engine.GetLazyData(targetPath, true)
 	if err != nil {
-		return "", errors.New("图片资源缺失 (" + targetPath + "): " + err.Error())
+		return nil, errors.New("图片资源缺失 (" + targetPath + "): " + err.Error())
 	}
 
-	return "base64://" + base64.StdEncoding.EncodeToString(imgData), nil
-}
-
-// handleRandomPig 处理随机猪猪
-func handleRandomPig(ctx *zero.Ctx) {
-	if err := checkAndUpdateData(ctx); err != nil {
-		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 随机猪猪失败，获取数据错误"))
-		return
-	}
-
-	pigMutex.RLock()
-	defer pigMutex.RUnlock()
-
-	if len(pigCache) == 0 {
-		ctx.SendChain(message.Text("[Pig] ERROR: 暂无猪猪数据，请联系管理员"))
-		return
-	}
-
-	idx := rand.Intn(len(pigCache))
-	target := pigCache[idx]
-
-	b64Image, err := fetchImageLazy(target)
-	if err != nil {
-		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
-		return
-	}
-
-	ctx.SendChain(
-		message.Text(fmt.Sprintf("🐷 ID: %s | %s", target.ID, target.Title)),
-		message.Image(b64Image),
-	)
-}
-
-// handleSearchPig 处理搜索猪猪
-func handleSearchPig(ctx *zero.Ctx) {
-	keyword := ctx.State["regex_matched"].([]string)[1]
-	keyword = strings.TrimSpace(keyword)
-
-	if err := checkAndUpdateData(ctx); err != nil {
-		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 搜索猪猪失败，获取数据错误"))
-		return
-	}
-
-	pigMutex.RLock()
-	defer pigMutex.RUnlock()
-
-	var results []PigImage
-	for _, p := range pigCache {
-		// 模糊匹配标题
-		if strings.Contains(p.Title, keyword) {
-			results = append(results, p)
-		}
-	}
-
-	if len(results) == 0 {
-		ctx.SendChain(message.Text("[Pig] ERROR: 未找到包含“", keyword, "”的猪猪"))
-		return
-	}
-
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("🔎 根据关键词“%s”找到 %d 只猪猪：\n", keyword, len(results)))
-
-	maxShow := 10
-	for i, p := range results {
-		if i >= maxShow {
-			sb.WriteString(fmt.Sprintf("\n...等共 %d 条结果", len(results)))
-			break
-		}
-		sb.WriteString(fmt.Sprintf("%d: %s (ID: %s)\n", i+1, p.Title, p.ID))
-	}
-
-	sb.WriteString("\n为您返回第一个猪猪：\n")
-	sb.WriteString("💡 提示：输入“猪猪id [id]”可精确获取")
-
-	b64Image, err := fetchImageLazy(results[0])
-	if err != nil {
-		ctx.SendChain(message.Text(sb.String(), "\n\n[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
-		return
-	}
-
-	ctx.SendChain(
-		message.Text(sb.String()),
-		message.Image(b64Image),
-	)
-}
-
-// handlePigByID 处理ID精确查找
-func handlePigByID(ctx *zero.Ctx) {
-	targetID := ctx.State["regex_matched"].([]string)[1]
-
-	if err := checkAndUpdateData(ctx); err != nil {
-		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 精确查找失败，获取数据错误"))
-		return
-	}
-
-	pigMutex.RLock()
-	defer pigMutex.RUnlock()
-
-	var target *PigImage
-	for _, p := range pigCache {
-		if p.ID == targetID {
-			val := p
-			target = &val
-			break
-		}
-	}
-
-	if target == nil {
-		ctx.SendChain(message.Text("[Pig] ERROR: 未找到 ID 为 ", targetID, " 的猪猪"))
-		return
-	}
-
-	b64Image, err := fetchImageLazy(*target)
-	if err != nil {
-		ctx.SendChain(message.Text("[Pig] ERROR: ", err, "\nEXP: 图片加载失败"))
-		return
-	}
-
-	ctx.SendChain(
-		message.Text(fmt.Sprintf("🐷 ID: %s | %s", target.ID, target.Title)),
-		message.Image(b64Image),
-	)
+	return imgData, nil
 }
