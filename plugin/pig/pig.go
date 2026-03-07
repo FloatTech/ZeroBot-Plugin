@@ -32,11 +32,10 @@ type pigImage struct {
 
 var (
 	pigCache       []pigImage
-	pigMap         = make(map[string]*pigImage) // 使用 map 方便 ID 查找
+	pigMap         = make(map[string]*pigImage)
 	pigMutex       sync.RWMutex
-	lastUpdateTime time.Time
+	lastUpdateTime = time.Now()
 
-	// 初始化 engine
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
 		DisableOnDefault: false,
 		Brief:            "来份猪猪",
@@ -46,6 +45,7 @@ var (
 )
 
 func init() {
+	_ = checkAndUpdateData()
 	// 1. 随机猪猪
 	engine.OnRegex(`^(随机猪猪|来份猪猪|抽个猪猪)$`).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		if err := checkAndUpdateData(); err != nil {
@@ -70,7 +70,7 @@ func init() {
 
 		ctx.SendChain(
 			message.Text(fmt.Sprintf("🐷 ID: %s | %s", target.ID, target.Title)),
-			message.ImageBytes(imgData), // 直接使用 ImageBytes，无需 base64
+			message.ImageBytes(imgData),
 		)
 	})
 
@@ -136,7 +136,6 @@ func init() {
 		pigMutex.RLock()
 		defer pigMutex.RUnlock()
 
-		// 直接使用 map 进行 O(1) 查找，抛弃 for 循环
 		target, exists := pigMap[targetID]
 		if !exists {
 			ctx.SendChain(message.Text("[Pig] ERROR: 未找到 ID 为 ", targetID, " 的猪猪"))
@@ -151,7 +150,7 @@ func init() {
 
 		ctx.SendChain(
 			message.Text(fmt.Sprintf("🐷 ID: %s | %s", target.ID, target.Title)),
-			message.ImageBytes(imgData), // 直接使用 ImageBytes
+			message.ImageBytes(imgData),
 		)
 	})
 }
@@ -193,7 +192,6 @@ func checkAndUpdateData() error {
 	return nil
 }
 
-// fetch 作为 pigImage 的专属方法，直接返回 []byte
 func (img *pigImage) fetch() ([]byte, error) {
 	if img.Filename == "" {
 		return nil, errors.New("图片数据异常，缺少文件名")
@@ -201,7 +199,6 @@ func (img *pigImage) fetch() ([]byte, error) {
 
 	targetPath := filepath.Join("assets", img.Filename)
 
-	// 使用 true，直接返回字节数组
 	imgData, err := engine.GetLazyData(targetPath, true)
 	if err != nil {
 		return nil, errors.New("图片资源缺失 (" + targetPath + "): " + err.Error())
