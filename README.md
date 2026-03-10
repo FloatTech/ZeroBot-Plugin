@@ -1252,6 +1252,18 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>来份猪猪</summary>
+  
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/pig"`
+
+  - [x] 随机猪猪
+  
+  - [x] 搜索猪猪[猪名字]
+
+  - [x] 猪猪id[猪id]
+
+</details>
+<details>
   <summary>一群一天一夫一妻制群老婆</summary>
 
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/qqwife"`
