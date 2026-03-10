@@ -37,9 +37,9 @@ var (
 	lastUpdateTime = time.Now()
 
 	engine = control.AutoRegister(&ctrl.Options[*zero.Ctx]{
-		DisableOnDefault: false,
-		Brief:            "来份猪猪",
-		Help:             "- 随机猪猪：随机发送一张猪猪表情\n- 搜索猪猪 [关键词]：搜索相关猪猪\n- 猪猪id [id]：精确查找",
+		DisableOnDefault:  false,
+		Brief:             "来份猪猪",
+		Help:              "- 随机猪猪：随机发送一张猪猪表情\n- 搜索猪猪 [关键词]：搜索相关猪猪\n- 猪猪id [id]：精确查找",
 		PrivateDataFolder: "Pig",
 	})
 )
