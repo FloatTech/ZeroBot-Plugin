@@ -1,0 +1,16 @@
+services:
+  zerobot-plugin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${DOCKERHUB_USERNAME}/zerobot-plugin:latest
+    container_name: zerobot-plugin
+    restart: unless-stopped
+    working_dir: /home/appuser
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/home/appuser/data
+      - ./config.json:/home/appuser/config.json
+    command: ["/home/appuser/zerobot-plugin", "-c", "/home/appuser/config.json"]
+    user: "1000:1000"

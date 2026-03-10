@@ -42,9 +42,34 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	s := strings.Split(vartag.String(), "\n")
+	// parse tags safely; if no tags available, fallback to commit hash or default
+	tagsOut := strings.TrimSpace(vartag.String())
+	var tag string
+	if tagsOut == "" {
+		// no tags; try commit short hash
+		rev := exec.Command("git", "rev-parse", "--short", "HEAD")
+		var revOut bytes.Buffer
+		rev.Stdout = &revOut
+		if rev.Run() == nil {
+			tag = strings.TrimSpace(revOut.String())
+		} else {
+			tag = "v0.0.0"
+		}
+	} else {
+		parts := strings.Split(tagsOut, "\n")
+		// last non-empty line is the newest tag
+		for i := len(parts) - 1; i >= 0; i-- {
+			if parts[i] != "" {
+				tag = parts[i]
+				break
+			}
+		}
+		if tag == "" {
+			tag = "v0.0.0"
+		}
+	}
 	now := time.Now()
-	_, err = fmt.Fprintf(f, banner, s[len(s)-2], now.Year(), now.Format(timeformat))
+	_, err = fmt.Fprintf(f, banner, tag, now.Year(), now.Format(timeformat))
 	if err != nil {
 		panic(err)
 	}

@@ -86,6 +86,25 @@ zerobot [-h] [-m] [-n nickname] [-t token] [-u url] [-g url] [-p prefix] [-d|w] 
 }
 ```
 
+## Docker
+
+Run the container with:
+
+```bash
+docker run -d \
+  --name zerobot-plugin \
+  -v $(pwd)/data:/home/appuser/data \
+  -v $(pwd)/config.json:/home/appuser/config.json \
+  -e TZ=Asia/Shanghai \
+  --user 1000:1000 \
+  --restart unless-stopped \
+  --workdir /home/appuser \
+  guohuiyuan/zerobot-plugin:latest \
+  /home/appuser/zerobot-plugin -c /home/appuser/config.json
+```
+
+Adjust image name and volume paths as needed for your environment.
+
 ## 功能
 > 在编译时，以下功能除插件控制外，均可通过注释`main.go`中的相应`import`而物理禁用，减小插件体积。
 
