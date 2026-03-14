@@ -7,7 +7,7 @@ on:
       - 'v*'
 jobs:
   golangci:
-    uses: ./.github/workflows/libs/lint.yml
+    uses: ./.github/workflows/lib_lint.yml
     with:
       ref: master
       commit_back: true
@@ -15,6 +15,6 @@ jobs:
   runmain:
     needs: golangci
     if: ${{ !contains(github.event.pull_request.title, '.go') }}
-    uses: ./.github/workflows/libs/run.yml
+    uses: ./.github/workflows/lib_run.yml
     with:
       ref: master

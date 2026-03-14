@@ -22,7 +22,7 @@ jobs:
   golangci:
     needs: close-pr
     if: ${{ !contains(github.event.pull_request.title, '.go') }}
-    uses: ./.github/workflows/libs/lint.yml
+    uses: ./.github/workflows/lib_lint.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
       commit_back: false
@@ -30,6 +30,6 @@ jobs:
   runmain:
     needs: golangci
     if: ${{ !contains(github.event.pull_request.title, '.go') }}
-    uses: ./.github/workflows/libs/run.yml
+    uses: ./.github/workflows/lib_run.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
