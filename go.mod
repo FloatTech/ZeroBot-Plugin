@@ -8,11 +8,11 @@ require (
 	github.com/FloatTech/floatbox v0.0.0-20251002074805-f95cbc7edb31
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
-	github.com/FloatTech/rendercard v0.2.2
+	github.com/FloatTech/rendercard v0.2.3
 	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d
 	github.com/FloatTech/zbpctrl v1.7.1
-	github.com/FloatTech/zbputils v1.7.2-0.20260314043623-aebd57e6d507
+	github.com/FloatTech/zbputils v1.7.2-0.20260314071304-549abb40dd64
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
 	github.com/Tnze/go-mc v1.20.2
