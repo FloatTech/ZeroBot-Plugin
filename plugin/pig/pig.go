@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -197,8 +196,7 @@ func (img *pigImage) fetch() ([]byte, error) {
 		return nil, errors.New("图片数据异常，缺少文件名")
 	}
 
-	targetPath := filepath.Join("assets", img.Filename)
-
+	targetPath := "assets/" + img.Filename
 	imgData, err := engine.GetLazyData(targetPath, true)
 	if err != nil {
 		return nil, errors.New("图片资源缺失 (" + targetPath + "): " + err.Error())
