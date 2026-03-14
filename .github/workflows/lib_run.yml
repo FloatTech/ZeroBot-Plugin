@@ -21,7 +21,7 @@ jobs:
   real_run:
     name: Run on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 2
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 10 || 2 }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
