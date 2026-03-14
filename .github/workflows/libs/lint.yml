@@ -1,0 +1,64 @@
+name: Lint Library
+on:
+  workflow_call:
+    inputs:
+      commit_back:
+        required: true
+        type: boolean
+      ref:
+        required: true
+        type: string
+      go-version:
+        required: false
+        type: string
+        default: '^1.25'
+      fetch-depth:
+        required: false
+        type: number
+        default: 0
+      submodules:
+        required: false
+        type: string
+        default: 'recursive'
+jobs:
+  golangci:
+    name: Run Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@master
+        with:
+          go-version: "${{ inputs.go-version }}"
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@master
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: ${{ inputs.fetch-depth }}
+          submodules: ${{ inputs.submodules }}
+
+      - name: Prepare Necessary Runtime Files
+        run: |
+          go generate main.go
+          go mod tidy
+
+      - name: Run Lint
+        uses: golangci/golangci-lint-action@master
+        with:
+          version: latest
+
+      - name: Commit back
+        if: ${{ inputs.commit_back }}
+        continue-on-error: true
+        run: |
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          git commit -m "chore(lint): 改进代码样式"
+
+      - name: Create Pull Request
+        if: ${{ inputs.commit_back }}
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@v8
+        with:
+          title: "chore(lint): 改进代码样式"

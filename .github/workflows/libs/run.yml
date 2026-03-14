@@ -1,0 +1,69 @@
+name: Run Library
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      go-version:
+        required: false
+        type: string
+        default: '^1.25'
+      fetch-depth:
+        required: false
+        type: number
+        default: 0
+      submodules:
+        required: false
+        type: string
+        default: 'recursive'
+jobs:
+  real_run:
+    name: Run on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: true
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@master
+        with:
+          go-version: "${{ inputs.go-version }}"
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@master
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: ${{ inputs.fetch-depth }}
+          submodules: ${{ inputs.submodules }}
+
+      - name: Prepare Necessary Runtime Files
+        run: |
+          go generate main.go
+          go mod tidy
+
+      - name: Run the Program
+        shell: bash
+        run: |
+          go run main.go > output.log 2>&1 &
+          PID=$!
+          FOUND=false
+          for i in $(seq 1 60); do
+            if grep -q '\[ws\] 连接到Websocket服务器' output.log 2>/dev/null; then
+              FOUND=true
+              break
+            fi
+            sleep 1
+          done
+          kill $PID 2>/dev/null || true
+          wait $PID 2>/dev/null || true
+          if [ "$FOUND" = true ]; then
+            echo "Success: Found target output"
+            exit 0
+          else
+            echo "Failure: Timeout after 60s without finding target output"
+            cat output.log
+            exit 1
+          fi
