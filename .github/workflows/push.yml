@@ -18,3 +18,10 @@ jobs:
     uses: ./.github/workflows/lib_run.yml
     with:
       ref: master
+
+  build:
+    needs: [runmain]
+    uses: ./.github/workflows/lib_build.yml
+    with:
+      prefix: "zbp_"
+      upload_artifact: true

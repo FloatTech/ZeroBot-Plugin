@@ -1,14 +1,17 @@
-name: 最新版
+name: Build Library
 
 on:
-  workflow_run:
-    workflows: [PushLint, PullLint]
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      prefix:
+        type: string
+        required: true
+      upload_artifact:
+        type: boolean
+        required: true
 
 env:
-  BINARY_PREFIX: "zbp_"
-  BINARY_SUFFIX: ""
+  BINARY_SUFFIX: "${{ inputs.prefix }}"
   PR_PROMPT: "::warning:: Build artifact will not be uploaded due to the workflow is trigged by pull request."
   LD_FLAGS: "-w -s"
 
@@ -16,7 +19,6 @@ jobs:
   build:
     name: Build binary CI
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         # build and publish in parallel: linux/386, linux/amd64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
@@ -34,10 +36,12 @@ jobs:
       - uses: actions/checkout@master
         with:
           fetch-depth: 0
+
       - name: Setup Go environment
         uses: actions/setup-go@master
         with:
           go-version: '^1.25'
+
       - name: Cache downloaded module
         uses: actions/cache@master
         continue-on-error: true
@@ -46,11 +50,13 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
+
       - name: Build binary file
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-          IS_PR: ${{ !!github.head_ref }}
+          IS_PR: ${{ !inputs.upload_artifact }}
+          BINARY_PREFIX: ${{ inputs.BINARY_PREFIX }}
         run: |
           GOOS= GOARCH= go generate ./...
           if [ $GOOS = "windows" ]; then export BINARY_SUFFIX="$BINARY_SUFFIX.exe"; fi
@@ -58,9 +64,10 @@ jobs:
           export BINARY_NAME="$BINARY_PREFIX$GOOS_$GOARCH$BINARY_SUFFIX"
           export CGO_ENABLED=0
           go build -o "output/$BINARY_NAME" -trimpath -ldflags "$LD_FLAGS" .
+
       - name: Upload artifact
         uses: actions/upload-artifact@master
-        if: ${{ !github.head_ref }}
+        if: ${{ inputs.upload_artifact }}
         with:
           name: ${{ matrix.goos }}_${{ matrix.goarch }}
           path: output/
