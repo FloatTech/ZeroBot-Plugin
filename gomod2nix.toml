@@ -22,8 +22,8 @@ schema = 3
     hash = 'sha256-2okFyPQSYIxrc8hxICsbjEM9xq25a3I2A4wmDIYFCg8='
 
   [mod.'github.com/FloatTech/rendercard']
-    version = 'v0.2.2'
-    hash = 'sha256-Vy5fDRIzThiCGad2un2vsGVX/3aTdbBW82uP9SAmhyM='
+    version = 'v0.2.3'
+    hash = 'sha256-Uz3Y1yl49PntlmGqaJHbJ2yQwDrOxzB34CUEMPS25eA='
 
   [mod.'github.com/FloatTech/sqlite']
     version = 'v1.7.2'
@@ -38,8 +38,8 @@ schema = 3
     hash = 'sha256-wkeiaUTpPVbpH7fcXeoLtG+aGIMJbvoc/9sbi2IXK0I='
 
   [mod.'github.com/FloatTech/zbputils']
-    version = 'v1.7.2-0.20260314043623-aebd57e6d507'
-    hash = 'sha256-A+4gaAKuv6yebTYfiP/eU/IMqoY2CQ6aguFp6BHYztE='
+    version = 'v1.7.2-0.20260314071304-549abb40dd64'
+    hash = 'sha256-9kbkApOfYFFI8W7WTuJew560inX5b8TbA209NyWTB6M='
 
   [mod.'github.com/PuerkitoBio/goquery']
     version = 'v1.8.0'
