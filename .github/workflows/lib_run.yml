@@ -39,16 +39,22 @@ jobs:
           fetch-depth: ${{ inputs.fetch-depth }}
           submodules: ${{ inputs.submodules }}
 
-      - name: Prepare Necessary Runtime Files
+      - name: Prepare and Build
+        shell: bash
         run: |
           go generate main.go
           go mod tidy
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            go build -o testbin.exe .
+          else
+            go build -o testbin .
+          fi
 
       - name: Run the Program (Unix)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          go run main.go > output.log 2>&1 &
+          ./testbin > output.log 2>&1 &
           PID=$!
           FOUND=false
           for i in $(seq 1 60); do
@@ -76,23 +82,43 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $proc = Start-Process -FilePath "go" -ArgumentList "run", "main.go" -NoNewWindow -PassThru -RedirectStandardOutput "stdout.log" -RedirectStandardError "stderr.log"
+          $logFile = Join-Path $PWD "output.log"
+          $proc = Start-Process -FilePath ".\testbin.exe" -NoNewWindow -PassThru -RedirectStandardOutput "$logFile" -RedirectStandardError (Join-Path $PWD "stderr.log")
           $found = $false
           for ($i = 0; $i -lt 60; $i++) {
             Start-Sleep -Seconds 1
-            $content = ""
-            if (Test-Path "stdout.log") { $content += Get-Content "stdout.log" -Raw -ErrorAction SilentlyContinue }
-            if (Test-Path "stderr.log") { $content += Get-Content "stderr.log" -Raw -ErrorAction SilentlyContinue }
-            if ($content -match '\[ws\] 连接到Websocket服务器') {
-              $found = $true
-              break
-            }
+            try {
+              $content = ""
+              foreach ($f in @($logFile, (Join-Path $PWD "stderr.log"))) {
+                if (Test-Path $f) {
+                  $fs = [System.IO.FileStream]::new($f, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                  $sr = [System.IO.StreamReader]::new($fs)
+                  $content += $sr.ReadToEnd()
+                  $sr.Close()
+                  $fs.Close()
+                }
+              }
+              if ($content -match '\[ws\] 连接到Websocket服务器') {
+                $found = $true
+                break
+              }
+            } catch {}
           }
-          taskkill /F /T /PID $proc.Id 2>$null
+          try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
+          try { taskkill /F /T /PID $proc.Id 2>$null } catch {}
           Write-Host ""
           Write-Host "Run log:"
-          if (Test-Path "stdout.log") { Get-Content "stdout.log" }
-          if (Test-Path "stderr.log") { Get-Content "stderr.log" }
+          foreach ($f in @($logFile, (Join-Path $PWD "stderr.log"))) {
+            if (Test-Path $f) {
+              try {
+                $fs = [System.IO.FileStream]::new($f, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                $sr = [System.IO.StreamReader]::new($fs)
+                Write-Host $sr.ReadToEnd()
+                $sr.Close()
+                $fs.Close()
+              } catch {}
+            }
+          }
           Write-Host ""
           if ($found) {
             Write-Host "Success: Found target output"
