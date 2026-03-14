@@ -8,11 +8,11 @@ require (
 	github.com/FloatTech/floatbox v0.0.0-20251002074805-f95cbc7edb31
 	github.com/FloatTech/gg v1.1.3
 	github.com/FloatTech/imgfactory v0.2.2-0.20230413152719-e101cc3606ef
-	github.com/FloatTech/rendercard v0.2.0
+	github.com/FloatTech/rendercard v0.2.2
 	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d
 	github.com/FloatTech/zbpctrl v1.7.1
-	github.com/FloatTech/zbputils v1.7.2-0.20260219154206-c4c0a7e0fb03
+	github.com/FloatTech/zbputils v1.7.2-0.20260314043623-aebd57e6d507
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
 	github.com/Tnze/go-mc v1.20.2
@@ -24,7 +24,7 @@ require (
 	github.com/fumiama/cron v1.3.0
 	github.com/fumiama/deepinfra v0.0.0-20251221163610-e98ee3ba437a
 	github.com/fumiama/go-base16384 v1.7.1
-	github.com/fumiama/go-onebot-agent v0.0.0-20260128132028-05e6b4809f0a
+	github.com/fumiama/go-onebot-agent v0.0.0-20260314041356-bc4ca0e119d5
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/imgsz v0.0.4
