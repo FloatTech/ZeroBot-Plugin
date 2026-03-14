@@ -44,7 +44,8 @@ jobs:
           go generate main.go
           go mod tidy
 
-      - name: Run the Program
+      - name: Run the Program (Unix)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           go run main.go > output.log 2>&1 &
@@ -57,12 +58,9 @@ jobs:
             fi
             sleep 1
           done
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            taskkill //F //T //PID $PID 2>/dev/null || true
-          else
-            kill $PID 2>/dev/null || true
-            wait $PID 2>/dev/null || true
-          fi
+          kill $PID 2>/dev/null || true
+          wait $PID 2>/dev/null || true
+          echo ""
           echo "Run log:"
           cat output.log
           echo ""
@@ -73,3 +71,33 @@ jobs:
             echo "Failure: Timeout after 60s without finding target output"
             exit 1
           fi
+
+      - name: Run the Program (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $proc = Start-Process -FilePath "go" -ArgumentList "run", "main.go" -NoNewWindow -PassThru -RedirectStandardOutput "stdout.log" -RedirectStandardError "stderr.log"
+          $found = $false
+          for ($i = 0; $i -lt 60; $i++) {
+            Start-Sleep -Seconds 1
+            $content = ""
+            if (Test-Path "stdout.log") { $content += Get-Content "stdout.log" -Raw -ErrorAction SilentlyContinue }
+            if (Test-Path "stderr.log") { $content += Get-Content "stderr.log" -Raw -ErrorAction SilentlyContinue }
+            if ($content -match '\[ws\] 连接到Websocket服务器') {
+              $found = $true
+              break
+            }
+          }
+          taskkill /F /T /PID $proc.Id 2>$null
+          Write-Host ""
+          Write-Host "Run log:"
+          if (Test-Path "stdout.log") { Get-Content "stdout.log" }
+          if (Test-Path "stderr.log") { Get-Content "stderr.log" }
+          Write-Host ""
+          if ($found) {
+            Write-Host "Success: Found target output"
+            exit 0
+          } else {
+            Write-Host "Failure: Timeout after 60s without finding target output"
+            exit 1
+          }
