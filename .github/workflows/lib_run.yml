@@ -57,13 +57,19 @@ jobs:
             fi
             sleep 1
           done
-          kill $PID 2>/dev/null || true
-          wait $PID 2>/dev/null || true
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            taskkill //F //T //PID $PID 2>/dev/null || true
+          else
+            kill $PID 2>/dev/null || true
+            wait $PID 2>/dev/null || true
+          fi
+          echo "Run log:"
+          cat output.log
+          echo ""
           if [ "$FOUND" = true ]; then
             echo "Success: Found target output"
             exit 0
           else
             echo "Failure: Timeout after 60s without finding target output"
-            cat output.log
             exit 1
           fi
