@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/abineundo" // 设置插件优先级&更改控制台属性
+	_ "github.com/FloatTech/ZeroBot-Plugin/abineundo" // 设置插件优先级&更改控制台属性hahaha
 	"github.com/FloatTech/ZeroBot-Plugin/kanban"      // 打印 banner
 
 	// ---------以下插件均可通过前面加 // 注释，注释后停用并不加载插件--------- //
