@@ -442,10 +442,10 @@ func init() {
 									return
 								}
 							}
-							if rand.Intn(100) < 90 { 
+							if rand.Intn(100) < 90 {
 								attribute := strconv.Itoa(durationList[thingName]) + "/0/" + strconv.Itoa(avgInduce) + "/" + strconv.Itoa(avgFavor)
 								newthing := article{
-									Duration: time.Now().Unix() + int64(batch*10), 
+									Duration: time.Now().Unix() + int64(batch*10),
 									Type:     "pole",
 									Name:     thingName,
 									Number:   1,
