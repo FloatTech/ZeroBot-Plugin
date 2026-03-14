@@ -83,6 +83,7 @@ jobs:
         shell: pwsh
         run: |
           $logFile = Join-Path $PWD "output.log"
+          $env:DEBUG_MODE = "1"
           $proc = Start-Process -FilePath ".\testbin.exe" -NoNewWindow -PassThru -RedirectStandardOutput "$logFile" -RedirectStandardError (Join-Path $PWD "stderr.log")
           $found = $false
           for ($i = 0; $i -lt 60; $i++) {
