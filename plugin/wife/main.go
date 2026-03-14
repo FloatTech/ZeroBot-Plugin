@@ -29,15 +29,19 @@ var (
 		func(ctx *zero.Ctx) bool {
 			data, err := engine.GetLazyData("wife.json", true)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
-				return false
+				logrus.Warnf("[wife] 远程同步 wife.json 失败: %v，正在尝试读取本地缓存...", err)
+				data, err = engine.GetLazyData("wife.json", false)
+				if err != nil {
+					ctx.SendChain(message.Text("ERROR: 无法获取老婆库数据（同步及本地读取均失败）: ", err))
+					return false
+				}
 			}
 			err = json.Unmarshal(data, &cards)
 			if err != nil {
-				ctx.SendChain(message.Text("ERROR: ", err))
+				ctx.SendChain(message.Text("ERROR: 老婆库格式解析失败: ", err))
 				return false
 			}
-			logrus.Infof("[wife]加载%d个老婆", len(cards))
+			logrus.Infof("[wife] 已成功加载 %d 个老婆", len(cards))
 			return true
 		},
 	)
