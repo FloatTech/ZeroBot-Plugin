@@ -22,8 +22,8 @@ schema = 3
     hash = 'sha256-2okFyPQSYIxrc8hxICsbjEM9xq25a3I2A4wmDIYFCg8='
 
   [mod.'github.com/FloatTech/rendercard']
-    version = 'v0.2.0'
-    hash = 'sha256-fgntEYGh2mEl618hM13kb0GGeQEXdP+lochYX8F2OXs='
+    version = 'v0.2.2'
+    hash = 'sha256-Vy5fDRIzThiCGad2un2vsGVX/3aTdbBW82uP9SAmhyM='
 
   [mod.'github.com/FloatTech/sqlite']
     version = 'v1.7.2'
@@ -38,8 +38,8 @@ schema = 3
     hash = 'sha256-wkeiaUTpPVbpH7fcXeoLtG+aGIMJbvoc/9sbi2IXK0I='
 
   [mod.'github.com/FloatTech/zbputils']
-    version = 'v1.7.2-0.20260219154206-c4c0a7e0fb03'
-    hash = 'sha256-I4Qcfm9dTth+AVP7HJ/RMLNa3ff+bKJwJzsHT2RMipA='
+    version = 'v1.7.2-0.20260314043623-aebd57e6d507'
+    hash = 'sha256-A+4gaAKuv6yebTYfiP/eU/IMqoY2CQ6aguFp6BHYztE='
 
   [mod.'github.com/PuerkitoBio/goquery']
     version = 'v1.8.0'
@@ -122,8 +122,8 @@ schema = 3
     hash = 'sha256-Fd1QaeYx+3q4C3XQXlPFnDmKPsoZH6837fN/7rn8i9s='
 
   [mod.'github.com/fumiama/go-onebot-agent']
-    version = 'v0.0.0-20260128132028-05e6b4809f0a'
-    hash = 'sha256-ratY7o52v0KuxgZC4wqHNXdgGXzliEecs8egE3SBLeo='
+    version = 'v0.0.0-20260314041356-bc4ca0e119d5'
+    hash = 'sha256-IuwXGNoxPvRq00JTM5OEcjg3V/v9lPk7/OaVmcvFaas='
 
   [mod.'github.com/fumiama/go-registry']
     version = 'v0.2.7'
