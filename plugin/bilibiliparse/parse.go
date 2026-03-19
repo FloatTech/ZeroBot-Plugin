@@ -234,6 +234,10 @@ func getVideoSummary(cookiecfg *bz.CookieConfig, card bz.Card) (msg []message.Se
 	}
 	err = json.Unmarshal(data, &videoSummary)
 	msg = make([]message.Segment, 0, 16)
+	if videoSummary.Data.ModelResult.Summary == `` {
+		msg = append(msg, message.Text(fmt.Sprintf("生成视频总结: %s(%d)", videoSummary.Message, videoSummary.Code)))
+		return
+	}
 	msg = append(msg, message.Text("已为你生成视频总结\n\n"))
 	msg = append(msg, message.Text(videoSummary.Data.ModelResult.Summary, "\n\n"))
 	for _, v := range videoSummary.Data.ModelResult.Outline {
