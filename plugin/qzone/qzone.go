@@ -16,7 +16,7 @@ import (
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -323,7 +323,7 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 	if err != nil {
 		return
 	}
-	back := imgfactory.Size(faceImg, backX, backY).Circle(0).Image()
+	back := factory.Size(faceImg, backX, backY).Circle(0).Image()
 	m := message.ParseMessageFromString(raw)
 	maxHeight += margin
 
@@ -348,7 +348,7 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 		}
 		canvas.DrawImage(back, margin, maxHeight)
 		if msgImg.Bounds().Dx() > 500 {
-			msgImg = imgfactory.Size(msgImg, 500, msgImg.Bounds().Dy()*500/msgImg.Bounds().Dx()).Image()
+			msgImg = factory.Size(msgImg, 500, msgImg.Bounds().Dy()*500/msgImg.Bounds().Dx()).Image()
 		}
 		canvas.DrawImage(msgImg, 2*margin+backX, maxHeight)
 		if 3*margin+backX+msgImg.Bounds().Dx() > maxWidth {
@@ -362,5 +362,5 @@ func renderForwardMsg(qq int64, raw string) (base64Bytes []byte, err error) {
 	}
 	im := canvas.Image().(*image.RGBA)
 	nim := im.SubImage(image.Rect(0, 0, maxWidth, maxHeight))
-	return imgfactory.ToBase64(nim)
+	return factory.ToBase64(nim)
 }

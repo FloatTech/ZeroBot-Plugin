@@ -15,7 +15,7 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	"github.com/FloatTech/rendercard"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -237,7 +237,7 @@ func drawOnListPic(lits []movieInfo) (data []byte, err error) {
 	if err != nil {
 		return
 	}
-	data, err = imgfactory.ToBytes(img)
+	data, err = factory.ToBytes(img)
 	return
 }
 
@@ -291,7 +291,7 @@ func drawComListPic(lits []movieInfo) (data []byte, err error) {
 	if err != nil {
 		return
 	}
-	data, err = imgfactory.ToBytes(img)
+	data, err = factory.ToBytes(img)
 	return
 }
 
@@ -338,7 +338,7 @@ func drawRankingCard(fontdata []byte, title string, rankinfo []*cardInfo) (img i
 
 			PicH := cardh - 20
 			picW := int(float64(avatar.Bounds().Dx()) * float64(PicH) / float64(avatar.Bounds().Dy()))
-			card.DrawImageAnchored(imgfactory.Size(avatar, picW, PicH).Image(), int(wspac)+10+picW/2, cardh/2, 0.5, 0.5)
+			card.DrawImageAnchored(factory.Size(avatar, picW, PicH).Image(), int(wspac)+10+picW/2, cardh/2, 0.5, 0.5)
 
 			card.ResetClip()
 			card.SetRGBA255(0, 0, 0, 127)

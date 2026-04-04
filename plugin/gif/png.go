@@ -10,7 +10,8 @@ import (
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
+	"github.com/FloatTech/gg/fio"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 )
@@ -35,11 +36,11 @@ func pa(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgf, err := imgfactory.LoadFirstFrame(f, 0, 0)
+	imgf, err := factory.LoadFirstFrame(f, 0, 0)
 	if err != nil {
 		return "", err
 	}
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgf.InsertUp(tou, 100, 100, 0, 400).Image())
+	return "file:///" + name, fio.SavePNG(name, imgf.InsertUp(tou, 100, 100, 0, 400).Image())
 }
 
 // si 撕
@@ -50,8 +51,8 @@ func si(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im1 := imgfactory.Rotate(tou, 20, 380, 380)
-	im2 := imgfactory.Rotate(tou, -12, 380, 380)
+	im1 := factory.Rotate(tou, 20, 380, 380)
+	im2 := factory.Rotate(tou, -12, 380, 380)
 	if file.IsNotExist(datapath + "materials/si") {
 		err = os.MkdirAll(datapath+"materials/si", 0755)
 		if err != nil {
@@ -62,11 +63,11 @@ func si(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgf, err := imgfactory.LoadFirstFrame(f, 0, 0)
+	imgf, err := factory.LoadFirstFrame(f, 0, 0)
 	if err != nil {
 		return "", err
 	}
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgf.InsertBottom(im1.Image(), im1.W(), im1.H(), -3, 370).InsertBottom(im2.Image(), im2.W(), im2.H(), 653, 310).Image())
+	return "file:///" + name, fio.SavePNG(name, imgf.InsertBottom(im1.Image(), im1.W(), im1.H(), -3, 370).InsertBottom(im2.Image(), im2.W(), im2.H(), 653, 310).Image())
 }
 
 // flipV 上翻,下翻
@@ -74,12 +75,12 @@ func flipV(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "FlipV.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.FlipV().Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // flipH 左翻,右翻
@@ -87,12 +88,12 @@ func flipH(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "FlipH.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.FlipH().Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // invert 反色
@@ -100,12 +101,12 @@ func invert(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "Invert.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.Invert().Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // blur 反色
@@ -113,12 +114,12 @@ func blur(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "Blur.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.Blur(10).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // grayscale 灰度
@@ -126,12 +127,12 @@ func grayscale(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "Grayscale.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.Grayscale().Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // invertAndGrayscale 负片
@@ -139,12 +140,12 @@ func invertAndGrayscale(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "InvertAndGrayscale.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.Invert().Grayscale().Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // convolve3x3 浮雕
@@ -152,32 +153,32 @@ func convolve3x3(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "Convolve3x3.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.Relief().Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // rotate 旋转
 func rotate(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Rotate.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
 	r, _ := strconv.ParseFloat(args[0], 64)
-	imgnrgba := imgfactory.Rotate(im.Image(), r, 0, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := factory.Rotate(im.Image(), r, 0, 0).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // deformation 变形
 func deformation(cc *context, args ...string) (string, error) {
 	name := cc.usrdir + "Deformation.png"
 	// 加载图片
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -189,8 +190,8 @@ func deformation(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgfactory.Size(im.Image(), w, h).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := factory.Size(im.Image(), w, h).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // alike 你像个xxx一样
@@ -213,12 +214,12 @@ func alike(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Anyasuki.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 82, 69)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 82, 69)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertUp(im.Image(), 0, 0, 136, 21).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // marriage
@@ -241,12 +242,12 @@ func marriage(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Marriage.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 1080, 1080)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 1080, 1080)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.InsertUp(imgs[0].Image(), 0, 0, 0, 0).InsertUp(imgs[1].Image(), 0, 0, 800, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // anyasuki 阿尼亚喜欢
@@ -265,16 +266,16 @@ func anyasuki(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Anyasuki.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(475, 540)
-	canvas.DrawImage(imgfactory.Size(face, 347, 267).Image(), 82, 53)
+	canvas.DrawImage(factory.Size(face, 347, 267).Image(), 82, 53)
 	canvas.DrawImage(back, 0, 0)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
@@ -311,17 +312,17 @@ func alwaysLike(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "AlwaysLike.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(830, 599)
 	canvas.DrawImage(back, 0, 0)
-	canvas.DrawImage(imgfactory.Size(face, 380, 380).Image(), 44, 74)
+	canvas.DrawImage(factory.Size(face, 380, 380).Image(), 44, 74)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -362,12 +363,12 @@ func decentKiss(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "DecentKiss.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 589, 577)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 589, 577)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.InsertUp(imgs[0].Image(), 0, 0, 0, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // chinaFlag 国旗
@@ -390,12 +391,12 @@ func chinaFlag(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "ChinaFlag.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 410, 410)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 410, 410)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.InsertUp(imgs[0].Image(), 0, 0, 0, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // dontTouch 不要靠近
@@ -418,24 +419,24 @@ func dontTouch(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "DontTouch.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 410, 410)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 410, 410)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertUp(im.Image(), 148, 148, 46, 238).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // universal 万能表情 空白表情
 func universal(cc *context, args ...string) (string, error) {
 	_ = args
 	name := cc.usrdir + "Universal.png"
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(500, 550)
-	canvas.DrawImage(imgfactory.Size(face, 500, 500).Image(), 0, 0)
+	canvas.DrawImage(factory.Size(face, 500, 500).Image(), 0, 0)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -471,20 +472,20 @@ func interview(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Interview.png"
-	huaji, err := gg.LoadImage(c[0])
+	huaji, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	microphone, err := gg.LoadImage(c[1])
+	microphone, err := fio.LoadImage(c[1])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(600, 300)
-	canvas.DrawImage(imgfactory.Size(face, 124, 124).Image(), 100, 50)
+	canvas.DrawImage(factory.Size(face, 124, 124).Image(), 100, 50)
 	canvas.DrawImage(huaji, 376, 50)
 	canvas.DrawImage(microphone, 300, 50)
 	canvas.SetColor(color.Black)
@@ -526,12 +527,12 @@ func need(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Need.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 114, 114)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 114, 114)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 0, 0, 327, 232).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // paint 这像画吗
@@ -554,12 +555,12 @@ func paint(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Paint.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 117, 135)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 117, 135)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertBottom(imgfactory.Rotate(im.Image(), 4, 0, 0).Image(), 0, 0, 95, 107).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertBottom(factory.Rotate(im.Image(), 4, 0, 0).Image(), 0, 0, 95, 107).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // painter 小画家
@@ -582,12 +583,12 @@ func painter(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Painter.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 240, 345)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 240, 345)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 0, 0, 125, 91).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // perfect 完美
@@ -610,12 +611,12 @@ func perfect(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Perfect.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 310, 460)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 310, 460)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertUp(im.Image(), 0, 0, 313, 64).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // playGame 玩游戏
@@ -634,16 +635,16 @@ func playGame(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "PlayGame.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(526, 503)
-	canvas.DrawImage(imgfactory.Rotate(face, 10, 225, 160).Image(), 161, 117)
+	canvas.DrawImage(factory.Rotate(face, 10, 225, 160).Image(), 161, 117)
 	canvas.DrawImage(back, 0, 0)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
@@ -684,12 +685,12 @@ func police(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Police.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 245, 245)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 245, 245)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 0, 0, 224, 46).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // police1 警察
@@ -712,12 +713,12 @@ func police1(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Police1.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 60, 75)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 60, 75)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[1].InsertBottom(imgfactory.Rotate(im.Image(), 16, 0, 0).Image(), 0, 0, 37, 291).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[1].InsertBottom(factory.Rotate(im.Image(), 16, 0, 0).Image(), 0, 0, 37, 291).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // prpr 舔 舔屏 prpr
@@ -740,12 +741,12 @@ func prpr(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Prpr.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 330, 330)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 330, 330)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertBottom(imgfactory.Rotate(im.Image(), 8, 0, 0).Image(), 0, 0, 46, 264).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertBottom(factory.Rotate(im.Image(), 8, 0, 0).Image(), 0, 0, 46, 264).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // safeSense 安全感
@@ -764,17 +765,17 @@ func safeSense(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "SafeSense.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(430, 478)
 	canvas.DrawImage(back, 0, 0)
-	canvas.DrawImage(imgfactory.Size(face, 215, 343).Image(), 215, 135)
+	canvas.DrawImage(factory.Size(face, 215, 343).Image(), 215, 135)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -816,12 +817,12 @@ func support(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Support.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 815, 815)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 815, 815)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertBottom(imgfactory.Rotate(im.Image(), 23, 0, 0).Image(), 0, 0, -172, -17).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertBottom(factory.Rotate(im.Image(), 23, 0, 0).Image(), 0, 0, -172, -17).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // thinkwhat 想什么
@@ -844,12 +845,12 @@ func thinkwhat(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Thinkwhat.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 534, 493)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 534, 493)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 0, 0, 530, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // wallpaper 墙纸
@@ -872,12 +873,12 @@ func wallpaper(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Wallpaper.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 775, 496)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 775, 496)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 0, 0, 260, 580).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // whyatme 为什么at我
@@ -900,12 +901,12 @@ func whyatme(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Whyatme.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 265, 265)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 265, 265)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 0, 0, 42, 13).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // makeFriend 交个朋友
@@ -924,18 +925,18 @@ func makeFriend(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "MakeFriend.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(1000, 1000)
-	canvas.DrawImage(imgfactory.Size(face, 1000, 1000).Image(), 0, 0)
-	canvas.DrawImage(imgfactory.Rotate(face, 9, 250, 250).Image(), 743, 845)
-	canvas.DrawImage(imgfactory.Rotate(face, 9, 55, 55).Image(), 836, 722)
+	canvas.DrawImage(factory.Size(face, 1000, 1000).Image(), 0, 0)
+	canvas.DrawImage(factory.Rotate(face, 9, 250, 250).Image(), 743, 845)
+	canvas.DrawImage(factory.Rotate(face, 9, 55, 55).Image(), 836, 722)
 	canvas.DrawImage(back, 0, 0)
 	canvas.SetColor(color.White)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
@@ -977,12 +978,12 @@ func backToWork(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "BackToWork.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 220, 310)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 220, 310)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertBottom(imgfactory.Rotate(im.Image(), 25, 0, 0).Image(), 0, 0, 56, 32).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertBottom(factory.Rotate(im.Image(), 25, 0, 0).Image(), 0, 0, 56, 32).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // coupon 兑换券
@@ -1004,7 +1005,7 @@ func coupon(cc *context, args ...string) (string, error) {
 	if args[0] == "" {
 		args[0] = "群主陪睡券"
 	}
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
@@ -1015,7 +1016,7 @@ func coupon(cc *context, args ...string) (string, error) {
 	canvas := gg.NewContext(500, 355)
 	canvas.DrawImage(back, 0, 0)
 	canvas.Rotate(gg.Radians(-22))
-	canvas.DrawImage(imgfactory.Size(face, 60, 60).Image(), 100, 163)
+	canvas.DrawImage(factory.Size(face, 60, 60).Image(), 100, 163)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -1056,12 +1057,12 @@ func distracted(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "Distracted.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := im.InsertUp(imgs[0].Image(), 0, 0, 140, 320).InsertUp(imgs[1].Image(), 0, 0, 0, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // throw 扔
@@ -1088,8 +1089,8 @@ func throw(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertUpC(imgfactory.Rotate(face, float64(rand.Intn(360)), 143, 143).Image(), 0, 0, 86, 249).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertUpC(factory.Rotate(face, float64(rand.Intn(360)), 143, 143).Image(), 0, 0, 86, 249).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // 远离
@@ -1112,12 +1113,12 @@ func yuanli(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "yuanli.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 534, 493)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 534, 493)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 420, 420, 45, 90).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // 不是你老婆
@@ -1140,12 +1141,12 @@ func nowife(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "nowife.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 534, 493)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 534, 493)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 400, 400, 112, 81).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // youer 你老婆
@@ -1164,7 +1165,7 @@ func youer(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "youer.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
@@ -1174,7 +1175,7 @@ func youer(cc *context, args ...string) (string, error) {
 	}
 	canvas := gg.NewContext(690, 690)
 	canvas.DrawImage(back, 0, 0)
-	canvas.DrawImage(imgfactory.Size(tou, 350, 350).Image(), 55, 165)
+	canvas.DrawImage(factory.Size(tou, 350, 350).Image(), 55, 165)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -1211,17 +1212,17 @@ func xiaotianshi(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "xiaotianshi.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(522, 665)
 	canvas.DrawImage(back, 0, 0)
-	canvas.DrawImage(imgfactory.Size(face, 480, 480).Image(), 20, 80)
+	canvas.DrawImage(factory.Size(face, 480, 480).Image(), 20, 80)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -1262,12 +1263,12 @@ func neko(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "neko.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 712, 949)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 712, 949)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertBottom(imgfactory.Rotate(im.Image(), 0, 0, 0).Image(), 450, 450, 0, 170).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertBottom(factory.Rotate(im.Image(), 0, 0, 0).Image(), 450, 450, 0, 170).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // 给我变
@@ -1291,12 +1292,12 @@ func bian(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "bian.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 640, 550)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 640, 550)
 	if err != nil {
 		return "", err
 	}
-	imgnrgba := imgs[0].InsertBottom(imgfactory.Rotate(im.Image(), 0, 0, 0).Image(), 380, 380, 225, -20).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	imgnrgba := imgs[0].InsertBottom(factory.Rotate(im.Image(), 0, 0, 0).Image(), 380, 380, 225, -20).Image()
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // van 玩一下
@@ -1315,17 +1316,17 @@ func van(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "van.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
 	canvas := gg.NewContext(522, 665)
 	canvas.DrawImage(back, 0, 0)
-	canvas.DrawImage(imgfactory.Size(face, 480, 480).Image(), 20, 80)
+	canvas.DrawImage(factory.Size(face, 480, 480).Image(), 20, 80)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {
@@ -1366,12 +1367,12 @@ func eihei(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "eihei.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 690, 690)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 690, 690)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 450, 450, 121, 162).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // fanfa 犯法
@@ -1398,9 +1399,9 @@ func fanfa(cc *context, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := imgfactory.Rotate(face, 45, 110, 110)
+	m1 := factory.Rotate(face, 45, 110, 110)
 	imgnrgba := imgs[0].InsertUp(m1.Image(), 0, 0, 125, 360).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // huai 怀
@@ -1423,12 +1424,12 @@ func huai(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "huai.png"
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 640, 640)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 640, 640)
 	if err != nil {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(im.Image(), 640, 640, 0, 0).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // haowan 好玩
@@ -1456,7 +1457,7 @@ func haowan(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	imgnrgba := imgs[0].InsertBottom(face, 90, 90, 321, 172).Image()
-	return "file:///" + name, imgfactory.SavePNG2Path(name, imgnrgba)
+	return "file:///" + name, fio.SavePNG(name, imgnrgba)
 }
 
 // mengbi 蒙蔽
@@ -1475,7 +1476,7 @@ func mengbi(cc *context, args ...string) (string, error) {
 		return "", err
 	}
 	name := cc.usrdir + "mengbi.png"
-	back, err := gg.LoadImage(c[0])
+	back, err := fio.LoadImage(c[0])
 	if err != nil {
 		return "", err
 	}
@@ -1485,8 +1486,8 @@ func mengbi(cc *context, args ...string) (string, error) {
 	}
 	canvas := gg.NewContext(1080, 1080)
 	canvas.DrawImage(back, 0, 0)
-	canvas.DrawImage(imgfactory.Size(face, 100, 100).Image(), 392, 460)
-	canvas.DrawImage(imgfactory.Size(face, 100, 100).Image(), 606, 443)
+	canvas.DrawImage(factory.Size(face, 100, 100).Image(), 392, 460)
+	canvas.DrawImage(factory.Size(face, 100, 100).Image(), 606, 443)
 	canvas.SetColor(color.Black)
 	data, err := file.GetLazyData(text.BoldFontFile, control.Md5File, true)
 	if err != nil {

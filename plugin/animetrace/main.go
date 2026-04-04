@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/web"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -62,7 +62,7 @@ func processImageRecognition(ctx *zero.Ctx, model string) {
 	if len(urls) == 0 {
 		return
 	}
-	imageData, err := imgfactory.Load(urls[0])
+	imageData, err := factory.Load(urls[0])
 	if err != nil {
 		ctx.Send(message.Text("下载图片失败: ", err))
 		return

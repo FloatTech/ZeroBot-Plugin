@@ -14,7 +14,7 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/math"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
@@ -255,7 +255,7 @@ func drawPackImage(uid int64, equipInfo equip, articles []article) (imagePicByte
 	canvas.DrawImage(equipBlock, 10, 10)
 	canvas.DrawImage(packBlock, 10, 10+equipBlock.Bounds().Dy()+10)
 
-	return imgfactory.ToBytes(canvas.Image())
+	return factory.ToBytes(canvas.Image())
 }
 
 // 绘制装备栏区域
@@ -322,7 +322,7 @@ func drawEquipInfoBlock(equipInfo equip, fontdata []byte) (image.Image, error) {
 		return nil, err
 	}
 	picDy := float64(backDY) - 10 - titleH*2
-	equipPic = imgfactory.Size(equipPic, int(picDy)-10, int(picDy)-10).Image()
+	equipPic = factory.Size(equipPic, int(picDy)-10, int(picDy)-10).Image()
 	canvas.DrawImage(equipPic, 10, 10+int(titleH)*2)
 
 	// 放字

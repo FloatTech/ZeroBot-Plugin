@@ -7,7 +7,7 @@ import (
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 )
 
 func (cc *context) prepareLogos(s ...string) error {
@@ -27,7 +27,7 @@ func (cc *context) prepareLogos(s ...string) error {
 }
 
 func (cc *context) getLogo(w int, h int) (*image.NRGBA, error) {
-	frame, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], w, h)
+	frame, err := factory.LoadFirstFrame(cc.headimgsdir[0], w, h)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (cc *context) getLogo(w int, h int) (*image.NRGBA, error) {
 }
 
 func (cc *context) getLogo2(w int, h int) (*image.NRGBA, error) {
-	frame, err := imgfactory.LoadFirstFrame(cc.headimgsdir[1], w, h)
+	frame, err := factory.LoadFirstFrame(cc.headimgsdir[1], w, h)
 	if err != nil {
 		return nil, err
 	}

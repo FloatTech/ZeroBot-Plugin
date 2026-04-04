@@ -17,7 +17,7 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
 	"github.com/FloatTech/floatbox/web"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -164,7 +164,7 @@ func init() {
 		// done.
 		f, err := os.Create(drawedFile)
 		if err != nil {
-			data, err := imgfactory.ToBytes(drawimage)
+			data, err := factory.ToBytes(drawimage)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -172,7 +172,7 @@ func init() {
 			ctx.SendChain(message.ImageBytes(data))
 			return
 		}
-		_, err = imgfactory.WriteTo(drawimage, f)
+		_, err = factory.WriteTo(drawimage, f)
 		defer f.Close()
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))

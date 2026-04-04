@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/fio"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -39,7 +39,7 @@ func init() { // 插件主体
 				digest := md5.Sum(helper.StringToBytes(url))
 				f := cachefolder + hex.EncodeToString(digest[:])
 				if file.IsNotExist(f) {
-					_ = imgfactory.SavePNG2Path(f, t)
+					_ = fio.SavePNG(f, t)
 				}
 				m := message.Message{ctxext.FakeSenderForwardNode(ctx, message.Image("file:///"+file.BOTPATH+"/"+f))}
 				m = append(m, ctxext.FakeSenderForwardNode(ctx, message.Text("tags: ", strings.Join(st.tseq, ","))))

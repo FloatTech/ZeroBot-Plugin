@@ -16,7 +16,7 @@ import (
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -97,7 +97,7 @@ func init() {
 			return
 		}
 		// 生成图片
-		data, err := imgfactory.ToBytes(lotsImg)
+		data, err := factory.ToBytes(lotsImg)
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return

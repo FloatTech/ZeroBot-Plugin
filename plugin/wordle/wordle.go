@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/AnimeAPI/tl"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
@@ -254,7 +254,7 @@ func newWordleGame(target string) func(string) (bool, []byte, error) {
 				}
 			}
 		}
-		data, err = imgfactory.ToBytes(ctx.Image())
+		data, err = factory.ToBytes(ctx.Image())
 		if len(record) >= cap(record) {
 			err = errTimesRunOut
 			return

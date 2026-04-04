@@ -19,7 +19,7 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -97,7 +97,7 @@ func init() { // 插件主体
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			sendimg, err := imgfactory.ToBytes(img)
+			sendimg, err := factory.ToBytes(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
@@ -191,7 +191,7 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 	if err != nil {
 		return
 	}
-	avatarf := imgfactory.Size(avatar, 200, 200)
+	avatarf := factory.Size(avatar, 200, 200)
 
 	fontbyte, err := file.GetLazyData(text.GlowSansFontFile, control.Md5File, true)
 	if err != nil {
@@ -203,10 +203,10 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 	bh, bw, ch, cw := float64(back.Bounds().Dy()), float64(back.Bounds().Dx()), float64(canvas.H()), float64(canvas.W())
 
 	if bh/bw < ch/cw {
-		back = imgfactory.Size(back, int(bw*ch/bh), int(bh*ch/bh)).Image()
+		back = factory.Size(back, int(bw*ch/bh), int(bh*ch/bh)).Image()
 		canvas.DrawImageAnchored(back, canvas.W()/2, canvas.H()/2, 0.5, 0.5)
 	} else {
-		back = imgfactory.Size(back, int(bw*cw/bw), int(bh*cw/bw)).Image()
+		back = factory.Size(back, int(bw*cw/bw), int(bh*cw/bw)).Image()
 		canvas.DrawImage(back, 0, 0)
 	}
 	var blurback image.Image

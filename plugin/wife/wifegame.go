@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
-	"github.com/FloatTech/imgfactory"
 	"github.com/sirupsen/logrus"
 )
 
@@ -48,7 +48,7 @@ func init() {
 			ctx.SendChain(message.Text("[猜老婆] 图片解码失败:\n", err))
 			return
 		}
-		dst := imgfactory.Size(img, img.Bounds().Dx(), img.Bounds().Dy())
+		dst := factory.Size(img, img.Bounds().Dx(), img.Bounds().Dy())
 		q, err := mosaic(dst, class)
 		if err != nil {
 			ctx.SendChain(
@@ -136,7 +136,7 @@ func init() {
 }
 
 // 高斯模糊生成
-func mosaic(dst *imgfactory.Factory, level int) ([]byte, error) {
+func mosaic(dst *factory.Factory, level int) ([]byte, error) {
 	blurRadius := float64(sizeList[level] * 3)
-	return imgfactory.ToBytes(dst.Blur(blurRadius).Image())
+	return factory.ToBytes(dst.Blur(blurRadius).Image())
 }

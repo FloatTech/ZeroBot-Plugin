@@ -9,7 +9,7 @@ import (
 	"time"
 
 	wyy "github.com/FloatTech/AnimeAPI/neteasemusic"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -435,7 +435,7 @@ func init() {
 					canvas.DrawString("当前设置的默认歌单为: "+dlist.Name, 80, float64(85+20*j)-h)
 				}
 			}
-			data, err := imgfactory.ToBytes(canvas.Image())
+			data, err := factory.ToBytes(canvas.Image())
 			if err != nil {
 				ctx.SendChain(message.Text(serviceErr, err))
 				return

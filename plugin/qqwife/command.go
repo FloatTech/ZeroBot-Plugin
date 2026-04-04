@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/FloatTech/floatbox/math"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	control "github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -251,7 +251,7 @@ func init() {
 				canvas.DrawString(slicename(info[2], canvas), 800, float64(260+50*i)-h)
 				canvas.DrawString("("+info[3]+")", 1150, float64(260+50*i)-h)
 			}
-			data, err = imgfactory.ToBytes(canvas.Image())
+			data, err = factory.ToBytes(canvas.Image())
 			if err != nil {
 				ctx.SendChain(message.Text("[qqwife]ERROR: ", err))
 				return

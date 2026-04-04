@@ -12,7 +12,7 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/floatbox/file"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	"github.com/FloatTech/rendercard"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -96,7 +96,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			sendimg, err := imgfactory.ToBytes(img)
+			sendimg, err := factory.ToBytes(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

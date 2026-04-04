@@ -15,7 +15,7 @@ import (
 
 	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/process"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -100,7 +100,7 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			b, err := imgfactory.ToBytes(img)
+			b, err := factory.ToBytes(img)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return

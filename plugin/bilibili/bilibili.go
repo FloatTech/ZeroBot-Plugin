@@ -20,7 +20,8 @@ import (
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/web"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
+	"github.com/FloatTech/gg/fio"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
@@ -166,12 +167,12 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back, err = gg.LoadImage(facePath)
+				back, err = fio.LoadImage(facePath)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back = imgfactory.Size(back, backX, backY).Image()
+				back = factory.Size(back, backX, backY).Image()
 			}
 			if len(vups) > 50 {
 				ctx.SendChain(message.Text(u.Name + "关注的up主太多了, 只展示前50个up"))
@@ -256,7 +257,7 @@ func init() {
 			f, err := os.Create(drawedFile)
 			if err != nil {
 				log.Errorln("[bilibili]", err)
-				data, err := imgfactory.ToBytes(canvas.Image())
+				data, err := factory.ToBytes(canvas.Image())
 				if err != nil {
 					log.Errorln("[bilibili]", err)
 					return
@@ -264,7 +265,7 @@ func init() {
 				ctx.SendChain(message.ImageBytes(data))
 				return
 			}
-			_, err = imgfactory.WriteTo(canvas.Image(), f)
+			_, err = factory.WriteTo(canvas.Image(), f)
 			_ = f.Close()
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -313,12 +314,12 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			back, err = gg.LoadImage(facePath)
+			back, err = fio.LoadImage(facePath)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			back = imgfactory.Size(back, backX, backY).Image()
+			back = factory.Size(back, backX, backY).Image()
 		}
 		canvas := gg.NewContext(100, 100)
 		fontSize := 50.0
@@ -379,12 +380,12 @@ func init() {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back, err = gg.LoadImage(facePath)
+				back, err = fio.LoadImage(facePath)
 				if err != nil {
 					ctx.SendChain(message.Text("ERROR: ", err))
 					return
 				}
-				back = imgfactory.Size(back, backX, backY).Image()
+				back = factory.Size(back, backX, backY).Image()
 			}
 			if back != nil {
 				canvas.DrawImage(back, facestart, int(channelStart))
@@ -520,7 +521,7 @@ func init() {
 		f, err := os.Create(drawedFile)
 		if err != nil {
 			log.Errorln("[bilibili]", err)
-			data, err := imgfactory.ToBytes(nim)
+			data, err := factory.ToBytes(nim)
 			if err != nil {
 				log.Errorln("[bilibili]", err)
 				return
@@ -528,7 +529,7 @@ func init() {
 			ctx.SendChain(message.ImageBytes(data))
 			return
 		}
-		_, err = imgfactory.WriteTo(nim, f)
+		_, err = factory.WriteTo(nim, f)
 		_ = f.Close()
 		if err != nil {
 			ctx.SendChain(message.Text("ERROR: ", err))

@@ -8,7 +8,8 @@ import (
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
+	"github.com/FloatTech/gg/fio"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/img/text"
 )
@@ -44,8 +45,8 @@ func mo(cc *context, value ...string) (string, error) {
 		imgs[3].InsertBottom(tou, 85, 75, 27, 37).Image(),
 		imgs[4].InsertBottom(tou, 90, 70, 22, 42).Image(),
 	}
-	g := imgfactory.MergeGif(1, mo)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(1, mo)
+	return factory.GIF2Base64(g)
 }
 
 // cuo 搓
@@ -64,10 +65,10 @@ func cuo(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := imgfactory.Rotate(tou, 72, 0, 0)
-	m2 := imgfactory.Rotate(tou, 144, 0, 0)
-	m3 := imgfactory.Rotate(tou, 216, 0, 0)
-	m4 := imgfactory.Rotate(tou, 288, 0, 0)
+	m1 := factory.Rotate(tou, 72, 0, 0)
+	m2 := factory.Rotate(tou, 144, 0, 0)
+	m3 := factory.Rotate(tou, 216, 0, 0)
+	m4 := factory.Rotate(tou, 288, 0, 0)
 	wg.Wait()
 	if errwg != nil {
 		return "", errwg
@@ -83,8 +84,8 @@ func cuo(cc *context, value ...string) (string, error) {
 		imgs[3].InsertBottomC(m3.Image(), 0, 0, 75, 130).Image(),
 		imgs[4].InsertBottomC(m4.Image(), 0, 0, 75, 130).Image(),
 	}
-	g := imgfactory.MergeGif(5, cuo)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(5, cuo)
+	return factory.GIF2Base64(g)
 }
 
 // qiao 敲
@@ -115,8 +116,8 @@ func qiao(cc *context, value ...string) (string, error) {
 		imgs[0].InsertUp(tou, 40, 33, 57, 52).Image(),
 		imgs[1].InsertUp(tou, 38, 36, 58, 50).Image(),
 	}
-	g := imgfactory.MergeGif(1, qiao)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(1, qiao)
+	return factory.GIF2Base64(g)
 }
 
 // chi 吃
@@ -148,8 +149,8 @@ func chi(cc *context, value ...string) (string, error) {
 		imgs[1].InsertBottom(tou, 0, 0, 1, 38).Image(),
 		imgs[2].InsertBottom(tou, 0, 0, 1, 38).Image(),
 	}
-	g := imgfactory.MergeGif(1, chi)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(1, chi)
+	return factory.GIF2Base64(g)
 }
 
 // ceng 蹭
@@ -182,14 +183,14 @@ func ceng(cc *context, value ...string) (string, error) {
 	}
 	ceng := []*image.NRGBA{
 		imgs[0].InsertUp(tou, 75, 77, 40, 88).InsertUp(tou2, 77, 103, 102, 81).Image(),
-		imgs[1].InsertUp(tou, 75, 77, 46, 100).InsertUp(imgfactory.Rotate(tou2, 10, 62, 127).Image(), 0, 0, 92, 40).Image(),
+		imgs[1].InsertUp(tou, 75, 77, 46, 100).InsertUp(factory.Rotate(tou2, 10, 62, 127).Image(), 0, 0, 92, 40).Image(),
 		imgs[2].InsertUp(tou, 75, 77, 67, 99).InsertUp(tou2, 76, 117, 90, 8).Image(),
-		imgs[3].InsertUp(tou, 75, 77, 52, 83).InsertUp(imgfactory.Rotate(tou2, -40, 94, 94).Image(), 0, 0, 53, -20).Image(),
-		imgs[4].InsertUp(tou, 75, 77, 56, 110).InsertUp(imgfactory.Rotate(tou2, -66, 132, 80).Image(), 0, 0, 78, 40).Image(),
+		imgs[3].InsertUp(tou, 75, 77, 52, 83).InsertUp(factory.Rotate(tou2, -40, 94, 94).Image(), 0, 0, 53, -20).Image(),
+		imgs[4].InsertUp(tou, 75, 77, 56, 110).InsertUp(factory.Rotate(tou2, -66, 132, 80).Image(), 0, 0, 78, 40).Image(),
 		imgs[5].InsertUp(tou, 75, 77, 62, 102).InsertUp(tou2, 71, 100, 110, 94).Image(),
 	}
-	g := imgfactory.MergeGif(8, ceng)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(8, ceng)
+	return factory.GIF2Base64(g)
 }
 
 // ken 啃
@@ -234,8 +235,8 @@ func ken(cc *context, value ...string) (string, error) {
 		imgs[14].Image(),
 		imgs[15].Image(),
 	}
-	g := imgfactory.MergeGif(7, ken)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, ken)
+	return factory.GIF2Base64(g)
 }
 
 // pai 拍
@@ -266,8 +267,8 @@ func pai(cc *context, value ...string) (string, error) {
 		imgs[0].InsertUp(tou, 0, 0, 1, 47).Image(),
 		imgs[1].InsertUp(tou, 0, 0, 1, 67).Image(),
 	}
-	g := imgfactory.MergeGif(1, pai)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(1, pai)
+	return factory.GIF2Base64(g)
 }
 
 // xqe 冲
@@ -298,8 +299,8 @@ func xqe(cc *context, value ...string) (string, error) {
 		imgs[0].InsertUp(tou, 30, 30, 15, 53).Image(),
 		imgs[1].InsertUp(tou, 30, 30, 40, 53).Image(),
 	}
-	g := imgfactory.MergeGif(1, chong)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(1, chong)
+	return factory.GIF2Base64(g)
 }
 
 // diu 丢
@@ -336,8 +337,8 @@ func diu(cc *context, value ...string) (string, error) {
 		imgs[6].InsertUp(tou, 35, 35, 259, 31).Image(),
 		imgs[7].InsertUp(tou, 175, 175, -50, 220).Image(),
 	}
-	g := imgfactory.MergeGif(7, diu)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, diu)
+	return factory.GIF2Base64(g)
 }
 
 // kiss 亲
@@ -376,8 +377,8 @@ func kiss(cc *context, value ...string) (string, error) {
 		kiss[i] = imgs[i].InsertUp(tou, 50, 50, userLocs[i][0], userLocs[i][1]).
 			InsertUp(tou2, 40, 40, selfLocs[i][0], selfLocs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, kiss)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, kiss)
+	return factory.GIF2Base64(g)
 }
 
 // garbage 垃圾 垃圾桶
@@ -397,7 +398,7 @@ func garbage(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 79, 79)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 79, 79)
 	if err != nil {
 		return "", err
 	}
@@ -410,8 +411,8 @@ func garbage(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		garbage[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, garbage)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, garbage)
+	return factory.GIF2Base64(g)
 }
 
 // thump 捶
@@ -431,7 +432,7 @@ func thump(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -444,8 +445,8 @@ func thump(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		thump[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, thump)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, thump)
+	return factory.GIF2Base64(g)
 }
 
 // jiujiu 啾啾
@@ -465,7 +466,7 @@ func jiujiu(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 75, 51)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 75, 51)
 	if err != nil {
 		return "", err
 	}
@@ -477,8 +478,8 @@ func jiujiu(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		jiujiu[i] = imgs[i].InsertBottom(im.Image(), 0, 0, 0, 0).Image()
 	}
-	g := imgfactory.MergeGif(7, jiujiu)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, jiujiu)
+	return factory.GIF2Base64(g)
 }
 
 // knock 2敲
@@ -498,7 +499,7 @@ func knock(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -511,8 +512,8 @@ func knock(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		knock[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, knock)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, knock)
+	return factory.GIF2Base64(g)
 }
 
 // 听音乐 listenMusic
@@ -542,10 +543,10 @@ func listenMusic(cc *context, value ...string) (string, error) {
 	}
 	listenmusic := make([]*image.NRGBA, 36)
 	for i := 0; i < 36; i++ {
-		listenmusic[i] = imgs[0].InsertBottomC(imgfactory.Rotate(face, float64(-i*10), 215, 215).Image(), 0, 0, 207, 207).Image()
+		listenmusic[i] = imgs[0].InsertBottomC(factory.Rotate(face, float64(-i*10), 215, 215).Image(), 0, 0, 207, 207).Image()
 	}
-	g := imgfactory.MergeGif(7, listenmusic)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, listenmusic)
+	return factory.GIF2Base64(g)
 }
 
 // loveYou 永远爱你
@@ -565,7 +566,7 @@ func loveYou(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -578,8 +579,8 @@ func loveYou(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		loveyou[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, loveyou)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, loveyou)
+	return factory.GIF2Base64(g)
 }
 
 // pat 2拍
@@ -599,7 +600,7 @@ func pat(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -621,8 +622,8 @@ func pat(cc *context, value ...string) (string, error) {
 	for i := 0; i < len(pat); i++ {
 		pat[i] = p[seq[i]]
 	}
-	g := imgfactory.MergeGif(7, pat)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, pat)
+	return factory.GIF2Base64(g)
 }
 
 // jackUp 顶
@@ -642,7 +643,7 @@ func jackUp(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -665,8 +666,8 @@ func jackUp(cc *context, value ...string) (string, error) {
 	play = append(play, p[0:8]...)
 	play = append(play, p[12:18]...)
 	play = append(play, p[18:23]...)
-	g := imgfactory.MergeGif(7, play)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, play)
+	return factory.GIF2Base64(g)
 }
 
 // pound 捣
@@ -686,7 +687,7 @@ func pound(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -699,8 +700,8 @@ func pound(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		pound[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, pound)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, pound)
+	return factory.GIF2Base64(g)
 }
 
 // punch 打拳
@@ -720,7 +721,7 @@ func punch(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 260, 260)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 260, 260)
 	if err != nil {
 		return "", err
 	}
@@ -733,8 +734,8 @@ func punch(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		punch[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]-15).Image()
 	}
-	g := imgfactory.MergeGif(7, punch)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, punch)
+	return factory.GIF2Base64(g)
 }
 
 // roll 滚
@@ -754,7 +755,7 @@ func roll(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 210, 210)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 210, 210)
 	if err != nil {
 		return "", err
 	}
@@ -765,10 +766,10 @@ func roll(cc *context, value ...string) (string, error) {
 	}
 	roll := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		roll[i] = imgs[i].InsertBottomC(imgfactory.Rotate(im.Image(), float64(locs[i][2]), 0, 0).Image(), 0, 0, locs[i][0]+105, locs[i][1]+105).Image()
+		roll[i] = imgs[i].InsertBottomC(factory.Rotate(im.Image(), float64(locs[i][2]), 0, 0).Image(), 0, 0, locs[i][0]+105, locs[i][1]+105).Image()
 	}
-	g := imgfactory.MergeGif(7, roll)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, roll)
+	return factory.GIF2Base64(g)
 }
 
 // suck 吸 嗦
@@ -788,7 +789,7 @@ func suck(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -801,8 +802,8 @@ func suck(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		suck[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, suck)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, suck)
+	return factory.GIF2Base64(g)
 }
 
 // hammer 锤
@@ -822,7 +823,7 @@ func hammer(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -835,8 +836,8 @@ func hammer(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		hammer[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, hammer)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, hammer)
+	return factory.GIF2Base64(g)
 }
 
 // tightly 紧贴 紧紧贴着
@@ -856,7 +857,7 @@ func tightly(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 0, 0)
 	if err != nil {
 		return "", err
 	}
@@ -869,8 +870,8 @@ func tightly(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		tightly[i] = imgs[i].InsertBottom(im.Image(), locs[i][2], locs[i][3], locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, tightly)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, tightly)
+	return factory.GIF2Base64(g)
 }
 
 // turn 转
@@ -887,10 +888,10 @@ func turn(cc *context, value ...string) (string, error) {
 	canvas.Fill()
 	turn := make([]*image.NRGBA, 36)
 	for i := 0; i < 36; i++ {
-		turn[i] = imgfactory.Size(canvas.Image(), 0, 0).InsertUpC(imgfactory.Rotate(face, float64(10*i), 250, 250).Image(), 0, 0, 125, 125).Image()
+		turn[i] = factory.Size(canvas.Image(), 0, 0).InsertUpC(factory.Rotate(face, float64(10*i), 250, 250).Image(), 0, 0, 125, 125).Image()
 	}
-	g := imgfactory.MergeGif(7, turn)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, turn)
+	return factory.GIF2Base64(g)
 }
 
 // taiguan 抬棺
@@ -939,8 +940,8 @@ func taiguan(cc *context, value ...string) (string, error) {
 		imgs[18].InsertUp(tou, 85, 85, 170, 65).Image(),
 		imgs[19].InsertUp(tou, 85, 85, 175, 65).Image(),
 	}
-	g := imgfactory.MergeGif(7, taiguan)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, taiguan)
+	return factory.GIF2Base64(g)
 }
 
 // zou 揍
@@ -976,8 +977,8 @@ func zou(cc *context, value ...string) (string, error) {
 		imgs[1].InsertUp(tou, 40, 40, 98, 138).InsertUp(tou2, 55, 55, 101, 45).Image(),
 		imgs[2].InsertUp(tou, 40, 40, 89, 140).InsertUp(tou2, 55, 55, 99, 40).Image(),
 	}
-	g := imgfactory.MergeGif(8, zou)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(8, zou)
+	return factory.GIF2Base64(g)
 }
 
 // ci 吞
@@ -1032,8 +1033,8 @@ func ci(cc *context, value ...string) (string, error) {
 		imgs[24].Image(),
 		imgs[25].Image(),
 	}
-	g := imgfactory.MergeGif(7, ci)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, ci)
+	return factory.GIF2Base64(g)
 }
 
 // worship 膜拜
@@ -1052,7 +1053,7 @@ func worship(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	face, err := gg.LoadImage(cc.headimgsdir[0])
+	face, err := fio.LoadImage(cc.headimgsdir[0])
 	if err != nil {
 		return "", err
 	}
@@ -1071,8 +1072,8 @@ func worship(cc *context, value ...string) (string, error) {
 		imgs[7].InsertBottom(face, 140, 140, 0, 0).Image(),
 		imgs[8].InsertBottom(face, 140, 140, 0, 0).Image(),
 	}
-	g := imgfactory.MergeGif(7, worship)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, worship)
+	return factory.GIF2Base64(g)
 }
 
 // 2ceng 2蹭
@@ -1105,8 +1106,8 @@ func ceng2(cc *context, value ...string) (string, error) {
 		imgs[2].InsertBottom(tou, 175, 175, 78, 263).Image(),
 		imgs[3].InsertBottom(tou, 175, 175, 78, 263).Image(),
 	}
-	g := imgfactory.MergeGif(7, ceng2)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, ceng2)
+	return factory.GIF2Base64(g)
 }
 
 // dun 炖
@@ -1140,8 +1141,8 @@ func dun(cc *context, value ...string) (string, error) {
 		imgs[3].InsertBottom(tou, 80, 80, 85, 45).Image(),
 		imgs[4].InsertBottom(tou, 80, 80, 85, 45).Image(),
 	}
-	g := imgfactory.MergeGif(7, dun)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, dun)
+	return factory.GIF2Base64(g)
 }
 
 // push 滚高清重置版 过渡
@@ -1171,10 +1172,10 @@ func push(cc *context, value ...string) (string, error) {
 	}
 	push := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		push[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-22*i), 280, 280).Image(), 0, 0, 523, 291).Image()
+		push[i] = imgs[i].InsertUpC(factory.Rotate(tou, float64(-22*i), 280, 280).Image(), 0, 0, 523, 291).Image()
 	}
-	g := imgfactory.MergeGif(7, push)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, push)
+	return factory.GIF2Base64(g)
 }
 
 // peng 砰
@@ -1193,10 +1194,10 @@ func peng(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := imgfactory.Rotate(tou, 1, 80, 80)
-	m2 := imgfactory.Rotate(tou, 30, 80, 80)
-	m3 := imgfactory.Rotate(tou, 45, 85, 85)
-	m4 := imgfactory.Rotate(tou, 90, 80, 80)
+	m1 := factory.Rotate(tou, 1, 80, 80)
+	m2 := factory.Rotate(tou, 30, 80, 80)
+	m3 := factory.Rotate(tou, 45, 85, 85)
+	m4 := factory.Rotate(tou, 90, 80, 80)
 	wg.Wait()
 	if errwg != nil {
 		return "", errwg
@@ -1232,8 +1233,8 @@ func peng(cc *context, value ...string) (string, error) {
 		imgs[23].InsertUp(m4.Image(), 0, 0, 89, 159).Image(),
 		imgs[24].InsertUp(m4.Image(), 0, 0, 86, 160).Image(),
 	}
-	g := imgfactory.MergeGif(8, peng)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(8, peng)
+	return factory.GIF2Base64(g)
 }
 
 // klee 可莉吃
@@ -1253,7 +1254,7 @@ func klee(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	im, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 82, 83)
+	im, err := factory.LoadFirstFrame(cc.headimgsdir[0], 82, 83)
 	if err != nil {
 		return "", err
 	}
@@ -1266,8 +1267,8 @@ func klee(cc *context, value ...string) (string, error) {
 	for i := 0; i < piclen; i++ {
 		klee[i] = imgs[i].InsertBottom(im.Image(), 0, 0, locs[i][0], locs[i][1]).Image()
 	}
-	g := imgfactory.MergeGif(7, klee)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, klee)
+	return factory.GIF2Base64(g)
 }
 
 // hutaoken 胡桃啃
@@ -1298,8 +1299,8 @@ func hutaoken(cc *context, value ...string) (string, error) {
 		imgs[0].InsertBottom(tou, 98, 101, 108, 234).Image(),
 		imgs[1].InsertBottom(tou, 96, 100, 108, 237).Image(),
 	}
-	g := imgfactory.MergeGif(8, hutaoken)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(8, hutaoken)
+	return factory.GIF2Base64(g)
 }
 
 // lick 2舔
@@ -1330,8 +1331,8 @@ func lick(cc *context, value ...string) (string, error) {
 		imgs[0].InsertUp(tou, 44, 44, 10, 138).Image(),
 		imgs[1].InsertUp(tou, 44, 44, 10, 138).Image(),
 	}
-	g := imgfactory.MergeGif(8, lick)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(8, lick)
+	return factory.GIF2Base64(g)
 }
 
 // tiqiu 踢球
@@ -1362,10 +1363,10 @@ func tiqiu(cc *context, value ...string) (string, error) {
 	}
 	tiqiu := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		tiqiu[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-24*i), 0, 0).Image(), 0, 0, locs[i][0]+38, locs[i][1]+38).Image()
+		tiqiu[i] = imgs[i].InsertUpC(factory.Rotate(tou, float64(-24*i), 0, 0).Image(), 0, 0, locs[i][0]+38, locs[i][1]+38).Image()
 	}
-	g := imgfactory.MergeGif(7, tiqiu)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, tiqiu)
+	return factory.GIF2Base64(g)
 }
 
 // cai 踩
@@ -1392,7 +1393,7 @@ func cai(cc *context, value ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m1 := imgfactory.Rotate(tou, -20, 130, 80)
+	m1 := factory.Rotate(tou, -20, 130, 80)
 	cai := []*image.NRGBA{
 		imgs[0].InsertBottom(m1.Image(), 123, 105, 39, 188).Image(),
 		imgs[1].InsertBottom(m1.Image(), 123, 105, 39, 188).Image(),
@@ -1400,8 +1401,8 @@ func cai(cc *context, value ...string) (string, error) {
 		imgs[3].InsertBottom(tou, 85, 76, 52, 203).Image(),
 		imgs[4].InsertBottom(tou, 88, 82, 49, 198).Image(),
 	}
-	g := imgfactory.MergeGif(7, cai)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, cai)
+	return factory.GIF2Base64(g)
 }
 
 // whir 2转
@@ -1431,27 +1432,27 @@ func whirl(cc *context, value ...string) (string, error) {
 	}
 	whirl := make([]*image.NRGBA, piclen)
 	for i := 0; i < piclen; i++ {
-		whirl[i] = imgs[i].InsertUpC(imgfactory.Rotate(tou, float64(-24*i), 145, 145).Image(), 0, 0, 115, 89).Image()
+		whirl[i] = imgs[i].InsertUpC(factory.Rotate(tou, float64(-24*i), 145, 145).Image(), 0, 0, 115, 89).Image()
 	}
-	g := imgfactory.MergeGif(7, whirl)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(7, whirl)
+	return factory.GIF2Base64(g)
 }
 
 // always 一直
 func alwaysDoGif(cc *context, value ...string) (string, error) {
 	_ = value
 	var err error
-	var face []*imgfactory.Factory
+	var face []*factory.Factory
 	// name := cc.usrdir + "AlwaysDo.gif"
-	face, err = imgfactory.LoadAllTrueFrames(cc.headimgsdir[0], 500, 500)
+	face, err = factory.LoadAllTrueFrames(cc.headimgsdir[0], 500, 500)
 	if err != nil {
 		// 载入失败尝试载入第一帧
 		face = nil
-		first, err := imgfactory.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
+		first, err := factory.LoadFirstFrame(cc.headimgsdir[0], 500, 500)
 		if err != nil {
 			return "", err
 		}
-		face = append(face, imgfactory.NewFactory(first.Image()))
+		face = append(face, factory.NewFactory(first.Image()))
 	}
 	canvas := gg.NewContext(500, 600)
 	canvas.SetColor(color.Black)
@@ -1479,10 +1480,10 @@ func alwaysDoGif(cc *context, value ...string) (string, error) {
 		canvas.SetColor(color.Black)
 		_ = canvas.ParseFontFace(data, 40)
 		canvas.DrawString(arg, 280-l, 560)
-		canvas.DrawImage(imgfactory.Size(f.Image(), 90, 90).Image(), 280, 505)
+		canvas.DrawImage(factory.Size(f.Image(), 90, 90).Image(), 280, 505)
 		canvas.DrawString("吗", 370, 560)
-		turn[i] = imgfactory.Size(canvas.Image(), 0, 0).Image()
+		turn[i] = factory.Size(canvas.Image(), 0, 0).Image()
 	}
-	g := imgfactory.MergeGif(8, turn)
-	return imgfactory.GIF2Base64(g)
+	g := factory.MergeGif(8, turn)
+	return factory.GIF2Base64(g)
 }

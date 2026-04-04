@@ -12,7 +12,7 @@ import (
 	"strconv"
 
 	"github.com/FloatTech/gg" // 注册了 jpg png gif
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -231,7 +231,7 @@ func draw(back image.Image, fontdata []byte, title, txt string, f io.Writer) (in
 			}
 		}
 	}
-	return imgfactory.WriteTo(canvas.Image(), f)
+	return factory.WriteTo(canvas.Image(), f)
 }
 
 func offest(total, now int, distance float64) float64 {

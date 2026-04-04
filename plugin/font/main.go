@@ -12,7 +12,7 @@ import (
 	"github.com/FloatTech/floatbox/binary"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
-	"github.com/FloatTech/imgfactory"
+	"github.com/FloatTech/gg/factory"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
 	"github.com/FloatTech/zbputils/ctxext"
@@ -103,10 +103,10 @@ func init() {
 					cov.DrawString(string(vv), x+float64(rand.Intn(5))+10+nilx, y+float64(rand.Intn(5))+15+float64(k)*(y+nily))
 				}
 			}
-			s = append(s, imgfactory.Size(cov.Image(), 0, 0).Image())
+			s = append(s, factory.Size(cov.Image(), 0, 0).Image())
 		}
 		var buf bytes.Buffer
-		_ = gif.EncodeAll(&buf, imgfactory.MergeGif(5, s))
+		_ = gif.EncodeAll(&buf, factory.MergeGif(5, s))
 		ctx.SendChain(message.ImageBytes(buf.Bytes()))
 	})
 }
