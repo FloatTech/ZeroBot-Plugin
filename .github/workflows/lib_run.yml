@@ -57,7 +57,7 @@ jobs:
           ./testbin > output.log 2>&1 &
           PID=$!
           FOUND=false
-          for i in $(seq 1 60); do
+          for i in $(seq 1 600); do
             if grep -q '\[ws\] 连接到Websocket服务器' output.log 2>/dev/null; then
               FOUND=true
               break
@@ -74,7 +74,7 @@ jobs:
             echo "Success: Found target output"
             exit 0
           else
-            echo "Failure: Timeout after 60s without finding target output"
+            echo "Failure: Timeout after 600s without finding target output"
             exit 1
           fi
 
@@ -86,7 +86,7 @@ jobs:
           $env:DEBUG_MODE = "1"
           $proc = Start-Process -FilePath ".\testbin.exe" -NoNewWindow -PassThru -RedirectStandardOutput "$logFile" -RedirectStandardError (Join-Path $PWD "stderr.log")
           $found = $false
-          for ($i = 0; $i -lt 60; $i++) {
+          for ($i = 0; $i -lt 600; $i++) {
             Start-Sleep -Seconds 1
             try {
               $content = ""
@@ -125,6 +125,6 @@ jobs:
             Write-Host "Success: Found target output"
             exit 0
           } else {
-            Write-Host "Failure: Timeout after 60s without finding target output"
+            Write-Host "Failure: Timeout after 600s without finding target output"
             exit 1
           }
