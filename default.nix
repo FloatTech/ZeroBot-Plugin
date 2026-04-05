@@ -18,7 +18,7 @@ buildGoApplication {
   version = "1.8.0";
   pwd = ./.;
   src = ./.;
-  go = pkgs.go_1_24;
+  go = pkgs.go_1_26;
   preBuild = ''
     go generate main.go
   '';

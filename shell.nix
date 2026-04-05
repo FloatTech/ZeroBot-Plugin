@@ -15,7 +15,7 @@
 }: let
   goEnv = mkGoEnv {
     pwd = ./.;
-    go = pkgs.go_1_24;
+    go = pkgs.go_1_26;
   };
 in
   pkgs.mkShell {
