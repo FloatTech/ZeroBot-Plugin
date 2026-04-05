@@ -46,6 +46,7 @@ jobs:
         uses: golangci/golangci-lint-action@master
         with:
           version: latest
+          install-mode: goinstall
 
       - name: Commit back
         if: ${{ inputs.commit_back }}
