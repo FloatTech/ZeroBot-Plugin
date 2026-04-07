@@ -207,8 +207,8 @@ github.com/tklauser/numcpus v0.11.0 h1:nSTwhKH5e1dMNsCdVBukSZrURJRoHbSEQjdEbY+9R
 github.com/tklauser/numcpus v0.11.0/go.mod h1:z+LwcLq54uWZTX0u/bGobaV34u6V7KNlTZejzM6/3MQ=
 github.com/wcharczuk/go-chart/v2 v2.1.2 h1:Y17/oYNuXwZg6TFag06qe8sBajwwsuvPiJJXcUcLL6E=
 github.com/wcharczuk/go-chart/v2 v2.1.2/go.mod h1:Zi4hbaqlWpYajnXB2K22IUYVXRXaLfSGNNR7P4ukyyQ=
-github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260117102541-393033a35adb h1:pwmyrnnMzb0WygAwUgXoZckzJkusK4WSaXxXqsIJYmU=
-github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260117102541-393033a35adb/go.mod h1:kCLja2sXXgbBTsEOyBNCuT4z9tI+URQ2y0q/GGXprzU=
+github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260407110317-d207de3b6c79 h1:B4W9IJZZ9jgZI9Zj+bs/dXk9ahboPxgOJ60hu8YDsIo=
+github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260407110317-d207de3b6c79/go.mod h1:kCLja2sXXgbBTsEOyBNCuT4z9tI+URQ2y0q/GGXprzU=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=
 github.com/yusufpapurcu/wmi v1.2.4/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
