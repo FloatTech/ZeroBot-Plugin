@@ -252,7 +252,7 @@ func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 
 		tickTruePinyin  = make([]string, class)
 		tickExistChars  = make([]string, class)
-		tickExistPinyin = make([]string, 0, class)
+		tickExistPinyin = make([]string, class)
 
 		// 成语记录
 		record = make([]string, 0, 7)
