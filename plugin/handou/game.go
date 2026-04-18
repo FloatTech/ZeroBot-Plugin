@@ -252,8 +252,9 @@ func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 
 		tickTruePinyin  = make([]string, class)
 		tickExistChars  = make([]string, class)
-		tickExistPinyin = make([]string, 0, class)
+		tickExistPinyin = make([]string, class)
 
+		// 成语记录
 		record = make([]string, 0, 7)
 	)
 	// 初始化 tick, 第一个是已知的拼音
@@ -315,50 +316,39 @@ func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 					char := answerData.Chars[i]
 					if char == chars[i] {
 						tickExistChars[i] = char
-					} else {
-						tickExistChars[i] = "?"
-					}
-				}
-
-				// 确保 tickExistPinyin 有足够的长度
-				if len(tickExistPinyin) < class {
-					for i := len(tickExistPinyin); i < class; i++ {
-						tickExistPinyin = append(tickExistPinyin, "")
 					}
 				}
 
 				// 处理拼音匹配逻辑
 				minPinyinLen := min(len(pinyin), len(answerData.Pinyin))
 				for i := range minPinyinLen {
-					pyChar := pinyin[i]
-					answerPinyinChar := []rune(pyChar)
+					answerPinyinChar := []rune(pinyin[i])
+					PinyinChar := []rune(answerData.Pinyin[i])
+					// 用户提交的历史正确拼音段
+					historyCorrectPinyinChar := []rune(tickTruePinyin[i])
+
 					tickTruePinyinChar := make([]rune, len(answerPinyinChar))
 					tickExistPinyinChar := []rune(tickExistPinyin[i])
 
-					if tickTruePinyin[i] != "" {
-						copy(tickTruePinyinChar, []rune(tickTruePinyin[i]))
+					if len(historyCorrectPinyinChar) > 0 {
+						copy(tickTruePinyinChar, historyCorrectPinyinChar)
 					} else {
 						for k := range answerPinyinChar {
 							tickTruePinyinChar[k] = kong
 						}
 					}
 
-					PinyinChar := answerData.Pinyin[i]
-					for j, c := range []rune(PinyinChar) {
+					for j, c := range PinyinChar {
 						if c == kong {
 							continue
 						}
-						switch {
-						case j < len(answerPinyinChar) && c == answerPinyinChar[j]:
-							tickTruePinyinChar[j] = c
-						case slices.Contains(answerPinyinChar, c):
-							// 如果字符存在但位置不对，添加到 tickExistPinyinChar
-							if !slices.Contains(tickExistPinyinChar, c) {
+
+						if j < len(answerPinyinChar) {
+							if c == answerPinyinChar[j] {
+								tickTruePinyinChar[j] = c
+							} else if slices.Contains(answerPinyinChar, c) && !slices.Contains(tickExistPinyinChar, c) {
+								// 如果字符存在但位置不对，添加到 tickExistPinyinChar
 								tickExistPinyinChar = append(tickExistPinyinChar, c)
-							}
-						default:
-							if j < len(tickTruePinyinChar) {
-								tickTruePinyinChar[j] = kong
 							}
 						}
 					}
@@ -378,6 +368,14 @@ func newHandouGame(target idiomJSON) func(string) (bool, []byte, error) {
 							tickTruePinyinChar[j] = '_'
 						}
 					}
+
+					// 合并之前和当前的正确字符
+					for j, c := range tickTruePinyinChar {
+						if c == kong && j < len(historyCorrectPinyinChar) && historyCorrectPinyinChar[j] != kong {
+							tickTruePinyinChar[j] = historyCorrectPinyinChar[j]
+						}
+					}
+
 					// 更新提示拼音
 					tickTruePinyin[i] = string(tickTruePinyinChar)
 					tickExistPinyin[i] = string(tickExistPinyinChar)
