@@ -11,7 +11,7 @@ require (
 	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d
 	github.com/FloatTech/zbpctrl v1.7.1
-	github.com/FloatTech/zbputils v1.7.2-0.20260404160535-78e737f6c143
+	github.com/FloatTech/zbputils v1.7.2-0.20260425100012-1470ceff54d5
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
 	github.com/Tnze/go-mc v1.20.2
@@ -21,9 +21,9 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/fumiama/ahsai v0.1.1
 	github.com/fumiama/cron v1.3.0
-	github.com/fumiama/deepinfra v0.0.0-20251221163610-e98ee3ba437a
+	github.com/fumiama/deepinfra v0.0.0-20260425085418-d2615e46ea66
 	github.com/fumiama/go-base16384 v1.7.1
-	github.com/fumiama/go-onebot-agent v0.0.0-20260404160754-921eee5b681f
+	github.com/fumiama/go-onebot-agent v0.0.0-20260425093914-9c92a03776e3
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
 	github.com/fumiama/imgsz v0.0.4
