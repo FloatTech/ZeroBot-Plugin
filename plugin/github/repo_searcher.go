@@ -9,7 +9,6 @@ import (
 	"github.com/FloatTech/floatbox/web"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
-	"github.com/fumiama/terasu/http2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
@@ -29,7 +28,11 @@ func init() { // 插件主体
 			api.RawQuery = url.Values{
 				"q": []string{ctx.State["regex_matched"].([]string)[2]},
 			}.Encode()
-			body, err := web.RequestDataWithHeaders(&http2.DefaultClient, api.String(), "GET", func(r *http.Request) error {
+			body, err := web.RequestDataWithHeaders(&http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyFromEnvironment,
+				},
+			}, api.String(), "GET", func(r *http.Request) error {
 				r.Header.Set("User-Agent", web.RandUA())
 				return nil
 			}, nil)

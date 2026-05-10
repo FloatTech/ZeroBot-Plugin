@@ -232,7 +232,7 @@ func llmchat(prompt string, temp float32) (string, error) {
 
 	x := deepinfra.NewAPI(chat.AC.API, string(chat.AC.Key))
 
-	mod, err := chat.AC.Type.Protocol(chat.AC.ModelName, temp, topp, maxn)
+	mod, err := chat.AC.Type.Protocol(chat.AC.ModelName, temp, topp, maxn, chat.AC.ReasoningEffort)
 	if err != nil {
 		return "", nil
 	}

@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FloatTech/AnimeAPI/bilibili"
 	"github.com/FloatTech/AnimeAPI/wallet"
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
@@ -332,12 +331,9 @@ func initPic(picFile string, uid int64) (avatar []byte, err error) {
 	if file.IsExist(picFile) {
 		return
 	}
-	url, err := bilibili.GetRealURL(backgroundURL)
+	data, err := web.RequestDataWith(web.NewDefaultClient(), backgroundURL, "GET", referer, web.RandUA(), nil)
 	if err == nil {
-		data, err := web.RequestDataWith(web.NewDefaultClient(), url, "", referer, "", nil)
-		if err == nil {
-			return avatar, os.WriteFile(picFile, data, 0644)
-		}
+		return avatar, os.WriteFile(picFile, data, 0644)
 	}
 	// 获取网络图片失败，使用本地已有的图片
 	log.Error("[score:get online img error]:", err)

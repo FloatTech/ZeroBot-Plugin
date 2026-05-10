@@ -39,6 +39,7 @@ var (
 			"- 设置AI聊天最大长度4096\n" +
 			"- 设置AI聊天TopP 0.9\n" +
 			"- 设置AI聊天(不)以AI语音输出\n" +
+			"- 设置AI聊天努力度none(留空则清除)\n" +
 			"- 查看AI聊天配置\n" +
 			"- 重置AI聊天Agent\n" +
 			"- 重置AI聊天\n",
@@ -149,6 +150,8 @@ func init() {
 		Handle(chat.NewExtraSetFloat32(&chat.AC.TopP))
 	en.OnRegex("^设置AI聊天(不)?以AI语音输出$", zero.AdminPermission).SetBlock(true).
 		Handle(ctxext.NewStorageSaveBoolHandler(chat.BitmapNrec))
+	en.OnPrefix("设置AI聊天努力度", chat.EnsureConfig, zero.OnlyPrivate, zero.SuperUserPermission).SetBlock(true).
+		Handle(chat.NewExtraSetStr(&chat.AC.ReasoningEffort))
 	en.OnFullMatch("查看AI聊天配置", chat.EnsureConfig, zero.SuperUserPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			gid := ctx.Event.GroupID

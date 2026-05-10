@@ -4,14 +4,14 @@ go 1.26.1
 
 require (
 	github.com/Baidu-AIP/golang-sdk v1.1.1
-	github.com/FloatTech/AnimeAPI v1.7.1-0.20251028071248-0c948e3db65c
-	github.com/FloatTech/floatbox v0.0.0-20251002074805-f95cbc7edb31
+	github.com/FloatTech/AnimeAPI v1.7.1-0.20260408142737-1e9f2594e3cd
+	github.com/FloatTech/floatbox v0.0.0-20260408141530-dc0fdf584f62
 	github.com/FloatTech/gg v1.1.4-0.20260404155637-671db2feeebb
 	github.com/FloatTech/rendercard v0.2.4-0.20260404155919-1fede0bcd22b
 	github.com/FloatTech/sqlite v1.7.2
 	github.com/FloatTech/ttl v0.0.0-20250224045156-012b1463287d
 	github.com/FloatTech/zbpctrl v1.7.1
-	github.com/FloatTech/zbputils v1.7.2-0.20260425100012-1470ceff54d5
+	github.com/FloatTech/zbputils v1.7.2-0.20260510095247-3e9f8cf88d2d
 	github.com/RomiChan/syncx v0.0.0-20240418144900-b7402ffdebc7
 	github.com/RomiChan/websocket v1.4.3-0.20251002072000-d3eb41798438
 	github.com/Tnze/go-mc v1.20.2
@@ -29,7 +29,6 @@ require (
 	github.com/fumiama/imgsz v0.0.4
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
-	github.com/fumiama/terasu v1.0.2
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/uuid v1.6.0
@@ -68,6 +67,7 @@ require (
 	github.com/fumiama/gofastTEA v0.1.3 // indirect
 	github.com/fumiama/gozel v0.0.0-20260329105205-a95fde52433a // indirect
 	github.com/fumiama/orbyte v0.0.0-20251002065953-3bb358367eb5 // indirect
+	github.com/fumiama/terasu v1.0.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
