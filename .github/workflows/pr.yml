@@ -1,9 +1,7 @@
 name: PR Check
 on:
-  workflow_run:
-    workflows: [ClosePR]
-    types:
-      - completed
+  pull_request:
+    branches: [ master ]
 
 jobs:
   golangci:
@@ -14,14 +12,14 @@ jobs:
       commit_back: false
 
   runmain:
-    needs: golangci
     if: ${{ !contains(github.event.pull_request.title, '.go') }}
     uses: ./.github/workflows/lib_run.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
 
   build:
-    needs: [runmain]
+    needs: [golangci, runmain]
+    if: ${{ !contains(github.event.pull_request.title, '.go') }}
     uses: ./.github/workflows/lib_build.yml
     with:
       prefix: "zbp_"
