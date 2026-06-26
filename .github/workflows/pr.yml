@@ -1,0 +1,26 @@
+name: PR Check
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  golangci:
+    if: ${{ !contains(github.event.pull_request.title, '.go') }}
+    uses: ./.github/workflows/lib_lint.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+      commit_back: false
+
+  runmain:
+    if: ${{ !contains(github.event.pull_request.title, '.go') }}
+    uses: ./.github/workflows/lib_run.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+
+  build:
+    needs: [golangci, runmain]
+    if: ${{ !contains(github.event.pull_request.title, '.go') }}
+    uses: ./.github/workflows/lib_build.yml
+    with:
+      prefix: "zbp_"
+      upload_artifact: false
