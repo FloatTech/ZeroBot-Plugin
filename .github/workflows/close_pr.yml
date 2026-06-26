@@ -1,4 +1,4 @@
-name: PullLint
+name: ClosePR
 on:
   pull_request_target:
     types: [assigned, opened, synchronize, reopened]
@@ -18,25 +18,3 @@ jobs:
         with:
           # Optional. Post a issue comment just before closing a pull request.
           comment: "非法PR. 请`fork`后修改自己的仓库, 而不是向主仓库提交更改. 如果您确信您的PR是为了给主仓库新增功能或修复bug, 请更改默认PR标题. **注意**: 如果您再次触发本提示, 则有可能导致账号被封禁."
-
-  golangci:
-    needs: close-pr
-    if: ${{ !contains(github.event.pull_request.title, '.go') }}
-    uses: ./.github/workflows/lib_lint.yml
-    with:
-      ref: ${{ github.event.pull_request.head.sha }}
-      commit_back: false
-
-  runmain:
-    needs: golangci
-    if: ${{ !contains(github.event.pull_request.title, '.go') }}
-    uses: ./.github/workflows/lib_run.yml
-    with:
-      ref: ${{ github.event.pull_request.head.sha }}
-
-  build:
-    needs: [runmain]
-    uses: ./.github/workflows/lib_build.yml
-    with:
-      prefix: "zbp_"
-      upload_artifact: false

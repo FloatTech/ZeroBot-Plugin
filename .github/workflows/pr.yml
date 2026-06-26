@@ -1,0 +1,28 @@
+name: PR Check
+on:
+  workflow_run:
+    workflows: [ClosePR]
+    types:
+      - completed
+
+jobs:
+  golangci:
+    if: ${{ !contains(github.event.pull_request.title, '.go') }}
+    uses: ./.github/workflows/lib_lint.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+      commit_back: false
+
+  runmain:
+    needs: golangci
+    if: ${{ !contains(github.event.pull_request.title, '.go') }}
+    uses: ./.github/workflows/lib_run.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+
+  build:
+    needs: [runmain]
+    uses: ./.github/workflows/lib_build.yml
+    with:
+      prefix: "zbp_"
+      upload_artifact: false
