@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/model"
+	"github.com/FloatTech/AnimeAPI/pixiv/model"
 	"github.com/jinzhu/gorm"
 )
 

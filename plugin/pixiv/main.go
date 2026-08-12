@@ -6,9 +6,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/api"
+	"github.com/FloatTech/AnimeAPI/pixiv"
+	"github.com/FloatTech/AnimeAPI/pixiv/model"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/cache"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/model"
 	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -44,7 +44,7 @@ func init() {
 		log.Warning("Fail fetching token store from database")
 	}
 
-	pixivAPI := api.NewPixivAPI(t1.Token)
+	pixivAPI := pixiv.NewPixivAPI(t1.Token)
 
 	var proxyCfg model.PixivProxyConfig
 	proxyCfg.Name = "global"
@@ -255,8 +255,8 @@ func init() {
 		}
 
 		gid := ctx.Event.GroupID
-		r18Req := api.IsR18(keyword)
-		cleanKeyword := api.RemoveR18Keywords(keyword)
+		r18Req := pixiv.IsR18(keyword)
+		cleanKeyword := pixiv.RemoveR18Keywords(keyword)
 
 		if gid == 0 {
 			gid = -ctx.Event.UserID

@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/api"
+	"github.com/FloatTech/AnimeAPI/pixiv"
+	"github.com/FloatTech/AnimeAPI/pixiv/model"
 	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/cache"
-	"github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv/model"
 	"github.com/FloatTech/floatbox/file"
 	log "github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
@@ -27,7 +27,7 @@ var cacheFilling sync.Map
 // Service 用于封装整个 Pixiv 模块的依赖与接口
 type Service struct {
 	DB  *cache.DB
-	API *api.PixivAPI
+	API *pixiv.PixivAPI
 	// 内部任务锁：限制每个人同一时间只能执行一个请求
 	taskMu sync.Mutex
 	tasks  map[int64]*taskState
@@ -44,10 +44,10 @@ type taskState struct {
 const pixivTempDir = "data/pixiv/temp"
 
 // NewService ...
-func NewService(db *cache.DB, api *api.PixivAPI) *Service {
+func NewService(db *cache.DB, pixAPI *pixiv.PixivAPI) *Service {
 	return &Service{
 		DB:              db,
-		API:             api,
+		API:             pixAPI,
 		tasks:           make(map[int64]*taskState),
 		DownloadWorkers: 4,
 		SendWorkers:     2,
@@ -220,7 +220,7 @@ func (s *Service) SendIllusts(ctx *zero.Ctx, illusts []model.IllustCache) {
 						defer wg.Done()
 						defer func() { <-pageSem }()
 
-						u := api.ModifyPageGeneric(ill1.OriginalURL, page)
+						u := pixiv.ModifyPageGeneric(ill1.OriginalURL, page)
 						img, err := s.API.Client.FetchPixivImage(ill1, u)
 						if err != nil {
 							pageCh <- pageResult{
@@ -276,7 +276,7 @@ func (s *Service) SendIllusts(ctx *zero.Ctx, illusts []model.IllustCache) {
 		res := <-results
 
 		if res.Err != nil {
-			if httpErr, ok := errors.AsType[*api.HTTPStatusError](res.Err); ok && httpErr.StatusCode == http.StatusNotFound {
+			if httpErr, ok := errors.AsType[*pixiv.HTTPStatusError](res.Err); ok && httpErr.StatusCode == http.StatusNotFound {
 				if err := s.DB.DeleteIllustByPID(res.Ill.PID); err != nil {
 					ctx.SendChain(message.Text("清理已失效图片失败: ", err))
 				} else {
@@ -306,7 +306,7 @@ func (s *Service) SendIllusts(ctx *zero.Ctx, illusts []model.IllustCache) {
 				imageURLs[i] = res.Ill.OriginalURL
 				continue
 			}
-			imageURLs[i] = api.ModifyPageGeneric(res.Ill.OriginalURL, i)
+			imageURLs[i] = pixiv.ModifyPageGeneric(res.Ill.OriginalURL, i)
 		}
 
 		tempPaths, err := writeTempImages(res.Ill.PID, res.Images, imageURLs)
