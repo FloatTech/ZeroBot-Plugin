@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	backgroundURL = "https://pic.re/image"
+	backgroundURL = "https://uapis.cn/api/v1/random/image?category=acg&type=pc"
 	referer       = "https://weibo.com/"
 	signinMax     = 1
 	// SCOREMAX 分数上限定为1200
