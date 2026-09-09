@@ -802,38 +802,49 @@ func drawPluginCardContent(c *gg.Context, x, y, w, h int, name, brief string, en
 	const (
 		nameFont      = "data/Font/GlowSansSC-Normal-ExtraBold.ttf"
 		briefFont     = "data/Font/regular-bold.ttf"
-		nameBaseline  = 53 // 按 itemH=120 视觉居中：文本块上下各留约 32px
-		briefBaseline = 83
+		nameBaseline  = 55 // 按 itemH=120 视觉居中：文本块上下各留约 30px
+		briefBaseline = 89
 	)
 
 	// 插件名（黑色描边，远看清晰）
-	drawTextOutlined(c, name, nameFont, 28, float64(x)+30, float64(y+nameBaseline), t.TextMain)
+	drawTextOutlined(c, name, nameFont, 32, float64(x)+30, float64(y+nameBaseline), t.TextMain)
 
-	// Brief：按实际像素宽度省略，右侧留出状态徽章区（徽章 46 + 边距 16 + 间隙 10）
-	availW := float64(w) - 30 - 72
-	brief = ellipsizeByWidth(c, brief, briefFont, 20, availW)
-	drawTextOutlined(c, brief, briefFont, 20, float64(x)+30, float64(y+briefBaseline), t.TextSec)
+	// Brief：按实际像素宽度省略，右侧留出状态徽章区（圆徽 28 + 边距 16 + 间隙 10）
+	availW := float64(w) - 30 - 54
+	brief = ellipsizeByWidth(c, brief, briefFont, 22, availW)
+	drawTextOutlined(c, brief, briefFont, 22, float64(x)+30, float64(y+briefBaseline), t.TextSec)
 
-	// 状态徽章：右侧胶囊 + 开/关 汉字（✓/✗ 在 GlowSansSC 无字形从不渲染，
-	// 改用汉字 + 色块，远看一眼可辨启用状态）
-	pillW, pillH := 46.0, 26.0
-	px := float64(x+w) - 16 - pillW
-	py := float64(y) + (float64(h)-pillH)/2
+	// 状态徽章：右侧圆点 + 矢量勾/叉（✓/✗ 在 GlowSansSC 无字形，DrawString
+	// 永远渲染不出来，改用直线段绘制图标，必然渲染且远看清晰）
+	const iconD = 28.0
+	cx := float64(x+w) - 16 - iconD/2
+	cy := float64(y) + float64(h)/2
 	if enabled {
 		c.SetRGBA255(104, 166, 0, 240)
 	} else {
 		c.SetRGBA255(204, 51, 51, 240)
 	}
-	c.DrawRoundedRectangle(px, py, pillW, pillH, pillH/2)
+	c.DrawCircle(cx, cy, iconD/2)
 	c.Fill()
-	statusText := "开"
-	if !enabled {
-		statusText = "关"
+
+	r := iconD / 2
+	c.SetStrokeStyle(gg.NewSolidPattern(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
+	c.SetLineWidth(3)
+	c.SetLineCap(gg.LineCapRound)
+	if enabled {
+		// 勾：短臂下探到中低点，再长臂扬到右上
+		c.MoveTo(cx-0.42*r, cy+0.05*r)
+		c.LineTo(cx-0.10*r, cy+0.38*r)
+		c.LineTo(cx+0.45*r, cy-0.30*r)
+		c.Stroke()
+	} else {
+		// 叉：两条对角直线
+		c.MoveTo(cx-0.30*r, cy-0.30*r)
+		c.LineTo(cx+0.30*r, cy+0.30*r)
+		c.MoveTo(cx+0.30*r, cy-0.30*r)
+		c.LineTo(cx-0.30*r, cy+0.30*r)
+		c.Stroke()
 	}
-	c.SetRGBA255(255, 255, 255, 255)
-	c.LoadFontFace(nameFont, 17)
-	stw, _ := c.MeasureString(statusText)
-	c.DrawString(statusText, px+(pillW-stw)/2, py+pillH/2+6) // 基线=胶囊中心+半个字高
 }
 
 // buildBackground 构建主题渐变 + 随机本地图（cover 模式）
