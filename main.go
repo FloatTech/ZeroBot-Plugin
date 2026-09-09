@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"runtime"
@@ -43,7 +44,8 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager" // 群管
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager"    // 群管
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/servicemenu" // 服务菜单（列表/用法/主题/重载）
 
 	_ "github.com/FloatTech/zbputils/job" // 定时指令触发器
 
@@ -236,9 +238,9 @@ func init() {
 	// 直接写死 AccessToken 时，请更改下面第二个参数
 	token := flag.String("t", "", "Set AccessToken of WSClient.")
 	// 直接写死 URL 时，请更改下面第二个参数
-	url := flag.String("u", "ws://127.0.0.1:6700", "Set Url of WSClient.")
+	url := flag.String("u", "ws://192.168.1.244:6700", "Set Url of WSClient.")
 	// 默认昵称
-	adana := flag.String("n", "椛椛", "Set default nickname.")
+	adana := flag.String("n", "亚托莉", "Set default nickname.")
 	prefix := flag.String("p", "/", "Set command prefix.")
 	runcfg := flag.String("c", "", "Run from config file.")
 	save := flag.String("s", "", "Save default config to file and exit.")
@@ -274,6 +276,22 @@ func init() {
 	// 通过代码写死的方式添加主人账号
 	// sus = append(sus, 12345678)
 	// sus = append(sus, 87654321)
+
+	// 从 data/superusers.txt 读取超级用户 QQ，每行一个，支持 # 注释
+	if f, err := os.Open("data/superusers.txt"); err == nil {
+		data, err := io.ReadAll(f)
+		f.Close()
+		if err == nil {
+			for _, line := range strings.Split(string(data), "\n") {
+				line = strings.TrimSpace(strings.TrimPrefix(line, "#"))
+				if i, err := strconv.ParseInt(line, 10, 64); err == nil {
+					sus = append(sus, i)
+				}
+			}
+		}
+	} else {
+		logrus.Infoln("[main] 未找到 data/superusers.txt, 请创建并写入你的QQ号以启用管理命令")
+	}
 
 	// 启用 webui
 	// go webctrl.RunGui(*g)
@@ -332,6 +350,45 @@ func main() {
 		rand.Seed(time.Now().UnixNano()) //nolint: staticcheck
 	}
 	message.SetForceBase64File(config.ForceBase64File)
+
+	// 跳过 github 原始资源站, 直接用镜像, 避免启动时每个文件等 1 分钟超时
+	file.SkipOriginal = true
+
+	// 修复 ZeroBot CommandRule 在 @机器人 + 命令 场景下的匹配 bug：
+	// CommandRule 只检查 Message[0].Type == "text"，
+	// 但 @机器人 时 Message[0] 是 "at" 段，Message[1] 才是 text，
+	// 导致所有 /全局沉默 /启用 等命令永远匹配不上。
+	// 在 FirstPriority(0) 把 text 段提到最前面，让 CommandRule 正常工作。
+	zero.OnMessage(func(ctx *zero.Ctx) bool {
+		if len(ctx.Event.Message) < 2 {
+			return false
+		}
+		if ctx.Event.Message[0].Type == "text" {
+			return false
+		}
+		textIdx := -1
+		for i, seg := range ctx.Event.Message {
+			if seg.Type == "text" {
+				textIdx = i
+				break
+			}
+		}
+		if textIdx <= 0 {
+			return false
+		}
+		text := strings.TrimLeft(ctx.Event.Message[textIdx].Data["text"], " ")
+		if !strings.HasPrefix(text, zero.BotConfig.CommandPrefix) {
+			return false
+		}
+		// 把第一个 text 段移到最前面
+		segs := make(message.Message, 0, len(ctx.Event.Message))
+		segs = append(segs, ctx.Event.Message[textIdx])
+		segs = append(segs, ctx.Event.Message[:textIdx]...)
+		segs = append(segs, ctx.Event.Message[textIdx+1:]...)
+		ctx.Event.Message = segs
+		return false // 不拦截，让后续 matcher 继续匹配
+	}).FirstPriority().Handle(func(_ *zero.Ctx) {})
+
 	// 帮助
 	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
