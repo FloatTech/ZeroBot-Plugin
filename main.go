@@ -44,7 +44,7 @@ import (
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/atri" // ATRI词库
 
-	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager"    // 群管
+	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/manager"     // 群管
 	_ "github.com/FloatTech/ZeroBot-Plugin/plugin/servicemenu" // 服务菜单（列表/用法/主题/重载）
 
 	_ "github.com/FloatTech/zbputils/job" // 定时指令触发器

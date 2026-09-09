@@ -168,7 +168,7 @@ func TestDarkPixelForensics(t *testing.T) {
 	// L1: 仅玻璃
 	glass := renderLiquidGlass(blurback, x, y, w, h, tt)
 	// L2: 仅阴影
-	shadow, pad := getBlurredShadow(w, h, cardRadius)
+	shadow := getBlurredShadow(w, h, cardRadius)
 	// L3: 完整卡片（画在副本 canvas 上）
 	c2, blurback2 := newTestCanvas(canvasW, canvasH, tt)
 	drawNewCard(c2, x, y, w, h, blurback2, tt)
@@ -202,7 +202,7 @@ func TestDarkPixelForensics(t *testing.T) {
 	// 仅玻璃层
 	scanDark("glass-only", glass, x, y)
 	// 阴影层（在其自身坐标系里扫）
-	scanDark("shadow-only", shadow, x-pad, y-pad)
+	scanDark("shadow-only", shadow, x-shadowPad, y-shadowPad)
 	// 完整卡片
 	scanDark("full-card", toRGBA(c2.Image()), 0, 0)
 
@@ -353,8 +353,8 @@ func TestLayerDebug(t *testing.T) {
 	drawNewCard(c, x, y, w, h, blurback, tt)
 
 	// 面板2: 仅阴影
-	shadow, pad := getBlurredShadow(w, h, cardRadius)
-	c.DrawImage(shadow, x-pad, panelH+y-pad+8)
+	shadow := getBlurredShadow(w, h, cardRadius)
+	c.DrawImage(shadow, x-shadowPad, panelH+y-shadowPad+8)
 
 	// 面板3: 仅玻璃（无阴影无描边）
 	glass := renderLiquidGlass(blurback, x, y, w, h, tt)

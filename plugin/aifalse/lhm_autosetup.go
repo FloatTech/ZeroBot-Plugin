@@ -5,7 +5,6 @@ package aifalse
 import (
 	"archive/zip"
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -84,7 +84,7 @@ func probeLHMHTTP() bool {
 // downloadAndSetupLHM 从 GitHub release 下载 LHM portable zip 并解压到 lhmDir。
 func downloadAndSetupLHM(lhmDir, configPath string) error {
 	if err := os.MkdirAll(lhmDir, 0o755); err != nil {
-		return fmt.Errorf("创建目录失败: %w", err)
+		return errors.Wrap(err, "创建目录失败")
 	}
 
 	// 先试 winget（如果有的话）
@@ -118,11 +118,13 @@ func downloadAndSetupLHM(lhmDir, configPath string) error {
 		if exe := findLHMExe(lhmDir); exe != "" {
 			// 如果 exe 在子目录，把文件移到 lhmDir 根目录
 			if exe != filepath.Join(lhmDir, "LibreHardwareMonitor.exe") {
-				moveFiles(filepath.Dir(exe), lhmDir)
+				if err := moveFiles(filepath.Dir(exe), lhmDir); err != nil {
+					logrus.Debugf("[aifalse] 移动 LHM 文件失败: %v", err)
+				}
 			}
 			return nil
 		}
-		lastErr = fmt.Errorf("解压后没找到 LibreHardwareMonitor.exe")
+		lastErr = errors.Errorf("解压后没找到 LibreHardwareMonitor.exe")
 	}
 	return lastErr
 }
@@ -148,7 +150,7 @@ func tryWingetInstall() bool {
 }
 
 // copyLHMFromWinget winget 安装后，把 LHM 文件从安装目录复制到 lhmDir。
-func copyLHMFromWinget(lhmDir, configPath string) error {
+func copyLHMFromWinget(lhmDir, _ string) error {
 	// winget 安装路径通常在 Program Files 或 Users\...\AppData\Local\Microsoft\WinGet\Packages
 	// 简化处理：搜索常见位置
 	locations := []string{
@@ -162,13 +164,14 @@ func copyLHMFromWinget(lhmDir, configPath string) error {
 			return copyFiles(filepath.Dir(exe), lhmDir)
 		}
 	}
-	return fmt.Errorf("winget 安装了但找不到 exe")
+	return errors.Errorf("winget 安装了但找不到 exe")
 }
 
 // findLHMExe 在 rootDir 递归搜索 LibreHardwareMonitor.exe。
 func findLHMExe(rootDir string) string {
 	var found string
-	filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+	// 回调自身吞掉所有错误（读不到的条目直接跳过），Walk 的返回值无意义
+	_ = filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || found != "" {
 			return nil
 		}
@@ -194,7 +197,7 @@ func downloadFile(url, dstPath string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("HTTP %d", resp.StatusCode)
+		return errors.Errorf("HTTP %d", resp.StatusCode)
 	}
 	out, err := os.Create(dstPath)
 	if err != nil {
@@ -236,7 +239,7 @@ func extractZip(zipPath, destDir string) error {
 			src.Close()
 			continue
 		}
-		io.Copy(dst, src)
+		_, _ = io.Copy(dst, src) // 复制失败的条目直接跳过（best-effort 解压）
 		src.Close()
 		dst.Close()
 	}
@@ -279,7 +282,9 @@ func moveFiles(srcDir, dstDir string) error {
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return nil
 		}
-		os.Rename(path, target)
+		if err := os.Rename(path, target); err != nil {
+			logrus.Debugf("[aifalse] 移动文件失败 %s -> %s: %v", path, target, err)
+		}
 		return nil
 	})
 }
@@ -349,7 +354,7 @@ func startLHMBackground(exePath string) error {
 	cmd.Stderr = io.Discard
 
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("启动失败: %w", err)
+		return errors.Wrap(err, "启动失败")
 	}
 	// 不 Wait——让它自己跑
 	logrus.Infof("[aifalse] LHM 后台启动中: %s", exePath)
