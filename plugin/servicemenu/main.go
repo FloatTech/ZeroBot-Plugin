@@ -783,6 +783,56 @@ func ellipsizeByWidth(c *gg.Context, text, fontPath string, size, maxW float64) 
 	return string(runes[:lo]) + ell
 }
 
+// wrapByWidth 按像素宽度把文本折成最多 maxLines 行（rune 安全，二分找断点）。
+// ASCII 单词尽量不从中间断开；末行仍放不下的部分以省略号结尾。
+func wrapByWidth(c *gg.Context, text, fontPath string, size, maxW float64, maxLines int) []string {
+	loadFont(c, fontPath, size)
+	if tw, _ := c.MeasureString(text); tw <= maxW {
+		return []string{text}
+	}
+	runes := []rune(text)
+	isWordByte := func(r rune) bool {
+		return r >= '0' && r <= '9' || r >= 'A' && r <= 'Z' || r >= 'a' && r <= 'z' || r == '_' || r == '-'
+	}
+	lines := make([]string, 0, maxLines)
+	start := 0
+	for start < len(runes) && len(lines) < maxLines {
+		rest := runes[start:]
+		if maxLines-len(lines) == 1 { // 末行仍放不下：省略号截断
+			lines = append(lines, ellipsizeByWidth(c, string(rest), fontPath, size, maxW))
+			return lines
+		}
+		lo, hi := 0, len(rest)
+		for lo < hi { // 二分找本行能容纳的最长前缀
+			mid := (lo + hi + 1) / 2
+			if w, _ := c.MeasureString(string(rest[:mid])); w <= maxW {
+				lo = mid
+			} else {
+				hi = mid - 1
+			}
+		}
+		if lo == 0 {
+			lo = 1 // 单个 rune 都超宽也要推进，防死循环
+		}
+		// 命中 ASCII 单词中间时回退到词首，避免 "AnimeTrac/e" 式断行
+		if lo < len(rest) && isWordByte(rest[lo-1]) && isWordByte(rest[lo]) {
+			ws := lo - 1
+			for ws > 0 && isWordByte(rest[ws-1]) {
+				ws--
+			}
+			if ws > 0 {
+				lo = ws
+			}
+		}
+		lines = append(lines, strings.TrimRight(string(rest[:lo]), " "))
+		start += lo
+		for start < len(runes) && runes[start] == ' ' { // 剥掉折行后的行首空格
+			start++
+		}
+	}
+	return lines
+}
+
 // drawTextOutlined 带黑色描边绘制文字。FloatTech/gg 的 Stroke 在曲线
 // 字形上会写入垃圾像素（圆角黑弧同源 bug），因此用多向偏移暗色底绘
 // 模拟描边再绘主体：1px 实描边 + 1.8px 淡晕两层，保证白字在奶白玻璃上远看清晰。
@@ -817,19 +867,30 @@ func drawPluginCardContent(c *gg.Context, x, y, w, h int, name, brief string, en
 	c.Fill()
 
 	const (
-		nameFont      = "data/Font/GlowSansSC-Normal-ExtraBold.ttf"
-		briefFont     = "data/Font/regular-bold.ttf"
-		nameBaseline  = 55 // 按 itemH=120 视觉居中：文本块上下各留约 30px
-		briefBaseline = 89
+		nameFont     = "data/Font/GlowSansSC-Normal-ExtraBold.ttf"
+		briefFont    = "data/Font/regular-bold.ttf"
+		nameBaseline = 50 // 名字上移，给两行简介让位
+		briefSize    = 20.0
+		briefLine1   = 80 // 两行简介首行基线
+		briefLine2   = 106 // 次行基线（卡高 120，底部留 ~14px）
+		briefSingle  = 93 // 单行简介时垂直居中于简介区
 	)
+
+	// 文本可用宽度：左缩进 30 + 右侧状态徽章区（圆徽 28 + 边距 16 + 间隙 10）
+	const iconD = 28.0
+	availW := float64(w) - 30 - 54
 
 	// 插件名（黑色描边，远看清晰）
 	drawTextOutlined(c, name, nameFont, 32, float64(x)+30, float64(y+nameBaseline), t.TextMain)
 
-	// Brief：按实际像素宽度省略，右侧留出状态徽章区（圆徽 28 + 边距 16 + 间隙 10）
-	availW := float64(w) - 30 - 54
-	brief = ellipsizeByWidth(c, brief, briefFont, 22, availW)
-	drawTextOutlined(c, brief, briefFont, 22, float64(x)+30, float64(y+briefBaseline), t.TextSec)
+	// Brief：最多两行按像素宽度折行，只有折满两行仍放不下才在末行省略
+	briefLines := wrapByWidth(c, brief, briefFont, briefSize, availW, 2)
+	if len(briefLines) == 1 {
+		drawTextOutlined(c, briefLines[0], briefFont, briefSize, float64(x)+30, float64(y+briefSingle), t.TextSec)
+	} else {
+		drawTextOutlined(c, briefLines[0], briefFont, briefSize, float64(x)+30, float64(y+briefLine1), t.TextSec)
+		drawTextOutlined(c, briefLines[1], briefFont, briefSize, float64(x)+30, float64(y+briefLine2), t.TextSec)
+	}
 
 	// 状态徽章：右侧圆点 + 矢量勾/叉（✓/✗ 在 GlowSansSC 无字形，DrawString
 	// 永远渲染不出来，改用直线段绘制图标，必然渲染且远看清晰）
