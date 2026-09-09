@@ -16,8 +16,11 @@ func init() {
 		Brief:            "词典匹配回复, 仅@触发",
 		PublicDataFolder: "Chat",
 	})
-	engine.OnMessage(zero.OnlyToMe, canmatch()).
-		SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	// 优先级设为 10，低于控制命令(SecondPriority=1)，
+	// 避免 /全局禁用、/启用 等管理命令被词库回复抢先拦截
+	chatm := engine.OnMessage(zero.OnlyToMe, canmatch()).SetBlock(false)
+	(*zero.Matcher)(chatm).SetPriority(10)
+	chatm.Handle(func(ctx *zero.Ctx) {
 		msg := ctx.ExtractPlainText()
 		r, err := kimoi.Chat(msg)
 		if err == nil {
