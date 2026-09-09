@@ -894,7 +894,6 @@ func drawPluginCardContent(c *gg.Context, x, y, w, h int, name, brief string, en
 
 	// 状态徽章：右侧圆点 + 矢量勾/叉（✓/✗ 在 GlowSansSC 无字形，DrawString
 	// 永远渲染不出来，改用直线段绘制图标，必然渲染且远看清晰）
-	const iconD = 28.0
 	cx := float64(x+w) - 16 - iconD/2
 	cy := float64(y) + float64(h)/2
 	if enabled {
