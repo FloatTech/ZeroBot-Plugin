@@ -1,4 +1,4 @@
-# ZeroBot-Plugin v1.10.24 更新日志
+# ZeroBot-Plugin v1.10.25 更新日志
 
 **发布日期：** 2026-09-09
 
