@@ -386,7 +386,7 @@ const (
 	headerH     = 200
 	footerH     = 60
 	cardRadius  = 18
-	itemsPerRow = 2 // 两列：卡片更宽，字号可整体放大，无需放大图片即可看清
+	itemsPerRow = 3 // 三列：卡片仍保持足够宽度，字号不变
 	pageCount   = 2 // 固定分成 2 页
 )
 
@@ -813,28 +813,33 @@ func drawPluginCardContent(c *gg.Context, x, y, w, h int, name, brief string, en
 	} else {
 		c.SetRGBA255(204, 51, 51, 255)
 	}
-	c.DrawRoundedRectangle(float64(x)+7, float64(y+24), float64(6), float64(h-48), 3)
+	c.DrawRoundedRectangle(float64(x)+7, float64(y+20), float64(6), float64(h-40), 3)
 	c.Fill()
 
 	const (
-		nameFont      = "data/Font/GlowSansSC-Normal-ExtraBold.ttf"
-		briefFont     = "data/Font/regular-bold.ttf"
-		nameBaseline  = 55 // 按 itemH=120 视觉居中：文本块上下各留约 30px
-		briefBaseline = 89
+		nameFont     = "data/Font/GlowSansSC-Normal-ExtraBold.ttf"
+		briefFont    = "data/Font/regular-bold.ttf"
+		nameBaseline = 50 // 名字上移，给后续两行简介让位
+		briefSize    = 20.0
+		briefSingle  = 93
+		iconD        = 60.0 // 状态圆徽直径：比初版 28px 醒目，又不至于压住文本
+		iconRight    = 16.0
+		iconGap      = 12.0
 	)
 
-	// 插件名（黑色描边，远看清晰）
+	textW := float64(w) - 30 - iconD - iconRight - iconGap
+
+	// 插件名（黑色描边，远看清晰；超宽按像素省略，防止压到圆徽）
+	name = ellipsizeByWidth(c, name, nameFont, 32, textW)
 	drawTextOutlined(c, name, nameFont, 32, float64(x)+30, float64(y+nameBaseline), t.TextMain)
 
-	// Brief：按实际像素宽度省略，右侧留出状态徽章区（圆徽 28 + 边距 16 + 间隙 10）
-	availW := float64(w) - 30 - 54
-	brief = ellipsizeByWidth(c, brief, briefFont, 22, availW)
-	drawTextOutlined(c, brief, briefFont, 22, float64(x)+30, float64(y+briefBaseline), t.TextSec)
+	// Brief：单行省略（PR1 仍保持单行，PR2 会改为两行折行）
+	brief = ellipsizeByWidth(c, brief, briefFont, briefSize, textW)
+	drawTextOutlined(c, brief, briefFont, briefSize, float64(x)+30, float64(y+briefSingle), t.TextSec)
 
 	// 状态徽章：右侧圆点 + 矢量勾/叉（✓/✗ 在 GlowSansSC 无字形，DrawString
 	// 永远渲染不出来，改用直线段绘制图标，必然渲染且远看清晰）
-	const iconD = 28.0
-	cx := float64(x+w) - 16 - iconD/2
+	cx := float64(x+w) - iconRight - iconD/2
 	cy := float64(y) + float64(h)/2
 	if enabled {
 		c.SetRGBA255(104, 166, 0, 240)
@@ -846,7 +851,7 @@ func drawPluginCardContent(c *gg.Context, x, y, w, h int, name, brief string, en
 
 	r := iconD / 2
 	c.SetStrokeStyle(gg.NewSolidPattern(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
-	c.SetLineWidth(3)
+	c.SetLineWidth(5)
 	c.SetLineCap(gg.LineCapRound)
 	if enabled {
 		// 勾：短臂下探到中低点，再长臂扬到右上
@@ -855,11 +860,11 @@ func drawPluginCardContent(c *gg.Context, x, y, w, h int, name, brief string, en
 		c.LineTo(cx+0.45*r, cy-0.30*r)
 		c.Stroke()
 	} else {
-		// 叉：两条对角直线
-		c.MoveTo(cx-0.30*r, cy-0.30*r)
-		c.LineTo(cx+0.30*r, cy+0.30*r)
-		c.MoveTo(cx+0.30*r, cy-0.30*r)
-		c.LineTo(cx-0.30*r, cy+0.30*r)
+		// 叉：两条对角直线（臂长随大圆徽等比放大，避免圆内过空）
+		c.MoveTo(cx-0.36*r, cy-0.36*r)
+		c.LineTo(cx+0.36*r, cy+0.36*r)
+		c.MoveTo(cx+0.36*r, cy-0.36*r)
+		c.LineTo(cx-0.36*r, cy+0.36*r)
 		c.Stroke()
 	}
 }
