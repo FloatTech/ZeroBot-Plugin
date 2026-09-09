@@ -21,7 +21,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 	"github.com/FloatTech/gg"
 	zbpctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -29,6 +28,8 @@ import (
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
+
+	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
 
 // theme 主题配色（iOS Liquid Glass：凸透镜放大 + 重磨砂 + 边缘折射 + 色散 + 奶白洗白）
@@ -165,6 +166,7 @@ func loadRandomBg() image.Image {
 	return img
 }
 
+// SetTheme 按名称切换当前主题（大小写不敏感），未找到返回 false。
 func SetTheme(name string) bool {
 	for _, t := range themes {
 		if strings.EqualFold(t.Name, name) {
@@ -177,7 +179,7 @@ func SetTheme(name string) bool {
 
 func getPlugins() []*zbpctrl.Control[*zero.Ctx] {
 	var plugins []*zbpctrl.Control[*zero.Ctx]
-	control.ForEachByPrio(func(i int, m *zbpctrl.Control[*zero.Ctx]) bool {
+	control.ForEachByPrio(func(_ int, m *zbpctrl.Control[*zero.Ctx]) bool {
 		plugins = append(plugins, m)
 		return true
 	})
@@ -365,7 +367,11 @@ func gracefulRestart() {
 		cmd := exec.Command(exePath, os.Args[1:]...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		go cmd.Run()
+		go func() {
+			if err := cmd.Run(); err != nil {
+				logrus.Errorf("[servicemenu] 重启进程失败: %v", err)
+			}
+		}()
 	}
 	os.Exit(0)
 }
@@ -449,7 +455,7 @@ func renderServiceList(gid int64, page int) ([]byte, error) {
 	drawNewCard(c, headerX, headerY, headerW, headerH, blurback, t)
 
 	c.SetColor(t.TextMain)
-	c.LoadFontFace("data/Font/GlowSansSC-Normal-ExtraBold.ttf", 48)
+	loadFont(c, "data/Font/GlowSansSC-Normal-ExtraBold.ttf", 48)
 	c.DrawString("ZeroBot-Plugin", float64(headerX+32), float64(headerY+60))
 
 	const secFont = "data/Font/regular-bold.ttf"
@@ -457,13 +463,13 @@ func renderServiceList(gid int64, page int) ([]byte, error) {
 	drawTextOutlined(c, banner.Version+" · FloatTech", secFont, 18, float64(headerX+32), float64(headerY+120), t.TextSec)
 
 	c.SetColor(t.TextMain)
-	c.LoadFontFace("data/Font/GlowSansSC-Normal-ExtraBold.ttf", 40)
+	loadFont(c, "data/Font/GlowSansSC-Normal-ExtraBold.ttf", 40)
 	rightText := "服务列表"
 	fw, _ := c.MeasureString(rightText)
 	c.DrawString(rightText, float64(canvasW-cardPadding-32)-fw, float64(headerY+60))
 
 	subRight := "Server List"
-	c.LoadFontFace(secFont, 24)
+	loadFont(c, secFont, 24)
 	fw2, _ := c.MeasureString(subRight)
 	drawTextOutlined(c, subRight, secFont, 24, float64(canvasW-cardPadding-32)-fw2, float64(headerY+96), t.TextSec)
 
@@ -539,19 +545,19 @@ func sampleBilinear(bg *image.RGBA, rect image.Rectangle, sx, sy float64) color.
 	x1, y1 := x0+1, y0+1
 	W := bg.Bounds().Dx()
 	H := bg.Bounds().Dy()
-	clamp := func(v, lo, hi int) int {
-		if v < lo {
-			return lo
+	clamp := func(v, hi int) int {
+		if v < 0 {
+			return 0
 		}
 		if v > hi {
 			return hi
 		}
 		return v
 	}
-	x0 = clamp(x0, 0, W-1)
-	x1 = clamp(x1, 0, W-1)
-	y0 = clamp(y0, 0, H-1)
-	y1 = clamp(y1, 0, H-1)
+	x0 = clamp(x0, W-1)
+	x1 = clamp(x1, W-1)
+	y0 = clamp(y0, H-1)
+	y1 = clamp(y1, H-1)
 
 	c00 := bg.At(x0, y0).(color.RGBA)
 	c10 := bg.At(x1, y0).(color.RGBA)
@@ -660,7 +666,7 @@ func renderLiquidGlass(blurback *image.RGBA, x, y, w, h int, t theme) *image.RGB
 				ttH := fy / hh
 				ha := float64(t.TopLight)
 				if ttH < 0.5 {
-					ha = ha + (ha/3-ha)*(ttH*2)
+					ha += (ha/3 - ha) * (ttH * 2)
 				} else {
 					ha = ha / 3 * (1 - (ttH-0.5)*2)
 				}
@@ -700,17 +706,20 @@ var (
 	shadowCache   = map[image.Point]*image.RGBA{}
 )
 
-// getBlurredShadow 生成圆角矩形高斯模糊阴影图（含 pad 边距）
+// shadowPad 阴影图四边留白宽度（px）。绘制阴影时按此边距反向偏移贴回卡片位置。
+const shadowPad = 28
+
+// getBlurredShadow 生成圆角矩形高斯模糊阴影图（四边各留 shadowPad 边距）
 // 阴影矩形相对卡片左右内缩 3px、整体只向下偏移：避免模糊 halo 贴着卡片
 // 左右/圆角形成深色环带（浅色背景上呈黑刺/磨损感）
-func getBlurredShadow(w, h, radius int) (img *image.RGBA, pad int) {
-	pad = 28
+func getBlurredShadow(w, h, radius int) *image.RGBA {
+	const pad = shadowPad
 	key := image.Point{w, h}
 	shadowCacheMu.Lock()
 	cached, ok := shadowCache[key]
 	shadowCacheMu.Unlock()
 	if ok {
-		return cached, pad
+		return cached
 	}
 
 	sc := gg.NewContext(w+pad*2, h+pad*2)
@@ -722,7 +731,7 @@ func getBlurredShadow(w, h, radius int) (img *image.RGBA, pad int) {
 	shadowCacheMu.Lock()
 	shadowCache[key] = blurred
 	shadowCacheMu.Unlock()
-	return blurred, pad
+	return blurred
 }
 
 // drawNewCard 液态玻璃卡片（iOS Liquid Glass）
@@ -735,12 +744,20 @@ func getBlurredShadow(w, h, radius int) (img *image.RGBA, pad int) {
 // 两者均已改为 renderLiquidGlass 内部的 SDF 距离场实现。
 func drawNewCard(c *gg.Context, x, y, w, h int, blurback *image.RGBA, t theme) {
 	// === 1. 高斯模糊阴影（内缩+下移落影，无左右 halo）===
-	shadow, pad := getBlurredShadow(w, h, cardRadius)
-	c.DrawImage(shadow, x-pad, y-pad+8)
+	shadow := getBlurredShadow(w, h, cardRadius)
+	c.DrawImage(shadow, x-shadowPad, y-shadowPad+8)
 
 	// === 2. 液态玻璃底（含高光带与描边）===
 	glass := renderLiquidGlass(blurback, x, y, w, h, t)
 	c.DrawImage(glass, x, y)
+}
+
+// loadFont 加载字体到上下文，失败时告警（字体随插件打包，加载失败会退回默认
+// 字体导致排版错乱，打印日志便于排查部署环境的资源缺失）。
+func loadFont(c *gg.Context, path string, size float64) {
+	if err := c.LoadFontFace(path, size); err != nil {
+		logrus.Warnf("[servicemenu] 加载字体失败 %s: %v", path, err)
+	}
 }
 
 // ellipsizeByWidth 按像素宽度截断文本（rune 安全），超宽以 "..." 结尾。
@@ -748,7 +765,7 @@ func drawNewCard(c *gg.Context, x, y, w, h int, blurback *image.RGBA, t theme) {
 // 被省略（远没占满卡片可用宽度），且 brief[:23] 可能切断 UTF-8 多字节字符
 // 产生乱码。现改为实测渲染宽度，二分找最长前缀。
 func ellipsizeByWidth(c *gg.Context, text, fontPath string, size, maxW float64) string {
-	c.LoadFontFace(fontPath, size)
+	loadFont(c, fontPath, size)
 	if tw, _ := c.MeasureString(text); tw <= maxW {
 		return text
 	}
@@ -770,7 +787,7 @@ func ellipsizeByWidth(c *gg.Context, text, fontPath string, size, maxW float64) 
 // 字形上会写入垃圾像素（圆角黑弧同源 bug），因此用多向偏移暗色底绘
 // 模拟描边再绘主体：1px 实描边 + 1.8px 淡晕两层，保证白字在奶白玻璃上远看清晰。
 func drawTextOutlined(c *gg.Context, text, fontPath string, size float64, x, y float64, fill color.RGBA) {
-	c.LoadFontFace(fontPath, size)
+	loadFont(c, fontPath, size)
 	c.SetRGBA255(25, 28, 40, 170)
 	for _, d := range [...][2]float64{
 		{-1, 0}, {1, 0}, {0, -1}, {0, 1},
@@ -904,17 +921,17 @@ func renderUsageCard(m *zbpctrl.Control[*zero.Ctx]) ([]byte, error) {
 
 	drawNewCard(c, cardPadding, cardPadding, cardW-cardPadding*2, headerH, blurback, t)
 	c.SetColor(t.TextMain)
-	c.LoadFontFace("data/Font/GlowSansSC-Normal-ExtraBold.ttf", 48)
+	loadFont(c, "data/Font/GlowSansSC-Normal-ExtraBold.ttf", 48)
 	c.DrawString(m.Service, float64(cardPadding+32), float64(cardPadding+60))
 
 	c.SetColor(t.TextSec)
-	c.LoadFontFace("data/Font/regular-bold.ttf", 18)
+	loadFont(c, "data/Font/regular-bold.ttf", 18)
 	c.DrawString(m.Options.Brief, float64(cardPadding+32), float64(cardPadding+90))
 
 	bodyY := cardPadding + headerH + cardMarginY
 	drawNewCard(c, cardPadding, bodyY, cardW-cardPadding*2, bodyH, blurback, t)
 	c.SetColor(t.TextMain)
-	c.LoadFontFace("data/Font/regular-bold.ttf", 16)
+	loadFont(c, "data/Font/regular-bold.ttf", 16)
 	y := float64(bodyY) + 36
 	for _, line := range strings.Split(help, "\n") {
 		c.DrawString(line, float64(cardPadding+28), y)

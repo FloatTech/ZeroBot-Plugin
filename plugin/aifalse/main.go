@@ -28,6 +28,7 @@ import (
 	"github.com/FloatTech/zbputils/ctxext"
 	"github.com/FloatTech/zbputils/img/text"
 	"github.com/disintegration/imaging"
+	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -258,11 +259,10 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 		powers    []*status
 		eDisk     error
 		eMore     error
-		eGPU      error
 	)
 	go func() { defer gather.Done(); disks, eDisk = diskstate() }()
 	go func() { defer gather.Done(); moreinfos, eMore = moreinfo(m) }()
-	go func() { defer gather.Done(); gpus, eGPU = gpustate() }()
+	go func() { defer gather.Done(); gpus = gpustate() }()
 	// tempstate 不返回 error（失败时返回 nil 切片），所以不需要 eTemp
 	go func() { defer gather.Done(); temps, fans, powers = tempstate() }()
 
@@ -287,7 +287,6 @@ func drawstatus(m *ctrl.Control[*zero.Ctx], uid int64, botname string, botrunsta
 		return
 	}
 	// GPU / 温度为可选信息：取不到就跳过对应卡片
-	_ = eGPU
 	if len(disks) == 0 {
 		disks = []*status{{name: "/", text: []string{"无可用磁盘"}}}
 	}
@@ -810,7 +809,7 @@ func diskstate() (stateinfo []*status, err error) {
 // gpustate 采集 GPU 状态，合并 nvidia-smi（NVIDIA 详细数据）和全量显卡列表（所有品牌）。
 // 优先级：先拿全量列表（含 Intel/AMD/NVIDIA），再用 nvidia-smi 的详细数据覆盖匹配的 NVIDIA 卡。
 // 没有可用 GPU 时返回 nil，调用方跳过 GPU 卡片。
-func gpustate() (stateinfo []*status, err error) {
+func gpustate() []*status {
 	// 1. 先拿 nvidia-smi 的 NVIDIA 详细数据（利用率/温度/功耗）
 	nvidiaList, _ := nvidiaGPU()
 	logrus.Debugf("[aifalse] nvidia-smi 返回 %d 块", len(nvidiaList))
@@ -821,6 +820,7 @@ func gpustate() (stateinfo []*status, err error) {
 		allGPUs = wmiGPUInfo()
 		logrus.Debugf("[aifalse] 全量 GPU 列表 %d 个", len(allGPUs))
 	}
+	stateinfo := make([]*status, 0, len(nvidiaList)+len(allGPUs))
 
 	// 3. 构建 NVIDIA 名称 → status 的映射，用于合并
 	nvidiaByName := make(map[string]*status, len(nvidiaList))
@@ -872,7 +872,7 @@ func gpustate() (stateinfo []*status, err error) {
 
 	logrus.Infof("[aifalse] 最终 GPU 列表 %d 个 (nvidia-smi=%d, 全量=%d)",
 		len(stateinfo), len(nvidiaList), len(allGPUs))
-	return stateinfo, nil
+	return stateinfo
 }
 
 // basicGPUStatus 构造一张基础 GPU 状态卡（无利用率/温度等详细指标时使用）。
@@ -989,14 +989,14 @@ func tempstate() (temps []*status, fans []*status, powers []*status) {
 	}()
 
 	// 并行收集，给 3s 总超时
-	var gpTs []sensors.TemperatureStat
+	var gpTS []sensors.TemperatureStat
 	var lhmSensors []lhmSensor
 	var hwiTemps, hwiFans, hwiPowers []*status
 	timeout := time.After(3 * time.Second)
 	for i := 0; i < 3; i++ {
 		select {
 		case r := <-gopsCh:
-			gpTs = r.ts
+			gpTS = r.ts
 		case r := <-lhmCh:
 			lhmSensors = r
 		case r := <-hwiCh:
@@ -1008,8 +1008,8 @@ func tempstate() (temps []*status, fans []*status, powers []*status) {
 	// 兜底收剩余
 	select {
 	case r := <-gopsCh:
-		if gpTs == nil {
-			gpTs = r.ts
+		if gpTS == nil {
+			gpTS = r.ts
 		}
 	default:
 	}
@@ -1070,12 +1070,12 @@ func tempstate() (temps []*status, fans []*status, powers []*status) {
 	}
 
 	// === gopsutil 最后 ===
-	if len(gpTs) > 0 {
+	if len(gpTS) > 0 {
 		if realSensorSource {
 			// 有真实传感器数据了，过滤掉 ACPI 主板热区（25-30°C 误导人）
-			gpTs = filterACPIThermalZones(gpTs)
+			gpTS = filterACPIThermalZones(gpTS)
 		}
-		temps = append(temps, cleanGopsutilTemps(gpTs)...)
+		temps = append(temps, cleanGopsutilTemps(gpTS)...)
 	}
 
 	// 简化温度卡片：只保留 CPU Core 相关温度，去掉 Package/Average/Max/主板热区等
@@ -1126,7 +1126,7 @@ func simplifyTemps(temps []*status) []*status {
 // filterACPIThermalZones 过滤掉 gopsutil 返回的 ACPI ThermalZone 条目。
 // 当 HWiNFO / LHM 提供了真实的 CPU/GPU 温度时，ACPI 主板热区（通常 25-30°C）是多余的。
 func filterACPIThermalZones(ts []sensors.TemperatureStat) []sensors.TemperatureStat {
-	var filtered []sensors.TemperatureStat
+	filtered := make([]sensors.TemperatureStat, 0, len(ts))
 	for _, t := range ts {
 		key := strings.ToLower(strings.TrimSpace(t.SensorKey))
 		if strings.Contains(key, "acpi") || strings.Contains(key, "thermalzone") {
@@ -1149,7 +1149,7 @@ func cleanGopsutilTemps(ts []sensors.TemperatureStat) []*status {
 		displayName string
 		temp        float64
 	}
-	var cleaned []rawEntry
+	cleaned := make([]rawEntry, 0, len(ts))
 	seen := make(map[string]bool, len(ts))
 	for _, t := range ts {
 		if t.Temperature <= 0 {
@@ -1346,7 +1346,7 @@ func loadAvatar(uid int64) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("头像状态码: %d", resp.StatusCode)
+		return nil, errors.Errorf("头像状态码: %d", resp.StatusCode)
 	}
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {

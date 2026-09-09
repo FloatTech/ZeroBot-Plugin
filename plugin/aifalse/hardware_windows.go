@@ -289,7 +289,7 @@ func queryLibreHardwareMonitor() []lhmSensor {
 	}
 
 	// 过滤无效值
-	var result []lhmSensor
+	result := make([]lhmSensor, 0, len(sensors))
 	for _, s := range sensors {
 		if s.Name == "" || s.Value <= 0 {
 			continue

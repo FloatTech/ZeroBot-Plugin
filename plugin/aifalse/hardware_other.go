@@ -70,7 +70,7 @@ func queryLibreHardwareMonitor() []lhmSensor { return nil }
 func queryLibreHardwareMonitorHTTP() []lhmSensor { return nil }
 
 // mergeLHMSensors 非 Windows 平台占位。
-func mergeLHMSensors(wmi, http []lhmSensor) []lhmSensor { return nil }
+func mergeLHMSensors(_, _ []lhmSensor) []lhmSensor { return nil }
 
 // lhmSensorDisplayName 非 Windows 平台占位。
-func lhmSensorDisplayName(s lhmSensor) string { return "" }
+func lhmSensorDisplayName(_ lhmSensor) string { return "" }
