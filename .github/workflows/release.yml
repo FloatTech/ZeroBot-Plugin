@@ -1,14 +1,15 @@
-name: 发行版
+name: Release
 on:
-  workflow_run:
-    workflows: [PushLint]
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v') }}
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@master
