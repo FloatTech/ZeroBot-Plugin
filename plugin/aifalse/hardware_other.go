@@ -54,8 +54,14 @@ func init() {
 // queryHWiNFO 非 Windows 平台无 HWiNFO。
 func queryHWiNFO() (temps, fans, powers []*status) { return nil, nil, nil }
 
-// lhmSensor 在非 Windows 平台不需要（LibreHardwareMonitor 仅支持 Windows）。
-type lhmSensor struct{}
+// lhmSensor 非 Windows 平台不采集（LibreHardwareMonitor 仅支持 Windows），
+// 但字段需与 hardware_windows.go 保持一致，供跨平台代码（tempstate）编译通过。
+type lhmSensor struct {
+	Name       string
+	SensorType string // Temperature / Fan / Power / Load / Clock / Voltage / Control
+	Parent     string
+	Value      float64
+}
 
 // queryLibreHardwareMonitor 非 Windows 平台永远返回 nil。
 func queryLibreHardwareMonitor() []lhmSensor { return nil }
