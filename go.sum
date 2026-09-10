@@ -4,8 +4,6 @@ github.com/FloatTech/AnimeAPI v1.7.1-0.20260408142737-1e9f2594e3cd h1:1L91nA4W2F
 github.com/FloatTech/AnimeAPI v1.7.1-0.20260408142737-1e9f2594e3cd/go.mod h1:OrsOAZ8dFDWAExDTyFimoCskDHowjCU2J7zbbjxx9KU=
 github.com/FloatTech/floatbox v0.0.0-20260408141530-dc0fdf584f62 h1:w9KO9/zSwnh7+68HOmvIC9gt7Kgy6EPYrMnPh20HeBA=
 github.com/FloatTech/floatbox v0.0.0-20260408141530-dc0fdf584f62/go.mod h1:Cpt6REv4OE5VrO5uA/hdVEofnfyUB2BVJEwYACubLOc=
-github.com/FloatTech/gg v1.1.4-0.20260404155637-671db2feeebb h1:9CxMctre5XIsFHNQTzZvdg5kLub5QZEsrV6E5rSKKfs=
-github.com/FloatTech/gg v1.1.4-0.20260404155637-671db2feeebb/go.mod h1:nweVlCnDkEXFVRq6t8gkzoUgD5uVI/5yAjBFfQDdE3Y=
 github.com/FloatTech/rendercard v0.2.4-0.20260404155919-1fede0bcd22b h1:xo68n707/B8tdsqQz3FB5YaBXd/X5FUeQqUgXKdtOPU=
 github.com/FloatTech/rendercard v0.2.4-0.20260404155919-1fede0bcd22b/go.mod h1:uiJSiGWuED77DtPypOr3ewNfqZbwC2A+ZnlAPqvxK/E=
 github.com/FloatTech/sqlite v1.7.2 h1:b8COegNLSzofzOyARsVwSbz9OOzWEa8IElsTlx1TBLw=
@@ -212,6 +210,8 @@ github.com/wdvxdr1123/ZeroBot v1.8.3-0.20260407110317-d207de3b6c79/go.mod h1:kCL
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=
 github.com/yusufpapurcu/wmi v1.2.4/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
+github.com/zzd1314/gg v0.0.0-20260909100314-9c78f3029f99 h1:JkFmXmgc++5Kpnl8jHy4A2JAxmViU4g7iZrKjdlq5W8=
+github.com/zzd1314/gg v0.0.0-20260909100314-9c78f3029f99/go.mod h1:nweVlCnDkEXFVRq6t8gkzoUgD5uVI/5yAjBFfQDdE3Y=
 gitlab.com/gomidi/midi/v2 v2.3.18 h1:sj2fOhtvOe+zI8YJe8qTxLw5zv0ntULLUDwcFOaZQbI=
 gitlab.com/gomidi/midi/v2 v2.3.18/go.mod h1:jDpP4O4skYi+7iVwt6Zyp18bd2M4hkjtMuw2cmgKgfw=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

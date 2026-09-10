@@ -47,10 +47,11 @@ var (
 )
 
 func init() {
-	en.OnMessage(chat.EnsureConfig, func(ctx *zero.Ctx) bool {
+	// 优先级设为 10，低于控制命令(SecondPriority=1)，
+	// 避免 /全局禁用、/启用 等管理命令被 AI 聊天抢先拦截
+	aim := en.OnMessage(chat.EnsureConfig, func(ctx *zero.Ctx) bool {
 		stor, ok := ctx.State[zero.StateKeyPrefixKeep+"aichatcfg_stor__"].(chat.Storage)
 		if !ok {
-			logrus.Warnln("ERROR: cannot get stor")
 			return false
 		}
 		mp := ctx.State[control.StateKeySyncxState].(*syncx.Map[string, any])
@@ -70,7 +71,9 @@ func init() {
 			ctx.Block()
 		}
 		return true
-	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+	}).SetBlock(false)
+	(*zero.Matcher)(aim).SetPriority(10)
+	aim.Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
