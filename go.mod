@@ -26,7 +26,6 @@ require (
 	github.com/fumiama/go-onebot-agent v0.0.0-20260425093914-9c92a03776e3
 	github.com/fumiama/go-registry v0.2.7
 	github.com/fumiama/gotracemoe v0.0.3
-	github.com/fumiama/imgsz v0.0.4
 	github.com/fumiama/jieba v0.0.0-20221203025406-36c17a10b565
 	github.com/fumiama/slowdo v0.0.0-20241001074058-27c4fe5259a4
 	github.com/fumiama/unibase2n v0.0.0-20240530074540-ec743fd5a6d6
@@ -66,6 +65,7 @@ require (
 	github.com/fumiama/go-simple-protobuf v0.2.0 // indirect
 	github.com/fumiama/gofastTEA v0.1.3 // indirect
 	github.com/fumiama/gozel v0.0.0-20260329105205-a95fde52433a // indirect
+	github.com/fumiama/imgsz v0.0.4 // indirect
 	github.com/fumiama/orbyte v0.0.0-20251002065953-3bb358367eb5 // indirect
 	github.com/fumiama/terasu v1.0.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
@@ -106,3 +106,7 @@ require (
 replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.29.10-simp
 
 replace modernc.org/libc => github.com/fumiama/libc v0.0.0-20240530081950-6f6d8586b5c5
+
+// 本地补全 Blur GPU kernel 的 gg（待上游合并后移除）
+
+replace github.com/FloatTech/gg => github.com/zzd1314/gg v0.0.0-20260909100314-9c78f3029f99
