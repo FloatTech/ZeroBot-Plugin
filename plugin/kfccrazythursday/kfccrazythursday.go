@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	crazyURL = "https://api.pearktrue.cn/api/kfc/"
+	crazyURL = "https://v50.deno.dev/"
 )
 
 func init() {
