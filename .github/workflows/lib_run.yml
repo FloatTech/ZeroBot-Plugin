@@ -38,6 +38,7 @@ jobs:
           ref: ${{ inputs.ref }}
           fetch-depth: ${{ inputs.fetch-depth }}
           submodules: ${{ inputs.submodules }}
+          allow-unsafe-pr-checkout: true
 
       - name: Prepare and Build
         shell: bash
