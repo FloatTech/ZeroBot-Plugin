@@ -6,6 +6,9 @@ import (
 )
 
 func (t *Timer) sendmsg(grp int64, ctx *zero.Ctx) {
+	if ctx == nil {
+		return
+	}
 	ctx.Event = new(zero.Event)
 	ctx.Event.GroupID = grp
 	if t.URL == "" {
