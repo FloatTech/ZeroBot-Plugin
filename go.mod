@@ -105,4 +105,17 @@ require (
 
 replace modernc.org/sqlite => github.com/fumiama/sqlite3 v1.29.10-simp
 
+// Bound registry I/O used during resource initialization; see the local patch notes.
+replace github.com/fumiama/go-registry => ./third_party/go-registry
+
+// Share checked plugin writes, inheritance and snapshots with chat commands.
+replace github.com/FloatTech/zbpctrl => ./third_party/zbpctrl
+
+replace github.com/FloatTech/sqlite => ./third_party/sqlite
+
+replace github.com/FloatTech/zbputils => ./third_party/zbputils
+
+// Persistent Agent history while keeping upstream action/permission parsing.
+replace github.com/fumiama/go-onebot-agent => ./third_party/go-onebot-agent
+
 replace modernc.org/libc => github.com/fumiama/libc v0.0.0-20240530081950-6f6d8586b5c5

@@ -3,8 +3,12 @@ package aichat
 
 import (
 	"encoding/json"
+	"errors"
 	"math/rand"
+	"net/http"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/RomiChan/syncx"
 	"github.com/fumiama/deepinfra"
@@ -16,6 +20,9 @@ import (
 	"github.com/wdvxdr1123/ZeroBot/message"
 
 	"github.com/FloatTech/AnimeAPI/airecord"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/modelstats"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/qqvoice"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/replystats"
 	"github.com/FloatTech/floatbox/process"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/chat"
@@ -43,11 +50,14 @@ var (
 )
 
 var (
-	fastfailnorecord = false
+	fastfailnorecord atomic.Bool
 )
 
 func init() {
 	en.OnMessage(chat.EnsureConfig, func(ctx *zero.Ctx) bool {
+		if !chat.ConfigOf(ctx).Ready() {
+			return false
+		}
 		stor, ok := ctx.State[zero.StateKeyPrefixKeep+"aichatcfg_stor__"].(chat.Storage)
 		if !ok {
 			logrus.Warnln("ERROR: cannot get stor")
@@ -71,72 +81,86 @@ func init() {
 		}
 		return true
 	}).SetBlock(false).Handle(func(ctx *zero.Ctx) {
+		cfg := chat.ConfigOf(ctx)
+		kind := replystats.Chat
+		if !ctx.State[zero.StateKeyPrefixKeep+"aichatcfg_stor__"].(chat.Storage).NoAgent() && cfg.AgentAPI != "" && cfg.AgentModelName != "" && (cfg.AgentKey != "" || cfg.AgentType == 1) {
+			kind = replystats.Agent
+		}
+		task := replystats.Default.Begin(ctx, kind)
+		defer task.End()
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
 		stor := ctx.State[zero.StateKeyPrefixKeep+"aichatcfg_stor__"].(chat.Storage)
 		temperature := stor.Temp()
-		topp, maxn := chat.AC.MParams()
+		topp, maxn := cfg.MParams()
 		mp := ctx.State[control.StateKeySyncxState].(*syncx.Map[string, any])
 
-		logrus.Debugln("[aichat] agent mode test: noagent", stor.NoAgent(), "hasapi", chat.AC.AgentAPI != "", "hasmodel", chat.AC.AgentModelName != "")
-		if !stor.NoAgent() && chat.AC.AgentAPI != "" && chat.AC.AgentModelName != "" && chat.AC.Key != "" {
+		logrus.Debugln("[aichat] agent mode test: noagent", stor.NoAgent(), "hasapi", cfg.AgentAPI != "", "hasmodel", cfg.AgentModelName != "")
+		if !stor.NoAgent() && cfg.AgentAPI != "" && cfg.AgentModelName != "" && (cfg.AgentKey != "" || cfg.AgentType == 1) {
 			logrus.Debugln("[aichat] enter agent mode")
-			x := deepinfra.NewAPI(chat.AC.AgentAPI, string(chat.AC.AgentKey))
-			mod, err := chat.AC.Type.Protocol(chat.AC.AgentModelName, temperature, topp, maxn, chat.AC.ReasoningEffort)
+			x := deepinfra.NewAPI(cfg.AgentAPI, string(cfg.AgentKey))
+			x.SetHTTPClient(modelstats.Default.Client(&http.Client{Timeout: 30 * time.Second}, modelstats.Agent))
+			mod, err := cfg.AgentType.ProtocolForAPI(cfg.AgentAPI, cfg.AgentModelName, temperature, topp, maxn, cfg.ReasoningEffort, cfg.Separator)
 			if err != nil {
+				task.Fail()
 				logrus.Warnln("ERROR: ", err)
 				return
 			}
-			role := goba.PermRoleUser
-			if zero.AdminPermission(ctx) {
-				role = goba.PermRoleAdmin
-				if zero.SuperUserPermission(ctx) {
-					role = goba.PermRoleOwner
-				}
-			}
+			role := agentRole(ctx)
 			c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 			if !ok {
 				logrus.Warnln("ERROR: cannot get ctrl mamager")
 			}
 			ag := chat.AgentOf(ctx.Event.SelfID, c.Service)
 			logrus.Debugln("[aichat] got agent")
-			if chat.AC.ImageAPI != "" && !ag.CanViewImage() {
-				mod, err := chat.AC.ImageType.Protocol(chat.AC.ImageModelName, temperature, topp, maxn, chat.AC.ReasoningEffort)
+			if cfg.ImageAPI != "" && !ag.CanViewImage() {
+				mod, err := cfg.ImageType.ProtocolForAPI(cfg.ImageAPI, cfg.ImageModelName, temperature, topp, maxn, cfg.ReasoningEffort, cfg.Separator)
 				if err != nil {
+					task.Fail()
 					logrus.Warnln("ERROR: ", err)
 					return
 				}
-				ag.SetViewImageAPI(deepinfra.NewAPI(chat.AC.ImageAPI, string(chat.AC.ImageKey)), mod)
+				imageAPI := deepinfra.NewAPI(cfg.ImageAPI, string(cfg.ImageKey))
+				imageAPI.SetHTTPClient(modelstats.Default.Client(&http.Client{Timeout: 30 * time.Second}, modelstats.Vision))
+				ag.SetViewImageAPI(imageAPI, mod)
 				logrus.Debugln("[aichat] agent set img")
 			}
 			ctx.NoTimeout()
 			logrus.Debugln("[aichat] agent set no timeout")
 			hasresp := false
-			for i := 0; i < 8; i++ { // 最大运行 8 轮因为问答上下文只有 16
-				reqs := chat.CallAgent(ag, zero.SuperUserPermission(ctx), i+1, x, mod, gid, role)
-				if len(reqs) == 0 {
-					logrus.Debugln("[aichat] agent call got empty response")
-					break
+			generation := chat.AgentGeneration()
+			err = chat.RunAgent(func(iter int) ([]zero.APIRequest, bool, error) {
+				return chat.NextAgentActions(ag, zero.SuperUserPermission(ctx), iter, x, mod.Clone(), gid, role)
+			}, func(req zero.APIRequest) error {
+				mp.Store(chat.StateKeyAgentTriggered, struct{}{})
+				if req.Action == goba.SVM { // is a fake action
+					return nil
+				}
+				logrus.Debugln("[chat] agent triggered", gid, "add requ:", &req)
+				if err := ag.AddRequest(gid, &req); err != nil {
+					return err
 				}
 				hasresp = true
-				mp.Store(chat.StateKeyAgentTriggered, struct{}{})
-				for _, req := range reqs {
-					if req.Action == goba.SVM { // is a fake action
-						continue
-					}
-					logrus.Debugln("[chat] agent triggered", gid, "add requ:", &req)
-					ag.AddRequest(gid, &req)
-					rsp := ctx.CallAction(req.Action, req.Params)
-					logrus.Debugln("[chat] agent triggered", gid, "add resp:", &rsp)
-					ag.AddResponse(gid, &goba.APIResponse{
-						Status:  rsp.Status,
-						Data:    json.RawMessage(rsp.Data.Raw),
-						Message: rsp.Message,
-						Wording: rsp.Wording,
-						RetCode: rsp.RetCode,
-					})
+				rsp := task.Call(req.Action, req.Params, ctx.CallAction)
+				if rsp.Status != "ok" || rsp.RetCode != 0 {
+					task.Fail()
+				}
+				logrus.Debugln("[chat] agent triggered", gid, "add resp:", &rsp)
+				return ag.AddResponse(gid, &goba.APIResponse{
+					Status:  rsp.Status,
+					Data:    json.RawMessage(rsp.Data.Raw),
+					Message: rsp.Message,
+					Wording: rsp.Wording,
+					RetCode: rsp.RetCode,
+				})
+			}, func() bool { return generation == chat.AgentGeneration() })
+			if err != nil {
+				task.Fail()
+				logrus.Warnln("[aichat] Agent 本次任务已停止，检查结束动作、记录存储或重复动作。")
+				if errors.Is(err, chat.ErrAgentReloaded) {
+					return
 				}
 			}
 			if hasresp {
@@ -146,15 +170,18 @@ func init() {
 			logrus.Debugln("[aichat] agent fell back to normal chat")
 		}
 
-		x := deepinfra.NewAPI(chat.AC.API, string(chat.AC.Key))
-		mod, err := chat.AC.Type.Protocol(chat.AC.ModelName, temperature, topp, maxn, chat.AC.ReasoningEffort)
+		x := deepinfra.NewAPI(cfg.API, string(cfg.Key))
+		x.SetHTTPClient(modelstats.Default.Client(&http.Client{Timeout: 30 * time.Second}, modelstats.Chat))
+		mod, err := cfg.Type.ProtocolForAPI(cfg.API, cfg.ModelName, temperature, topp, maxn, cfg.ReasoningEffort, cfg.Separator)
 		if err != nil {
+			task.Fail()
 			logrus.Warnln("ERROR: ", err)
 			return
 		}
-		data, err := x.Request(chat.GetChatContext(mod, gid, chat.AC.SystemP, bool(chat.AC.NoSystemP)))
+		data, err := x.Request(chat.GetChatContext(mod, gid, cfg.SystemP, bool(cfg.NoSystemP)))
 		if err != nil {
-			logrus.Warnln("[aichat] post err:", err)
+			task.Fail()
+			logrus.Warnln("[aichat] 模型请求失败，请检查接口、密钥及网络。")
 			return
 		}
 
@@ -174,19 +201,18 @@ func init() {
 				}
 				logrus.Debugln("[aichat] 回复内容:", t)
 				recCfg := airecord.GetConfig()
-				record := ""
-				if !fastfailnorecord && !stor.NoRecord() {
-					record = ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, t)
-					if record != "" {
-						ctx.SendChain(message.Record(record))
+				if ctx.Event.GroupID > 0 && !fastfailnorecord.Load() && !stor.NoRecord() {
+					if qqvoice.Deliver(t, recCfg.ModelID, ctx.Event.GroupID, func(action string, params zero.Params) zero.APIResponse {
+						return task.Call(action, params, ctx.CallAction)
+					}) == "" {
 						continue
 					}
-					fastfailnorecord = true
+					fastfailnorecord.Store(true)
 				}
 				if id != nil {
-					id = ctx.SendChain(message.Reply(id), message.Text(t))
+					id = task.SendChain(ctx, message.Reply(id), message.Text(t))
 				} else {
-					id = ctx.SendChain(message.Text(t))
+					id = task.SendChain(ctx, message.Text(t))
 				}
 				process.SleepAbout1sTo2s()
 			}

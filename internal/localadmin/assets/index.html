@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZeroBot · 本地管理</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/appearance.css">
+  <script src="/theme.js"></script>
+  <script src="/app.js" defer></script><script src="/connections-add.js" defer></script><script src="/connections-delete.js" defer></script>
+  <script src="/overview.js" defer></script>
+  <script src="/reply-metrics.js" defer></script>
+  <script src="/model-observation.js" defer></script>
+  <script src="/ai.js" defer></script>
+  <script src="/logs.js" defer></script>
+  <script src="/backups.js" defer></script><script src="/security.js" defer></script>
+</head>
+<body>
+  <main id="auth" class="auth-layout">
+    <section class="auth-intro">
+      <a class="brand" href="/"><span class="brand-icon">Z</span><span>ZeroBot <small>本地管理</small></span></a>
+      <div class="intro-body"><p class="eyebrow">YOUR BOT, YOUR SPACE</p><h1>让机器人管理<br>更清晰。</h1><p>在自己的电脑上查看机器人状态，<br>了解已加载的功能。</p><div class="local-tag"><span class="dot"></span>仅本机访问</div></div>
+      <p class="intro-footer">ZeroBot-Plugin / Local Admin</p>
+    </section>
+    <section class="auth-panel">
+      <form id="auth-form" class="auth-form">
+        <label class="theme-choice auth-theme" for="auth-theme"><span>外观</span><select id="auth-theme" data-theme-select><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label>
+        <p class="eyebrow">欢迎回来</p><h2 id="auth-title">登录管理后台</h2><p id="auth-description" class="muted">使用本机后台密码继续。</p>
+        <div id="setup-fields" hidden>
+          <label for="setup-code">本地设置码</label><input id="setup-code" type="password" autocomplete="off" placeholder="输入设置码，或选择设置码文件">
+          <label class="file-picker" for="setup-file">选择设置码文件<input id="setup-file" type="file" accept=".txt"></label>
+          <p class="field-help">首次启动后，设置码保存在 <code>.local/admin/setup-code.txt</code>。设置密码后自动失效。</p>
+        </div>
+        <label for="password">后台密码</label><input id="password" type="password" autocomplete="current-password" required placeholder="输入密码">
+        <div id="confirm-fields" hidden><label for="confirm-password">确认密码</label><input id="confirm-password" type="password" autocomplete="new-password" placeholder="再次输入密码"></div>
+        <p id="auth-notice" class="panel-note" role="status"></p><p id="auth-error" class="error" role="alert" hidden></p><button id="login-button" type="submit" class="primary">登录后台 <span aria-hidden="true">→</span></button>
+        <p class="auth-note">管理后台密码与 QQ 登录密码分别设置。</p>
+      </form>
+    </section>
+  </main>
+  <div id="workspace" class="workspace" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="/"><span class="brand-icon">Z</span><span>ZeroBot <small>本地管理</small></span></a>
+      <p class="nav-label">工作空间</p><nav aria-label="后台导航"><button data-view="overview" class="nav-button active">◫ <span>运行概览</span></button><button data-view="connections" class="nav-button">⇄ <span>连接设置</span></button><button data-view="plugins" class="nav-button">▦ <span>插件列表</span><span id="nav-count" class="nav-count">—</span></button><button data-view="ai" class="nav-button">✧ <span>AI 设置</span></button><button data-view="logs" class="nav-button">≡ <span>运行日志</span></button><button data-view="backups" class="nav-button">▣ <span>备份恢复</span></button><button data-view="security" class="nav-button">⚿ <span>后台安全</span></button></nav>
+      <div class="sidebar-footer"><span class="dot"></span><div>本机工作空间<small>127.0.0.1</small></div></div>
+    </aside>
+    <div class="content-shell">
+      <header class="topbar"><span id="breadcrumb">工作空间 / 运行概览</span><div><label class="theme-choice" for="workspace-theme"><span>外观</span><select id="workspace-theme" data-theme-select><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label><span class="local-pill">仅本机访问</span><button id="logout" class="text-button">退出登录</button></div></header>
+      <main class="content">
+        <p id="page-error" class="error" role="alert" hidden></p>
+        <section id="overview-view">
+          <div class="page-heading"><div><p class="eyebrow">OVERVIEW</p><h1>运行概览</h1><p class="muted">随时了解你的机器人与当前工作空间。</p></div><button id="refresh" class="secondary">↻ 刷新状态</button></div>
+          <div class="status-banner"><div class="status-emblem">Z</div><div><h2>ZeroBot-Plugin</h2><p id="connection-detail">正在读取连接状态…</p></div><span id="connection-badge" class="state-badge">读取中</span></div>
+          <div class="metrics"><article class="metric"><span>已连接账号</span><strong id="account-count">—</strong><small>来自当前 OneBot 连接</small></article><article class="metric"><span>已加载插件</span><strong id="plugin-count">—</strong><small>本次程序实际注册的功能</small></article><article class="metric"><span>运行时间</span><strong id="uptime">—</strong><small>当前机器人进程</small></article></div>
+          <div class="overview-grid"><article class="panel"><div class="panel-heading"><h2>机器人账号</h2><span class="subtle-tag">OneBot</span></div><div id="accounts" class="account-list"></div><p class="panel-note">这里显示 OneBot 连接状态。QQ 登录由接入程序管理。</p></article><article class="panel"><div class="panel-heading"><h2>运行信息</h2></div><dl class="info-list"><div><dt>程序版本</dt><dd id="version">—</dd></div><div><dt>Go 版本</dt><dd id="go-version">—</dd></div><div><dt>已配置连接</dt><dd id="configured-count">—</dd></div><div><dt>最近检查</dt><dd id="checked-at">—</dd></div></dl></article></div>
+          <article class="panel model-request-panel" aria-labelledby="model-request-title"><div class="panel-heading"><h2 id="model-request-title">模型接口请求</h2><span class="subtle-tag">本次启动累计</span></div><p id="model-request-summary" class="field-help" role="status">正在读取请求统计…</p><div id="model-request-categories" class="model-request-grid"></div><p class="panel-note">仅统计 GPT／群总结、聊天、Agent 与识图的模型接口传输，重启后清零。接口完成表示响应正常传输，不保证内容有效或 QQ 已回复；重定向逐次计数。耗时包括响应读取，不包括 QQ 发送；不记录聊天内容或密钥。</p></article>
+          <article class="panel model-observation-panel" aria-labelledby="model-observation-title"><div class="panel-heading"><h2 id="model-observation-title">模型请求观察报告</h2><span class="subtle-tag">当前页面</span></div><p id="model-observation-summary" class="field-help" role="status">尚未记录观察起点。</p><div class="model-observation-actions"><button id="start-model-observation" class="secondary" type="button" disabled>记录观察起点</button><button id="clear-model-observation" class="secondary" type="button" disabled>清除观察起点</button><button id="download-model-observation" class="secondary" type="button" disabled>下载观察报告</button></div><p id="model-observation-status" class="field-help" role="status" aria-live="polite"></p><p class="panel-note">使用最近成功读取的快照，自动刷新后更新结束值；切换后台页面保留起点，刷新页面或退出后清除。报告包含分类、次数、时间、累计耗时及可读取的进程关联信息，不含聊天、QQ账号、程序路径或配置。跨起点的进行中请求可能在窗口内结束；不能从累计最长耗时推算窗口最长耗时，同一进程也不代表真实业务已验收。</p></article>
+          <article class="panel model-request-panel" aria-labelledby="reply-task-title"><div class="panel-heading"><h2 id="reply-task-title">AI回复处理耗时</h2><span class="subtle-tag">本次启动累计</span></div><p id="reply-task-summary" class="field-help" role="status">正在读取回复处理统计…</p><div id="reply-task-categories" class="model-request-grid"></div><div class="model-observation-actions"><button id="download-reply-statistics" class="secondary" type="button" disabled>下载回复统计</button></div><p id="reply-download-status" class="field-help" role="status" aria-live="polite"></p><p class="panel-note">从消息进入机器人匹配流程到当前群或私聊的回复发送回执，包含模型处理与发送等待；记录首条和最后一条确认回复。平均值只统计已结束且有确认回复的任务，可能包括部分回复后失败的任务。重启清零，不保存正文或账号；不包括QQ客户端到机器人之前的延迟，也不证明收到或已读。Agent/识图及其回退按一次任务计，思考中和错误提示不计回复。</p></article>
+          <article class="panel overview-alert-panel"><div class="panel-heading"><h2>近期异常</h2><span class="subtle-tag">本次启动</span></div><p id="overview-alert-summary" class="field-help" role="status">正在读取近期异常…</p><div id="overview-alerts"></div><p class="panel-note">完整筛选与脱敏导出请进入“运行日志”。</p><button id="view-issue-logs" class="secondary" type="button">查看异常日志 →</button></article>
+        </section>
+        <section id="connections-view" hidden>
+          <div class="page-heading"><div><p class="eyebrow">CONNECTIONS</p><h1>连接设置</h1><p class="muted">管理 OneBot 连接与机器人主人账号。</p></div><button id="reload-connections" class="secondary">重新加载配置</button></div>
+          <p id="connection-save-state" class="panel-note" role="status">正在读取配置…</p><p id="connection-draft-status" class="panel-note" role="status" aria-live="polite">读取配置后可编辑；草稿仅保留在当前页面。</p><p id="connection-error" class="error" role="alert" hidden></p>
+          <section id="connection-draft-fields" class="panel connection-draft-fields" hidden aria-label="连接设置未保存字段摘要"><h2>未保存字段摘要</h2><p id="connection-draft-field-state" class="panel-note" role="status"></p><div id="connection-draft-field-list" class="connection-draft-field-list"></div><p class="field-help">只显示字段名称，不显示地址、Token 或主人账号值；已有连接以实际加载目标为准。新增与现有配置分别保存，摘要不表示已保存或正在运行。</p></section>
+          <section id="startup-differences" class="panel startup-differences" hidden aria-label="启动配置差异"><h2>启动配置差异</h2><p id="startup-difference-status" class="field-help" role="status" aria-live="polite"></p><div id="startup-difference-list" class="startup-difference-list"></div><p class="field-help">比较最近一次成功读取或保存的配置与本次启动快照，不含未保存草稿，不表示连接实时在线状态。数量相同也可能内容不同（包括 Token）；配置值与密钥隐藏。外部修改后请重新加载核对。</p></section>
+          <form id="connection-form" class="panel connection-form"><fieldset id="connection-fields" disabled>
+            <label for="connection-select">选择连接</label><select id="connection-select"></select><p id="connection-running" class="field-help"></p>
+            <label for="connection-url">WebSocket 地址</label><input id="connection-url" type="text" autocomplete="off" maxlength="2048" placeholder="ws://127.0.0.1:6700"><p id="connection-address-note" class="field-help"></p>
+            <label for="token-action">OneBot Token</label><select id="token-action"><option value="keep">保留当前 Token</option><option value="replace">替换为新 Token</option><option value="clear">清除 Token</option></select><p id="token-state" class="field-help"></p>
+            <input id="connection-token" type="password" aria-label="新 Token" autocomplete="off" maxlength="2048" disabled placeholder="输入新 Token">
+            <label id="clear-token-label" class="check-label" hidden><input id="clear-token-confirm" type="checkbox">我确认清除这个连接的 Token</label>
+            <label for="connection-owners">主人 QQ 账号</label><input id="connection-owners" type="text" autocomplete="off" required placeholder="多个账号用空格或逗号分隔"><p id="connection-running-owners" class="field-help"></p>
+            <p class="panel-note">保存前自动备份旧配置，备份中包含 Token，仅保存在本机。保存后需要重启机器人；请确保接入程序的地址和 Token 与这里一致。</p>
+            <div class="connection-draft-actions"><button id="discard-current-connection" type="button" class="secondary" disabled>放弃当前连接更改</button><button id="discard-connection-owners" type="button" class="secondary" disabled>放弃主人账号更改</button></div><p id="connection-discard-status" class="panel-note" role="status" aria-live="polite"></p>
+            <button id="save-connections" class="primary" type="submit">备份并保存配置</button><button id="preview-connection-delete" class="secondary" type="button" disabled>预览删除当前连接</button><p id="connection-delete-hint" class="field-help" role="status"></p>
+          </fieldset></form>
+          <p id="connection-delete-status" class="panel-note" role="status" aria-live="polite"></p><p id="connection-delete-error" class="error" role="alert" hidden></p>
+          <section id="connection-delete-preview" class="panel connection-delete-preview" hidden aria-label="删除连接确认">
+            <h2>确认删除连接</h2><p id="connection-delete-target"></p><p id="connection-delete-address" class="field-help"></p><p id="connection-delete-impact" class="field-help"></p>
+            <p class="field-help">保存前备份当前启动配置。删除在重启后生效，当前连接继续运行；接入程序登录与其他配置保持不变。</p>
+            <label class="check-label"><input id="connection-delete-confirm" type="checkbox">我确认从已保存配置中删除这个连接</label>
+            <div class="connection-delete-actions"><button id="connection-delete-save" type="button" class="secondary" disabled>备份并删除连接</button><button id="connection-delete-cancel" type="button" class="secondary">取消</button></div>
+          </section>
+          <form id="connection-add-form" class="panel connection-form connection-add-form">
+            <h2>新增 OneBot 连接</h2><p id="connection-add-help" class="field-help">正向连接由机器人主动连接接入程序；本机反向监听由接入程序主动连接机器人。保存后按提示重启生效。</p>
+            <fieldset id="connection-add-fields" disabled>
+              <label for="connection-add-kind">新连接方向</label><select id="connection-add-kind"><option value="ws">正向连接</option><option value="wss">本机反向监听</option></select><p id="connection-add-kind-note" class="field-help">正向连接支持 ws/wss 接入地址，可明确选择不使用 Token。</p>
+              <label for="connection-add-url">新连接 WebSocket 地址</label><input id="connection-add-url" type="text" autocomplete="off" maxlength="2048" required placeholder="ws://127.0.0.1:6702">
+              <label for="connection-add-token">新连接 Token</label><input id="connection-add-token" type="password" autocomplete="off" maxlength="2048" required placeholder="填写接入程序的 Token">
+              <label class="check-label"><input id="connection-add-without-token" type="checkbox">我确认此连接不使用 Token</label>
+              <p id="connection-add-status" class="field-help" role="status" aria-live="polite">读取配置后可新增。</p><p id="connection-add-error" class="error" role="alert" hidden></p>
+              <div class="connection-add-actions"><button id="connection-add-save" type="submit" class="primary" disabled>备份并新增连接</button><button id="connection-add-discard" type="button" class="secondary" disabled>放弃新增</button></div>
+            </fieldset>
+          </form>
+        </section>
+        <section id="plugins-view" hidden>
+          <div class="page-heading"><div><p class="eyebrow">PLUGINS</p><h1>插件管理</h1><p class="muted">查看实际状态，管理全局和指定群的插件开关。</p></div><button id="reload-plugins" class="secondary">刷新插件状态</button></div>
+          <form id="plugin-scope-form" class="panel plugin-scope"><div><label for="plugin-scope">设置范围</label><select id="plugin-scope"><option value="global">全局</option><option value="group">指定群</option></select></div><div><label for="plugin-group">群号</label><input id="plugin-group" type="text" inputmode="numeric" maxlength="19" disabled placeholder="填写要管理的群号"></div><button id="apply-plugin-scope" type="submit" class="secondary">查看此范围</button></form>
+          <p id="plugin-scope-state" class="panel-note" role="status">当前范围：全局。显式全局设置会覆盖所有群与私聊的插件开关。</p>
+          <section id="plugin-response-panel" class="panel plugin-response-panel" hidden><h2 id="plugin-response-title">响应状态说明</h2><p id="plugin-response-state" role="status" aria-live="polite"></p><p id="plugin-response-detail" class="field-help"></p><p class="field-help">最近成功读取的响应规则，刷新插件状态后更新；卡片表示插件开关，收到回复还取决于封禁、权限、@ 和具体指令。</p><p class="field-help">仅查看，不自动调整：主人私聊可用 /全局响应、/全局沉默；群内由主人或群管理员 @机器人后使用 /响应、/沉默。全局沉默不清除各群单独响应。</p></section>
+          <p id="plugin-draft-status" class="panel-note" role="status" aria-live="polite">没有未保存的开关更改。</p><p id="plugin-error" class="error" role="alert" hidden></p><p id="plugin-save-state" class="panel-note" role="status"></p>
+          <div class="plugin-draft-actions"><label for="plugin-only-drafts"><input id="plugin-only-drafts" type="checkbox">只看未保存</label><button id="save-all-plugin-drafts" type="button" class="secondary" disabled>逐项保存全部草稿</button><button id="stop-plugin-batch" type="button" class="secondary" disabled>停止后续保存</button><button id="discard-plugin-drafts" type="button" class="secondary" disabled>放弃全部更改</button><span class="field-help">包含其他页和筛选隐藏项；逐项保存遇错停止，已成功规则不回滚。放弃仅撤销未保存选择。</span></div><p id="plugin-batch-status" class="panel-note" role="status" aria-live="polite"></p>
+          <div class="plugin-toolbar"><label for="plugin-search" class="sr-only">搜索插件名称、功能或用法</label><input id="plugin-search" type="search" placeholder="搜索名称、功能或用法，例如 /gpt"><label class="plugin-filter-label" for="plugin-state-filter">生效状态<select id="plugin-state-filter"><option value="all">全部状态</option><option value="enabled">启用</option><option value="disabled">禁用</option><option value="unknown">状态未知</option></select></label><label class="plugin-filter-label" for="plugin-sort">排序<select id="plugin-sort"><option value="default">默认顺序</option><option value="name">名称</option><option value="enabled">启用优先</option><option value="disabled">禁用优先</option><option value="drafts">未保存优先</option></select></label><button id="clear-plugin-filter" type="button" class="secondary">清除筛选</button><span id="search-count" class="muted" role="status" aria-live="polite"></span></div>
+          <p class="panel-note">搜索包含插件注册的使用说明；状态按当前范围的实际结果筛选。排序覆盖全部匹配项后再分页，按状态排序时未知排在最后；清除筛选保留排序。筛选不会保存开关，未保存的选择会保留；刷新或切换范围先确认，成功读取后才丢弃未保存选择。</p>
+          <div class="plugin-catalog-actions"><button id="download-plugin-catalog" type="button" class="secondary" disabled>下载插件状态清单</button><p class="field-help">包含当前已加载范围的全部匹配项；使用最近成功读取或保存的开关状态，未保存更改单独标记。清单仅供核对，不能导入或恢复。</p></div>
+          <p id="plugin-catalog-source" class="panel-note" role="status">成功读取插件范围后可下载清单。</p><p id="plugin-catalog-status" class="panel-note" role="status" aria-live="polite"></p>
+          <nav class="plugin-pagination" aria-label="插件分页"><button id="plugin-prev" type="button" class="secondary" disabled>上一页</button><span id="plugin-page-status" class="muted" role="status" aria-live="polite">尚未读取插件。</span><button id="plugin-next" type="button" class="secondary" disabled>下一页</button><label for="plugin-page-size">每页个数<select id="plugin-page-size"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select></label></nav>
+          <p class="panel-note">生效顺序：显式全局设置 → 群设置 → 默认值。保存后立即生效并保留到重启后；实际修改前备份控制数据库。备份可能包含模型密钥等扩展配置，仅保存在本机。</p><div id="plugin-list" class="plugin-list"></div><p id="plugin-empty" class="empty" hidden>没有符合条件的插件。</p>
+        </section>
+        <section id="ai-view" hidden>
+          <div class="page-heading"><div><p class="eyebrow">AI SETTINGS</p><h1>AI 设置</h1><p class="muted">管理聊天、GPT 与群总结使用的模型，以及指定群的参数。</p></div><button id="reload-ai" class="secondary">重新加载设置</button></div>
+          <p id="ai-status" class="panel-note" role="status">进入页面后读取配置。</p><p id="ai-error" class="error" role="alert" hidden></p>
+          <section id="ai-config-checks" class="panel ai-config-checks" hidden><h2>AI 配置检查</h2><p class="field-help">最近成功读取或保存的全局配置（含程序默认值），不包含未保存草稿。只检查本机基础字段，尚未验证实际调用。</p><div id="ai-config-check-list" class="ai-config-check-list" role="status" aria-live="polite"></div><p class="field-help">聊天/GPT共享聊天接口；Agent还需启用会话模式，并满足插件开关、响应、@和权限规则。识图是可选配置；检查通过不保证密钥有效、模型存在、网络或图片/工具能力可用。</p></section>
+          <p id="ai-draft-status" class="panel-note" role="status" aria-live="polite">读取设置后可编辑；草稿仅保留在当前页面。</p>
+          <section id="ai-draft-fields" class="panel ai-draft-fields" hidden aria-label="AI 未保存字段摘要"><h2>未保存字段摘要</h2><p id="ai-draft-field-state" class="field-help" role="status"></p><div id="ai-draft-field-list" class="ai-draft-field-list"></div><p class="field-help">只列改动字段名称，不显示密钥、地址或提示词新旧值。会话范围按各表单已读取目标，仍须分别保存；数字等沿用输入文字比较。</p></section>
+          <p class="panel-note">保存后供后续请求使用，无需重启；正在执行的请求继续使用原配置。修改前备份控制数据库，备份可能含密钥，仅保存在本机。切换后台页面保留草稿；重新加载、切换群或退出时提示未保存更改，不会自动保存。</p>
+          <p class="panel-note">聊天会向配置的模型接口发送本次消息、聊天上下文及系统提示词。群聊总结会发送所选近期消息的昵称和文字（最多 1000 条）；GPT 回复消息会附带被回复的文字。</p>
+          <form id="ai-global-form" class="panel ai-form"><fieldset id="ai-global-fields" disabled><h2>全局模型配置</h2><div id="ai-global-inputs"></div><button id="save-ai" class="primary" type="submit">备份并保存全局配置</button><button id="discard-ai-global" type="button" class="secondary ai-discard" data-ai-discard="global" disabled>放弃此表单更改</button></fieldset></form>
+          <form id="ai-scope-form" class="panel plugin-scope"><div><label for="ai-scope-kind">会话范围</label><select id="ai-scope-kind"><option value="group">指定群</option><option value="private">指定私聊</option></select></div><div><label id="ai-conversation-label" for="ai-group">群号</label><input id="ai-group" type="text" inputmode="numeric" maxlength="19" required placeholder="填写要管理的群号"></div><button id="apply-ai-group" type="submit" class="secondary">查看会话参数</button></form>
+          <p class="panel-note">参数仅作用于已读取的群或私聊，保存目标见各表单标题。私聊填写用户 QQ，群与同号私聊互不覆盖；不改变插件启停、响应门控或 Agent 权限。聊天参数与 GPT 温度分别保存，私聊不支持群总结；温度 0 表示默认 70（实际 0.7）。</p><div id="ai-group-forms"></div>
+        </section>
+        <section id="logs-view" hidden>
+          <div class="page-heading"><div><p class="eyebrow">RUNTIME LOGS</p><h1>运行日志</h1><p class="muted">查看本次启动后的近期运行记录。</p></div><button id="reload-logs" class="secondary">重新加载日志</button></div>
+          <form id="log-filter" class="panel log-toolbar">
+            <div><label for="log-level">日志级别</label><select id="log-level"><option value="">全部级别</option><option value="issues">警告与错误</option><option value="panic">Panic</option><option value="fatal">Fatal</option><option value="error">错误</option><option value="warning">警告</option><option value="info">信息</option><option value="debug">调试</option><option value="trace">跟踪</option></select></div>
+            <div class="log-time"><label for="log-from">开始时间（本地）</label><input id="log-from" type="datetime-local" step="1" max="9999-12-31T23:59:59"></div><div class="log-time"><label for="log-until">结束时间（本地）</label><input id="log-until" type="datetime-local" step="1" max="9999-12-31T23:59:59"></div>
+            <div class="log-search"><label for="log-keyword">关键词</label><input id="log-keyword" type="search" maxlength="256" placeholder="搜索脱敏后的日志文字"></div><button type="submit" class="secondary">应用筛选</button>
+          </form>
+          <p id="log-filter-error" class="error" role="alert" hidden></p><p class="panel-note">时间使用浏览器本地时区，精确到秒、包含边界；可留空一端。填写后点击应用，导出沿用已应用条件。</p>
+          <div class="log-options" role="group" aria-label="快捷时间范围"><button id="log-recent-15m" type="button" class="secondary">最近15分钟</button><button id="log-recent-1h" type="button" class="secondary">最近1小时</button><button id="log-recent-24h" type="button" class="secondary">最近24小时</button><button id="log-any-time" type="button" class="secondary">不限时间</button></div>
+          <p class="panel-note">快捷范围截止点击时刻，沿用已应用的级别和关键词；不会随更新自动移动，再次点击可更新范围。仅查看本次启动仍保留的日志。</p>
+            <div class="log-options log-filter-options"><button id="only-issue-logs" type="button" class="secondary">只看异常</button><button id="clear-log-filter" type="button" class="secondary">清除筛选</button><span id="log-filter-status" class="muted" role="status" aria-live="polite">已应用：全部级别；未限制关键词。</span></div>
+          <section id="log-summary" class="panel log-summary"><h2>日志匹配统计</h2><p id="log-summary-state" class="field-help" role="status" aria-live="polite">读取当前筛选后显示统计。</p><div id="log-summary-levels" class="log-summary-levels"></div><p class="field-help">最近成功读取时，服务仍保留日志中的全部匹配数，不受200条返回或增量游标限制；暂停、隐藏页面或读取中断时保留旧统计。只涵盖本次启动的保留范围，不代表完整历史或问题已解决。</p></section>
+          <div class="log-options"><button id="pause-logs" class="secondary">暂停更新</button><button id="read-logs-once" type="button" class="secondary" disabled>读取一次</button><button id="clear-log-display" type="button" class="secondary" disabled>清空当前显示</button><button id="export-logs" class="secondary">导出筛选日志</button><label class="check-label"><input id="log-autoscroll" type="checkbox" checked>自动滚动</label><span id="log-status" class="muted" role="status">进入页面后读取日志。</span></div>
+          <p id="log-clear-status" class="panel-note" role="status" aria-live="polite"></p><p class="panel-note">清空只移除本页已显示记录，保留筛选、暂停状态及读取位置；统计和导出仍使用服务保留记录，不删除日志。</p>
+          <p class="panel-note">导出已应用筛选下仍保留的本次启动日志，最多 1000 条；不包含重启前或已超出保留范围的记录。</p><p class="panel-note">暂停时可读取一次当前已应用条件的新日志，完成后仍保持暂停；读取沿用增量游标和每次200条限制，不自动补齐全部历史。</p>
+          <p class="panel-note">每条记录可复制页面已显示的脱敏时间、级别与正文；剪贴板受限时可按提示手动复制正文。不会读取原始日志或改变更新状态。</p>
+          <p id="log-export-status" class="muted" role="status"></p>
+          <p class="panel-note">保留最近最多 1000 条，较长记录会截断；重启会清空本页日志。认证信息与已配置密钥隐藏，收发消息正文不展示。调试记录需要程序启用相应日志级别。</p>
+          <p id="log-gap" class="panel-note" hidden>暂停或断线期间部分旧日志已超出保留范围，仅显示仍可读取的记录。</p><p id="log-error" class="error" role="alert" hidden></p>
+          <div id="log-records" class="panel log-records" tabindex="0" aria-label="运行日志记录"></div>
+        </section>
+        <section id="security-view" hidden>
+          <div class="page-heading"><div><p class="eyebrow">LOCAL ACCOUNT</p><h1>后台安全</h1><p class="muted">修改这台电脑上的管理后台密码。</p></div></div>
+          <form id="password-change-form" class="panel security-form"><fieldset id="security-fields">
+            <label for="current-admin-password">当前后台密码</label><input id="current-admin-password" type="password" autocomplete="current-password" maxlength="512" required>
+            <label for="new-admin-password">新后台密码</label><input id="new-admin-password" type="password" autocomplete="new-password" minlength="12" maxlength="512" required>
+            <label for="confirm-admin-password">确认新密码</label><input id="confirm-admin-password" type="password" autocomplete="new-password" minlength="12" maxlength="512" required>
+            <p class="field-help">至少12个字符，最多512字节；首尾空格也是密码的一部分。与QQ登录、OneBot Token和模型密钥分别设置。</p>
+            <p class="panel-note">成功后所有后台会话都需要重新登录，未保存编辑会清空。修改不影响机器人消息处理，不需重启。现有配置备份不会保存或恢复后台密码。</p>
+            <div class="security-actions"><button id="change-admin-password" type="submit" class="primary">修改密码并退出</button><button id="clear-admin-passwords" type="button" class="secondary">清空输入</button></div>
+          </fieldset></form><p id="security-error" class="error" role="alert" hidden></p><p id="security-status" class="panel-note" role="status" aria-live="polite"></p>
+        </section>
+        <section id="backups-view" hidden>
+          <div class="page-heading"><div><p class="eyebrow">BACKUPS</p><h1>备份恢复</h1><p class="muted">保存当前配置，预览并恢复此前状态。</p></div><button id="reload-backups" class="secondary">刷新备份列表</button></div>
+          <p class="panel-note">备份可能包含 OneBot Token、模型密钥，仅保存在本机。一次恢复一个范围，不覆盖后台密码、QQ 登录、聊天媒体或其他业务数据库。恢复前自动备份当前状态。</p>
+          <form id="backup-create-form" class="panel backup-create"><div><label for="backup-scope">手动备份范围</label><select id="backup-scope"></select></div><button id="create-backup" type="submit" class="secondary" disabled>创建备份</button></form>
+          <p id="backup-status" class="panel-note" role="status">进入页面后读取备份。</p><p id="backup-error" class="error" role="alert" hidden></p>
+          <form id="backup-filter" class="panel backup-filter"><div class="backup-filter-search"><label for="backup-search">检索编号、范围或日期</label><input id="backup-search" type="search" maxlength="256" placeholder="输入备份编号或日期"></div><div><label for="backup-scope-filter">备份范围</label><select id="backup-scope-filter"><option value="all">全部范围</option><option value="startup-config">启动配置</option><option value="control-db">控制数据库</option><option value="admin-options">后台启用与地址</option><option value="unknown">异常/未知范围</option></select></div><div><label for="backup-state-filter">校验状态</label><select id="backup-state-filter"><option value="all">全部状态</option><option value="verified">可预览 · 含摘要</option><option value="legacy">可预览 · 无摘要</option><option value="invalid">不可恢复</option></select></div><div><label for="backup-sort">排序</label><select id="backup-sort" disabled><option value="default">默认顺序（新到旧）</option><option value="oldest">时间从旧到新</option><option value="largest">大小从大到小</option><option value="smallest">大小从小到大</option></select></div><button id="clear-backup-filter" type="button" class="secondary">清除筛选</button></form>
+          <p class="panel-note">排序覆盖全部已加载匹配项后再分页；自定义排序将不可恢复或排序字段无效的记录放在最后。清除筛选保留排序，下载清单沿用所选顺序；仍只加载最新200份。</p>
+          <form id="backup-date-filter" class="backup-filter"><div><label for="backup-from-date">开始日期（本地）</label><input id="backup-from-date" type="date" min="0001-01-01" max="9999-12-31" disabled></div><div><label for="backup-until-date">结束日期（本地）</label><input id="backup-until-date" type="date" min="0001-01-01" max="9999-12-31" disabled></div><button id="apply-backup-date" type="submit" class="secondary" disabled>应用日期</button></form>
+          <p id="backup-date-status" class="panel-note" role="status" aria-live="polite">已应用：不限日期。</p><p id="backup-date-error" class="error" role="alert" hidden></p>
+          <p class="field-help">日期按浏览器本地时区，结束日期包含当天；只筛选已加载记录。日期筛选不影响恢复目标或清理策略。</p>
+          <p id="backup-filter-count" class="panel-note" role="status" aria-live="polite">尚未读取备份列表。</p>
+          <section id="backup-size-summary" class="panel backup-size-summary" hidden><h2>备份内容大小</h2><p id="backup-size-loaded"></p><p id="backup-size-matched"></p><p id="backup-size-status" class="field-help" role="status"></p><div id="backup-size-scopes" class="backup-size-scopes"></div><p class="field-help">只汇总最近目录中可核对的配置正文或数据库大小，不含封装、清单及磁盘簇开销；不是目录实际占用或可释放空间，大小无法核对的记录不作为0相加。</p></section>
+          <div class="backup-export"><button id="download-backup-catalog" type="button" class="secondary" disabled>下载筛选清单</button><p class="field-help">包括全部已加载页的匹配记录；只有编号等目录信息，不能用于恢复。</p></div><p id="backup-export-status" class="panel-note" role="status" aria-live="polite"></p>
+          <article id="restore-preview" class="panel restore-preview" hidden><h2 id="restore-title">恢复预览</h2><p id="restore-backup-id" class="field-help restore-backup-id"></p><p id="restore-detail"></p><section class="restore-impact"><h3>类别影响对比</h3><p id="restore-impact-status" class="field-help" role="status"></p><div id="restore-impact-list" class="restore-impact-list"></div><p class="field-help">数量相同也可能内容不同；摘要隐藏配置值与数据库内容，实际恢复仍覆盖整个所选范围。</p></section><ul id="restore-warnings"></ul><p id="restore-expiry" class="field-help" role="timer" aria-live="off"></p><p id="restore-expiry-state" class="field-help preview-expiry-state" role="status" aria-live="polite"></p><label class="check-label"><input id="restore-confirm" type="checkbox">我确认覆盖所列范围的当前配置</label><div class="restore-actions"><button id="restore-backup" class="primary" disabled>备份当前状态并恢复</button><button id="cancel-restore" class="secondary">取消</button></div></article>
+          <nav class="backup-pagination" aria-label="备份分页"><button id="backup-prev" type="button" class="secondary" disabled>上一页</button><span id="backup-page-status" class="muted" role="status" aria-live="polite">尚未读取备份。</span><button id="backup-next" type="button" class="secondary" disabled>下一页</button><label for="backup-page-size">每页份数<select id="backup-page-size"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select></label></nav>
+          <div id="backup-list" class="backup-list"></div>
+          <form id="cleanup-form" class="panel cleanup-form"><h2>清理旧备份</h2><p class="field-help">每类保留最近若干份，并保留最近若干天的全部备份；只有同时超出两项保护的有效备份才可删除。先预览再确认，不会定时自动清理。</p><div class="cleanup-fields"><div><label for="cleanup-keep">每类至少保留份数</label><input id="cleanup-keep" type="number" min="3" max="200" value="10" required></div><div><label for="cleanup-days">保留最近天数</label><input id="cleanup-days" type="number" min="1" max="3650" value="7" required></div><button id="preview-cleanup" type="submit" class="secondary">预览清理清单</button></div></form>
+          <article id="cleanup-preview" class="panel restore-preview" hidden><h2>旧备份清理预览</h2><p id="cleanup-detail" role="status"></p><ul id="cleanup-list" class="cleanup-list"></ul><p id="cleanup-expiry" class="field-help" role="timer" aria-live="off"></p><p id="cleanup-expiry-state" class="field-help preview-expiry-state" role="status" aria-live="polite"></p><label class="check-label"><input id="cleanup-confirm" type="checkbox">我确认永久删除上述备份，已另存需要保留的内容</label><div class="restore-actions"><button id="cleanup-backups" class="primary" disabled>确认删除旧备份</button><button id="cancel-cleanup" class="secondary">取消</button></div></article>
+        </section>
+        <footer class="content-footer">ZeroBot · 自己的机器人，自己的工作空间。</footer>
+      </main>
+    </div>
+  </div>
+  <dialog id="usage-dialog" aria-labelledby="usage-title"><div class="dialog-heading"><h2 id="usage-title"></h2><button id="close-dialog" type="button" class="text-button">关闭</button></div><pre id="usage-text" tabindex="0"></pre><div class="usage-actions"><button id="copy-plugin-usage" type="button" class="secondary" disabled>复制用法</button><button id="download-plugin-usage" type="button" class="secondary" disabled>下载文本</button></div><p id="usage-export-status" class="field-help" role="status" aria-live="polite"></p><p class="field-help">复制注册用法原文；文本下载附插件名称与简介。不导出后台配置或聊天记录，不执行指令。</p></dialog>
+  <dialog id="connection-add-confirmation" aria-labelledby="connection-add-confirm-title" aria-describedby="connection-add-confirm-message"><div class="dialog-heading"><h2 id="connection-add-confirm-title">确认连接操作</h2></div><p id="connection-add-confirm-message"></p><div class="connection-add-actions"><button id="connection-add-confirm-cancel" type="button" class="secondary" autofocus>取消</button><button id="connection-add-confirm-accept" type="button" class="primary">确认新增</button></div></dialog>
+  <dialog id="connection-draft-confirmation" aria-labelledby="connection-draft-confirm-title" aria-describedby="connection-draft-confirm-message"><div class="dialog-heading"><h2 id="connection-draft-confirm-title">确认草稿操作</h2></div><p id="connection-draft-confirm-message"></p><div class="connection-add-actions"><button id="connection-draft-confirm-cancel" type="button" class="secondary" autofocus>取消</button><button id="connection-draft-confirm-accept" type="button" class="primary">确认继续</button></div></dialog>
+</body>
+</html>

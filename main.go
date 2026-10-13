@@ -4,18 +4,26 @@ package main
 //go:generate go run github.com/FloatTech/ZeroBot-Plugin/abineundo/ref -r .
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
 	_ "github.com/FloatTech/ZeroBot-Plugin/abineundo" // 设置插件优先级&更改控制台属性
-	"github.com/FloatTech/ZeroBot-Plugin/kanban"      // 打印 banner
+	"github.com/FloatTech/ZeroBot-Plugin/internal/basiccommands"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/localadmin"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/modelstats"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/processidentity"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/replystats"
+	"github.com/FloatTech/ZeroBot-Plugin/kanban" // 打印 banner
 
 	// ---------以下插件均可通过前面加 // 注释，注释后停用并不加载插件--------- //
 	// ----------------------插件优先级按顺序从高到低---------------------- //
@@ -206,6 +214,8 @@ import (
 	// -----------------------以下为内置依赖，勿动------------------------ //
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/floatbox/process"
+	ctrl "github.com/FloatTech/zbpctrl"
+	"github.com/FloatTech/zbputils/control"
 	"github.com/sirupsen/logrus"
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/driver"
@@ -225,6 +235,14 @@ type zbpcfg struct {
 }
 
 var config zbpcfg
+var startupConfigPath string
+var startupConfigJSON []byte
+
+var (
+	adminEnabled bool
+	adminAddr    string
+	adminDataDir string
+)
 
 func init() {
 	sus := make([]int64, 0, 16)
@@ -248,6 +266,9 @@ func init() {
 	markmsg := flag.Bool("m", false, "Don't mark message as read automatically")
 	fb64 := flag.Bool("fb64", false, "Force to send base64 file.")
 	flag.BoolVar(&file.SkipOriginal, "mirror", false, "Use mirrored lazy data at first")
+	flag.BoolVar(&adminEnabled, "admin", false, "Enable the local admin UI.")
+	flag.StringVar(&adminAddr, "admin-addr", "127.0.0.1:3010", "Set loopback local admin address.")
+	flag.StringVar(&adminDataDir, "admin-data", ".local/admin", "Set private local admin credential directory.")
 
 	flag.Parse()
 
@@ -284,11 +305,18 @@ func init() {
 			panic(err)
 		}
 		config.W = make([]*driver.WSClient, 0, 2)
-		err = json.NewDecoder(f).Decode(&config)
+		startupConfigJSON, err = io.ReadAll(io.LimitReader(f, (1<<20)+1))
 		f.Close()
+		if err == nil && len(startupConfigJSON) > 1<<20 {
+			err = fmt.Errorf("启动配置超过 1 MiB")
+		}
+		if err == nil {
+			err = json.Unmarshal(startupConfigJSON, &config)
+		}
 		if err != nil {
 			panic(err)
 		}
+		startupConfigPath = *runcfg
 		config.Z.Driver = make([]zero.Driver, len(config.W)+len(config.S))
 		for i, w := range config.W {
 			config.Z.Driver[i] = w
@@ -328,15 +356,51 @@ func init() {
 }
 
 func main() {
+	if adminEnabled {
+		plugins := []localadmin.Plugin{}
+		controls := []*ctrl.Control[*zero.Ctx]{}
+		control.ForEachByPrio(func(_ int, manager *ctrl.Control[*zero.Ctx]) bool {
+			plugins = append(plugins, localadmin.Plugin{Name: manager.Service, Brief: manager.Options.Brief, Usage: manager.Options.Help, DefaultEnabledAtStartup: !manager.Options.DisableOnDefault})
+			controls = append(controls, manager)
+			return true
+		})
+		var connections *localadmin.ConnectionStore
+		if startupConfigPath != "" {
+			var err error
+			connections, err = localadmin.NewConnectionStore(startupConfigPath, filepath.Join(adminDataDir, "backups"), startupConfigJSON)
+			if err != nil {
+				logrus.Fatalln("[admin] 启动配置不可管理:", err)
+			}
+		}
+		pluginControl := localadmin.NewPluginStore(controls, filepath.Join(adminDataDir, "backups"))
+		logs := localadmin.NewLogStore()
+		logConfig, _ := json.Marshal(config)
+		logs.ProtectConfig(logConfig)
+		backups := localadmin.NewBackupStore(filepath.Join(adminDataDir, "backups"), connections, pluginControl, logs)
+		identity, identityErr := processidentity.Read()
+		if identityErr != nil {
+			logrus.Warnln("[admin] 观察报告进程信息不可读取，保留无关联报告")
+		}
+		admin, err := localadmin.Start(localadmin.Config{Addr: adminAddr, DataDir: adminDataDir, Plugins: plugins, PluginControl: pluginControl, Connections: connections, AI: localadmin.NewAIStore(controls), Logs: logs, Backups: backups, ModelRequests: modelstats.Default.Read, ReplyTasks: replystats.Default.Read, ProcessIdentity: identity, Overview: localadmin.RuntimeOverview(time.Now(), len(config.W)+len(config.S), len(plugins))})
+		if err != nil {
+			logrus.Fatalln("[admin] 本地后台启动失败:", err)
+		}
+		logrus.AddHook(logs)
+		logger := logrus.StandardLogger()
+		logger.SetFormatter(localadmin.RedactingFormatter{Logs: logs, Next: logger.Formatter})
+		defer func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+			_ = admin.Close(ctx)
+		}()
+		logrus.Infoln("[admin] 本地后台已启动: http://" + adminAddr)
+	}
 	if !strings.Contains(runtime.Version(), "go1.2") { // go1.20之前版本需要全局 seed，其他插件无需再 seed
 		rand.Seed(time.Now().UnixNano()) //nolint: staticcheck
 	}
 	message.SetForceBase64File(config.ForceBase64File)
 	// 帮助
-	zero.OnFullMatchGroup([]string{"help", "/help", ".help", "菜单"}, zero.OnlyToMe).SetBlock(true).
-		Handle(func(ctx *zero.Ctx) {
-			ctx.SendChain(message.Text(banner.Banner, "\n管理发送\"/服务列表\"查看 bot 功能\n发送\"/用法name\"查看功能用法"))
-		})
+	basiccommands.RegisterHelp(banner.Banner)
 	zero.OnFullMatch("查看zbp公告", zero.OnlyToMe, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			ctx.SendChain(message.Text(strings.ReplaceAll(kanban.Kanban(), "\t", "")))

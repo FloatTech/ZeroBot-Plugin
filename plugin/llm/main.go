@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
-	"github.com/fumiama/deepinfra"
-	"github.com/fumiama/deepinfra/model"
 	"github.com/tidwall/gjson"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/extension/single"
 	"github.com/wdvxdr1123/ZeroBot/message"
 
+	"github.com/FloatTech/ZeroBot-Plugin/internal/replystats"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/chat"
 	"github.com/FloatTech/zbputils/control"
@@ -39,12 +39,17 @@ var (
 )
 
 var (
-	limit = ctxext.NewLimiterManager(time.Second*30, 1)
+	limit = newRequestQuota(30*time.Second, 4096)
 )
 
 func init() {
 	// 添加群聊总结功能
-	en.OnRegex(`^群聊总结\s?(\d*)$`, chat.EnsureConfig, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Limit(limit.LimitByGroup).Handle(func(ctx *zero.Ctx) {
+	en.OnRegex(`^群聊总结\s?(\d*)$`, chat.EnsureConfig, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+		if !allowRequest(ctx) {
+			return
+		}
+		task := replystats.Default.Begin(ctx, replystats.GPT)
+		defer task.End()
 		ctx.SendChain(message.Text("少女思考中..."))
 		gid := ctx.Event.GroupID
 		if gid == 0 {
@@ -59,6 +64,7 @@ func init() {
 		}
 		group := ctx.GetGroupInfo(gid, false)
 		if group.MemberCount == 0 {
+			task.Fail()
 			ctx.SendChain(message.Text(zero.BotConfig.NickName[0], "未加入", group.Name, "(", gid, "),无法获取总结"))
 			return
 		}
@@ -76,6 +82,7 @@ func init() {
 		})
 
 		if len(messages) == 0 {
+			task.Fail()
 			ctx.SendChain(message.Text("ERROR: 历史消息为空或者无法获得历史消息"))
 			return
 		}
@@ -97,13 +104,15 @@ func init() {
 
 		stor, err := chat.NewStorage(ctx, gid)
 		if err != nil {
+			task.Fail()
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 		// 调用大模型API进行总结
-		summary, err := llmchat(summaryPrompt, stor.Temp())
+		summary, err := requestLLM(chat.ConfigOf(ctx), summaryPrompt, stor.Temp())
 
 		if err != nil {
+			task.Fail()
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
@@ -118,37 +127,21 @@ func init() {
 		b.WriteString(" 条消息总结:\n\n")
 		b.WriteString(summary)
 
-		// 分割总结内容为多段（按1000字符长度切割）
-		summaryText := b.String()
-		msg := make(message.Message, 0)
-		for len(summaryText) > 0 {
-			if len(summaryText) <= 1000 {
-				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(summaryText)))
-				break
-			}
-
-			// 查找1000字符内的最后一个换行符，尽量在换行处分割
-			chunk := summaryText[:1000]
-			lastNewline := strings.LastIndex(chunk, "\n")
-			if lastNewline > 0 {
-				chunk = summaryText[:lastNewline+1]
-			}
-
-			msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(chunk)))
-			summaryText = summaryText[len(chunk):]
-		}
-		if len(msg) > 0 {
-			ctx.Send(msg)
-		}
+		sendLLMReply(ctx, b.String(), task)
 	})
 
 	// 添加 /gpt 命令处理（同时支持回复消息和直接使用）
-	en.OnKeyword("/gpt", chat.EnsureConfig).SetBlock(true).Handle(func(ctx *zero.Ctx) {
+	en.OnMessage(func(ctx *zero.Ctx) bool {
+		arg, matched := parseGPT(ctx.Event.Message.ExtractPlainText())
+		if matched {
+			ctx.State["gpt_query"] = arg
+		}
+		return matched
+	}, chat.EnsureConfig).SetBlock(true).Handle(func(ctx *zero.Ctx) {
 		gid := ctx.Event.GroupID
 		if gid == 0 {
 			gid = -ctx.Event.UserID
 		}
-		text := ctx.MessageString()
 
 		var query string
 		var replyContent string
@@ -170,23 +163,12 @@ func init() {
 			}
 		}
 
-		// 提取 /gpt 后面的内容
-		parts := strings.SplitN(text, "/gpt", 2)
+		gContent := ctx.State["gpt_query"].(string)
 
-		var gContent string
-		if len(parts) > 1 {
-			gContent = strings.TrimSpace(parts[1])
-		}
-
-		// 组合内容：优先使用回复内容，如果同时有/gpt内容则拼接
-		switch {
-		case replyContent != "" && gContent != "":
-			query = replyContent + "\n" + gContent
-		case replyContent != "":
-			query = replyContent
-		case gContent != "":
-			query = gContent
-		default:
+		// Distinguish source text from the user's instruction about that text.
+		query = buildGPTQuery(replyContent, gContent)
+		if query == "" {
+			ctx.SendChain(message.Text("请在 /gpt 后填写问题，或回复一条消息后发送 /gpt。"))
 			return
 		}
 
@@ -195,52 +177,48 @@ func init() {
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
+		if !allowRequest(ctx) {
+			return
+		}
+		task := replystats.Default.Begin(ctx, replystats.GPT)
+		defer task.End()
 		// 调用大模型API进行聊天
-		reply, err := llmchat(query, stor.Temp())
+		reply, err := requestLLM(chat.ConfigOf(ctx), query, stor.Temp())
 		if err != nil {
+			task.Fail()
 			ctx.SendChain(message.Text("ERROR: ", err))
 			return
 		}
 
-		// 分割总结内容为多段（按1000字符长度切割）
-		msg := make(message.Message, 0)
-		for len(reply) > 0 {
-			if len(reply) <= 1000 {
-				msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(reply)))
-				break
-			}
-
-			// 查找1000字符内的最后一个换行符，尽量在换行处分割
-			chunk := reply[:1000]
-			lastNewline := strings.LastIndex(chunk, "\n")
-			if lastNewline > 0 {
-				chunk = reply[:lastNewline+1]
-			}
-
-			msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(chunk)))
-			reply = reply[len(chunk):]
-		}
-		if len(msg) > 0 {
-			ctx.Send(msg)
-		}
+		sendLLMReply(ctx, reply, task)
 	})
 }
 
-// llmchat 调用大模型API包装
-func llmchat(prompt string, temp float32) (string, error) {
-	topp, maxn := chat.AC.MParams()
-
-	x := deepinfra.NewAPI(chat.AC.API, string(chat.AC.Key))
-
-	mod, err := chat.AC.Type.Protocol(chat.AC.ModelName, temp, topp, maxn, chat.AC.ReasoningEffort)
-	if err != nil {
-		return "", nil
+// Short replies stay readable in the conversation; longer replies retain
+// their complete content in the existing merged-forward format.
+func sendLLMReply(ctx *zero.Ctx, text string, task *replystats.Task) {
+	if text == "" {
+		return
 	}
-
-	data, err := x.Request(mod.User(model.NewContentText(prompt)))
-	if err != nil {
-		return "", err
+	if utf8.RuneCountInString(text) <= 200 {
+		task.SendChain(ctx, message.Text(text))
+		return
 	}
+	msg := make(message.Message, 0)
+	for _, chunk := range splitReply(text, 1000) {
+		msg = append(msg, ctxext.FakeSenderForwardNode(ctx, message.Text(chunk)))
+	}
+	task.Send(ctx, msg)
+}
 
-	return strings.TrimSpace(data), nil
+func allowRequest(ctx *zero.Ctx) bool {
+	location := ctx.Event.GroupID
+	if location == 0 {
+		location = -ctx.Event.UserID
+	}
+	if limit.Allow(location, time.Now()) {
+		return true
+	}
+	ctx.SendChain(message.Text("请求较频繁，同一群或私聊每 30 秒最多一次，请稍后重试。"))
+	return false
 }

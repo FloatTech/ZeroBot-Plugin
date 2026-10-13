@@ -1,3 +1,11 @@
+## 本地机器人管理后台 v0.1
+
+本分支增加本机管理后台，支持连接、插件、AI、日志与配置备份。仅监听本机回环地址，默认端口为3010。
+
+[使用指南](docs/local-admin/user-guide.md) · [第一版说明](docs/local-admin/release-v0.1.md) · [开发与验证](docs/local-admin/self-test.md)
+
+---
+
 <div align="center">
   <img src=".github/hua_nobg_512.gif" alt="椛" width = "256">
   <img src="https://github.com/FloatTech/ZeroBot-Plugin/assets/41315874/93fb795d-e519-45a6-a654-076fd6ac54ae" alt="zbp-uwu" width = "400">

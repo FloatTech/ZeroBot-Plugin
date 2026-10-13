@@ -2,7 +2,6 @@
 package wordcount
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"regexp"
@@ -17,8 +16,6 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/wcharczuk/go-chart/v2"
 
-	"github.com/FloatTech/floatbox/binary"
-	fcext "github.com/FloatTech/floatbox/ctxext"
 	"github.com/FloatTech/floatbox/file"
 	ctrl "github.com/FloatTech/zbpctrl"
 	"github.com/FloatTech/zbputils/control"
@@ -30,8 +27,7 @@ import (
 )
 
 var (
-	re        = regexp.MustCompile(`^[一-龥]+$`)
-	stopwords []string
+	re = regexp.MustCompile(`^[一-龥]+$`)
 )
 
 func init() {
@@ -42,33 +38,26 @@ func init() {
 		PublicDataFolder: "WordCount",
 	})
 	cachePath := engine.DataFolder() + "cache/"
-	dat, err := file.GetLazyData("data/Chat/dict.txt", control.Md5File, true)
-	if err != nil {
-		panic(err)
-	}
-	seg, err := jieba.LoadDictionary(bytes.NewReader(dat))
-	if err != nil {
-		panic(err)
-	}
+	var resources wordResourceCache
 	_ = os.RemoveAll(cachePath)
 	_ = os.MkdirAll(cachePath, 0755)
-	engine.OnRegex(`^热词\s?(\d*)$`, zero.OnlyGroup, fcext.DoOnceOnSuccess(func(ctx *zero.Ctx) bool {
-		_, err := engine.GetLazyData("stopwords.txt", false)
+	engine.OnRegex(`^热词\s?(\d*)$`, zero.OnlyGroup, func(ctx *zero.Ctx) bool {
+		loaded, words, err := resources.get(func() ([]byte, error) {
+			return file.GetLazyData("data/Chat/dict.txt", control.Md5File, true)
+		}, func() ([]byte, error) {
+			return engine.GetLazyData("stopwords.txt", false)
+		})
 		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
+			logrus.Warnln("[wordcount]资源加载失败:", err)
+			ctx.SendChain(message.Text("ERROR: 热词资源暂不可用，请稍后重试"))
 			return false
 		}
-		data, err := os.ReadFile(engine.DataFolder() + "stopwords.txt")
-		if err != nil {
-			ctx.SendChain(message.Text("ERROR: ", err))
-			return false
-		}
-		stopwords = strings.Split(strings.ReplaceAll(binary.BytesToString(data), "\r", ""), "\n")
-		sort.Strings(stopwords)
-		logrus.Infoln("[wordcount]加载", len(stopwords), "条停用词")
+		ctx.State["wordcount_segmenter"], ctx.State["wordcount_stopwords"] = loaded, words
 		return true
-	})).Limit(ctxext.LimitByUser).SetBlock(true).
+	}).Limit(ctxext.LimitByUser).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
+			seg := ctx.State["wordcount_segmenter"].(*jieba.Segmenter)
+			stopwords := ctx.State["wordcount_stopwords"].([]string)
 			_, err := file.GetLazyData(text.FontFile, control.Md5File, true)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: ", err))
@@ -149,6 +138,7 @@ func init() {
 				Height:   500,
 				BarWidth: 25,
 				Bars:     bars,
+				YAxis:    wordCountYAxis(bars),
 			}
 			f, err := os.Create(drawedFile)
 			if err != nil {
@@ -164,6 +154,18 @@ func init() {
 			}
 			ctx.SendChain(message.Image("file:///" + file.BOTPATH + "/" + drawedFile))
 		})
+}
+
+// Counts start at zero. The chart library otherwise infers min == max for a
+// single word or equal frequencies and rejects the resulting zero range.
+func wordCountYAxis(bars []chart.Value) chart.YAxis {
+	max := 1.0
+	for _, bar := range bars {
+		if bar.Value > max {
+			max = bar.Value
+		}
+	}
+	return chart.YAxis{Range: &chart.ContinuousRange{Min: 0, Max: max}}
 }
 
 func rankByWordCount(wordFrequencies map[string]int) pairlist {

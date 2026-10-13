@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tidwall/gjson"
+	"github.com/FloatTech/ZeroBot-Plugin/internal/qqvoice"
 
 	zero "github.com/wdvxdr1123/ZeroBot"
 	"github.com/wdvxdr1123/ZeroBot/message"
@@ -36,6 +36,10 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: parse gid err: ", err))
 				return
 			}
+			if num <= 0 {
+				ctx.SendChain(message.Text("请填写正数群号。"))
+				return
+			}
 			err = airecord.SetCustomGID(num)
 			if err != nil {
 				ctx.SendChain(message.Text("ERROR: set gid err: ", err))
@@ -50,38 +54,23 @@ func init() {
 			defer cancel()
 			jsonData := ctx.GetAICharacters(0, 1)
 
-			// 转换为字符串数组
-			var names []string
-			// 初始化两个映射表
-			nameToID := make(map[string]string)
-			nameToURL := make(map[string]string)
-			characters := jsonData.Get("#.characters")
-
-			// 遍历每个角色对象
-			characters.ForEach(func(_, group gjson.Result) bool {
-				group.ForEach(func(_, character gjson.Result) bool {
-					// 提取当前角色的三个字段
-					name := character.Get("character_name").String()
-					names = append(names, name)
-					// 存入映射表（重复名称会覆盖，保留最后出现的条目）
-					nameToID[name] = character.Get("character_id").String()
-					nameToURL[name] = character.Get("preview_url").String()
-					return true // 继续遍历
-				})
-				return true // 继续遍历
-			})
+			models := availableVoiceModels(jsonData)
+			if len(models) == 0 {
+				ctx.SendChain(message.Text("暂时无法获取AI语音声音，请稍后重试。"))
+				return
+			}
 			var builder strings.Builder
 			// 写入开头文本
 			builder.WriteString("请选择语音模型序号：\n")
 
 			// 遍历names数组，拼接序号和名称
-			for i, v := range names {
+			for i, v := range models {
 				// 将数字转换为字符串（不依赖fmt）
 				numStr := strconv.Itoa(i)
 				// 拼接格式："序号. 名称\n"
 				builder.WriteString(numStr)
 				builder.WriteString(". ")
-				builder.WriteString(v)
+				builder.WriteString(v.name)
 				builder.WriteString("\n")
 			}
 			// 获取最终字符串
@@ -98,17 +87,19 @@ func init() {
 						ctx.SendChain(message.Text("请输入数字!"))
 						continue
 					}
-					if num < 0 || num >= len(names) {
+					if num < 0 || num >= len(models) {
 						ctx.SendChain(message.Text("序号非法!"))
 						continue
 					}
-					err = airecord.SetRecordModel(names[num], nameToID[names[num]])
+					err = airecord.SetRecordModel(models[num].name, models[num].id)
 					if err != nil {
 						ctx.SendChain(message.Text("ERROR: set model err: ", err))
 						continue
 					}
-					ctx.SendChain(message.Text("已选择语音模型: ", names[num]))
-					ctx.SendChain(message.Record(nameToURL[names[num]]))
+					ctx.SendChain(message.Text("已选择语音模型: ", models[num].name))
+					if models[num].preview != "" {
+						ctx.SendChain(message.Record(models[num].preview))
+					}
 					return
 				}
 			}
@@ -121,14 +112,9 @@ func init() {
 		Handle(func(ctx *zero.Ctx) {
 			u := strings.TrimSpace(ctx.State["args"].(string))
 			recCfg := airecord.GetConfig()
-			record := ctx.GetAIRecord(recCfg.ModelID, recCfg.Customgid, u)
-			if record == "" {
-				id := ctx.SendGroupAIRecord(recCfg.ModelID, ctx.Event.GroupID, u)
-				if id == "" {
-					ctx.SendChain(message.Text("ERROR: get record err: empty record"))
-					return
-				}
+			failure := qqvoice.Deliver(u, recCfg.ModelID, ctx.Event.GroupID, ctx.CallAction)
+			if failure != "" {
+				ctx.SendChain(message.Text(failure))
 			}
-			ctx.SendChain(message.Record(record))
 		})
 }

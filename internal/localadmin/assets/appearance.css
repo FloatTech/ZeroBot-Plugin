@@ -1,0 +1,90 @@
+/* Shared palette keeps forms, dialogs and dynamically rendered cards consistent. */
+:root {
+  color-scheme: light;
+  --page:#f6f8f5; --surface:#ffffff; --surface-alt:#fafbf8;
+  --text:#1e302a; --muted:#52654f; --line:#dce5d7; --accent:#496541;
+  --green:#365e43; --primary-text:#ffffff; --primary-hover:#2b4b36;
+  --soft:#eef4e7; --soft-text:#45603a; --soft-strong:#d3e2c6;
+  --disabled-bg:#f0f2ed; --disabled-text:#586151;
+  --error-bg:#fff1eb; --error-text:#9d3b2b; --error-line:#ebccbc;
+  --warning-bg:#fff7e5; --warning-text:#805b24; --warning-line:#d9c49d;
+  --focus:#618456; --focus-ring:#d4e5c8;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page:#131d18; --surface:#1d2a22; --surface-alt:#18231d;
+  --text:#e4eddf; --muted:#afbcad; --line:#40503e; --accent:#b1d29f;
+  --green:#a0c58d; --primary-text:#162817; --primary-hover:#b7d8a7;
+  --soft:#283b28; --soft-text:#b7d8a7; --soft-strong:#384f33;
+  --disabled-bg:#2b332c; --disabled-text:#b6c0b0;
+  --error-bg:#422822; --error-text:#ffc0a6; --error-line:#795045;
+  --warning-bg:#3c3220; --warning-text:#f0cf91; --warning-line:#756039;
+  --focus:#b1d29f; --focus-ring:#405d35;
+}
+html,body {background:var(--page); color:var(--text);}
+.auth-panel {background:var(--surface-alt);}
+.topbar {background:var(--surface-alt); color:var(--muted);}
+.panel,.metric,.plugin-card,dialog {background:var(--surface); color:var(--text); border-color:var(--line);}
+input:not([type=file]),.connection-form select,.plugin-scope select,.plugin-controls select,.plugin-filter-label select,.ai-form select,.ai-form textarea,.log-toolbar select,.backup-create select,.backup-filter select,.backup-pagination select,.plugin-pagination select {
+  background:var(--surface); color:var(--text); border-color:var(--line);
+}
+input:focus,select:focus,textarea:focus {border-color:var(--focus); outline:2px solid var(--focus-ring); outline-offset:2px;}
+button:focus-visible,a:focus-visible {outline:2px solid var(--focus); outline-offset:3px;}
+input::placeholder {color:var(--muted); opacity:1;}
+input:-webkit-autofill {-webkit-text-fill-color:var(--text); box-shadow:0 0 0 1000px var(--surface) inset; caret-color:var(--text);}
+.muted,.field-help,.panel-note,.auth-note,.content-footer,.empty,.metric>span,.metric small,.plugin-card p,.info-list dt,.account-row small {color:var(--muted);}
+.info-list>div {border-color:var(--line);}
+.info-list dd,.text-button,.file-picker {color:var(--accent);}
+.secondary,.theme-choice select {background:var(--surface-alt); color:var(--accent); border-color:var(--line);}
+.secondary:hover {background:var(--soft);}
+.primary {color:var(--primary-text);}
+.primary:hover {background:var(--primary-hover);}
+.status-banner,.local-pill,.subtle-tag,.plugin-default,.account-avatar,.log-level {background:var(--soft); color:var(--soft-text); border-color:var(--line);}
+.status-banner p {color:var(--muted);}
+.status-emblem {background:var(--soft-strong); color:var(--soft-text);}
+.state-badge {background:var(--soft); color:var(--soft-text); border-color:var(--line);}
+.state-badge.waiting,.log-warning-level {background:var(--warning-bg); color:var(--warning-text); border-color:var(--warning-line);}
+.plugin-default.disabled {background:var(--disabled-bg); color:var(--disabled-text);}
+.error,.log-error-level {background:var(--error-bg); color:var(--error-text); border-color:var(--error-line);}
+pre {background:var(--surface-alt); color:var(--text);}
+.log-entry pre {background:none;}
+.theme-choice {display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);}
+.theme-choice select {max-width:132px; border:1px solid var(--line); border-radius:7px; padding:8px; font:inherit; cursor:pointer;}
+.auth-theme {justify-content:flex-end; margin-bottom:28px;}
+.auth-form label.theme-choice {display:flex; margin:0 0 28px; font-weight:400;}
+.plugin-toolbar {flex-wrap:wrap; gap:12px;}
+.plugin-toolbar input {flex:1 1 280px; min-width:0;}
+.plugin-filter-label {display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted);}
+.plugin-filter-label select {font:inherit; padding:12px; border:1px solid var(--line); border-radius:8px;}
+.plugin-toolbar #search-count {flex-basis:100%; margin-left:0;}
+/* Narrow windows retain named navigation and stack controls without clipping. */
+@media(max-width:700px) {
+  .page-heading {flex-wrap:wrap; gap:14px;}
+  .page-heading>div {min-width:0;}
+  .panel,.plugin-card,.metric {min-width:0;}
+  .plugin-card h2,.plugin-card p,.panel-note,.field-help {overflow-wrap:anywhere;}
+  .plugin-controls select {flex-basis:100%;}
+  .plugin-controls button {width:100%;}
+  .topbar {height:auto; min-height:70px; gap:12px; padding:14px 18px; flex-wrap:wrap;}
+  .topbar>div {gap:12px; flex-wrap:wrap;}
+  .status-banner {flex-wrap:wrap;}
+  .state-badge {margin-left:0;}
+}
+@media(max-width:640px) {
+  .workspace {flex-direction:column;}
+  .sidebar {width:100%; padding:16px;}
+  .sidebar .brand>span:last-child {display:block;}
+  .sidebar nav {display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:16px;}
+  .sidebar .nav-button {display:flex; justify-content:center; gap:6px; padding:12px 4px; margin:0; font-size:14px; min-width:0;}
+  .sidebar .nav-button span {display:inline; font-size:12px;}
+  .sidebar .nav-button .nav-count {display:none;}
+  .content {padding:24px 16px;}
+  .content-shell {width:100%;}
+  .log-meta {flex-wrap:wrap; gap:8px;}
+  .plugin-card footer {flex-wrap:wrap;}
+  .info-list>div {flex-wrap:wrap;}
+  .info-list dd {max-width:100%;}
+  .theme-choice select,input:not([type=file]),.connection-form select,.plugin-scope select,.plugin-controls select,.plugin-filter-label select,.ai-form select,.ai-form textarea,.log-toolbar select,.backup-create select,.backup-filter select,.backup-pagination select,.plugin-pagination select {font-size:16px;}
+  .secondary,.text-button {min-height:44px;}
+  dialog {width:calc(100vw - 24px); padding:18px;}
+}

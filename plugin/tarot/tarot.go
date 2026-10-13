@@ -4,10 +4,12 @@ package tarot
 import (
 	"encoding/json"
 	"math/rand"
+	"net/http"
 	"os"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FloatTech/floatbox/binary"
 	fcext "github.com/FloatTech/floatbox/ctxext"
@@ -443,16 +445,21 @@ func (draws drawResults) analyze(question, formationName string, temperature flo
 		build.WriteString(draw.Description)
 		build.WriteByte('\n')
 	}
-	topp, maxn := chat.AC.MParams()
-	mod, err := chat.AC.Type.Protocol(chat.AC.ModelName, temperature, topp, maxn, chat.AC.ReasoningEffort)
+	cfg, err := chat.CurrentConfig()
+	if err != nil {
+		return "", errors.New("读取 AI 配置失败")
+	}
+	topp, maxn := cfg.MParams()
+	mod, err := cfg.Type.Protocol(cfg.ModelName, temperature, topp, maxn, cfg.ReasoningEffort, cfg.Separator)
 	if err != nil {
 		return "", errors.Wrap(err, "创建 AI 模型协议失败")
 	}
 
-	api := deepinfra.NewAPI(chat.AC.API, string(chat.AC.Key))
+	api := deepinfra.NewAPI(cfg.API, string(cfg.Key))
+	api.SetHTTPClient(&http.Client{Timeout: 30 * time.Second})
 	data, err := api.Request(mod.User(model.NewContentText(build.String())))
 	if err != nil {
-		return "", errors.Wrap(err, "请求 AI 模型失败")
+		return "", errors.New("请求 AI 模型失败，请检查接口、密钥及网络")
 	}
 	return strings.TrimSpace(data), nil
 }

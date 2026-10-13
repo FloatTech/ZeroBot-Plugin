@@ -1,0 +1,30 @@
+name: PushLint
+on: [ push ]
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@master
+        with:
+          go-version: "^1.26"
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@master
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@master
+        with:
+          version: latest
+          args: --issues-exit-code=0 --timeout=10m
+          install-mode: goinstall
+
+      - name: Commit back
+        continue-on-error: true
+        run: |
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          git commit -m "🎨 改进代码样式"
+          git push

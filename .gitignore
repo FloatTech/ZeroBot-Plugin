@@ -10,3 +10,13 @@ ZeroBot-Plugin*
 *.syso
 /.direnv
 /result
+
+# Local Windows builds, credentials, logs and isolated runtime data.
+/.local/
+/plugin/*/data/
+/third_party/**/data/
+/internal/**/data/
+/kanban/data/
+
+# Local conversation notes are not part of usage/development documentation.
+/docs/local-notes/

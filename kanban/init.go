@@ -3,9 +3,7 @@ package kanban
 
 import (
 	"fmt"
-
-	"github.com/FloatTech/zbputils/control"
-	"github.com/fumiama/go-registry"
+	"time"
 
 	"github.com/FloatTech/ZeroBot-Plugin/kanban/banner"
 )
@@ -15,8 +13,6 @@ import (
 func init() {
 	PrintBanner()
 }
-
-var reg = registry.NewRegReader("reilia.fumiama.top:32664", control.Md5File, "fumiama")
 
 // PrintBanner ...
 func PrintBanner() {
@@ -31,14 +27,9 @@ func PrintBanner() {
 
 // Kanban ...
 func Kanban() string {
-	err := reg.Connect()
+	text, err := fetchKanban("reilia.fumiama.top:32664", 5*time.Second)
 	if err != nil {
-		return err.Error()
-	}
-	defer reg.Close()
-	text, err := reg.Get("ZeroBot-Plugin/kanban")
-	if err != nil {
-		return err.Error()
+		return "公告暂不可用: " + err.Error()
 	}
 	return text
 }

@@ -1,0 +1,159 @@
+actions:
+  end_action:
+    desc: 结束或暂停任务
+    params: "-"
+    data: "-"
+  save_memory:
+    desc: 持久化记忆
+    params: text 简明扼要地用一句话概括你认为在该会话必须记住的一件事，禁止换行 (string)
+    data: "-"
+  send_private_msg:
+    desc: 发送私聊消息
+    params: user_id 对方QQ号；message 要发送的内容 (json.RawMessage)
+    data: message_id 消息ID (number)
+  send_group_msg:
+    desc: 发送群消息
+    params: group_id 群号；message 要发送的内容 (json.RawMessage)
+    data: message_id 消息ID (number)
+  delete_msg:
+    desc: 撤回消息
+    params: message_id 消息ID
+    data: "-"
+  send_like:
+    desc: 发送好友赞
+    params: user_id 对方QQ号；times 赞的次数，每个好友每天最多10次 (number)
+    data: "-"
+  set_msg_emoji_like:
+    desc: 发送表情回应
+    params: message_id 消息ID；emoji_id 表情 ID
+    data: "-"
+  set_group_kick:
+    desc: 群组踢人
+    params: group_id 群号；user_id 要踢的QQ号；reject_add_request 拒绝此人的加群请求 (boolean)
+    data: "-"
+  set_group_ban:
+    desc: 群组单人禁言
+    params: group_id 群号；user_id 要禁言的QQ号；duration 禁言时长（秒），0表示取消禁言
+    data: "-"
+  set_group_whole_ban:
+    desc: 群组全员禁言
+    params: group_id 群号；enable 是否禁言 (boolean)
+    data: "-"
+  set_group_admin:
+    desc: 群组设置管理员
+    params: group_id 群号；user_id 要设置管理员的QQ号；enable true为设置，false为取消
+    data: "-"
+  set_group_card:
+    desc: 设置群名片
+    params: group_id 群号；user_id 要设置的QQ号；card 群名片内容，不填或空字符串表示删除群名片
+    data: "-"
+  set_group_name:
+    desc: 设置群名
+    params: group_id 群号；group_name 新群名
+    data: "-"
+  set_group_leave:
+    desc: 退出群组
+    params: group_id 群号；is_dismiss 是否解散 (boolean)
+    data: "-"
+  set_group_special_title:
+    desc: 设置群组专属头衔
+    params: group_id 群号；user_id 要设置的QQ号；special_title 专属头衔，不填或空字符串表示删除；duration 专属头衔有效期（秒），-1表示永久
+    data: "-"
+  set_friend_add_request:
+    desc: 处理加好友请求
+    params: flag 加好友请求的flag (string)；approve 是否同意请求 (boolean)；remark 添加后的好友备注（仅同意时有效）
+    data: "-"
+  set_group_add_request:
+    desc: 处理加群请求/邀请
+    params: flag 加群请求的flag (string)；sub_type/type add或invite 请求类型（需与上报一致）；approve 是否同意请求/邀请 (boolean)；reason 拒绝理由（仅拒绝时有效）
+    data: "-"
+  get_msg:
+    desc: 获取消息
+    params: message_id 消息ID (number)
+    data: time 发送时间 (number)；message_type 消息类型 (string)；sender 发送人信息 (*User)；message 消息内容 (json.RawMessage)
+  get_forward_msg:
+    desc: 获取合并转发消息
+    params: id 合并转发ID (string)
+    data: message 消息内容 (json.RawMessage)
+  get_stranger_info:
+    desc: 获取陌生人信息
+    params: user_id QQ号 (number)；no_cache 是否不使用缓存 (boolean)
+    data: "User"
+  #get_friend_list:
+  #  desc: 获取好友列表
+  #  params: "-"
+  #  data: "[]User"
+  get_group_info:
+    desc: 获取群信息
+    params: group_id 群号 (number)；no_cache 是否不使用缓存 (boolean)
+    data: group_id 群号 (number)；group_name 群名称 (string)；member_count 成员数 (number)；max_member_count 最大成员数 (number)
+  #get_group_list:
+  #  desc: 获取群列表
+  #  params: "-"
+  #  data: "[]群信息"
+  get_group_member_info:
+    desc: 获取群成员信息
+    params: group_id 群号 (number)；user_id QQ号 (number)；no_cache 是否不使用缓存 (boolean)
+    data: "User"
+  #get_group_member_list:
+  #  desc: 获取群成员列表
+  #  params: group_id 群号 (number)
+  #  data: "[]User"
+config:
+  owner:
+    - end_action
+    - save_memory
+    - send_private_msg
+    - send_group_msg
+    - delete_msg
+    - send_like
+    - set_msg_emoji_like
+    - set_group_kick
+    - set_group_ban
+    - set_group_whole_ban
+    - set_group_admin
+    - set_group_card
+    - set_group_name
+    - set_group_leave
+    - set_group_special_title
+    - set_friend_add_request
+    - set_group_add_request
+    - get_msg
+    - get_forward_msg
+    - get_stranger_info
+    #- get_friend_list
+    - get_group_info
+    #- get_group_list
+    - get_group_member_info
+    #- get_group_member_list
+  admin: # need to check if gid is the same as admin's gid
+    - end_action
+    - save_memory
+    - send_group_msg
+    - delete_msg
+    - send_like
+    - set_msg_emoji_like
+    - set_group_kick
+    - set_group_ban
+    - set_group_whole_ban
+    - set_group_card
+    - set_group_name
+    - set_group_special_title
+    - get_msg
+    - get_forward_msg
+    - get_stranger_info
+    - get_group_info
+    - get_group_member_info
+    #- get_group_member_list
+  user: # need to check if gid is the same as user's gid
+    - end_action
+    - save_memory
+    - send_group_msg
+    - send_like
+    - set_msg_emoji_like
+    - get_msg
+    - get_forward_msg
+    - get_stranger_info
+    - get_group_info
+    - get_group_member_info
+    #- get_group_member_list
