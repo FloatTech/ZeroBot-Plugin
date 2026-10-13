@@ -77,7 +77,13 @@ func (c *Clock) RegisterTimer(ts *Timer, save, isinit bool) bool {
 		if isinit {
 			process.GlobalInitMutex.Unlock()
 		}
-		eid, err := c.cron.AddFunc(ts.Cron, func() { ts.sendmsg(ts.GrpID, ctx) })
+		eid, err := c.cron.AddFunc(ts.Cron, func() {
+			bot := ctx
+			if ts.SelfID != 0 {
+				bot = zero.GetBot(ts.SelfID)
+			}
+			ts.sendmsg(ts.GrpID, bot)
+		})
 		if err == nil {
 			c.entmu.Lock()
 			c.entries[key] = eid
