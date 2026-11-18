@@ -1225,6 +1225,32 @@ print("run[CQ:image,file="+j["img"]+"]")
 
 </details>
 <details>
+  <summary>Pixiv图片搜索</summary>
+
+  `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/pixiv"`
+
+  - [x] [x张]涩图 [关键词]
+  
+  - [x] 每日涩图
+  
+  - [x] [x张]画师[画师的uid]
+  
+  - [x] p站搜图[插画pid]
+  
+  - [x] 设置p站token [token] (仅私聊，超级用户)
+  
+  - [x] 授权此处使用p站18 (仅超级用户)
+  
+  - [x] 设置pixiv代理 [http://127.0.0.1:7890] (仅私聊，超级用户)
+  
+  - [x] 查看pixiv代理 (仅私聊，超级用户)
+  
+  - [x] 清除pixiv代理 (仅私聊，超级用户)
+  
+  - 注：[]不用打出来这只是一个占位符，可添加多个关键词每个关键词用空格隔开，默认不发R-18如果要发就加一个R-18关键词
+
+</details>
+<details>
   <summary>抽扑克</summary>
   
   `import _ "github.com/FloatTech/ZeroBot-Plugin/plugin/poker"`
